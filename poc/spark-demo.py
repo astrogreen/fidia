@@ -1,3 +1,6 @@
+#__author__ = 'lharischandra'
+
+
 """
 Demonstrator web application showing a web interface to Spark for querying GAMA data.
 
@@ -5,24 +8,29 @@ Demonstrator web application showing a web interface to Spark for querying GAMA 
 
 """
 
-import os, sys
+import os
+import sys
 
 # Imports for the web application
 from bottle import route, request, default_app, static_file
 
-import HTML
+from poc import HTML
+
+import traceback
 
 # Imports for Spark
 
 # Add the PySpark packages to the module search path:
 sys.path.extend(
-    ['/opt/cloudera/parcels/CDH-5.4.2-1.cdh5.4.2.p0.2/lib/spark/python/lib/py4j-0.8.2.1-src.zip',
-     '/opt/cloudera/parcels/CDH-5.4.2-1.cdh5.4.2.p0.2/lib/spark/python'])
+    ['/Users/lharischandra/Code/spark-test/spark/python/lib/py4j-0.8.2.1-src.zip',
+     '/Users/lharischandra/Code/spark-test/spark/python'])
 
 import pyspark
 import pyspark.sql.types as sparktypes
-from pyspark.sql import SQLContext
+from pyspark.sql import SQLContext, HiveContext
 
+#
+os.environ["SPARK_HOME"] = '/Users/lharischandra/Code/spark-test/spark'
 # This defines the application for WSGI purposes.
 application = default_app()
 
@@ -77,11 +85,30 @@ def schema():
 
     return html
 
+@route('/hive-query')
+def hive_query():
+    #Return hive query results
+    query_s = request.GET.get('hive-query', '').strip()
+
+    if query_s == '':
+        return "<p>No query given</p>"
+
+    hive_ctx = get_spark().hivecontext
+    query_rd = hive_ctx.sql(query_s)
+
+    return query_rd
+
+@route('/parquet-query')
+def parquet_query():
+    #Do a hive query
+    query_s = request.GET.get('parquet-query', '').strip()
+    sqlCtx = get_spark().sqlcontext
+
 @route('/query')
 def query():
     """Return the results from Spark of the given query.
 
-    This is where the main query work is done. 
+    This is where the main query work is done.
 
     "Arguments" are taken as part of the HTTP GET request:
 
@@ -175,9 +202,10 @@ class Spark(object):
 
     def __init__(self):
         # Load the Spark Connection and contexts:
-        self.spark_conf = pyspark.SparkConf().setAppName("atest").setMaster("local")
+        self.spark_conf = pyspark.SparkConf().setAppName("local_dev_test").setMaster("local")
         self.spark_context = pyspark.SparkContext(conf=self.spark_conf)
         self.sqlcontext = SQLContext(self.spark_context)
+        self.hivecontext = HiveContext(self.spark_context)
 
 
         try:
@@ -186,10 +214,12 @@ class Spark(object):
             for table in self.known_tables:
                 self.load_spark_table(table)
         except:
+            tb = traceback.format_exc()
+            print tb
             self.spark_context.stop()
 
 
-    
+
 
     def load_spark_table(self, table):
         """Load the requested table into a SparkSQL DataFrame for querying.
@@ -242,9 +272,9 @@ class Spark(object):
         self.spark_context.stop()
 
 if __name__ == "__main__":
-    # If the file is run from the command line, then we start the development 
+    # If the file is run from the command line, then we start the development
     # web server on the localhost at port 8000, and serve requests.
     from bottle import run, debug
     debug(True)
-    run(reloader=False, host='0.0.0.0', port=8102)
+    run(reloader=False, host='0.0.0.0', port=8101)
     get_spark().stop()

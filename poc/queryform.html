@@ -1,0 +1,62 @@
+<html>
+<head>
+<style>
+#header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+#form_section {
+    width:90%;
+    padding:10px;
+}
+#menubar {
+    line-height:30px;
+    width:10%;
+    height:100%;
+    float:left;
+    padding:5px;
+    background-color:#eeeeee;
+}
+</style>
+</head>
+<body>
+<div id="header">
+    <h1>ASVO AAT Node</h1>
+</div>
+<div id="menubar">
+    <a href="/hive-page" target="_blank">Hive</a>
+</div>
+<div id="form_section">
+<form action="query" method="get">
+<p>
+General Query
+</p>
+<p>
+<textarea name="query" rows=10 cols=120>
+</textarea>
+</p>
+<p>
+<a href="/schema">Schema Browser</a>
+</p>
+<p>
+<input type="submit">
+</p>
+</form>
+
+<form action="hive-query" method="get">
+<p>
+Hive Query
+</p>
+<p>
+<textarea name="hive-query" rows=5 cols=50>
+</textarea>
+</p>
+<p>
+<input type="submit">
+</p>
+</form>
+</div>
+</body>
+</html>
