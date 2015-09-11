@@ -18,6 +18,6 @@ from django.contrib import admin
 
 
 urlpatterns = [
-    url(r'^$', include('aatnode.urls')),
+    url(r'^asvo/', include('aatnode.urls', namespace='aatnode')),
     url(r'^admin/', include(admin.site.urls)),
 ]
