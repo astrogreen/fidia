@@ -1,4 +1,5 @@
 from django.test import TestCase
+from astrospark import mediator
 
 # Let's just write query related test cases here and see how it goes
 
@@ -20,3 +21,14 @@ class QueryViewTests(TestCase):
 
         response = self.client.post('/asvo/query/', {'query': 'select all from table1'})
         self.assertEqual(response.status_code, 302)
+
+
+    # TODO: This method should be moved elsewhere later
+    def test_querys_spark(self):
+        result = mediator.execute_query('select ra, dec from ltspecall limit 10')
+        print('query executed')
+        self.assertIsNotNone(result)
+        print(result.printSchema())
+        print(result.show())
+        mediator.stop_spark()
+        print('context stopped')

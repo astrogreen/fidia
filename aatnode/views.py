@@ -29,6 +29,11 @@ class QueryView(generic.FormView):
 """def index(request):
     return HttpResponse("Hello world. You're at the ASVO AAT NODE")"""
 
+class QueryResultsView(generic.TemplateView):
+    template_name = 'aatnode/queryresults.html'
+
+    # TODO: This is a redirect page. Soooo how to feed the data to this?
+
 
 def querys(request):
     """
