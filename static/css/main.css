@@ -1,0 +1,7 @@
+.form-group{
+    margin-bottom:15px;
+    position:relative;
+    min-height:1px;
+    overflow:auto; /*stops form-group collapsing (height=0) because content is all floats*/
+    width:100%
+    }

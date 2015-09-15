@@ -1,0 +1,24 @@
+{% extends 'base/base.html' %}
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block title %} Home {% endblock %}
+{% block wrapper %}
+<div class="container">
+  <div class="jumbotron">
+    <h1>Landing page</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pretium lacus quis sapien ultricies tempor. In malesuada ex eget purus elementum, ut interdum eros ornare. Cras eu dapibus metus. Phasellus nec eros cursus, malesuada ligula vel, aliquam massa.</p>
+    <p>To query the db... go here</p>
+    <p>
+      <a class="btn btn-lg btn-primary" href="query" role="button">View Query Form</a>
+    </p>
+  </div>
+</div> <!-- /container -->
+{% endblock %}
