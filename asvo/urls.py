@@ -21,9 +21,9 @@ urlpatterns = [
     url(r'^asvo/', include('aatnode.urls', namespace='aatnode')),
     url(r'^admin/', include(admin.site.urls)),
     # url(r'^ajax/custom-chained-view-url/$', AjaxChainedView.as_view(), name='ajax_chained_view'),
-    url(r'^ajax/chained-columns/$', AjaxChainedColumns.as_view(), name='ajax_chained_columns'),
-    url(r'^$', IndexView.as_view(), name='index'),
-    url(r'^query/$', queryForm.as_view(), name='queryForm'),
+    #url(r'^ajax/chained-columns/$', AjaxChainedColumns.as_view(), name='ajax_chained_columns'),
+    #url(r'^$', IndexView.as_view(), name='index'),
+    #url(r'^query/$', queryForm.as_view(), name='queryForm'),
     # url(r'^$',homePage, name='homePage'),
     # url(r'^query/$', newForm),
 ]

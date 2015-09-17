@@ -1,14 +1,18 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
-from .forms import QueryForm
+from .forms import QueryForm, ReturnColumns
 from django.core.urlresolvers import reverse_lazy
+
+from clever_selects.views import ChainedSelectChoicesView
+from .helpers import COLUMNS
+
 
 # Create your views here.
 
 
 class IndexView(generic.TemplateView):
-    template_name = 'aatnode/index.html'
+    template_name = 'aatnode/homePage/home.html'
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
@@ -24,6 +28,51 @@ class QueryView(generic.FormView):
     def form_valid(self, form):
         form.execute()
         return super(QueryView, self).form_valid(form)
+
+
+class QueryForm(generic.View):
+    form_class = ReturnColumns
+    template_name = 'aatnode/form1/queryForm.html'
+    initial = {'key': 'value'}
+    #success_url = reverse_lazy('aatnode:query')
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class(initial=self.initial)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # <process form cleaned data>
+            print(request.POST)
+            print(form.cleaned_data)
+            return render(request, 'aatnode/form1/queryForm.html', {
+                'form': form,
+                'message': (request.POST['cat'],request.POST.getlist('columns'),request.POST['tableType']),
+                # 'error_message': "You didn't select a choice.",
+            })
+        else:
+            return render(request, 'aatnode/form1/queryForm.html', {
+                'form': form,
+                'message': '',
+                'error_message': 'INVALID FORM',
+            })
+
+
+
+class AjaxChainedColumns(ChainedSelectChoicesView):
+    def get_choices(self):
+        choices = []
+        try:
+            cat_columns = COLUMNS[self.parent_value]
+            for columns in cat_columns:
+                choices.append((columns, columns))
+        except KeyError:
+            return []
+        return choices
+
+
+
 
 
 """def index(request):

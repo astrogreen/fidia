@@ -91,6 +91,13 @@ DATABASES = {
     }
 }
 
+# spark
+SPARK_HOME = '/Users/lharischandra/Code/spark-test/spark'
+
+SPARK_PATH = ['/Users/lharischandra/Code/spark-test/spark/python/lib/py4j-0.8.2.1-src.zip',
+              '/Users/lharischandra/Code/spark-test/spark/python']
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
