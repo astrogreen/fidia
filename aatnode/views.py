@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse_lazy
 from clever_selects.views import ChainedSelectChoicesView
 from .helpers import COLUMNS
 
+from astrospark import mediator
+
 
 # Create your views here.
 
@@ -46,9 +48,14 @@ class QueryForm(generic.View):
             # <process form cleaned data>
             print(request.POST)
             print(form.cleaned_data)
+            # We need to create the query here from POST data. Is this the best way to do that?
+            query = 'Select ' + ', '.join(request.POST.getlist('columns')) + ' from ' + request.POST['cat']
+
+            qresults = mediator.execute_query(query)
+
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
-                'message': (request.POST['cat'],request.POST.getlist('columns'),request.POST['tableType']),
+                'message': qresults.collect(),
                 # 'error_message': "You didn't select a choice.",
             })
         else:
