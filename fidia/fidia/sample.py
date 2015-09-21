@@ -1,6 +1,19 @@
 """
 Samples are the primary interface to data in FIDIA.
 
+
+Samples have a concept of what objects they contain (may or may not be all of
+the objects offered by a particular archive.)
+
+Samples know which archives contain data for a given object, and what kinds of
+data are offered:
+
+For exmaple, a survey might mantain a dictionary of properties as keys with
+values as the corresponding archive which contains their values.
+
+Samples also allow for tabular access to the data. Data filtering is achieved
+by creating new (sub) sample. 
+
 """
 
 import collections
