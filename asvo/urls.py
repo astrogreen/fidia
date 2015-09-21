@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from queryForm.views import IndexView,  AjaxChainedColumns, queryForm
 
 urlpatterns = [
     url(r'^asvo/', include('aatnode.urls', namespace='aatnode')),

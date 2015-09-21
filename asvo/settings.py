@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     'astrospark',
     'bootstrap3',
     'clever_selects',
-    'queryForm',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -55,7 +54,8 @@ ROOT_URLCONF = 'asvo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates').replace('\\','/'),],
+        'DIRS': [os.path.join(BASE_DIR, 'aatnode/templates/aatnode/').replace('\\','/'),],
+        # 'DIRS': [os.path.join(BASE_DIR, 'templates').replace('\\','/'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,10 +92,9 @@ DATABASES = {
 }
 
 # spark
-SPARK_HOME = '/Users/lharischandra/Code/spark-test/spark'
+SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
 
-SPARK_PATH = ['/Users/lharischandra/Code/spark-test/spark/python/lib/py4j-0.8.2.1-src.zip',
-              '/Users/lharischandra/Code/spark-test/spark/python']
+SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 
 
 # Internationalization
