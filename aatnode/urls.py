@@ -3,6 +3,8 @@ from django.conf.urls import url
 
 from . import views
 
+
+# Map urls to views
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
     #url(r'^query/$', views.QueryView.as_view(), name='query'),
