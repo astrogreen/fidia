@@ -49,7 +49,7 @@ class QueryForm(generic.View):
             print(request.POST)
             print(form.cleaned_data)
             # We need to create the query here from POST data. Is this the best way to do that?
-            query = 'Select ' + ', '.join(request.POST.getlist('columns')) + ' from ' + request.POST['cat']
+            query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
 
             qresults = mediator.execute_query(query)
 
