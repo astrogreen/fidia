@@ -8,6 +8,12 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
+
+NOTE: This file contains generic settings for use e.g. on the production
+server. If you want to override any settings here e.g. for your local copy,
+create a new (unversioned) file "custom_settings.py" in this directory and
+put the overrides there. They are loaded at the end of this file.
+
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -111,3 +117,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+try:
+    from .custom_settings import *
+except ImportError:
+    pass
