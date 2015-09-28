@@ -2,9 +2,12 @@ __author__ = 'lharischandra'
 from django.apps import apps
 # Do spark related stuff here
 
+import asvo_spark
+
+
 appconf = apps.get_app_config('astrospark')
-sc = appconf.get_spark_context()
-hive_ctx = appconf.get_hive_context()
+sc = asvo_spark.spark_context
+hive_ctx = asvo_spark.hive_context
 
 def execute_query(query):
     """
@@ -19,7 +22,7 @@ def stop_spark():
     """
     Stops spark context properly
     """
-    appconf.stop_spark()
+    asvo_spark.stop_spark()
     print('Spark stopped properly')
 
 
