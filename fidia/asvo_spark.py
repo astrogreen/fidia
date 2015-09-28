@@ -28,9 +28,9 @@ except KeyError:
     os.environ["SPARK_HOME"] = SPARK_HOME
 
 try:
-    PYSPARK_PATH = os.environ["PYSPARK_PATH"]
+    PYSPARK_PATH = os.environ["PYSPARK_PATH"].split(":")
 except KeyError:
-    PYSPARK_PATH = ["/Users/agreen/Documents/ASVO/software/spark/spark-1.5.0-bin-hadoop2.6/python"]
+    os.environ["PYSPARK_PATH"] = ":".join(PYSPARK_PATH)
 
 
 sys.path.extend(PYSPARK_PATH)
