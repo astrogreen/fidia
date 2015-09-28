@@ -1,0 +1,128 @@
+{% extends 'base/base.html' %}
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block title %} Query Form {% endblock %}
+{% block wrapper %}
+
+    <div class="container">
+        <div class="row">
+            <h2>Query</h2>
+            <div class="col-sm-12">
+                <div class="form-container">
+                <h4>Selection Criteria</h4>
+                <form action="" method="post" class="form" role="form">
+                    {% csrf_token %}
+                    <!--{% bootstrap_form form layout="horizontal" %}-->
+                    <!--{% buttons submit='Submit' reset='Reset' layout='horizontal' %}{% endbuttons %}-->
+                    <div id="returnWrapper">
+                        <div class="form-group">
+                            <label for="cat" class="col-sm-1 control-label">Return</label>
+                            <div id="return-fields" class="col-sm-11">
+                                <div id="cloned-input1" class="cloned-input">
+                                    <div class="col-sm-5">
+                                        {% bootstrap_field form.cat_1 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-5">
+                                        {% bootstrap_field form.columns_1 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span class="input-group-btn">
+                                          <button type="button" class="btn btn-success add-field">
+                                              <span class="glyphicon glyphicon-plus"></span>
+                                          </button>
+                                      </span>
+                                        <!--<a href="#" class="btn-new add-field"><i class="fa fa-plus-square-o"></i></a>-->
+                                    </div>
+                                </div>
+
+                                <div id="cloned-input2" class="cloned-input">
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.cat_2 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.columns_2 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span class="input-group-btn">
+                                          <button type="button" class="btn btn-danger remove-field">
+                                              <span class="glyphicon glyphicon-minus"></span>
+                                          </button>
+                                      </span>
+                                    </div>
+                                </div>
+                                <div id="cloned-input3" class="cloned-input">
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.cat_3 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.columns_3 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span class="input-group-btn">
+                                          <button type="button" class="btn btn-danger remove-field">
+                                              <span class="glyphicon glyphicon-minus"></span>
+                                          </button>
+                                      </span>
+                                    </div>
+                                </div>
+                                <div id="cloned-input4" class="cloned-input">
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.cat_4 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.columns_4 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span class="input-group-btn">
+                                          <button type="button" class="btn btn-danger remove-field">
+                                              <span class="glyphicon glyphicon-minus"></span>
+                                          </button>
+                                      </span>
+                                    </div>
+                                </div>
+                                <div id="cloned-input5" class="cloned-input">
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.cat_5 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-5">
+                                         {% bootstrap_field form.columns_5 show_label=False %}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span class="input-group-btn">
+                                          <button type="button" class="btn btn-danger remove-field">
+                                              <span class="glyphicon glyphicon-minus"></span>
+                                          </button>
+                                      </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-1 control-label"><button class="btn pull-right" type="reset">Reset</button></div>
+                        <div class="col-sm-11" style="padding-right:30px"><button class="btn pull-right" type="submit">Submit</button></div>
+                    </div>
+                </form>
+                </div>
+            </div>
+            <div class=" col-sm-12">
+                <h4>Result</h4>
+                <div class="well well-sm">
+                 {% if message %}<p>{{ message }}</p>{% endif %}<br>
+                </div>
+                <h4>Error</h4>
+                <div class="well well-sm">
+                 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}<br>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,3 +1,6 @@
 
 # Ignore patterns for Python code:
 *.pyc
+.idea
+db.sqlite3
+*.iml
