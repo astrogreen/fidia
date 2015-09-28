@@ -7,8 +7,8 @@ from django.core.urlresolvers import reverse_lazy
 from clever_selects.views import ChainedSelectChoicesView
 from .helpers import COLUMNS
 
-from astrospark import mediator
 
+from fidia.archive.asvo_spark import AsvoSparkArchive
 
 # Create your views here.
 
@@ -51,11 +51,11 @@ class QueryForm(generic.View):
             # We need to create the query here from POST data. Is this the best way to do that?
             query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
 
-            qresults = mediator.execute_query(query)
+            sample = AsvoSparkArchive().new_sample_from_query(query)
 
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
-                'message': qresults.collect(),
+                'message': sample.tabular_data().to_csv(),
                 # 'error_message': "You didn't select a choice.",
             })
         else:
