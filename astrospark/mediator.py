@@ -28,3 +28,6 @@ def get_column_names(table):
     Returns the names of the table
     """
     return hive_ctx.table(table).columns
+
+def get_tables():
+    return hive_ctx.tableNames()

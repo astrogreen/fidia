@@ -1,14 +1,12 @@
 from astrospark import mediator
 
-CAT_G3CGALSINPAIR = 'G3CGalsInPair'
-CAT_STELLARMASSES = 'StellarMasses'
-CAT = (
-    (CAT_G3CGALSINPAIR, 'G3CGalsInPair'),
-    (CAT_STELLARMASSES, 'StellarMasses')
-)
+CAT = ()
 
-COLUMNS = {
-    CAT_G3CGALSINPAIR: mediator.get_column_names(CAT_G3CGALSINPAIR),
-    CAT_STELLARMASSES: mediator.get_column_names(CAT_STELLARMASSES)
-}
+COLUMNS = {}
 
+tblnames = mediator.get_tables()
+
+for table in tblnames:
+    if not table == 'tilingcat': # There's problem with this table in hadoop
+        CAT += ((table, table),)
+        COLUMNS.update({table: mediator.get_column_names(table)})
