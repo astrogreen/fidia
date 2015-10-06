@@ -26,8 +26,9 @@ $(document).ready(function() {
             },
             function(j) {
                 var options = '';
+                //commenting this out removes the default option ------ problem with the choicefield
 //                if(j.length > 1) {
-                    options += '<option value="">' + empty_label + '</option>';
+//                    options += '<option value="">' + empty_label + '</option>';
 //                }
                 for (var i = 0; i < j.length; i++) {
                     options += '<option value="' + j[i][0] + '">' + j[i][1] + '</option>';
@@ -53,6 +54,20 @@ $(document).ready(function() {
 
     $('.chained-parent-field').change(function() {
         $(this).loadAllChainedChoices();
+        //Build multiselect once ajax successful using sent <options>
+        ID=$(this).attr('chained_ids');
+
+        $('#'+ID).multiselect({      //using multiselect
+            includeSelectAllOption: true,
+            maxHeight: 200,
+            numberDisplayed: 20,
+            nonSelectedText: 'Select Columns'
+        });                                            //rebuild the multiselect to reflect new data when the parent
+        $('#'+ID).on("change", function(){//chained select is changed
+            $('#'+ID).multiselect('rebuild');
+        });
+
+
     });
 //    }).change();  // Use change only if really necessary. Be aware of using it in POST requests!
 });

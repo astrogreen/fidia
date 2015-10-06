@@ -19,20 +19,22 @@ class QueryForm(forms.Form):
         df = mediator.execute_query(q)
 
 
-class ReturnColumns(ChainedChoicesForm):
+class ReturnQuery(ChainedChoicesForm):
+    #create fields hidden on client side
+    hiddenFields=10
+    form_fields_as_list=[]
+    for x in range(hiddenFields):
+        exec("cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'Select catalogue'))] + list(CAT), label='Table',required=False)")
+        # exec("columns_" +str(x) + " = ChainedChoiceFieldMultiple(parent_field='cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), empty_label=_(u'Select Columns'), label='Columns', required=False)")
+        exec("columns_" +str(x) + " = ChainedChoiceFieldMultiple(parent_field='cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), label='Columns', required=False)")
+        form_fields_as_list.append('cat_'+str(x))
+
+    tableType=forms.ChoiceField(choices=[('CSV','CSV'),('FITS','FITS'),('ASCII','ASCII')], label="Table Format")
+
     def __init__(self, *args, **kwargs):
-        super(ReturnColumns, self).__init__(*args, **kwargs)
+        super(ReturnQuery, self).__init__(*args, **kwargs)
 
         for key in self.fields:
             self.fields[key].required = False
-    # cat = forms.ChoiceField(choices=[('', _(u'Select a cat'))] + list(CAT), label='Table')
-    # columns = ChainedChoiceFieldMultiple(parent_field='cat', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), empty_label=_(u'Select column'), label='Columns')
-    #create fields hidden on client side
-    for x in range(1,11):
-        exec("cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'Select a cat'))] + list(CAT), label='Table',required=False)")
-        exec("columns_" +str(x) + " = ChainedChoiceFieldMultiple(parent_field='cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), empty_label=_(u'Select column'), label='Columns', required=False)")
 
-    # tableType=forms.ChoiceField(choices=[('CSV','CSV'),('FITS','FITS'),('ASCII','ASCII')], label="Table Format")
-    # testSurvey=forms.ChoiceField(choices=[('Survey','Survey')], label='Survey')
-    # testCat=forms.ChoiceField(choices=[('test-CAT','test-CAT')], label='Catalogue')
-    # testColumns=forms.MultipleChoiceField(choices=[('test-CAT-COLS','test-CAT-COLS')], label='Columns')
+#TODO allow for return and filter fields (i.e, move cat_1 etc to returnCat)
