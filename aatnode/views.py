@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
-from .forms import QueryForm, ReturnColumns
+from .forms import QueryForm, ReturnQuery
 from django.core.urlresolvers import reverse_lazy
 
 from clever_selects.views import ChainedSelectChoicesView
@@ -33,14 +33,15 @@ class QueryView(generic.FormView):
 
 
 class QueryForm(generic.View):
-    form_class = ReturnColumns
+    form_class = ReturnQuery
     template_name = 'aatnode/form1/queryForm.html'
     initial = {'key': 'value'}
     #success_url = reverse_lazy('aatnode:query')
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form})
+
+        return render(request, self.template_name, {'form': form, 'hiddenFields':ReturnQuery.hiddenFields, 'form_fields_as_list':ReturnQuery.form_fields_as_list})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)

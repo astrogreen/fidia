@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'astrospark',
     'bootstrap3',
     'clever_selects',
+    'mathfilters',
 )
 
 MIDDLEWARE_CLASSES = (
