@@ -40,8 +40,38 @@ class QueryForm(generic.View):
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
+        select_fields=[]
+        join_fields=[]
+        filter_fields=[]
+        type_fields=[]
+        form_fields_as_list = list(form)
+        for i in form_fields_as_list:
+            if 'select_cat_' in i.html_name:
+                select_fields.append(i)
+            if 'select_columns_' in i.html_name:
+                select_fields.append(i)
+            if 'joinA_cat_' in i.html_name:
+                join_fields.append(i)
+            if 'joinA_columns_' in i.html_name:
+                join_fields.append(i)
+            if 'joinB_cat_' in i.html_name:
+                join_fields.append(i)
+            if 'joinB_columns_' in i.html_name:
+                join_fields.append(i)
+            if 'filter_cat_' in i.html_name:
+                filter_fields.append(i)
+            if 'filter_columns_' in i.html_name:
+                filter_fields.append(i)
+            if 'filter_checkbox_' in i.html_name:
+                filter_fields.append(i)
+            if 'filter_operators_' in i.html_name:
+                filter_fields.append(i)
+            if 'filter_value_' in i.html_name:
+                filter_fields.append(i)
+            if 'tableType' in i.html_name:
+                type_fields.append(i)
 
-        return render(request, self.template_name, {'form': form, 'hiddenFields':ReturnQuery.hiddenFields, 'form_fields_as_list':ReturnQuery.form_fields_as_list})
+        return render(request, self.template_name, {'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,'joinFieldsCount':ReturnQuery.joinFieldsCount, 'filterFieldsCount':ReturnQuery.filterFieldsCount, 'form_fields_as_list':form_fields_as_list, 'select_fields':select_fields, 'join_fields':join_fields,'filter_fields':filter_fields, 'type_fields':type_fields})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)

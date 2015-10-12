@@ -1,69 +1,93 @@
 //FORM BEHAVIOUR - - - - - - - - - - - -
-//TODO: ADD IN FILTER FIELDS, allow passing of field type (filter, return etc) as class/id
-
-parent='';
-chained=$(this).attr('chained_ids');
-
-function updateForm(cloneIndex){                    //style newly displayed <select multiple>
-    $('#id_columns_'+cloneIndex+' option:contains(--------)').remove();
-
-    $('#id_columns_'+cloneIndex).multiselect({      //using multiselect
-            includeSelectAllOption: true,
-            disableIfEmpty: true,
-            maxHeight: 200,
-            numberDisplayed: 20,
-            nonSelectedText: 'Select Columns'
-     });                                            //rebuild the multiselect to reflect new data when the parent
-    updateHeights();                                //update container height to reflect new styling
-}
-
-//CLONE [HIDE/SHOW FIELDS]
-//TODO: RENAME VARIABLE NAMES WITH SOMETHING MORE RELEVANT - CLONE ISN'T THE BEHAVIOUR OF THE FUNCTION ANYMORE
-var cloneClass='.return-input';                     //set common class for show/hide behaviour to target
-var cloneId = 'return-input';
+//TODO populate FIELDS from backend
+var Fields={                                                        //field-types 'classes' with their corresponding 'columns'
+    "select":["select"],
+    "join":["joinA", "joinB"],
+    "filter":["filter"],
+};
 var plusButton='add-field';
 var minusButton='remove-field';
-var cloneIndex=0;                                   //Reset the index (used to track the number of hidden/displayed fields)
-var totalLength=$(cloneClass).length;               //totalLength == number of total available elements
-$('.remove-field').parents(cloneClass).hide();      //Hide all fields but this one
 
-//ALTER THE FORM HEIGHT BASED ON THE NUMBER OF FIELDS CURRENTLY SHOWN
-function updateHeights(){
-    $('#returnWrapper').height($('#return-fields').height());
+for (var fieldClass in Fields){
+//    console.log(fieldClass);
+    $.each(Fields[fieldClass],function(i, fieldColumns){
+//        console.log(fieldColumns);
+    });
+};
+
+function updateForm(currentFieldType, showHideIndex){               //style newly displayed <select multiple>
+        $('#id_'+currentFieldType+'_columns_'+showHideIndex).multiselect({      //using multiselect
+                includeSelectAllOption: true,
+                disableIfEmpty: true,
+                maxHeight: 200,
+                numberDisplayed: 20,
+                nonSelectedText: 'None'
+        });
+                                                                    //rebuild the multiselect to reflect new data
+    updateHeights();                                                //update container height to reflect new styling
+}
+
+function updateHeights(){                                           //ALTER THE FORM HEIGHT BASED ON SHOWN FIELDS
+    $('#returnWrapper').height($('#select-fields').height()+$('#join-fields').height()+$('#filter-fields').height());
 };
 
 function ShowNewField(){
-    if (cloneIndex >= totalLength -1){
-        $('#maxFieldsModal').modal('show');
-        cloneIndex=0                                //Reset the index if user has clicked the 'plus' button
-    }                                               //more than the allowable number of fields.
-    cloneIndex++;
-    while ($('#'+cloneId + cloneIndex).is(":visible")){
-        cloneIndex++;
-    }
-    $('#'+cloneId + cloneIndex).show();
-    updateForm(cloneIndex);                         //update the form to reflect the multiselects and new height
+    row=$(this).parents("[class*='-input']");                       //find the class of the group (select, filter, join?)
+    for (var fieldClass in Fields){                                 //match it to the expected fields
+        if ($(row).hasClass(fieldClass+'-input')){                  //fieldTypeSelector == join-select (common class)
+            var fieldTypeSelector=fieldClass+'-input';              //specific ID is appended with a number
+            var fieldTotalLength=$('.'+fieldTypeSelector).length;
+
+            var showHideIndex=0;
+            while ($('#'+fieldTypeSelector + showHideIndex).is(":visible")){
+                showHideIndex++;
+            }
+            $('#'+fieldTypeSelector + showHideIndex).show();        //show row with ID = fieldTypeSelector+number
+            if (showHideIndex >= fieldTotalLength ){
+                $('#maxFieldsModal').modal('show');                 //show the modal if greater than allowed number
+            }
+            updateForm(fieldClass, showHideIndex);                  //update the form height if new elements shown/hidden
+        }
+    };
+
 }
-function HideThisField(){                           //Hide the parent div with the cloneClass containing $this
-    $(this).parents(cloneClass).hide();             //button
-    updateHeights();                                //update the form height accordingly
 
-    parent_id=$(this).parents(cloneClass).find('.chained-parent-field').attr('id');
-    chained_id=$(this).parents(cloneClass).find('.chained-parent-field').attr('chained_ids');
+function HideThisField(){
+    $(this).parents("[id*='-input']").hide();                       //hide parent row with matching class (e.g., join-input)
+    updateHeights();                                                //update the form height accordingly
 
-    $('#'+parent_id).val('');
+    parent_id=$(this).parents("[id*='-input']").find('.chained-parent-field').attr('id');
+    chained_id=$(this).parents("[id*='-input']").find('.chained-parent-field').attr('chained_ids');
+
+
+    $('#'+parent_id).val('');                                       //reset the select
     $('#'+chained_id+' option:selected').each(function() {
             $(this).prop('selected', false);
     });
     $('#'+chained_id).multiselect('refresh');
-
-    cloneIndex=0;                                   //iterate up the list again
 }
 
-$('.'+plusButton).on("click", ShowNewField);        //Bind functions to click events on buttons
+$('.'+plusButton).on("click", ShowNewField);                        //Bind functions to click events on buttons
 $('.'+minusButton).on("click", HideThisField);
 //END FORM BEHAVIOUR - - - - - - - - - - -
 
-$( document ).ready(function() {
-    updateForm(cloneIndex);
+$( document ).ready(function() {                                    //FORM INITIAL STATE
+
+    for (var fieldClass in Fields){
+        $('.remove-field').parents('.'+fieldClass+'-input').hide();
+        console.log('.'+fieldClass+'-input');
+        var fieldTotalLength=$('.'+fieldClass+'-input').length;
+
+        $.each(Fields[fieldClass],function(i, fieldColumns){
+            for (j=0; j<fieldTotalLength; j++){
+                $('#id_'+fieldColumns+'_columns_'+j+' option:contains(--------)').remove();
+                updateForm(fieldColumns,0);
+            }
+        });
+
+    };
+
 });
+
+
+//TODO: join appears once two tables selected, pre-populate with table 1 and 2

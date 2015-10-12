@@ -95,9 +95,9 @@ DATABASES = {
 
 # Spark
 
-SPARK_HOME = ''
-
-SPARK_PATH = []
+# spark
+SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
+SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
