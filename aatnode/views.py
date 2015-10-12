@@ -9,6 +9,9 @@ from .helpers import COLUMNS
 
 from astrospark import mediator
 
+# pthon-sql library for building SQL queries in QueryForm.post() 
+# (https://pypi.python.org/pypi/python-sql)
+#import sql
 
 # Create your views here.
 
@@ -79,14 +82,42 @@ class QueryForm(generic.View):
             # <process form cleaned data>
             print(request.POST)
             print(form.cleaned_data)
-            # We need to create the query here from POST data. Is this the best way to do that?
-            query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
 
-            qresults = mediator.execute_query(query)
+
+            # Create the query here from POST data.
+            #
+            # Note: this code will rapidly become complex, and it should be
+            # moved elsewhere. It is here for the moment becaue it is not
+            # clear to me (AWG) where/how we should impliment this in the long
+            # run. It fits here for the demonstrator. It could be incorporated
+            # into FIDIA (and probably at least some of it will be), or it
+            # could be part of a seperate module. A better understanding of
+            # the astropy project "astroquery" is needed.
+
+            # To simplify the creation of the query, which is nominally plain
+            # SQL, this code adopts the python-sql module. Thust we can
+            # programmatically generate our SQL with an existing library.
+
+            # Get the list of tables:
+            catalog_request = {}
+            for key in request.POST.keys():
+                if key.startswith("cat_"):
+                    keyvalue = key[4:]
+                    catalog_request[keyvalue] = ( 
+                        key, 
+                        request.POST.getlist('columns_' + keyvalue))
+
+
+
+
+            # We need to create the query here from POST data. Is this the best way to do that?
+            #query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
+
+            #qresults = mediator.execute_query(query)
 
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
-                'message': qresults.collect(),
+                'message': request.POST.__str__ + "\n" + catalog_request.__str__,
                 # 'error_message': "You didn't select a choice.",
             })
         else:
