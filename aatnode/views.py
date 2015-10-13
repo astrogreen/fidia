@@ -54,6 +54,8 @@ class QueryForm(generic.View):
                 join_fields.append(i)
             if 'joinA_columns_' in i.html_name:
                 join_fields.append(i)
+            if 'join_type_' in i.html_name:
+                join_fields.append(i)
             if 'joinB_cat_' in i.html_name:
                 join_fields.append(i)
             if 'joinB_columns_' in i.html_name:

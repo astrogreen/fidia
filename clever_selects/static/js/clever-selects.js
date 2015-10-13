@@ -58,10 +58,11 @@ $(document).ready(function() {
         ID=$(this).attr('chained_ids');
 
         $('#'+ID).multiselect({      //using multiselect
-            includeSelectAllOption: true,
-            maxHeight: 200,
-            numberDisplayed: 20,
-            nonSelectedText: 'Select Columns'
+                includeSelectAllOption: true,
+                disableIfEmpty: true,
+                maxHeight: 200,
+                numberDisplayed: 20,
+                nonSelectedText: 'Columns'
         });                                            //rebuild the multiselect to reflect new data when the parent
         $('#'+ID).on("change", function(){//chained select is changed
             $('#'+ID).multiselect('rebuild');
