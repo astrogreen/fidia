@@ -28,21 +28,21 @@ class ReturnQuery(ChainedChoicesForm):
     for x in range(selectFieldsCount):
         if x == 0:
             exec("select_cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'Catalogue'))] + list(CAT),required=True)")
-            exec("select_columns_" +str(x) + " = ChainedChoiceFieldMultiple(parent_field='select_cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), label='Columns', required=True)")
+            exec("select_columns_" +str(x) + " = ChainedChoiceFieldMultiple(parent_field='select_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=True)")
         else:
             exec("select_cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'Catalogue'))] + list(CAT),required=False)")
-            exec("select_columns_" +str(x) + " = ChainedChoiceFieldMultiple(parent_field='select_cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), label='Columns', required=False)")
+            exec("select_columns_" +str(x) + " = ChainedChoiceFieldMultiple(parent_field='select_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=False)")
 
     for x in range(joinFieldsCount):
         exec("joinA_cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'Catalogue'))] + list(CAT),required=False)")
-        exec("joinA_columns_" +str(x) + " = ChainedChoiceField(parent_field='joinA_cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), label='Columns', required=False)")
+        exec("joinA_columns_" +str(x) + " = ChainedChoiceField(parent_field='joinA_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=False)")
         exec("join_type_" + str(x)+ " = forms.ChoiceField(choices=[('INNER_JOIN','Inner'),('OUTER_JOIN','Outer'),('LEFT_JOIN','Left'),('RIGHT_JOIN','Right'),('FULL_JOIN','Full')],required=False)")
         exec("joinB_cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'Catalogue'))] + list(CAT),required=False)")
-        exec("joinB_columns_" +str(x) + " = ChainedChoiceField(parent_field='joinB_cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), label='Columns', required=False)")
+        exec("joinB_columns_" +str(x) + " = ChainedChoiceField(parent_field='joinB_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=False)")
 
     for x in range(filterFieldsCount):
         exec("filter_cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'Catalogue'))] + list(CAT),required=False)")
-        exec("filter_columns_" +str(x) + " = ChainedChoiceField(parent_field='filter_cat_"+str(x) +"', ajax_url=reverse_lazy('aatnode:ajax_chained_columns'), label='Columns', required=False)")
+        exec("filter_columns_" +str(x) + " = ChainedChoiceField(parent_field='filter_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=False)")
         exec("filter_checkbox_" +str(x) + " = forms.BooleanField(label='Not',required=False)")
         exec("filter_operators_" + str(x)+ " = forms.ChoiceField(choices=[('EQUALS','='),('LESS_THAN','<'),('LESS_THAN_EQUALS','<='),('GREATER_THAN','>'),('GREATER_THAN_EQUALS','>='),('BETWEEN','BETWEEN'),('LIKE','LIKE'),('NULL','NULL')],required=False)")
         exec("filter_value_" +str(x) + " = forms.CharField(required=False)")
