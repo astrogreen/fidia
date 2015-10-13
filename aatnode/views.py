@@ -49,29 +49,15 @@ class QueryForm(generic.View):
         type_fields=[]
         form_fields_as_list = list(form)
         for i in form_fields_as_list:
-            if 'select_cat_' in i.html_name:
+            if 'select_' in i.html_name:
                 select_fields.append(i)
-            if 'select_columns_' in i.html_name:
-                select_fields.append(i)
-            if 'joinA_cat_' in i.html_name:
+            if 'joinA_' in i.html_name:
                 join_fields.append(i)
-            if 'joinA_columns_' in i.html_name:
+            if 'join_' in i.html_name:
                 join_fields.append(i)
-            if 'join_type_' in i.html_name:
+            if 'joinB_' in i.html_name:
                 join_fields.append(i)
-            if 'joinB_cat_' in i.html_name:
-                join_fields.append(i)
-            if 'joinB_columns_' in i.html_name:
-                join_fields.append(i)
-            if 'filter_cat_' in i.html_name:
-                filter_fields.append(i)
-            if 'filter_columns_' in i.html_name:
-                filter_fields.append(i)
-            if 'filter_checkbox_' in i.html_name:
-                filter_fields.append(i)
-            if 'filter_operators_' in i.html_name:
-                filter_fields.append(i)
-            if 'filter_value_' in i.html_name:
+            if 'filter_' in i.html_name:
                 filter_fields.append(i)
             if 'tableType' in i.html_name:
                 type_fields.append(i)
@@ -110,8 +96,6 @@ class QueryForm(generic.View):
                         request.POST.getlist('columns_' + keyvalue))
 
 
-
-
             # We need to create the query here from POST data. Is this the best way to do that?
             #query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
 
@@ -119,7 +103,7 @@ class QueryForm(generic.View):
 
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
-                'message': request.POST.__str__ + "\n" + catalog_request.__str__,
+                # 'message': request.POST.__str__ + "\n" + catalog_request.__str__,
                 # 'error_message': "You didn't select a choice.",
             })
         else:
@@ -141,8 +125,6 @@ class AjaxChainedColumns(ChainedSelectChoicesView):
         except KeyError:
             return []
         return choices
-
-
 
 
 

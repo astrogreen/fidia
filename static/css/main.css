@@ -9,7 +9,7 @@
     #remove-field{margin-left:15px;}
     .control-label{margin-top:7px;text-align:right;}
 
-    .input-group-btn{width:40px;margin-left:auto; margin-right:0;display:block;margin-top:6px;}
+    /*.input-group-btn{width:40px;margin-left:auto; margin-right:0;display:block;margin-top:1px;}*/
     #selectWrapper, #joinWrapper, #filterWrapper{margin-bottom:30px;}
 
     .turquoise{background-color:#1abc9c;border:solid 3px #1abc9c;}
@@ -30,6 +30,8 @@
         /*overflow:auto prevents form-group collapsing (height=0) because content is all floats*/
         width:100%
     }
+
+
     .form-group .row {margin:0px;}
     /*necessary tweaks to multiselect*/
     #selectWrapper .form-group, #joinWrapper .form-group, #filterWrapper .form-group{

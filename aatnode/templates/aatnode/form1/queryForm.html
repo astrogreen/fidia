@@ -36,7 +36,7 @@
                                             <div id="select-input{{ j }}" class="select-input row">
                                         {% endif %}
                                         {% if i|add:1|divisibleby:2 == True %}
-                                            <div class="col-sm-8 col-xs-2" style="padding:0px">
+                                            <div class="col-sm-8 col-xs-5" style="padding:0px">
                                                 {% bootstrap_field fields show_label=False %}
                                             </div>
 
@@ -46,7 +46,7 @@
                                         </div>
                                         {% endif %}
                                         {% if i|divisibleby:2 == False %}
-                                                <div class="col-sm-offset-0 col-sm-1 col-xs-2">
+                                                <div class="col-sm-offset-0 col-sm-1 col-xs-offset-1 col-xs-1">
                                                     <span class="input-group-btn">
                                                         {% if j == 0 %}
                                                           <button type="button" class="btn btn-xs add-field turquoise-border">
@@ -153,14 +153,14 @@
                                             </div>
                                         {% endif %}
                                         {% if i|add:1|divisibleby:5 == True %}
-                                                <div class="col-sm-3 col-xs-1">
+                                                <div class="col-sm-offset-2 col-sm-1 col-xs-1">
                                                     <span class="input-group-btn">
                                                         {% if j == 0 %}
                                                           <button type="button" class="btn btn-xs add-field lightblue-border">
                                                               <span class="glyphicon glyphicon-plus"></span>
                                                           </button>
                                                         {% else %}
-                                                            <button type="button" class="btn lightblue btn-xs remove-field">
+                                                            <button type="button" class="btn btn-xs remove-field lightblue">
                                                               <span class="glyphicon glyphicon-minus"></span>
                                                           </button>
                                                         {% endif %}
@@ -180,7 +180,7 @@
                             <div id="type-fields" class="col-sm-11">
                                 <div class="row">
                                     {% for fields in type_fields %}
-                                        <div class="col-xs-2">
+                                        <div class="col-sm-3 col-xs-4">
                                             {% bootstrap_field fields show_label=False %}
                                         </div>
                                     {% endfor %}

@@ -30,6 +30,7 @@ function updateForm(currentFieldType, showHideIndex){               //style newl
         $('#id_'+currentFieldType+'_columns_'+showHideIndex).multiselect({      //using multiselect
                 includeSelectAllOption: true,
                 disableIfEmpty: true,
+                enableFiltering:true,
                 maxHeight: 200,
                 numberDisplayed: 20,
                 nonSelectedText: 'Columns'

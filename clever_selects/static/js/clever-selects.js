@@ -60,6 +60,7 @@ $(document).ready(function() {
         $('#'+ID).multiselect({      //using multiselect
                 includeSelectAllOption: true,
                 disableIfEmpty: true,
+                enableFiltering:true,
                 maxHeight: 200,
                 numberDisplayed: 20,
                 nonSelectedText: 'Columns'
