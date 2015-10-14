@@ -8,9 +8,10 @@ from clever_selects.views import ChainedSelectChoicesView
 from .helpers import COLUMNS
 
 
-# pthon-sql library for building SQL queries in QueryForm.post() 
-# (https://pypi.python.org/pypi/python-sql)
-#import sql
+# SQLAlchemy for building queries in QueryForm.post()
+# (http://docs.sqlalchemy.org/en/rel_1_0/core/tutorial.html)
+import sqlalchemy as sql
+
 from fidia.archive.asvo_spark import AsvoSparkArchive
 
 # Create your views here.
@@ -86,24 +87,67 @@ class QueryForm(generic.View):
             # SQL, this code adopts the python-sql module. Thust we can
             # programmatically generate our SQL with an existing library.
 
-            # Get the list of tables:
-            catalog_request = {}
-            for key in request.POST.keys():
-                if key.startswith("cat_"):
-                    keyvalue = key[4:]
-                    catalog_request[keyvalue] = ( 
-                        key, 
-                        request.POST.getlist('columns_' + keyvalue))
 
+            # The contents of the POST object are described here:
+            # https://docs.djangoproject.com/en/1.8/ref/request-response/#django.http.QueryDict
+
+            def elements_of(request, *args):
+                """Iterator which iterates over elements of the request dictionary with the same base name.
+
+                request: the QueryDict to iterate over.
+                args: the list of key base strings to iterate over
+
+                Description:
+
+                    Given a request dictionary like the following:
+
+                    {tab1, tab2, tab3, tab4,
+                    col1, col2, col3, col4, etc. Each key is a string followed by a numeric index. (Additional keys
+                    may be present, without affecting this function). This iterator is given the base strings as arguments
+
+                """
+
+                index = 0
+                while (args[0] + str(index)) in request:
+                    key_list = [key + str(index) for key in args]
+
+                    value_list = []
+                    for key in key_list:
+                        value = request.getlist(key)
+                        if isinstance(value, list) and len(value) == 1:
+                            value = value[0]
+                        value_list.append(value)
+
+                    yield tuple(value_list)
+                    index += 1
+
+
+            # Get the list of tables and columns to select:
+            select_request = []
+            for table, columns in elements_of(request.POST, "select_cat_", "select_columns_"):
+                if table != '':
+                    columns = [sql.column(c) for c in columns]
+                    select_request.append(sql.table(table, *columns))
+
+            # work out the join statement
+            join_list = []
+            for left, left_col, join_type, right, right_col in \
+                    elements_of(request.POST, "joinA_cat_", "joinA_columns_", "join_type_", "joinB_cat_", "joinB_columns_"):
+                if left != '':
+                    left_table = sql.table(left, sql.column(left_col))
+                    right_table = sql.table(right, sql.column(right_col))
+                    join_list.append(sql.join(left_table, right_table, left_table.c[left_col] == right_table.c[right_col]))
+
+            query = sql.select(select_request).select_from(join_list[0])
 
             # We need to create the query here from POST data. Is this the best way to do that?
             #query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
 
-            sample = AsvoSparkArchive().new_sample_from_query(query)
+            # sample = AsvoSparkArchive().new_sample_from_query(query)
 
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
-                'message': sample.tabular_data().to_csv(),
+                'message': query.__str__() #sample.tabular_data().to_csv(),
                 # 'error_message': "You didn't select a choice.",
             })
         else:
