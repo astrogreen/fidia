@@ -1,30 +1,50 @@
-.form-group{
-    margin-bottom:15px;
-    position:relative;
-    min-height:1px;
-    overflow:auto; /*stops form-group collapsing (height=0) because content is all floats*/
-    width:100%
+/*####### GLOBAL #######*/
+
+/*####### HOMEPAGE #######*/
+
+/*####### QUERYFORM #######*/
+    /*### STYLING ###*/
+    h4{background-color:#F8F8F8;padding:15px;margin-bottom:15px;}
+    .form-container{border:solid 1px #f8f8f8;}
+    #remove-field{margin-left:15px;}
+    .control-label{margin-top:7px;text-align:right;}
+
+    /*.input-group-btn{width:40px;margin-left:auto; margin-right:0;display:block;margin-top:1px;}*/
+    #selectWrapper, #joinWrapper, #filterWrapper{margin-bottom:30px;}
+
+    .turquoise{background-color:#1abc9c;border:solid 3px #1abc9c;}
+    .yellow{background-color:#f1c40f;border:solid 3px #f1c40f}
+    .lightblue{background-color:#2980b9;border:solid 3px #2980b9}
+
+    .turquoise-border{border:solid 3px #1abc9c;}
+    .yellow-border{border:solid 3px #f1c40f}
+    .lightblue-border{border:solid 3px #2980b9}
+
+
+    /*### BEHAVIOUR ###*/
+    .form-group{
+        margin-bottom:15px;
+        position:relative;
+        min-height:1px;
+        overflow:auto;
+        /*overflow:auto prevents form-group collapsing (height=0) because content is all floats*/
+        width:100%
+    }
+
+
+    .form-group .row {margin:0px;}
+    /*necessary tweaks to multiselect*/
+    #selectWrapper .form-group, #joinWrapper .form-group, #filterWrapper .form-group{
+        overflow:visible;
+
+    } /* allow for multiselect dropdown list to be seen*/
+    .multiselect-selected-text{width:100px;max-width:100px} /*control width*/
+    button.multiselect{white-space:normal !important; text-align:left;} /*wrap text when goes above max width*/
+
+/*####### Media Queries #######*/
+ /* Small Devices, Tablets */
+@media only screen and (max-width : 768px) {
+    .control-label{text-align:left;}
 }
-.btn-new {
-  font-size: 24px;
-  padding:0px;
-  border:0px;
-  line-height:0px;
-  height:24px;
-  color:#aaa;
-}
-#remove-field{margin-left:15px;}
 
-/*FORM*/
-h4{background-color:#F8F8F8;padding:15px;margin-bottom:15px;}
-.form-container{border:solid 1px #f8f8f8;border:solid 1px green;}
-.control-label{margin-top:7px;text-align:right;padding:0px;}
-.add-field, .remove-field{border-radius:3px}
-.input-group-btn{width:40px;margin-left:auto; margin-right:0;display:block;}
-#returnWrapper{margin-bottom:30px;border:solid 1px red;}
-
-
-/*necessary tweaks to multiselect*/
-#returnWrapper .form-group{overflow:visible;}
-.multiselect-selected-text{width:100px;max-width:100px}
-button.multiselect{white-space:normal !important; text-align:left;}
+/*TEST*/

@@ -1,13 +1,16 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
-from .forms import QueryForm, ReturnColumns
+from .forms import QueryForm, ReturnQuery
 from django.core.urlresolvers import reverse_lazy
 
 from clever_selects.views import ChainedSelectChoicesView
 from .helpers import COLUMNS
 
 
+# pthon-sql library for building SQL queries in QueryForm.post() 
+# (https://pypi.python.org/pypi/python-sql)
+#import sql
 from fidia.archive.asvo_spark import AsvoSparkArchive
 
 # Create your views here.
@@ -33,14 +36,33 @@ class QueryView(generic.FormView):
 
 
 class QueryForm(generic.View):
-    form_class = ReturnColumns
+    form_class = ReturnQuery
     template_name = 'aatnode/form1/queryForm.html'
     initial = {'key': 'value'}
     #success_url = reverse_lazy('aatnode:query')
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form})
+        select_fields=[]
+        join_fields=[]
+        filter_fields=[]
+        type_fields=[]
+        form_fields_as_list = list(form)
+        for i in form_fields_as_list:
+            if 'select_' in i.html_name:
+                select_fields.append(i)
+            if 'joinA_' in i.html_name:
+                join_fields.append(i)
+            if 'join_' in i.html_name:
+                join_fields.append(i)
+            if 'joinB_' in i.html_name:
+                join_fields.append(i)
+            if 'filter_' in i.html_name:
+                filter_fields.append(i)
+            if 'tableType' in i.html_name:
+                type_fields.append(i)
+
+        return render(request, self.template_name, {'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,'joinFieldsCount':ReturnQuery.joinFieldsCount, 'filterFieldsCount':ReturnQuery.filterFieldsCount, 'form_fields_as_list':form_fields_as_list, 'select_fields':select_fields, 'join_fields':join_fields,'filter_fields':filter_fields, 'type_fields':type_fields})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -48,8 +70,34 @@ class QueryForm(generic.View):
             # <process form cleaned data>
             print(request.POST)
             print(form.cleaned_data)
+
+
+            # Create the query here from POST data.
+            #
+            # Note: this code will rapidly become complex, and it should be
+            # moved elsewhere. It is here for the moment becaue it is not
+            # clear to me (AWG) where/how we should impliment this in the long
+            # run. It fits here for the demonstrator. It could be incorporated
+            # into FIDIA (and probably at least some of it will be), or it
+            # could be part of a seperate module. A better understanding of
+            # the astropy project "astroquery" is needed.
+
+            # To simplify the creation of the query, which is nominally plain
+            # SQL, this code adopts the python-sql module. Thust we can
+            # programmatically generate our SQL with an existing library.
+
+            # Get the list of tables:
+            catalog_request = {}
+            for key in request.POST.keys():
+                if key.startswith("cat_"):
+                    keyvalue = key[4:]
+                    catalog_request[keyvalue] = ( 
+                        key, 
+                        request.POST.getlist('columns_' + keyvalue))
+
+
             # We need to create the query here from POST data. Is this the best way to do that?
-            query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
+            #query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
 
             sample = AsvoSparkArchive().new_sample_from_query(query)
 
@@ -77,8 +125,6 @@ class AjaxChainedColumns(ChainedSelectChoicesView):
         except KeyError:
             return []
         return choices
-
-
 
 
 
