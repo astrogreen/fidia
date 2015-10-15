@@ -218,7 +218,7 @@
             <div class="col-xs-12">
                 <h4>Result</h4>
                 <div class="well well-sm">
-                 {% if message %}<p>{{ message }}</p>{% endif %}<br>
+                 {% if message %}<p>{{ message | safe }}</p>{% endif %}<br>
                 </div>
                 <h4>Error</h4>
                 <div class="well well-sm">

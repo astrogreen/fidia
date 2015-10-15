@@ -121,34 +121,78 @@ class QueryForm(generic.View):
                     yield tuple(value_list)
                     index += 1
 
+            operator_map = {
+                'EQUALS': " = ",
+                'LESS_THAN': " < ",
+                'LESS_THAN_EQUALS': " <= ",
+                'GREATER_THAN': " > ",
+                'GREATER_THAN_EQUALS': " >= ",
+                'BETWEEN': " BETWEEN ",
+                'LIKE': " LIKE ",
+                'NULL': " NULL "
+            }
+            join_map = {
+                'INNER_JOIN': " INNER ",
+                'OUTER_JOIN': " OUTER ",
+                'LEFT_JOIN': " LEFT ",
+                'RIGHT_JOIN': " RIGHT ",
+                'FULL_JOIN': " FULL ",
 
-            # Get the list of tables and columns to select:
-            select_request = []
+            }
+
+            # String containing the HiveSQL query
+            query = ""
+
+            # Generate the SELECT part of the query:
+            query += "SELECT "
             for table, columns in elements_of(request.POST, "select_cat_", "select_columns_"):
                 if table != '':
-                    columns = [sql.column(c) for c in columns]
-                    select_request.append(sql.table(table, *columns))
+                    # Otherwise skip blank tables in the request.
+                    for col in columns:
+                        query += table + "." + col + ", "
+            # Remove the final ", " before continuing
+            query = query[:-2]
 
-            # work out the join statement
-            join_list = []
+            # Generate the FROM and JOIN part of the query
+            query += " FROM "
+            first = True
             for left, left_col, join_type, right, right_col in \
                     elements_of(request.POST, "joinA_cat_", "joinA_columns_", "join_type_", "joinB_cat_", "joinB_columns_"):
                 if left != '':
-                    left_table = sql.table(left, sql.column(left_col))
-                    right_table = sql.table(right, sql.column(right_col))
-                    join_list.append(sql.join(left_table, right_table, left_table.c[left_col] == right_table.c[right_col]))
+                    if first:
+                        # First join statement must include lefthand table name
+                        query += left
+                        first = False
+                    query += join_map[join_type] + " JOIN " + right
+                    query += " ON " + left + "." + left_col
+                    query += " = "
+                    query += right + "." + right_col + " "
+            if first:
+                # There were no join statements provided, so use the table from the select:
+                query += request.POST["select_cat_0"]
 
-            query = sql.select(select_request).select_from(join_list[0])
+            # Generate the WHERE part of the query
+            query += " WHERE "
+            for table, col, op, value in \
+                    elements_of(request.POST, "filter_cat_", "filter_columns_", "filter_operators_", "filter_value_"):
+                if table != '':
+                    query += table + "." + col + " "
+                    if op == 'BETWEEN':
+                        query += operator_map[op] + " " + " AND ".join(value.split(",")) + " AND "
+                    else:
+                        query += operator_map[op] + " " + value + " AND "
+            # Remove final AND:
+            query = query[:-5]            
 
             # We need to create the query here from POST data. Is this the best way to do that?
             #query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
 
-            # sample = AsvoSparkArchive().new_sample_from_query(query)
+            sample = AsvoSparkArchive().new_sample_from_query(query)
 
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
-                'message': query.__str__() #sample.tabular_data().to_csv(),
-                # 'error_message': "You didn't select a choice.",
+                'message': sample.tabular_data().to_html(),
+                'error_message': query,
             })
         else:
             return render(request, 'aatnode/form1/queryForm.html', {
