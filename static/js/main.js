@@ -1,5 +1,6 @@
 //FORM BEHAVIOUR - - - - - - - - - - - -
 //TODO populate FIELDS from backend
+//TODO validate field input on submit for multiselect-ed dropdowns
 var Fields={                                                        //field-types 'classes' with their corresponding 'columns'
     "select":["select"],
     "join":["joinA", "joinB"],
@@ -11,37 +12,9 @@ var Fields={                                                        //field-type
 //};
 var plusButton='add-field';
 var minusButton='remove-field';
-
-function FormLogic(){
-    var selector = '.select-input';
-    var fieldTotalLength=$(selector).length;
-
-    if ($(selector).filter(":hidden").size()==fieldTotalLength-1){
-
-            $('#joinWrapper').hide();
-    }
-    else {
-            $('#joinWrapper').show();
-    }
-}
-
-
-function updateForm(currentFieldType, showHideIndex){               //style newly displayed <select multiple>
-        $('#id_'+currentFieldType+'_columns_'+showHideIndex).multiselect({      //using multiselect
-                includeSelectAllOption: true,
-                disableIfEmpty: true,
-                enableFiltering:true,
-                maxHeight: 200,
-                numberDisplayed: 20,
-                nonSelectedText: 'Columns'
-        });
-                                                                    //rebuild the multiselect to reflect new data
-    updateHeights();                                                //update container height to reflect new styling
-}
-
-function updateHeights(){                                           //ALTER THE FORM HEIGHT BASED ON SHOWN FIELDS
-    $('#returnWrapper').height($('#select-fields').height()+$('#join-fields').height()+$('#filter-fields').height());
-};
+var selector = '.select-input';
+$('.'+plusButton).on("click", ShowNewField);                        //Bind functions to click events on buttons
+$('.'+minusButton).on("click", HideThisField);
 
 function ShowNewField(){
     row=$(this).parents("[class*='-input']");                       //find the class of the group (select, filter, join?)
@@ -60,22 +33,24 @@ function ShowNewField(){
             }
 
             $.each(Fields[fieldClass],function(i, fieldColumns){
-                updateForm(fieldColumns, showHideIndex);                  //update the form height if new elements shown/hidden
-                console.log(fieldColumns+showHideIndex);
+                updateForm(fieldColumns, showHideIndex);            //update the form height if new elements shown/hidden
             })
         }
     };
     FormLogic();
-}
+};
+
 
 function HideThisField(){
-    inputRow=$(this).parents("[id*='-input']");
-
-    $(inputRow).hide();                       //hide parent row with matching class (e.g., join-input)
-
+    var row=$(this).parents("[id*='-input']");
+    $(row).hide();                       //hide parent row with matching class (e.g., join-input)
     updateHeights();                                                //update the form height accordingly
 
-    $(inputRow).find('.chained-parent-field').each(function(){
+    if ($(row).hasClass('select-input')){
+        catalogueToHide=$(row).find('.chained-parent-field option:selected').text();
+    } else {catalogueToHide='';}
+
+    $(row).find('.chained-parent-field').each(function(){
         parent_id = $(this).attr('id');
         chained_id = $(this).attr('chained_ids');
 
@@ -86,19 +61,91 @@ function HideThisField(){
         $('#'+chained_id).val('');
         $('#'+chained_id+' option').remove();
         $('#'+chained_id).multiselect('rebuild');
-
     });
 
-    $(inputRow).find('input[type=text], select').val("");
-    $(inputRow).find("select option:first-child").attr("selected", "selected");
-    $(inputRow).find('input:checkbox').removeAttr('checked');
+    $(row).find('input[type=text], select').val("");
+    $(row).find("select option:first-child").attr("selected", "selected");
+    $(row).find('input:checkbox').removeAttr('checked');
 
-    FormLogic();
 
+    FormLogic(catalogueToHide);
 }
 
-$('.'+plusButton).on("click", ShowNewField);                        //Bind functions to click events on buttons
-$('.'+minusButton).on("click", HideThisField);
+function updateForm(currentFieldType, showHideIndex){               //style newly displayed <select multiple>
+        $('#id_'+currentFieldType+'_columns_'+showHideIndex).multiselect({      //using multiselect
+                includeSelectAllOption: true,
+                disableIfEmpty: true,
+                enableFiltering:true,
+                maxHeight: 200,
+                numberDisplayed: 20,
+                nonSelectedText: 'Select columns'
+        });                                                         //rebuild the multiselect to reflect new data
+    updateHeights();                                                //update container height to reflect new styling
+}
+
+function updateHeights(){                                           //ALTER THE FORM HEIGHT BASED ON SHOWN FIELDS
+    $('#returnWrapper').height($('#select-fields').height()+$('#join-fields').height()+$('#filter-fields').height());
+};
+
+function FormLogic(nameOfOption){
+    var selectOptions = {};                                                    //create list of current select options (occurs after the reset if remove)
+    $.each($('.select-input'),function(index){
+        var selectId=$(this).find(' select.chained-parent-field').attr('id');
+//        defaultOption = $(this).find(' select.chained-parent-field option:selected').first().text();
+        selectOptions[$("#"+selectId+" option:selected").text()]=$("#"+selectId+" option:selected").val();
+    });
+
+    var fieldTotalLength=$(selector).length;
+    if ($(selector).filter(":hidden").size()==fieldTotalLength-1){
+            $('#joinWrapper').hide();
+    }
+    else {
+            $('#joinWrapper').show();
+    };
+
+    for (var fieldClass in Fields){
+        if (fieldClass != 'select'){
+           $.each(Fields[fieldClass],function(i, fieldColumns){
+                $('[id^=id_'+fieldColumns+'_cat_]').each(function() {
+                    var $el=$(this);
+
+                    if ($.isEmptyObject(selectOptions)){
+                        $el.prop('disabled', 'disabled');
+                    } else {
+                        $el.prop('disabled', false);
+                        $.each(selectOptions,function(key,value){
+                            if ( $el.find('option[value="'+value+'"]').length>0 ){
+
+                            } else {                                                    //option not already in list, add
+                                $el.append($("<option></option>")
+                                .attr("value", value).text(key));
+                            };
+                        });
+                        if (nameOfOption && nameOfOption!='Catalogue'){                  //if the hide option is passed, remove it from the list
+                            $el.find('option[value='+nameOfOption+']').remove();
+                        };
+                    };
+
+
+//TODO ADD FEEDBACK
+                    $el.addClass('alert-border').delay(4000).queue(function(){
+                        $(this).removeClass("alert-border");
+                        $(this).dequeue();
+                    });;
+
+                });
+            });
+        } else {
+        //TODO remove selected option from next select
+        //THIS WILL ONLY BE HASSLE FREE IF THE NEXT OPTION ISNT ALLOWED UNTIL THIS ONE IS POPULATED
+//            $('[id^=id_'+fieldColumns+'_cat_]').each(function() {
+//                var $el=$(this);
+//
+//            });
+        };
+    };
+};
+
 //END FORM BEHAVIOUR - - - - - - - - - - -
 
 $( document ).ready(function() {                                    //FORM INITIAL STATE
@@ -106,19 +153,31 @@ $( document ).ready(function() {                                    //FORM INITI
 
     for (var fieldClass in Fields){
         $('.remove-field').parents('.'+fieldClass+'-input').hide();
-        var fieldTotalLength=$('.'+fieldClass+'-input').length;
 
+        var fieldTotalLength=$('.'+fieldClass+'-input').length;
         $.each(Fields[fieldClass],function(i, fieldColumns){
-            for (j=0; j<fieldTotalLength; j++){
+            for (var j=0; j<fieldTotalLength; j++){
                 $('#id_'+fieldColumns+'_columns_'+j+' option:contains(--------)').remove();
                 updateForm(fieldColumns,j);
             }
+            if (fieldClass != 'select'){
+                $('[id^=id_'+fieldColumns+'_cat_]').each(function() {
+                        var $el=$(this);
+                        $el.empty();
+                        $el.append($("<option></option>")
+                                        .attr("value", '').text('Catalogue'));
+                        $el.prop('disabled', 'disabled');
+                });
+
+            };
         });
 
     };
+
     FormLogic();
+    $(selector+' select.chained-parent-field').change(function(){FormLogic();});
+
+
+    //JQUERY VALIDATION
 
 });
-
-
-//TODO: join appears once two tables selected, pre-populate with table 1 and 2

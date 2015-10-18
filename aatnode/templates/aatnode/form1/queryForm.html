@@ -21,7 +21,7 @@
             <div class="col-xs-12">
                 <div class="form-container">
                 <h4>Selection Criteria</h4>
-                <form action="" method="post" class="form row" role="form">
+                <form action="" method="post" class="form row" role="form" id="queryForm">
                     {% csrf_token %}
                     <div id="selectWrapper">
                         <div class="col-sm-1 col-xs-12 control-label">
@@ -36,24 +36,22 @@
                                             <div id="select-input{{ j }}" class="select-input row">
                                         {% endif %}
                                         {% if i|add:1|divisibleby:2 == True %}
-                                            <div class="col-sm-8 col-xs-5" style="padding:0px">
+                                            <div class="col-sm-4 col-xs-5">
                                                 {% bootstrap_field fields show_label=False %}
                                             </div>
 
                                         {% else %}
-                                        <div class="col-sm-3 col-xs-5">
+                                        <div class="col-sm-2 col-xs-5">
                                             {% bootstrap_field fields show_label=False %}
                                         </div>
                                         {% endif %}
                                         {% if i|divisibleby:2 == False %}
-                                                <div class="col-sm-offset-0 col-sm-1 col-xs-offset-1 col-xs-1">
+                                                <div class="col-sm-1 col-xs-2">
                                                     <span class="input-group-btn">
                                                         {% if j == 0 %}
-                                                          <button type="button" class="btn btn-xs add-field turquoise-border">
-                                                              <span class="glyphicon glyphicon-plus"></span>
-                                                          </button>
+                                                        <button type="button" class="btn btn-default btn-circle add-field"><i class="glyphicon glyphicon-plus"></i></button>
                                                         {% else %}
-                                                            <button type="button" class="btn btn-xs remove-field turquoise">
+                                                            <button type="button" class="btn btn-default btn-circle remove-field">
                                                               <span class="glyphicon glyphicon-minus"></span>
                                                           </button>
                                                         {% endif %}
@@ -90,7 +88,7 @@
                                             <div id="join-input{{ j }}" class="join-input row">
                                         {% endif %}
                                         {% if i|add:3|divisibleby:5 == True %}
-                                            <div class="col-sm-1 col-xs-2" style="padding:0px">
+                                            <div class="col-sm-1 col-xs-2">
                                                 {% bootstrap_field fields show_label=False %}
                                             </div>
 
@@ -100,14 +98,14 @@
                                             </div>
                                         {% endif %}
                                         {% if i|add:1|divisibleby:5 == True %}
-                                                <div class="col-sm-offset-2 col-sm-1 col-xs-offset-3 col-xs-1">
+                                                <div class="col-sm-1 col-xs-1">
                                                     <span class="input-group-btn">
                                                         {% if j == 0 %}
-                                                          <button type="button" class="btn btn-xs add-field yellow-border" >
+                                                          <button type="button" class="btn btn-default btn-circle add-field">
                                                               <span class="glyphicon glyphicon-plus"></span>
                                                           </button>
                                                         {% else %}
-                                                            <button type="button" class="btn yellow btn-xs remove-field" id="join-remove-{{j}}">
+                                                            <button type="button" class="btn btn-default btn-circle remove-field" id="join-remove-{{j}}">
                                                               <span class="glyphicon glyphicon-minus"></span>
                                                           </button>
                                                         {% endif %}
@@ -144,7 +142,7 @@
                                                 {% bootstrap_field fields show_label=False %}
                                             </div>
                                         {% elif i|add:3|divisibleby:5 == True %}
-                                            <div class="col-sm-1 col-xs-1" style="padding:0px">
+                                            <div class="col-sm-1 col-xs-1">
                                                 {% bootstrap_field fields show_label=False %}
                                             </div>
                                         {% else %}
@@ -153,14 +151,14 @@
                                             </div>
                                         {% endif %}
                                         {% if i|add:1|divisibleby:5 == True %}
-                                                <div class="col-sm-offset-2 col-sm-1 col-xs-1">
+                                                <div class="col-sm-1 col-xs-1">
                                                     <span class="input-group-btn">
                                                         {% if j == 0 %}
-                                                          <button type="button" class="btn btn-xs add-field lightblue-border">
+                                                          <button type="button" class="btn btn-default btn-circle add-field">
                                                               <span class="glyphicon glyphicon-plus"></span>
                                                           </button>
                                                         {% else %}
-                                                            <button type="button" class="btn btn-xs remove-field lightblue">
+                                                            <button type="button" class="btn btn-default btn-circle remove-field">
                                                               <span class="glyphicon glyphicon-minus"></span>
                                                           </button>
                                                         {% endif %}
@@ -175,16 +173,16 @@
                         </div>
                     </div>
                     <div id="typeWrapper">
-                        <div class="form-group_notneeded">
-                            <label for="cat" class="col-sm-1 control-label">Type</label>
-                            <div id="type-fields" class="col-sm-11">
-                                <div class="row">
-                                    {% for fields in type_fields %}
-                                        <div class="col-sm-3 col-xs-4">
-                                            {% bootstrap_field fields show_label=False %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
+                        <div class="col-sm-1 col-xs-12 control-label">
+                            <label for="type" >Type</label>
+                        </div>
+                        <div id="type-fields" class="col-sm-11">
+                            <div class="row type-input">
+                                {% for fields in type_fields %}
+                                    <div class="col-sm-2 col-xs-4">
+                                        {% bootstrap_field fields show_label=False %}
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>

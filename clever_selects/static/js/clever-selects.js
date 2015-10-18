@@ -63,7 +63,7 @@ $(document).ready(function() {
                 enableFiltering:true,
                 maxHeight: 200,
                 numberDisplayed: 20,
-                nonSelectedText: 'Columns'
+                nonSelectedText: 'Select columns'
         });                                            //rebuild the multiselect to reflect new data when the parent
         $('#'+ID).on("change", function(){//chained select is changed
             $('#'+ID).multiselect('rebuild');

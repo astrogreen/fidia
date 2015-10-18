@@ -1,25 +1,45 @@
 /*####### GLOBAL #######*/
+    /*### STYLING ###*/
+    .navbar-brand{padding:0px}
+    .navbar-brand img{height:50px}
+    h4{background-color:#F8F8F8;padding:15px;margin-bottom:15px;}
 
 /*####### HOMEPAGE #######*/
 
 /*####### QUERYFORM #######*/
-    /*### STYLING ###*/
-    h4{background-color:#F8F8F8;padding:15px;margin-bottom:15px;}
+    /*###FORM STYLING###*/
     .form-container{border:solid 1px #f8f8f8;}
-    #remove-field{margin-left:15px;}
     .control-label{margin-top:7px;text-align:right;}
-
-    /*.input-group-btn{width:40px;margin-left:auto; margin-right:0;display:block;margin-top:1px;}*/
     #selectWrapper, #joinWrapper, #filterWrapper{margin-bottom:30px;}
+    #queryForm [class*=' col-'] [class*=' col-'] {padding-right:0px;}
+    #queryForm [class*='col-'] [class*='col-'] {padding-right:0px;}
+    [class*='col-'] .row{margin:0px}
+    .btn-circle {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 12px;
+      line-height: 1.428571429;
+      border-radius: 15px !important;
+      margin-top:2px;
+    }
+    .turquoise-border{border:solid 1px #1abc9c;}
+    .yellow-border{border:solid 1px #f1c40f}
+    .lightblue-border{border:solid 1px #2980b9}
 
-    .turquoise{background-color:#1abc9c;border:solid 3px #1abc9c;}
-    .yellow{background-color:#f1c40f;border:solid 3px #f1c40f}
-    .lightblue{background-color:#2980b9;border:solid 3px #2980b9}
+    .select-input select.chained-parent-field{color:red;}
 
-    .turquoise-border{border:solid 3px #1abc9c;}
-    .yellow-border{border:solid 3px #f1c40f}
-    .lightblue-border{border:solid 3px #2980b9}
+    @keyframes blink {
+       50% { border-color: #C1E0FF; }
+    }
+    .alert-border{ /*or other element you want*/
+        animation-name: blink ;
+        animation-duration: 4s ;
+        animation-timing-function: step-end ;
+        animation-iteration-count:1 ;
 
+    }
 
     /*### BEHAVIOUR ###*/
     .form-group{
@@ -30,7 +50,6 @@
         /*overflow:auto prevents form-group collapsing (height=0) because content is all floats*/
         width:100%
     }
-
 
     .form-group .row {margin:0px;}
     /*necessary tweaks to multiselect*/
