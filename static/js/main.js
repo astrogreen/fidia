@@ -46,10 +46,6 @@ function HideThisField(){
     $(row).hide();                       //hide parent row with matching class (e.g., join-input)
     updateHeights();                                                //update the form height accordingly
 
-    if ($(row).hasClass('select-input')){
-        catalogueToHide=$(row).find('.chained-parent-field option:selected').text();
-    } else {catalogueToHide='';}
-
     $(row).find('.chained-parent-field').each(function(){
         parent_id = $(this).attr('id');
         chained_id = $(this).attr('chained_ids');
@@ -67,8 +63,8 @@ function HideThisField(){
     $(row).find("select option:first-child").attr("selected", "selected");
     $(row).find('input:checkbox').removeAttr('checked');
 
+    FormLogic();
 
-    FormLogic(catalogueToHide);
 }
 
 function updateForm(currentFieldType, showHideIndex){               //style newly displayed <select multiple>
@@ -87,7 +83,7 @@ function updateHeights(){                                           //ALTER THE 
     $('#returnWrapper').height($('#select-fields').height()+$('#join-fields').height()+$('#filter-fields').height());
 };
 
-function FormLogic(nameOfOption){
+function FormLogic(){
     var selectOptions = {};                                                    //create list of current select options (occurs after the reset if remove)
     $.each($('.select-input'),function(index){
         var selectId=$(this).find(' select.chained-parent-field').attr('id');
@@ -121,17 +117,25 @@ function FormLogic(nameOfOption){
                                 .attr("value", value).text(key));
                             };
                         });
-                        if (nameOfOption && nameOfOption!='Catalogue'){                  //if the hide option is passed, remove it from the list
-                            $el.find('option[value='+nameOfOption+']').remove();
-                        };
+                        // now cycle through the select options and remove all not in select options array
+                        $el.find(" option").each(function() {
+                            if (selectOptions[this.text] ){
+
+                            } else {
+                                if (this.text!='Catalogue'){
+                                    console.log(this.text);
+                                    $el.find('option[value="'+this.value+'"]').remove();
+                                }
+
+                            };
+                        });
                     };
 
-
 //TODO ADD FEEDBACK
-                    $el.addClass('alert-border').delay(4000).queue(function(){
-                        $(this).removeClass("alert-border");
-                        $(this).dequeue();
-                    });;
+//                    $el.addClass('alert-border').delay(400).queue(function(){
+//                        $(this).removeClass("alert-border");
+//                        $(this).dequeue();
+//                    });;
 
                 });
             });
