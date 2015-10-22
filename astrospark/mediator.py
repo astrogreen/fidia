@@ -2,7 +2,7 @@ __author__ = 'lharischandra'
 from django.apps import apps
 # Do spark related stuff here
 
-import asvo_spark
+from fidia import asvo_spark
 
 
 appconf = apps.get_app_config('astrospark')

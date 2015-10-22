@@ -12,7 +12,7 @@ __author__ = "Andy Green"
 import pandas as pd
 
 # Custom Packages
-from asvo_spark import hive_context
+from fidia.asvo_spark import hive_context
 
 # Relative imports in this package
 from .base_archive import BaseArchive

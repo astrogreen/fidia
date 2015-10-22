@@ -10,9 +10,9 @@ from .helpers import COLUMNS
 
 # SQLAlchemy for building queries in QueryForm.post()
 # (http://docs.sqlalchemy.org/en/rel_1_0/core/tutorial.html)
-import sqlalchemy as sql
+#import sqlalchemy as sql
 
-from fidia.archive.asvo_spark import AsvoSparkArchive
+from fidia.fidia.archive.asvo_spark import AsvoSparkArchive
 
 # Create your views here.
 
