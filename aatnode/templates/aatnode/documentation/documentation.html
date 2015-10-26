@@ -1,0 +1,396 @@
+{% extends 'base/base.html' %}
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block title %} Home {% endblock %}
+{% block wrapper %}
+<div class="container">
+  <h2>Documentation</h2>
+  <div class="row">
+    <!--Nav Bar -->
+    <nav class="col-sm-2 hidden-xs docs-sidebar">
+        <ul id="sidebar" class="nav nav-stacked fixed">
+            <li>
+                <a href="#docs-Welcome">Start Here</a>
+                <ul class="nav nav-stacked">
+                    <li><a href="#docs-about">About the node</a></li>
+                    <li><a href="#docs-accessmethod">Access Types</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="#docs-DataAccess">Data Access</a>
+                <ul class="nav nav-stacked">
+                    <li><a href="#docs-QueryBuilder">Query Builder</a></li>
+                    <li><a href="#docs-SQL">SQL</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#docs-Surveys">Available Data</a>
+                <ul class="nav nav-stacked">
+                    <li><a href="#docs-GAMA">GAMA</a></li>
+                    <li><a href="#docs-SAMI">SAMI</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#docs-examples">Examples</a>
+                <ul class="nav nav-stacked">
+                    <li><a href="#docs-UC1">Use Case 1</a></li>
+                    <li><a href="#docs-UC2">Use Case 2</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <!--Main Content -->
+    <div class="col-sm-10 col-xs-12">
+      <section id="docs-Welcome" class="group">
+          <h3>Welcome</h3><hr />
+          <div id="docs-about" class="subgroup">
+              <h4>About the node</h4>
+              <p>
+                  Welcome to the ASVO-AAT node. The ASVO-AAT Node project aims
+                  to provide IVOA-compliant access to all AAT and UKST data
+                  including legacy (2dFGRS, 6dFGS, WiggleZ, RAVE, GAMA), ongoing
+                  (SAMI, GALAH, OzDES, 2dFLenS) and future (TAIPAN, FunnelWeb)
+                  surveys.
+              </p>
+              <p>
+                  Navigate through the documentation using the red contents panel
+                  on the left.
+              </p>
+          </div>
+          <div id="docs-accessmethod" class="subgroup">
+              <h4>Access Types</h4>
+              <p>
+                  The ASVO-AAT node data can be accessed in a multitude of ways,
+                  depending on your data needs.
+              </p>
+              <table class='table'>
+                  <thead>
+                      <tr>
+                          <th>Query Type</th>
+                          <th>Example</th>
+                          <th>Tool</th>
+                          <th>Status</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                        <td>Single object</td>
+                        <td>I know the object identifier according to the survey,
+                        e.g., GAMA object G65406. I want to explore and download the available
+                        node data on the object.</td>
+                        <td>Single Object Viewer</td>
+                        <td><p class="bg-danger">in design</p></td>
+                    </tr>
+                    <tr>
+                        <td>Multiple objects from the same survey</td>
+                        <td>I have a list of object IDs or positions of sources that reside in an
+                            AAT-node survey (e.g., GAMA sources G65406, G106376). I wish to return
+                            survey-derived parameters for those sources (e.g., redshifts from GAMA
+                            catalogue SpecObjAll).</td>
+                        <td>Query Builder Form</td>
+                        <td><p class="bg-warning">in development</p></td>
+                    </tr>
+                    <tr>
+                        <td>Create and return a sample from a survey</td>
+                        <td>I want to create a sample of objects from a particular
+                        survey, filtering on some parameter(s) and return
+                        available rows of objects across several catalogues. See
+                        examples <a href="#docs-UC1">Use Case 1</a> and
+                        <a href="#docs-UC2">Use Case 2</a>. </td>
+                        <td><a href="/asvo/query-builder/">Query Builder Form</a></td>
+                        <td><p class="bg-info">user testing</p></td>
+                    </tr>
+                    <tr>
+                        <td>Multiple objects from different surveys</td>
+                        <td>I want to view the closest sources to an uploaded list of RA, DEC coordinates
+                            within some radius.</td>
+                        <td>Position Search Form</td>
+                        <td><p class="bg-danger">in design</p></td>
+                    </tr>
+                    <tr>
+                        <td>Cross match my sources with a survey</td>
+                        <td>I want to upload a list of RA, DEC positions and cross match to all
+                        available survey objects, to within some radius. </td>
+                        <td>Position Search Form</td>
+                        <td><p class="bg-danger">in design</p></td>
+                    </tr>
+
+
+                    <tr>
+                        <td>At Position</td>
+                        <td>I want to view available data for some radius around RA, DEC coordinates. </td>
+                        <td>Position Search Form</td>
+                        <td><p class="bg-danger">in design</p></td>
+                    </tr>
+                  <tr>
+                        <td> </td>
+                        <td> </td>
+                        <td>Data Explorer</td>
+                        <td><p class="bg-danger">in design</p></td>
+                    </tr>
+                  </tbody>
+
+              </table>
+          </div>
+      </section>
+        <section id="docs-DataAccess" class="group">
+            <h3>Data Access</h3><hr />
+            <div id="docs-QueryBuilder" class="subgroup row">
+                <h4>Query Builder</h4>
+                  <p>
+                    The Query Builder form allows you to construct complicated
+                    queries on the database with ease without writing any SQL
+                    code. Queries can be made on known survey objects (GAMA) or
+                    at specific coordinates on the sky (RA, DEC). The query
+                      builder is sufficient for most use cases, however particularly                       complicated queries can be submitted via the <a href=''>SQL form</a>.
+                  </p>
+
+                  <h5><f>by Object</f></h5>
+                  <dl class="dl-horizontal">
+                    <dt>Select</dt>
+                    <dd>Select the catalogues you wish to query via the
+                      <button class="btn btn-default btn-xs btn-demo" type="button">
+                        Catalogue <span class="caret"></span> </button> dropdown.</dd>
+                    <dd>Available columns for the selected catalogue will be
+                      shown in the <button class="btn btn-default btn-xs btn-demo"
+                      type="button"> Columns <span class="caret"></span> </button>
+                      dropdown. If you are looking for a particular column, the
+                      search bar can help.</dd>
+                    <dd>
+                      Multiple catalogues can be added using the
+                      <button class='btn btn-demo btn-circle'><span class='glyphicon
+                         glyphicon-plus'></span></button> Add Fields button. Currently,
+                         up to 5 catalogues can be queried simultaneously.
+                    </dd>
+                    <dt>Join</dt>
+                    <dd>If you have selected two or more catalogues to return results
+                      from, use the Join row to choose which columns from each are
+                      common fields. For example, you may want to return filtered
+                      results from both the catalogues <samp>g3cgal</samp> and <samp>specobj</samp>.
+                      In which case, you could join as:
+                      <button class="btn btn-default btn-xs btn-demo"
+                      type="button"> g3cgal <span class="caret"></span> </button>
+                      <button class="btn btn-default btn-xs btn-demo"
+                      type="button"> cataid <span class="caret"></span> </button>
+                      <button class="btn btn-default btn-xs btn-demo"
+                      type="button"> INNER <span class="caret"></span> </button>
+                      <button class="btn btn-default btn-xs btn-demo"
+                      type="button"> specobj <span class="caret"></span> </button>
+                      <button class="btn btn-default btn-xs btn-demo"
+                      type="button"> cataid <span class="caret"></span> </button>
+                      <br>
+                      <strong>If you wish to return columns from
+                      multiple catalogues, you must join the appropriate columns
+                      from each catalogue</strong>.
+                    </dd><br>
+                    <dd>
+                      Supported join types are detailed below.
+                      <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>
+                            Join
+                          </th>
+                          <th>
+                            Description
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <samp>INNER</samp>
+                          </td>
+                          <td>
+                            Limited to the rows that exist in both tables. For example,
+                            in our join above, a <samp>CATAID</samp> that
+                            appears in both <samp>g3cgal</samp> and <samp>specobj</samp> catalogues
+                            would be returned, however if a <samp>CATAID</samp>
+                            appeared in only one of <samp>g3cgal</samp> and <samp>specobj</samp>,
+                            it would not be returned. If you are unsure which join
+                            type to select, <samp>INNER</samp> is usually the best option.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <samp>LEFT</samp>
+                          </td>
+                          <td>
+                            All rows from the first (or left hand side) catalogue
+                            are preserved. Rows from the right hand catalogue will
+                            be returned <em>only</em> if they have a match in the
+                            left catalogue. Where there are values from the left
+                            catalogue and not the right, values will be set as
+                            <samp>NULL</samp>.
+                            <p class="bg-danger">Check this with Andy</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <samp>RIGHT</samp>
+                          </td>
+                          <td>
+                            All rows from the second (or right hand side) catalogue
+                            are preserved. Rows from the left hand catalogue will be
+                            returned <em>only</em> if they have a match in the right
+                            catalogue. Where there are values from the right catalogue
+                            and not the left, values will be set as <samp>NULL</samp>.
+                            <p class="bg-danger">Check this with Andy</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <samp>OUTER</samp>
+                          </td>
+                          <td>
+                            A full outer join returns all rows from both catalogues,
+                            regardless of whether there are any matches. As in the
+                            <samp>LEFT</samp> and <samp>RIGHT</samp> joins, empty
+                            values will be set at NULL.
+                            <p class="bg-danger">Check this with Andy</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                      </table>
+                    </dd>
+                    <dt>Filter</dt>
+                    <dd>Set the constraints that determine which rows of the
+                      above catalogues(s) will be returned by your query. Leaving this
+                      empty will simply return all rows. </dd>
+                      <dd>To constrain a parameter
+                      <samp>BETWEEN</samp> two values, simply separate by a
+                      comma, for example to filter a column value between 0.1 and 0.3
+                      enter <samp>0.1,0.3</samp> in the filter value input box.</dd>
+                    <dt>Results Format</dt>
+                    <dd>Format the results file as <samp>ASCII</samp>,
+                      <samp>CSV</samp> or <samp>FITS</samp>.</dd>
+                  </dl>
+                  <h5><f>by Position</f></h5>
+                    <p><em>in development</em>
+                    </p>
+
+            </div>
+            <div id="docs-SQL" class="subgroup">
+                <h4>SQL</h4>
+                <p>
+                <em>in development</em>
+                </p>
+            </div>
+        </section>
+        <section id="docs-Surveys" class="group">
+            <h3>Available Data</h3><hr />
+            <div id="docs-GAMA" class="subgroup">
+                <h4>GAMA</h4>
+                <p>
+                Available GAMA tables and versions publications etc
+                </p>
+                <p class="bg-danger">Check this with Lloyd</p>
+            </div>
+            <div id="docs-SAMI" class="subgroup">
+                <h4>SAMI</h4>
+                <p>
+                <em>in development</em>
+                </p>
+            </div>
+        </section>
+        <section id="docs-examples" class="group">
+            <h3>Examples</h3><hr />
+            <p>
+              The following queries are can be performed on the query form.
+            </p>
+            <div id="docs-UC1" class="subgroup">
+                <h4>Use Case 1</h4>
+                <div col-xs-12>
+                <h5>Return all galaxies in a pair, with redshift (0.1 &#60;
+                z &#60; 0.3) and quality flag cut.</h5>
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>DMU</th>
+                      <th>Catalogue</th>
+                      <th>Parameter</th>
+                      <th>Info</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">Groupfindingv05</th>
+                      <td>G3CGalsInPair</td>
+                      <td>Gal1CATAID, Gal2CATAID</td>
+                      <td>G3CGalsInPair is a catalogue of galaxies that
+                      live in pairs (thus gal1-gal2 and gal2-gal1 combinations
+                      are both listed), so here we need only match to
+                      Gal1CATAID.</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">StellarMassesv08</th>
+                      <td>StellarMasses</td>
+                      <td>CATAID, Z, nQ</td>
+                      <td>All CATAID matched to Gal1CATAID, where 0.1 &#60; Z &#60;
+                       0.3, nQ &#62; 2</td>
+                    </tr>
+                  </tbody>
+                </table>
+                  <img src="http://placebear.com/1000/200" class='img-responsive'
+                   alt="Screen shot of query">
+                <strong>SQL: </strong>
+                <code>
+                  SELECT t1.PairID, t1.Gal1CATAID, t1.Gal2CATAID, t2.CATAID,
+                  t2.Z, t2.nQ
+                  FROM   G3CGalsInPairv05 as t1
+                  INNER JOIN StellarMassesv08 as t2 on t2.CATAID = t1.Gal1CATAID
+                  WHERE  t2.Z BETWEEN 0.1 and 0.3
+                  AND    t2.nQ > 2
+                </code>
+              </div>
+            </div>
+            <div id="docs-UC2" class="subgroup">
+                <h4>Use Case 2</h4>
+                <div col-xs-12>
+                  <h5>
+                    For GAMA groups with Ngal &#62; 4 and 0.02 &#60; z &#60; 0.1,
+                    how many brightest cluster galaxies are also central cluster galaxies.
+                  </h5>
+                  <table class="table table-bordered table-hover">
+                    <thead>
+                      <tr>
+                        <th>DMU</th>
+                        <th>Catalogue</th>
+                        <th>Parameter</th>
+                        <th>Info</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Groupfindingv05</th>
+                        <td>G3CFoFGroup</td>
+                        <td>GroupID, Nfof, BCGCATAID, IterCenCATAID, Zfof</td>
+                        <td>-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <img src="http://placebear.com/1000/200" class='img-responsive'
+                 alt="Screen shot of query">
+                 <strong>SQL: </strong>
+                 <code>
+                   SELECT t1.GroupID, t1.Nfof, t1.IterCenCATAID, t1.Zfof, t1.BCGCATAID
+                   FROM   G3CFoFGroup as t1
+                   WHERE  t1.Zfof BETWEEN 0.02 and 0.1
+                   AND    t1.Nfof > 4
+                 </code>
+                </div>
+            </div>
+        </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

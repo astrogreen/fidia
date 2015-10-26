@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block title %} Register {% endblock %}
+{% block body_class %}galaxy-dark{% endblock %}
+{% block wrapper %}
+    <div class="container-fluid">
+      <div class='card-container'>
+        <h2>Register</h2>
+        <div class="card">
+            <form class="form-user" id='form-register'>
+            <div class="input-group">
+                <span class="input-group-addon" id="inputName-addon"><i class="fa fa-user"></i></span>
+                <input type="text" id="inputName" class="form-control" placeholder="Name" required>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon" id="inputEmail-addon"><i class="fa fa-envelope"></i></span>
+                <input type="email" id="inputEmail" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                <input type="password" id="inputPasswordRepeat" class="form-control" placeholder="Repeat password" required>
+            </div>
+
+            <div class='input-group'>
+              <div id='recaptcha' class="g-recaptcha" data-sitekey="6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j"></div>
+            </div>
+            <button class="btn btn-md btn-default btn-block btn-user" type="submit">Register</button>
+            </form><br>
+            <p><a href="sign-in" class='dark-text'>Sign In</a>
+            <p><a href='#' title="Are you lost?" class='help-link dark-text'>← Back to ASVO | AAO</a></p>
+
+        </div><!-- /card-container -->
+      </div>
+    </div><!-- /container -->
+
+{% endblock %}

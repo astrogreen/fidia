@@ -26,6 +26,31 @@ class IndexView(generic.TemplateView):
         return context
 
 
+class DocView(generic.TemplateView):
+    template_name = 'aatnode/documentation/documentation.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DocView, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
+class SignIn(generic.TemplateView):
+    template_name = 'aatnode/user/sign-in.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SignIn, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
+class Register(generic.TemplateView):
+    template_name = 'aatnode/user/register.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Register, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
+
 class QueryView(generic.FormView):
     template_name = 'aatnode/queryform.html'
     form_class = QueryForm

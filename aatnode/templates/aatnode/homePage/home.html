@@ -13,12 +13,36 @@
 {% block wrapper %}
 <div class="container">
   <div class="jumbotron">
-    <h1>Landing page</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pretium lacus quis sapien ultricies tempor. In malesuada ex eget purus elementum, ut interdum eros ornare. Cras eu dapibus metus. Phasellus nec eros cursus, malesuada ligula vel, aliquam massa.</p>
-    <p>To query the db... go here</p>
-    <p>
-      <a class="btn btn-lg btn-primary" href="query" role="button">View Query Form</a>
-    </p>
+    <h1>Anglo Australian Telescope</h1>
+    <div class="row">
+      <div class="col-sm-8">
+        <p>
+      All-Sky Virtual Observatory (ASVO) Anglo-Australian Telescope (AAT) Node is developing an archive infrastructure
+      and interface that is extensible and scalable, designed to meet the current and future needs of the Australian
+      astronomical community.<br>
+
+      </p>
+      </div>
+      <div class="col-sm-4">
+        <img class="img-responsive" src="/static/images/AATsmall.jpg">
+      </div>
+    </div>
+
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <p>This will be demonstrated by the deployment of two exemplar datasets (SAMI and GAMA
+      survey data) that span the range of capabilities to be provided. The extensibility requirement ensures that, at
+      the conclusion of the Project, the AAO is capable of ingestion and deployment of all AAT surveys of major
+      national significance through the AAT Node. The node includes the requirement to be interoperable with the other
+      ASVO nodes and compliant with IVOA protocols</p>
+      <p>The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth Department of Industry,
+      Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has coordinated with the Australian
+      Astronomical Observatory (AAO), as the owners and operators of the AAT, to develop this ASVO Node. This is a 2
+      year project with completion expected by June 2017.</p>
+      <br>
+      <a class="btn btn-lg btn-primary" href="/asvo/query-builder/" role="button">Begin User testing</a>
+    </div>
   </div>
 </div> <!-- /container -->
 {% endblock %}
