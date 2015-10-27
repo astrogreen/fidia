@@ -21,7 +21,7 @@
             <div class="col-xs-12">
                 <div class="form-container">
                 <h4>Selection Criteria</h4>
-                <form action="" method="post" class="form row" role="form" id="queryForm">
+                <form action="" method="post" class="form form-inline row" role="form" id="queryForm">
                     {% csrf_token %}
                     <div id="selectWrapper">
                         <div class="col-sm-1 col-xs-12 control-label">
@@ -33,36 +33,30 @@
                                     {% with forloop.counter|sub:1|intdiv:2 as j %}
                                     {% if j < selectFieldsCount %}
                                         {% if i|divisibleby:2 == True %}
-                                            <div id="select-input{{ j }}" class="select-input row">
+                                            <div id="select-input{{ j }}" class="select-input row form-group">
                                         {% endif %}
                                         {% if i|add:1|divisibleby:2 == True %}
-                                            <div class="col-sm-2 col-xs-5">
-                                                {% bootstrap_field fields show_label=False %}
-                                            </div>
 
-                                        {% else %}
-                                        <div class="col-sm-2 col-xs-5">
-                                            {% bootstrap_field fields show_label=False %}
-                                        </div>
-                                        {% endif %}
-                                        {% if i|divisibleby:2 == False %}
-                                                <div class="col-sm-1 col-xs-2">
-                                                    <span class="input-group-btn">
+                                                {% bootstrap_field fields show_label=False %}
+                                                 <span class="">
                                                         {% if j == 0 %}
-                                                        <button type="button" class="btn btn-default btn-circle add-field"><i class="glyphicon glyphicon-plus"></i></button>
+                                                        <button type="button" class="btn btn-default btn-circle add-field">+</button>
                                                         {% else %}
                                                             <button type="button" class="btn btn-default btn-circle remove-field">
-                                                              <span class="glyphicon glyphicon-minus"></span>
+                                                              -
                                                           </button>
                                                         {% endif %}
-                                                  </span>
-                                                </div>
-                                            </div>
+                                                 </span>
+                                        {% else %}
+                                            {% bootstrap_field fields show_label=False %}
+                                        {% endif %}
+                                        {% if i|divisibleby:2 == False %}
+                                        </div>
                                         {% endif %}
                                     {% else %}
-                                        <div class="col-sm-3 col-xs-5">
+
                                             {% bootstrap_field fields show_label=False %}
-                                        </div>
+
                                     {% endif %}
                                     {% endwith %}
                                     {% endwith %}
@@ -72,10 +66,6 @@
                     </div>
                     <div id="joinWrapper">
                         <div class="col-sm-1 col-xs-12 control-label">
-                            <!--<a  data-container="body" data-toggle="popover" data-placement="top" title="Help | Join" html="true" data-content='INNER JOIN: Returns all rows when there is at least one match in BOTH tables.-->
-    <!--LEFT JOIN: Return all rows from the left catalogue, and the matched rows from the right catalogue.-->
-    <!--RIGHT JOIN: Return all rows from the right catalogue, and the matched rows from the left catalogue.-->
-    <!--FULL JOIN: Return all rows when there is a match in one of the tables.'><span style="font-size:22px; pull-right"><span class="glyphicon glyphicon-question-sign"></span></span></a>-->
                             <label for="join-input0" >Join</label>
                         </div>
                         <div id="join-fields" class="col-sm-11 col-xs-12 ">
@@ -85,32 +75,21 @@
                                                 {% comment %} the indiv value is the number of fields required per row {% endcomment %}
                                     {% if j < joinFieldsCount %}
                                         {% if i|divisibleby:5 == True %}
-                                            <div id="join-input{{ j }}" class="join-input row">
+                                            <div id="join-input{{ j }}" class="join-input row form-group">
                                         {% endif %}
-                                        {% if i|add:3|divisibleby:5 == True %}
-                                            <div class="col-sm-2 col-xs-2">
-                                                {% bootstrap_field fields show_label=False %}
-                                            </div>
-
-                                        {% else %}
-                                            <div class="col-sm-2 col-xs-4">
-                                                {% bootstrap_field fields show_label=False %}
-                                            </div>
-                                        {% endif %}
+                                        {% bootstrap_field fields show_label=False %}
                                         {% if i|add:1|divisibleby:5 == True %}
-                                                <div class="col-sm-1 col-xs-1">
-                                                    <span class="input-group-btn">
+                                                    <span class="">
                                                         {% if j == 0 %}
                                                           <button type="button" class="btn btn-default btn-circle add-field">
-                                                              <span class="glyphicon glyphicon-plus"></span>
+                                                              +
                                                           </button>
                                                         {% else %}
                                                             <button type="button" class="btn btn-default btn-circle remove-field" id="join-remove-{{j}}">
-                                                              <span class="glyphicon glyphicon-minus"></span>
+                                                              -
                                                           </button>
                                                         {% endif %}
                                                   </span>
-                                                </div>
                                             </div>
                                         {% endif %}
                                     {% endif %}
@@ -131,39 +110,21 @@
                                                 {% comment %} the indiv value is the number of fields required per row {% endcomment %}
                                     {% if j < filterFieldsCount %}
                                         {% if i|divisibleby:5 == True %}
-                                            <div id="filter-input{{ j }}" class="filter-input row">
+                                            <div id="filter-input{{ j }}" class="filter-input row form-group">
                                         {% endif %}
-                                         {% if i|add:0|divisibleby:5 == True %}
-                                            <div class="col-sm-2 col-xs-3" >
                                                 {% bootstrap_field fields show_label=False %}
-                                            </div>
-                                        {% elif i|add:4|divisibleby:5 == True %}
-                                            <div class="col-sm-2 col-xs-3" >
-                                                {% bootstrap_field fields show_label=False %}
-                                            </div>
-                                        {% elif i|add:3|divisibleby:5 == True %}
-                                            <div class="col-sm-1 col-xs-1">
-                                                {% bootstrap_field fields show_label=False %}
-                                            </div>
-                                        {% else %}
-                                            <div class="col-sm-2 col-xs-2">
-                                                {% bootstrap_field fields show_label=False %}
-                                            </div>
-                                        {% endif %}
                                         {% if i|add:1|divisibleby:5 == True %}
-                                                <div class="col-sm-1 col-xs-1">
-                                                    <span class="input-group-btn">
+                                                    <span class="">
                                                         {% if j == 0 %}
                                                           <button type="button" class="btn btn-default btn-circle add-field">
-                                                              <span class="glyphicon glyphicon-plus"></span>
+                                                              +
                                                           </button>
                                                         {% else %}
                                                             <button type="button" class="btn btn-default btn-circle remove-field">
-                                                              <span class="glyphicon glyphicon-minus"></span>
+                                                              -
                                                           </button>
                                                         {% endif %}
                                                   </span>
-                                                </div>
                                             </div>
                                         {% endif %}
                                     {% endif %}
@@ -177,18 +138,16 @@
                             <label for="type" >Format</label>
                         </div>
                         <div id="type-fields" class="col-sm-11">
-                            <div class="row type-input">
+                            <div class="row type-input form-group">
                                 {% for fields in type_fields %}
-                                    <div class="col-sm-2 col-xs-4">
                                         {% bootstrap_field fields show_label=False %}
-                                    </div>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" class="row">
-                        <!--<div class="col-sm-1 "><button class="btn pull-right" type="reset">Reset</button></div>-->
-                        <div class="col-sm-12"><button class="btn pull-right" type="submit">Submit</button></div>
+                    <div class="row form-group">
+                        <div class="col-xs-1 "><button class="btn btn-default" type="reset" disabled>Reset</button></div>
+                        <div class="col-xs-11"><button class="btn btn-primary pull-right" type="submit">Submit</button></div>
                     </div>
                 </form>
                 </div>
@@ -215,10 +174,10 @@
             </div>
             <div class="col-xs-12">
                 <h4>Result</h4>
-                <div class="well well-sm">
-                 {% if message %}<p>{{ message }}</p>{% endif %}<br>
+                <div id="returnTableResults" class="table-responsive">
+                 {% if message %}{% autoescape off %}{{ message }}{% endautoescape %}{% endif %}<br>
                 </div>
-                <h4>Error</h4>
+                <h4>SQL</h4>
                 <div class="well well-sm">
                  {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}<br>
                 </div>
