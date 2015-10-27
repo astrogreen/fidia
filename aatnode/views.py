@@ -171,18 +171,19 @@ class QueryForm(generic.View):
                 # There were no join statements provided, so use the table from the select:
                 query += request.POST["select_cat_0"]
 
-            # Generate the WHERE part of the query
-            query += " WHERE "
-            for table, col, op, value in \
-                    elements_of(request.POST, "filter_cat_", "filter_columns_", "filter_operators_", "filter_value_"):
-                if table != '':
-                    query += table + "." + col + " "
-                    if op == 'BETWEEN':
-                        query += operator_map[op] + " " + " AND ".join(value.split(",")) + " AND "
-                    else:
-                        query += operator_map[op] + " " + value + " AND "
-            # Remove final AND:
-            query = query[:-5]            
+            # Check if there are any filter values, if so generate the WHERE part of the query
+            if(request.POST["filter_value_0"] != ''):
+                query += " WHERE "
+                for table, col, op, value in \
+                        elements_of(request.POST, "filter_cat_", "filter_columns_", "filter_operators_", "filter_value_"):
+                    if table != '':
+                        query += table + "." + col + " "
+                        if op == 'BETWEEN':
+                            query += operator_map[op] + " " + " AND ".join(value.split(",")) + " AND "
+                        else:
+                            query += operator_map[op] + " " + value + " AND "
+                # Remove final AND:
+                query = query[:-5]
 
             # We need to create the query here from POST data. Is this the best way to do that?
             #query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
