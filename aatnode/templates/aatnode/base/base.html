@@ -7,7 +7,7 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <!--<link rel="icon" href="../../favicon.ico">-->
+    <link rel="icon" href="/static/images/aao.ico">
 
      <title>ASVO-AAT | {% block title %}Home{% endblock %}</title>
 
@@ -15,8 +15,11 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/static/css/bootstrap-multiselect.css" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css"/>
     <!-- Custom styles for this template -->
     <link href="/static/css/main.css" rel="stylesheet">
+    <link href="/static/css/sign-in.css" rel="stylesheet">
+    <script src='https://www.google.com/recaptcha/api.js'></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -27,7 +30,7 @@
     <script src="/static/js/jqueryv1_11_3.min.js"></script>
   </head>
 
-  <body>
+  <body class="{% block body_class %}{% endblock %}">
   {% load  clever_selects_extras %}
 
     <!-- Fixed navbar -->
@@ -40,59 +43,111 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" rel="home" href="#">
-            <img src="/static/images/aao_logo.jpg">
+          <a class="navbar-brand" rel="home" href="/asvo/">
+            <img src="/static/images/aao_logo.png">
           </a>
             <!--<a class="navbar-brand" href="#">Project name</a>-->
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="/asvo/">Home</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Query <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="#">Query Form</a></li>
-                <li><a href="#">SQL</a></li>
+                <li><a href="/asvo/query-builder/">Query Form</a></li>
+                <li class="disabled"><a href="#">SQL</a></li>
                 <li role="separator" class="divider"></li>
-                <li><a href="#">SOV</a></li>
+                <li class="disabled"><a href="#">SOV</a></li>
+                <li class="disabled"><a href="#contact">Explorer</a></li>
               </ul>
             </li>
-            <li><a href="#contact">Explorer</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Documentation <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="#">Schema Browser</a></li>
-                <li><a href="#">Datasets</a></li>
-                <li><a href="#">Examples</a></li>
+                <li class="disabled"><a href="#">Schema Browser</a></li>
+                <li><a href="/asvo/documentation/">Accessing Data</a></li>
+                <li><a href="/asvo/documentation/#docs-examples">Examples</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">About</li>
-                <li><a href="#">Facilities</a></li>
-                <li><a href="#">Surveys</a></li>
+                <li class="disabled"><a href="#">Datasets</a></li>
+                <li class="disabled"><a href="#">Facilities</a></li>
+                <li class="disabled"><a href="#">Surveys</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="disabled"><a href="#">Referencing AAT</a></li>
+                <li class="disabled"><a href="#">Publications</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="disabled"><a href="#">Meet the Team</a></li>
               </ul>
             </li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="#">Login</a></li>
-                <li><a href="#">Register</a></li>
-                <li><a href="#">myData</a></li>
+                <li><a href="/asvo/sign-in/">Sign in</a></li>
+                <li><a href="/asvo/register/">Register</a></li>
+                <li class="disabled"><a href="#">myData</a></li>
               </ul>
             </li>
-            <li><a href="">Contact</a></li>
+            <li class="disabled"><a href="contact">Contact</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href=""><span class="glyphicon glyphicon-user"></span> User</a></li>
+            <li><a href=""><i class="fa fa-user"></i> User</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
 
     {% block wrapper %}content goes here{% endblock %}
+
+    <footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-4">
+                <h3>Explore <span>data</span></h3>
+                        <a href="#">Query Builder</a>
+                        <a href="#">SQL</a>
+                        <a href="#">Data Explorer</a>
+            </div>
+            <div class="col-md-3 col-sm-3 col-xs-4">
+              <h3>Help <span>& Support</span></h3>
+                      <a href="#">Contact us</a>
+                      <a href="#">About </a>
+                      <a href="#">Schema Browser </a>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-4 img-wrapper">
+              <div class='img-inner'>
+                <img class='img-responsive screen-logo pull-left' src='/static/images/asvo_logo_white_big.png'>
+                <img class='img-responsive screen-logo pull-right' src='/static/images/DIIS_AAO_logo_inline_inverted.png'>
+                <img class='img-responsive mobile-logo' src='/static/images/asvo_logo_white.png'>
+                <img class='img-responsive mobile-logo' src='/static/images/aao_logo_white.png'>
+              </div>
+            </div>
+
+        </div> <!--/.row-->
+    </div> <!--/.container-->
+
+      <div class="footer-bottom">
+          <div class="container">
+              <div class="pull-left"> <small>Copyright © 2015 All-Sky Virtual Observatory.</small></div>
+              <div class="pull-right">
+                  <a href='asvo.org' target='_blank'>ASVO </a> &nbsp;&nbsp;
+                  <a href="https://tao.asvo.org.au/tao/">TAO</a> |
+                  <a href="https://skymapper.anu.edu.au/">SkyMapper</a> |
+                  <a href="http://www.asvo.org.au/about/about-mwa/">MWA</a>
+              </div>
+          </div>
+      </div> <!--/.footer-bottom-->
+  </footer>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
 
     <script src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/datatables.min.js"></script>
     <script src="/static/js/main.js"></script>
 
     <script type="text/javascript" src="/static/js/bootstrap-multiselect.js"></script>

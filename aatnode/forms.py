@@ -45,9 +45,9 @@ class ReturnQuery(ChainedChoicesForm):
         exec("filter_columns_" +str(x) + " = ChainedChoiceField(parent_field='filter_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=False)")
         exec("filter_checkbox_" +str(x) + " = forms.BooleanField(label='Not',required=False)")
         exec("filter_operators_" + str(x)+ " = forms.ChoiceField(choices=[('EQUALS','='),('LESS_THAN','<'),('LESS_THAN_EQUALS','<='),('GREATER_THAN','>'),('GREATER_THAN_EQUALS','>='),('BETWEEN','BETWEEN'),('LIKE','LIKE'),('NULL','NULL')],required=False)")
-        exec("filter_value_" +str(x) + " = forms.CharField(required=False)")
+        exec("filter_value_" +str(x) + " = forms.CharField(required=False, label='value')")
 
-    tableType=forms.ChoiceField(choices=[('CSV','CSV'),('FITS','FITS'),('ASCII','ASCII')], label="Table Format")
+    tableType=forms.ChoiceField(choices=[('CSV','CSV'),('FITS','FITS'),('ASCII','ASCII')], label="Format", required=True)
 
     def __init__(self, *args, **kwargs):
         super(ReturnQuery, self).__init__(*args, **kwargs)

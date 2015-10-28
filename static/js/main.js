@@ -46,6 +46,10 @@ function HideThisField(){
     $(row).hide();                       //hide parent row with matching class (e.g., join-input)
     updateHeights();                                                //update the form height accordingly
 
+    if ($(row).hasClass('select-input')){
+        catalogueToHide=$(row).find('.chained-parent-field option:selected').text();
+    } else {catalogueToHide='';}
+
     $(row).find('.chained-parent-field').each(function(){
         parent_id = $(this).attr('id');
         chained_id = $(this).attr('chained_ids');
@@ -63,12 +67,17 @@ function HideThisField(){
     $(row).find("select option:first-child").attr("selected", "selected");
     $(row).find('input:checkbox').removeAttr('checked');
 
-    FormLogic();
 
+    FormLogic(catalogueToHide);
 }
 
-function updateForm(currentFieldType, showHideIndex){               //style newly displayed <select multiple>
-        $('#id_'+currentFieldType+'_columns_'+showHideIndex).multiselect({      //using multiselect
+function updateForm(currentField, index){               //style newly displayed <select multiple>
+    var elementName='#id_'+currentField+'_columns_'+index;
+    if (typeof index === 'undefined') {                 //if index is undefined, use string as ID
+        var elementName = '#'+currentField;
+    }
+//    console.log('MULTISELECT '+elementName);
+        $(elementName).multiselect({      //using multiselect
                 includeSelectAllOption: true,
                 disableIfEmpty: true,
                 enableFiltering:true,
@@ -115,6 +124,7 @@ function FormLogic(){
                             } else {                                                    //option not already in list, add
                                 $el.append($("<option></option>")
                                 .attr("value", value).text(key));
+//                                $el.multiselect('rebuild');
                             };
                         });
                         // now cycle through the select options and remove all not in select options array
@@ -123,8 +133,17 @@ function FormLogic(){
 
                             } else {
                                 if (this.text!='Catalogue'){
-                                    console.log(this.text);
+                                    //find selects with this value selected
+                                    //and rebuild those chained children multiselects
+                                    if ($el.find(' option:selected').val()==this.value){
+                                        chained_id = $el.attr('chained_ids');
+                                        console.log('UPDATE '+chained_id);
+                                        $('#'+chained_id).val('');
+                                        $('#'+chained_id+' option').remove();
+                                    }
+                                    //then loop over all parent selects and remove option
                                     $el.find('option[value="'+this.value+'"]').remove();
+                                    $('#'+chained_id).multiselect('rebuild');
                                 }
 
                             };
@@ -140,12 +159,7 @@ function FormLogic(){
                 });
             });
         } else {
-        //TODO remove selected option from next select
-        //THIS WILL ONLY BE HASSLE FREE IF THE NEXT OPTION ISNT ALLOWED UNTIL THIS ONE IS POPULATED
-//            $('[id^=id_'+fieldColumns+'_cat_]').each(function() {
-//                var $el=$(this);
-//
-//            });
+
         };
     };
 };
@@ -181,7 +195,47 @@ $( document ).ready(function() {                                    //FORM INITI
     FormLogic();
     $(selector+' select.chained-parent-field').change(function(){FormLogic();});
 
+//STYLING
+//    $("#queryForm select").each(function() {
+//        if ($(this).hasClass('chained-parent-field')){
+//            $(this).multiselect({
+//                includeSelectAllOption: true,
+//                enableFiltering: true,
+//                disableIfEmpty: true,
+//                maxHeight: 200,
+//                numberDisplayed: 20,
+////                buttonWidth: '180px',
+//            });
+//        } else {
+//            $(this).multiselect({
+//                disableIfEmpty: true,
+//                maxHeight: 200,
+//                numberDisplayed: 20,
+//            });
+//        }
+//    });
 
     //JQUERY VALIDATION
+//TODO test plugin - cost??!
+
+
+//DOCS
+$('body').scrollspy({
+    target: '.docs-sidebar',
+    offset: 40
+});
+
+//DATA TABLES
+
+if ($('#returnTableResults > table > thead > tr:nth-child(2) > th:nth-child(1)').length){
+//get text and remove dummy thead tr - problem with data structure in panda
+    $('table > thead > tr:nth-child(1) > th:nth-child(1)').append($('table > thead > tr:nth-child(2) > th:nth-child(1)').html());
+    $('#returnTableResults > table > thead > tr:nth-child(2)').remove();
+    $('#returnTableResults > table').css( 'border', '1px solid #ddd' );
+    $('#returnTableResults > table').DataTable();
+};
+
+
 
 });
+

@@ -26,6 +26,31 @@ class IndexView(generic.TemplateView):
         return context
 
 
+class DocView(generic.TemplateView):
+    template_name = 'aatnode/documentation/documentation.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DocView, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
+class SignIn(generic.TemplateView):
+    template_name = 'aatnode/user/sign-in.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SignIn, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
+class Register(generic.TemplateView):
+    template_name = 'aatnode/user/register.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Register, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
+
 class QueryView(generic.FormView):
     template_name = 'aatnode/queryform.html'
     form_class = QueryForm
@@ -63,15 +88,38 @@ class QueryForm(generic.View):
             if 'tableType' in i.html_name:
                 type_fields.append(i)
 
-        return render(request, self.template_name, {'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,'joinFieldsCount':ReturnQuery.joinFieldsCount, 'filterFieldsCount':ReturnQuery.filterFieldsCount, 'form_fields_as_list':form_fields_as_list, 'select_fields':select_fields, 'join_fields':join_fields,'filter_fields':filter_fields, 'type_fields':type_fields})
+        return render(request, self.template_name, {'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,
+                                                    'joinFieldsCount':ReturnQuery.joinFieldsCount,
+                                                    'filterFieldsCount':ReturnQuery.filterFieldsCount,
+                                                    'form_fields_as_list':form_fields_as_list,
+                                                    'select_fields':select_fields, 'join_fields':join_fields,
+                                                    'filter_fields':filter_fields, 'type_fields':type_fields})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+        select_fields=[]
+        join_fields=[]
+        filter_fields=[]
+        type_fields=[]
+        form_fields_as_list = list(form)
+        for i in form_fields_as_list:
+            if 'select_' in i.html_name:
+                select_fields.append(i)
+            if 'joinA_' in i.html_name:
+                join_fields.append(i)
+            if 'join_' in i.html_name:
+                join_fields.append(i)
+            if 'joinB_' in i.html_name:
+                join_fields.append(i)
+            if 'filter_' in i.html_name:
+                filter_fields.append(i)
+            if 'tableType' in i.html_name:
+                type_fields.append(i)
+
         if form.is_valid():
             # <process form cleaned data>
             print(request.POST)
             print(form.cleaned_data)
-
 
             # Create the query here from POST data.
             #
@@ -191,10 +239,14 @@ class QueryForm(generic.View):
             sample = AsvoSparkArchive().new_sample_from_query(query)
 
             return render(request, 'aatnode/form1/queryForm.html', {
-                'form': form,
-                'message': sample.tabular_data().to_html(),
+                'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,
+                'joinFieldsCount':ReturnQuery.joinFieldsCount, 'filterFieldsCount':ReturnQuery.filterFieldsCount,
+                'form_fields_as_list':form_fields_as_list, 'select_fields':select_fields, 'join_fields':join_fields,
+                'filter_fields':filter_fields, 'type_fields':type_fields,
+                'message': sample.tabular_data().to_html(classes='table table-hover',bold_rows=False),
                 'error_message': query,
             })
+
         else:
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
