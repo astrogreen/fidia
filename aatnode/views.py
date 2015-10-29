@@ -14,8 +14,6 @@ from .helpers import COLUMNS
 
 from fidia.fidia.archive.asvo_spark import AsvoSparkArchive
 
-# Create your views here.
-
 
 class IndexView(generic.TemplateView):
     template_name = 'aatnode/homePage/home.html'
@@ -69,10 +67,10 @@ class QueryForm(generic.View):
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
-        select_fields=[]
-        join_fields=[]
-        filter_fields=[]
-        type_fields=[]
+        select_fields = []
+        join_fields = []
+        filter_fields = []
+        type_fields = []
         form_fields_as_list = list(form)
         for i in form_fields_as_list:
             if 'select_' in i.html_name:
@@ -88,19 +86,24 @@ class QueryForm(generic.View):
             if 'tableType' in i.html_name:
                 type_fields.append(i)
 
-        return render(request, self.template_name, {'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,
-                                                    'joinFieldsCount':ReturnQuery.joinFieldsCount,
-                                                    'filterFieldsCount':ReturnQuery.filterFieldsCount,
-                                                    'form_fields_as_list':form_fields_as_list,
-                                                    'select_fields':select_fields, 'join_fields':join_fields,
-                                                    'filter_fields':filter_fields, 'type_fields':type_fields})
+        return render(request, self.template_name,
+                      {'form': form,
+                       'selectFieldsCount': ReturnQuery.selectFieldsCount,
+                       'joinFieldsCount': ReturnQuery.joinFieldsCount,
+                       'filterFieldsCount': ReturnQuery.filterFieldsCount,
+                       'form_fields_as_list': form_fields_as_list,
+                       'select_fields': select_fields,
+                       'join_fields': join_fields,
+                       'filter_fields': filter_fields,
+                       'type_fields': type_fields})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        select_fields=[]
-        join_fields=[]
-        filter_fields=[]
-        type_fields=[]
+
+        select_fields = []
+        join_fields = []
+        filter_fields = []
+        type_fields = []
         form_fields_as_list = list(form)
         for i in form_fields_as_list:
             if 'select_' in i.html_name:
@@ -121,138 +124,36 @@ class QueryForm(generic.View):
             print(request.POST)
             print(form.cleaned_data)
 
-            # Create the query here from POST data.
-            #
-            # Note: this code will rapidly become complex, and it should be
-            # moved elsewhere. It is here for the moment becaue it is not
-            # clear to me (AWG) where/how we should impliment this in the long
-            # run. It fits here for the demonstrator. It could be incorporated
-            # into FIDIA (and probably at least some of it will be), or it
-            # could be part of a seperate module. A better understanding of
-            # the astropy project "astroquery" is needed.
+            # Create the SQL Query from the post data.
+            query = build_query(request.POST)
 
-            # To simplify the creation of the query, which is nominally plain
-            # SQL, this code adopts the python-sql module. Thust we can
-            # programmatically generate our SQL with an existing library.
-
-
-            # The contents of the POST object are described here:
-            # https://docs.djangoproject.com/en/1.8/ref/request-response/#django.http.QueryDict
-
-            def elements_of(request, *args):
-                """Iterator which iterates over elements of the request dictionary with the same base name.
-
-                request: the QueryDict to iterate over.
-                args: the list of key base strings to iterate over
-
-                Description:
-
-                    Given a request dictionary like the following:
-
-                    {tab1, tab2, tab3, tab4,
-                    col1, col2, col3, col4, etc. Each key is a string followed by a numeric index. (Additional keys
-                    may be present, without affecting this function). This iterator is given the base strings as arguments
-
-                """
-
-                index = 0
-                while (args[0] + str(index)) in request:
-                    key_list = [key + str(index) for key in args]
-
-                    value_list = []
-                    for key in key_list:
-                        value = request.getlist(key)
-                        if isinstance(value, list) and len(value) == 1:
-                            value = value[0]
-                        value_list.append(value)
-
-                    yield tuple(value_list)
-                    index += 1
-
-            operator_map = {
-                'EQUALS': " = ",
-                'LESS_THAN': " < ",
-                'LESS_THAN_EQUALS': " <= ",
-                'GREATER_THAN': " > ",
-                'GREATER_THAN_EQUALS': " >= ",
-                'BETWEEN': " BETWEEN ",
-                'LIKE': " LIKE ",
-                'NULL': " NULL "
-            }
-            join_map = {
-                'INNER_JOIN': " INNER ",
-                'OUTER_JOIN': " OUTER ",
-                'LEFT_JOIN': " LEFT ",
-                'RIGHT_JOIN': " RIGHT ",
-                'FULL_JOIN': " FULL ",
-
-            }
-
-            # String containing the HiveSQL query
-            query = ""
-
-            # Generate the SELECT part of the query:
-            query += "SELECT "
-            for table, columns in elements_of(request.POST, "select_cat_", "select_columns_"):
-                if table != '':
-                    # Otherwise skip blank tables in the request.
-                    for col in columns:
-                        query += table + "." + col + ", "
-            # Remove the final ", " before continuing
-            query = query[:-2]
-
-            # Generate the FROM and JOIN part of the query
-            query += " FROM "
-            first = True
-            for left, left_col, join_type, right, right_col in \
-                    elements_of(request.POST, "joinA_cat_", "joinA_columns_", "join_type_", "joinB_cat_", "joinB_columns_"):
-                if left != '':
-                    if first:
-                        # First join statement must include lefthand table name
-                        query += left
-                        first = False
-                    query += join_map[join_type] + " JOIN " + right
-                    query += " ON " + left + "." + left_col
-                    query += " = "
-                    query += right + "." + right_col + " "
-            if first:
-                # There were no join statements provided, so use the table from the select:
-                query += request.POST["select_cat_0"]
-
-            # Check if there are any filter values, if so generate the WHERE part of the query
-            if(request.POST["filter_value_0"] != ''):
-                query += " WHERE "
-                for table, col, op, value in \
-                        elements_of(request.POST, "filter_cat_", "filter_columns_", "filter_operators_", "filter_value_"):
-                    if table != '':
-                        query += table + "." + col + " "
-                        if op == 'BETWEEN':
-                            query += operator_map[op] + " " + " AND ".join(value.split(",")) + " AND "
-                        else:
-                            query += operator_map[op] + " " + value + " AND "
-                # Remove final AND:
-                query = query[:-5]
-
-            # We need to create the query here from POST data. Is this the best way to do that?
-            #query = 'Select ' + ', '.join(request.POST.getlist('columns_1')) + ' from ' + request.POST['cat_1']
-
+            # Get FIDIA Sample Object
             sample = AsvoSparkArchive().new_sample_from_query(query)
 
-            return render(request, 'aatnode/form1/queryForm.html', {
-                'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,
-                'joinFieldsCount':ReturnQuery.joinFieldsCount, 'filterFieldsCount':ReturnQuery.filterFieldsCount,
-                'form_fields_as_list':form_fields_as_list, 'select_fields':select_fields, 'join_fields':join_fields,
-                'filter_fields':filter_fields, 'type_fields':type_fields,
-                'message': sample.tabular_data().to_html(classes='table table-hover',bold_rows=False),
-                'error_message': query,
-            })
+            # Produce HTML Table for display
+            html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
+
+            return render(request, 'aatnode/form1/queryForm.html',
+                          {'form': form,
+                           'selectFieldsCount': ReturnQuery.selectFieldsCount,
+                           'joinFieldsCount': ReturnQuery.joinFieldsCount,
+                           'filterFieldsCount': ReturnQuery.filterFieldsCount,
+                           'form_fields_as_list': form_fields_as_list,
+                           'select_fields': select_fields,
+                           'join_fields': join_fields,
+                           'filter_fields': filter_fields,
+                           'type_fields': type_fields,
+                           'message': html_table,
+                           'error_message': query}
+                          )
 
         else:
-            return render(request, 'aatnode/form1/queryForm.html', {
-                'form': form,
-                'message': '',
-                'error_message': 'INVALID FORM',
-            })
+            # Form is not valid:
+            return render(request, 'aatnode/form1/queryForm.html',
+                          {'form': form,
+                           'message': '',
+                           'error_message': 'INVALID FORM',
+                           })
 
 
 
@@ -269,8 +170,9 @@ class AjaxChainedColumns(ChainedSelectChoicesView):
 
 
 
-"""def index(request):
-    return HttpResponse("Hello world. You're at the ASVO AAT NODE")"""
+# def index(request):
+#     return HttpResponse("Hello world. You're at the ASVO AAT NODE")
+
 
 class QueryResultsView(generic.TemplateView):
     template_name = 'aatnode/queryresults.html'
@@ -278,13 +180,122 @@ class QueryResultsView(generic.TemplateView):
     # TODO: This is a redirect page. Soooo how to feed the data to this?
 
 
-def querys(request):
+def build_query(request):
     """
-    This should take a bunch of request parameters and create a sparksql query out of them.
-    :return:
+    Create the query here from POST data.
+
+    :param request: A QueryDict which is the request.POST data from the form.
+
+    Note: this code will rapidly become complex, and it may need to be
+    moved elsewhere. It is here for the moment becaue it is not
+    clear to me (AWG) where/how we should impliment this in the long
+    run. It fits here for the demonstrator. It could be incorporated
+    into FIDIA (and probably at least some of it will be), or it
+    could be part of a seperate module. A better understanding of
+    the astropy project "astroquery" is needed.
+
+    :return: Query string suitable for handing to Spark.
+
     """
-    # At this stage I have to assume the names of the form fields
-    # This function might not required since there is a QueryView class above.
 
+    # The contents of the POST object are described here:
+    # https://docs.djangoproject.com/en/1.8/ref/request-response/#django.http.QueryDict
 
-    pass
+    def elements_of(request, *args):
+        """Iterator which iterates over elements of the request dictionary with the same base name.
+
+        request: the QueryDict to iterate over.
+        args: the list of key base strings to iterate over
+
+        Description:
+
+            Given a request dictionary like the following:
+
+            {tab1, tab2, tab3, tab4,
+            col1, col2, col3, col4, etc. Each key is a string followed by a numeric index. (Additional keys
+            may be present, without affecting this function). This iterator is given the base strings as arguments
+
+        """
+
+        index = 0
+        while (args[0] + str(index)) in request:
+            key_list = [key + str(index) for key in args]
+
+            value_list = []
+            for key in key_list:
+                value = request.getlist(key)
+                if isinstance(value, list) and len(value) == 1:
+                    value = value[0]
+                value_list.append(value)
+
+            yield tuple(value_list)
+            index += 1
+
+    operator_map = {
+        'EQUALS': " = ",
+        'LESS_THAN': " < ",
+        'LESS_THAN_EQUALS': " <= ",
+        'GREATER_THAN': " > ",
+        'GREATER_THAN_EQUALS': " >= ",
+        'BETWEEN': " BETWEEN ",
+        'LIKE': " LIKE ",
+        'NULL': " NULL "
+    }
+    join_map = {
+        'INNER_JOIN': " INNER ",
+        'OUTER_JOIN': " OUTER ",
+        'LEFT_JOIN': " LEFT ",
+        'RIGHT_JOIN': " RIGHT ",
+        'FULL_JOIN': " FULL ",
+
+    }
+
+    # String containing the HiveSQL query
+    query = ""
+
+    # Generate the SELECT part of the query:
+    query += "SELECT "
+    for table, columns in elements_of(request, "select_cat_", "select_columns_"):
+        if table != '':
+            # Otherwise skip blank tables in the request.
+            for col in columns:
+                query += table + "." + col + ", "
+    # Remove the final ", " before continuing
+    query = query[:-2]
+
+    # Generate the FROM and JOIN part of the query
+    query += " FROM "
+    first = True
+    for left, left_col, join_type, right, right_col in \
+            elements_of(request, "joinA_cat_", "joinA_columns_", "join_type_", "joinB_cat_", "joinB_columns_"):
+        if left != '':
+            if first:
+                # First join statement must include lefthand table name
+                query += left
+                first = False
+            query += join_map[join_type] + " JOIN " + right
+            query += " ON " + left + "." + left_col
+            query += " = "
+            query += right + "." + right_col + " "
+    if first:
+        # There were no join statements provided, so use the table from the select:
+        query += request["select_cat_0"]
+
+    # Check if there are any filter values, if so generate the WHERE part of the query
+    if request["filter_value_0"] != '':
+        query += " WHERE "
+        for table, col, op, value in \
+                elements_of(request, "filter_cat_", "filter_columns_", "filter_operators_", "filter_value_"):
+            if table != '':
+                query += table + "." + col + " "
+                if op == 'BETWEEN':
+                    query += operator_map[op] + " " + " AND ".join(value.split(",")) + " AND "
+                else:
+                    query += operator_map[op] + " " + value + " AND "
+        # Remove final AND:
+        query = query[:-5]
+
+    # We need to create the query here from POST data. Is this the best way to do that?
+    #query = 'Select ' + ', '.join(request.getlist('columns_1')) + ' from ' + request['cat_1']
+
+    return query
