@@ -1,5 +1,10 @@
 import time
 
+# Set up logging
+import logging
+log = logging.getLogger(__name__)
+
+
 # Django Imports
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -132,10 +137,12 @@ class QueryForm(generic.View):
 
             # Define a query ID for this query:
             query_id = time.time()
+            log.info("Query ID '%s' processing", query_id)
             # TODO: Save this in the UI for use when requesting the CSV file.
 
             # Create the SQL Query from the post data.
             query = build_query(request.POST)
+            log.info("Query ID '%s' query_string: <<%s>>", query_id, query)
 
             # Get FIDIA Sample Object
             sample = AsvoSparkArchive().new_sample_from_query(query)
@@ -147,8 +154,9 @@ class QueryForm(generic.View):
             html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
 
             # Produce cached CSV results for potential download and save them to temporary directory
-            sample.tabular_data().to_csv(settings.CACHE_DIR + query_id + ".csv")
-
+            csv_filename = settings.CACHE_DIR + query_id + ".csv"
+            sample.tabular_data().to_csv(csv_filename)
+            log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
             return render(request, 'aatnode/form1/queryForm.html',
                           {'form': form,
@@ -171,7 +179,6 @@ class QueryForm(generic.View):
                            'message': '',
                            'error_message': 'INVALID FORM',
                            })
-
 
 
 class AjaxChainedColumns(ChainedSelectChoicesView):
