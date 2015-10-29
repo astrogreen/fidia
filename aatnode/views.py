@@ -1,10 +1,16 @@
+import time
+
+# Django Imports
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
-from .forms import QueryForm, ReturnQuery
 from django.core.urlresolvers import reverse_lazy
+from django.conf import settings
 
 from clever_selects.views import ChainedSelectChoicesView
+
+# Relative Package Imports
+from .forms import QueryForm, ReturnQuery
 from .helpers import COLUMNS
 
 
@@ -124,14 +130,25 @@ class QueryForm(generic.View):
             print(request.POST)
             print(form.cleaned_data)
 
+            # Define a query ID for this query:
+            query_id = time.time()
+            # TODO: Save this in the UI for use when requesting the CSV file.
+
             # Create the SQL Query from the post data.
             query = build_query(request.POST)
 
             # Get FIDIA Sample Object
             sample = AsvoSparkArchive().new_sample_from_query(query)
 
+            # Produce JSON representation of result table
+            # json_table = sample.tabular_data().to_json()
+
             # Produce HTML Table for display
             html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
+
+            # Produce cached CSV results for potential download and save them to temporary directory
+            sample.tabular_data().to_csv(settings.CACHE_DIR + query_id + ".csv")
+
 
             return render(request, 'aatnode/form1/queryForm.html',
                           {'form': form,

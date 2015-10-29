@@ -123,6 +123,10 @@ STATICFILES_DIRS = (
     '/var/www/static/',
 )
 
+# Query results cache
+
+CACHE_DIR = '/tmp/asvo_cache/'
+
 try:
     from .custom_settings import *
 except ImportError:
