@@ -13,5 +13,6 @@ urlpatterns = [
 
     url(r'^ajax/chained-columns/$', views.AjaxChainedColumns.as_view(), name='ajax_chained_columns'),
     url(r'^query-builder/$', views.QueryForm.as_view(), name='queryForm'),
+    url(r'^csv_download/([\d\.]+)\.csv$', views.csv_downloader)
 
 ]

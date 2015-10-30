@@ -1,3 +1,4 @@
+import os
 import time
 
 # Set up logging
@@ -11,6 +12,7 @@ from django.http import HttpResponse
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.conf import settings
+from django.views.static import serve
 
 from clever_selects.views import ChainedSelectChoicesView
 
@@ -24,6 +26,20 @@ from .helpers import COLUMNS
 #import sqlalchemy as sql
 
 from fidia.fidia.archive.asvo_spark import AsvoSparkArchive
+
+
+def csv_downloader(request, query_id):
+    """Simple View to return a cached CSV file."""
+
+    # @TODO: Check that the query_id actually refers to a cached result.
+
+    # Use Django file serving to send the file
+    # (see https://docs.djangoproject.com/en/1.8/howto/static-files/)
+    log.info("Sending cached CSV files for query id '%s'", query_id)
+    filepath = csv_cache_filename(query_id)
+    if not os.path.exists(filepath):
+        log.warning("Cached CSV File '%s' not found", filepath)
+    return serve(request, filepath, document_root='/')
 
 
 class IndexView(generic.TemplateView):
@@ -136,7 +152,7 @@ class QueryForm(generic.View):
             print(form.cleaned_data)
 
             # Define a query ID for this query:
-            query_id = time.time()
+            query_id = "{0:.2f}".format(time.time())
             log.info("Query ID '%s' processing", query_id)
             # TODO: Save this in the UI for use when requesting the CSV file.
 
@@ -154,7 +170,7 @@ class QueryForm(generic.View):
             html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
 
             # Produce cached CSV results for potential download and save them to temporary directory
-            csv_filename = settings.CACHE_DIR + query_id + ".csv"
+            csv_filename = csv_cache_filename(query_id)
             sample.tabular_data().to_csv(csv_filename)
             log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
@@ -202,6 +218,18 @@ class QueryResultsView(generic.TemplateView):
     template_name = 'aatnode/queryresults.html'
 
     # TODO: This is a redirect page. Soooo how to feed the data to this?
+
+
+def csv_cache_filename(query_id):
+    """Generate a absolute path+filename for a CSV cache file.
+
+    Creates the CACHE_DIR directory if required.
+
+    """
+
+    if not os.path.exists(settings.CACHE_DIR):
+        os.mkdir(settings.CACHE_DIR)
+    return settings.CACHE_DIR + query_id + ".csv"
 
 
 def build_query(request):
