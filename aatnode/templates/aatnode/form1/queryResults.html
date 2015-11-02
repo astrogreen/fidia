@@ -1,0 +1,55 @@
+{% extends 'base/base.html' %}
+{# Load the tag library #}
+{% load asvo_tags %}
+{% load mathfilters %}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block title %} Query Form {% endblock %}
+{% block wrapper %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+            <h2>Query</h2>
+            </div>
+            <div class="col-xs-12">
+                <h4>Result</h4>
+                <div class="row">
+                    {% if csv_download %}
+                    Download
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="downloadType" value="CSV" /> <a href="csv_download">CSV</a>
+                        </label>
+                        {% comment %}
+                        <label class="btn btn-default">
+                            <input type="radio" name="downloadType" value="FITS" /> FITS
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="downloadType" value="ASCII" /> ASCII
+                        </label>
+                        {% endcomment %}
+                    </div>
+                    {% endif %}
+                    <a href="" class="btn btn-default pull-right"> New Query</a>
+                </div><hr/><br>
+                <div class="row">
+                    <div id="returnTableResults" class="table-responsive">
+                     {% if query_data %}{% autoescape off %}{{ query_data }}{% endautoescape %}{% endif %}<br>
+                    </div>
+                </div>
+
+                <h4>SQL</h4>
+                <div class="well well-sm">
+                 {% if sql_query %}<p>{{ sql_query }}</p>{% endif %}<br>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

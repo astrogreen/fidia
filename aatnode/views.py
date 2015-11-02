@@ -97,24 +97,6 @@ class QueryForm(generic.View):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        select_fields=[]
-        join_fields=[]
-        filter_fields=[]
-        type_fields=[]
-        form_fields_as_list = list(form)
-        for i in form_fields_as_list:
-            if 'select_' in i.html_name:
-                select_fields.append(i)
-            if 'joinA_' in i.html_name:
-                join_fields.append(i)
-            if 'join_' in i.html_name:
-                join_fields.append(i)
-            if 'joinB_' in i.html_name:
-                join_fields.append(i)
-            if 'filter_' in i.html_name:
-                filter_fields.append(i)
-            if 'tableType' in i.html_name:
-                type_fields.append(i)
 
         if form.is_valid():
             # <process form cleaned data>
@@ -183,9 +165,7 @@ class QueryForm(generic.View):
                 'INNER_JOIN': " INNER ",
                 'OUTER_JOIN': " OUTER ",
                 'LEFT_JOIN': " LEFT ",
-                'RIGHT_JOIN': " RIGHT ",
-                'FULL_JOIN': " FULL ",
-
+                'RIGHT_JOIN': " RIGHT "
             }
 
             # String containing the HiveSQL query
@@ -237,20 +217,16 @@ class QueryForm(generic.View):
 
             sample = AsvoSparkArchive().new_sample_from_query(query)
 
-            return render(request, 'aatnode/form1/queryForm.html', {
-                'form': form, 'selectFieldsCount':ReturnQuery.selectFieldsCount,
-                'joinFieldsCount':ReturnQuery.joinFieldsCount, 'filterFieldsCount':ReturnQuery.filterFieldsCount,
-                'form_fields_as_list':form_fields_as_list, 'select_fields':select_fields, 'join_fields':join_fields,
-                'filter_fields':filter_fields, 'type_fields':type_fields,
-                'message': sample.tabular_data().to_html(classes='table table-hover',bold_rows=False),
-                'error_message': query,
+            return render(request, 'aatnode/form1/queryResults.html', {
+                'query_data': sample.tabular_data().to_html(classes='table table-hover',bold_rows=False),
+                'sql_query': query,
             })
 
         else:
             return render(request, 'aatnode/form1/queryForm.html', {
                 'form': form,
-                'message': '',
-                'error_message': 'INVALID FORM',
+                'query_data': '',
+                'sql_query': 'INVALID FORM',
             })
 
 

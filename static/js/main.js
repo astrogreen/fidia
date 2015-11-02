@@ -1,20 +1,16 @@
-//FORM BEHAVIOUR - - - - - - - - - - - -
-//TODO populate FIELDS from backend
-//TODO validate field input on submit for multiselect-ed dropdowns
+////FORM BEHAVIOUR - - - - - - - - - - - -
 var Fields={                                                        //field-types 'classes' with their corresponding 'columns'
     "select":["select"],
     "join":["joinA", "joinB"],
     "filter":["filter"],
 };
-//for (var fieldClass in Fields){
-//    $.each(Fields[fieldClass],function(i, fieldColumns){
-//    });
-//};
+////for (var fieldClass in Fields){
+////    $.each(Fields[fieldClass],function(i, fieldColumns){
+////    });
+////};
 var plusButton='add-field';
 var minusButton='remove-field';
 var selector = '.select-input';
-$('.'+plusButton).on("click", ShowNewField);                        //Bind functions to click events on buttons
-$('.'+minusButton).on("click", HideThisField);
 
 function ShowNewField(){
     row=$(this).parents("[class*='-input']");                       //find the class of the group (select, filter, join?)
@@ -27,86 +23,134 @@ function ShowNewField(){
             while ($('#'+fieldTypeSelector + showHideIndex).is(":visible")){
                 showHideIndex++;
             }
-            $('#'+fieldTypeSelector + showHideIndex).show();        //show row with ID = fieldTypeSelector+number
-            if (showHideIndex >= fieldTotalLength ){
-                $('#maxFieldsModal').modal('show');                 //show the modal if greater than allowed number
-            }
 
-            $.each(Fields[fieldClass],function(i, fieldColumns){
-                updateForm(fieldColumns, showHideIndex);            //update the form height if new elements shown/hidden
-            })
-        }
+            if (showHideIndex >= fieldTotalLength ){
+                $('#maxFieldsModal').modal('show');                 //SHOW MODAL IF GREATER THAN ALLOWABLE NUMBER
+            } else {
+                var rowID='#'+fieldTypeSelector + showHideIndex;
+                ShowInputFields(rowID);                             //SHOW THIS NEXT AVAILABLE ROW, TURN ON VALIDATION OF INPUTS
+            };
+        };
     };
     FormLogic();
 };
 
+function EnableDisableValidation(fieldName, enableBool){
+    var message = null;
+    //IF THE INPUT ELEMENT HAS VALIDATION REQUIREMENTS SET (WHETHER ENABLED OR NOT)
+    if ((fieldName)&&(($('#queryForm').data('formValidation').getOptions(fieldName))!== null)){
+
+if (enableBool==false && fieldName== 'select-input0'){console.log(enableBool);}
+
+        if ((fieldName=='select_cat_0' && enableBool==false) || (fieldName=='select_columns_0' && enableBool == false)){
+            message = 'cannot change select-input0';
+        } else {
+            // CHANGE VALIDATION (NOT ON FIRST SELECT ROW)
+            $('#queryForm').formValidation('enableFieldValidators', fieldName, enableBool);
+            message= 'state validated';
+            $('#queryForm').formValidation('revalidateField', fieldName);
+//            console.log(fieldName+' '+enableBool);
+        }
+   };
+   return message;
+}
+
+function ShowInputFields(parentID){
+    $(parentID).show();                                    //SHOW THIS NEXT AVAILABLE ROW (VALIDATION ONLY ON VISIBLE ELEMENTS)
+    $(parentID).find('input, select')
+        .not(':input[type=button], :input[type=submit], :input[type=reset]')
+        .each(function(){
+            var elNAME=this.name;
+            var elID='#'+this.id;
+            if (elNAME){
+//                console.log('TURNING ON: '+rowID+' with NAME: '+elNAME);
+                EnableDisableValidation(elNAME, true);
+                //IF ELEMENT HAS MULTISELECT ENABLED
+                if ($(this).siblings('.btn-group').children('button.multiselect').length != 0){
+                    $(elID).multiselect('rebuild');
+                }
+                //TURNING THIS ON VALIDATES ON SHOW - user can see what they've missed
+                $('#queryForm').formValidation('revalidateField', elNAME);
+            };
+        });
+};
+
+function ClearInputFields(parentID) {
+
+    $(parentID).find('input, select')
+               .not(':input[type=button], :input[type=submit], :input[type=reset]')
+               .each(function(){
+                   var elNAME=this.name;
+                   //TURN OFF VALIDATION (MUST BE BEFORE REBUILD MULTISELECT)
+                   EnableDisableValidation(elNAME, false);
+                   //REBUILD MULTISELECTS
+                    switch(this.type) {
+                        case 'text':
+                            $(this).val('');
+                            break;
+                        case 'textarea':
+                            break;
+                        case 'file':
+                            break;
+                        case 'select-one':              //FOR BOTH CASES
+                        case 'select-multiple':
+//                            $(this).val(''); //use prop selected false instead cross-browser
+                            $(this).find(" option:selected").prop("selected", false);
+//                            console.log($(this).attr('ID'));
+                            //RESET MULTISELECTS
+                            if ($(this).siblings('.btn-group').children('button.multiselect').length != 0){
+                                //IF A CHAINED-ELEMENT REMOVE ALL OPTIONS
+                                if ($(this).attr('ajax_url')){
+//                                    console.log('chained ELEMENT');
+                                    $('#'+this.id+' option').remove()
+                                }
+                                //IF PARENT OR NOT CHAINED JUST REBUILD
+                                $(this).multiselect('rebuild');
+//                                console.log('MULTISELECT REBUILD');
+                            }
+                            break;
+                        case 'checkbox':
+                            this.checked = false;
+                            break;
+                        case 'radio':
+                            this.checked = false;
+                            break;
+                    }
+               });
+};
 
 function HideThisField(){
     var row=$(this).parents("[id*='-input']");
-    $(row).hide();                       //hide parent row with matching class (e.g., join-input)
-    updateHeights();                                                //update the form height accordingly
-
-    if ($(row).hasClass('select-input')){
-        catalogueToHide=$(row).find('.chained-parent-field option:selected').text();
-    } else {catalogueToHide='';}
-
-    $(row).find('.chained-parent-field').each(function(){
-        parent_id = $(this).attr('id');
-        chained_id = $(this).attr('chained_ids');
-
-        $('#'+parent_id).val('');                                       //reset the select
-        $('#'+chained_id+' option:selected').each(function() {
-                $(this).prop('selected', false);
-        });
-        $('#'+chained_id).val('');
-        $('#'+chained_id+' option').remove();
-        $('#'+chained_id).multiselect('rebuild');
-    });
-
-    $(row).find('input[type=text], select').val("");
-    $(row).find("select option:first-child").attr("selected", "selected");
-    $(row).find('input:checkbox').removeAttr('checked');
-
-
-    FormLogic(catalogueToHide);
-}
-
-function updateForm(currentField, index){               //style newly displayed <select multiple>
-    var elementName='#id_'+currentField+'_columns_'+index;
-    if (typeof index === 'undefined') {                 //if index is undefined, use string as ID
-        var elementName = '#'+currentField;
-    }
-//    console.log('MULTISELECT '+elementName);
-        $(elementName).multiselect({      //using multiselect
-                includeSelectAllOption: true,
-                disableIfEmpty: true,
-                enableFiltering:true,
-                maxHeight: 200,
-                numberDisplayed: 20,
-                nonSelectedText: 'Select columns'
-        });                                                         //rebuild the multiselect to reflect new data
-    updateHeights();                                                //update container height to reflect new styling
-}
-
-function updateHeights(){                                           //ALTER THE FORM HEIGHT BASED ON SHOWN FIELDS
-    $('#returnWrapper').height($('#select-fields').height()+$('#join-fields').height()+$('#filter-fields').height());
+    $(row).hide();                                                  //HIDE THE PARENT ROW OF THE BUTTON
+    var rowID='#'+row.attr('id');
+    ClearInputFields(rowID);
+    FormLogic();
 };
 
 function FormLogic(){
-    var selectOptions = {};                                                    //create list of current select options (occurs after the reset if remove)
+    //LINK JOINS TO SELECTS
+    var fieldTotalLength=$(selector).length;
+    var hideCounter=0;
+    for (var t=1; t < fieldTotalLength;t++){
+        var p=t-1;
+        if ($('#select-input'+t).css('display') == 'inline-block'){
+            ShowInputFields('#join-input'+p);
+            $('#joinWrapper').show();
+        } else if ($('#select-input'+t).css('display') == 'none') {
+            $('#join-input'+p).hide();
+            ClearInputFields('#join-input'+p);
+            hideCounter++;
+            if (hideCounter==fieldTotalLength-1){$('#joinWrapper').hide();}
+        };
+    };
+
+    //ALTER AVAILABLE OPTIONS TO FILTER AND JOIN FIELDS
+    //CREATE A LIST OF AVAILABLE OPTIONS (OCCURS AFTER SetUpForm())
+    var selectOptions = {};
     $.each($('.select-input'),function(index){
         var selectId=$(this).find(' select.chained-parent-field').attr('id');
-//        defaultOption = $(this).find(' select.chained-parent-field option:selected').first().text();
         selectOptions[$("#"+selectId+" option:selected").text()]=$("#"+selectId+" option:selected").val();
     });
-
-    var fieldTotalLength=$(selector).length;
-    if ($(selector).filter(":hidden").size()==fieldTotalLength-1){
-            $('#joinWrapper').hide();
-    }
-    else {
-            $('#joinWrapper').show();
-    };
 
     for (var fieldClass in Fields){
         if (fieldClass != 'select'){
@@ -120,11 +164,16 @@ function FormLogic(){
                         $el.prop('disabled', false);
                         $.each(selectOptions,function(key,value){
                             if ( $el.find('option[value="'+value+'"]').length>0 ){
-
-                            } else {                                                    //option not already in list, add
+                            } else {
+                            //OPTION ISN'T IN JOIN/FILTER CATALOGUE OPTIONS :- ADD
                                 $el.append($("<option></option>")
                                 .attr("value", value).text(key));
-//                                $el.multiselect('rebuild');
+                                //IF MULTISELECT EXISTS
+                                if ($el.siblings('.btn-group').children('button.multiselect').length != 0){
+                                    $el.multiselect('rebuild');
+                                    var elNAME = $el.attr('name');
+//                                    $('#queryForm').formValidation('revalidateField', elNAME);
+                                };
                             };
                         });
                         // now cycle through the select options and remove all not in select options array
@@ -132,110 +181,555 @@ function FormLogic(){
                             if (selectOptions[this.text] ){
 
                             } else {
-                                if (this.text!='Catalogue'){
+                                if (this.text!='catalogue'){
                                     //find selects with this value selected
                                     //and rebuild those chained children multiselects
                                     if ($el.find(' option:selected').val()==this.value){
-                                        chained_id = $el.attr('chained_ids');
-                                        console.log('UPDATE '+chained_id);
+                                        var chained_id = $el.attr('chained_ids');
+//                                        console.log('UPDATE '+chained_id);
                                         $('#'+chained_id).val('');
                                         $('#'+chained_id+' option').remove();
                                     }
                                     //then loop over all parent selects and remove option
                                     $el.find('option[value="'+this.value+'"]').remove();
-                                    $('#'+chained_id).multiselect('rebuild');
+                                    if ($el.siblings('.btn-group').children('button.multiselect').length != 0){
+                                        $el.multiselect('rebuild');
+                                        var elNAME = $el.attr('name');
+//                                        $('#queryForm').formValidation('revalidateField', elNAME);
+                                    }
                                 }
-
                             };
                         });
                     };
-
-//TODO ADD FEEDBACK
-//                    $el.addClass('alert-border').delay(400).queue(function(){
-//                        $(this).removeClass("alert-border");
-//                        $(this).dequeue();
-//                    });;
-
                 });
             });
-        } else {
-
-        };
+        }
     };
+    console.log($('#queryForm').data('formValidation').getInvalidFields());
 };
 
-//END FORM BEHAVIOUR - - - - - - - - - - -
-
-$( document ).ready(function() {                                    //FORM INITIAL STATE
-    $('[data-toggle="popover"]').popover();
-
+////FORMVALIDATION CUSTOM VALIDATORS
+function SetUpForm(){
+    //HIDE ALL BEYOND 0
     for (var fieldClass in Fields){
         $('.remove-field').parents('.'+fieldClass+'-input').hide();
-
         var fieldTotalLength=$('.'+fieldClass+'-input').length;
+        //REMOVE SOME DEFAULT DJANGO OPTIONS AND EMPTY THE FILTER AND JOIN CATS
         $.each(Fields[fieldClass],function(i, fieldColumns){
             for (var j=0; j<fieldTotalLength; j++){
                 $('#id_'+fieldColumns+'_columns_'+j+' option:contains(--------)').remove();
-                updateForm(fieldColumns,j);
             }
             if (fieldClass != 'select'){
                 $('[id^=id_'+fieldColumns+'_cat_]').each(function() {
                         var $el=$(this);
                         $el.empty();
                         $el.append($("<option></option>")
-                                        .attr("value", '').text('Catalogue'));
+                                        .attr("value", '').text('catalogue'));
                         $el.prop('disabled', 'disabled');
                 });
-
             };
         });
-
     };
 
-    FormLogic();
-    $(selector+' select.chained-parent-field').change(function(){FormLogic();});
+    //ADD SPECIFIC VALIDATORS
+    $('#queryForm')
+        .formValidation({
+            framework: 'bootstrap',
+            // Exclude only disabled fields
+            // The invisible fields set by Bootstrap Multiselect must be validated
+            excluded: ':disabled',
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                select_cat_0: {
+                    enabled:true,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                select_cat_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                select_cat_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                select_cat_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                select_cat_4: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                select_columns_0: {
+                    enabled:true,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                select_columns_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                select_columns_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                select_columns_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                select_columns_4: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                // JOINS
+                joinA_cat_0: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinA_cat_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinA_cat_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinA_cat_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinA_columns_0: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                joinA_columns_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                joinA_columns_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                joinA_columns_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                //
+                joinB_cat_0: {
+                    enabled: false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinB_cat_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinB_cat_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinB_cat_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                joinB_columns_0: {
+                    enabled: false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                joinB_columns_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                joinB_columns_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                joinB_columns_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                // FILTERS
+                filter_cat_0: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                filter_cat_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                filter_cat_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                filter_cat_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                filter_cat_4: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select a catalogue'
+                        }
+                    }
+                },
+                filter_columns_0: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                filter_columns_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                filter_columns_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                filter_columns_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                filter_columns_4: {
+                    enabled:false,
+                    validators: {
+                        notEmpty: {
+                            message: 'Select columns'
+                        }
+                    }
+                },
+                //TODO add additional SQL validation
+                filter_value_0: {
+                    enabled:false,
+                    validators: {
+                        notEmpty:{
+                            message:'Please provide a value'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
+                        }
+                    }
+                },
+                filter_value_1: {
+                    enabled:false,
+                    validators: {
+                        notEmpty:{
+                            message:'Please provide a value'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
+                        }
+                    }
+                },
+                filter_value_2: {
+                    enabled:false,
+                    validators: {
+                        notEmpty:{
+                            message:'Please provide a value'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
+                        }
+                    }
+                },
+                filter_value_3: {
+                    enabled:false,
+                    validators: {
+                        notEmpty:{
+                            message:'Please provide a value'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
+                        }
+                    }
+                },
+                filter_value_4: {
+                    enabled:false,
+                    validators: {
+                        notEmpty:{
+                            message:'Please provide a value'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
+                        }
+                    }
+                },
+            }
+        });
+    //BUILD MULTISELECTS
+    //ON CATALOGUES
+    $('#queryForm').find('[name^="select_cat_"],[name^="joinA_cat_"],[name^="joinB_cat_"],[name^="filter_cat_"]')
+    .each(function(index){
+        ID=$(this).attr('ID');
+        var elNAME=$(this).attr('name');
+        $('#'+ID).multiselect({
+            includeSelectAllOption: true,
+            disableIfEmpty: true,
+            enableFiltering:true,
+            maxHeight: 260,
+            numberDisplayed: 20,
+            nonSelectedText: 'catalogue',
+            //ON CHANGE REVALIDATE THE FIELD
+            onChange: function(element, checked) {
+                $('#queryForm').formValidation('revalidateField', elNAME);
+            }
+        })
+    });
+    //ON COLUMNS
+    $('#queryForm').find('[name^="select_columns_"],[name^="joinA_columns_"],[name^="joinB_columns_"],[name^="filter_columns_"]')
+    .each(function(index){
+        ID=$(this).attr('ID');
+        var elNAME=$(this).attr('name');
+        $('#'+ID).multiselect({
+            includeSelectAllOption: true,
+            disableIfEmpty: true,
+            enableFiltering:true,
+            maxHeight: 260,
+            numberDisplayed: 20,
+            nonSelectedText: 'columns',
+            //ON CHANGE REVALIDATE THE FIELD
+            onChange: function(element, checked) {
+                $('#queryForm').formValidation('revalidateField', elNAME);
+            }
+        })
+    });
 
-//STYLING
-//    $("#queryForm select").each(function() {
-//        if ($(this).hasClass('chained-parent-field')){
-//            $(this).multiselect({
-//                includeSelectAllOption: true,
-//                enableFiltering: true,
-//                disableIfEmpty: true,
-//                maxHeight: 200,
-//                numberDisplayed: 20,
-////                buttonWidth: '180px',
-//            });
-//        } else {
-//            $(this).multiselect({
-//                disableIfEmpty: true,
-//                maxHeight: 200,
-//                numberDisplayed: 20,
-//            });
-//        }
-//    });
+    $( "#filterWrapper" ).hide();
+    FilterToggle();
 
-    //JQUERY VALIDATION
-//TODO test plugin - cost??!
+};
+SetUpForm();
 
 
-//DOCS
-$('body').scrollspy({
-    target: '.docs-sidebar',
-    offset: 40
-});
+function CheckFieldState(fieldName){
+    for (var fieldClass in Fields){
+    $.each(Fields[fieldClass],function(i, fieldColumns){
+        $('[id^=id_'+fieldColumns+'_cat_],[id^=id_'+fieldColumns+'_columns_],[id^=id_'+fieldColumns+'_value_]')
+            .each(function() {
+                var $el=$(this);
+                var elNAME=$el.attr('NAME');
+                var elID='#'+$el.attr('ID');
+//                console.log(elNAME);
+                row=$(this).parents("[class*='-input']");                       //find the class of the group (select, filter, join)
+                rowID='#'+row.attr('ID');
+                if ($(rowID).is(":visible")){                                   //IF ROW IS VISIBLE, ALLOW VALIDATION ON FIELDS
+                     EnableDisableValidation(elNAME, true);
+                     console.log(rowID);
+//                     $('#queryForm').formValidation('revalidateField', elNAME);
+                } else {
+                    EnableDisableValidation(elNAME, false);                     //ELSE DISABLE VALIDATION
+                }
+            });
+        });
+    };
+}
 
-//DATA TABLES
-
-if ($('#returnTableResults > table > thead > tr:nth-child(2) > th:nth-child(1)').length){
-//get text and remove dummy thead tr - problem with data structure in panda
-    $('table > thead > tr:nth-child(1) > th:nth-child(1)').append($('table > thead > tr:nth-child(2) > th:nth-child(1)').html());
-    $('#returnTableResults > table > thead > tr:nth-child(2)').remove();
-    $('#returnTableResults > table').css( 'border', '1px solid #ddd' );
-    $('#returnTableResults > table').DataTable();
+function FilterToggle(){
+    if ($("#filterWrapper").is( ":visible" )){
+        $("#filterToggle").html('remove filter').removeClass('btn-info').addClass('btn-warning');
+        ShowInputFields('#filter-input0');
+    } else {
+        $("#filterToggle").html('add filter').removeClass('btn-warning').addClass('btn-info');
+        $('#queryForm').find('[id^="filter-input"]')
+            .each(function(index){
+                var rowID='#'+$(this).attr('ID');
+                ClearInputFields(rowID);
+                if (rowID != '#filter-input0'){
+                    $(rowID).hide();
+                }
+            });
+    }
 };
 
+$( document ).ready(function() {
+    $('[data-toggle="popover"]').popover();
+    FormLogic();
+    CheckFieldState();
 
+    $(selector+' select.chained-parent-field').change(function(){FormLogic();});
+
+    //BIND ADD AND REMOVE BUTTONS;
+    $('.'+plusButton).on("click", ShowNewField);
+    $('.'+minusButton).on("click", HideThisField);
+
+    //TOGGLE FILTER WRAPPER
+    $("#filterToggle").click(function() {
+        $( "#filterWrapper" ).toggle("slow", function() {
+            FilterToggle();
+        });
+    });
+
+    //RESET FORM BUTTON
+    $('#queryReset').click(function(){
+        $('#queryForm').data('formValidation').resetForm();
+        SetUpForm();
+        //trash and rebuild select 0
+        ClearInputFields('#select-input0');
+        ShowInputFields('#select-input0');
+
+        CheckFieldState();
+        FormLogic();
+        $( "#filterWrapper" ).hide();
+        FilterToggle();
+    });
+
+
+//TODO move to separate js files per template
+    //DOCS
+        $('body').scrollspy({
+            target: '.docs-sidebar',
+            offset: 40
+        });
+
+    //DATA TABLES
+    if ($('#returnTableResults > table > thead > tr:nth-child(2) > th:nth-child(1)').length){
+    //get text and remove dummy thead tr - problem with data structure in panda
+        $('table > thead > tr:nth-child(1) > th:nth-child(1)').append($('table > thead > tr:nth-child(2) > th:nth-child(1)').html());
+        $('#returnTableResults > table > thead > tr:nth-child(2)').remove();
+        $('#returnTableResults > table').css( 'border', '1px solid #ddd' );
+        $('#returnTableResults > table').DataTable();
+    };
 
 });
-
