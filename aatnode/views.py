@@ -174,6 +174,9 @@ class QueryForm(generic.View):
             sample.tabular_data().to_csv(csv_filename)
             log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
+            # Download URL to pass to web template
+            csv_url = "/csv_download/" + query_id + ".csv"
+
             return render(request, 'aatnode/form1/queryForm.html',
                           {'form': form,
                            'selectFieldsCount': ReturnQuery.selectFieldsCount,
@@ -185,6 +188,7 @@ class QueryForm(generic.View):
                            'filter_fields': filter_fields,
                            'type_fields': type_fields,
                            'message': html_table,
+                           'csv_download_url': csv_url,
                            'error_message': query}
                           )
 
