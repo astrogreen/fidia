@@ -7,6 +7,8 @@ COLUMNS = {}
 tblnames = mediator.get_tables()
 
 for table in tblnames:
-    if not table == 'tilingcat': # There's problem with this table in hadoop
-        CAT += ((table, table),)
-        COLUMNS.update({table: mediator.get_column_names(table)})
+    tableName = table.name
+    CAT += ((tableName, tableName),)
+    COLUMNS.update({tableName: mediator.get_column_names(tableName)})
+
+

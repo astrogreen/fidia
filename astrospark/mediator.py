@@ -33,4 +33,5 @@ def get_column_names(table):
     return hive_ctx.table(table).columns
 
 def get_tables():
-    return hive_ctx.tableNames()
+    df = hive_ctx.sql('Select name from tables where tableid is not null')
+    return df.collect()
