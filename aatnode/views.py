@@ -156,7 +156,7 @@ class QueryForm(generic.View):
             log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
             return render(request, 'aatnode/form1/queryResults.html', {
-                'query_data': sample.tabular_data().to_html(classes='table table-hover',bold_rows=False),
+                'query_data': html_table,
                 'sql_query': query,
             })
 
