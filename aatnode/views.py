@@ -145,7 +145,7 @@ class QueryForm(generic.View):
             sample = AsvoSparkArchive().new_sample_from_query(query)
 
             # Produce JSON representation of result table
-            # json_table = sample.tabular_data().to_json()
+            json_table = sample.tabular_data().to_json()
 
             # Produce HTML Table for display
             html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
@@ -161,6 +161,7 @@ class QueryForm(generic.View):
             return render(request, 'aatnode/form1/queryResults.html', {
                 'query_data': html_table,
                 'sql_query': query,
+                'json_data': json_table,
                 'csv_download_url': csv_url,
             })
 
