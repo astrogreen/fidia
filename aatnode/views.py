@@ -127,25 +127,6 @@ class QueryForm(generic.View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        select_fields = []
-        join_fields = []
-        filter_fields = []
-        type_fields = []
-        form_fields_as_list = list(form)
-        for i in form_fields_as_list:
-            if 'select_' in i.html_name:
-                select_fields.append(i)
-            if 'joinA_' in i.html_name:
-                join_fields.append(i)
-            if 'join_' in i.html_name:
-                join_fields.append(i)
-            if 'joinB_' in i.html_name:
-                join_fields.append(i)
-            if 'filter_' in i.html_name:
-                filter_fields.append(i)
-            if 'tableType' in i.html_name:
-                type_fields.append(i)
-
         if form.is_valid():
             # <process form cleaned data>
             print(request.POST)
@@ -174,27 +155,17 @@ class QueryForm(generic.View):
             sample.tabular_data().to_csv(csv_filename)
             log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
-            return render(request, 'aatnode/form1/queryForm.html',
-                          {'form': form,
-                           'selectFieldsCount': ReturnQuery.selectFieldsCount,
-                           'joinFieldsCount': ReturnQuery.joinFieldsCount,
-                           'filterFieldsCount': ReturnQuery.filterFieldsCount,
-                           'form_fields_as_list': form_fields_as_list,
-                           'select_fields': select_fields,
-                           'join_fields': join_fields,
-                           'filter_fields': filter_fields,
-                           'type_fields': type_fields,
-                           'message': html_table,
-                           'error_message': query}
-                          )
+            return render(request, 'aatnode/form1/queryResults.html', {
+                'query_data': sample.tabular_data().to_html(classes='table table-hover',bold_rows=False),
+                'sql_query': query,
+            })
 
         else:
-            # Form is not valid:
-            return render(request, 'aatnode/form1/queryForm.html',
-                          {'form': form,
-                           'message': '',
-                           'error_message': 'INVALID FORM',
-                           })
+            return render(request, 'aatnode/form1/queryForm.html', {
+                'form': form,
+                'query_data': '',
+                'sql_query': 'INVALID FORM',
+            })
 
 
 class AjaxChainedColumns(ChainedSelectChoicesView):
