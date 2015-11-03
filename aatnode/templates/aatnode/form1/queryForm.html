@@ -16,7 +16,18 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-            <h2>Query</h2>
+            <h2>Query <small>Return a sample of GAMA objects</small></h2>
+                <p>
+                    Whilst this node is development, the schema browser can be found at
+                    <a href="http://www.gama-survey.org/dr2/schema/" target="_blank" class="btn btn-default btn-xs btn-info">
+                        gama-survey.org
+                    </a><br>
+                    We encourage feedback
+                    on the usefulness of this form in quickly generating a sample of objects from the database.
+                    <br>
+                    Please note that if your query is beyond the scope of the builder,
+                    a separate SQL form will be provided to handle this.
+                </p>
             </div>
             <div class="col-xs-12">
                 <div class="form-container">
@@ -24,10 +35,10 @@
                 <form action="" method="post" class="form form-inline row" role="form" id="queryForm">
                     {% csrf_token %}
                     <div id="selectWrapper">
-                        <div class="col-sm-1 col-xs-12 control-label">
-                            <label for="select-input0" >Select</label>
+                        <div class="col-sm-2 col-xs-12 control-label">
+                            <label for="select-input0" >Select Catalogue</label>
                         </div>
-                        <div id="select-fields" class="col-sm-11 col-xs-12">
+                        <div id="select-fields" class="col-sm-10 col-xs-12">
                                 {% for fields in select_fields %}
                                     {% with forloop.counter|sub:1 as i %}
                                     {% with forloop.counter|sub:1|intdiv:2 as j %}
@@ -40,10 +51,10 @@
                                                 {% bootstrap_field fields show_label=False %}
                                                  <span class="">
                                                         {% if j == 0 %}
-                                                        <button type="button" class="btn btn-default btn-circle add-field">+</button>
+                                                        <button type="button" class="btn btn-default btn-success btn-xs add-remove add-field">Add another</button>
                                                         {% else %}
-                                                            <button type="button" class="btn btn-default btn-circle remove-field">
-                                                              -
+                                                            <button type="button" class="btn btn-danger btn-xs add-remove remove-field">
+                                                              remove
                                                           </button>
                                                         {% endif %}
                                                  </span>
@@ -65,10 +76,10 @@
 
                     </div>
                     <div id="joinWrapper">
-                        <div class="col-sm-1 col-xs-12 control-label">
+                        <div class="col-sm-2 col-xs-12 control-label">
                             <label for="join-input0" >Join</label>
                         </div>
-                        <div id="join-fields" class="col-sm-11 col-xs-12 ">
+                        <div id="join-fields" class="col-sm-10 col-xs-12 ">
                                 {% for fields in join_fields %}
                                     {% with forloop.counter|sub:1 as i %}
                                     {% with forloop.counter|sub:1|intdiv:5 as j %}
@@ -79,17 +90,19 @@
                                         {% endif %}
                                         {% bootstrap_field fields show_label=False %}
                                         {% if i|add:1|divisibleby:5 == True %}
+                                                {% comment %}
                                                     <span class="">
                                                         {% if j == 0 %}
-                                                          <button type="button" class="btn btn-default btn-circle add-field">
+                                                          <button type="button" class="btn btn-success btn-xs add-remove add-field">
                                                               +
                                                           </button>
                                                         {% else %}
-                                                            <button type="button" class="btn btn-default btn-circle remove-field" id="join-remove-{{j}}">
+                                                        <button type="button" class="btn btn-default add-remove remove-field" id="join-remove-{{j}}">
                                                               -
                                                           </button>
                                                         {% endif %}
                                                   </span>
+                                                {% endcomment %}
                                             </div>
                                         {% endif %}
                                     {% endif %}
@@ -97,13 +110,17 @@
                                     {% endwith %}
                                 {% endfor %}
                         </div>
-
+                    </div>
+                    <div id="filterShowHide" class="row">
+                        <div class="col-sm-2 col-xs-12">
+                            <a class="btn btn-default btn-info btn-xs text-uppercase pull-right" id='filterToggle' type="button">Add Filter</a><br><br>
+                        </div>
                     </div>
                     <div id="filterWrapper">
-                        <div class="col-sm-1 col-xs-12 control-label">
-                            <label for="filter-input0" >Filter</label>
+                        <div class="col-sm-2 col-xs-12 control-label">
+                            <label for="filter-input0">Filter</label>
                         </div>
-                        <div id="filter-fields" class="col-sm-11 col-xs-12">
+                        <div id="filter-fields" class="col-sm-10 col-xs-12">
                                 {% for fields in filter_fields %}
                                     {% with forloop.counter|sub:1 as i %}
                                     {% with forloop.counter|sub:1|intdiv:5 as j %}
@@ -116,12 +133,12 @@
                                         {% if i|add:1|divisibleby:5 == True %}
                                                     <span class="">
                                                         {% if j == 0 %}
-                                                          <button type="button" class="btn btn-default btn-circle add-field">
-                                                              +
+                                                          <button type="button" class="btn btn-default btn-success btn-xs add-remove add-field">
+                                                              add another
                                                           </button>
                                                         {% else %}
-                                                            <button type="button" class="btn btn-default btn-circle remove-field">
-                                                              -
+                                                            <button type="button" class="btn btn-default btn-danger btn-xs add-remove remove-field">
+                                                              remove
                                                           </button>
                                                         {% endif %}
                                                   </span>
@@ -133,28 +150,36 @@
                                 {% endfor %}
                         </div>
                     </div>
+                    {% comment %}
                     <div id="typeWrapper">
                         <div class="col-sm-1 col-xs-12 control-label">
                             <label for="type" >Format</label>
                         </div>
                         <div id="type-fields" class="col-sm-11">
                             <div class="row type-input form-group">
-                                {% for fields in type_fields %}
-                                        {% bootstrap_field fields show_label=False %}
-                                {% endfor %}
+                                <div class="btn-group" data-toggle="buttons">
+                                    {% for field in type_fields %}
+                                    {% for x,y in field.field.choices %}
+                                    <label class="btn btn-default">
+                                        <input type="radio" name="{{ field.html_name }}" value="{{ x }}" /> {{ x }}
+                                    </label>
+                                    {% endfor %}
+
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>
+                    {% endcomment %}
                     <div class="row form-group">
-                        <div class="col-xs-1 "><button class="btn btn-default" type="reset" disabled>Reset</button></div>
-                        <div class="col-xs-11"><button class="btn btn-primary pull-right" type="submit">Submit</button></div>
+                        <div class="col-xs-1 "><button class="btn btn-default" type="reset" id="queryReset">Reset</button></div>
+                        <div class="col-xs-11"><button class="btn btn-primary pull-right" type="submit" id="querySubmit">Submit </button></div>
                     </div>
                 </form>
                 </div>
                 <!-- Modal -->
                 <div class="modal fade" id="maxFieldsModal" role="dialog">
                     <div class="modal-dialog">
-
                       <!-- Modal content-->
                       <div class="modal-content">
                         <div class="modal-header">
@@ -168,18 +193,7 @@
                           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                       </div>
-
                     </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <h4>Result</h4>
-                <div id="returnTableResults" class="table-responsive">
-                 {% if message %}{% autoescape off %}{{ message }}{% endautoescape %}{% endif %}<br>
-                </div>
-                <h4>SQL</h4>
-                <div class="well well-sm">
-                 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}<br>
                 </div>
             </div>
         </div>

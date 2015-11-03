@@ -1,3 +1,20 @@
+/*### RESET ###*/
+/* Flatten bootstrap */
+.well, .navbar-inner, .popover, .btn, .tooltip, input, select, textarea, pre, .progress, .modal, .add-on, .alert, .table-bordered, .nav>.active>a, .dropdown-menu, .tooltip-inner, .badge, .label, .img-polaroid {
+ 	-moz-box-shadow: none !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+	border-radius: 0px !important;
+	border-collapse: collapse !important;
+	background-image: none !important;
+}
+select{
+/*-moz-appearance: none; -webkit-appearance: none; appearance: none;*/
+border-radius:0px !important;
+}
+
 /*####### GLOBAL #######*/
   html{
     position: relative;
@@ -174,36 +191,45 @@
 
 /*  QUERYFORM  */
   .form-container{border:solid 1px #f8f8f8;}
-  /*.form-control{border-radius:0px;}*/
 
-  .control-label{margin-top:7px;text-align:right;}
+  .control-label{text-align:right;}
+  .control-label{margin-top:7px;}
+  .control-label label a.btn{margin-top:0px;}
   #selectWrapper, #joinWrapper, #filterWrapper{margin-bottom:30px;}
   #queryForm [class*=' col-'] [class*=' col-'] {padding-right:0px;}
   [class*='col-'] .row{margin-left:0px;margin-right:0px;}
 
-  .btn-circle {
-    width: 32px;
-    height: 32px;
-    text-align: center;
-    padding:3px 6px;
-    font-size: 18px;
-    line-height: 0;
-    border-radius: 50% !important;
-    vertical-align: middle;
-    margin-left:15px;
-    border-color:#cccccc;
-  }
-  .select-input select.chained-parent-field{color:#C63926;}
 
-  @keyframes blink {
-   50% { border-color: #C1E0FF; }
-  }
-  .alert-border{ /*or other element you want*/
-    animation-name: blink ;
-    animation-duration: 1.2s ;
-    animation-timing-function: step-end ;
-    animation-iteration-count: 1 ;
-  }
+.has-feedback .multiselect-item .form-control{
+    padding-right:6px;
+    }
+  .has-feedback .multiselect-item .form-control,
+  .has-feedback .multiselect-item .input-group-addon,
+  .has-feedback .multiselect-item .form-control:focus{
+    border-color:rgba(0,0,0,.15);
+    background-color:#fff;
+    color:#333;
+    }
+
+  .has-feedback :not(.multiselect-item) .form-control{padding-right:6px;color:#333;}
+
+   .has-feedback.has-success .form-control-feedback {
+        margin-top:-1px;
+        margin-right:-2px;
+   }
+   .has-feedback .form-control-feedback {
+        text-shadow:
+        -1px -1px 0 #fff,
+        1px -1px 0 #fff,
+        -1px 1px 0 #fff,
+        1px 1px 0 #fff;
+   }
+
+  #queryForm .type-input .btn-group .form-control-feedback {
+    top: 0;
+    right: -30px;
+   }
+
 
   /*IMPORTANT - overflow:auto prevents form-group collapsing (height=0)
   because content is all floats*/
@@ -214,6 +240,9 @@
       overflow:auto;
       width:100%;
   }
+  /*VERTICALLY SHIFT SEVERAL ELEMENTS AS INLINE FORM*/
+  .add-remove{margin-top:6px;text-transform:uppercase;padding-left:7px;padding-right:7px;margin-left:15px;}
+  #filter-fields .checkbox {top:5px;}
   /*outer container for field rows*/
   .row.form-group {width:100% !important;margin-bottom:15px !important}
 
@@ -227,10 +256,16 @@
     display:inline-block;
     width:auto;
     max-width:90%;
-
   }
 
   button.multiselect{white-space:normal !important; text-align:left;border-radius:0px;} /*wrap text when goes above max width*/
+
+
+  .form-group.has-feedback ul.multiselect-container li a label{color:#333;}
+  [id^='id_filter_value_']{max-width:140px;}
+
+/*QUERY RESULTS*/
+h4 > a {margin-top:-7px;margin-left:10px;}
 
 
 /* Media Queries */

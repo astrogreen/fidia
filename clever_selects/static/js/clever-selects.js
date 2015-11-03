@@ -55,18 +55,21 @@ $(document).ready(function() {
     $('.chained-parent-field').change(function() {
         $(this).loadAllChainedChoices();
         //Build multiselect once ajax successful using sent <options>
-        ID=$(this).attr('chained_ids');
-
+        var ID=$(this).attr('chained_ids');
+        var elNAME=$('#'+ID).attr('name');
+        $('#queryForm').formValidation('revalidateField', elNAME);
         $('#'+ID).multiselect({      //using multiselect
                 includeSelectAllOption: true,
                 disableIfEmpty: true,
                 enableFiltering:true,
                 maxHeight: 200,
                 numberDisplayed: 20,
-                nonSelectedText: 'Select columns'
+                nonSelectedText: 'columns'
         });                                            //rebuild the multiselect to reflect new data when the parent
         $('#'+ID).on("change", function(){//chained select is changed
+            $('#queryForm').formValidation('revalidateField', elNAME);
             $('#'+ID).multiselect('rebuild');
+
         });
 
 
