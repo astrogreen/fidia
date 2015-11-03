@@ -43,7 +43,7 @@ def csv_downloader(request, query_id):
 
 
 class IndexView(generic.TemplateView):
-    template_name = 'aatnode/homePage/home.html'
+    template_name = 'aatnode/home/home.html'
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
@@ -88,7 +88,7 @@ class QueryView(generic.FormView):
 
 class QueryForm(generic.View):
     form_class = ReturnQuery
-    template_name = 'aatnode/form1/queryForm.html'
+    template_name = 'aatnode/form/queryForm.html'
     initial = {'key': 'value'}
     #success_url = reverse_lazy('aatnode:query')
 
@@ -148,7 +148,7 @@ class QueryForm(generic.View):
             # json_table = sample.tabular_data().to_json()
 
             # Produce HTML Table for display
-            html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
+            # html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
 
             # Produce cached CSV results for potential download and save them to temporary directory
             csv_filename = csv_cache_filename(query_id)
@@ -158,14 +158,15 @@ class QueryForm(generic.View):
             # Download URL to pass to web template
             csv_url = "/csv_download/" + query_id + ".csv"
 
-            return render(request, 'aatnode/form1/queryResults.html', {
-                'query_data': html_table,
+            return render(request, 'aatnode/form/queryResults.html', {
+                # 'query_data': html_table,
+                # 'query_json':json_table,
                 'sql_query': query,
                 'csv_download_url': csv_url,
             })
 
         else:
-            return render(request, 'aatnode/form1/queryForm.html', {
+            return render(request, 'aatnode/form/queryForm.html', {
                 'form': form,
                 'query_data': '',
                 'sql_query': 'INVALID FORM',

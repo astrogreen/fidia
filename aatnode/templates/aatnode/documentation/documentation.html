@@ -9,7 +9,7 @@
 {# Display django.contrib.messages as Bootstrap alerts #}
 {% bootstrap_messages %}
 
-{% block title %} Home {% endblock %}
+{% block title %} Documentation {% endblock %}
 {% block wrapper %}
 <div class="container">
   <h2>Documentation</h2>
@@ -395,3 +395,4 @@
   </div>
 </div>
 {% endblock %}
+{% block pagejs %} <script src='/static/js/documentation/docs.js'></script> {% endblock %}

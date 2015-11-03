@@ -205,7 +205,6 @@ function FormLogic(){
             });
         }
     };
-    console.log($('#queryForm').data('formValidation').getInvalidFields());
 };
 
 ////FORMVALIDATION CUSTOM VALIDATORS
@@ -656,7 +655,7 @@ function CheckFieldState(fieldName){
                 rowID='#'+row.attr('ID');
                 if ($(rowID).is(":visible")){                                   //IF ROW IS VISIBLE, ALLOW VALIDATION ON FIELDS
                      EnableDisableValidation(elNAME, true);
-                     console.log(rowID);
+//                     console.log(rowID);
 //                     $('#queryForm').formValidation('revalidateField', elNAME);
                 } else {
                     EnableDisableValidation(elNAME, false);                     //ELSE DISABLE VALIDATION
@@ -714,22 +713,14 @@ $( document ).ready(function() {
         $( "#filterWrapper" ).hide();
         FilterToggle();
     });
-
-
-//TODO move to separate js files per template
-    //DOCS
-        $('body').scrollspy({
-            target: '.docs-sidebar',
-            offset: 40
+    //ON SUBMIT CHANGE BUTTON
+    $('#querySubmit')
+        .on('success.form.fv', function(e) {
+            $('#querySubmit').addClass('btn-warning')
+            .html('Fetching data... <i class="fa fa-refresh fa-spin"></i>');
         });
 
-    //DATA TABLES
-    if ($('#returnTableResults > table > thead > tr:nth-child(2) > th:nth-child(1)').length){
-    //get text and remove dummy thead tr - problem with data structure in panda
-        $('table > thead > tr:nth-child(1) > th:nth-child(1)').append($('table > thead > tr:nth-child(2) > th:nth-child(1)').html());
-        $('#returnTableResults > table > thead > tr:nth-child(2)').remove();
-        $('#returnTableResults > table').css( 'border', '1px solid #ddd' );
-        $('#returnTableResults > table').DataTable();
-    };
+
+
 
 });

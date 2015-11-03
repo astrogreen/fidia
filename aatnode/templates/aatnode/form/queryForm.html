@@ -4,6 +4,7 @@
 {% load mathfilters %}
 {% load bootstrap3 %}
 
+
 {# Load CSS and JavaScript #}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
@@ -19,12 +20,13 @@
             <h2>Query <small>Return a sample of GAMA objects</small></h2>
                 <p>
                     Whilst this node is development, the schema browser can be found at
-                    <a href="http://www.gama-survey.org/dr2/schema/" target="_blank" class="btn btn-default btn-xs btn-info">
+                    <a href="http://www.gama-survey.org/dr2/schema/" target="_blank">
                         gama-survey.org
                     </a><br>
                     We encourage feedback
                     on the usefulness of this form in quickly generating a sample of objects from the database.
                     <br>
+                    </p><p class="doc-alert doc-alert-danger">
                     Please note that if your query is beyond the scope of the builder,
                     a separate SQL form will be provided to handle this.
                 </p>
@@ -198,4 +200,10 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block pagejs %}
+<script src="/static/js/formValidation.min.js"></script>
+<script src="/static/js/framework/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap-multiselect.js"></script>
+<script src='/static/js/form/query-builder.js'></script>
 {% endblock %}
