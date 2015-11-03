@@ -155,9 +155,13 @@ class QueryForm(generic.View):
             sample.tabular_data().to_csv(csv_filename)
             log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
+            # Download URL to pass to web template
+            csv_url = "/csv_download/" + query_id + ".csv"
+
             return render(request, 'aatnode/form1/queryResults.html', {
                 'query_data': html_table,
                 'sql_query': query,
+                'csv_download_url': csv_url,
             })
 
         else:
