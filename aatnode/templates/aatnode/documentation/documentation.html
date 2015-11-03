@@ -147,6 +147,12 @@
             <h3>Data Access</h3><hr />
             <div id="docs-QueryBuilder" class="subgroup row">
                 <h4>Query Builder</h4>
+                <div class="col-xs-12">
+                    <div class="docs-example">
+                        <img src="/static/images/documentation/GAMA-example0.png" class='img-responsive'
+                       alt="Screen shot of query">
+                    </div>
+
                   <p>
                     The Query Builder form allows you to construct complicated
                     queries on the database with ease without writing any SQL
@@ -154,7 +160,7 @@
                     at specific coordinates on the sky (RA, DEC). The query
                       builder is sufficient for most use cases, however particularly                       complicated queries can be submitted via the <a href=''>SQL form</a>.
                   </p>
-
+                </div>
                   <h5><f>by Object</f></h5>
                   <dl class="dl-horizontal">
                     <dt>Select</dt>
@@ -292,9 +298,55 @@
             <div id="docs-GAMA" class="subgroup">
                 <h4>GAMA</h4>
                 <p>
-                Available GAMA tables and versions publications etc
+                    This node provides access to the publically available GAMA
+                    data products.
+                    Current catalogue and version information can be found
+                    <a href="http://www.gama-survey.org/dr2/schema/">here</a>.
                 </p>
-                <p class="bg-danger">Check this with Lloyd</p>
+                <strong>Available Catalogues</strong>
+                <ul class="list-inline">
+                    <li >InputCatA</li>
+                    <li >SpStandards</li>
+                    <li >GalacticExtinction</li>
+                    <li >AATFields</li>
+                    <li >AATRunzResults</li>
+                    <li >AATSpecAllzAll</li>
+                    <li >AATSpecAll</li>
+                    <li >LTSpecAll</li>
+                    <li >SpecAll</li>
+                    <li >SpecObj</li>
+                    <li >ApMatchedCat</li>
+                    <li >TilingCat</li>
+                    <li >ExternalSpecAll</li>
+                    <li >ExternalSpec</li>
+                    <li >ExternalzAll</li>
+                    <li >DistancesFrames</li>
+                    <li >SersicCatAll</li>
+                    <li >SersicCat</li>
+                    <li >kcorr_z00</li>
+                    <li >kcorr_z01</li>
+                    <li >StellarMasses</li>
+                    <li >EnvironmentMeasures</li>
+                    <li >G3CGal</li>
+                    <li >G3CFoFGroup</li>
+                    <li >G3CLink</li>
+                    <li >G3CGalsInPair</li>
+                    <li >G3CMockGal</li>
+                    <li >G3CMockFoFGroup</li>
+                    <li >G3CMockHaloGroup</li>
+                    <li >G3CMockLink</li>
+                    <li >G3CMockGalsInPair</li>
+                    <li >GalexMain</li>
+                    <li >GalexObsInfo</li>
+                    <li >GalexPhot</li>
+                    <li >GalexSimpleMatch</li>
+                    <li >GalexAdvancedMatch</li>
+                    <li >GalexCoGPhot</li>
+                    <li >EmLinesPhys</li>
+                    <li >SpecLines</li>
+                    <li >EmLinesPhysGAMA</li>
+                    <li >EmLinesPhysSDSS</li>
+                </ul>
             </div>
             <div id="docs-SAMI" class="subgroup">
                 <h4>SAMI</h4>
@@ -339,19 +391,25 @@
                       <td>All CATAID matched to Gal1CATAID, where 0.1 &#60; Z &#60;
                        0.3, nQ &#62; 2</td>
                     </tr>
+                    <tr>
+                        <td colspan="4">
+                            <strong>SQL: </strong>
+                            <code>
+                                SELECT t1.PairID, t1.Gal1CATAID, t1.Gal2CATAID, t2.CATAID,
+                                t2.Z, t2.nQ
+                                FROM   G3CGalsInPairv05 as t1
+                                INNER JOIN StellarMassesv08 as t2 on t2.CATAID = t1.Gal1CATAID
+                                WHERE  t2.Z BETWEEN 0.1 and 0.3
+                                AND    t2.nQ > 2
+                             </code>
+                        </td>
+                    </tr>
                   </tbody>
                 </table>
-                  <img src="http://placebear.com/1000/200" class='img-responsive'
-                   alt="Screen shot of query">
-                <strong>SQL: </strong>
-                <code>
-                  SELECT t1.PairID, t1.Gal1CATAID, t1.Gal2CATAID, t2.CATAID,
-                  t2.Z, t2.nQ
-                  FROM   G3CGalsInPairv05 as t1
-                  INNER JOIN StellarMassesv08 as t2 on t2.CATAID = t1.Gal1CATAID
-                  WHERE  t2.Z BETWEEN 0.1 and 0.3
-                  AND    t2.nQ > 2
-                </code>
+                <div class="docs-example">
+              <img src="/static/images/documentation/GAMA-example1.png" class='img-responsive'
+               alt="Screen shot of query">
+                </div>
               </div>
             </div>
             <div id="docs-UC2" class="subgroup">
@@ -377,17 +435,25 @@
                         <td>GroupID, Nfof, BCGCATAID, IterCenCATAID, Zfof</td>
                         <td>-</td>
                       </tr>
+                      <tr>
+                        <td colspan="4">
+                            <strong>SQL: </strong>
+                            <code>
+                               SELECT t1.GroupID, t1.Nfof, t1.IterCenCATAID, t1.Zfof, t1.BCGCATAID
+                               FROM   G3CFoFGroup as t1
+                               WHERE  t1.Zfof BETWEEN 0.02 and 0.1
+                               AND    t1.Nfof > 4
+                             </code>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
-                  <img src="http://placebear.com/1000/200" class='img-responsive'
-                 alt="Screen shot of query">
-                 <strong>SQL: </strong>
-                 <code>
-                   SELECT t1.GroupID, t1.Nfof, t1.IterCenCATAID, t1.Zfof, t1.BCGCATAID
-                   FROM   G3CFoFGroup as t1
-                   WHERE  t1.Zfof BETWEEN 0.02 and 0.1
-                   AND    t1.Nfof > 4
-                 </code>
+                  <div class="docs-example">
+                  <img src="/static/images/documentation/GAMA-example2.png" class='img-responsive'
+                   alt="Screen shot of query">
+                        </div>
+
+
                 </div>
             </div>
         </section>

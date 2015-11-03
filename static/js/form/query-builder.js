@@ -542,7 +542,7 @@ function SetUpForm(){
                             message:'Please provide a value'
                         },
                         regexp: {
-                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            regexp: /^[a-zA-Z0-9-_.,]+$/i,
                             message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
                         }
                     }
@@ -554,7 +554,7 @@ function SetUpForm(){
                             message:'Please provide a value'
                         },
                         regexp: {
-                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            regexp: /^[a-zA-Z0-9-_.,]+$/i,
                             message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
                         }
                     }
@@ -566,7 +566,7 @@ function SetUpForm(){
                             message:'Please provide a value'
                         },
                         regexp: {
-                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            regexp: /^[a-zA-Z0-9-_.,]+$/i,
                             message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
                         }
                     }
@@ -578,7 +578,7 @@ function SetUpForm(){
                             message:'Please provide a value'
                         },
                         regexp: {
-                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            regexp: /^[a-zA-Z0-9-_.,]+$/i,
                             message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
                         }
                     }
@@ -590,7 +590,7 @@ function SetUpForm(){
                             message:'Please provide a value'
                         },
                         regexp: {
-                            regexp: /^[a-zA-Z0-9-_.]+$/i,
+                            regexp: /^[a-zA-Z0-9-_.,]+$/i,
                             message: 'Value can consist of alphanumeric characters, underscores and hyphens only'
                         }
                     }
