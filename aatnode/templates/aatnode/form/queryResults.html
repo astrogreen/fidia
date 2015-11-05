@@ -44,6 +44,9 @@
                      {% if query_data %}{% autoescape off %}{{ query_data }}{% endautoescape %}{% endif %}<br>
                     </div>
                 </div>
+                <script type="application/json" id="jsonTblData">
+                    {% if json_data %}{% autoescape off %}{{ json_data }}{% endautoescape %}{% endif %}
+                </script>
 
                 <h4>SQL</h4>
                 <div class="well well-sm">

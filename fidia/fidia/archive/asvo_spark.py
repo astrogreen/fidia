@@ -81,3 +81,25 @@ class AsvoSparkArchive(BaseArchive):
         return new_sample
 
 
+    def results_from_query(self, query_string):
+        """
+        This simply deals with results as it is. No indexing, cross-matching etc.
+        :param query_string:
+        :return:
+        """
+
+        # Get Query Results from Spark (as a SchemaRDD object):
+        results_rdd = hive_context.sql(query_string)
+
+        # Create an empty sample, and populate it via it's private interface
+        # (no suitable public interface at this time.)
+        new_sample = Sample()
+
+        self.tabular_data = results_rdd
+
+        new_sample._archives = self
+
+        # Finally, we mark this new sample as immutable.
+        new_sample.mutable = False
+
+        return new_sample
