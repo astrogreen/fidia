@@ -52,6 +52,14 @@ class IndexView(generic.TemplateView):
         context['some_names'] = 'get values or objects'
         return context
 
+class TestingGroundView(generic.TemplateView):
+    template_name = 'aatnode/testpage/testpage.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TestingGroundView, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
 
 class DocView(generic.TemplateView):
     template_name = 'aatnode/documentation/documentation.html'
@@ -153,9 +161,6 @@ class QueryForm(generic.View):
 
             json_table = sample.get_tabular_data().toJSON().collect()
 
-            # Produce HTML Table for display
-            # html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
-
             # Produce cached CSV results for potential download and save them to temporary directory
             csv_filename = csv_cache_filename(query_id)
             #LH sample.tabular_data().to_csv(csv_filename)
@@ -165,10 +170,9 @@ class QueryForm(generic.View):
             csv_url = "/csv_download/" + query_id + ".csv"
 
             return render(request, 'aatnode/form/queryResults.html', {
-                # 'query_data': html_table,
-                # 'query_json':json_table,
                 'sql_query': query,
-                'json_data': json.dumps(json_table),
+                'json_data':json_table,
+                # 'json_data': json.dumps(json_table),
                 'csv_download_url': csv_url,
             })
 

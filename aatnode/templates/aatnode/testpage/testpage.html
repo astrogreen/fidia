@@ -1,4 +1,4 @@
-{% extends 'base/base.html' %}
+ {% extends 'base/base.html' %}
 {# Load the tag library #}
 {% load asvo_tags %}
 {% load mathfilters %}
@@ -40,26 +40,29 @@
                     <a href="" class="btn btn-default pull-right"> New Query</a>
                 </div><hr/><br>
                 <div class="row">
-                    <table id="returnTableResults" class="table table-responsive table-condensed">
-                     {% if query_data %}{% autoescape off %}{{ query_data }}{% endautoescape %}{% endif %}<br>
+                    <table id="returnTableResults" class=" display table table-responsive table-condensed">
+
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Office</th>
+                                <th>Extn.</th>
+                                <th>Start date</th>
+                                <th>Salary</th>
+                            </tr>
+                        </thead>
                     </table>
                 </div>
                 <h4>SQL</h4>
                 <div class="well well-sm">
-                 {% if sql_query %}<p>{{ sql_query }}</p>{% endif %}<br>
+
                 </div>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block pagejs %}
-<script type="text/javascript">
-{% if json_data %}
-    {% autoescape off %}
-        var json_data = {{ json_data }};
-    {% endautoescape %}
-{% endif %}
-</script>
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script src='/static/js/form/results-render.js'></script>
 {% endblock %}
