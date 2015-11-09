@@ -147,42 +147,52 @@ class QueryForm(generic.View):
             log.info("Query ID '%s' processing", query_id)
             # TODO: Save this in the UI for use when requesting the CSV file.
 
-            # Create the SQL Query from the post data.
-            query = build_query(request.POST)
-            log.info("Query ID '%s' query_string: <<%s>>", query_id, query)
+            try:
+                # Create the SQL Query from the post data.
+                query = build_query(request.POST)
+                log.info("Query ID '%s' query_string: <<%s>>", query_id, query)
 
-            # Get FIDIA Sample Object
-            sample = AsvoSparkArchive().new_sample_from_query(query)
+                # Get FIDIA Sample Object
+                sample = AsvoSparkArchive().new_sample_from_query(query)
 
-            # Produce JSON representation of result table
-            # @NOTE: currently does some Panda's magic to return a simple Javascript array.
-            #
-            # The JSON object looks like this:
-            #
-            #   {"columns":["cataid","z","metal"],
-            #    "index":  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
-            #    "data":   [[8823,0.0499100015,0.0163168724],
-            #               [63147,0.0499799997,0.0380015143],
-            #               ...
-            #               [91963,0.0499899983,0.0106879927]]}
-            #
-            # More: http://pandas.pydata.org/pandas-docs/version/0.17.0/generated/pandas.DataFrame.to_json.html
-            json_table = sample.tabular_data().reset_index().to_json(orient='split')
+                # Produce JSON representation of result table
+                # @NOTE: currently does some Panda's magic to return a simple Javascript array.
+                #
+                # The JSON object looks like this:
+                #
+                #   {"columns":["cataid","z","metal"],
+                #    "index":  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+                #    "data":   [[8823,0.0499100015,0.0163168724],
+                #               [63147,0.0499799997,0.0380015143],
+                #               ...
+                #               [91963,0.0499899983,0.0106879927]]}
+                #
+                # More: http://pandas.pydata.org/pandas-docs/version/0.17.0/generated/pandas.DataFrame.to_json.html
+                json_table = sample.tabular_data().reset_index().to_json(orient='split')
 
-            # Produce cached CSV results for potential download and save them to temporary directory
-            csv_filename = csv_cache_filename(query_id)
-            sample.tabular_data().to_csv(csv_filename)
-            log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
+                # Produce cached CSV results for potential download and save them to temporary directory
+                csv_filename = csv_cache_filename(query_id)
+                sample.tabular_data().to_csv(csv_filename)
+                log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
-            # Download URL to pass to web template
-            csv_url = "/csv_download/" + query_id + ".csv"
+                # Download URL to pass to web template
+                csv_url = "/csv_download/" + query_id + ".csv"
 
-            return render(request, 'aatnode/form/queryResults.html', {
-                'sql_query': query,
-                'json_data':json_table,
-                # 'json_data': json.dumps(json_table),
-                'csv_download_url': csv_url,
-            })
+            except Exception as e:
+                error_message = str(e)
+                log.error("Query Error page generated, query_id: %s, message: %s", query_id, error_message)
+                return render(request, 'aatnode/form/queryError.html', {
+                    #'sql_query': query,
+                    'error_message': error_message,
+                    'query_id': query_id,
+                })
+            else:
+                return render(request, 'aatnode/form/queryResults.html', {
+                    'sql_query': query,
+                    'json_data':json_table,
+                    # 'json_data': json.dumps(json_table),
+                    'csv_download_url': csv_url,
+                })
 
         else:
             return render(request, 'aatnode/form/queryForm.html', {
