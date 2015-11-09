@@ -156,7 +156,18 @@ class QueryForm(generic.View):
 
             # Produce JSON representation of result table
             # @NOTE: currently does some Panda's magic to return a simple Javascript array.
-            json_table = sample.tabular_data().reset_index().to_json(orient='values')
+            #
+            # The JSON object looks like this:
+            #
+            #   {"columns":["cataid","z","metal"],
+            #    "index":  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+            #    "data":   [[8823,0.0499100015,0.0163168724],
+            #               [63147,0.0499799997,0.0380015143],
+            #               ...
+            #               [91963,0.0499899983,0.0106879927]]}
+            #
+            # More: http://pandas.pydata.org/pandas-docs/version/0.17.0/generated/pandas.DataFrame.to_json.html
+            json_table = sample.tabular_data().reset_index().to_json(orient='split')
 
             # Produce cached CSV results for potential download and save them to temporary directory
             csv_filename = csv_cache_filename(query_id)
