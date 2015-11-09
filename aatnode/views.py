@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 # Django Imports
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.conf import settings
@@ -135,6 +135,21 @@ class QueryForm(generic.View):
                        'type_fields': type_fields})
 
     def post(self, request, *args, **kwargs):
+        # # IF AJAX REQUEST
+        # if request.is_ajax():
+        #     results = { "progress" : {'progress':1} }
+        #     try:
+        #       dataFromQuery
+        #     except NameError:
+        #       dataFromQuery_exists = False
+        #     else:
+        #       dataFromQuery_exists = True
+        #       results['data']=dataFromQuery
+        #
+        #     return JsonResponse(results)
+        #
+        # else:
+
         form = self.form_class(request.POST)
 
         if form.is_valid():
@@ -182,7 +197,6 @@ class QueryForm(generic.View):
                 error_message = str(e)
                 log.error("Query Error page generated, query_id: %s, message: %s", query_id, error_message)
                 return render(request, 'aatnode/form/queryError.html', {
-                    #'sql_query': query,
                     'error_message': error_message,
                     'query_id': query_id,
                 })
@@ -190,7 +204,6 @@ class QueryForm(generic.View):
                 return render(request, 'aatnode/form/queryResults.html', {
                     'sql_query': query,
                     'json_data':json_table,
-                    # 'json_data': json.dumps(json_table),
                     'csv_download_url': csv_url,
                 })
 

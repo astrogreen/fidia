@@ -1,139 +1,86 @@
-
 $( document ).ready(function() {
-    //TODO CALLBACK FOR JSON
+//TODO CALLBACK FOR JSON
+//    $('#results').hide();
 
-    //console.log()
+//Prepare csrf token
+    //For getting CSRF token
+    function getCookie(name) {
+              var cookieValue = null;
+              if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+              for (var i = 0; i < cookies.length; i++) {
+                   var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                 }
+              }
+          }
+     return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+//    console.log(csrftoken);
 
-    //  $.ajax({
-    //    url: "/asvo/query-builder/",
-    //    type:"POST",
-    //    dataType: 'json',
-    //    data: {data}
-    //  }).done(function(data){
-    //     console.log(data);//do what you want to do with response
-    //  });
+//    var refreshIntervalId = setInterval(function(){
 
+//        $.ajax({type: "POST",url: '/asvo/testground/', data: {csrfmiddlewaretoken : csrftoken}, dataType:'json', success: function(results){
+//            console.log(results);
+//
+//            updateProgress(results.progress.progress);
 
-    //convert  into array DataTables can read
-    var querydata=json_data;
-    var dataSet = [];
-    for (var i = 0; i < querydata.length; i++) {
-            var row = $.parseJSON(querydata[i])
-            var rowArr=[];
-            for (var property in row) {
-                if (row.hasOwnProperty(property) && (typeof property !== "undefined")) {
-                    rowArr.push(row[property]);
-                }
+            if (typeof json_data !== 'undefined'){
+
+//                clearInterval(refreshIntervalId);
+//                $('#results').show();$('#waiting').hide();
+
+                var queryData = json_data;
+                var queryColumns = [];
+
+                var thead = '';
+                $('#returnTableResults').find('thead > tr').empty();
+
+                $.each(json_data.columns, function(i,k){
+                    b = { title: k };
+                    th = '<th>'+k+'</th>';
+                    queryColumns.push(b);
+                    $('#returnTableResults').find('thead > tr').append(th);
+                });
+
+                var table = $('#returnTableResults').DataTable( {
+                    data : queryData.data,
+                    columns : queryColumns,
+                    'deferRender':true
+                 });
+            } else {
+
+                console.log('waiting');
             }
-            dataSet.push(rowArr);
-    }
-    //pull out thead column names
-    var columns = [];
-    var row0=$.parseJSON(querydata[0])
-    for (var property in row0) {
-        if (row0.hasOwnProperty(property) && (typeof property !== "undefined")) {
-            b = { title: property }
-            console.log(b);
-            columns.push(b);
+
+
+//        }, cache: false}); //adds timestamp to ensure that .progress isn't read from cache and subsequently not updated
+
+//    }, 1000);
+
+
+
+    function updateProgress(data) {
+        result = data;	// if no coverage of source (zero files) 1/1=>100, else 0/0 = NAN
+        console.log(result);
+        if (result>=100 && error ==0){
+            clearInterval(refreshIntervalId);   //stop ajax calls
+            //build data tables
+
+
+        } else {
+            $('div.progress-bar').attr('aria-valuetransitiongoal',result);
+            $(window).ready(function (e) {
+                $.each($('div.progress-bar'), function () {
+                    $(this).css('width', $(this).attr('aria-valuetransitiongoal') + '%').text(Math.round($(this).attr('aria-valuetransitiongoal')) + '%');
+                });
+            });
+
         }
-    }
-    console.log(columns);
-
-    //build dataTable
-    $('#returnTableResults').DataTable( {
-        data: dataSet,
-        columns: columns
-    } );
-
-
-
-//
-//    //DATA TABLES
-//
-////    for(var i = 0; i < json_data.length; i++) {
-////        var object = json_data[i];
-////        for (var property in object) {
-////            if (object.hasOwnProperty(property)) {
-////                console.log(property);
-////            }
-////        }
-////    }
-//
-////        var obj = json_data[0];
-////        console.log(json_data[0]);
-////        var columns = [];
-////        for (var property in obj) {
-////            if (obj.hasOwnProperty(property) && (typeof property !== "undefined")) {
-////                console.log(property);
-//////                var newObj = { mData: property };
-//////                columns.push(newObj);
-////
-////            }
-////        }
-//
-////    var columns = [];
-////    $.each(json_data.COLUMNS, function(i, value){
-////        var obj = { mData: value };
-////         columns.push(obj);
-////    });
-//
-////    $('#returnTableResults').DataTable( {
-////        "ajax": json_data,
-//////        data : json_data,
-////        "columns": [
-////            { "mData": "cataid" },
-////            { "mData": "ra" },
-////            { "mData": "dec" },
-////            { "mData": "z" },
-////        ]
-////    } );
-
-//test
-
-// Assign handlers immediately after making the request,
-//// and remember the jqxhr object for this request
-//var jqxhr = $.getJSON( "/static/js/form/payload.js", function( data ) {
-//  console.log( data );
-//  var t = data;
-//  $('#returnTableResults').DataTable( {
-//    "processing": true,
-//    "deferRender": true,
-//    "ajax": '/static/js/form/payload.js',
-//    "columns": [
-//        { "data": "name" },
-//        { "data": "hr.position" },
-//        { "data": "contact.0" },
-//        { "data": "contact.1" },
-//        { "data": "hr.start_date" },
-//        { "data": "hr.salary" }
-//    ]
-//    });
-//})
-
-
-
-//$.getJSON( "/static/js/form/payload.js", function( data ) {
-// var test = data;
-// console.log(data)
-//
-// $('#returnTableResults').DataTable( {
-//        "processing": true,
-//        data: test,
-//        "columns": [
-//            { "data": "name" },
-//            { "data": "hr.position" },
-//            { "data": "contact.0" },
-//            { "data": "contact.1" },
-//            { "data": "hr.start_date" },
-//            { "data": "hr.salary" }
-//        ]
-//});
-//
-//});
-
-
-
-
-
+    };
 
 });
