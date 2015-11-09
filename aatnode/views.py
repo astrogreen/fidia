@@ -135,7 +135,7 @@ class QueryForm(generic.View):
                        'type_fields': type_fields})
 
     def post(self, request, *args, **kwargs):
-        # # IF AJAX REQUEST
+        # callback for dataFromQuery...
         # if request.is_ajax():
         #     results = { "progress" : {'progress':1} }
         #     try:
@@ -184,7 +184,7 @@ class QueryForm(generic.View):
                 #
                 # More: http://pandas.pydata.org/pandas-docs/version/0.17.0/generated/pandas.DataFrame.to_json.html
                 json_table = sample.tabular_data().reset_index().to_json(orient='split')
-
+                dataFromQuery=json_table
                 # Produce cached CSV results for potential download and save them to temporary directory
                 csv_filename = csv_cache_filename(query_id)
                 sample.tabular_data().to_csv(csv_filename)
