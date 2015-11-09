@@ -152,18 +152,14 @@ class QueryForm(generic.View):
             log.info("Query ID '%s' query_string: <<%s>>", query_id, query)
 
             # Get FIDIA Sample Object
-            #LH sample = AsvoSparkArchive().new_sample_from_query(query)
-
-            sample = AsvoSparkArchive().results_from_query(query)
+            sample = AsvoSparkArchive().new_sample_from_query(query)
 
             # Produce JSON representation of result table
-            #LH json_table = sample.tabular_data().to_json()
-
-            json_table = sample.get_tabular_data().toJSON().collect()
+            json_table = sample.tabular_data().to_json()
 
             # Produce cached CSV results for potential download and save them to temporary directory
             csv_filename = csv_cache_filename(query_id)
-            #LH sample.tabular_data().to_csv(csv_filename)
+            sample.tabular_data().to_csv(csv_filename)
             log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
             # Download URL to pass to web template

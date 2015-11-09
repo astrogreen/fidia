@@ -180,6 +180,10 @@ LOGGING = {
         'aatnode': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG'
+        },
+        'fidia': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG'
         }
     }
 }
