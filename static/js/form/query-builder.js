@@ -714,13 +714,10 @@ $( document ).ready(function() {
         FilterToggle();
     });
     //ON SUBMIT CHANGE BUTTON
-    $('#querySubmit')
+    $('#queryForm')
         .on('success.form.fv', function(e) {
+        console.log('successful submit');
             $('#querySubmit').addClass('btn-warning')
             .html('Fetching data... <i class="fa fa-refresh fa-spin"></i>');
         });
-
-
-
-
 });
