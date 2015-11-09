@@ -27,6 +27,8 @@ from .helpers import COLUMNS
 
 from fidia.fidia.archive.asvo_spark import AsvoSparkArchive
 
+import json
+
 
 def csv_downloader(request, query_id):
     """Simple View to return a cached CSV file."""
@@ -47,6 +49,14 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
+        context['some_names'] = 'get values or objects'
+        return context
+
+class TestingGroundView(generic.TemplateView):
+    template_name = 'aatnode/testpage/testpage.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TestingGroundView, self).get_context_data(**kwargs)
         context['some_names'] = 'get values or objects'
         return context
 
@@ -142,26 +152,27 @@ class QueryForm(generic.View):
             log.info("Query ID '%s' query_string: <<%s>>", query_id, query)
 
             # Get FIDIA Sample Object
-            sample = AsvoSparkArchive().new_sample_from_query(query)
+            #LH sample = AsvoSparkArchive().new_sample_from_query(query)
+
+            sample = AsvoSparkArchive().results_from_query(query)
 
             # Produce JSON representation of result table
-            json_table = sample.tabular_data().to_json()
+            #LH json_table = sample.tabular_data().to_json()
 
-            # Produce HTML Table for display
-            # html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
+            json_table = sample.get_tabular_data().toJSON().collect()
 
             # Produce cached CSV results for potential download and save them to temporary directory
             csv_filename = csv_cache_filename(query_id)
-            sample.tabular_data().to_csv(csv_filename)
+            #LH sample.tabular_data().to_csv(csv_filename)
             log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
             # Download URL to pass to web template
             csv_url = "/csv_download/" + query_id + ".csv"
 
             return render(request, 'aatnode/form/queryResults.html', {
-                # 'query_data': html_table,
-                'query_json':json.dumps(json_table),
                 'sql_query': query,
+                'json_data':json_table,
+                # 'json_data': json.dumps(json_table),
                 'csv_download_url': csv_url,
             })
 

@@ -108,6 +108,14 @@ class Sample(collections.MutableMapping):
             self._id_cross_matches.merge(id_list, 
                 how='outer', left_index=True, right_index=True)
 
+    def get_tabular_data(self):
+        """
+        Put this method just to follow the pattern. Nothing special happens here.
+        :return:
+        """
+
+        return self._archives.tabular_data
+
     def tabular_data(self):
         """Return all tabular data as a single DataFrame."""
 

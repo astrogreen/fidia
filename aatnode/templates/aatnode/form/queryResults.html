@@ -52,11 +52,10 @@
                     </div>
                 </div><hr/><br>
                 <div class="row">
-                    <div id="returnTableResults" class="table-responsive">
+                    <table id="returnTableResults" class="table table-responsive table-condensed">
                      {% if query_data %}{% autoescape off %}{{ query_data }}{% endautoescape %}{% endif %}<br>
-                    </div>
+                    </table>
                 </div>
-
                 <h4>SQL</h4>
                 <div class="well well-sm">
                  {% if sql_query %}<p>{{ sql_query }}</p>{% endif %}<br>
@@ -66,6 +65,13 @@
     </div>
 {% endblock %}
 {% block pagejs %}
+<script type="text/javascript">
+{% if json_data %}
+    {% autoescape off %}
+        var json_data = {{ json_data }};
+    {% endautoescape %}
+{% endif %}
+</script>
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script src='/static/js/form/results-render.js'></script>
 {% endblock %}
