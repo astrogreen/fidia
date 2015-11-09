@@ -287,7 +287,7 @@ def build_query(request):
     for table, columns in elements_of(request, "select_cat_", "select_columns_"):
         if table != '':
             # Otherwise skip blank tables in the request.
-            if isinstance(columns, list) and len(columns) > 1:
+            if isinstance(columns, list):
                 for col in columns:
                     query += table + "." + col + ", "
             else:
