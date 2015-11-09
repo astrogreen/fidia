@@ -155,7 +155,8 @@ class QueryForm(generic.View):
             sample = AsvoSparkArchive().new_sample_from_query(query)
 
             # Produce JSON representation of result table
-            json_table = sample.tabular_data().to_json()
+            # @NOTE: currently does some Panda's magic to return a simple Javascript array.
+            json_table = sample.tabular_data().reset_index().to_json(orient='values')
 
             # Produce cached CSV results for potential download and save them to temporary directory
             csv_filename = csv_cache_filename(query_id)

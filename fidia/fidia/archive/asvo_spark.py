@@ -52,7 +52,10 @@ class AsvoSparkArchive(BaseArchive):
         """Create a new FIDIA sample containing the query results.
 
         @TODO For now, this assumes that the first column contains the
-        @identifier.
+        identifier.
+
+        @TODO: Once the identifier has been sorted out, the code in
+        `aatnode/views.py:QueryForm.post()` will need to be reviewed.
 
         """
 
