@@ -51,7 +51,7 @@ def start_spark_context():
     if spark_context is not None:
         print("Spark already started.")
     else:
-        spark_conf = SparkConf().setAppName("andy_jupyter").setMaster("local")
+        spark_conf = SparkConf()# .setAppName("andy_jupyter").setMaster("local")
         spark_context = LocalSparkContext(conf=spark_conf)
         hive_context = HiveContext(spark_context)
 
