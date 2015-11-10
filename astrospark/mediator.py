@@ -26,12 +26,13 @@ def stop_spark():
     print('Spark stopped properly')
 
 
-def get_column_names(table):
+def get_column_names(table_id):
     """
     Returns the names of the table
     """
-    return hive_ctx.table(table).columns
+    df = hive_ctx.sql('Select name from columns where tableid=' + str(table_id))
+    return df.collect()
 
 def get_tables():
-    df = hive_ctx.sql('Select name from tables where tableid is not null')
+    df = hive_ctx.sql('Select name, tableid from tables where tableid is not null')
     return df.collect()

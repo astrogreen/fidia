@@ -5,10 +5,9 @@ import time
 import logging
 log = logging.getLogger(__name__)
 
-
 # Django Imports
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.conf import settings
@@ -26,6 +25,7 @@ from .helpers import COLUMNS
 #import sqlalchemy as sql
 
 from fidia.fidia.archive.asvo_spark import AsvoSparkArchive
+
 
 
 def csv_downloader(request, query_id):
@@ -49,6 +49,50 @@ class IndexView(generic.TemplateView):
         context = super(IndexView, self).get_context_data(**kwargs)
         context['some_names'] = 'get values or objects'
         return context
+
+# class TestingGroundView(generic.TemplateView):
+#     template_name = 'aatnode/testpage/testpage.html'
+#
+#     def get(self, request, *args, **kwargs):
+#         context = super(TestingGroundView, self).get_context_data(**kwargs)
+#         context['some_names'] = 'get values or objects'
+#
+#         if self.request.is_ajax():
+#             data = {'foo':'bar'}
+#             # progressVariable='This string should be fetched for progress' 
+#             return JsonResponse(data)
+#         else:
+#             return context
+
+
+
+class TestingGroundView(generic.View):
+    template_name = 'aatnode/testpage/testpage.html'
+
+    def get(self, request, *args, **kwargs):
+        if self.request.is_ajax():
+
+            results = { "progress" : {'progress':1} }
+
+            # dataFromQuery = {"columns":["cataid","z","metal"],
+            #    "index":  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+            #    "data":   [[8823,0.0499100015,0.0163168724],
+            #               [63147,0.0499799997,0.0380015143],
+            #               [91963,0.0499899983,0.0106879927]]}
+            try:
+              dataFromQuery
+            except NameError:
+              dataFromQuery_exists = False
+            else:
+              dataFromQuery_exists = True
+              results['data']=dataFromQuery
+
+            return JsonResponse(results)
+
+        else:
+            return render(request, self.template_name)
+
+
 
 
 class DocView(generic.TemplateView):
@@ -76,14 +120,14 @@ class Register(generic.TemplateView):
         return context
 
 
-class QueryView(generic.FormView):
-    template_name = 'aatnode/queryform.html'
-    form_class = QueryForm
-    success_url = reverse_lazy('aatnode:index')
-
-    def form_valid(self, form):
-        form.execute()
-        return super(QueryView, self).form_valid(form)
+# class QueryView(generic.FormView):
+#     template_name = 'aatnode/queryform.html'
+#     form_class = QueryForm
+#     success_url = reverse_lazy('aatnode:index')
+#
+#     def form_valid(self, form):
+#         form.execute()
+#         return super(QueryView, self).form_valid(form)
 
 
 class QueryForm(generic.View):
@@ -125,6 +169,21 @@ class QueryForm(generic.View):
                        'type_fields': type_fields})
 
     def post(self, request, *args, **kwargs):
+        # ajax get progress...
+        # if request.is_ajax():
+        #     results = { "progress" : {'progress':1} }
+        #     try:
+        #       dataFromQuery
+        #     except NameError:
+        #       dataFromQuery_exists = False
+        #     else:
+        #       dataFromQuery_exists = True
+        #       results['data']=dataFromQuery
+        #
+        #     return JsonResponse(results)
+        #
+        # else:
+
         form = self.form_class(request.POST)
 
         if form.is_valid():
@@ -137,40 +196,59 @@ class QueryForm(generic.View):
             log.info("Query ID '%s' processing", query_id)
             # TODO: Save this in the UI for use when requesting the CSV file.
 
-            # Create the SQL Query from the post data.
-            query = build_query(request.POST)
-            log.info("Query ID '%s' query_string: <<%s>>", query_id, query)
+            try:
+                # Create the SQL Query from the post data.
+                query = build_query(request.POST)
+                log.info("Query ID '%s' query_string: <<%s>>", query_id, query)
 
-            # Get FIDIA Sample Object
-            sample = AsvoSparkArchive().new_sample_from_query(query)
+                # Get FIDIA Sample Object
+                sample = AsvoSparkArchive().new_sample_from_query(query)
 
-            # Produce JSON representation of result table
-            json_table = sample.tabular_data().to_json()
+                # Produce JSON representation of result table
+                # @NOTE: currently does some Panda's magic to return a simple Javascript array.
+                #
+                # The JSON object looks like this:
+                #
+                #   {"columns":["cataid","z","metal"],
+                #    "index":  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+                #    "data":   [[8823,0.0499100015,0.0163168724],
+                #               [63147,0.0499799997,0.0380015143],
+                #               ...
+                #               [91963,0.0499899983,0.0106879927]]}
+                #
+                # More: http://pandas.pydata.org/pandas-docs/version/0.17.0/generated/pandas.DataFrame.to_json.html
+                json_table = sample.tabular_data().reset_index().to_json(orient='split')
 
-            # Produce HTML Table for display
-            # html_table = sample.tabular_data().to_html(classes='table table-hover', bold_rows=False)
+                dataFromQuery=json_table
 
-            # Produce cached CSV results for potential download and save them to temporary directory
-            csv_filename = csv_cache_filename(query_id)
-            sample.tabular_data().to_csv(csv_filename)
-            log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
+                # Produce cached CSV results for potential download and save them to temporary directory
+                csv_filename = csv_cache_filename(query_id)
+                sample.tabular_data().to_csv(csv_filename)
+                log.info("Query ID '%s' CSV written to '%s'", query_id, csv_filename)
 
-            # Download URL to pass to web template
-            csv_url = "/csv_download/" + query_id + ".csv"
+                # Download URL to pass to web template
+                csv_url = "/csv_download/" + query_id + ".csv"
 
-            return render(request, 'aatnode/form/queryResults.html', {
-                # 'query_data': html_table,
-                # 'query_json':json_table,
-                'sql_query': query,
-                'json_data': json_table,
-                'csv_download_url': csv_url,
-            })
+            except Exception as e:
+                error_message = str(e)
+                log.error("Query Error page generated, query_id: %s, message: %s", query_id, error_message)
+                return render(request, 'aatnode/form/queryError.html', {
+                    'error_message': error_message,
+                    'query_id': query_id,
+                })
+            else:
+                return render(request, 'aatnode/form/queryResults.html', {
+                    'sql_query': query,
+                    'json_data':json_table,
+                    'csv_download_url': csv_url,
+                })
 
         else:
             return render(request, 'aatnode/form/queryForm.html', {
                 'form': form,
                 'query_data': '',
                 'sql_query': 'INVALID FORM',
+            #     TODO make more useful than SQL box message
             })
 
 

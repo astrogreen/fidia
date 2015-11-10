@@ -1,0 +1,73 @@
+ {% extends 'base/base.html' %}
+{# Load the tag library #}
+{% load asvo_tags %}
+{% load mathfilters %}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block title %} Query Form {% endblock %}
+{% block wrapper %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-6">
+                <h2>Query</h2>
+            </div>
+            <div class="col-xs-6">
+                <a href="" class="btn btn-default pull-right" style="margin-top:20px"> New Query</a>
+            </div>
+            <div class="col-xs-12" id="waiting">
+                <h4>Fetching data... <i class="fa fa-spinner fa-pulse"></i></h4>
+                <div class="progress active">
+                      <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                        70%
+                      </div>
+                </div>
+                <button id="getAJAX" class="btn btn-default">test AJAX</button>
+
+            </div>
+            <div class="col-xs-12" id="results">
+                <h4>Result</h4>
+                <div class="row">
+                    {% if csv_download_url %}
+                    Download
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="downloadType" value="CSV" /> <a href="{{ csv_download_url }}">CSV</a>
+                        </label>
+                        {% comment %}
+                        <label class="btn btn-default">
+                            <input type="radio" name="downloadType" value="FITS" /> FITS
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="downloadType" value="ASCII" /> ASCII
+                        </label>
+                        {% endcomment %}
+                    </div>
+                    {% endif %}
+                </div><hr/><br>
+                <div class="row">
+                    <table id="returnTableResults" class=" display table table-responsive table-condensed">
+                        <thead><tr>
+                        </tr></thead>
+                    </table>
+                </div>
+                <h4>SQL</h4>
+                <div class="well well-sm">
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+{% block pagejs %}
+<script type="text/javascript" src="/static/js/datatables.min.js"></script>
+<script src='/static/js/form/results-render.js'></script>
+{% endblock %}

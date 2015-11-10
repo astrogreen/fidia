@@ -15,7 +15,6 @@ select{
 border-radius:0px !important;
 }
 
-
 .doc-alert {
     background-color:#fff;
     border-left: 5px solid #1ABC9C;
@@ -207,6 +206,26 @@ border-radius:0px !important;
       display: block;
   }
 
+.docs-example {
+    position: relative;
+    padding: 45px 15px 15px;
+    border-color: #e5e5e5 #eee #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+  .docs-example:after {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #959595;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    content: "Example";
+}
+
 /*  QUERYFORM  */
   .form-container{border:solid 1px #f8f8f8;}
 
@@ -284,7 +303,10 @@ border-radius:0px !important;
 
 /*QUERY RESULTS*/
 h4 > a {margin-top:-7px;margin-left:10px;}
-
+.progress.active .progress-bar {
+    -webkit-transition: none !important;
+    transition: none !important;
+}
 
 /* Media Queries */
 @media (max-width: 550px) {

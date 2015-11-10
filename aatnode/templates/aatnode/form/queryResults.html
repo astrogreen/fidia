@@ -15,36 +15,54 @@
 {% block wrapper %}
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-6">
             <h2>Query</h2>
             </div>
-            <div class="col-xs-12">
-                <h4>Result</h4>
-                <div class="row">
-                    {% if csv_download_url %}
-                    Download
-                    <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-default">
-                            <input type="radio" name="downloadType" value="CSV" /> <a href="{{ csv_download_url }}">CSV</a>
-                        </label>
-                        {% comment %}
-                        <label class="btn btn-default">
-                            <input type="radio" name="downloadType" value="FITS" /> FITS
-                        </label>
-                        <label class="btn btn-default">
-                            <input type="radio" name="downloadType" value="ASCII" /> ASCII
-                        </label>
-                        {% endcomment %}
-                    </div>
-                    {% endif %}
-                    <a href="" class="btn btn-default pull-right"> New Query</a>
-                </div><hr/><br>
-                <div class="row">
-                    <div id="returnTableResults" class="table-responsive">
-                     {% if query_data %}{% autoescape off %}{{ query_data }}{% endautoescape %}{% endif %}<br>
-                    </div>
+            <div class="col-xs-6">
+                <a href="" class="btn btn-default btn-success pull-right" style="margin-top:20px"> New Query</a>
+            </div>
+            {% comment %}
+            <div class="col-xs-12" id="waiting">
+                <h4>Fetching data... <i class="fa fa-spinner fa-pulse"></i></h4>
+                <div class="progress active">
+                      <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                        70%
+                      </div>
                 </div>
+            </div>
+            {% endcomment %}
+        </div>
+        <div class="row" id="results">
+            <div class="col-xs-12">
+                <h4>Result
 
+                <div class="pull-right" style="margin-top:-7.5px">
+                    {% if csv_download_url %}
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="downloadType" value="CSV" /> <a href="{{ csv_download_url }}">Download CSV</a>
+                    </label>
+                    {% comment %}
+                    <label class="btn btn-default">
+                        <input type="radio" name="downloadType" value="FITS" /> FITS
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="downloadType" value="ASCII" /> ASCII
+                    </label>
+                    {% endcomment %}
+                </div>
+                {% endif %}
+                </div>
+                </h4>
+            </div>
+            <div class="col-xs-6">
+
+            </div>
+            <div class="col-xs-12">
+                <table id="returnTableResults" class="table table-responsive table-condensed">
+                </table>
+            </div>
+            <div class="col-xs-12">
                 <h4>SQL</h4>
                 <div class="well well-sm">
                  {% if sql_query %}<p>{{ sql_query }}</p>{% endif %}<br>
@@ -54,6 +72,13 @@
     </div>
 {% endblock %}
 {% block pagejs %}
+<script type="text/javascript">
+{% if json_data %}
+    {% autoescape off %}
+        var json_data = {{ json_data }};
+    {% endautoescape %}
+{% endif %}
+</script>
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script src='/static/js/form/results-render.js'></script>
 {% endblock %}
