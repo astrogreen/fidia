@@ -19,8 +19,12 @@
             <h2>Query Error</h2>
             </div>
             <div class="col-xs-12">
-                <p>There was an unexpected error while attempting to process your request.</p>
-                <p>Please contact the AAT-ASVO node, and include the Query ID and Error Message (below) in your message.</p>
+                <p>There was an unexpected error while attempting to process your request. Please click the button
+                below to email your bug report to us.
+                </p>
+                <p><a target="_blank" class="btn btn-danger" id="errorMail">Email bug report</a></p>
+                <p>Alternatively, please email the AAT-ASVO node (asvo@aao.gov.au), including the Query ID and Error Message
+                    (below) in your message.</p>
                 <h4>Query ID</h4>
                 <div class="well well-sm">
                 {% if query_id %}<p>{{ query_id }}</p>{% endif %}<br>
@@ -28,7 +32,7 @@
                 <h4>Error Message</h4>
                 <div class="well well-sm">
                 {% if error_message %}<p>{{ error_message }}</p>{% endif %}<br>
-                </div>                
+                </div>
             </div>
         </div>
     </div>
@@ -40,6 +44,20 @@
         var json_data = {{ json_data }};
     {% endautoescape %}
 {% endif %}
+
+{% if error_message %}
+    {% autoescape off %}
+        var error_message = "{{ error_message }}";
+    {% endautoescape %}
+{% endif %}
+{% if query_id %}
+    {% autoescape off %}
+        var query_id = "{{ query_id }}";
+    {% endautoescape %}
+{% endif %}
+
+$('#errorMail').attr('href','mailto:asvo@aao.gov.au?subject=Bug '+query_id+'&body= '+ error_message );
+
 </script>
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script src='/static/js/form/results-render.js'></script>

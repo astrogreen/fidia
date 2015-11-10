@@ -49,16 +49,23 @@ $( document ).ready(function() {
             th = '<th>'+k+'</th>';
             queryColumns.push(b);
             $('#returnTableResults').find('thead > tr').append(th);
-
-
         });
+
+        var numRows = queryData.data.length;
+        var numCols = queryColumns.length;
+
+console.log(numRows+'*'+numCols+'='+numRows*numCols);
 
         var table = $('#returnTableResults').DataTable( {
             data : queryData.data,
             columns : queryColumns,
             'deferRender':true,
-            "scrollX": true
+            "scrollX": true,
+            "language": {
+                 "loadingRecords": "Please wait - loading..."
+              }
          });
+         console.log('loaded table');
     } else {
         console.log('json_data undefined');
     }
