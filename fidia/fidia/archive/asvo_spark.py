@@ -51,8 +51,7 @@ class AsvoSparkArchive(BaseArchive):
     def new_sample_from_query(self, query_string):
         """Create a new FIDIA sample containing the query results.
 
-        @TODO For now, this assumes that the first column contains the
-        identifier.
+        @TODO For now, an arbitrary index identifier is assigned.
 
         @TODO: Once the identifier has been sorted out, the code in
         `aatnode/views.py:QueryForm.post()` will need to be reviewed.
@@ -73,7 +72,8 @@ class AsvoSparkArchive(BaseArchive):
         log.debug("Elapsed time: %f", time.clock() - start_time)
 
         # Set the key to be the first column
-        results_pddf.set_index(results_pddf.columns[0], inplace=True)
+        #results_pddf.set_index(results_pddf.columns[0], inplace=True)
+
 
         log.debug("Elapsed time: %f", time.clock() - start_time)
 
@@ -84,7 +84,7 @@ class AsvoSparkArchive(BaseArchive):
                     name='ASVO',
                     index=results_pddf.index))
         log.debug("Elapsed time: %f", time.time() - start_time)
-        print(id_cross_match)
+        # print(id_cross_match)
         new_sample.extend(id_cross_match)
         log.debug("Elapsed time: %f", time.time() - start_time)
 
