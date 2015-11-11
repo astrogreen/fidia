@@ -188,13 +188,15 @@ class QueryForm(generic.View):
 
         if form.is_valid():
             # <process form cleaned data>
-            print(request.POST)
-            print(form.cleaned_data)
+            log.info(request.POST)
+            log.info(form.cleaned_data)
 
             # Define a query ID for this query:
             query_id = "{0:.2f}".format(time.time())
             log.info("Query ID '%s' processing", query_id)
             # TODO: Save this in the UI for use when requesting the CSV file.
+            log.info("Query ID post data: <<%s>>", request.POST.urlencode(safe=None))
+
 
             try:
                 # Create the SQL Query from the post data.
@@ -231,7 +233,8 @@ class QueryForm(generic.View):
 
             except Exception as e:
                 error_message = str(e)
-                log.error("Query Error page generated, query_id: %s, message: %s", query_id, error_message)
+                log.error("Query Error page generated, query_id: %s, message: %s", query_id, error_message,
+                          exc_info=True)
                 return render(request, 'aatnode/form/queryError.html', {
                     'error_message': error_message,
                     'query_id': query_id,
