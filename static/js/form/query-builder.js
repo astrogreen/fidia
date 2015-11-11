@@ -605,6 +605,7 @@ function SetUpForm(){
         var elNAME=$(this).attr('name');
         $('#'+ID).multiselect({
             includeSelectAllOption: true,
+            enableCaseInsensitiveFiltering: true,
             disableIfEmpty: true,
             enableFiltering:true,
             maxHeight: 260,
@@ -623,6 +624,7 @@ function SetUpForm(){
         var elNAME=$(this).attr('name');
         $('#'+ID).multiselect({
             includeSelectAllOption: true,
+            enableCaseInsensitiveFiltering: true,
             disableIfEmpty: true,
             enableFiltering:true,
             maxHeight: 260,
@@ -716,7 +718,7 @@ $( document ).ready(function() {
     //ON SUBMIT CHANGE BUTTON
     $('#queryForm')
         .on('success.form.fv', function(e) {
-        console.log('successful submit');
+//        console.log('successful submit');
             $('#querySubmit').addClass('btn-warning')
             .html('Fetching data... <i class="fa fa-refresh fa-spin"></i>');
         });

@@ -12,6 +12,8 @@
 {% bootstrap_messages %}
 
 {% block title %} Query Form {% endblock %}
+
+{% block datatables %} <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css"/> {% endblock %}
 {% block wrapper %}
     <div class="container">
         <div class="row">
@@ -35,7 +37,6 @@
         <div class="row" id="results">
             <div class="col-xs-12">
                 <h4>Result
-
                 <div class="pull-right" style="margin-top:-7.5px">
                     {% if csv_download_url %}
                 <div class="btn-group" data-toggle="buttons">
@@ -55,7 +56,7 @@
                 </div>
                 </h4>
             </div>
-            <div class="col-xs-6">
+            <div class="col-xs-12" id="warning">
 
             </div>
             <div class="col-xs-12">

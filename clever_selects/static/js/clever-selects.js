@@ -60,6 +60,7 @@ $(document).ready(function() {
         $('#queryForm').formValidation('revalidateField', elNAME);
         $('#'+ID).multiselect({      //using multiselect
                 includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true,
                 disableIfEmpty: true,
                 enableFiltering:true,
                 maxHeight: 200,
