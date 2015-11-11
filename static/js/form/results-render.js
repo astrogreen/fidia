@@ -26,7 +26,7 @@ $( document ).ready(function() {
 //        });
 
 
-    if (typeof json_data !== 'undefined'){
+    if(typeof json_data !== 'undefined'){
 
         var queryData = json_data;
         var queryColumns = [];
@@ -45,7 +45,6 @@ $( document ).ready(function() {
                     }
                 }
             }
-
             th = '<th>'+k+'</th>';
             queryColumns.push(b);
             $('#returnTableResults').find('thead > tr').append(th);
@@ -54,12 +53,25 @@ $( document ).ready(function() {
         var numRows = queryData.data.length;
         var numCols = queryColumns.length;
 
-console.log(numRows+'*'+numCols+'='+numRows*numCols);
+//        console.log(numRows+'*'+numCols+'='+numRows*numCols);
+
+        var cap = 100000;
+        var capRows=(cap/numCols).toPrecision(2);
+
+//        console.log(capRows+' '+cap);
+
+        //CAP THE NUMBER OF ROWS RENDERED TO THE
+        if (numRows*numCols>cap){
+            var data = queryData.data.slice(0,capRows);
+            $('#warning').append('<p class="bg-info"><strong>Displaying '+data.length+' out of '+numRows+' rows</strong> Please download the CSV for the full data set</p>')
+        } else {
+            var data = queryData.data;
+        }
 
         var table = $('#returnTableResults').DataTable( {
-            data : queryData.data,
+            data : data,
             columns : queryColumns,
-            'deferRender':true,
+            "orderClasses": false,
             "scrollX": true,
             "language": {
                  "loadingRecords": "Please wait - loading..."
