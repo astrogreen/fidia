@@ -296,7 +296,8 @@ border-radius:0px !important;
     max-width:90%;
   }
 
-  button.multiselect{white-space:normal !important; text-align:left;border-radius:0px;} /*wrap text when goes above max width*/
+  button.multiselect{white-space:normal !important; text-align:left;border-radius:0px;max-width:500px;} /*wrap text when goes above max width*/
+
 
 
   .form-group.has-feedback ul.multiselect-container li a label{color:#333;}

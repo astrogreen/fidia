@@ -394,6 +394,14 @@ function SetUpForm(){
                     validators: {
                         notEmpty: {
                             message: 'Select a catalogue'
+                        },
+                        callback: {
+                            message: 'Join catalogues must be unique',
+                            callback: function(value, validator, $field) {
+                                //IF JOINA == JOINB ERROR
+                                if ($('#id_joinA_cat_0').find(' option:selected').val()==$('#id_joinB_cat_0').find(' option:selected').val()) {var dummy = 0;} else {var dummy=1;}
+                                return (dummy != null && dummy >0);
+                            }
                         }
                     }
                 },
@@ -402,6 +410,14 @@ function SetUpForm(){
                     validators: {
                         notEmpty: {
                             message: 'Select a catalogue'
+                        },
+                        callback: {
+                            message: 'Join catalogues must be unique',
+                            callback: function(value, validator, $field) {
+                                //IF JOINA == JOINB ERROR
+                                if ($('#id_joinA_cat_1').find(' option:selected').val()==$('#id_joinB_cat_1').find(' option:selected').val()) {var dummy = 0;} else {var dummy=1;}
+                                return (dummy != null && dummy >0);
+                            }
                         }
                     }
                 },
@@ -410,6 +426,14 @@ function SetUpForm(){
                     validators: {
                         notEmpty: {
                             message: 'Select a catalogue'
+                        },
+                        callback: {
+                            message: 'Join catalogues must be unique',
+                            callback: function(value, validator, $field) {
+                                //IF JOINA == JOINB ERROR
+                                if ($('#id_joinA_cat_2').find(' option:selected').val()==$('#id_joinB_cat_2').find(' option:selected').val()) {var dummy = 0;} else {var dummy=1;}
+                                return (dummy != null && dummy >0);
+                            }
                         }
                     }
                 },
@@ -418,6 +442,14 @@ function SetUpForm(){
                     validators: {
                         notEmpty: {
                             message: 'Select a catalogue'
+                        },
+                        callback: {
+                            message: 'Join catalogues must be unique',
+                            callback: function(value, validator, $field) {
+                                //IF JOINA == JOINB ERROR
+                                if ($('#id_joinA_cat_3').find(' option:selected').val()==$('#id_joinB_cat_3').find(' option:selected').val()) {var dummy = 0;} else {var dummy=1;}
+                                return (dummy != null && dummy >0);
+                            }
                         }
                     }
                 },
