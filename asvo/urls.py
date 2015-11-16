@@ -15,10 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.http import HttpResponseRedirect
 
 urlpatterns = [
     url(r'^asvo/', include('aatnode.urls', namespace='aatnode')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
+    #url(r'^/', include('aatnode.urls', namespace='aatnode')),
     # url(r'^ajax/custom-chained-view-url/$', AjaxChainedView.as_view(), name='ajax_chained_view'),
     #url(r'^ajax/chained-columns/$', AjaxChainedColumns.as_view(), name='ajax_chained_columns'),
     #url(r'^$', IndexView.as_view(), name='index'),
