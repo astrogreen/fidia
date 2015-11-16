@@ -628,6 +628,18 @@ function SetUpForm(){
                     }
                 },
             }
+        })
+        .on('change', '[name="joinA_cat_0"]', function(e) {
+            $('#queryForm').formValidation('revalidateField', 'joinB_cat_0');
+        })
+        .on('change', '[name="joinA_cat_1"]', function(e) {
+            $('#queryForm').formValidation('revalidateField', 'joinB_cat_1');
+        })
+        .on('change', '[name="joinA_cat_2"]', function(e) {
+            $('#queryForm').formValidation('revalidateField', 'joinB_cat_2');
+        })
+        .on('change', '[name="joinA_cat_3"]', function(e) {
+            $('#queryForm').formValidation('revalidateField', 'joinB_cat_3');
         });
     //BUILD MULTISELECTS
     //ON CATALOGUES
