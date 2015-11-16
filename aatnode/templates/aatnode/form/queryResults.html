@@ -38,19 +38,9 @@
             <div class="col-xs-12">
                 <h4>Result
                 <div class="pull-right" style="margin-top:-7.5px">
-                    {% if csv_download_url %}
-                <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-default">
-                        <input type="radio" name="downloadType" value="CSV" /> <a href="{{ csv_download_url }}">Download CSV</a>
-                    </label>
-                    {% comment %}
-                    <label class="btn btn-default">
-                        <input type="radio" name="downloadType" value="FITS" /> FITS
-                    </label>
-                    <label class="btn btn-default">
-                        <input type="radio" name="downloadType" value="ASCII" /> ASCII
-                    </label>
-                    {% endcomment %}
+                {% if csv_download_url %}
+                <div class="btn-group">
+                    <a class='btn btn-default' href="/asvo{{ csv_download_url }}">Download CSV</a>
                 </div>
                 {% endif %}
                 </div>
