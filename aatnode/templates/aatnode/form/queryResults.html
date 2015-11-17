@@ -21,7 +21,7 @@
             <h2>Query</h2>
             </div>
             <div class="col-xs-6">
-                <a href="" class="btn btn-default btn-success pull-right" style="margin-top:20px"> New Query</a>
+                <a href="" class="btn btn-default  pull-right" style="margin-top:20px"> New Query</a>
             </div>
             {% comment %}
             <div class="col-xs-12" id="waiting">
@@ -40,7 +40,7 @@
                 <div class="pull-right" style="margin-top:-7.5px">
                 {% if csv_download_url %}
                 <div class="btn-group">
-                    <a class='btn btn-default' href="/asvo{{ csv_download_url }}">Download CSV</a>
+                    <a class='btn btn-default btn-success' href="/asvo{{ csv_download_url }}">Download CSV</a>
                 </div>
                 {% endif %}
                 </div>
@@ -51,6 +51,7 @@
             </div>
             <div class="col-xs-12">
                 <table id="returnTableResults" class="table table-responsive table-condensed">
+                    <thead><tr><th>Please wait, DataTable loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead>
                 </table>
             </div>
             <div class="col-xs-12">
@@ -67,6 +68,12 @@
 {% if json_data %}
     {% autoescape off %}
         var json_data = {{ json_data }};
+    {% endautoescape %}
+{% endif %}
+{% if json_size %}
+    {% autoescape off %}
+        var json_size = {{ json_size }};
+        console.log(json_size);
     {% endautoescape %}
 {% endif %}
 </script>

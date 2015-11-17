@@ -1,30 +1,4 @@
 $( document ).ready(function() {
-//TODO CALLBACK FOR JSON
-
-
-//    //For getting CSRF token
-//    function getCookie(name) {
-//              var cookieValue = null;
-//              if (document.cookie && document.cookie != '') {
-//                    var cookies = document.cookie.split(';');
-//              for (var i = 0; i < cookies.length; i++) {
-//                   var cookie = jQuery.trim(cookies[i]);
-//              // Does this cookie string begin with the name we want?
-//              if (cookie.substring(0, name.length + 1) == (name + '=')) {
-//                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-//                  break;
-//                 }
-//              }
-//          }
-//     return cookieValue;
-//    }
-//    var csrftoken = getCookie('csrftoken');
-//
-//    $.ajax({type: "POST",url: '/asvo/query-builder/', data: {csrfmiddlewaretoken : csrftoken}, dataType:'json', success: function(results){ 
-//            console.log(results); 
-//            }
-//        });
-
 
     if(typeof json_data !== 'undefined'){
 
@@ -33,7 +7,7 @@ $( document ).ready(function() {
 
         var thead = '';
         $('#returnTableResults').find('thead > tr').empty();
-
+        //APPEND COLUMN VALUES TO TABLE HEAD
         $.each(json_data.columns, function(i,k){
             var b = { title: k };
 
@@ -50,23 +24,9 @@ $( document ).ready(function() {
             $('#returnTableResults').find('thead > tr').append(th);
         });
 
-        var numRows = queryData.data.length;
-        var numCols = queryColumns.length;
+        var data = queryData.data;
 
-//        console.log(numRows+'*'+numCols+'='+numRows*numCols);
-
-        var cap = 100000;
-        var capRows=(cap/numCols).toPrecision(2);
-
-//        console.log(capRows+' '+cap);
-
-        //CAP THE NUMBER OF ROWS RENDERED TO THE
-        if (numRows*numCols>cap){
-            var data = queryData.data.slice(0,capRows);
-            $('#warning').append('<p class="bg-info"><strong>Displaying '+data.length+' out of '+numRows+' rows</strong> Please download the CSV for the full data set</p>')
-        } else {
-            var data = queryData.data;
-        }
+        if (typeof data == 'undefined'){data=[];}
 
         var table = $('#returnTableResults').DataTable( {
             data : data,
@@ -77,9 +37,11 @@ $( document ).ready(function() {
                  "loadingRecords": "Please wait - loading..."
               }
          });
-         console.log('loaded table');
+         if (json_size[2]!==0){$('#warning').append('<p class="bg-info"><strong>Displaying '+json_size[2]+' out of '+json_size[0]+' rows</strong>. Please download the CSV for the full data set.</p>')};
     } else {
-        console.log('json_data undefined');
+        $('#returnTableResults').find('thead > tr').empty();
+        $('#warning').append('<p class="bg-info"><strong>Over 100,000 elements ('+json_size[0]+' rows, '+json_size[1]+' colums).</strong> Please download the CSV for the full data set.</p>')
+
     }
 
 
