@@ -74,11 +74,11 @@ class TestingGroundView(generic.View):
 
             results = { "progress" : {'progress':1} }
 
-            # dataFromQuery = {"columns":["cataid","z","metal"],
-            #    "index":  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
-            #    "data":   [[8823,0.0499100015,0.0163168724],
-            #               [63147,0.0499799997,0.0380015143],
-            #               [91963,0.0499899983,0.0106879927]]}
+            dataFromQuery = {"columns":["cataid","z","metal"],
+               "index":  [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+               "data":   [[8823,0.0499100015,0.0163168724],
+                          [63147,0.0499799997,0.0380015143],
+                          [91963,0.0499899983,0.0106879927]]}
             try:
               dataFromQuery
             except NameError:
@@ -219,9 +219,19 @@ class QueryForm(generic.View):
                 #               [91963,0.0499899983,0.0106879927]]}
                 #
                 # More: http://pandas.pydata.org/pandas-docs/version/0.17.0/generated/pandas.DataFrame.to_json.html
-                json_table = sample.tabular_data().reset_index().to_json(orient='split')
 
-                dataFromQuery=json_table
+                #get number of elements in json data, if greater than the cap, send first 2000 rows of json_table
+                (json_n_rows, json_n_cols) = sample.tabular_data().shape
+                json_element_cap = 100000
+                json_row_cap = 2000
+
+                if (json_n_rows*json_n_cols < json_element_cap ):
+                    json_table = sample.tabular_data().reset_index().to_json(orient='split')
+                    json_flag = 0
+                else:
+                    # json_table = sample.tabular_data().reset_index().to_json(orient='split')
+                    json_table = sample.tabular_data().iloc[:json_row_cap].reset_index().to_json(orient='split')
+                    json_flag = json_row_cap
 
                 # Produce cached CSV results for potential download and save them to temporary directory
                 csv_filename = csv_cache_filename(query_id)
@@ -242,6 +252,7 @@ class QueryForm(generic.View):
             else:
                 return render(request, 'aatnode/form/queryResults.html', {
                     'sql_query': query,
+                    'json_size':[json_n_rows,json_n_cols, json_flag],
                     'json_data':json_table,
                     'csv_download_url': csv_url,
                 })
