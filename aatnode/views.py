@@ -364,7 +364,6 @@ def build_query(request):
     }
     join_map = {
         'INNER_JOIN': " INNER ",
-        'OUTER_JOIN': " OUTER ",
         'LEFT_JOIN': " LEFT ",
         'RIGHT_JOIN': " RIGHT ",
         'FULL_JOIN': " FULL ",

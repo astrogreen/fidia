@@ -36,7 +36,7 @@ class ReturnQuery(ChainedChoicesForm):
     for x in range(joinFieldsCount):
         exec("joinA_cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'catalogue'))] + list(CAT),required=False)")
         exec("joinA_columns_" +str(x) + " = ChainedChoiceField(parent_field='joinA_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=False)")
-        exec("join_type_" + str(x)+ " = forms.ChoiceField(choices=[('INNER_JOIN','INNER'),('OUTER_JOIN','OUTER'),('LEFT_JOIN','LEFT'),('RIGHT_JOIN','RIGHT')],required=False)")
+        exec("join_type_" + str(x)+ " = forms.ChoiceField(choices=[('INNER_JOIN','INNER'),('FULL_JOIN','FULL'),('LEFT_JOIN','LEFT'),('RIGHT_JOIN','RIGHT')],required=False)")
         exec("joinB_cat_" + str(x) + " = forms.ChoiceField(choices=[('', _(u'catalogue'))] + list(CAT),required=False)")
         exec("joinB_columns_" +str(x) + " = ChainedChoiceField(parent_field='joinB_cat_"+str(x) +"', ajax_url='/asvo/ajax/chained-columns/', label='Columns', required=False)")
 
