@@ -10,3 +10,5 @@ class VelocityMap(Map, Measurement): pass
 class Abundance(Measurement): pass
 
 class EmissionClassificationMap(AbstractBaseClassification, Map): pass
+
+class PositionAngle(Measurement): pass

@@ -30,10 +30,11 @@ https://dbader.org/blog/abstract-base-classes-in-python
 
 """
 
-from abc import ABC
+from abc import ABC, ABCMeta
 
 
 class AbstractBaseTrait(ABC):
+
     @property
     def value(self):
         raise NotImplementedError
@@ -52,6 +53,7 @@ class AbstractBaseTrait(ABC):
 
 
 class AbstractNumericTrait(AbstractBaseTrait):
+
     @property
     def variance(self):
         raise NotImplementedError
