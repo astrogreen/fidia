@@ -20,6 +20,7 @@ from django.http import HttpResponseRedirect
 urlpatterns = [
     url(r'^asvo/', include('aatnode.urls', namespace='aatnode')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^asvo/', include('restapi_app.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
     #url(r'^/', include('aatnode.urls', namespace='aatnode')),
     # url(r'^ajax/custom-chained-view-url/$', AjaxChainedView.as_view(), name='ajax_chained_view'),
