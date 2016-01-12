@@ -22,9 +22,6 @@ instead of primary key relationships.
 
 """
 
-
-
-
 class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     """
     Create/Update and return a new/existing object instance, given the validated data

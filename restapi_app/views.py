@@ -48,7 +48,7 @@ class QueryViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        This view should return a list of all thqueriests
+        This view should return a list of all the query objects
         for the currently authenticated user.
         """
         user = self.request.user
