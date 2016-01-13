@@ -40,7 +40,7 @@ class Sample(collections.MutableMapping):
         # Place to store the list of IDs contained in this sample
         #
         # Deprecated in favour of using Pandas and _id_cross_maches
-        self._ids = set()
+        #self._ids = set()
 
         # Place to store the list of objects contained in this sample
         self._contents = dict()
@@ -61,15 +61,21 @@ class Sample(collections.MutableMapping):
         if not isinstance(archive, BaseArchive):
             raise Exception()
 
-
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
 
     def __getitem__(self, key):
         """Function called on dict type read access"""
-        if key in self._ids:
+        if key in self._contents.keys():
+            # Then the requested object has been created. Nothing to do.
+            return self._contents[key]
+        elif key in self._id_cross_matches.index:
+            # The request object exists in the archive, but has not been created for this sample.
+            # TODO: Move the following line to it's own function and expand.
+            self._contents[key] = AstronomicalObject(self, identifier=key)
             return self._contents[key]
         elif self.read_only:
+            # The requested object is unknown, and we're not allowed to create a new one.
             raise Exception("Object not found in sample.")
         else:
             # Create a new object and return it
@@ -86,7 +92,6 @@ class Sample(collections.MutableMapping):
 
     def keys(self):
         return self._ids
-
 
     def __len__(self):
         return len(self._id_cross_matches)
@@ -190,4 +195,23 @@ class Sample(collections.MutableMapping):
         self._contents[value.identifier] = value
 
 
-        
+    def available_data(self):
+        # @TODO: No tests.
+        available_data = {}
+        for ar in self._archives:
+            available_data[ar.name] = ar.available_data
+        return available_data
+
+    def get_archive_for_property(self, key):
+        # TODO: this will return the first archive (in arbitrary order) that can answer the trait request.
+        for ar in self.archives:
+            if ar.can_provide(key):
+                return ar
+        # If no archive can provide the given trait_key, then return None.
+        return None
+
+    def get_archive_id(self, archive, sample_id):
+        # @TODO: Sanity checking, e.g. archive is actually valid, etc.
+
+        return self._id_cross_matches.loc[sample_id][archive.name]
+

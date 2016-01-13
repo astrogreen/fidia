@@ -1,6 +1,7 @@
 
 import collections
 
+from .traits.utilities import TraitKey
 
 class AstronomicalObject(collections.MutableMapping):
 
@@ -49,11 +50,20 @@ class AstronomicalObject(collections.MutableMapping):
             # We have been asked for more than one property, will return tabular data?
             # @TODO!
             raise Exception("List indexing behaviour not implemented.")
-        else:
-            raise Exception("Key indexing behaviour not implemented.")
+        elif isinstance(key, TraitKey) or isinstance(key, tuple):
+            if isinstance(key, tuple):
+                key = TraitKey(*key)
+            #raise Exception("Key indexing behaviour not implemented.")
             # # Asked for a single property
             # archive = self.sample.get_archive_for_property(key)
             # archive.data.loc[self._archive_id[archive]][key]
+
+            archive = self.sample.get_archive_for_property(key)
+
+            archive_id = self.sample.get_archive_id(archive, self.identifier)
+            return archive.get_trait(archive_id, key)
+        else:
+            raise Exception("Whoops!")
 
     def __setitem__(self, key, value):
         pass
