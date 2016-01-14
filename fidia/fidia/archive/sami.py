@@ -6,8 +6,8 @@ log.setLevel(slogging.DEBUG)
 
 log.enable_console_logging()
 
-from glob import glob
 import re
+from glob import glob
 import os.path
 
 from astropy.io import fits
@@ -20,7 +20,8 @@ from ..galaxy import Galaxy
 
 #from fidia.traits import
 from ..sample import Sample
-from ..traits.utilities import TraitKey, TraitMapping
+from ..traits.utilities import TraitKey, TraitMapping, trait_property
+from ..traits.base_traits import SpectralCube
 
 # class dummy:
 #     pass
@@ -32,8 +33,13 @@ class SAMITeamArchive(BaseArchive):
         self._base_directory_path = base_directory_path
         self._master_catalog_path = master_catalog_path
         self._contents = None
+
+        # Traits (or properties)
         self.available_traits = TraitMapping()
         self.define_available_traits()
+
+        # Local cache for traits
+        self._trait_cache = dict()
 
 
     @property
@@ -95,20 +101,27 @@ class SAMITeamArchive(BaseArchive):
             trait_key = TraitKey(*trait_key)
 
         if object_id is not None:
-            trait_key = trait_key._replace(object_id=object_id)
+            trait_key = trait_key.replace(object_id=object_id)
 
-        # Determine which class responds to the requested trait. Potential for far more complex logic here in future.
-        trait_class = self.available_traits[trait_key]
+        # Check if we have already loaded this trait, otherwise load and cache it here.
+        if trait_key not in self._trait_cache:
 
-        # Create the trait object and return it.
-        log.debug("Returning trait_class %s", type(trait_class))
-        return trait_class(trait_key)
+            # Determine which class responds to the requested trait. Potential for far more complex logic here in future.
+            trait_class = self.available_traits[trait_key]
+
+            # Create the trait object and cache it
+            log.debug("Returning trait_class %s", type(trait_class))
+            trait = trait_class(trait_key)
+
+            self._trait_cache[trait_key] = trait
+
+        return self._trait_cache[trait_key]
 
     def define_available_traits(archive):
 
         # Trait Definitions. These make up the "plugin"
 
-        class SAMISpectralCube:
+        class SAMISpectralCube(SpectralCube):
 
             @classmethod
             def data_available(cls, object_id):
@@ -123,29 +136,31 @@ class SAMITeamArchive(BaseArchive):
                 if self.cube_file is None:
                     raise Exception("Must have trait_name to load data.")
                 self.hdu = fits.open(self.cube_file)
+                super(SAMISpectralCube, self).__init__(key)
 
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc_val, exc_tb):
+            def cleanup(self):
                 self.hdu.close()
 
             def name(self):
                 pass
 
-            def data(self):
+            @trait_property
+            def value(self):
                 # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
                 key = str('PRIMARY')
                 return self.hdu[key].data
 
+            @trait_property
             def variance(self):
                 # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
                 return self.hdu[str('VARIANCE')].data
 
+            @trait_property
             def covariance(self):
                 # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
                 return self.hdu[str('COVAR')].data
 
+            @trait_property
             def weight(self):
                 # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
                 return self.hdu[str('WEIGHT')].data

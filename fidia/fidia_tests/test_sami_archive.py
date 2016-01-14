@@ -37,4 +37,4 @@ class TestSAMIArchive:
     def test_retrieve_data_from_sample(self, sami_sample):
         sami_sample.get_archive_id(sami_sample.get_archive_for_property(""),'41144')
         t = sami_sample['41144']['spectral_cubes', u'/data/SAMI/data_releases/v0.9/2015_04_14-2015_04_22/cubed/41144/41144_red_7_Y15SAR3_P002_12T085_1sec.fits.gz']
-        assert isinstance(t.data(), numpy.ndarray)
+        assert isinstance(t.value, numpy.ndarray)

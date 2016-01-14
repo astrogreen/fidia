@@ -36,7 +36,7 @@ class AstronomicalObject(collections.MutableMapping):
     @property
     def dec(self):
         return self._dec
-    
+
 
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
@@ -61,6 +61,9 @@ class AstronomicalObject(collections.MutableMapping):
             archive = self.sample.get_archive_for_property(key)
 
             archive_id = self.sample.get_archive_id(archive, self.identifier)
+            # get_trait provides a reference to a cached copy of the trait held by the archive.
+            # It may be necessary to actually save a reference in this object when it comes to
+            # object storage.
             return archive.get_trait(archive_id, key)
         else:
             raise Exception("Whoops!")

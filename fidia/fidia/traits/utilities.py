@@ -32,7 +32,7 @@ class TraitKey(tuple):
         """Return a new OrderedDict which maps field names to their values"""
         return collections.OrderedDict(zip(self._fields, self))
 
-    def _replace(_self, **kwds):
+    def replace(_self, **kwds):
         """Return a new TraitKey object replacing specified fields with new values"""
         result = _self._make(map(kwds.pop, ('trait_type', 'trait_name', 'object_id'), _self))
         if kwds:
@@ -74,15 +74,15 @@ class TraitMapping(collections.MutableMapping):
 
         if key in known_keys:
             return self._mapping[key]
-        elif key._replace(object_id=None) in known_keys:
+        elif key.replace(object_id=None) in known_keys:
             # Wildcard on object_id
-            return self._mapping[key._replace(object_id=None)]
-        elif key._replace(trait_name=None) in known_keys:
+            return self._mapping[key.replace(object_id=None)]
+        elif key.replace(trait_name=None) in known_keys:
             # Wildcard on trait_name
-            return self._mapping[key._replace(trait_name=None)]
-        elif key._replace(trait_name=None, object_id=None) in known_keys:
+            return self._mapping[key.replace(trait_name=None)]
+        elif key.replace(trait_name=None, object_id=None) in known_keys:
             # Wildcard on both object_id and trait_name
-            return self._mapping[key._replace(trait_name=None, object_id=None)]
+            return self._mapping[key.replace(trait_name=None, object_id=None)]
 
         else:
             # No suitable data loader found
@@ -103,3 +103,27 @@ class TraitMapping(collections.MutableMapping):
 
     def __iter__(self):
         return iter(self._mapping)
+
+
+class trait_property(object):
+
+
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
+        self.fget = fget
+        self.fset = fset
+        self.fdel = fdel
+        if doc is None and fget is not None:
+            doc = fget.__doc__
+        self.__doc__ = doc
+
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        if self.fget is None:
+            raise AttributeError("unreadable attribute")
+        # try:
+        #     return self.value
+        # except AttributeError:
+        #     self.value = self.fget(obj)
+        # return self.value
+        return self.fget(obj)
