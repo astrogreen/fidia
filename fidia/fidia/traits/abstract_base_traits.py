@@ -30,10 +30,52 @@ https://dbader.org/blog/abstract-base-classes-in-python
 
 """
 
-from abc import ABC, ABCMeta
+from abc import ABCMeta
+
+from .utilities import trait_property
+
+class AbstractBaseTrait:
+
+    __metaclass__ = ABCMeta
+
+    def __init__(self, *args, **kwargs):
+        super(AbstractBaseTrait, self).__init__()
+        self._realise()
 
 
-class AbstractBaseTrait(ABC):
+    def _realise(self):
+        traits = dict()
+        print("Realising...")
+        try:
+            self.preload()
+        except AttributeError:
+            pass
+        # Iterate over class attributes:
+        for key, obj in type(self).__dict__.iteritems():
+            if isinstance(obj, trait_property):
+                print("Found trait data '{}'".format(key))
+                traits[key] = obj
+        for key, obj in self.__dict__.iteritems():
+            if isinstance(obj, trait_property):
+                print("Found trait data '{}'".format(key))
+                traits[key] = obj
+
+        # Iterate over all traits, storing value as instance attribute:
+        for key, obj in traits.iteritems():
+            self.__dict__[key] = getattr(self, key)
+        try:
+            self.cleanup()
+        except AttributeError:
+            pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            self.cleanup()
+        except AttributeError:
+            pass
 
     @property
     def value(self):
