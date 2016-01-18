@@ -84,7 +84,7 @@ class TimeSeries(Base1DTrait, Epoch): pass
 class Image(Map): pass
 
 
-class SpectralCube(Base3DTrait, CachingTrait):
+class SpectralMap(Base3DTrait, CachingTrait):
 
     def name(self):
         raise NotImplementedError

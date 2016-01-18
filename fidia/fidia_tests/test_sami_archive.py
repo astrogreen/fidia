@@ -12,7 +12,9 @@ class TestSAMIArchive:
 
     @pytest.fixture
     def sami_archive(self):
-        ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/", "/net/aaolxz/iscsi/data/SAMI/catalogues/sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
+        ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
+                                  "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
+                                  "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
         return ar
 
     @pytest.fixture
@@ -36,5 +38,20 @@ class TestSAMIArchive:
 
     def test_retrieve_data_from_sample(self, sami_sample):
         sami_sample.get_archive_id(sami_sample.get_archive_for_property(""),'41144')
-        t = sami_sample['41144']['spectral_cubes', u'red.Y15SAR3_P002_12T085.1sec']
+        t = sami_sample['41144']['spectral_cubes', 'red.Y15SAR3_P002_12T085.1sec']
+        assert isinstance(t.value, numpy.ndarray)
+        t = sami_sample['41144']['spectral_cubes', 'red.Y15SAR3_P002_12T085.']
+        assert isinstance(t.value, numpy.ndarray)
+
+    def test_attempt_retrieve_data_not_available(self, sami_sample):
+        sami_sample.get_archive_id(sami_sample.get_archive_for_property(""),'41144')
+        with pytest.raises(fidia.DataNotAvailable):
+            sami_sample['41144']['spectral_cubes', u'red.Y15SAR3_P002_12T085.garbage']
+
+    def test_attempt_retrieve_object_not_in_sample(self, sami_sample):
+        with pytest.raises(fidia.NotInSample):
+            sami_sample['random']['spectral_cubes', u'red.Y15SAR3_P002_12T085.garbage']
+
+    def test_retrieve_rss_data(self, sami_sample):
+        t = sami_sample['41144']['rss_map', '2015_04_14-2015_04_22:15apr20015sci.fits']
         assert isinstance(t.value, numpy.ndarray)

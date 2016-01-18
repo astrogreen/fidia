@@ -9,7 +9,7 @@ log.enable_console_logging()
 import re
 from glob import glob
 import os.path
-
+import datetime
 import re
 
 from astropy.io import fits
@@ -22,14 +22,14 @@ from .archive import Archive
 from ..galaxy import Galaxy
 
 from ..traits.utilities import TraitKey, TraitMapping, trait_property
-from ..traits.base_traits import SpectralCube
+from ..traits.base_traits import SpectralMap
 
 sami_cube_re = re.compile(
-        r"""(?P<sami_id>\d+)_
-            (?P<color>red|blue)_
-            (?P<n_comb>\d)_
-            (?P<plate_id>Y\d\dSAR\d_P\d+_\d+T\d+)
-            (?:_(?P<binning>1sec))?""", re.VERBOSE)
+    r"""(?P<sami_id>\d+)_
+        (?P<color>red|blue)_
+        (?P<n_comb>\d)_
+        (?P<plate_id>Y\d\dSAR\d_P\d+_\d+T\d+)
+        (?:_(?P<binning>1sec))?""", re.VERBOSE)
 
 def find_all_cubes_for_id(base_directory, sami_id):
     log.debug("Finding cubes for id '%s'", sami_id)
@@ -48,14 +48,108 @@ def find_all_cubes_for_id(base_directory, sami_id):
         n_comb = cube_matches.group('n_comb')
         plate_id = cube_matches.group('plate_id')
         binning = cube_matches.group('binning')
+        if binning is None: binning = ""
         result[(sami_id, color, plate_id, binning)] = (run_id, filename)
         log.debug("id: %s, color: %s, plate: %s, bin: %s\n    -> run: %s, file: %s",
                   sami_id, color, plate_id, binning, run_id, filename)
     log.debug("Cube finding complete")
     return result
 
+def obs_date_run_filename(run_id, filename):
+    """Determine the date for a AAOmega filename and run_id"""
 
-class SAMISpectralCube(SpectralCube):
+    # Work out the date of the observation
+
+    # run ID is of the form START-END, e.g. "2015_04_14-2015_04_22"
+    # Take the first part and create a date time object from it:
+    start_date = self._run_id.split("-")[0]
+    start_date = datetime.datetime.strptime(start_date, "%Y_%m_%d")
+
+    # Convert date from filename (e.g. 15apr) into a date time object:
+    rss_date = datetime.datetime.strptime(self._rss_filename[0:5], "%d%b")
+
+    # Determine year for file (by assuming that it is close to but after
+    # the start date of the run: this is necessary to handle a run which
+    # starts at the end of the year and finishes in the start of the next year)
+    if rss_date.replace(year=start_date.year) < start_date:
+        # The rss date is in the new year
+        rss_date = rss_date.replace(year=start_date.year + 1)
+    else:
+        # The rss date is in the same year as the start date
+        rss_date = rss_date.replace(year=start_date.year)
+
+    return rss_date
+
+class SAMIRSSData(SpectralMap):
+    """Load SAMI RSS data.
+
+        TraitName is "run_id.rss_file_name":
+
+        run_id: e.g. 2015_04_14-2015_04_22
+        rss_file_name: e.g. 15apr20015sci.fits
+
+    """
+
+    def __init__(self, archive, trait_key):
+        self.object_id = trait_key.object_id
+        self.archive = archive
+        self._trait_name = trait_key.trait_name
+
+        # Break apart and store the parts of the trait_name
+        self._run_id = trait_key.trait_name.split(":")[0]
+        self._rss_filename = trait_key.trait_name.split(":")[1]
+
+
+        # Logic to construct full RSS filename
+        #
+        # It is necessary to construct a path that looks like
+        #   "2015_04_14-2015_04_22/reduced/150415/Y15SAR3_P002_12T085_15T108/Y15SAR3_P002_15T108/main/ccd_1"
+        # This looks hard, but actually, a given filename should really only appear once in the directory tree
+        # below a given run_id, so we use `glob` to make this easier.
+
+        self._rss_fits_filepath = archive._base_directory_path
+
+        # The Run ID section
+        self._rss_fits_filepath += self._run_id
+        self._rss_fits_filepath += "/"
+
+        self._rss_fits_filepath += "reduced/"
+
+        possible_paths = glob(self._rss_fits_filepath +
+                              "*/*/*/main/ccd_?/" + self._rss_filename)
+
+        if len(possible_paths) != 1:
+            # Something's wrong if we don't have a single match!
+            log.debug("RSS file not found, glob returned %s", possible_paths)
+            raise DataNotAvailable()
+
+
+        self._rss_fits_filepath = possible_paths[0]
+
+        super(SAMIRSSData, self).__init__(trait_key)
+
+    def preload(self):
+        self._hdu = fits.open(self._rss_fits_filepath)
+
+    def cleanup(self):
+        self._hdu.close()
+
+    @property
+    def shape(self):
+        return 0
+
+    @trait_property
+    def value(self):
+        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
+        key = str('PRIMARY')
+        return self._hdu[key].data
+
+    @trait_property
+    def variance(self):
+        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
+        return self._hdu[str('VARIANCE')].data
+
+class SAMISpectralMap(SpectralMap):
     """Load a SAMI Data cube.
 
     TraitName is "color.plate_id.binning":
@@ -66,19 +160,19 @@ class SAMISpectralCube(SpectralCube):
 
     """
     # @classmethod
-    # def data_available(cls, object_id):
+    # def data_available(cls, archive, trait_key):
     #     """Return a list of unique identifiers which can be used to retrieve actual data."""
     #     # Need to know the directory of the archive
     #     cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*")
     #     return cube_files
 
-    def __init__(self, archive, key):
-        self.object_id = key.object_id
+    def __init__(self, archive, trait_key):
+        self.object_id = trait_key.object_id
         self.archive = archive
-        self._trait_name = key.trait_name
-        self._color = key.trait_name.split(".")[0]
-        self._plate_id = key.trait_name.split(".")[1]
-        self._binning = key.trait_name.split(".")[2]
+        self._trait_name = trait_key.trait_name
+        self._color = trait_key.trait_name.split(".")[0]
+        self._plate_id = trait_key.trait_name.split(".")[1]
+        self._binning = trait_key.trait_name.split(".")[2]
 
         available_cubes = find_all_cubes_for_id(self.archive._base_directory_path, self.object_id)
         log.debug("Finding cube for id: %s, color: %s, plate: %s, binning: %s",
@@ -86,13 +180,16 @@ class SAMISpectralCube(SpectralCube):
         try:
             self.run_id, self.cube_file = available_cubes[(self.object_id, self._color, self._plate_id, self._binning)]
         except KeyError:
-            raise DataNotAvailable()
+            raise DataNotAvailable(trait_key)
 
         self._cube_path = (self.archive._base_directory_path + "/"+ self.run_id + "/cubed/"
                            + self.object_id + "/" + self.cube_file)
 
+        super(SAMISpectralMap, self).__init__(trait_key)
+
+    def preload(self):
         self.hdu = fits.open(self._cube_path)
-        super(SAMISpectralCube, self).__init__(key)
+
 
     def cleanup(self):
         self.hdu.close()
@@ -171,6 +268,7 @@ class SAMITeamArchive(Archive):
 
     def define_available_traits(archive):
 
-        archive.available_traits[TraitKey('spectral_cubes', None, None)] = SAMISpectralCube
+        archive.available_traits[TraitKey('spectral_cubes', None, None)] = SAMISpectralMap
+        archive.available_traits[TraitKey('rss_map', None, None)] = SAMIRSSData
 
         return archive.available_traits
