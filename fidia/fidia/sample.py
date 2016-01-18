@@ -24,6 +24,8 @@ import pandas as pd
 from .astro_object import AstronomicalObject
 from .archive import BaseArchive
 
+from .exceptions import *
+
 
 class Sample(collections.MutableMapping):
 
@@ -77,7 +79,7 @@ class Sample(collections.MutableMapping):
             return self._contents[key]
         elif self.read_only:
             # The requested object is unknown, and we're not allowed to create a new one.
-            raise Exception("Object not found in sample.")
+            raise NotInSample("Object '{}' not found in sample.".format(key))
         else:
             # Create a new object and return it
             self.add_object(self._write_archive.default_object(self, identifier=key))

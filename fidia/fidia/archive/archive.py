@@ -8,7 +8,7 @@ log.enable_console_logging()
 import pandas as pd
 
 from ..sample import Sample
-from ..traits.utilities import TraitKey, TraitMapping, trait_property
+from ..traits.utilities import TraitKey, TraitMapping
 from .base_archive import BaseArchive
 
 class Archive(BaseArchive):
@@ -26,6 +26,10 @@ class Archive(BaseArchive):
 
     def contents(self):
         return list()
+
+    @property
+    def name(self):
+        raise NotImplementedError("")
 
     def get_full_sample(self):
         """Return a sample containing all objects in the archive."""
@@ -58,7 +62,8 @@ class Archive(BaseArchive):
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if trait_key not in self._trait_cache:
 
-            # Determine which class responds to the requested trait. Potential for far more complex logic here in future.
+            # Determine which class responds to the requested trait.
+            # Potential for far more complex logic here in future.
             trait_class = self.available_traits[trait_key]
 
             # Create the trait object and cache it
@@ -68,3 +73,6 @@ class Archive(BaseArchive):
             self._trait_cache[trait_key] = trait
 
         return self._trait_cache[trait_key]
+
+    def define_available_traits(self):
+        return NotImplementedError()
