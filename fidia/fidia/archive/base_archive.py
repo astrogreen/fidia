@@ -1,11 +1,15 @@
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 class BaseArchive(object):
-    def __init__(self):
-        super(BaseArchive, self).__init__()
 
     def writeable(self):
         raise NotImplementedError("")
 
     def contents(self):
-        return list()
+        raise NotImplementedError("")
+
+    def get_full_sample(self):
+        raise NotImplementedError("")
+
+    def get_trait(self, object_id=None, trait_key=None):
+        raise NotImplementedError("")

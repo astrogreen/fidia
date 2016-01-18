@@ -1,6 +1,48 @@
 from .abstract_base_traits import *
 
+class CachingTrait:
+    def __init__(self, *args, **kwargs):
+        super(CachingTrait, self).__init__()
+        self._realise()
 
+
+    def _realise(self):
+        traits = dict()
+        print("Realising...")
+        try:
+            self.preload()
+        except AttributeError:
+            pass
+        # Search class attributes:
+        for key in type(self).__dict__:
+            obj = type(self).__dict__[key]
+            if isinstance(obj, trait_property):
+                print("Found trait data '{}'".format(key))
+                traits[key] = obj
+        # Search instance attributes:
+        for key in self.__dict__:
+            obj = self.__dict__[key]
+            if isinstance(obj, trait_property):
+                print("Found trait data '{}'".format(key))
+                traits[key] = obj
+
+        # Iterate over all traits found, storing value as instance attribute:
+        for key in traits:
+            self.__dict__[key] = getattr(self, key)
+        try:
+            self.cleanup()
+        except AttributeError:
+            pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            self.cleanup()
+            self._cleaned_up = True
+        except AttributeError:
+            pass
 
 class Measurement(AbstractMeasurement): pass
 
@@ -42,7 +84,7 @@ class TimeSeries(Base1DTrait, Epoch): pass
 class Image(Map): pass
 
 
-class SpectralCube(Base3DTrait):
+class SpectralCube(Base3DTrait, CachingTrait):
 
     def name(self):
         raise NotImplementedError

@@ -30,106 +30,61 @@ https://dbader.org/blog/abstract-base-classes-in-python
 
 """
 
-from abc import ABCMeta
+from abc import ABCMeta, abstractproperty
 
 from .utilities import trait_property
 
-class AbstractBaseTrait:
+class AbstractBaseTrait(metaclass=ABCMeta):
 
-    __metaclass__ = ABCMeta
+    @abstractproperty
+    def value(self): raise NotImplementedError
 
-    def __init__(self, *args, **kwargs):
-        super(AbstractBaseTrait, self).__init__()
-        self._realise()
+    # @abstractproperty
+    # def description(self): raise NotImplementedError
 
+    # @abstractproperty
+    # def data_type(self): raise NotImplementedError
 
-    def _realise(self):
-        traits = dict()
-        print("Realising...")
-        try:
-            self.preload()
-        except AttributeError:
-            pass
-        # Iterate over class attributes:
-        for key, obj in type(self).__dict__.iteritems():
-            if isinstance(obj, trait_property):
-                print("Found trait data '{}'".format(key))
-                traits[key] = obj
-        for key, obj in self.__dict__.iteritems():
-            if isinstance(obj, trait_property):
-                print("Found trait data '{}'".format(key))
-                traits[key] = obj
-
-        # Iterate over all traits, storing value as instance attribute:
-        for key, obj in traits.iteritems():
-            self.__dict__[key] = getattr(self, key)
-        try:
-            self.cleanup()
-        except AttributeError:
-            pass
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        try:
-            self.cleanup()
-        except AttributeError:
-            pass
-
-    @property
-    def value(self):
-        raise NotImplementedError
-
-    @property
-    def description(self):
-        raise NotImplementedError
-
-    @property
-    def data_type(self):
-        raise NotImplementedError
-
-    @property
-    def reference(self):
-        raise NotImplementedError
+    # @abstractproperty
+    # def reference(self): raise NotImplementedError
 
 
 class AbstractNumericTrait(AbstractBaseTrait):
 
-    @property
-    def variance(self):
-        raise NotImplementedError
-    @property
+    @abstractproperty
+    def variance(self): raise NotImplementedError
+
+    @abstractproperty
     def unit(self):
         raise NotImplementedError
 
 
 class AbstractBaseArrayTrait(AbstractBaseTrait):
-    @property
+
+    @abstractproperty
     def shape(self):
         raise NotImplementedError
 
 
 class AbstractMeasurement(AbstractNumericTrait):
-    @property
+
+    @abstractproperty
     def epoch(self):
         raise NotImplementedError
-    @property
+    @abstractproperty
     def instrument(self):
         raise NotImplementedError
 
 
 class AbstractBaseClassification(AbstractBaseTrait):
-    @property
+
+    @abstractproperty
     def valid_classifications(self):
         raise NotImplementedError
 
-
 class Base1DTrait(AbstractBaseArrayTrait): pass
 
-
 class Base2DTrait(AbstractBaseArrayTrait): pass
-
 
 class Base3DTrait(AbstractBaseArrayTrait): pass
 

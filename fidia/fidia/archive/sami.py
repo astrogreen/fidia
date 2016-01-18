@@ -10,36 +10,130 @@ import re
 from glob import glob
 import os.path
 
+import re
+
 from astropy.io import fits
 import pandas as pd
 
 
 # FIDIA Relative Imports
-from .base_archive import BaseArchive
+from fidia import *
+from .archive import Archive
 from ..galaxy import Galaxy
 
-#from fidia.traits import
-from ..sample import Sample
 from ..traits.utilities import TraitKey, TraitMapping, trait_property
 from ..traits.base_traits import SpectralCube
 
-# class dummy:
-#     pass
+sami_cube_re = re.compile(
+        r"""(?P<sami_id>\d+)_
+            (?P<color>red|blue)_
+            (?P<n_comb>\d)_
+            (?P<plate_id>Y\d\dSAR\d_P\d+_\d+T\d+)
+            (?:_(?P<binning>1sec))?""", re.VERBOSE)
 
-class SAMITeamArchive(BaseArchive):
+def find_all_cubes_for_id(base_directory, sami_id):
+    log.debug("Finding cubes for id '%s'", sami_id)
+    sami_id = str(sami_id)
+    cubes = glob(base_directory + "*/cubed/" + sami_id + "/*")
+    log.debug("Raw cube files found: %s", cubes)
+    trim_length = len(base_directory)
+    cubes = map(lambda s: s[trim_length:], cubes)
+    result = dict()
+    for file in cubes:
+        run_id = file.split("/")[0]
+        filename = file.split("/")[-1]
+        cube_matches = sami_cube_re.match(filename)
+        assert cube_matches.group('sami_id') == sami_id
+        color = cube_matches.group('color')
+        n_comb = cube_matches.group('n_comb')
+        plate_id = cube_matches.group('plate_id')
+        binning = cube_matches.group('binning')
+        result[(sami_id, color, plate_id, binning)] = (run_id, filename)
+        log.debug("id: %s, color: %s, plate: %s, bin: %s\n    -> run: %s, file: %s",
+                  sami_id, color, plate_id, binning, run_id, filename)
+    log.debug("Cube finding complete")
+    return result
+
+
+class SAMISpectralCube(SpectralCube):
+    """Load a SAMI Data cube.
+
+    TraitName is "color.plate_id.binning":
+
+        color: (red|blue)
+        plate_id: ex. Y15SAR3_P002_12T085
+        binning: (|1sec)
+
+    """
+    # @classmethod
+    # def data_available(cls, object_id):
+    #     """Return a list of unique identifiers which can be used to retrieve actual data."""
+    #     # Need to know the directory of the archive
+    #     cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*")
+    #     return cube_files
+
+    def __init__(self, archive, key):
+        self.object_id = key.object_id
+        self.archive = archive
+        self._trait_name = key.trait_name
+        self._color = key.trait_name.split(".")[0]
+        self._plate_id = key.trait_name.split(".")[1]
+        self._binning = key.trait_name.split(".")[2]
+
+        available_cubes = find_all_cubes_for_id(self.archive._base_directory_path, self.object_id)
+        log.debug("Finding cube for id: %s, color: %s, plate: %s, binning: %s",
+                  self.object_id, self._color, self._plate_id, self._binning)
+        try:
+            self.run_id, self.cube_file = available_cubes[(self.object_id, self._color, self._plate_id, self._binning)]
+        except KeyError:
+            raise DataNotAvailable()
+
+        self._cube_path = (self.archive._base_directory_path + "/"+ self.run_id + "/cubed/"
+                           + self.object_id + "/" + self.cube_file)
+
+        self.hdu = fits.open(self._cube_path)
+        super(SAMISpectralCube, self).__init__(key)
+
+    def cleanup(self):
+        self.hdu.close()
+
+    @property
+    def shape(self):
+        return 0
+
+    @trait_property
+    def value(self):
+        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
+        key = str('PRIMARY')
+        return self.hdu[key].data
+
+    @trait_property
+    def variance(self):
+        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
+        return self.hdu[str('VARIANCE')].data
+
+    @trait_property
+    def covariance(self):
+        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
+        return self.hdu[str('COVAR')].data
+
+    @trait_property
+    def weight(self):
+        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
+        return self.hdu[str('WEIGHT')].data
+
+
+class SAMITeamArchive(Archive):
 
     def __init__(self, base_directory_path, master_catalog_path):
-        super(SAMITeamArchive, self).__init__()
         self._base_directory_path = base_directory_path
         self._master_catalog_path = master_catalog_path
         self._contents = None
 
-        # Traits (or properties)
-        self.available_traits = TraitMapping()
-        self.define_available_traits()
-
         # Local cache for traits
         self._trait_cache = dict()
+
+        super(SAMITeamArchive, self).__init__()
 
 
     @property
@@ -48,7 +142,7 @@ class SAMITeamArchive(BaseArchive):
         if self._contents is None:
             with fits.open(self._master_catalog_path) as m:
                 # Master Catalogue is a binary table in extension 1 of the FITS File.
-                self._contents = map(str, m[1].data['CATID'])
+                self._contents = list(map(str, m[1].data['CATID']))
         return self._contents
 
     def data_available(self, object_id=None):
@@ -75,95 +169,7 @@ class SAMITeamArchive(BaseArchive):
     def name(self):
         return 'SAMI'
 
-    def get_full_sample(self):
-        """Return a sample containing all objects in the archive."""
-        # Create an empty sample, and populate it via it's private interface
-        # (no suitable public interface at this time.)
-        new_sample = Sample()
-        id_cross_match = pd.DataFrame(pd.Series(map(str, self.contents), name=self.name, index=self.contents))
-
-        # For a new, empty sample, extend effectively just copies the id_cross_match into the sample's ID list.
-        new_sample.extend(id_cross_match)
-
-        # Add this archive to the set of archives associated with the sample.
-        new_sample._archives = {self}
-
-        # Finally, we mark this new sample as immutable.
-        new_sample.mutable = False
-
-        return new_sample
-
-    def get_trait(self, object_id=None, trait_key=None):
-
-        if trait_key is None:
-            raise Exception("The TraitKey must be defined.")
-        if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
-            trait_key = TraitKey(*trait_key)
-
-        if object_id is not None:
-            trait_key = trait_key.replace(object_id=object_id)
-
-        # Check if we have already loaded this trait, otherwise load and cache it here.
-        if trait_key not in self._trait_cache:
-
-            # Determine which class responds to the requested trait. Potential for far more complex logic here in future.
-            trait_class = self.available_traits[trait_key]
-
-            # Create the trait object and cache it
-            log.debug("Returning trait_class %s", type(trait_class))
-            trait = trait_class(trait_key)
-
-            self._trait_cache[trait_key] = trait
-
-        return self._trait_cache[trait_key]
-
     def define_available_traits(archive):
-
-        # Trait Definitions. These make up the "plugin"
-
-        class SAMISpectralCube(SpectralCube):
-
-            @classmethod
-            def data_available(cls, object_id):
-                """Return a list of unique identifiers which can be used to retrieve actual data."""
-                # Need to know the directory of the archive
-                cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*")
-                return cube_files
-
-            def __init__(self, key):
-                self.object_id = key.object_id
-                self.cube_file = key.trait_name
-                if self.cube_file is None:
-                    raise Exception("Must have trait_name to load data.")
-                self.hdu = fits.open(self.cube_file)
-                super(SAMISpectralCube, self).__init__(key)
-
-            def cleanup(self):
-                self.hdu.close()
-
-            def name(self):
-                pass
-
-            @trait_property
-            def value(self):
-                # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
-                key = str('PRIMARY')
-                return self.hdu[key].data
-
-            @trait_property
-            def variance(self):
-                # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
-                return self.hdu[str('VARIANCE')].data
-
-            @trait_property
-            def covariance(self):
-                # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
-                return self.hdu[str('COVAR')].data
-
-            @trait_property
-            def weight(self):
-                # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
-                return self.hdu[str('WEIGHT')].data
 
         archive.available_traits[TraitKey('spectral_cubes', None, None)] = SAMISpectralCube
 
