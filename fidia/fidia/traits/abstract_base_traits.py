@@ -36,6 +36,14 @@ from .utilities import trait_property
 
 class AbstractBaseTrait(metaclass=ABCMeta):
 
+    @classmethod
+    def schema(cls):
+        result = []
+        for elem in cls.__dict__:
+            if isinstance(cls.__dict__[elem], trait_property):
+                result.append(elem)
+        return result
+
     @abstractproperty
     def value(self): raise NotImplementedError
 

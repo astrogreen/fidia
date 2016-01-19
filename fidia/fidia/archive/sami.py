@@ -3,8 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
-
-log.enable_console_logging()
+#log.enable_console_logging()
 
 import re
 from glob import glob
@@ -171,8 +170,8 @@ class SAMISpectralCube(SpectralMap):
         self.archive = archive
         self._trait_name = trait_key.trait_name
         self._color = trait_key.trait_name.split(".")[0]
-        self._plate_id = trait_key.trait_name.split(".")[1]
-        self._binning = trait_key.trait_name.split(".")[2]
+        self._binning = trait_key.trait_name.split(".")[1]
+        self._plate_id = trait_key.version
 
         available_cubes = find_all_cubes_for_id(self.archive._base_directory_path, self.object_id)
         log.debug("Finding cube for id: %s, color: %s, plate: %s, binning: %s",
@@ -268,7 +267,12 @@ class SAMITeamArchive(Archive):
 
     def define_available_traits(self):
 
-        self.available_traits[TraitKey('spectral_cube', None, None)] = SAMISpectralCube
-        self.available_traits[TraitKey('rss_map', None, None)] = SAMIRowStackedSpectra
+        self.available_traits[TraitKey('spectral_cube', None, None, None)] = SAMISpectralCube
+        self.available_traits[TraitKey('rss_map', None, None, None)] = SAMIRowStackedSpectra
+
+        if log.isEnabledFor(slogging.DEBUG):
+            log.debug("------Available traits--------")
+            for key in self.available_traits:
+                log.debug("   Key: %s", key)
 
         return self.available_traits

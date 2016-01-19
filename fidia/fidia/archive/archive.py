@@ -74,5 +74,14 @@ class Archive(BaseArchive):
 
         return self._trait_cache[trait_key]
 
+    def traits_available(self):
+        """Provide a list of trait_keys and classes this archive generally supports."""
+        result = dict()
+        for key in self.available_traits:
+            # @TODO: This will have trouble when there are multiple classes for a trait_type.
+            result[key.trait_type] = self.available_traits[key]
+
+        return result
+
     def define_available_traits(self):
         return NotImplementedError()
