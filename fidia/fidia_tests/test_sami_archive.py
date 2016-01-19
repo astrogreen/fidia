@@ -46,11 +46,11 @@ class TestSAMIArchive:
     def test_attempt_retrieve_data_not_available(self, sami_sample):
         sami_sample.get_archive_id(sami_sample.get_archive_for_property(""),'41144')
         with pytest.raises(fidia.DataNotAvailable):
-            sami_sample['41144']['spectral_cubes', u'red.Y15SAR3_P002_12T085.garbage']
+            sami_sample['41144']['spectral_cube', u'red.Y15SAR3_P002_12T085.garbage']
 
     def test_attempt_retrieve_object_not_in_sample(self, sami_sample):
         with pytest.raises(fidia.NotInSample):
-            sami_sample['random']['spectral_cubes', u'red.Y15SAR3_P002_12T085.garbage']
+            sami_sample['random']['spectral_cube', u'red.Y15SAR3_P002_12T085.garbage']
 
     def test_retrieve_rss_data(self, sami_sample):
         t = sami_sample['41144']['rss_map', '2015_04_14-2015_04_22:15apr20015sci.fits']

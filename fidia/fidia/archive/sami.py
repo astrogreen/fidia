@@ -62,11 +62,11 @@ def obs_date_run_filename(run_id, filename):
 
     # run ID is of the form START-END, e.g. "2015_04_14-2015_04_22"
     # Take the first part and create a date time object from it:
-    start_date = self._run_id.split("-")[0]
+    start_date = run_id.split("-")[0]
     start_date = datetime.datetime.strptime(start_date, "%Y_%m_%d")
 
     # Convert date from filename (e.g. 15apr) into a date time object:
-    rss_date = datetime.datetime.strptime(self._rss_filename[0:5], "%d%b")
+    rss_date = datetime.datetime.strptime(filename[0:5], "%d%b")
 
     # Determine year for file (by assuming that it is close to but after
     # the start date of the run: this is necessary to handle a run which
@@ -80,7 +80,7 @@ def obs_date_run_filename(run_id, filename):
 
     return rss_date
 
-class SAMIRSSData(SpectralMap):
+class SAMIRowStackedSpectra(SpectralMap):
     """Load SAMI RSS data.
 
         TraitName is "run_id.rss_file_name":
@@ -126,7 +126,7 @@ class SAMIRSSData(SpectralMap):
 
         self._rss_fits_filepath = possible_paths[0]
 
-        super(SAMIRSSData, self).__init__(trait_key)
+        super(SAMIRowStackedSpectra, self).__init__(trait_key)
 
     def preload(self):
         self._hdu = fits.open(self._rss_fits_filepath)
@@ -149,7 +149,7 @@ class SAMIRSSData(SpectralMap):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self._hdu[str('VARIANCE')].data
 
-class SAMISpectralMap(SpectralMap):
+class SAMISpectralCube(SpectralMap):
     """Load a SAMI Data cube.
 
     TraitName is "color.plate_id.binning":
@@ -185,7 +185,7 @@ class SAMISpectralMap(SpectralMap):
         self._cube_path = (self.archive._base_directory_path + "/"+ self.run_id + "/cubed/"
                            + self.object_id + "/" + self.cube_file)
 
-        super(SAMISpectralMap, self).__init__(trait_key)
+        super(SAMISpectralCube, self).__init__(trait_key)
 
     def preload(self):
         self.hdu = fits.open(self._cube_path)
@@ -266,9 +266,9 @@ class SAMITeamArchive(Archive):
     def name(self):
         return 'SAMI'
 
-    def define_available_traits(archive):
+    def define_available_traits(self):
 
-        archive.available_traits[TraitKey('spectral_cubes', None, None)] = SAMISpectralMap
-        archive.available_traits[TraitKey('rss_map', None, None)] = SAMIRSSData
+        self.available_traits[TraitKey('spectral_cube', None, None)] = SAMISpectralCube
+        self.available_traits[TraitKey('rss_map', None, None)] = SAMIRowStackedSpectra
 
-        return archive.available_traits
+        return self.available_traits
