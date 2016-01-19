@@ -65,3 +65,11 @@ class TestSAMIArchive:
         #schema.sort()
         #assert schema == ['value', 'variance']
         assert schema == {'value': 'float.array', 'variance': 'float.array'}
+
+    def test_sami_archive_has_correct_schema(self, sami_archive):
+        schema = sami_archive.schema()
+        assert schema == {'rss_map': {'value': 'float.array', 'variance': 'float.array'},
+                          'spectral_cube': {'covariance': 'float.array',
+                                            'value': 'float.array',
+                                            'variance': 'float.array',
+                                            'weight': 'float.array'}}

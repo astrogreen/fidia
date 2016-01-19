@@ -118,6 +118,7 @@ class TraitMapping(collections.MutableMapping):
             # No suitable data loader found
             raise UnknownTrait("No known way to load trait for key {}".format(key))
 
+
     def __setitem__(self, key, value):
         if not isinstance(key, TraitKey):
             key = TraitKey(key)
@@ -134,6 +135,20 @@ class TraitMapping(collections.MutableMapping):
     def __iter__(self):
         return iter(self._mapping)
 
+    def get_traits_for_type(self, trait_type):
+        """Return a list of all Trait classes mapped to a particular trait_type"""
+        result = []
+        for key in self._mapping:
+            if key.trait_type == trait_type:
+                result.append(self._mapping[key])
+        return result
+
+        # The same code written as a list comprehension
+        #return [self._mapping[key] for key in self._mapping if key.trait_type == trait_type]
+
+    def get_trait_types(self):
+        """A list of the unique trait types in this TraitMapping."""
+        return set([key.trait_type for key in self._mapping])
 
 def trait_property(func_or_type):
     """Decorate a function which provides an individual property of a trait.
