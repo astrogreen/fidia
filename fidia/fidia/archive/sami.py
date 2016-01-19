@@ -137,13 +137,13 @@ class SAMIRowStackedSpectra(SpectralMap):
     def shape(self):
         return 0
 
-    @trait_property
+    @trait_property('float.array')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
         return self._hdu[key].data
 
-    @trait_property
+    @trait_property('float.array')
     def variance(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self._hdu[str('VARIANCE')].data
@@ -197,23 +197,23 @@ class SAMISpectralCube(SpectralMap):
     def shape(self):
         return 0
 
-    @trait_property
+    @trait_property('float.array')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
         return self.hdu[key].data
 
-    @trait_property
+    @trait_property('float.array')
     def variance(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('VARIANCE')].data
 
-    @trait_property
+    @trait_property('float.array')
     def covariance(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('COVAR')].data
 
-    @trait_property
+    @trait_property('float.array')
     def weight(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('WEIGHT')].data

@@ -32,16 +32,16 @@ https://dbader.org/blog/abstract-base-classes-in-python
 
 from abc import ABCMeta, abstractproperty
 
-from .utilities import trait_property
+from .utilities import TraitProperty
 
 class AbstractBaseTrait(metaclass=ABCMeta):
 
     @classmethod
     def schema(cls):
-        result = []
+        result = dict()
         for elem in cls.__dict__:
-            if isinstance(cls.__dict__[elem], trait_property):
-                result.append(elem)
+            if isinstance(cls.__dict__[elem], TraitProperty):
+                result[elem] = cls.__dict__[elem].type
         return result
 
     @abstractproperty

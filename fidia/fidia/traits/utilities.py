@@ -135,9 +135,41 @@ class TraitMapping(collections.MutableMapping):
         return iter(self._mapping)
 
 
-class trait_property(object):
+def trait_property(func_or_type):
+    """Decorate a function which provides an individual property of a trait.
 
-    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
+    This has an optional data-type designation. It can be used in one of two ways:
+
+    @trait_property
+    def value(self):
+        return 5
+
+    @trait_property('float')
+    def value(self):
+        return 5.5
+
+    Implementation:
+
+        Because the two examples actually look a bit different internally,
+        this is implemented as a function that determines which case has been
+        given. If the argument is callable, then it is assumed to be the first
+        example, above, and if the argument is a string, then it is assumed to be
+        the second example above.
+
+    """""
+    if isinstance(func_or_type, str):
+        # Have been given a data type, so return a decorator:
+        log.debug("Decorating trait_property with data-type %s", func_or_type)
+        tp = TraitProperty(type=func_or_type)
+        return tp.getter
+    elif callable(func_or_type):
+        # Have not been given a data type. Build the property directly:
+        return TraitProperty(func_or_type)
+    raise Exception("trait_property decorator used incorrectly. Check documentation.")
+
+class TraitProperty(object):
+
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None, type=None):
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
@@ -146,8 +178,8 @@ class trait_property(object):
         self.__doc__ = doc
         self.type = type
 
-    def __call__(self, type=None):
-        self.type = type
+    def getter(self, fget):
+        self.fget = fget
         return self
 
     def __get__(self, obj, objtype=None):

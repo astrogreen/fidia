@@ -62,5 +62,6 @@ class TestSAMIArchive:
     def test_sami_traits_have_correct_schema(self, sami_archive):
         rss_trait = sami_archive.available_traits[TraitKey('rss_map')]
         schema = rss_trait.schema()
-        schema.sort()
-        assert schema == ['value', 'variance']
+        #schema.sort()
+        #assert schema == ['value', 'variance']
+        assert schema == {'value': 'float.array', 'variance': 'float.array'}

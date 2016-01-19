@@ -16,13 +16,13 @@ class CachingTrait:
         # Search class attributes:
         for key in type(self).__dict__:
             obj = type(self).__dict__[key]
-            if isinstance(obj, trait_property):
+            if isinstance(obj, TraitProperty):
                 print("Found trait data '{}'".format(key))
                 traits[key] = obj
         # Search instance attributes:
         for key in self.__dict__:
             obj = self.__dict__[key]
-            if isinstance(obj, trait_property):
+            if isinstance(obj, TraitProperty):
                 print("Found trait data '{}'".format(key))
                 traits[key] = obj
 
