@@ -210,8 +210,8 @@ class Sample(collections.MutableMapping):
         for ar in self.archives:
             if ar.can_provide(key):
                 return ar
-        # If no archive can provide the given trait_key, then return None.
-        return None
+        # If no archive can provide the given trait_key, then raise an exception.
+        raise UnknownTrait(key)
 
     def get_archive_id(self, archive, sample_id):
         # @TODO: Sanity checking, e.g. archive is actually valid, etc.

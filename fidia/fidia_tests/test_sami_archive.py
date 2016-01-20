@@ -38,7 +38,7 @@ class TestSAMIArchive:
     #     sami_archive.available_traits['spectral_cube'].data_available("41144")
 
     def test_retrieve_data_from_sample(self, sami_sample):
-        sami_sample.get_archive_id(sami_sample.get_archive_for_property(""),'41144')
+        sami_sample.get_archive_id(sami_sample.get_archive_for_property('spectral_cube'),'41144')
         # 1.0 arcsec binning
         t = sami_sample['41144']['spectral_cube', 'red.1sec', 'Y15SAR3_P002_12T085']
         assert isinstance(t.value, numpy.ndarray)
@@ -47,7 +47,7 @@ class TestSAMIArchive:
         assert isinstance(t.value, numpy.ndarray)
 
     def test_attempt_retrieve_data_not_available(self, sami_sample):
-        sami_sample.get_archive_id(sami_sample.get_archive_for_property(""),'41144')
+        sami_sample.get_archive_id(sami_sample.get_archive_for_property('spectral_cube'),'41144')
         with pytest.raises(fidia.DataNotAvailable):
             sami_sample['41144']['spectral_cube', u'red.garbage', 'Y15SAR3_P002_12T085']
 
