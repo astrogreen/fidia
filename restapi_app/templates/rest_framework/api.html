@@ -39,6 +39,11 @@
       {% block content %}
       <!-- Content -->
       <div id="content">
+        {% block GAMASOV %}{% endblock %}
+
+        {% if name == 'Sov Instance' %}
+          {% include "restapi_app/sov/gama-sov.html" %}
+        {% endif%}
 
         {% if 'GET' in allowed_methods %}
           <form id="get-form" class="pull-right">

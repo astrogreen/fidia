@@ -402,6 +402,10 @@ html, body {
   float: right;
 }
 
+#SOV .nav-tabs > li {
+  float: left;
+}
+
 .nav-tabs li a {
   margin-right: 0;
 }
