@@ -50,9 +50,11 @@ class AstronomicalObject(collections.MutableMapping):
             # We have been asked for more than one property, will return tabular data?
             # @TODO!
             raise Exception("List indexing behaviour not implemented.")
-        elif isinstance(key, TraitKey) or isinstance(key, tuple):
+        elif isinstance(key, TraitKey) or isinstance(key, tuple) or isinstance(key, str):
             if isinstance(key, tuple):
                 key = TraitKey(*key)
+            if isinstance(key, str):
+                key = TraitKey(key)
             #raise Exception("Key indexing behaviour not implemented.")
             # # Asked for a single property
             # archive = self.sample.get_archive_for_property(key)

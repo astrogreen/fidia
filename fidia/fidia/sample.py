@@ -22,7 +22,7 @@ import collections
 import pandas as pd
 
 from .astro_object import AstronomicalObject
-from .archive import BaseArchive
+from .archive.base_archive import BaseArchive
 
 from .exceptions import *
 

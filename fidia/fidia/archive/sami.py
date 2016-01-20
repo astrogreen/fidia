@@ -249,10 +249,6 @@ class SAMITeamArchive(Archive):
             if object_id in self._cubes_available():
                 print("Cubes available.")
 
-    def can_provide(self, trait_key):
-        # TODO: Implement!
-        return True
-
     def _cubes_available(self):
         """Generate a list of objects which have "cubed" directories."""
         cube_ids = map(os.path.basename,glob(self._base_directory_path + "*/cubed/*"))
