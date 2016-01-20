@@ -118,6 +118,13 @@ class TraitMapping(collections.MutableMapping):
             # No suitable data loader found
             raise UnknownTrait("No known way to load trait for key {}".format(key))
 
+    def __contains__(self, item):
+        try:
+            self.__getitem__(item)
+        except UnknownTrait:
+            return False
+        else:
+            return True
 
     def __setitem__(self, key, value):
         if not isinstance(key, TraitKey):

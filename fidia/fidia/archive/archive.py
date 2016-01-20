@@ -75,8 +75,7 @@ class Archive(BaseArchive):
         return self._trait_cache[trait_key]
 
     def can_provide(self, trait_key):
-        # TODO: Implement!
-        return True
+        return trait_key in self.available_traits
 
     def schema(self):
         """Provide a list of trait_keys and classes this archive generally supports."""
