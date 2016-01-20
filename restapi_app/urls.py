@@ -27,12 +27,19 @@ router.register(r'spectra', views.SpectraViewSet),
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browsable API.
 urlpatterns = [
+    url(r'^$', TemplateView.as_view(template_name='restapi_app/web_only/index.html'), name='index'),
     url(r'^data/', include(router.urls)),
-    # url(r'^data/', include(router_nest.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^home/', TemplateView.as_view(template_name='restapi_app/web_only/index.html'), name='index'),
+
     url(r'^relations/', include('django_spaghetti.urls')),
+
+    url(r'^simple-get/$', views.CustomGet.as_view(), name='customget'),
+    url(r'^model-free/resource/(?P<arg1>\w*\d*)[/]?(?P<arg2>\w*\d*)[/]?(?P<arg3>\w*\d*)[/]?', (views.ModelFreeView.as_view()), name='modelfree-list'),
+
+    url(r'^model-free/resource/$', (views.ModelFreeView.as_view()), name='modelfree'),
+
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) allows

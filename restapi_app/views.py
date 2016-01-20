@@ -22,7 +22,7 @@ from restapi_app.serializers import (
     ImageSerializer, SpectrumSerializer
 )
 
-from rest_framework import generics, permissions, renderers, viewsets, status, mixins
+from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
 from rest_framework.decorators import api_view, detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -517,3 +517,66 @@ class SpectraViewSet(viewsets.ModelViewSet):
     lookup_field = 'slugField'
 
 
+
+
+
+
+#- - - - - - Non-model endpoints
+
+class CustomGet(views.APIView):
+    """
+    A custom endpoint for GET request.
+    """
+    def get(self, request, format=None):
+        """
+        Return a hardcoded response.
+        """
+        return Response({"success": True, "content": "DATA!"})
+
+
+class FIDIA(object):
+
+    def __init__(self, astroobject, trait, version, *args, **kwargs):
+        # Initialize any variables necessary from input
+        self.astroobject = astroobject
+        self.trait = trait
+        self.version = version
+
+    def do_work(self):
+        result = {'astroobject':self.astroobject, 'trait': self.trait, 'version': self.version, 'endpoint-content': 'a random string'};
+        return result
+
+
+class ModelFreeView(views.APIView):
+    """
+    ModelFreeView in restapp_app/views.py
+
+    This model-independent view allows for custom parameters in the url.
+    Currently set to three levels, but multiple nesting depths can be added very easily in the
+    urls.py file. Try:
+    e.g., http://127.0.0.1:8000/asvo/model-free/resource/gal/redshift/v1
+    e.g., http://127.0.0.1:8000/asvo/model-free/resource/gal/redshift/v1/?format=json
+    e.g., http://127.0.0.1:8000/asvo/model-free/resource/gal/redshift/v1/?format=csv
+
+    - Serialization of results needs consideration - depending on type
+    - Permissions can be plugged in to the entire view, but unclear as
+    to how per-object permissions would work.
+    - allows all endpoints, but no info about data model
+    - schema?
+
+    """
+    #can add in custom permissions from permissions.py file here
+    permission_classes = (permissions.AllowAny,)
+
+
+    def get(self, request, *args, **kwargs):
+        # Process params from request
+        get_arg1 = self.kwargs['arg1']
+        get_arg2 = self.kwargs['arg2']
+        get_arg3 = self.kwargs['arg3']
+
+        # Any URL parameters gets passed in **kwargs
+        myObject = FIDIA(get_arg1, get_arg2, get_arg3, *args, **kwargs)
+        result = myObject.do_work()
+        response = Response(result, status=status.HTTP_200_OK)
+        return response
