@@ -1,5 +1,13 @@
 from rest_framework import serializers, mixins
-from restapi_app.models import Query, Survey, Version, Product
+from restapi_app.models import (
+    Query,
+    GAMAPublic,
+    Survey, SurveyMetaData,
+    ReleaseType,
+    Catalogue, CatalogueGroup,
+    Image,
+    Spectrum,
+)
 from django.contrib.auth.models import User
 from rest_framework_extensions.fields import ResourceUriField
 
@@ -89,26 +97,134 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
+#SOV
+class GAMASerializer(serializers.HyperlinkedModelSerializer):
+    InputCatA = serializers.JSONField(required=False, label='InputCatA')
+    TilingCat = serializers.JSONField(required=False, label='TilingCat')
+    SpecAll = serializers.JSONField(required=False, label='SpecAll')
+    SersicCat = serializers.JSONField(required=False, label='SersicCat')
+    Spectrum = serializers.ImageField(max_length=None, allow_empty_file=False, use_url=True)
+
+    CatList = serializers.SerializerMethodField()
+
+    def get_CatList(self,obj):
+        return GAMAPublic._meta.get_all_field_names()
 
 
+    class Meta:
+        model = GAMAPublic
+        fields = ('url','ASVOID', 'InputCatA', 'TilingCat','SpecAll', 'SersicCat', 'Spectrum', 'CatList')
+
+
+
+
+
+#FULL DATA MODEL
 class SurveySerializer(serializers.HyperlinkedModelSerializer):
-    """
-    NOTE:
-    """
-    version = serializers.HyperlinkedRelatedField(many=True, view_name='version-detail', read_only=True)
+    releasetype = serializers.HyperlinkedRelatedField(       #the name of this field == related name of FK in model
+        many=True,
+        read_only=True,
+        view_name='releasetype-detail',
+        lookup_field='slugField'
+    )
 
     class Meta:
         model = Survey
-        # fields = ('url', 'survey')
-        fields = ('url', 'survey', 'version')
-        # extra_kwargs = {'version': {'view_name': 'version-detail'}}
+        fields = ('url', 'title', 'releasetype')
+        extra_kwargs={'url':{'lookup_field':'title'}}
 
 
-class VersionSerializer(serializers.HyperlinkedModelSerializer):
-    """
-    NOTE:
-    """
-    # survey = SurveySerializer()
+class ReleaseTypeSerializer(serializers.HyperlinkedModelSerializer):
+    survey = serializers.HyperlinkedRelatedField(
+        queryset=Survey.objects.all(),
+        view_name='survey-detail',
+        label='Survey',
+        lookup_field= 'title'
+    )
+
+    catalogue = serializers.HyperlinkedRelatedField(
+        many=True,
+        queryset=Catalogue.objects.all(),
+        view_name='catalogue-detail',
+        lookup_field='slugField'
+    )
+
+    image = serializers.HyperlinkedRelatedField(
+        many=True,
+        queryset=Image.objects.all(),
+        view_name='image-detail',
+        lookup_field='slugField'
+    )
+
     class Meta:
-        model = Version
-        fields = ('id', 'version', 'survey')
+        model = ReleaseType
+        fields = ('url','slugField',  'survey', 'releaseTeam', 'dataRelease','catalogue', 'image')
+        extra_kwargs = {'survey': {'lookup_field': 'title'}, 'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
+
+
+
+class CatalogueGroupSerializer(serializers.HyperlinkedModelSerializer):
+    catalogue = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='catalogue-detail',
+        lookup_field='slugField'
+    )
+
+    class Meta:
+        model = CatalogueGroup
+        fields = ('url', 'group', 'catalogue')
+        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
+
+
+
+class CatalogueSerializer(serializers.HyperlinkedModelSerializer):
+    release = serializers.HyperlinkedRelatedField(
+        many=True,
+        # read_only=True,
+        queryset=ReleaseType.objects.all(),
+        view_name='releasetype-detail',
+        lookup_field='slugField'
+    )
+    catalogueGroup = serializers.HyperlinkedRelatedField(
+        queryset=CatalogueGroup.objects.all(),
+        view_name='cataloguegroup-detail',
+        lookup_field='slugField'
+    )
+
+    class Meta:
+        model = Catalogue
+
+        fields = ('url', 'title', 'content', 'meta', 'version', 'updated', 'release', 'catalogueGroup')
+        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
+
+
+
+class ImageSerializer(serializers.HyperlinkedModelSerializer):
+    release = serializers.HyperlinkedRelatedField(
+        many=True,
+        queryset=ReleaseType.objects.all(),
+        view_name='releasetype-detail',
+        lookup_field='slugField'
+    )
+
+    class Meta:
+        model = Image
+
+        fields = ('url', 'title', 'content', 'meta', 'version', 'updated', 'release')
+        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
+
+
+class SpectrumSerializer(serializers.HyperlinkedModelSerializer):
+    release = serializers.HyperlinkedRelatedField(
+        many=True,
+        queryset=ReleaseType.objects.all(),
+        view_name='releasetype-detail',
+        lookup_field='slugField'
+    )
+
+    class Meta:
+        model = Image
+
+        fields = ('url', 'title', 'content', 'meta', 'version', 'updated', 'release')
+        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}

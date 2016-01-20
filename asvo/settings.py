@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
+    'django_spaghetti',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -128,6 +129,10 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     '/var/www/static/',
 )
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
 
 # Query results cache
 
@@ -215,4 +220,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+}
+
+
+SPAGHETTI_SAUCE = {
+  'apps':['auth','restapi_app'],
+  # 'show_fields':False,
+  # 'exclude':{'restapi_app':['gamapublic']}
 }

@@ -3,27 +3,24 @@ from restapi_app import views
 from rest_framework.routers import DefaultRouter
 from django.views.generic import TemplateView
 from restapi_app.routers import ExtendDefaultRouter, ExtendNestedRouter
-from rest_framework_extensions.routers import ExtendedSimpleRouter
-from rest_framework_extensions.routers import ExtendedDefaultRouter
+from django.conf import settings
+from django.conf.urls.static import static
 
-# Create a router and register our viewsets with it.
-
-router_nest = ExtendNestedRouter()
-router_back = ExtendNestedRouter()
-
-router_nest\
-    .register(r'survey', views.SurveyViewSet, base_name='survey')\
-    .register(r'version', views.VersionViewSet, base_name='version', parents_query_lookups=['survey_id'])
-
-router_back\
-    .register(r'version', views.VersionViewSet, base_name='version')\
-    .register(r'survey', views.SurveyViewSet, base_name='survey', parents_query_lookups=['version_id'])
 
 
 #   = = = = = =
 router = ExtendDefaultRouter()
 router.register(r'query', views.QueryViewSet),
 router.register(r'users', views.UserViewSet),
+router.register(r'SOV', views.SOVViewSet),
+
+router.register(r'surveys', views.SurveyViewSet),
+router.register(r'releases', views.ReleaseTypeViewSet),
+router.register(r'catalogues', views.CatalogueViewSet),
+router.register(r'cataloguegroups', views.CatalogueGroupViewSet),
+router.register(r'imaging', views.ImageViewSet),
+router.register(r'spectra', views.SpectraViewSet),
+
 # router.register(r'surveys', views.SurveyViewSet)
 # router.register(r'version', views.VersionViewSet)
 
@@ -35,9 +32,9 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^home/', TemplateView.as_view(template_name='restapi_app/web_only/index.html'), name='index'),
-]
+    url(r'^relations/', include('django_spaghetti.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-urlpatterns += router_nest.urls
-urlpatterns += router_back.urls
-
+# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) allows
+# Django to serve these files (without explicitly writing them out per view)
 

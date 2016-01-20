@@ -88,7 +88,9 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">TEST API <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li><a href="{% url "api-root" %}">Test API </a></li>
-                    <li><a href="{% url "survey-list" %}">Nested Resources </a></li>
+                    <li><a href="{% url "query-list" %}">Query (requires login) </a></li>
+                    <li><a href="{% url "survey-list" %}">Survey </a></li>
+                    <li><a href="{% url "plate" %}">DB Relationships</a></li>
                 </ul>
             </li>
 
