@@ -1,7 +1,7 @@
 import pytest
 
+import random
 import numpy
-
 import fidia
 from fidia.archive import sami
 
@@ -90,3 +90,9 @@ class TestSAMIArchive:
         key = rss_keys.pop()
         sample = sami_archive.get_full_sample()
         assert isinstance(sample[key.object_id][key], AbstractBaseTrait)
+
+    def test_get_all_trait_keys_archive(self, sami_archive):
+        rss_keys = sami_archive.known_trait_keys()
+        sample = sami_archive.get_full_sample()
+        for key in random.sample(rss_keys, 10):
+            assert isinstance(sample[key.object_id][key], AbstractBaseTrait)

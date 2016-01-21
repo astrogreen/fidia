@@ -161,7 +161,7 @@ class SAMIRowStackedSpectra(SpectralMap):
                         index += 1
                         known_keys.add(TraitKey(cls.trait_name, run_id + ":" + rss_filename, object_id=object_id))
             # Break out of the loop early for debuging purposes:
-            if len(known_keys) > 10:
+            if len(known_keys) > 50:
                 break
         return known_keys
 
@@ -241,11 +241,10 @@ class SAMISpectralCube(SpectralMap):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         # Need to know the directory of the archive
         known_keys = set()
-        # for id in archive.contents:
-        #     cube_files = glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*")
-        #     keys = [cls._traitkey_from_cube_path(f) for f in cube_files]
-        #     known_keys.update(keys)
-        cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
+        cube_files = []
+        for id in archive.contents:
+             cube_files.extend(glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*"))
+        # cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
         known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
         return known_keys
 
@@ -266,8 +265,13 @@ class SAMISpectralCube(SpectralMap):
         n_comb = matches.group('n_comb')
         plate_id = matches.group('plate_id')
         binning = matches.group('binning')
-        if binning is None: binning = "05"
-        elif binning is "1sec": binning = "10"
+        log.debug("Binning is %s", binning)
+        if binning is None:
+            binning = "05"
+        elif binning == "1sec":
+            binning = "10"
+        else:
+            Exception("Unknown binning scheme found")
         return TraitKey(cls.trait_name, color + "." + binning, plate_id, sami_id)
 
     def __init__(self, archive, trait_key):
