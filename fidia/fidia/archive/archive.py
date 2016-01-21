@@ -5,6 +5,8 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
+from collections import OrderedDict
+
 import pandas as pd
 
 from ..sample import Sample
@@ -16,7 +18,7 @@ class Archive(BaseArchive):
         # Traits (or properties)
         self.available_traits = TraitMapping()
         self.define_available_traits()
-        self._trait_cache = dict()
+        self._trait_cache = OrderedDict()
 
         super(BaseArchive, self).__init__()
 
@@ -61,6 +63,11 @@ class Archive(BaseArchive):
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if trait_key not in self._trait_cache:
+
+            # Check the size of the cache, and remove item if necessary
+            # This should probably be more clever.
+            while len(self._trait_cache) > 20:
+                self._trait_cache.popitem(last=False)
 
             # Determine which class responds to the requested trait.
             # Potential for far more complex logic here in future.
