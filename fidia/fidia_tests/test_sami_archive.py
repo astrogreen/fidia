@@ -6,6 +6,7 @@ import fidia
 from fidia.archive import sami
 
 from fidia.traits.utilities import TraitKey
+from fidia.traits.abstract_base_traits import AbstractBaseTrait
 
 class TestSAMIArchive:
 
@@ -40,11 +41,21 @@ class TestSAMIArchive:
     def test_retrieve_data_from_sample(self, sami_sample):
         sami_sample.get_archive_id(sami_sample.get_archive_for_property('spectral_cube'),'41144')
         # 1.0 arcsec binning
-        t = sami_sample['41144']['spectral_cube', 'red.1sec', 'Y15SAR3_P002_12T085']
+        t = sami_sample['41144']['spectral_cube', 'red.10', 'Y15SAR3_P002_12T085']
         assert isinstance(t.value, numpy.ndarray)
         # 0.5 arcsec binning
-        t = sami_sample['41144']['spectral_cube', 'red.', 'Y15SAR3_P002_12T085']
+        t = sami_sample['41144']['spectral_cube', 'red.05', 'Y15SAR3_P002_12T085']
         assert isinstance(t.value, numpy.ndarray)
+
+    def test_retrieve_data_from_sample_version_not_required(self, sami_sample):
+        # 1.0 arcsec binning
+        t = sami_sample['23117']['spectral_cube', 'red.10']
+        assert isinstance(t.value, numpy.ndarray)
+
+    def test_multiple_data_available(self, sami_sample):
+        # SAMI galaxy 41144 has multiple observations on different runs.
+        with pytest.raises(fidia.MultipleResults):
+            sami_sample['41144']['spectral_cube', 'red.10']
 
     def test_attempt_retrieve_data_not_available(self, sami_sample):
         sami_sample.get_archive_id(sami_sample.get_archive_for_property('spectral_cube'),'41144')
@@ -73,3 +84,9 @@ class TestSAMIArchive:
                                             'value': 'float.array',
                                             'variance': 'float.array',
                                             'weight': 'float.array'}}
+
+    def test_get_trait_keys_for_rss(self, sami_archive):
+        rss_keys = sami_archive.available_traits[('rss_map')].known_keys(sami_archive)
+        key = rss_keys.pop()
+        sample = sami_archive.get_full_sample()
+        assert isinstance(sample[key.object_id][key], AbstractBaseTrait)

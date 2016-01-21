@@ -20,15 +20,57 @@ from fidia import *
 from .archive import Archive
 from ..galaxy import Galaxy
 
+from ..utilities import WildcardDictionary
+
 from ..traits.utilities import TraitKey, TraitMapping, trait_property
 from ..traits.base_traits import SpectralMap
+
+
+# SAMI Cube file and plate ID regular expressions
+#
+# Cube files have names like:
+#     41144_blue_7_Y14SAR3_P004_12T055_1sec.fits.gz
+#     41144_blue_7_Y14SAR3_P004_12T055.fits.gz
+#     41144_red_7_Y14SAR3_P004_12T055_1sec.fits.gz
+#     41144_red_7_Y14SAR3_P004_12T055.fits.gz
+#     41144_blue_7_Y15SAR3_P002_12T085_1sec.fits.gz
+#     41144_blue_7_Y15SAR3_P002_12T085.fits.gz
+#     41144_red_7_Y15SAR3_P002_12T085_1sec.fits.gz
+#     41144_red_7_Y15SAR3_P002_12T085.fits.gz
+#
+# SAMI plate ID Definition:
+#
+#     Y<year>S<semester>R<obsrun>_P<platenumber>_<field1Region><field1Tile>_<field2Region><field2Tile>
+#
+#     e.g. Y16SAR2_P001_09T115_09T116
+#
+#     where
+#     year=2016
+#     semester=A
+#     SAMI run within the semester = 2
+#     plate for this run = 001
+#     field 1 region = G09
+#     field 1 tile = 115
+#     field 2 region = G09
+#     field 2 tile = 116
+#
+# Nuria says we decided on this nomenclature sometime between Oct-Dec 2012.
+sami_plate_re = re.compile(
+    r"""Y(?P<year>\d\d)
+        S(?P<semester>(?:A|B))
+        R(?P<run>\d+)_
+        P(?P<plate_num>\d+)_
+        (?P<ra>[A-Z0-9]+)
+        T(?P<tile>\d+)
+    """, re.VERBOSE
+)
 
 sami_cube_re = re.compile(
     r"""(?P<sami_id>\d+)_
         (?P<color>red|blue)_
-        (?P<n_comb>\d)_
-        (?P<plate_id>Y\d\dSAR\d_P\d+_\d+T\d+)
-        (?:_(?P<binning>1sec))?""", re.VERBOSE)
+        (?P<n_comb>\d+)_
+        (?P<plate_id>%s)
+        (?:_(?P<binning>1sec))?""" % sami_plate_re.pattern, re.VERBOSE)
 
 def find_all_cubes_for_id(base_directory, sami_id):
     log.debug("Finding cubes for id '%s'", sami_id)
@@ -37,7 +79,7 @@ def find_all_cubes_for_id(base_directory, sami_id):
     log.debug("Raw cube files found: %s", cubes)
     trim_length = len(base_directory)
     cubes = map(lambda s: s[trim_length:], cubes)
-    result = dict()
+    result = WildcardDictionary()
     for file in cubes:
         run_id = file.split("/")[0]
         filename = file.split("/")[-1]
@@ -82,12 +124,47 @@ def obs_date_run_filename(run_id, filename):
 class SAMIRowStackedSpectra(SpectralMap):
     """Load SAMI RSS data.
 
-        TraitName is "run_id.rss_file_name":
+        TraitName is "run_id:rss_file_name":
 
         run_id: e.g. 2015_04_14-2015_04_22
         rss_file_name: e.g. 15apr20015sci.fits
 
     """
+
+    trait_name = 'rss_map'
+
+    @classmethod
+    def known_keys(cls, archive, trait_key=None):
+        """Return a list of unique identifiers which can be used to retrieve actual data."""
+        # Need to know the directory of the archive
+        known_keys = set()
+        # Get RSS filenames from headers of cubes. Only need to sample one binning scheme, so we use "1sec"
+        cube_files = glob(archive._base_directory_path + "*/cubed/*/*_1sec.fits*")
+        for f in cube_files:
+            # Trim the base directory off the path and split into directories:
+            dir_parts = f[len(archive._base_directory_path):].split("/")
+            # RunId is first element:
+            run_id = dir_parts[0]
+            # Object ID is second to last element:
+            object_id = dir_parts[-2]
+            if object_id not in archive.contents:
+                continue
+            # Open file to get list of RSS files from header
+            with fits.open(f) as hdu:
+                index = 1
+                while True:
+                    try:
+                        rss_filename = hdu[0].header['RSS_FILE ' + str(index)]
+                    except KeyError:
+                        break
+                    else:
+                        index += 1
+                        known_keys.add(TraitKey(cls.trait_name, run_id + ":" + rss_filename, object_id=object_id))
+            # Break out of the loop early for debuging purposes:
+            if len(known_keys) > 10:
+                break
+        return known_keys
+
 
     def __init__(self, archive, trait_key):
         self.object_id = trait_key.object_id
@@ -111,7 +188,6 @@ class SAMIRowStackedSpectra(SpectralMap):
         # The Run ID section
         self._rss_fits_filepath += self._run_id
         self._rss_fits_filepath += "/"
-
         self._rss_fits_filepath += "reduced/"
 
         possible_paths = glob(self._rss_fits_filepath +
@@ -121,7 +197,6 @@ class SAMIRowStackedSpectra(SpectralMap):
             # Something's wrong if we don't have a single match!
             log.debug("RSS file not found, glob returned %s", possible_paths)
             raise DataNotAvailable()
-
 
         self._rss_fits_filepath = possible_paths[0]
 
@@ -155,15 +230,45 @@ class SAMISpectralCube(SpectralMap):
 
         color: (red|blue)
         plate_id: ex. Y15SAR3_P002_12T085
-        binning: (|1sec)
+        binning: (05|10)
 
     """
-    # @classmethod
-    # def data_available(cls, archive, trait_key):
-    #     """Return a list of unique identifiers which can be used to retrieve actual data."""
-    #     # Need to know the directory of the archive
-    #     cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*")
-    #     return cube_files
+
+    trait_name = 'spectral_cube'
+
+    @classmethod
+    def known_keys(cls, archive, trait_key=None):
+        """Return a list of unique identifiers which can be used to retrieve actual data."""
+        # Need to know the directory of the archive
+        known_keys = set()
+        # for id in archive.contents:
+        #     cube_files = glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*")
+        #     keys = [cls._traitkey_from_cube_path(f) for f in cube_files]
+        #     known_keys.update(keys)
+        cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
+        known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
+        return known_keys
+
+    @staticmethod
+    def _cube_path_from_traitkey(trait_key):
+        pass
+
+    @classmethod
+    def _traitkey_from_cube_path(cls, path):
+        # run_id = path.split("/")[0]
+        filename = os.path.basename(path)
+        log.debug("Filename: %s", filename)
+        matches = sami_cube_re.match(filename)
+        if matches is None:
+            raise ValueError("Path '%s' does not appear to be a SAMI cube." % path)
+        sami_id = matches.group('sami_id')
+        color = matches.group('color')
+        n_comb = matches.group('n_comb')
+        plate_id = matches.group('plate_id')
+        binning = matches.group('binning')
+        if binning is None: binning = "05"
+        elif binning is "1sec": binning = "10"
+        return TraitKey(cls.trait_name, color + "." + binning, plate_id, sami_id)
 
     def __init__(self, archive, trait_key):
         self.object_id = trait_key.object_id
@@ -173,16 +278,45 @@ class SAMISpectralCube(SpectralMap):
         self._binning = trait_key.trait_name.split(".")[1]
         self._plate_id = trait_key.version
 
-        available_cubes = find_all_cubes_for_id(self.archive._base_directory_path, self.object_id)
-        log.debug("Finding cube for id: %s, color: %s, plate: %s, binning: %s",
-                  self.object_id, self._color, self._plate_id, self._binning)
-        try:
-            self.run_id, self.cube_file = available_cubes[(self.object_id, self._color, self._plate_id, self._binning)]
-        except KeyError:
-            raise DataNotAvailable(trait_key)
+        if self._binning not in ("05", "10"):
+            raise DataNotAvailable("SAMISpectralCube data not available for {}".format(trait_key))
 
-        self._cube_path = (self.archive._base_directory_path + "/"+ self.run_id + "/cubed/"
-                           + self.object_id + "/" + self.cube_file)
+        # available_cubes = find_all_cubes_for_id(self.archive._base_directory_path, self.object_id)
+        # log.debug("Finding cube for id: %s, color: %s, plate: %s, binning: %s",
+        #           self.object_id, self._color, self._plate_id, self._binning)
+        # try:
+        #     self.run_id, self.cube_file = available_cubes[(self.object_id, self._color, self._plate_id, self._binning)]
+        # except KeyError:
+        #     raise DataNotAvailable("SAMISpectralCube data not available for %s", trait_key) from None
+
+
+        # Cube paths look like:
+        #   /basedir/2014_04_24-2014_05_04/cubed/41144/41144_blue_7_Y14SAR3_P004_12T055_1sec.fits.gz
+        cube_path_pattern = self.archive._base_directory_path + "/*/cubed/"
+        cube_path_pattern += self.object_id + "/" + self.object_id + "_" + self._color
+        # Number of combines
+        cube_path_pattern += "_*"
+        if self._plate_id is None:
+            # Wildcard on plate_id
+            cube_path_pattern += "_*"
+        else:
+            cube_path_pattern += "_" + self._plate_id
+        # Binning
+        if self._binning == "05":
+            cube_path_pattern += ".fits.gz"
+        elif self._binning == "10":
+            cube_path_pattern += "_1sec.fits.gz"
+        paths = glob(cube_path_pattern)
+
+        if len(paths) < 1:
+            log.debug("Less than one cube file found: %s", paths)
+            raise DataNotAvailable("SAMISpectralCube data not available for {}".format(trait_key))
+        elif len(paths) > 1:
+            log.debug("More than one cube file found: %s", paths)
+            raise MultipleResults("Multiple SAMISpectralCubes available for {}, please specify version.".format(trait_key))
+
+
+        self._cube_path = paths[0]
 
         super(SAMISpectralCube, self).__init__(trait_key)
 
@@ -263,8 +397,10 @@ class SAMITeamArchive(Archive):
 
     def define_available_traits(self):
 
-        self.available_traits[TraitKey('spectral_cube', None, None, None)] = SAMISpectralCube
-        self.available_traits[TraitKey('rss_map', None, None, None)] = SAMIRowStackedSpectra
+        # Trait 'spectral_cube'
+        self.available_traits[TraitKey(SAMISpectralCube.trait_name, None, None, None)] = SAMISpectralCube
+        # Trait 'rss_map'
+        self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_name, None, None, None)] = SAMIRowStackedSpectra
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")
