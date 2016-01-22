@@ -100,7 +100,7 @@ class Sample(collections.MutableMapping):
         return len(self._id_cross_matches)
 
     def __iter__(self):
-        return self._id_cross_matches.index
+        return iter(self._id_cross_matches.index)
 
     # def get_archive_id(self, object, archive):
     #     pass

@@ -134,12 +134,17 @@ class SAMIRowStackedSpectra(SpectralMap):
     trait_name = 'rss_map'
 
     @classmethod
-    def known_keys(cls, archive, trait_key=None):
+    def known_keys(cls, archive, object_id=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         # Need to know the directory of the archive
         known_keys = set()
         # Get RSS filenames from headers of cubes. Only need to sample one binning scheme, so we use "1sec"
-        cube_files = glob(archive._base_directory_path + "*/cubed/*/*_1sec.fits*")
+        if object_id is None:
+            # Search for all available data regardless of ID:
+            cube_files = glob(archive._base_directory_path + "*/cubed/*/*_1sec.fits*")
+        else:
+            # Only return data for particular object_id provided
+            cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*_1sec.fits*")
         for f in cube_files:
             # Trim the base directory off the path and split into directories:
             dir_parts = f[len(archive._base_directory_path):].split("/")
@@ -237,13 +242,18 @@ class SAMISpectralCube(SpectralMap):
     trait_name = 'spectral_cube'
 
     @classmethod
-    def known_keys(cls, archive, trait_key=None):
+    def known_keys(cls, archive, object_id=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
-        # Need to know the directory of the archive
-        known_keys = set()
-        cube_files = []
-        for id in archive.contents:
-             cube_files.extend(glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*"))
+
+        if object_id is None:
+            # Return a list for all possible data
+            cube_files = []
+            for id in archive.contents:
+                 cube_files.extend(glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*"))
+        else:
+            # Only asked for data for a particular object_id
+            cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*.fits*")
+
         # cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
         known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
         return known_keys

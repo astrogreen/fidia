@@ -1,5 +1,10 @@
 from .abstract_base_traits import *
 
+from .. import slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.DEBUG)
+#log.enable_console_logging()
+
 class CachingTrait:
     def __init__(self, *args, **kwargs):
         super(CachingTrait, self).__init__()
@@ -8,7 +13,7 @@ class CachingTrait:
 
     def _realise(self):
         traits = dict()
-        print("Realising...")
+        log.debug("Realising...")
         try:
             self.preload()
         except AttributeError:
@@ -17,13 +22,13 @@ class CachingTrait:
         for key in type(self).__dict__:
             obj = type(self).__dict__[key]
             if isinstance(obj, TraitProperty):
-                print("Found trait data '{}'".format(key))
+                log.debug("Found trait data on class '{}'".format(key))
                 traits[key] = obj
         # Search instance attributes:
         for key in self.__dict__:
             obj = self.__dict__[key]
             if isinstance(obj, TraitProperty):
-                print("Found trait data '{}'".format(key))
+                log.debug("Found trait data on instance'{}'".format(key))
                 traits[key] = obj
 
         # Iterate over all traits found, storing value as instance attribute:

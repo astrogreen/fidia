@@ -77,10 +77,16 @@ class AstronomicalObject(collections.MutableMapping):
         pass
 
     def keys(self):
-        pass
+        """Provide a list of (presumed) valid TraitKeys for this object"""
+        keys = set()
+        for ar in self.sample.archives:
+            archive_id = self.sample.get_archive_id(ar, self.identifier)
+            for trait_type in ar.schema():
+                keys.update(ar.available_traits[trait_type].known_keys(ar, object_id=archive_id))
+        return keys
 
     def __len__(self):
-        pass
+        return len(self.keys)
 
     def __iter__(self):
-        pass
+        return iter(self.keys())
