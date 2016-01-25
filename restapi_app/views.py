@@ -19,8 +19,11 @@ from restapi_app.serializers import (
     SurveySerializer,
     ReleaseTypeSerializer,
     CatalogueSerializer, CatalogueGroupSerializer,
-    ImageSerializer, SpectrumSerializer
+    ImageSerializer, SpectrumSerializer,
+    AstroObjectSerializer
 )
+
+from . import AstroObject
 
 from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
 from rest_framework.decorators import api_view, detail_route, list_route
@@ -580,3 +583,143 @@ class ModelFreeView(views.APIView):
         result = myObject.do_work()
         response = Response(result, status=status.HTTP_200_OK)
         return response
+
+
+class ModelFreeView(views.APIView):
+    """
+    ModelFreeView in restapp_app/views.py
+
+    This model-independent view allows for custom parameters in the url.
+
+    Using the APIView class, rather than hooking up a Viewset
+
+    Currently set to three levels, but multiple nesting depths can be added very easily in the
+    urls.py file. Try:
+    e.g., http://127.0.0.1:8000/asvo/model-free/resource/gal/redshift/v1
+    e.g., http://127.0.0.1:8000/asvo/model-free/resource/gal/redshift/v1/?format=json
+    e.g., http://127.0.0.1:8000/asvo/model-free/resource/gal/redshift/v1/?format=csv
+
+    - Serialization of results needs consideration
+    - Permissions can be plugged in to the entire view, but unclear as
+    to how per-object permissions would work.
+    - allows all endpoints, but no info about data model
+    - schema?
+
+    """
+    #can add in custom permissions from permissions.py file here
+    permission_classes = (permissions.AllowAny,)
+
+
+    def get(self, request, *args, **kwargs):
+        # Process params from request
+        get_arg1 = self.kwargs['arg1']
+        get_arg2 = self.kwargs['arg2']
+        get_arg3 = self.kwargs['arg3']
+
+        # Any URL parameters gets passed in **kwargs
+        myObject = FIDIA(get_arg1, get_arg2, get_arg3, *args, **kwargs)
+        result = myObject.do_work()
+        response = Response(result, status=status.HTTP_200_OK)
+        return response
+
+
+
+
+# NON-MODEL ENDPOINTS (using VIEWSETS)
+
+# Expose an AstroObject resource (here pure python object)
+# (see __init__.py)
+
+# create dict of AstroObjects for now
+# using HBase store, some caching system, LDAP, some files..
+# The API will perform the usual CRUD operations on items in the list
+
+astroobjects = {
+    1: AstroObject(id=1, asvoid='0000000001', gamacataid='G65406', redshift='0.02', spectrum='.fits'),
+    2: AstroObject(id=2, asvoid='0000000002', gamacataid='G65404', samiid='SAMI001', redshift='0.01', spectrum='.fits'),
+    3: AstroObject(id=3, asvoid='0000000003', samiid='SAMIGAL', redshift='0.03', spectrum=None),
+}
+
+
+def get_next_astobj_id():
+    return max(astroobjects) + 1
+
+# Viewset:
+class AstroObjectViewSet(viewsets.ViewSet):
+    serializer_class = AstroObjectSerializer
+    # required for browsable API to render handy form
+
+    def list(self, request):
+        serializer = AstroObjectSerializer(
+            instance = astroobjects.values(), many=True
+        )
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = AstroObjectSerializer(data=request.data)
+        if serializer.is_valid():
+            astroobj = serializer.save()
+            astroobj.id = get_next_astobj_id()
+            astroobjects[astroobj.id] = astroobj
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def retrieve(self, request, pk=None):
+        try:
+            astroobject = astroobjects[int(pk)]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AstroObjectSerializer(instance=astroobject)
+        return Response(serializer.data)
+
+
+    def update(self, request, pk=None):
+        try:
+            astroobject = astroobjects[int(pk)]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AstroObjectSerializer(
+            data=request.data, instance=astroobject)
+        if serializer.is_valid():
+            astroobject = serializer.save()
+            astroobjects[astroobject.id] = astroobject
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def partial_update(self, request, pk=None):
+        try:
+            astroobject = astroobjects[int(pk)]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AstroObjectSerializer(
+            data=request.data,
+            instance=astroobject,
+            partial=True)
+        if serializer.is_valid():
+            astroobject = serializer.save()
+            astroobjects[astroobject.id] = astroobject
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def destroy(self, request, pk=None):
+        try:
+            astroobject = astroobjects[int(pk)]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        del astroobjects[astroobject.id]
+        return Response(status=status.HTTP_204_NO_CONTENT)

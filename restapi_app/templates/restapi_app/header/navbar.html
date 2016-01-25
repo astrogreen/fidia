@@ -87,12 +87,14 @@
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">TEST API <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="{% url "api-root" %}">Test API </a></li>
+                    <li><a href="{% url "api-root" %}">API-root </a></li>
                     <li><a href="{% url "query-list" %}">Query (requires login) </a></li>
-                    <li><a href="{% url "survey-list" %}">Survey </a></li>
-                    <li><a href="{% url "plate" %}">DB Relationships</a></li>
+                    <li><a href="{% url "survey-list" %}">Hyperlinked m2m etc (models.py)</a></li>
+                    <li><a href="{% url "plate" %}">Model relationships graphic</a></li>
                     <li><a href="{% url "customget" %}">Simple non-model endpoint</a></li>
-                    <li><a href="{% url "modelfree" %}">Non-model endpoint: pass params</a></li>
+                    <li><a href="{% url "modelfree" %}">Non-model endpoint: views</a></li>
+                    <li><a href="{% url "astro-list" %}">Non-model endpoint: viewsets</a></li>
+
                 </ul>
             </li>
 

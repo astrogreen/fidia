@@ -20,9 +20,8 @@ router.register(r'catalogues', views.CatalogueViewSet),
 router.register(r'cataloguegroups', views.CatalogueGroupViewSet),
 router.register(r'imaging', views.ImageViewSet),
 router.register(r'spectra', views.SpectraViewSet),
+router.register(r'astro', views.AstroObjectViewSet, base_name='astro')
 
-# router.register(r'surveys', views.SurveyViewSet)
-# router.register(r'version', views.VersionViewSet)
 
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browsable API.

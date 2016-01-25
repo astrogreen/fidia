@@ -8,6 +8,7 @@ from restapi_app.models import (
     Image,
     Spectrum,
 )
+from . import AstroObject
 from django.contrib.auth.models import User
 from rest_framework_extensions.fields import ResourceUriField
 
@@ -228,3 +229,37 @@ class SpectrumSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = ('url', 'title', 'content', 'meta', 'version', 'updated', 'release')
         extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
+
+
+
+
+
+
+# NON-MODEL SERIALIZER
+class AstroObjectSerializer(serializers.Serializer):
+    """
+    Inherits Serializer as opposed to ModelSerializer and describes the fields
+    create() and update() ensure writable
+
+    create() passes validated_data to the AstroObjects initialization
+    update() pushes the validated_data values to the given instance. It does
+    not assume all fields are available (for patch requests)
+
+    """
+    id = serializers.IntegerField(read_only=True)
+    asvoid = serializers.CharField(read_only=True, max_length=100)
+    gamacataid = serializers.CharField(max_length=100)
+    samiid = serializers.CharField(max_length=100, required=False)
+    redshift = serializers.FloatField(required=False)
+    spectrum = serializers.FileField(required=False)
+
+
+    def create(self, validated_data):
+        return AstroObject(id=None, **validated_data)
+
+
+    def update(self, instance, validated_data):
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+
+        return instance
