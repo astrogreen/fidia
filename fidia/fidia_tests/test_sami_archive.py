@@ -70,20 +70,33 @@ class TestSAMIArchive:
         t = sami_sample['41144']['rss_map', '2015_04_14-2015_04_22:15apr20015sci.fits']
         assert isinstance(t.value, numpy.ndarray)
 
-    def test_sami_traits_have_correct_schema(self, sami_archive):
-        rss_trait = sami_archive.available_traits[TraitKey('rss_map')]
-        schema = rss_trait.schema()
-        #schema.sort()
-        #assert schema == ['value', 'variance']
-        assert schema == {'value': 'float.array', 'variance': 'float.array'}
+    def test_sami_traits_have_correct_schema_structure(self, sami_archive):
 
-    def test_sami_archive_has_correct_schema(self, sami_archive):
+        # Iterate over all known traits for this archive:
+        for trait_class in sami_archive.available_traits:
+            schema = sami_archive.available_traits[trait_class].schema()
+            # Schema should be dictionary-like:
+            assert isinstance(schema, dict)
+            for key in schema:
+                # Keys should be strings
+                assert isinstance(key, str)
+                # Values should be strings
+                assert isinstance(schema[key], str)
+                # Values should be valid data-types
+                # @TODO: Not implemented
+
+    def test_sami_archive_has_correct_schema_structure(self, sami_archive):
         schema = sami_archive.schema()
-        assert schema == {'rss_map': {'value': 'float.array', 'variance': 'float.array'},
-                          'spectral_cube': {'covariance': 'float.array',
-                                            'value': 'float.array',
-                                            'variance': 'float.array',
-                                            'weight': 'float.array'}}
+
+        # Schema should be dictionary-like:
+        assert isinstance(schema, dict)
+        for trait_type in schema:
+
+            # Top level of schema should be a valid trait_type:
+            assert trait_type in map(lambda tk: tk.trait_type, sami_archive.available_traits)
+
+            # Each element should be dictionary-like
+            assert isinstance(schema[trait_type], dict)
 
     def test_get_trait_keys_for_rss(self, sami_archive):
         rss_keys = sami_archive.available_traits[('rss_map')].known_keys(sami_archive)

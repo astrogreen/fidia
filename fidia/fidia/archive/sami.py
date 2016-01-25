@@ -11,6 +11,7 @@ import os.path
 import datetime
 import re
 
+from astropy import wcs
 from astropy.io import fits
 import pandas as pd
 
@@ -366,6 +367,58 @@ class SAMISpectralCube(SpectralMap):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('WEIGHT')].data
 
+    @trait_property('float')
+    def total_exposure(self):
+        return self.hdu[0].header['TOTALEXP']
+
+    @trait_property('string')
+    def cubing_code_version(self):
+        return self.hdu[0].header['HGCUBING']
+
+    @trait_property('string')
+    def plate_id(self):
+        """The plate identification string."""
+        return self.hdu[0].header['PLATEID']
+
+    @trait_property('string')
+    def plate_label(self):
+        """The label assigned to the plate."""
+        return self.hdu[0].header['LABEL']
+
+    @trait_property('float')
+    def ra(self):
+        """The label assigned to the plate."""
+        return self.hdu[0].header['CATARA']
+
+    @trait_property('float')
+    def dec(self):
+        """The label assigned to the plate."""
+        return self.hdu[0].header['CATADEC']
+
+
+    @trait_property('string.array')
+    def source_rss_frames(self):
+        source_rss_frames = []
+        index = 1
+        while True:
+            try:
+                rss_filename = self.hdu[0].header['RSS_FILE ' + str(index)]
+            except KeyError:
+                break
+            else:
+                source_rss_frames.append(rss_filename)
+                index += 1
+        return source_rss_frames
+
+    @trait_property('string')
+    def wcs_string(self):
+        h = self.hdu[0].header.copy()
+        # The PLATEID header keyword confuses the WCS package,
+        # so it must be removed from the header before creating
+        # the WCS object
+        del h['PLATEID']
+        w = wcs.WCS(h)
+        return w.to_header_string()
 
 class SAMITeamArchive(Archive):
 
