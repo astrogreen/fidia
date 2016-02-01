@@ -313,7 +313,8 @@ class SAMISpectralCube(SpectralMap):
         cube_path_pattern += "_*"
         if self._plate_id is None:
             # Wildcard on plate_id
-            cube_path_pattern += "_*"
+            # Y<year>S<semester>R<obsrun>_P<platenumber>_<field1Region><field1Tile>
+            cube_path_pattern += "_Y??S?R*_P*_*T???"
         else:
             cube_path_pattern += "_" + self._plate_id
         # Binning

@@ -51,6 +51,12 @@ class TestSAMIArchive:
         # 1.0 arcsec binning
         t = sami_sample['23117']['spectral_cube', 'red.10']
         assert isinstance(t.value, numpy.ndarray)
+        t = sami_sample['23117']['spectral_cube', 'red.05']
+        assert isinstance(t.value, numpy.ndarray)
+        t = sami_sample['23117']['spectral_cube', 'blue.05']
+        assert isinstance(t.value, numpy.ndarray)
+        t = sami_sample['23117']['spectral_cube', 'blue.10']
+        assert isinstance(t.value, numpy.ndarray)
 
     def test_multiple_data_available(self, sami_sample):
         # SAMI galaxy 41144 has multiple observations on different runs.
