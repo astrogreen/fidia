@@ -84,8 +84,8 @@ def configure_logging():
         pass
 
     # The code below should only ever be called once, so we raise an exception if this doesn't seem to be the case.
-    if len(package_log.handlers) > 0:
-        raise Exception("Logging configured more than once for 'samiDB'")
+    # if len(package_log.handlers) > 0:
+    #     raise Exception("Logging configured more than once for 'samiDB'")
 
     formatter = logging.Formatter('%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s')
 
