@@ -38,6 +38,20 @@ class AbstractBaseTrait(metaclass=ABCMeta):
 
     @classmethod
     def schema(cls):
+        """Provide the schema of data in this trait as a dictionary.
+
+        The schema is presented as a dictionary, where the keys are strings
+        giving the name of the attributes defined, and the values are the FIDIA
+        type strings for each attribute.
+
+        Only attributes which are TraitProperties are included in the schema.
+
+        Examples:
+
+            >>> galaxy['redshift'].schema()
+            {'value': 'float', 'variance': 'float'}
+
+        """
         result = dict()
         for elem in cls.__dict__:
             if isinstance(cls.__dict__[elem], TraitProperty):

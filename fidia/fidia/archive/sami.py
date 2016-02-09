@@ -11,10 +11,14 @@ import os.path
 import datetime
 import re
 
+import pickle
+
 from astropy import wcs
 from astropy.io import fits
 import pandas as pd
 
+import numpy
+from io import BytesIO
 
 # FIDIA Relative Imports
 from fidia import *
@@ -218,16 +222,24 @@ class SAMIRowStackedSpectra(SpectralMap):
     def shape(self):
         return 0
 
-    @trait_property('float.array')
+    @trait_property('bytes.ndarray')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
         return self._hdu[key].data
 
-    @trait_property('float.array')
+    @trait_property('bytes.ndarray')
     def variance(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self._hdu[str('VARIANCE')].data
+
+    def as_bytes(self):
+        """Return a representation of this TraitProperty as a serialized string of bytes"""
+        schema = self.schema()
+        dict_to_serialize = {key: getattr(self, key) for key in schema}
+        with BytesIO() as byte_file:
+            pickle.dump(dict_to_serialize, byte_file)
+            return byte_file.getvalue()
 
 class SAMISpectralCube(SpectralMap):
     """Load a SAMI Data cube.
@@ -420,6 +432,15 @@ class SAMISpectralCube(SpectralMap):
         del h['PLATEID']
         w = wcs.WCS(h)
         return w.to_header_string()
+
+    def as_bytes(self):
+        """Return a representation of this TraitProperty as a serialized string of bytes"""
+        schema = self.schema()
+        dict_to_serialize = {key: getattr(self, key) for key in schema}
+        with BytesIO() as byte_file:
+            pickle.dump(dict_to_serialize, byte_file)
+            return byte_file.getvalue()
+
 
 class SAMITeamArchive(Archive):
 
