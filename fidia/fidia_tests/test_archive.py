@@ -149,7 +149,6 @@ class TestArchive:
 
 
     def test_trait_inherited_has_correct_schema(self, example_spectral_map_with_extra_inherit):
-        print("""This test is currently failing: traits do not quite correctly inherit from their parents.""")
         schema = example_spectral_map_with_extra_inherit.schema()
         assert schema == {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}
 

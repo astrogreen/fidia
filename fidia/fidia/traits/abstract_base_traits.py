@@ -52,11 +52,12 @@ class AbstractBaseTrait(metaclass=ABCMeta):
             {'value': 'float', 'variance': 'float'}
 
         """
-        result = dict()
-        for elem in cls.__dict__:
-            if isinstance(cls.__dict__[elem], TraitProperty):
-                result[elem] = cls.__dict__[elem].type
-        return result
+        schema = dict()
+        for attr in dir(cls):
+            if isinstance(getattr(cls, attr), TraitProperty):
+                schema[attr] = getattr(cls, attr).type
+
+        return schema
 
     @abstractproperty
     def value(self): raise NotImplementedError
