@@ -1,9 +1,13 @@
+import pickle
+from io import BytesIO
+
 from .abstract_base_traits import *
 
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
+
 
 class CachingTrait:
     def __init__(self, *args, **kwargs):
@@ -50,6 +54,13 @@ class CachingTrait:
     #         self._cleaned_up = True
     #     except AttributeError:
     #         pass
+
+    def as_bytes(self):
+        """Return a representation of this TraitProperty as a serialized string of bytes"""
+        dict_to_serialize = self._trait_dict
+        with BytesIO() as byte_file:
+            pickle.dump(dict_to_serialize, byte_file)
+            return byte_file.getvalue()
 
 class Measurement(AbstractMeasurement): pass
 
