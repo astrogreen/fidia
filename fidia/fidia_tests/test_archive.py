@@ -33,9 +33,11 @@ class TestArchive:
 
             @trait_property('float.array')
             def value(self):
+                assert not self._clean
                 return np.random.random((3, 5, 10))
             @trait_property('float.array')
             def variance(self):
+                assert not self._clean
                 return np.random.random((3, 5, 10))
 
         return ExampleSpectralMap
@@ -63,12 +65,15 @@ class TestArchive:
 
             @trait_property('float.array')
             def value(self):
+                assert not self._clean
                 return np.random.random((3, 5, 10))
             @trait_property('float.array')
             def variance(self):
+                assert not self._clean
                 return np.random.random((3, 5, 10))
             @trait_property('float')
             def extra_value(self):
+                assert not self._clean
                 return np.random.random()
 
         return ExampleSpectralMapExtra

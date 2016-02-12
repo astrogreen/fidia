@@ -41,15 +41,15 @@ class CachingTrait:
         except AttributeError:
             pass
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        try:
-            self.cleanup()
-            self._cleaned_up = True
-        except AttributeError:
-            pass
+    # def __enter__(self):
+    #     return self
+    #
+    # def __exit__(self, exc_type, exc_val, exc_tb):
+    #     try:
+    #         self.cleanup()
+    #         self._cleaned_up = True
+    #     except AttributeError:
+    #         pass
 
 class Measurement(AbstractMeasurement): pass
 
