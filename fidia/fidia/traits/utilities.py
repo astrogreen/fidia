@@ -183,7 +183,7 @@ def trait_property(func_or_type):
         # Have been given a data type, so return a decorator:
         log.debug("Decorating trait_property with data-type %s", func_or_type)
         tp = TraitProperty(type=func_or_type)
-        return tp.getter
+        return tp.loader
     elif callable(func_or_type):
         # Have not been given a data type. Build the property directly:
         return TraitProperty(func_or_type)
@@ -191,22 +191,83 @@ def trait_property(func_or_type):
 
 class TraitProperty(object):
 
-    def __init__(self, fget=None, fset=None, fdel=None, doc=None, type=None):
+    def __init__(self, fload=None, fget=None, fset=None, fdel=None, doc=None, type=None, name=None):
+        self.fload = fload
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
-        if doc is None and fget is not None:
-            doc = fget.__doc__
+        self.name = name
+        if doc is None and fload is not None:
+            doc = fload.__doc__
         self.__doc__ = doc
         self.type = type
 
     def getter(self, fget):
+        self.name = fget.__name__
+        log.debug("Setting getter for TraitProperty '%s'", self.name)
         self.fget = fget
         return self
+
+    def loader(self, fload):
+        self.name = fload.__name__
+        log.debug("Setting loader for TraitProperty '%s'", self.name)
+        self.fload = fload
+        return self
+
+    def _get_with_load(self, obj):
+        """Retrieve the trait property value via the user provided loader.
+
+        The preload and cleanup functions of the Trait are called if present
+        before and after running the loader.
+
+        """
+
+        log.debug("Loading data for get for TraitProperty '%s'", self.name)
+
+        # Call Trait `preload` if present.
+        try:
+            obj.preload()
+        except KeyError:
+            pass
+
+        # Call the actual user defined loader function to get the value of the TraitProperty.
+        value = self.fload(obj)
+
+        # Call Trait `cleanup` if present
+        try:
+            obj.cleanup()
+        except KeyError:
+            pass
+
+        return value
 
     def __get__(self, obj, objtype=None):
         if obj is None:
             return self
         if self.fget is None:
-            raise AttributeError("unreadable attribute")
-        return self.fget(obj)
+            log.debug("Descriptor '%s.%s' retrieving its value...", type(obj).__name__, self.name)
+            # No special getter (unusual) has been provided, so check for a
+            # cached version, and either return that or run the loader to get
+            # the value.
+
+            # Check if obj has a trait_dict cache:
+            try:
+                log.debug("Checking for trait_dict cache...")
+                obj._trait_dict
+            except KeyError:
+                # No trait cache: simply get value and return
+                # @TODO: This case should really not be needed: all traits
+                #        should eventually have a cache.
+                log.debug("Object '%s' has no trait cache...using user provided loader.", obj)
+                return self._get_with_load(obj)
+            else:
+                # Trait cache present, load value and store.
+                if self.name not in obj._trait_dict:
+                    log.debug("Object '%s' has not cached a value for '%s'.", obj, self.name)
+                    # Data not yet cached
+                    obj._trait_dict[self.name] = self._get_with_load(obj)
+                else:
+                    log.debug("Using cached a value for '%s' from object '%s'.", self.name, obj)
+                return obj._trait_dict[self.name]
+
+            raise Exception("Programming error")

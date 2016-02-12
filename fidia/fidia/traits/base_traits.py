@@ -3,37 +3,39 @@ from .abstract_base_traits import *
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
-#log.enable_console_logging()
+log.enable_console_logging()
 
 class CachingTrait:
     def __init__(self, *args, **kwargs):
         super(CachingTrait, self).__init__()
+        self._trait_dict = dict()
         self._realise()
 
 
     def _realise(self):
-        traits = dict()
+        """Search through the objects members for TraitProperties, and preload any found.
+
+        """
+
         log.debug("Realising...")
         try:
             self.preload()
         except AttributeError:
             pass
+
         # Search class attributes:
         for key in type(self).__dict__:
             obj = type(self).__dict__[key]
             if isinstance(obj, TraitProperty):
                 log.debug("Found trait data on class '{}'".format(key))
-                traits[key] = obj
+                self._trait_dict[key] = obj.fload(self)
         # Search instance attributes:
         for key in self.__dict__:
             obj = self.__dict__[key]
             if isinstance(obj, TraitProperty):
                 log.debug("Found trait data on instance'{}'".format(key))
-                traits[key] = obj
+                self._trait_dict[key] = obj.fload(self)
 
-        # Iterate over all traits found, storing value as instance attribute:
-        for key in traits:
-            self.__dict__[key] = getattr(self, key)
         try:
             self.cleanup()
         except AttributeError:
