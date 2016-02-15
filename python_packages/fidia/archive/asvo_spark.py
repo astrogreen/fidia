@@ -80,7 +80,7 @@ class AsvoSparkArchive(BaseArchive):
         # Create an empty sample, and populate it via it's private interface
         # (no suitable public interface at this time.)
         new_sample = Sample()
-        id_cross_match = pd.Series(results_pddf.index,
+        id_cross_match = pd.DataFrame(pd.Series(results_pddf.index,
                     name='ASVO',
                     index=results_pddf.index))
         log.debug("Elapsed time: %f", time.time() - start_time)
