@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 import pandas as pd
 
 # Custom Packages
-from fidia.asvo_spark import hive_context
+from asvo_spark import hive_context
 
 # Relative imports in this package
 from .base_archive import BaseArchive
