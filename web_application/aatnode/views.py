@@ -24,7 +24,7 @@ from .helpers import COLUMNS
 # (http://docs.sqlalchemy.org/en/rel_1_0/core/tutorial.html)
 #import sqlalchemy as sql
 
-from fidia.fidia.archive.asvo_spark import AsvoSparkArchive
+from fidia.archive.asvo_spark import AsvoSparkArchive
 
 
 

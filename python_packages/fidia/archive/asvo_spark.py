@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 import pandas as pd
 
 # Custom Packages
-from fidia.asvo_spark import hive_context
+from asvo_spark import hive_context
 
 # Relative imports in this package
 from .base_archive import BaseArchive
@@ -80,7 +80,7 @@ class AsvoSparkArchive(BaseArchive):
         # Create an empty sample, and populate it via it's private interface
         # (no suitable public interface at this time.)
         new_sample = Sample()
-        id_cross_match = pd.Series(results_pddf.index,
+        id_cross_match = pd.DataFrame(pd.Series(results_pddf.index,
                     name='ASVO',
                     index=results_pddf.index))
         log.debug("Elapsed time: %f", time.time() - start_time)
