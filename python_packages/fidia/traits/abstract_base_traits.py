@@ -75,9 +75,6 @@ class AbstractBaseTrait(metaclass=ABCMeta):
 class AbstractNumericTrait(AbstractBaseTrait):
 
     @abstractproperty
-    def variance(self): raise NotImplementedError
-
-    @abstractproperty
     def unit(self):
         raise NotImplementedError
 
@@ -91,13 +88,14 @@ class AbstractBaseArrayTrait(AbstractBaseTrait):
 
 class AbstractMeasurement(AbstractNumericTrait):
 
-    @abstractproperty
-    def epoch(self):
-        raise NotImplementedError
-    @abstractproperty
-    def instrument(self):
-        raise NotImplementedError
+    # @abstractproperty
+    # def epoch(self):
+    #     raise NotImplementedError
+    # @abstractproperty
+    # def instrument(self):
+    #     raise NotImplementedError
 
+    pass
 
 class AbstractBaseClassification(AbstractBaseTrait):
 
@@ -105,11 +103,6 @@ class AbstractBaseClassification(AbstractBaseTrait):
     def valid_classifications(self):
         raise NotImplementedError
 
-class Base1DTrait(AbstractBaseArrayTrait): pass
-
-class Base2DTrait(AbstractBaseArrayTrait): pass
-
-class Base3DTrait(AbstractBaseArrayTrait): pass
 
 
 

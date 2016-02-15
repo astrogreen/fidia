@@ -9,6 +9,8 @@ log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
+
+
 class CachingTrait:
     def __init__(self, *args, **kwargs):
         super(CachingTrait, self).__init__()
@@ -66,7 +68,7 @@ class Measurement(AbstractMeasurement): pass
 
 class Velocity(Measurement): pass
 
-class Map(Base2DTrait):
+class Map(AbstractBaseArrayTrait):
     """Maps provide "relative spatial information", i.e. they add spatial
     information to existing data, such as a set of spectra or classifications.
     For relative spatial information to be meaningful, there must be at least
@@ -87,7 +89,7 @@ class Map(Base2DTrait):
         return self._nominal_position
     
 
-class Spectrum(Base1DTrait, Measurement): pass
+class Spectrum(AbstractBaseArrayTrait, Measurement): pass
 
 class Epoch(Measurement):
 
@@ -96,13 +98,13 @@ class Epoch(Measurement):
         return self
 
 
-class TimeSeries(Base1DTrait, Epoch): pass
+class TimeSeries(AbstractBaseArrayTrait, Epoch): pass
 
 
 class Image(Map): pass
 
 
-class SpectralMap(Base3DTrait, CachingTrait):
+class SpectralMap(AbstractBaseArrayTrait, CachingTrait):
 
     def name(self):
         raise NotImplementedError

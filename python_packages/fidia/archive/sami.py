@@ -28,7 +28,8 @@ from ..galaxy import Galaxy
 from ..utilities import WildcardDictionary
 
 from ..traits.utilities import TraitKey, TraitMapping, trait_property
-from ..traits.base_traits import SpectralMap
+from ..traits.base_traits import SpectralMap, Image, CachingTrait
+from ..traits.galaxy_traits import VelocityMap
 
 
 # SAMI Cube file and plate ID regular expressions
@@ -426,6 +427,147 @@ class SAMISpectralCube(SpectralMap):
         w = wcs.WCS(h)
         return w.to_header_string()
 
+class LZIFUVelocityMap(VelocityMap, CachingTrait):
+
+    def __init__(self, archive, trait_key):
+        self.archive = archive
+        self._trait_key = trait_key
+        self.object_id = trait_key.object_id
+        self._trait_name = trait_key.trait_name
+
+        super().__init__()
+
+
+    def preload(self):
+        lzifu_fits_file = (self.archive._base_directory_path +
+                           "/lzifu_releasev0.9/1_comp/" +
+                           self.object_id + "_1_comp.fits.gz")
+        self._hdu = fits.open(lzifu_fits_file)
+
+    def cleanup(self):
+        self._hdu.close()
+
+    def shape(self):
+        return self.value.shape
+
+    @trait_property('bytes.ndarray')
+    def value(self):
+        return self._hdu['V'].data[1, :, :]
+
+    @trait_property('bytes.ndarray')
+    def variance(self):
+        return self._hdu['V_ERR'].data[1, :, :]
+
+class LZIFULineMap(Image, CachingTrait):
+
+    line_name_map = {
+        'OII3726': 'OII3726',
+        'OII3729': 'OII3729',
+        'HBETA': 'HBETA',
+        # Note missing OIII4959, which is fit as 1/3rd of OIII50007
+        'OIII5007': 'OIII5007',
+        'OI6300': 'OI6300',
+        # Note missing NII6548, which is fit as 1/3rd of NII6583
+        'HALPHA': 'HALPHA',
+        'NII6583': 'NII6583',
+        'SII6716': 'SII6716',
+        'SII6731': 'SII6731'
+    }
+
+    def __init__(self, archive, trait_key):
+        self.archive = archive
+        self._trait_key = trait_key
+        self.object_id = trait_key.object_id
+        self._trait_name = trait_key.trait_name
+
+        super().__init__()
+
+    def preload(self):
+        lzifu_fits_file = (self.archive._base_directory_path +
+                           "/lzifu_releasev0.9/1_comp/" +
+                           self.object_id + "_1_comp.fits.gz")
+        self._hdu = fits.open(lzifu_fits_file)
+
+    def cleanup(self):
+        self._hdu.close()
+
+    def shape(self):
+        return self.value.shape
+
+    def unit(self):
+        return None
+
+    @trait_property('bytes.ndarray')
+    def value(self):
+        value = self._hdu[self.line_map_name[self._trait_name]].data[1, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+
+    @trait_property('bytes.ndarray')
+    def variance(self):
+        variance = self._hdu[self.line_map_name[self._trait_name] + '_ERR'].data[1, :, :]
+        log.debug("Returning type: %s", type(variance))
+        return variance
+
+class LZIFUContinuum(SpectralMap):
+
+    def __init__(self, archive, trait_key):
+        self.archive = archive
+        self._trait_key = trait_key
+        self.object_id = trait_key.object_id
+        self._trait_name = trait_key.trait_name
+
+        super().__init__(trait_key)
+
+    def preload(self):
+        lzifu_fits_file = (self.archive._base_directory_path +
+                           "/lzifu_releasev0.9/1_comp/" +
+                           self.object_id + "_1_comp.fits.gz")
+        self._hdu = fits.open(lzifu_fits_file)
+
+    def cleanup(self):
+        self._hdu.close()
+
+    @trait_property('bytes.ndarray')
+    def value(self):
+        # Determine which colour:
+        if self._trait_name == "blue":
+            color = "B"
+        elif self._trait_name == "red":
+            color = "R"
+        else:
+            raise ValueError("unknown trait name")
+        self._hdu[color + '_CONTINUUM']
+
+class LZIFULineSpectrum(SpectralMap):
+
+    def __init__(self, archive, trait_key):
+        self.archive = archive
+        self._trait_key = trait_key
+        self.object_id = trait_key.object_id
+        self._trait_name = trait_key.trait_name
+
+        super().__init__(trait_key)
+
+    def preload(self):
+        lzifu_fits_file = (self.archive._base_directory_path +
+                           "/lzifu_releasev0.9/1_comp/" +
+                           self.object_id + "_1_comp.fits.gz")
+        self._hdu = fits.open(lzifu_fits_file)
+
+    def cleanup(self):
+        self._hdu.close()
+
+    @trait_property('bytes.ndarray')
+    def value(self):
+        # Determine which colour:
+        if self._trait_name == "blue":
+            color = "B"
+        elif self._trait_name == "red":
+            color = "R"
+        else:
+            raise ValueError("unknown trait name")
+        self._hdu[color + '_LINE']
 
 class SAMITeamArchive(Archive):
 
@@ -475,6 +617,11 @@ class SAMITeamArchive(Archive):
         self.available_traits[TraitKey(SAMISpectralCube.trait_name, None, None, None)] = SAMISpectralCube
         # Trait 'rss_map'
         self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_name, None, None, None)] = SAMIRowStackedSpectra
+
+        # LZIFU Items
+
+        self.available_traits[TraitKey('velocity_map', None, None, None)] = LZIFUVelocityMap
+        self.available_traits[TraitKey('line_map', None, None, None)] = LZIFULineMap
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")
