@@ -30,34 +30,15 @@ https://dbader.org/blog/abstract-base-classes-in-python
 
 """
 
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractproperty, abstractclassmethod
 
 from .utilities import TraitProperty
 
-class AbstractBaseTrait(metaclass=ABCMeta):
+class AbstractBaseTrait():
 
-    @classmethod
+    @abstractclassmethod
     def schema(cls):
-        """Provide the schema of data in this trait as a dictionary.
-
-        The schema is presented as a dictionary, where the keys are strings
-        giving the name of the attributes defined, and the values are the FIDIA
-        type strings for each attribute.
-
-        Only attributes which are TraitProperties are included in the schema.
-
-        Examples:
-
-            >>> galaxy['redshift'].schema()
-            {'value': 'float', 'variance': 'float'}
-
-        """
-        schema = dict()
-        for attr in dir(cls):
-            if isinstance(getattr(cls, attr), TraitProperty):
-                schema[attr] = getattr(cls, attr).type
-
-        return schema
+        raise NotImplementedError
 
     @abstractproperty
     def value(self): raise NotImplementedError

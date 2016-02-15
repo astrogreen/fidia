@@ -11,12 +11,62 @@ log.enable_console_logging()
 
 
 
-class CachingTrait:
-    def __init__(self, *args, **kwargs):
-        super(CachingTrait, self).__init__()
+class Trait(AbstractBaseTrait):
+
+    @classmethod
+    def schema(cls):
+        """Provide the schema of data in this trait as a dictionary.
+
+        The schema is presented as a dictionary, where the keys are strings
+        giving the name of the attributes defined, and the values are the FIDIA
+        type strings for each attribute.
+
+        Only attributes which are TraitProperties are included in the schema.
+
+        Examples:
+
+            >>> galaxy['redshift'].schema()
+            {'value': 'float', 'variance': 'float'}
+
+        """
+        schema = dict()
+        for attr in dir(cls):
+            if isinstance(getattr(cls, attr), TraitProperty):
+                schema[attr] = getattr(cls, attr).type
+
+        return schema
+
+    def __init__(self, archive, trait_key, loading='lazy'):
+        super().__init__()
+        self.archive = archive
+        self._trait_key = trait_key
+        self.object_id = trait_key.object_id
+        self._trait_name = trait_key.trait_name
+
+        if loading not in ('eager', 'lazy', 'verylazy'):
+            raise ValueError("loading keyword must be one of ('eager', 'lazy', 'verylazy')")
+        self._loading = loading
+
         self._trait_dict = dict()
         self._realise()
 
+    def preload(self):
+        """Prepare for a trait property to be retrieved using plugin code.
+
+        Override this function with any initialisation required for this trait
+        to load its data, such as opening required files, connecting to databases, etc.
+
+        """
+        pass
+
+    def cleanup(self):
+        """Cleanup after a trait property has been retrieved using plugin code.
+
+        Override this function with any cleanup that should be done once this trait
+        to loaded its data, such as closing files.
+
+        """
+        pass
 
     def _realise(self):
         """Search through the objects members for TraitProperties, and preload any found.
@@ -24,10 +74,7 @@ class CachingTrait:
         """
 
         log.debug("Realising...")
-        try:
-            self.preload()
-        except AttributeError:
-            pass
+        self.preload()
 
         # Search class attributes:
         for key in type(self).__dict__:
@@ -42,20 +89,7 @@ class CachingTrait:
                 log.debug("Found trait data on instance'{}'".format(key))
                 self._trait_dict[key] = obj.fload(self)
 
-        try:
-            self.cleanup()
-        except AttributeError:
-            pass
-
-    # def __enter__(self):
-    #     return self
-    #
-    # def __exit__(self, exc_type, exc_val, exc_tb):
-    #     try:
-    #         self.cleanup()
-    #         self._cleaned_up = True
-    #     except AttributeError:
-    #         pass
+        self.cleanup()
 
     def as_bytes(self):
         """Return a representation of this TraitProperty as a serialized string of bytes"""
@@ -64,11 +98,11 @@ class CachingTrait:
             pickle.dump(dict_to_serialize, byte_file)
             return byte_file.getvalue()
 
-class Measurement(AbstractMeasurement): pass
+class Measurement(Trait, AbstractMeasurement): pass
 
 class Velocity(Measurement): pass
 
-class Map(AbstractBaseArrayTrait):
+class Map(Trait, AbstractBaseArrayTrait):
     """Maps provide "relative spatial information", i.e. they add spatial
     information to existing data, such as a set of spectra or classifications.
     For relative spatial information to be meaningful, there must be at least
@@ -89,7 +123,7 @@ class Map(AbstractBaseArrayTrait):
         return self._nominal_position
     
 
-class Spectrum(AbstractBaseArrayTrait, Measurement): pass
+class Spectrum(Measurement, AbstractBaseArrayTrait): pass
 
 class Epoch(Measurement):
 
@@ -98,13 +132,13 @@ class Epoch(Measurement):
         return self
 
 
-class TimeSeries(AbstractBaseArrayTrait, Epoch): pass
+class TimeSeries(Epoch, AbstractBaseArrayTrait): pass
 
 
 class Image(Map): pass
 
 
-class SpectralMap(AbstractBaseArrayTrait, CachingTrait):
+class SpectralMap(Trait, AbstractBaseArrayTrait):
 
     def name(self):
         raise NotImplementedError
@@ -122,6 +156,6 @@ class SpectralMap(AbstractBaseArrayTrait, CachingTrait):
         raise NotImplementedError
 
 
-
+class Classification(Trait, AbstractBaseClassification): pass
 
 

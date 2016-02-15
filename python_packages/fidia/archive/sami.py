@@ -28,7 +28,7 @@ from ..galaxy import Galaxy
 from ..utilities import WildcardDictionary
 
 from ..traits.utilities import TraitKey, TraitMapping, trait_property
-from ..traits.base_traits import SpectralMap, Image, CachingTrait
+from ..traits.base_traits import SpectralMap, Image
 from ..traits.galaxy_traits import VelocityMap
 
 
@@ -211,7 +211,7 @@ class SAMIRowStackedSpectra(SpectralMap):
 
         self._rss_fits_filepath = possible_paths[0]
 
-        super(SAMIRowStackedSpectra, self).__init__(trait_key)
+        super(SAMIRowStackedSpectra, self).__init__(archive, trait_key)
 
     def preload(self):
         self._hdu = fits.open(self._rss_fits_filepath)
@@ -340,7 +340,7 @@ class SAMISpectralCube(SpectralMap):
 
         self._cube_path = paths[0]
 
-        super(SAMISpectralCube, self).__init__(trait_key)
+        super(SAMISpectralCube, self).__init__(archive, trait_key)
 
     def preload(self):
         self.hdu = fits.open(self._cube_path)
@@ -427,16 +427,7 @@ class SAMISpectralCube(SpectralMap):
         w = wcs.WCS(h)
         return w.to_header_string()
 
-class LZIFUVelocityMap(VelocityMap, CachingTrait):
-
-    def __init__(self, archive, trait_key):
-        self.archive = archive
-        self._trait_key = trait_key
-        self.object_id = trait_key.object_id
-        self._trait_name = trait_key.trait_name
-
-        super().__init__()
-
+class LZIFUVelocityMap(VelocityMap):
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -458,7 +449,7 @@ class LZIFUVelocityMap(VelocityMap, CachingTrait):
     def variance(self):
         return self._hdu['V_ERR'].data[1, :, :]
 
-class LZIFULineMap(Image, CachingTrait):
+class LZIFULineMap(Image):
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -473,14 +464,6 @@ class LZIFULineMap(Image, CachingTrait):
         'SII6716': 'SII6716',
         'SII6731': 'SII6731'
     }
-
-    def __init__(self, archive, trait_key):
-        self.archive = archive
-        self._trait_key = trait_key
-        self.object_id = trait_key.object_id
-        self._trait_name = trait_key.trait_name
-
-        super().__init__()
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -511,14 +494,6 @@ class LZIFULineMap(Image, CachingTrait):
 
 class LZIFUContinuum(SpectralMap):
 
-    def __init__(self, archive, trait_key):
-        self.archive = archive
-        self._trait_key = trait_key
-        self.object_id = trait_key.object_id
-        self._trait_name = trait_key.trait_name
-
-        super().__init__(trait_key)
-
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
                            "/lzifu_releasev0.9/1_comp/" +
@@ -540,14 +515,6 @@ class LZIFUContinuum(SpectralMap):
         self._hdu[color + '_CONTINUUM']
 
 class LZIFULineSpectrum(SpectralMap):
-
-    def __init__(self, archive, trait_key):
-        self.archive = archive
-        self._trait_key = trait_key
-        self.object_id = trait_key.object_id
-        self._trait_name = trait_key.trait_name
-
-        super().__init__(trait_key)
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
