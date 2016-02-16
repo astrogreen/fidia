@@ -1,35 +1,28 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .. import slogging
-log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
-#log.enable_console_logging()
-
-import re
 from glob import glob
 import os.path
 import datetime
 import re
-
-import pickle
+import itertools
 
 from astropy import wcs
 from astropy.io import fits
-import pandas as pd
-
-import numpy
-from io import BytesIO
 
 # FIDIA Relative Imports
 from fidia import *
 from .archive import Archive
-from ..galaxy import Galaxy
 
 from ..utilities import WildcardDictionary
 
-from ..traits.utilities import TraitKey, TraitMapping, trait_property
+from ..traits.utilities import TraitKey, trait_property
 from ..traits.base_traits import SpectralMap, Image
 from ..traits.galaxy_traits import VelocityMap
+
+from .. import slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.DEBUG)
+#log.enable_console_logging()
 
 
 # SAMI Cube file and plate ID regular expressions
@@ -137,7 +130,7 @@ class SAMIRowStackedSpectra(SpectralMap):
 
     """
 
-    trait_name = 'rss_map'
+    trait_type = 'rss_map'
 
     @classmethod
     def known_keys(cls, archive, object_id=None):
@@ -170,7 +163,7 @@ class SAMIRowStackedSpectra(SpectralMap):
                         break
                     else:
                         index += 1
-                        known_keys.add(TraitKey(cls.trait_name, run_id + ":" + rss_filename, object_id=object_id))
+                        known_keys.add(TraitKey(cls.trait_type, run_id + ":" + rss_filename, object_id=object_id))
             # Break out of the loop early for debuging purposes:
             if len(known_keys) > 50:
                 break
@@ -246,7 +239,7 @@ class SAMISpectralCube(SpectralMap):
 
     """
 
-    trait_name = 'spectral_cube'
+    trait_type = 'spectral_cube'
 
     @classmethod
     def known_keys(cls, archive, object_id=None):
@@ -289,7 +282,7 @@ class SAMISpectralCube(SpectralMap):
             binning = "10"
         else:
             Exception("Unknown binning scheme found")
-        return TraitKey(cls.trait_name, color + "." + binning, plate_id, sami_id)
+        return TraitKey(cls.trait_type, color + "." + binning, plate_id, sami_id)
 
     def __init__(self, archive, trait_key):
         self.object_id = trait_key.object_id
@@ -427,19 +420,45 @@ class SAMISpectralCube(SpectralMap):
         w = wcs.WCS(h)
         return w.to_header_string()
 
+
 class LZIFUVelocityMap(VelocityMap):
+
+    trait_type = "velocity_map"
+
+    @classmethod
+    def known_keys(cls, archive, object_id=None):
+        """Return a list of unique identifiers which can be used to retrieve actual data."""
+
+        if object_id is None:
+            # Return a list for all possible data
+            known_keys = []
+            for id in archive.contents:
+                known_keys.append(TraitKey(cls.trait_type, 'lzifu', None, id))
+        else:
+            # Only asked for data for a particular object_id
+            known_keys = [TraitKey(cls.trait_type, 'lzifu', None, object_id)]
+        return known_keys
+
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
                            "/lzifu_releasev0.9/1_comp/" +
                            self.object_id + "_1_comp.fits.gz")
-        self._hdu = fits.open(lzifu_fits_file)
+        try:
+            self._hdu = fits.open(lzifu_fits_file)
+        except:
+            raise DataNotAvailable("No LZIFU data for SAMI ID '%s'" % self.object_id)
 
     def cleanup(self):
         self._hdu.close()
 
+    @property
     def shape(self):
         return self.value.shape
+
+    @property
+    def unit(self):
+        return None
 
     @trait_property('bytes.ndarray')
     def value(self):
@@ -449,7 +468,10 @@ class LZIFUVelocityMap(VelocityMap):
     def variance(self):
         return self._hdu['V_ERR'].data[1, :, :]
 
+
 class LZIFULineMap(Image):
+
+    trait_type = 'line_map'
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -465,6 +487,21 @@ class LZIFULineMap(Image):
         'SII6731': 'SII6731'
     }
 
+    @classmethod
+    def known_keys(cls, archive, object_id=None):
+        """Return a list of unique identifiers which can be used to retrieve actual data."""
+
+        if object_id is None:
+            # Return a list for all possible data
+            known_keys = []
+            for id, line in itertools.product(archive.contents, cls.line_name_map):
+                known_keys.append(TraitKey(cls.trait_type, line, None, id))
+        else:
+            # Only asked for data for a particular object_id
+            for line in cls.line_name_map:
+                known_keys = [TraitKey(cls.trait_type, line, None, object_id)]
+        return known_keys
+
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
                            "/lzifu_releasev0.9/1_comp/" +
@@ -474,6 +511,7 @@ class LZIFULineMap(Image):
     def cleanup(self):
         self._hdu.close()
 
+    @property
     def shape(self):
         return self.value.shape
 
@@ -482,17 +520,36 @@ class LZIFULineMap(Image):
 
     @trait_property('bytes.ndarray')
     def value(self):
-        value = self._hdu[self.line_map_name[self._trait_name]].data[1, :, :]
+        value = self._hdu[self.line_name_map[self._trait_name]].data[1, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('bytes.ndarray')
     def variance(self):
-        variance = self._hdu[self.line_map_name[self._trait_name] + '_ERR'].data[1, :, :]
+        variance = self._hdu[self.line_name_map[self._trait_name] + '_ERR'].data[1, :, :]
         log.debug("Returning type: %s", type(variance))
         return variance
 
+
 class LZIFUContinuum(SpectralMap):
+
+    trait_type = 'spectral_continuum_cube'
+
+    @classmethod
+    def known_keys(cls, archive, object_id=None):
+        """Return a list of unique identifiers which can be used to retrieve actual data."""
+
+        if object_id is None:
+            # Return a list for all possible data
+            known_keys = []
+            for id, color in itertools.product(archive.contents, ('red', 'blue')):
+                known_keys.append(TraitKey(cls.trait_type, color, None, id))
+        else:
+            # Only asked for data for a particular object_id
+            for color in ('red', 'blue'):
+                known_keys = [TraitKey(cls.trait_type, color, None, object_id)]
+        return known_keys
+
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -503,6 +560,10 @@ class LZIFUContinuum(SpectralMap):
     def cleanup(self):
         self._hdu.close()
 
+    @property
+    def shape(self):
+        return self.value.shape
+
     @trait_property('bytes.ndarray')
     def value(self):
         # Determine which colour:
@@ -512,10 +573,29 @@ class LZIFUContinuum(SpectralMap):
             color = "R"
         else:
             raise ValueError("unknown trait name")
-        self._hdu[color + '_CONTINUUM']
+        return self._hdu[color + '_CONTINUUM'].data
+
 
 class LZIFULineSpectrum(SpectralMap):
 
+    trait_type = 'spectral_line_cube'
+
+    @classmethod
+    def known_keys(cls, archive, object_id=None):
+        """Return a list of unique identifiers which can be used to retrieve actual data."""
+
+        if object_id is None:
+            # Return a list for all possible data
+            known_keys = []
+            for id, color in itertools.product(archive.contents, ('red', 'blue')):
+                known_keys.append(TraitKey(cls.trait_type, color, None, id))
+        else:
+            # Only asked for data for a particular object_id
+            for color in ('red', 'blue'):
+                known_keys = [TraitKey(cls.trait_type, color, None, object_id)]
+        return known_keys
+
+
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
                            "/lzifu_releasev0.9/1_comp/" +
@@ -524,6 +604,10 @@ class LZIFULineSpectrum(SpectralMap):
 
     def cleanup(self):
         self._hdu.close()
+
+    @property
+    def shape(self):
+        return self.value.shape
 
     @trait_property('bytes.ndarray')
     def value(self):
@@ -534,7 +618,8 @@ class LZIFULineSpectrum(SpectralMap):
             color = "R"
         else:
             raise ValueError("unknown trait name")
-        self._hdu[color + '_LINE']
+        return self._hdu[color + '_LINE'].data
+
 
 class SAMITeamArchive(Archive):
 
@@ -547,7 +632,6 @@ class SAMITeamArchive(Archive):
         self._trait_cache = dict()
 
         super(SAMITeamArchive, self).__init__()
-
 
     @property
     def contents(self):
@@ -581,14 +665,16 @@ class SAMITeamArchive(Archive):
     def define_available_traits(self):
 
         # Trait 'spectral_cube'
-        self.available_traits[TraitKey(SAMISpectralCube.trait_name, None, None, None)] = SAMISpectralCube
+        self.available_traits[TraitKey(SAMISpectralCube.trait_type, None, None, None)] = SAMISpectralCube
         # Trait 'rss_map'
-        self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_name, None, None, None)] = SAMIRowStackedSpectra
+        self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
 
         # LZIFU Items
 
         self.available_traits[TraitKey('velocity_map', None, None, None)] = LZIFUVelocityMap
         self.available_traits[TraitKey('line_map', None, None, None)] = LZIFULineMap
+        self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
+        self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")

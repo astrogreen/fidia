@@ -224,20 +224,25 @@ class TraitProperty(object):
 
         log.debug("Loading data for get for TraitProperty '%s'", self.name)
 
-        # Call Trait `preload` if present.
         try:
-            obj.preload()
-        except KeyError:
-            pass
 
-        # Call the actual user defined loader function to get the value of the TraitProperty.
-        value = self.fload(obj)
-
-        # Call Trait `cleanup` if present
-        try:
-            obj.cleanup()
-        except KeyError:
-            pass
+            # Call Trait `preload` if present.
+            try:
+                obj.preload()
+            except KeyError:
+                pass
+            # Call the actual user defined loader function to get the value of the TraitProperty.
+            value = self.fload(obj)
+        except DataNotAvailable:
+            raise
+        except:
+            raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
+        finally:
+            # Call Trait `cleanup` if present
+            try:
+                obj.cleanup()
+            except KeyError:
+                pass
 
         return value
 

@@ -1,16 +1,9 @@
 import pytest
 
-import random
 import numpy
-import fidia
 from fidia.archive import sami
 
-from fidia.traits.utilities import TraitKey
-from fidia.traits.abstract_base_traits import AbstractBaseTrait
-
-class TestSAMIArchive:
-
-
+class TestSAMILZIFU:
 
     @pytest.fixture
     def sami_archive(self):
@@ -23,9 +16,32 @@ class TestSAMIArchive:
     def sami_sample(self, sami_archive):
         return sami_archive.get_full_sample()
 
+
+
     def test_lzifu_velocity_map(self, sami_sample):
         vmap = sami_sample['28860']['velocity_map']
 
         assert isinstance(vmap.value, numpy.ndarray)
 
-        assert vmap.shape() == (50, 50)
+        assert vmap.shape == (50, 50)
+
+    def test_lzifu_ha_map(self, sami_sample):
+        themap = sami_sample['28860']['line_map', 'HALPHA']
+
+        assert isinstance(themap.value, numpy.ndarray)
+
+        assert themap.shape == (50, 50)
+
+    def test_lzifu_continuum_cube(self, sami_sample):
+        themap = sami_sample['28860']['spectral_continuum_cube', 'red']
+
+        assert isinstance(themap.value, numpy.ndarray)
+
+        assert themap.shape == (2048, 50, 50)
+
+    def test_lzifu_line_cube(self, sami_sample):
+        themap = sami_sample['28860']['spectral_line_cube', 'blue']
+
+        assert isinstance(themap.value, numpy.ndarray)
+
+        assert themap.shape == (2048, 50, 50)

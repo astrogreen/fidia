@@ -7,6 +7,7 @@ from fidia.archive import sami
 
 from fidia.traits.utilities import TraitKey
 from fidia.traits.abstract_base_traits import AbstractBaseTrait
+from fidia.exceptions import DataNotAvailable
 
 class TestSAMIArchive:
 
@@ -114,4 +115,9 @@ class TestSAMIArchive:
         rss_keys = sami_archive.known_trait_keys()
         sample = sami_archive.get_full_sample()
         for key in random.sample(rss_keys, 10):
-            assert isinstance(sample[key.object_id][key], AbstractBaseTrait)
+            try:
+                trait = sample[key.object_id][key]
+            except DataNotAvailable:
+                continue
+            else:
+                assert isinstance(trait, AbstractBaseTrait)

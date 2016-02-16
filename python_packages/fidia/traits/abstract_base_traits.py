@@ -32,16 +32,19 @@ https://dbader.org/blog/abstract-base-classes-in-python
 
 from abc import ABCMeta, abstractproperty, abstractclassmethod
 
-from .utilities import TraitProperty
-
-class AbstractBaseTrait():
+class AbstractBaseTrait(metaclass=ABCMeta):
 
     @abstractclassmethod
     def schema(cls):
         raise NotImplementedError
 
+    @abstractclassmethod
+    def known_keys(cls, object_id):
+        raise NotImplementedError
+
     @abstractproperty
-    def value(self): raise NotImplementedError
+    def value(self):
+        raise NotImplementedError
 
     # @abstractproperty
     # def description(self): raise NotImplementedError

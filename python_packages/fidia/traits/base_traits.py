@@ -2,6 +2,8 @@ import pickle
 from io import BytesIO
 
 from .abstract_base_traits import *
+from ..exceptions import DataNotAvailable
+from .utilities import TraitProperty
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -71,25 +73,37 @@ class Trait(AbstractBaseTrait):
     def _realise(self):
         """Search through the objects members for TraitProperties, and preload any found.
 
+
         """
 
         log.debug("Realising...")
-        self.preload()
 
-        # Search class attributes:
-        for key in type(self).__dict__:
-            obj = type(self).__dict__[key]
-            if isinstance(obj, TraitProperty):
-                log.debug("Found trait data on class '{}'".format(key))
-                self._trait_dict[key] = obj.fload(self)
-        # Search instance attributes:
-        for key in self.__dict__:
-            obj = self.__dict__[key]
-            if isinstance(obj, TraitProperty):
-                log.debug("Found trait data on instance'{}'".format(key))
-                self._trait_dict[key] = obj.fload(self)
+        # @TODO: The try/except block here is messy, and probably would catch things it's not supposed to.
 
-        self.cleanup()
+        try:
+            self.preload()
+
+            # Search class attributes:
+            for key in type(self).__dict__:
+                obj = type(self).__dict__[key]
+                if isinstance(obj, TraitProperty):
+                    log.debug("Found trait data on class '{}'".format(key))
+                    self._trait_dict[key] = obj.fload(self)
+            # Search instance attributes:
+            for key in self.__dict__:
+                obj = self.__dict__[key]
+                if isinstance(obj, TraitProperty):
+                    log.debug("Found trait data on instance'{}'".format(key))
+                    self._trait_dict[key] = obj.fload(self)
+        except DataNotAvailable:
+            raise
+        except:
+            raise DataNotAvailable("Error in preload for trait '%s'" % self.__class__)
+        finally:
+            try:
+                self.cleanup()
+            except:
+                pass
 
     def as_bytes(self):
         """Return a representation of this TraitProperty as a serialized string of bytes"""
