@@ -45,6 +45,11 @@ class Trait(AbstractBaseTrait):
         self.object_id = trait_key.object_id
         self._trait_name = trait_key.trait_name
 
+        # The preload count is used to track how many accesses there are to this
+        # trait so that it can be properly cleaned up when all loads are
+        # complete.
+        self._preload_count = 0
+
         if loading not in ('eager', 'lazy', 'verylazy'):
             raise ValueError("loading keyword must be one of ('eager', 'lazy', 'verylazy')")
         self._loading = loading
@@ -70,6 +75,30 @@ class Trait(AbstractBaseTrait):
         """
         pass
 
+    def _load_incr(self):
+        """Internal function to handle preloading. Prevents a Trait being loaded multiple times.
+
+        This function should be called prior to anything which requires calling
+        TraitProperty loaders, typically only by the TraitProperty object
+        itself.
+        """
+        assert self._preload_count >= 0
+        if self._preload_count == 0:
+            self.preload()
+        self._preload_count += 1
+
+    def _load_decr(self):
+        """Internal function to handle cleanup.
+
+        This function should be called after anything which requires calling
+        TraitProperty loaders, typically only by the TraitProperty object
+        itself.
+        """
+        assert self._preload_count > 0
+        if self._preload_count == 1:
+            self.cleanup()
+        self._preload_count -= 1
+
     def _realise(self):
         """Search through the objects members for TraitProperties, and preload any found.
 
@@ -81,18 +110,18 @@ class Trait(AbstractBaseTrait):
         # @TODO: The try/except block here is messy, and probably would catch things it's not supposed to.
 
         try:
-            self.preload()
+            self._load_incr()
 
             # Search class attributes:
             for key in type(self).__dict__:
                 obj = type(self).__dict__[key]
-                if isinstance(obj, TraitProperty):
+                if isinstance(obj, TraitProperty) and key not in self._trait_dict:
                     log.debug("Found trait data on class '{}'".format(key))
                     self._trait_dict[key] = obj.fload(self)
             # Search instance attributes:
             for key in self.__dict__:
                 obj = self.__dict__[key]
-                if isinstance(obj, TraitProperty):
+                if isinstance(obj, TraitProperty) and key not in self._trait_dict:
                     log.debug("Found trait data on instance'{}'".format(key))
                     self._trait_dict[key] = obj.fload(self)
         except DataNotAvailable:
@@ -101,7 +130,7 @@ class Trait(AbstractBaseTrait):
             raise DataNotAvailable("Error in preload for trait '%s'" % self.__class__)
         finally:
             try:
-                self.cleanup()
+                self._load_decr()
             except:
                 pass
 

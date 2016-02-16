@@ -226,11 +226,9 @@ class TraitProperty(object):
 
         try:
 
-            # Call Trait `preload` if present.
-            try:
-                obj.preload()
-            except KeyError:
-                pass
+            # Preload the Trait if necessary.
+            obj._load_incr()
+
             # Call the actual user defined loader function to get the value of the TraitProperty.
             value = self.fload(obj)
         except DataNotAvailable:
@@ -238,11 +236,8 @@ class TraitProperty(object):
         except:
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
-            # Call Trait `cleanup` if present
-            try:
-                obj.cleanup()
-            except KeyError:
-                pass
+            # Cleanup the Trait if necessary.
+            obj._load_incr()
 
         return value
 
