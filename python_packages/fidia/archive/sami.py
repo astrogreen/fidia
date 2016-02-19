@@ -9,6 +9,10 @@ import itertools
 from astropy import wcs
 from astropy.io import fits
 
+import pandas as pd
+
+from cached_property import cached_property
+
 # FIDIA Relative Imports
 from fidia import *
 from .archive import Archive
@@ -21,8 +25,8 @@ from ..traits.galaxy_traits import VelocityMap
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
-#log.enable_console_logging()
+log.setLevel(slogging.WARNING)
+log.enable_console_logging()
 
 
 # SAMI Cube file and plate ID regular expressions
@@ -70,6 +74,20 @@ sami_cube_re = re.compile(
         (?P<n_comb>\d+)_
         (?P<plate_id>%s)
         (?:_(?P<binning>1sec))?""" % sami_plate_re.pattern, re.VERBOSE)
+
+def full_path_split(path):
+    # Snippit from:
+    # http://stackoverflow.com/questions/3167154/how-to-split-a-dos-path-into-its-components-in-python
+    folders = []
+    while 1:
+        path, folder = os.path.split(path)
+        if folder != "":
+            folders.append(folder)
+        else:
+            break
+
+    folders.reverse()
+    return folders
 
 def find_all_cubes_for_id(base_directory, sami_id):
     log.debug("Finding cubes for id '%s'", sami_id)
@@ -119,6 +137,30 @@ def obs_date_run_filename(run_id, filename):
         rss_date = rss_date.replace(year=start_date.year)
 
     return rss_date
+
+def cube_info_from_path(path):
+    info = dict()
+    info['filename'] = os.path.basename(path)
+    log.debug("Filename: %s", info['filename'])
+    matches = sami_cube_re.match(info['filename'])
+    if matches is None:
+        raise ValueError("Path '%s' does not appear to be a SAMI cube." % path)
+    info['sami_id'] = matches.group('sami_id')
+    info['color'] = matches.group('color')
+    info['n_comb'] = matches.group('n_comb')
+    info['plate_id'] = matches.group('plate_id')
+    binning = matches.group('binning')
+    log.debug("Binning is %s", binning)
+    if binning is None:
+        info['binning'] = "05"
+    elif binning == "1sec":
+        info['binning'] = "10"
+    else:
+        Exception("Unknown binning scheme found")
+    info['run_id'] = full_path_split(path)[-4]
+    info['path'] = path
+    return info
+
 
 class SAMIRowStackedSpectra(SpectralMap):
     """Load SAMI RSS data.
@@ -231,12 +273,18 @@ class SAMIRowStackedSpectra(SpectralMap):
 class SAMISpectralCube(SpectralMap):
     """Load a SAMI Data cube.
 
-    TraitName is "color.plate_id.binning":
+    TraitName is "color.binning":
 
         color: (red|blue)
-        plate_id: ex. Y15SAR3_P002_12T085
-        binning: (05|10)
+        binning*: (05|10)
 
+        * The binning is optional: if it is omitted, a default will be set.
+
+    TraitVersion is "plate_id":
+
+        plate_id: ex. Y15SAR3_P002_12T085
+
+        The plate_id is optional, if ommitted, then a default will be chosen.
     """
 
     trait_type = 'spectral_cube'
@@ -244,6 +292,8 @@ class SAMISpectralCube(SpectralMap):
     @classmethod
     def known_keys(cls, archive, object_id=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
+
+        # @TODO: This still uses old code to determine the available keys instead of the cube_directory.
 
         if object_id is None:
             # Return a list for all possible data
@@ -258,80 +308,54 @@ class SAMISpectralCube(SpectralMap):
         known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
         return known_keys
 
-    @staticmethod
-    def _cube_path_from_traitkey(trait_key):
-        pass
-
     @classmethod
     def _traitkey_from_cube_path(cls, path):
-        # run_id = path.split("/")[0]
-        filename = os.path.basename(path)
-        log.debug("Filename: %s", filename)
-        matches = sami_cube_re.match(filename)
-        if matches is None:
-            raise ValueError("Path '%s' does not appear to be a SAMI cube." % path)
-        sami_id = matches.group('sami_id')
-        color = matches.group('color')
-        n_comb = matches.group('n_comb')
-        plate_id = matches.group('plate_id')
-        binning = matches.group('binning')
-        log.debug("Binning is %s", binning)
-        if binning is None:
-            binning = "05"
-        elif binning == "1sec":
-            binning = "10"
-        else:
-            Exception("Unknown binning scheme found")
-        return TraitKey(cls.trait_type, color + "." + binning, plate_id, sami_id)
+        info = cube_info_from_path(path)
+        return TraitKey(cls.trait_type, info['color'] + "." + info['binning'], info['plate_id'], info['sami_id'])
 
     def __init__(self, archive, trait_key):
-        self.object_id = trait_key.object_id
         self.archive = archive
+        self.trait_key = trait_key
+        self.object_id = trait_key.object_id
         self._trait_name = trait_key.trait_name
-        self._color = trait_key.trait_name.split(".")[0]
-        self._binning = trait_key.trait_name.split(".")[1]
-        self._plate_id = trait_key.version
 
-        if self._binning not in ("05", "10"):
-            raise DataNotAvailable("SAMISpectralCube data not available for {}".format(trait_key))
-
-        # available_cubes = find_all_cubes_for_id(self.archive._base_directory_path, self.object_id)
-        # log.debug("Finding cube for id: %s, color: %s, plate: %s, binning: %s",
-        #           self.object_id, self._color, self._plate_id, self._binning)
-        # try:
-        #     self.run_id, self.cube_file = available_cubes[(self.object_id, self._color, self._plate_id, self._binning)]
-        # except KeyError:
-        #     raise DataNotAvailable("SAMISpectralCube data not available for %s", trait_key) from None
-
-
-        # Cube paths look like:
-        #   /basedir/2014_04_24-2014_05_04/cubed/41144/41144_blue_7_Y14SAR3_P004_12T055_1sec.fits.gz
-        cube_path_pattern = self.archive._base_directory_path + "/*/cubed/"
-        cube_path_pattern += self.object_id + "/" + self.object_id + "_" + self._color
-        # Number of combines
-        cube_path_pattern += "_*"
-        if self._plate_id is None:
-            # Wildcard on plate_id
-            # Y<year>S<semester>R<obsrun>_P<platenumber>_<field1Region><field1Tile>
-            cube_path_pattern += "_Y??S?R*_P*_*T???"
+        # Get necessary parameters from the trait_name, filling in defaults if necessary
+        trait_name_split = trait_key.trait_name.split(".")
+        if len(trait_name_split) > 0:
+            # First item is the color:
+            self._color = trait_name_split[0]
         else:
-            cube_path_pattern += "_" + self._plate_id
-        # Binning
-        if self._binning == "05":
-            cube_path_pattern += ".fits.gz"
-        elif self._binning == "10":
-            cube_path_pattern += "_1sec.fits.gz"
-        paths = glob(cube_path_pattern)
+            raise Exception("Programming error")
+        if len(trait_name_split) > 1:
+            # Second item is the binning (optional, defaults to 05):
+            self._binning = trait_key.trait_name.split(".")[1]
+        else:
+            self._binning = "05"
 
-        if len(paths) < 1:
-            log.debug("Less than one cube file found: %s", paths)
+        # Get necessary parameters from the trait_version, filling in defaults if necessary
+        if trait_key.version is None:
+            # Default requested. For now, we simply choose the first item
+            # appearing in the archive's cube_directory.
+            self._plate_id = self.archive._cubes_directory.ix[self.object_id, self._color, self._binning]\
+                .reset_index()['plate_id'].iloc[0]
+        else:
+            self._plate_id = trait_key.version
+
+        # Confirm the requested data actually exists:
+        try:
+            path = self.archive._cubes_directory.ix[self.object_id, self._color, self._binning, self._plate_id]['path']
+        except KeyError:
+            log.error("Cannot retrieve cube info for key %s",
+                      [self.object_id, self._color, self._binning, self._plate_id])
             raise DataNotAvailable("SAMISpectralCube data not available for {}".format(trait_key))
-        elif len(paths) > 1:
-            log.debug("More than one cube file found: %s", paths)
-            raise MultipleResults("Multiple SAMISpectralCubes available for {}, please specify version.".format(trait_key))
+        else:
+            if not isinstance(path, str):
+                log.debug("Something's wrong, `path` is not a string?!, probably: ")
+                log.debug("More than one cube file found for TraitKey %s", trait_key)
+                raise MultipleResults("Multiple SAMISpectralCubes available for {}.".format(trait_key))
 
-
-        self._cube_path = paths[0]
+        self._cube_path = self.archive._cubes_directory\
+            .ix[self.object_id, self._color, self._binning, self._plate_id]['path']
 
         super(SAMISpectralCube, self).__init__(archive, trait_key)
 
@@ -419,6 +443,10 @@ class SAMISpectralCube(SpectralMap):
         del h['PLATEID']
         w = wcs.WCS(h)
         return w.to_header_string()
+
+    @cached_property
+    def wcs(self):
+        return wcs.WCS(self.wcs_string)
 
 
 class LZIFUVelocityMap(VelocityMap):
@@ -628,6 +656,8 @@ class SAMITeamArchive(Archive):
         self._master_catalog_path = master_catalog_path
         self._contents = None
 
+        self._cubes_directory = self._get_cube_info()
+
         # Local cache for traits
         self._trait_cache = dict()
 
@@ -642,6 +672,18 @@ class SAMITeamArchive(Archive):
                 self._contents = list(map(str, m[1].data['CATID']))
         return self._contents
 
+    def _get_cube_info(self):
+        cube_file_paths = []
+        for id in self.contents:
+             cube_file_paths.extend(glob(self._base_directory_path + "*/cubed/" + id + "/*.fits*"))
+        cube_directory = []
+        for path in cube_file_paths:
+            info = cube_info_from_path(path)
+            cube_directory.append(info)
+        cube_directory = pd.DataFrame(cube_directory)
+        cube_directory.set_index(['sami_id', 'color', 'binning', 'plate_id'], inplace=True)
+        return cube_directory
+
     def data_available(self, object_id=None):
         if object_id is None:
             raise NotImplementedError("Don't know what data is available for the whole survey.")
@@ -652,7 +694,7 @@ class SAMITeamArchive(Archive):
 
     def _cubes_available(self):
         """Generate a list of objects which have "cubed" directories."""
-        cube_ids = map(os.path.basename,glob(self._base_directory_path + "*/cubed/*"))
+        cube_ids = map(os.path.basename, glob(self._base_directory_path + "*/cubed/*"))
 
         # Note, there may be duplicates; the following prints a list of duplicates
         #print [item for item, count in collections.Counter(cube_ids).items() if count > 1]

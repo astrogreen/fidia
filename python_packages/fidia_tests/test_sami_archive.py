@@ -59,10 +59,15 @@ class TestSAMIArchive:
         t = sami_sample['23117']['spectral_cube', 'blue.10']
         assert isinstance(t.value, numpy.ndarray)
 
-    def test_multiple_data_available(self, sami_sample):
-        # SAMI galaxy 41144 has multiple observations on different runs.
-        with pytest.raises(fidia.MultipleResults):
-            sami_sample['41144']['spectral_cube', 'red.10']
+    # This test is disabled because currently the code has been written to
+    # always return a default (as this is what is needed for SAMI). How to
+    # handle defaults and multiple versions still needs to be sorted out.
+    # @TODO: Defaults
+
+    # def test_multiple_data_available(self, sami_sample):
+    #     # SAMI galaxy 41144 has multiple observations on different runs.
+    #     with pytest.raises(fidia.MultipleResults):
+    #         sami_sample['41144']['spectral_cube', 'red.10']
 
     def test_attempt_retrieve_data_not_available(self, sami_sample):
         sami_sample.get_archive_id(sami_sample.get_archive_for_property('spectral_cube'),'41144')
