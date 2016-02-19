@@ -211,6 +211,8 @@ class TraitProperty(object):
     def loader(self, fload):
         self.name = fload.__name__
         log.debug("Setting loader for TraitProperty '%s'", self.name)
+        if self.__doc__ is None:
+            self.__doc__ = fload.__doc__
         self.fload = fload
         return self
 

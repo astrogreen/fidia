@@ -6,7 +6,7 @@ from fidia.archive import MemoryArchive, BaseArchive
 from fidia.archive.archive import Archive
 from fidia.traits.utilities import TraitKey, TraitMapping, trait_property
 from fidia.traits.base_traits import SpectralMap
-
+from fidia.exceptions import DataNotAvailable
 
 class TestArchive:
 
@@ -17,7 +17,13 @@ class TestArchive:
 
             def __init__(self, archive, trait_key):
                 self._object_id = trait_key.object_id
-                super().__init__(trait_key)
+                if trait_key.trait_name != 'mymap':
+                    raise DataNotAvailable("ExampleSpectraMap only has 'mymap' data.")
+                super().__init__(archive, trait_key)
+
+            @classmethod
+            def known_keys(cls, object_id):
+                return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
 
             def preload(self):
                 # Make an object have typically the same random data.
@@ -33,6 +39,7 @@ class TestArchive:
 
             @trait_property('float.array')
             def value(self):
+                """TheSpectralMapDocumentation"""
                 assert not self._clean
                 return np.random.random((3, 5, 10))
             @trait_property('float.array')
@@ -49,7 +56,11 @@ class TestArchive:
 
             def __init__(self, archive, trait_key):
                 self._object_id = trait_key.object_id
-                super().__init__(trait_key)
+                super().__init__(archive, trait_key)
+
+            @classmethod
+            def known_keys(cls, object_id):
+                return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
 
             def preload(self):
                 # Make an object have typically the same random data.
@@ -128,7 +139,7 @@ class TestArchive:
 
     def test_trait_has_data(self, simple_archive):
         sample = simple_archive().get_full_sample()
-        trait = sample['Gal1']['spectral_map']
+        trait = sample['Gal1']['spectral_map', 'mymap']
         trait.value
         assert isinstance(trait.value, np.ndarray)
 
@@ -153,8 +164,10 @@ class TestArchive:
         assert schema == {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}
 
 
-    def test_trait_inherited_has_correct_schema(self, example_spectral_map_with_extra_inherit):
-        schema = example_spectral_map_with_extra_inherit.schema()
+    def test_trait_inherited_has_correct_schema(self, simple_archive):
+        ar = simple_archive()
+        trait = ar.available_traits[TraitKey('spectral_map', 'extra')]
+        schema = trait.schema()
         assert schema == {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}
 
     def test_archive_has_correct_schema(self, simple_archive):
@@ -168,3 +181,10 @@ class TestArchive:
         m = MemoryArchive()
         assert isinstance(m, BaseArchive)
 
+    # Trait related tests:
+
+    def test_trait_documentation(self, simple_archive):
+        sample = simple_archive().get_full_sample()
+        trait = sample['Gal1']['spectral_map', 'mymap']
+
+        assert type(trait).value.__doc__ == "TheSpectralMapDocumentation"
