@@ -1,6 +1,7 @@
 
 import collections
 
+from .traits.utilities import TraitKey
 
 class AstronomicalObject(collections.MutableMapping):
 
@@ -35,7 +36,7 @@ class AstronomicalObject(collections.MutableMapping):
     @property
     def dec(self):
         return self._dec
-    
+
 
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
@@ -49,11 +50,25 @@ class AstronomicalObject(collections.MutableMapping):
             # We have been asked for more than one property, will return tabular data?
             # @TODO!
             raise Exception("List indexing behaviour not implemented.")
-        else:
-            raise Exception("Key indexing behaviour not implemented.")
+        elif isinstance(key, TraitKey) or isinstance(key, tuple) or isinstance(key, str):
+            if isinstance(key, tuple):
+                key = TraitKey(*key)
+            if isinstance(key, str):
+                key = TraitKey(key)
+            #raise Exception("Key indexing behaviour not implemented.")
             # # Asked for a single property
             # archive = self.sample.get_archive_for_property(key)
             # archive.data.loc[self._archive_id[archive]][key]
+
+            archive = self.sample.get_archive_for_property(key)
+
+            archive_id = self.sample.get_archive_id(archive, self.identifier)
+            # get_trait provides a reference to a cached copy of the trait held by the archive.
+            # It may be necessary to actually save a reference in this object when it comes to
+            # object storage.
+            return archive.get_trait(archive_id, key)
+        else:
+            raise Exception("Whoops!")
 
     def __setitem__(self, key, value):
         pass
@@ -62,10 +77,16 @@ class AstronomicalObject(collections.MutableMapping):
         pass
 
     def keys(self):
-        pass
+        """Provide a list of (presumed) valid TraitKeys for this object"""
+        keys = set()
+        for ar in self.sample.archives:
+            archive_id = self.sample.get_archive_id(ar, self.identifier)
+            for trait_type in ar.schema():
+                keys.update(ar.available_traits[trait_type].known_keys(ar, object_id=archive_id))
+        return keys
 
     def __len__(self):
-        pass
+        return len(self.keys)
 
     def __iter__(self):
-        pass
+        return iter(self.keys())
