@@ -46,8 +46,15 @@ INSTALLED_APPS = (
     'aatnode',
     'astrospark',
     'bootstrap3',
+    'captcha',
     'clever_selects',
+    'django_extensions',
     'mathfilters',
+    'restapi_app',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_swagger',
+    'django_spaghetti',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -123,6 +130,10 @@ STATICFILES_DIRS = (
     '/var/www/static/',
 )
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
+
 # Query results cache
 
 CACHE_DIR = '/tmp/asvo_cache/'
@@ -192,3 +203,28 @@ try:
     from .custom_settings import *
 except ImportError:
     pass
+
+
+RECAPTCHA_PUBLIC_KEY = '6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j'
+RECAPTCHA_PRIVATE_KEY = '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn'
+NOCAPTCHA = True
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 10,
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_csv.renderers.CSVRenderer',
+    ),
+     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+
+SPAGHETTI_SAUCE = {
+  'apps':['auth','restapi_app'],
+  # 'show_fields':False,
+  # 'exclude':{'restapi_app':['gamapublic']}
+}
