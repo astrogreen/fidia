@@ -188,3 +188,10 @@ class TestArchive:
         trait = sample['Gal1']['spectral_map', 'mymap']
 
         assert type(trait).value.__doc__ == "TheSpectralMapDocumentation"
+
+    def test_trait_property_list(self, simple_archive):
+        sample = simple_archive().get_full_sample()
+        trait = sample['Gal1']['spectral_map', 'mymap']
+        for trait_property, expected in zip(trait._trait_properties(), ('value', 'variance')):
+            assert trait_property.name == expected
+

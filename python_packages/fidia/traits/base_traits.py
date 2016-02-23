@@ -1,6 +1,8 @@
 import pickle
 from io import BytesIO
 
+from astropy.io import fits
+
 from .abstract_base_traits import *
 from ..exceptions import DataNotAvailable
 from .utilities import TraitProperty
@@ -41,7 +43,7 @@ class Trait(AbstractBaseTrait):
     def __init__(self, archive, trait_key, loading='lazy'):
         super().__init__()
         self.archive = archive
-        self._trait_key = trait_key
+        self.trait_key = trait_key
         self.object_id = trait_key.object_id
         self._trait_name = trait_key.trait_name
 
@@ -75,6 +77,22 @@ class Trait(AbstractBaseTrait):
         """
         pass
 
+    def _trait_properties(self):
+        """Generator which iterates over the TraitProperties attached to this Trait.
+
+        Note that the descriptor must be handed this Trait object to actually retrieve
+        data, which is why this is impelemented as a private method.
+
+        :return: the TraitProperty descriptor object
+
+        """
+        # Search class attributes:
+        for key in dir(type(self)):
+            obj = getattr(type(self), key)
+            if isinstance(obj, TraitProperty):
+                log.debug("Found trait property '{}'".format(key))
+                yield obj
+
     def _load_incr(self):
         """Internal function to handle preloading. Prevents a Trait being loaded multiple times.
 
@@ -107,32 +125,17 @@ class Trait(AbstractBaseTrait):
 
         log.debug("Realising...")
 
-        # @TODO: The try/except block here is messy, and probably would catch things it's not supposed to.
+        # Check and if necessary preload the trait.
+        self._load_incr()
 
-        try:
-            self._load_incr()
+        # Iterate over the trait properties, loading any not already in the
+        # `_trait_dict` cache
+        for traitprop in self._trait_properties():
+            if traitprop.name not in self._trait_dict:
+                self._trait_dict[traitprop.name] = traitprop.fload(self)
 
-            # Search class attributes:
-            for key in type(self).__dict__:
-                obj = type(self).__dict__[key]
-                if isinstance(obj, TraitProperty) and key not in self._trait_dict:
-                    log.debug("Found trait data on class '{}'".format(key))
-                    self._trait_dict[key] = obj.fload(self)
-            # Search instance attributes:
-            for key in self.__dict__:
-                obj = self.__dict__[key]
-                if isinstance(obj, TraitProperty) and key not in self._trait_dict:
-                    log.debug("Found trait data on instance'{}'".format(key))
-                    self._trait_dict[key] = obj.fload(self)
-        except DataNotAvailable:
-            raise
-        except:
-            raise DataNotAvailable("Error in preload for trait '%s'" % self.__class__)
-        finally:
-            try:
-                self._load_decr()
-            except:
-                pass
+        # Check and if necessary cleanup the trait.
+        self._load_decr()
 
     def as_bytes(self):
         """Return a representation of this TraitProperty as a serialized string of bytes"""
@@ -182,22 +185,53 @@ class Image(Map): pass
 
 
 class SpectralMap(Trait, AbstractBaseArrayTrait):
+    """
 
-    def name(self):
-        raise NotImplementedError
+    Required trait_properties:
 
-    def value(self):
-        raise NotImplementedError
+        value
+        variance
+        covariance
+        weight
 
-    def variance(self):
-        raise NotImplementedError
+    """
 
-    def covariance(self):
-        raise NotImplementedError
+    @abstractproperty
+    def value(self): pass
 
-    def weight(self):
-        raise NotImplementedError
+    @abstractproperty
+    def variance(self): pass
 
+    # @abstractproperty
+    # def covariance(self): pass
+    #
+    # @abstractproperty
+    # def weight(self): pass
+
+    def export_fits(self, file):
+        """FITS Exporter"""
+
+
+        # Create a function holder which can be set to close the file if it is opened here
+        file_cleanup = lambda x: None
+        if isinstance(file, str):
+            file = open(file, 'wb')
+            # Store pointer to close function to be called at the end of the this function.
+            file_cleanup = file.close
+
+        hdulist = fits.HDUList(
+            [fits.PrimaryHDU(self.value)]),
+
+        for trait_property in self._trait_properties():
+            if trait_property.name != 'value' and trait_property.type == "float.array":
+                log.debug("Adding array '%s' to FITS output", trait_property.name)
+                hdulist.append(getattr(self, trait_property.name))
+
+
+        hdulist.writeto(file)
+
+        # If necessary, close the open file handle.
+        file_cleanup()
 
 class Classification(Trait, AbstractBaseClassification): pass
 
