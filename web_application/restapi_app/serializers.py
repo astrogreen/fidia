@@ -263,3 +263,10 @@ class AstroObjectSerializer(serializers.Serializer):
             setattr(instance, field, value)
 
         return instance
+
+def manufacture_trait_serializer(trait):
+
+    class TraitSerializer(serializers.Serializer):
+        pass
+
+    
