@@ -196,6 +196,8 @@ class TraitProperty(object):
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
+        if name is None and fload is not None:
+            name = fload.__name__
         self.name = name
         if doc is None and fload is not None:
             doc = fload.__doc__
@@ -203,16 +205,16 @@ class TraitProperty(object):
         self.type = type
 
     def getter(self, fget):
-        self.name = fget.__name__
         log.debug("Setting getter for TraitProperty '%s'", self.name)
         self.fget = fget
         return self
 
     def loader(self, fload):
-        self.name = fload.__name__
         log.debug("Setting loader for TraitProperty '%s'", self.name)
         if self.__doc__ is None:
             self.__doc__ = fload.__doc__
+        if self.name is None:
+            self.name = fload.__name__
         self.fload = fload
         return self
 
