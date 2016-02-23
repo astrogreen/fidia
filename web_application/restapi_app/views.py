@@ -20,7 +20,8 @@ from restapi_app.serializers import (
     ReleaseTypeSerializer,
     CatalogueSerializer, CatalogueGroupSerializer,
     ImageSerializer, SpectrumSerializer,
-    AstroObjectSerializer
+    AstroObjectSerializer,
+    manufacture_trait_serializer
 )
 
 from . import AstroObject
@@ -723,3 +724,41 @@ class AstroObjectViewSet(viewsets.ViewSet):
 
         del astroobjects[astroobject.id]
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+from fidia.archive.test_archive import ExampleArchive
+
+ar = ExampleArchive()
+s = ar.get_full_sample()
+
+testTraits = {
+    1: s['Gal1']['spectral_map', 'extra'],
+    2: s['Gal2']['spectral_map', 'extra'],
+    3: s['Gal3']['spectral_map', 'extra']
+}
+
+
+
+class TraitViewSet(viewsets.ViewSet):
+
+
+    def list(self, request):
+        serializer_class = manufacture_trait_serializer(testTraits[1])
+        serializer = serializer_class(
+            instance = astroobjects.values(), many=True
+        )
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        try:
+            astroobject = testTraits[int(pk)]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer_class = manufacture_trait_serializer(astroobject)
+
+        serializer = serializer_class(instance=astroobject)
+        return Response(serializer.data)

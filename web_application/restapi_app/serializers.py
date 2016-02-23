@@ -269,4 +269,12 @@ def manufacture_trait_serializer(trait):
     class TraitSerializer(serializers.Serializer):
         pass
 
-    
+    for tp in trait._trait_properties():
+        if tp.type == "float":
+            print("Creating a float")
+            setattr(TraitSerializer, tp.name, serializers.FloatField(required=False))
+        if tp.type == "string":
+            print("Creating a string")
+            setattr(TraitSerializer, tp.name, serializers.CharField(required=False))
+
+    return TraitSerializer

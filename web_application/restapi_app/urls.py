@@ -21,6 +21,7 @@ router.register(r'cataloguegroups', views.CatalogueGroupViewSet),
 router.register(r'imaging', views.ImageViewSet),
 router.register(r'spectra', views.SpectraViewSet),
 router.register(r'astro', views.AstroObjectViewSet, base_name='astro')
+router.register(r'trait', views.TraitViewSet, base_name='trait')
 
 
 # The API URLs are now determined automatically by the router.
