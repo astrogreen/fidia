@@ -76,6 +76,33 @@ class ExampleSpectralMapExtra(SpectralMap):
         assert not self._clean
         return np.random.random()
 
+    @trait_property('string')
+    def galaxy_name(self):
+        assert not self._clean
+        return self.object_id
+
+class TestMissingProperty(SpectralMap):
+
+    @property
+    def shape(self):
+        return 0
+
+    @classmethod
+    def known_keys(cls, object_id):
+        return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
+
+    @trait_property('float.array')
+    def value(self):
+        return np.random.random((3, 5, 10))
+    @trait_property('float.array')
+    def variance(self):
+        return np.random.random((3, 5, 10))
+
+    @trait_property('string')
+    def galaxy_name(self):
+        return self.object_id
+
+
 class ExampleArchive(Archive):
 
     def __init__(self):
@@ -97,4 +124,5 @@ class ExampleArchive(Archive):
     def define_available_traits(self):
         self.available_traits[TraitKey('spectral_map', None, None, None)] = ExampleSpectralMap
         self.available_traits[TraitKey('spectral_map', 'extra', None, None)] = ExampleSpectralMapExtra
+        self.available_traits[TraitKey('spectral_map', 'extra', None, 'Gal2')] = TestMissingProperty
         return self.available_traits
