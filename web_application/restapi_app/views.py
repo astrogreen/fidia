@@ -2,7 +2,7 @@ import json
 import random
 from pprint import pprint
 
-from restapi_app.models import (
+from .models import (
     Query,
     GAMAPublic,
     Survey, SurveyMetaData,
@@ -11,7 +11,7 @@ from restapi_app.models import (
     Image,
     Spectrum,
 )
-from restapi_app.serializers import (
+from .serializers import (
     UserSerializer,
     QuerySerializerCreateUpdate, QuerySerializerList,
     GAMASerializer,
@@ -727,6 +727,9 @@ class AstroObjectViewSet(viewsets.ViewSet):
 
 
 
+
+
+
 from fidia.archive.test_archive import ExampleArchive
 
 ar = ExampleArchive()
@@ -741,7 +744,6 @@ testTraits = {
 
 
 class TraitViewSet(viewsets.ViewSet):
-
 
     def list(self, request):
         serializer_class = manufacture_trait_serializer(testTraits[1])
