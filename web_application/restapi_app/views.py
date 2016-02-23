@@ -21,7 +21,7 @@ from .serializers import (
     CatalogueSerializer, CatalogueGroupSerializer,
     ImageSerializer, SpectrumSerializer,
     AstroObjectSerializer,
-    manufacture_trait_serializer
+    TraitSerializer
 )
 
 from . import AstroObject
@@ -735,7 +735,7 @@ from fidia.archive.test_archive import ExampleArchive
 ar = ExampleArchive()
 s = ar.get_full_sample()
 
-testTraits = {
+test_traits = {
     1: s['Gal1']['spectral_map', 'extra'],
     2: s['Gal2']['spectral_map', 'extra'],
     3: s['Gal3']['spectral_map', 'extra']
@@ -746,21 +746,16 @@ testTraits = {
 class TraitViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        serializer_class = manufacture_trait_serializer(testTraits[1])
-        serializer = serializer_class(
-            instance = astroobjects.values(), many=True
-        )
+        serializer = TraitSerializer(instance=test_traits.values(), many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         try:
-            astroobject = testTraits[int(pk)]
+            trait = test_traits[int(pk)]
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = manufacture_trait_serializer(astroobject)
-
-        serializer = serializer_class(instance=astroobject)
+        serializer = TraitSerializer(instance=trait)
         return Response(serializer.data)

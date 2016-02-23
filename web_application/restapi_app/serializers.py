@@ -1,3 +1,6 @@
+
+from fidia.traits.abstract_base_traits import AbstractBaseTrait
+
 from rest_framework import serializers, mixins
 from restapi_app.models import (
     Query,
@@ -264,47 +267,27 @@ class AstroObjectSerializer(serializers.Serializer):
 
         return instance
 
+class TraitSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    asvoid = serializers.CharField(read_only=True, max_length=100)
 
+    def __init__(self, *args, **kwargs):
+        super(TraitSerializer, self).__init__(*args, **kwargs)
 
+        if not isinstance(self.instance, AbstractBaseTrait):
+            raise Exception("TraitSerializer must be instantiated with an instance of a Trait to serialize")
 
-# def manufacture_trait_serializer(trait):
-#
-#     class TraitSerializer(serializers.Serializer):
-#         id = serializers.IntegerField(read_only=True)
-#     # pass
-#
-#     for tp in trait._trait_properties():
-#         if tp.type == "float":
-#             print("Creating a float")
-#             setattr(TraitSerializer, tp.name, serializers.FloatField(required=False))
-#         if tp.type == "string":
-#             print("Creating a string")
-#             setattr(TraitSerializer, tp.name, serializers.CharField(required=False))
-#
-#     return TraitSerializer
+        for tp in self.instance._trait_properties():
+            print('--TraitProperties')
+            print(tp.name, tp.type)
+            if tp.type == "float":
+                print("Creating a float")
+                self.fields[tp.name] = serializers.FloatField(required=False, read_only=True)
+                # setattr(TraitSerializer, tp.name, serializers.FloatField(required=False))
+            if tp.type == "string":
+                print("Creating a string")
+                self.fields[tp.name] = serializers.CharField(required=False, max_length=100, read_only=True)
+                # setattr(TraitSerializer, tp.name, serializers.CharField(required=False))
+            if tp.type == 'float.array':
+                print(tp)
 
-
-def manufacture_trait_serializer(trait):
- 
-    class TraitSerializer(serializers.Serializer):
-        id = serializers.IntegerField(read_only=True)
-        asvoid = serializers.CharField(read_only=True, max_length=100)
-
-        def __init__(self, *args, **kwargs):
-            super(TraitSerializer,self).__init__(*args, **kwargs)
-
-            for tp in trait._trait_properties():
-                print('--TraitProperties')
-                print(tp.name, tp.type)
-                if tp.type == "float":
-                    print("Creating a float")
-                    self.fields[tp.name] = serializers.FloatField(required=False, read_only=True)
-                    # setattr(TraitSerializer, tp.name, serializers.FloatField(required=False))
-                if tp.type == "string":
-                    print("Creating a string")
-                    self.fields[tp.name] = serializers.CharField(required=False, max_length=100, read_only=True)
-                    # setattr(TraitSerializer, tp.name, serializers.CharField(required=False))
-                if tp.type == 'float.array':
-                    print(tp)
-
-    return TraitSerializer
