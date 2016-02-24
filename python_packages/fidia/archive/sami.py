@@ -349,6 +349,9 @@ class SAMISpectralCube(SpectralMap):
         self._cube_path = self.archive._cubes_directory\
             .ix[self.object_id, self._color, self._binning, self._plate_id]['path']
 
+        # Add links to sub_traits
+        self._sub_traits[TraitKey('rss',None, None, None)] = SAMIRowStackedSpectra
+
     def preload(self):
         self.hdu = fits.open(self._cube_path)
 
