@@ -8,11 +8,9 @@ from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
 
-    def __init__(self, archive, trait_key):
-        self._object_id = trait_key.object_id
-        if trait_key.trait_name != 'mymap':
-            raise DataNotAvailable("ExampleSpectraMap only has 'mymap' data.")
-        super().__init__(archive, trait_key)
+    def init(self):
+        if self.trait_name != 'mymap':
+            raise DataNotAvailable("ExampleSpectraMap only has trait_name='mymap' data.")
 
     @classmethod
     def known_keys(cls, object_id):
@@ -20,7 +18,7 @@ class ExampleSpectralMap(SpectralMap):
 
     def preload(self):
         # Make an object have typically the same random data.
-        np.random.seed(hash(self._object_id) % 500000)
+        np.random.seed(hash(self.object_id) % 500000)
         self._clean = False
 
     def cleanup(self):
@@ -43,17 +41,13 @@ class ExampleSpectralMap(SpectralMap):
 
 class ExampleSpectralMapExtra(SpectralMap):
 
-    def __init__(self, archive, trait_key):
-        self._object_id = trait_key.object_id
-        super().__init__(archive, trait_key)
-
     @classmethod
     def known_keys(cls, object_id):
         return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
 
     def preload(self):
         # Make an object have typically the same random data.
-        np.random.seed(hash(self._object_id) % 500000)
+        np.random.seed(hash(self.object_id) % 500000)
         self._clean = False
 
     def cleanup(self):

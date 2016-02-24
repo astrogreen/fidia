@@ -51,10 +51,12 @@ class Archive(BaseArchive):
 
         return new_sample
 
-    def get_trait(self, object_id=None, trait_key=None):
+    def get_trait(self, object_id=None, trait_key=None, parent_trait=None):
 
         if trait_key is None:
-            raise Exception("The TraitKey must be defined.")
+            raise ValueError("The TraitKey must be provided.")
+        if object_id is None:
+            raise ValueError("The object_id must be provided.")
         if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
             trait_key = TraitKey(*trait_key)
 
@@ -62,7 +64,7 @@ class Archive(BaseArchive):
             trait_key = trait_key.replace(object_id=object_id)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
-        if trait_key not in self._trait_cache:
+        if (trait_key, parent_trait) not in self._trait_cache:
 
             # Check the size of the cache, and remove item if necessary
             # This should probably be more clever.
@@ -75,11 +77,11 @@ class Archive(BaseArchive):
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
-            trait = trait_class(self, trait_key)
+            trait = trait_class(self, trait_key, parent_trait=parent_trait)
 
-            self._trait_cache[trait_key] = trait
+            self._trait_cache[(trait_key, parent_trait)] = trait
 
-        return self._trait_cache[trait_key]
+        return self._trait_cache[(trait_key, parent_trait)]
 
     def can_provide(self, trait_key):
         return trait_key in self.available_traits

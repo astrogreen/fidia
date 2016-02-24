@@ -39,7 +39,7 @@ class AstronomicalObject(collections.MutableMapping):
 
 
     # ____________________________________________________________________
-    # Functions to create dictionary like behaviour
+    # Functions to create dictionary like behaviour to address Traits of the galaxy
     #
     #     These are required as part of the collections.MutableMapping class.
 

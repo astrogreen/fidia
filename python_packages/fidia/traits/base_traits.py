@@ -40,11 +40,15 @@ class Trait(AbstractBaseTrait):
 
         return schema
 
-    def __init__(self, archive, trait_key, loading='lazy'):
+    def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
         self.archive = archive
+        if object_id is not None:
+            trait_key = trait_key.replace(object_id=object_id)
         self.trait_key = trait_key
+        self.version = trait_key.version
         self.object_id = trait_key.object_id
+        self._parent_trait = parent_trait
         self._trait_name = trait_key.trait_name
 
         # The preload count is used to track how many accesses there are to this
@@ -56,8 +60,28 @@ class Trait(AbstractBaseTrait):
             raise ValueError("loading keyword must be one of ('eager', 'lazy', 'verylazy')")
         self._loading = loading
 
+        # Call user provided `init` funciton
+        self.init()
+
+        # Preload all traits
+        # @TODO: Modify preloading to respect preload argument
         self._trait_dict = dict()
         self._realise()
+
+    @property
+    def trait_name(self):
+        return self._trait_name
+
+
+    def init(self):
+        """Extra initialisations for a Trait.
+
+        Override this function with any extra initialisation required for this
+        trait, but not things such as opening files or connecting to a database:
+        see `preload` and `cleanup` for those things.
+
+        """
+        pass
 
     def preload(self):
         """Prepare for a trait property to be retrieved using plugin code.
