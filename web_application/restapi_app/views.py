@@ -774,22 +774,22 @@ class GalaxyViewSet(viewsets.ViewSet):
 
 class TraitViewSet(viewsets.ViewSet):
 
-    def list(self, request):
+    def list(self, request, galaxy_pk=None):
         serializer_class = manufacture_trait_serializer_for_archive(ar)
         serializer = serializer_class(
-            instance = sample['Gal1']['velocity_map'], many=False,
+            instance = sample[galaxy_pk]['velocity_map'], many=False,
             context={'request': request}
         )
         print("YOO O",vars(sample['Gal1']['velocity_map']))
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, pk=None, galaxy_pk=None):
         try:
             # astroobject = getattr(sample['Gal1']['velocity_map'],pk)
             #have to make a dummy object here, else won't render? not sure why...
             #single value not ok without key?
 
-            astroobject = {pk:getattr(sample['Gal1']['velocity_map'],pk)}
+            astroobject = {pk:getattr(sample[galaxy_pk]['velocity_map'],pk)}
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
