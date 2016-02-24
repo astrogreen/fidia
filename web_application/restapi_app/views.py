@@ -10,6 +10,7 @@ from .models import (
     Catalogue, CatalogueGroup,
     Image,
     Spectrum,
+    TestFidiaSchema
 )
 from .serializers import (
     UserSerializer,
@@ -21,7 +22,10 @@ from .serializers import (
     CatalogueSerializer, CatalogueGroupSerializer,
     ImageSerializer, SpectrumSerializer,
     AstroObjectSerializer,
-    TraitSerializer
+    manufacture_trait_serializer,
+    manufacture_galaxy_serializer_for_archive,
+    manufacture_trait_serializer_for_archive,
+    TestFidiaSchemaSerializer,
 )
 
 from . import AstroObject
@@ -430,8 +434,6 @@ class SOVViewSet(viewsets.ModelViewSet):
           }
         return dict(dummySersicCat)
 
-
-
     def create(self, request, *args, **kwargs):
         """
         Create a model instance. Override CreateModelMixin create to catch the POST data for processing before save
@@ -448,7 +450,6 @@ class SOVViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -488,7 +489,6 @@ class CatalogueViewSet(viewsets.ModelViewSet):
     lookup_field = 'slugField'
 
 
-
 class CatalogueGroupViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
@@ -519,8 +519,6 @@ class SpectraViewSet(viewsets.ModelViewSet):
     serializer_class = SpectrumSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slugField'
-
-
 
 
 
@@ -733,29 +731,86 @@ class AstroObjectViewSet(viewsets.ViewSet):
 from fidia.archive.test_archive import ExampleArchive
 
 ar = ExampleArchive()
-s = ar.get_full_sample()
+sample = ar.get_full_sample()
 
-test_traits = {
-    1: s['Gal1']['spectral_map', 'extra'],
-    2: s['Gal2']['spectral_map', 'extra'],
-    3: s['Gal3']['spectral_map', 'extra']
-}
+# >>> ar.schema()
+# {'line_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'},
+# 'redshift': {'value': 'float'},
+# 'spectral_map': {'extra_value': 'float',
+#    'galaxy_name': 'string',
+#    'value': 'float.array',
+#    'variance': 'float.array'},
+# 'velocity_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'}}
+#
+# >>> sample['Gal1']['redshift'].value
+# 3.14159
+#
 
-
-
-class TraitViewSet(viewsets.ViewSet):
+class GalaxyViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        serializer = TraitSerializer(instance=test_traits.values(), many=True)
+        serializer_class = manufacture_galaxy_serializer_for_archive(ar)
+        serializer = serializer_class(
+            instance = sample.values(), many=True
+        )
+        #print("YOO O",vars(sample()))
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         try:
-            trait = test_traits[int(pk)]
+            astroobject = sample[pk]
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = TraitSerializer(instance=trait)
+        serializer_class = manufacture_galaxy_serializer_for_archive(ar)
+
+        serializer = serializer_class(instance=astroobject)
+        print("YOO O",vars(astroobject.sample))
         return Response(serializer.data)
+
+
+
+class TraitViewSet(viewsets.ViewSet):
+
+    def list(self, request, galaxy_pk=None):
+        serializer_class = manufacture_trait_serializer_for_archive(ar)
+        serializer = serializer_class(
+            instance = sample[galaxy_pk]['velocity_map'], many=False,
+            context={'request': request}
+        )
+        print("YOO O",vars(sample['Gal1']['velocity_map']))
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, galaxy_pk=None):
+        try:
+            # astroobject = getattr(sample['Gal1']['velocity_map'],pk)
+            #have to make a dummy object here, else won't render? not sure why...
+            #single value not ok without key?
+
+            astroobject = {pk:getattr(sample[galaxy_pk]['velocity_map'],pk)}
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer_class = manufacture_trait_serializer_for_archive(ar)
+
+        serializer = serializer_class(instance=astroobject, context={'request': request})
+        print("YOO O",vars(serializer))
+        return Response(serializer.data)
+
+
+
+# TEST FIDIA MODEL GENERATION ON THE FLY
+
+class TestFidiaSchemaViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `detail` actions.
+    """
+
+    queryset = TestFidiaSchema.objects.all()
+    serializer_class = TestFidiaSchemaSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'url'

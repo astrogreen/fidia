@@ -149,12 +149,6 @@ class Spectrum(models.Model):
         return '%s' % (self.slugField)
 
 
-
-
-
-
-
-
 class AstroObject(models.Model):
     type=models.CharField(choices=ASTRO_TYPE,max_length=100)
 
@@ -195,3 +189,13 @@ class GAMAPublic(models.Model):
     Spectrum = models.ImageField(blank=True, upload_to='uploads/%Y/%m/%d/', null=True)
 
 
+
+
+# TEST NEW ASTROOBJECT ON MODEL
+# def manufacture_model_for_archive(archive):
+
+class TestFidiaSchema(models.Model):
+    redshift = models.CharField(max_length=100, blank=True)
+
+
+    # return TestFidiaSchema

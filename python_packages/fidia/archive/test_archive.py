@@ -3,7 +3,7 @@ import numpy as np
 
 from .archive import Archive
 from ..traits.utilities import TraitKey, TraitMapping, trait_property
-from ..traits.base_traits import SpectralMap
+from ..traits.base_traits import SpectralMap, Image, Measurement
 from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
@@ -76,6 +76,86 @@ class ExampleSpectralMapExtra(SpectralMap):
         assert not self._clean
         return np.random.random()
 
+    @trait_property('string')
+    def galaxy_name(self):
+        assert not self._clean
+        return self.object_id
+
+class VelocityMap(Image):
+
+    def known_keys(self):
+        return [TraitKey('velocity_map')]
+
+    @property
+    def shape(self):
+        return self.value.shape
+
+    def unit(self):
+        return None
+
+    @trait_property('float.ndarray')
+    def value(self):
+        return 45678
+        #return np.random.random((50, 50))
+
+    @trait_property('float.ndarray')
+    def variance(self):
+        return np.random.random((5, 5))
+
+class LineMap(Image):
+
+    def known_keys(self):
+        return [TraitKey('line_map')]
+
+    @property
+    def shape(self):
+        return self.value.shape
+
+    def unit(self):
+        return None
+
+    @trait_property('float.ndarray')
+    def value(self):
+        return np.random.random((5, 5))
+
+    @trait_property('float.ndarray')
+    def variance(self):
+        return np.random.random((5, 5))
+
+class Redshift(Measurement):
+
+    def known_keys(self):
+        return [TraitKey('redshift')]
+
+    @trait_property('float')
+    def value(self):
+        return 3.14159
+
+    def unit(self):
+        return None
+
+class TestMissingProperty(SpectralMap):
+
+    @property
+    def shape(self):
+        return 0
+
+    @classmethod
+    def known_keys(cls, object_id):
+        return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
+
+    @trait_property('float.array')
+    def value(self):
+        return np.random.random((3, 5, 10))
+    @trait_property('float.array')
+    def variance(self):
+        return np.random.random((3, 5, 10))
+
+    @trait_property('string')
+    def galaxy_name(self):
+        return self.object_id
+
+
 class ExampleArchive(Archive):
 
     def __init__(self):
@@ -97,4 +177,9 @@ class ExampleArchive(Archive):
     def define_available_traits(self):
         self.available_traits[TraitKey('spectral_map', None, None, None)] = ExampleSpectralMap
         self.available_traits[TraitKey('spectral_map', 'extra', None, None)] = ExampleSpectralMapExtra
+        self.available_traits[TraitKey('spectral_map', 'extra', None, 'Gal2')] = TestMissingProperty
+        self.available_traits[TraitKey('line_map', None, None, None)] = LineMap
+        self.available_traits[TraitKey('velocity_map', None, None, None)] = VelocityMap
+        self.available_traits[TraitKey('redshift', None, None, None)] = Redshift
+
         return self.available_traits
