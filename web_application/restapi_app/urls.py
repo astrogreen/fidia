@@ -22,6 +22,7 @@ router.register(r'imaging', views.ImageViewSet),
 router.register(r'spectra', views.SpectraViewSet),
 router.register(r'astro', views.AstroObjectViewSet, base_name='astro')
 router.register(r'trait', views.TraitViewSet, base_name='trait')
+router.register(r'galaxy', views.GalaxyViewSet, base_name='galaxy')
 
 
 # The API URLs are now determined automatically by the router.

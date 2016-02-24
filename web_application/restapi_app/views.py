@@ -21,7 +21,8 @@ from .serializers import (
     CatalogueSerializer, CatalogueGroupSerializer,
     ImageSerializer, SpectrumSerializer,
     AstroObjectSerializer,
-    manufacture_trait_serializer
+    manufacture_trait_serializer,
+    manufacture_galaxy_serializer_for_archive
 )
 
 from . import AstroObject
@@ -733,12 +734,48 @@ class AstroObjectViewSet(viewsets.ViewSet):
 from fidia.archive.test_archive import ExampleArchive
 
 ar = ExampleArchive()
-s = ar.get_full_sample()
+sample = ar.get_full_sample()
 
-testTraits = {
-    1: s['Gal1']['spectral_map', 'extra'],
-    2: s['Gal2']['spectral_map', 'extra'],
-    3: s['Gal3']['spectral_map', 'extra']
+# >>> ar.schema()
+# {'line_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'},
+# 'redshift': {'value': 'float'},
+# 'spectral_map': {'extra_value': 'float',
+#    'galaxy_name': 'string',
+#    'value': 'float.array',
+#    'variance': 'float.array'},
+# 'velocity_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'}}
+#
+# >>> sample['Gal1']['redshift'].value
+# 3.14159
+#
+
+class GalaxyViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        serializer_class = manufacture_galaxy_serializer_for_archive(ar)
+        serializer = serializer_class(
+            instance = sample.values(), many=True
+        )
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        try:
+            astroobject = sample[pk]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer_class = manufacture_galaxy_serializer_for_archive(ar)
+
+        serializer = serializer_class(instance=astroobject)
+        return Response(serializer.data)
+
+
+test_traits = {
+    1: sample['Gal1']['spectral_map', 'extra'],
+    2: sample['Gal2']['spectral_map', 'extra'],
+    3: sample['Gal3']['spectral_map', 'extra']
 }
 
 
@@ -746,7 +783,7 @@ testTraits = {
 class TraitViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        serializer_class = manufacture_trait_serializer(testTraits[1])
+        serializer_class = manufacture_trait_serializer(test_traits[0])
         serializer = serializer_class(
             instance = astroobjects.values(), many=True
         )
@@ -754,7 +791,7 @@ class TraitViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         try:
-            astroobject = testTraits[int(pk)]
+            astroobject = test_traits[int(pk)]
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:

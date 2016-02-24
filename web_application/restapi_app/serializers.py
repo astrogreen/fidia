@@ -308,3 +308,32 @@ def manufacture_trait_serializer(trait):
                     print(tp)
 
     return TraitSerializer
+
+def manufacture_galaxy_serializer_for_archive(archive):
+
+    class GalaxySerializer(serializers.Serializer):
+        # id = serializers.IntegerField(read_only=True)
+        # asvoid = serializers.CharField(read_only=True, max_length=100)
+
+        def __init__(self, *args, **kwargs):
+            super(GalaxySerializer,self).__init__(*args, **kwargs)
+
+            # Get the schema for the galaxies.
+            #
+            # {'line_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'},
+            # 'redshift': {'value': 'float'},
+            # 'spectral_map': {'extra_value': 'float',
+            #    'galaxy_name': 'string',
+            #    'value': 'float.array',
+            #    'variance': 'float.array'},
+            # 'velocity_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'}}
+            #
+            schema = archive.schema()
+
+
+
+            for trait in schema:
+                if trait != 'spectral_map':
+                    self.fields[trait] = serializers.CharField(max_length=100, required=False, read_only=True)
+
+    return GalaxySerializer
