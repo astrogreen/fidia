@@ -287,33 +287,42 @@ class AstroObjectSerializer(serializers.Serializer):
 def manufacture_trait_serializer(trait):
  
     class TraitSerializer(serializers.Serializer):
-        id = serializers.IntegerField(read_only=True)
-        asvoid = serializers.CharField(read_only=True, max_length=100)
+        redshift = serializers.CharField(required=False, max_length=100, read_only=True)
+        line_map = serializers.CharField(required=False, max_length=100, read_only=True)
+
+        # id = serializers.IntegerField(read_only=True)
+        # asvoid = serializers.CharField(read_only=True, max_length=100)
 
         def __init__(self, *args, **kwargs):
             super(TraitSerializer,self).__init__(*args, **kwargs)
 
-            for tp in trait._trait_properties():
-                print('--TraitProperties')
-                print(tp.name, tp.type)
-                if tp.type == "float":
-                    print("Creating a float")
-                    self.fields[tp.name] = serializers.FloatField(required=False, read_only=True)
-                    # setattr(TraitSerializer, tp.name, serializers.FloatField(required=False))
-                if tp.type == "string":
-                    print("Creating a string")
-                    self.fields[tp.name] = serializers.CharField(required=False, max_length=100, read_only=True)
-                    # setattr(TraitSerializer, tp.name, serializers.CharField(required=False))
-                if tp.type == 'float.array':
-                    print(tp)
+            # for tp in trait._trait_properties():
+            #     print('--TraitProperties')
+            #     print(tp.name, tp.type)
+            #     if tp.type == "float":
+            #         print("Creating a float")
+            #         self.fields[tp.name] = serializers.FloatField(required=False, read_only=True)
+            #         # setattr(TraitSerializer, tp.name, serializers.FloatField(required=False))
+            #     if tp.type == "string":
+            #         print("Creating a string")
+            #         self.fields[tp.name] = serializers.CharField(required=False, max_length=100, read_only=True)
+            #         # setattr(TraitSerializer, tp.name, serializers.CharField(required=False))
+            #     if tp.type == 'float.array':
+            #         print(tp)
 
     return TraitSerializer
+
+
+class TraitSerializer(serializers.Serializer):
+        value = serializers.CharField(required=False, max_length=100, read_only=True)
+        #description etc etc
+        #happy properties
+
+        # line_map = serializers.CharField(required=False, max_length=100, read_only=True)
 
 def manufacture_galaxy_serializer_for_archive(archive):
 
     class GalaxySerializer(serializers.Serializer):
-        # id = serializers.IntegerField(read_only=True)
-        # asvoid = serializers.CharField(read_only=True, max_length=100)
 
         def __init__(self, *args, **kwargs):
             super(GalaxySerializer,self).__init__(*args, **kwargs)
@@ -330,10 +339,12 @@ def manufacture_galaxy_serializer_for_archive(archive):
             #
             schema = archive.schema()
 
-
-
             for trait in schema:
                 if trait != 'spectral_map':
-                    self.fields[trait] = serializers.CharField(max_length=100, required=False, read_only=True)
+                    print('Trait: ',trait)
+
+                    # self.fields[trait] = manufacture_trait_serializer(trait)
+                    # self.fields[trait] = serializers.CharField(required=False, read_only=True)
+                    self.fields[trait] = TraitSerializer(required=False)
 
     return GalaxySerializer

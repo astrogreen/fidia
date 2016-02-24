@@ -772,6 +772,11 @@ class GalaxyViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
+
+
+
+
+
 test_traits = {
     1: sample['Gal1']['spectral_map', 'extra'],
     2: sample['Gal2']['spectral_map', 'extra'],
