@@ -1,12 +1,10 @@
 from django.conf.urls import url, include
-from restapi_app import views
+from . import views
 from rest_framework.routers import DefaultRouter
 from django.views.generic import TemplateView
-from restapi_app.routers import ExtendDefaultRouter, ExtendNestedRouter
+from .routers import ExtendDefaultRouter, ExtendNestedRouter
 from django.conf import settings
 from django.conf.urls.static import static
-
-
 
 #   = = = = = =
 router = ExtendDefaultRouter()
@@ -21,9 +19,11 @@ router.register(r'cataloguegroups', views.CatalogueGroupViewSet),
 router.register(r'imaging', views.ImageViewSet),
 router.register(r'spectra', views.SpectraViewSet),
 router.register(r'astro', views.AstroObjectViewSet, base_name='astro')
-router.register(r'trait', views.TraitViewSet, base_name='trait')
-router.register(r'galaxy', views.GalaxyViewSet, base_name='galaxy')
 
+router.register(r'galaxy', views.GalaxyViewSet, base_name='galaxy')
+router.register(r'trait', views.TraitViewSet, base_name='trait')
+
+router.register(r'testFidia', views.TestFidiaSchemaViewSet, base_name='fidia')
 
 # The API URLs are now determined automatically by the router.
 # Additionally, we include the login URLs for the browsable API.

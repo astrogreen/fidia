@@ -95,11 +95,12 @@ class VelocityMap(Image):
 
     @trait_property('float.ndarray')
     def value(self):
-        return np.random.random((50, 50))
+        return 45678
+        #return np.random.random((50, 50))
 
     @trait_property('float.ndarray')
     def variance(self):
-        return np.random.random((50, 50))
+        return np.random.random((5, 5))
 
 class LineMap(Image):
 
@@ -115,11 +116,11 @@ class LineMap(Image):
 
     @trait_property('float.ndarray')
     def value(self):
-        return np.random.random((50, 50))
+        return np.random.random((5, 5))
 
     @trait_property('float.ndarray')
     def variance(self):
-        return np.random.random((50, 50))
+        return np.random.random((5, 5))
 
 class Redshift(Measurement):
 

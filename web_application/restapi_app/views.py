@@ -10,6 +10,7 @@ from .models import (
     Catalogue, CatalogueGroup,
     Image,
     Spectrum,
+    TestFidiaSchema
 )
 from .serializers import (
     UserSerializer,
@@ -22,7 +23,9 @@ from .serializers import (
     ImageSerializer, SpectrumSerializer,
     AstroObjectSerializer,
     manufacture_trait_serializer,
-    manufacture_galaxy_serializer_for_archive
+    manufacture_galaxy_serializer_for_archive,
+    manufacture_trait_serializer_for_archive,
+    TestFidiaSchemaSerializer,
 )
 
 from . import AstroObject
@@ -431,8 +434,6 @@ class SOVViewSet(viewsets.ModelViewSet):
           }
         return dict(dummySersicCat)
 
-
-
     def create(self, request, *args, **kwargs):
         """
         Create a model instance. Override CreateModelMixin create to catch the POST data for processing before save
@@ -449,7 +450,6 @@ class SOVViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -489,7 +489,6 @@ class CatalogueViewSet(viewsets.ModelViewSet):
     lookup_field = 'slugField'
 
 
-
 class CatalogueGroupViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
@@ -520,8 +519,6 @@ class SpectraViewSet(viewsets.ModelViewSet):
     serializer_class = SpectrumSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slugField'
-
-
 
 
 
@@ -756,6 +753,7 @@ class GalaxyViewSet(viewsets.ViewSet):
         serializer = serializer_class(
             instance = sample.values(), many=True
         )
+        #print("YOO O",vars(sample()))
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
@@ -769,40 +767,50 @@ class GalaxyViewSet(viewsets.ViewSet):
         serializer_class = manufacture_galaxy_serializer_for_archive(ar)
 
         serializer = serializer_class(instance=astroobject)
+        print("YOO O",vars(astroobject.sample))
         return Response(serializer.data)
-
-
-
-
-
-
-
-test_traits = {
-    1: sample['Gal1']['spectral_map', 'extra'],
-    2: sample['Gal2']['spectral_map', 'extra'],
-    3: sample['Gal3']['spectral_map', 'extra']
-}
 
 
 
 class TraitViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        serializer_class = manufacture_trait_serializer(test_traits[0])
+        serializer_class = manufacture_trait_serializer_for_archive(ar)
         serializer = serializer_class(
-            instance = astroobjects.values(), many=True
+            instance = sample['Gal1']['velocity_map'], many=False,
+            context={'request': request}
         )
+        print("YOO O",vars(sample['Gal1']['velocity_map']))
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         try:
-            astroobject = test_traits[int(pk)]
+            # astroobject = getattr(sample['Gal1']['velocity_map'],pk)
+            #have to make a dummy object here, else won't render? not sure why...
+            #single value not ok without key?
+
+            astroobject = {pk:getattr(sample['Gal1']['velocity_map'],pk)}
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = manufacture_trait_serializer(astroobject)
+        serializer_class = manufacture_trait_serializer_for_archive(ar)
 
-        serializer = serializer_class(instance=astroobject)
+        serializer = serializer_class(instance=astroobject, context={'request': request})
+        print("YOO O",vars(serializer))
         return Response(serializer.data)
+
+
+
+# TEST FIDIA MODEL GENERATION ON THE FLY
+
+class TestFidiaSchemaViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `detail` actions.
+    """
+
+    queryset = TestFidiaSchema.objects.all()
+    serializer_class = TestFidiaSchemaSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'url'
