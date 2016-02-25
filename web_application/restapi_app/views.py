@@ -21,11 +21,14 @@ from .serializers import (
     ReleaseTypeSerializer,
     CatalogueSerializer, CatalogueGroupSerializer,
     ImageSerializer, SpectrumSerializer,
-    AstroObjectSerializer,
+    AstroObjectSerializer_old,
     manufacture_trait_serializer,
     manufacture_galaxy_serializer_for_archive,
     manufacture_trait_serializer_for_archive,
-    TestFidiaSchemaSerializer,
+    SampleSerializer,
+    AstroObjectSerializer,
+    AstroObjectTraitSerializer,
+    AstroObjectPropertyTraitSerializer
 )
 
 from .renderers import FITSRenderer
@@ -37,17 +40,15 @@ from rest_framework.decorators import api_view, detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.renderers import TemplateHTMLRenderer
-
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.settings import api_settings
 from django.contrib.auth.models import User
 
-# from snippets.permissions import IsOwnerOrReadOnl
-
-from rest_framework_extensions.mixins import NestedViewSetMixin
 
 
 
+# RESTFUL SQL QUERY DUMMY DATA
 class QueryViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `create`, `retrieve`,
@@ -159,7 +160,6 @@ class QueryViewSet(viewsets.ModelViewSet):
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
 
-
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
@@ -169,8 +169,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
 
-
-#SOV
+#SOV TESTS
 class SOVViewSet(viewsets.ModelViewSet):
     """
     A simple ViewSet for viewing and editing GAMA obj.
@@ -460,8 +459,7 @@ class SOVViewSet(viewsets.ModelViewSet):
         # , template_name='restapi_app/sov/gama-sov.html')
 
 
-
-#DATAMODEL
+#DATAMODEL TESTS
 class SurveyViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
@@ -480,7 +478,6 @@ class ReleaseTypeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slugField'
 
-
 class CatalogueViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
@@ -489,7 +486,6 @@ class CatalogueViewSet(viewsets.ModelViewSet):
     serializer_class = CatalogueSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slugField'
-
 
 class CatalogueGroupViewSet(viewsets.ModelViewSet):
     """
@@ -500,8 +496,6 @@ class CatalogueGroupViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slugField'
 
-
-
 class ImageViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
@@ -510,8 +504,6 @@ class ImageViewSet(viewsets.ModelViewSet):
     serializer_class = ImageSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slugField'
-
-
 
 class SpectraViewSet(viewsets.ModelViewSet):
     """
@@ -523,10 +515,7 @@ class SpectraViewSet(viewsets.ModelViewSet):
     lookup_field = 'slugField'
 
 
-
-
-#- - - - - - Non-model endpoints
-
+# NON-MODEL ENDPOINTS
 class CustomGet(views.APIView):
     """
     A custom endpoint for GET request.
@@ -536,7 +525,6 @@ class CustomGet(views.APIView):
         Return a hardcoded response.
         """
         return Response({"success": True, "content": "DATA!"})
-
 
 class FIDIA(object):
 
@@ -549,7 +537,6 @@ class FIDIA(object):
     def do_work(self):
         result = {'astroobject':self.astroobject, 'trait': self.trait, 'version': self.version, 'endpoint-content': 'a random string'};
         return result
-
 
 class ModelFreeView(views.APIView):
     """
@@ -584,7 +571,6 @@ class ModelFreeView(views.APIView):
         result = myObject.do_work()
         response = Response(result, status=status.HTTP_200_OK)
         return response
-
 
 class ModelFreeView(views.APIView):
     """
@@ -624,8 +610,6 @@ class ModelFreeView(views.APIView):
         return response
 
 
-
-
 # NON-MODEL ENDPOINTS (using VIEWSETS)
 
 # Expose an AstroObject resource (here pure python object)
@@ -641,11 +625,9 @@ astroobjects = {
     3: AstroObject(id=3, asvoid='0000000003', samiid='SAMIGAL', redshift='0.03', spectrum=None),
 }
 
-
 def get_next_astobj_id():
     return max(astroobjects) + 1
 
-# Viewset:
 class AstroObjectViewSet(viewsets.ViewSet):
     serializer_class = AstroObjectSerializer
     # required for browsable API to render handy form
@@ -727,8 +709,7 @@ class AstroObjectViewSet(viewsets.ViewSet):
 
 
 
-
-
+# ASVO:
 
 from fidia.archive.test_archive import ExampleArchive
 
@@ -748,75 +729,75 @@ sample = ar.get_full_sample()
 # 3.14159
 #
 
-class GalaxyViewSet(viewsets.ViewSet):
 
-    def list(self, request, format=None):
-        serializer_class = manufacture_galaxy_serializer_for_archive(ar)
-        serializer = serializer_class(
-            instance = sample.values(), many=True
-        )
-        #print("YOO O",vars(sample()))
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None, format=None):
+class SampleViewSet(mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    def list(self,request, pk=None, sample_pk=None, format=None):
         try:
-            astroobject = sample[pk]
+            astroobject = sample
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = manufacture_galaxy_serializer_for_archive(ar)
-
-        serializer = serializer_class(instance=astroobject)
-        print("YOO O",vars(astroobject.sample))
+        serializer_class = SampleSerializer
+        serializer = serializer_class(
+            instance=astroobject, many=False,
+            context={'request':request}
+        )
         return Response(serializer.data)
 
 
+class GalaxyViewSet(mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
+        try:
+            astroobject = sample[galaxy_pk]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class TraitViewSet(viewsets.ViewSet):
-
-    renderer_classes = (FITSRenderer, )
-
-    def list(self, request, galaxy_pk=None, trait_pk=None, format=None):
-
-        serializer_class = manufacture_trait_serializer_for_archive(ar)
+        serializer_class = AstroObjectSerializer
         serializer = serializer_class(
-            instance = sample[galaxy_pk][trait_pk], many=False,
+            instance=astroobject, many=False,
+            context={'request':request}
+        )
+        return Response(serializer.data)
+
+
+class TraitViewSet(mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
+        try:
+            astroobject = sample[galaxy_pk][trait_pk]
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer_class = AstroObjectTraitSerializer
+        serializer = serializer_class(
+            instance = astroobject, many=False,
             context={'request': request}
         )
-        print("YOO O",vars(sample['Gal1'][trait_pk]))
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None, galaxy_pk=None, trait_pk=None, format=None):
 
+class TraitPropertyViewSet(mixins.ListModelMixin,
+                            viewsets.GenericViewSet):
+    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
-            # astroobject = getattr(sample['Gal1']['velocity_map'],pk)
-            #have to make a dummy object here, else won't render? not sure why...
-            #single value not ok without key?
-
-            astroobject = {pk:getattr(sample[galaxy_pk][trait_pk],pk)}
+            # address trait properties via . not []
+            astroobject = getattr(sample[galaxy_pk][trait_pk],traitproperty_pk)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = manufacture_trait_serializer_for_archive(ar)
-
-        serializer = serializer_class(instance=astroobject, context={'request': request})
-        print("YOO O",vars(serializer))
+        serializer_class = AstroObjectPropertyTraitSerializer
+        serializer = serializer_class(
+            instance=astroobject, many=False,
+            context={'request': request}
+        )
         return Response(serializer.data)
-
-
-
-# TEST FIDIA MODEL GENERATION ON THE FLY
-
-class TestFidiaSchemaViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
-
-    queryset = TestFidiaSchema.objects.all()
-    serializer_class = TestFidiaSchemaSerializer
-    permission_classes = [permissions.AllowAny]
-    lookup_field = 'url'

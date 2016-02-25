@@ -111,9 +111,16 @@ class NestedExtendDefaultRouter(ExtendDefaultRouter):
         nested_routes = []
         parent_lookup_regex = parent_router.get_lookup_regex(parent_viewset, self.nest_prefix)
 
-        self.parent_regex = '{parent_prefix}/{parent_lookup_regex}/'.format(
+
+        # self.parent_regex = '{parent_prefix}/{parent_lookup_regex}/'.format(
+        #     parent_prefix=parent_prefix,
+        #     parent_lookup_regex=parent_lookup_regex
+        # )
+
+        # Liz: Override the parent regex (removing (?P<sample_PK>[^/.+]/   )
+
+        self.parent_regex = '{parent_prefix}/'.format(
             parent_prefix=parent_prefix,
-            parent_lookup_regex=parent_lookup_regex
         )
         if hasattr(parent_router, 'parent_regex'):
             self.parent_regex = parent_router.parent_regex+self.parent_regex
