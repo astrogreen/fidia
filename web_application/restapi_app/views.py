@@ -28,6 +28,8 @@ from .serializers import (
     TestFidiaSchemaSerializer,
 )
 
+from .renderers import FITSRenderer
+
 from . import AstroObject
 
 from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
@@ -774,7 +776,9 @@ class GalaxyViewSet(viewsets.ViewSet):
 
 class TraitViewSet(viewsets.ViewSet):
 
-    def list(self, request, galaxy_pk=None):
+    renderer_classes = (FITSRenderer, )
+
+    def list(self, request, galaxy_pk=None, format=None):
         serializer_class = manufacture_trait_serializer_for_archive(ar)
         serializer = serializer_class(
             instance = sample[galaxy_pk]['velocity_map'], many=False,
@@ -783,7 +787,7 @@ class TraitViewSet(viewsets.ViewSet):
         print("YOO O",vars(sample['Gal1']['velocity_map']))
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None, galaxy_pk=None):
+    def retrieve(self, request, pk=None, galaxy_pk=None, format=None):
         try:
             # astroobject = getattr(sample['Gal1']['velocity_map'],pk)
             #have to make a dummy object here, else won't render? not sure why...
