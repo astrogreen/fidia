@@ -30,7 +30,7 @@ router.register(r'galaxy', views.GalaxyViewSet, base_name='galaxy')
 #Additionally, we include the login URLs for the browsable API.
 
 nested_router = NestedExtendDefaultRouter(router, r'galaxy', lookup='galaxy')
-nested_router.register(r'trait', views.TraitViewSet, base_name='trait')
+nested_router.register(r'(?P<trait_pk>[^/.]+)', views.TraitViewSet, base_name='trait')
 
 
 urlpatterns = [

@@ -748,7 +748,7 @@ sample = ar.get_full_sample()
 
 class GalaxyViewSet(viewsets.ViewSet):
 
-    def list(self, request):
+    def list(self, request, format=None):
         serializer_class = manufacture_galaxy_serializer_for_archive(ar)
         serializer = serializer_class(
             instance = sample.values(), many=True
@@ -756,7 +756,7 @@ class GalaxyViewSet(viewsets.ViewSet):
         #print("YOO O",vars(sample()))
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, pk=None, format=None):
         try:
             astroobject = sample[pk]
         except KeyError:
@@ -774,22 +774,24 @@ class GalaxyViewSet(viewsets.ViewSet):
 
 class TraitViewSet(viewsets.ViewSet):
 
-    def list(self, request, galaxy_pk=None):
+    def list(self, request, galaxy_pk=None, trait_pk=None, format=None):
+
         serializer_class = manufacture_trait_serializer_for_archive(ar)
         serializer = serializer_class(
-            instance = sample[galaxy_pk]['velocity_map'], many=False,
+            instance = sample[galaxy_pk][trait_pk], many=False,
             context={'request': request}
         )
-        print("YOO O",vars(sample['Gal1']['velocity_map']))
+        print("YOO O",vars(sample['Gal1'][trait_pk]))
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None, galaxy_pk=None):
+    def retrieve(self, request, pk=None, galaxy_pk=None, trait_pk=None, format=None):
+
         try:
             # astroobject = getattr(sample['Gal1']['velocity_map'],pk)
             #have to make a dummy object here, else won't render? not sure why...
             #single value not ok without key?
 
-            astroobject = {pk:getattr(sample[galaxy_pk]['velocity_map'],pk)}
+            astroobject = {pk:getattr(sample[galaxy_pk][trait_pk],pk)}
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
