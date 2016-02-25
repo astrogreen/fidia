@@ -272,11 +272,14 @@ class Trait(AbstractBaseTrait):
         # Value should/will always be the first item in the FITS File (unless it cannot
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
-        if type(self).value.type not in ("float.array", "int.array", "float", "int"):
-            raise NotImplementedError("Cannot export this trait as FITS")
-        else:
+        if type(self).value.type in ("float.array", "int.array"):
             primary_hdu = fits.PrimaryHDU(self.value)
             hdulist.append(primary_hdu)
+        if type(self).value.type in ("float", "int")
+            primary_hdu = fits.PrimaryHDU([self.value])
+            hdulist.append(primary_hdu)
+        else:
+            raise NotImplementedError("Cannot export this trait as FITS")
 
         # Attach all "meta-data" Traits to Header of Primary HDU
         # for trait in self.sub_traits(MetaDataTrait):
@@ -297,6 +300,7 @@ class Trait(AbstractBaseTrait):
         #     extension = fits.BinTableHDU(trait_property)
         #     hdulist.append(extension)
 
+        hdulist.verify('exception')
         hdulist.writeto(file)
 
         # If necessary, close the open file handle.
