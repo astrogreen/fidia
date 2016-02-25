@@ -261,7 +261,7 @@ class Trait(AbstractBaseTrait):
 
 
         # Create a function holder which can be set to close the file if it is opened here
-        file_cleanup = lambda x: None
+        file_cleanup = lambda: None
         if isinstance(file, str):
             file = open(file, 'wb')
             # Store pointer to close function to be called at the end of the this function.
