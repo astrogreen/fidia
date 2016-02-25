@@ -275,10 +275,11 @@ class Trait(AbstractBaseTrait):
         if type(self).value.type in ("float.array", "int.array"):
             primary_hdu = fits.PrimaryHDU(self.value)
             hdulist.append(primary_hdu)
-        if type(self).value.type in ("float", "int"):
+        elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value])
             hdulist.append(primary_hdu)
         else:
+            log.error("Attempted to export trait with value type '%s'", type(self).value.type)
             raise NotImplementedError("Cannot export this trait as FITS")
 
         # Attach all "meta-data" Traits to Header of Primary HDU

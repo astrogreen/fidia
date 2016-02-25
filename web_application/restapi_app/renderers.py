@@ -8,6 +8,7 @@ from fidia.traits.base_traits import Trait
 class FITSRenderer(renderers.BaseRenderer):
     media_type = "application/fits"
     format = "fits"
+    charset = None
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         trait = data.serializer.instance

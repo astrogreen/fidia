@@ -87,12 +87,12 @@ class VelocityMap(Image):
     def unit(self):
         return None
 
-    @trait_property('float.ndarray')
+    @trait_property('float.array')
     def value(self):
-        return 45678
+        return np.random.random((5, 5))
         #return np.random.random((50, 50))
 
-    @trait_property('float.ndarray')
+    @trait_property('float.array')
     def variance(self):
         return np.random.random((5, 5))
 
