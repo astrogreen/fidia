@@ -212,14 +212,11 @@ class SAMIRowStackedSpectra(SpectralMap):
         return known_keys
 
 
-    def __init__(self, archive, trait_key):
-        self.object_id = trait_key.object_id
-        self.archive = archive
-        self._trait_name = trait_key.trait_name
+    def init(self):
 
         # Break apart and store the parts of the trait_name
-        self._run_id = trait_key.trait_name.split(":")[0]
-        self._rss_filename = trait_key.trait_name.split(":")[1]
+        self._run_id = self.trait_name.split(":")[0]
+        self._rss_filename = self.trait_name.split(":")[1]
 
 
         # Logic to construct full RSS filename
@@ -229,7 +226,7 @@ class SAMIRowStackedSpectra(SpectralMap):
         # This looks hard, but actually, a given filename should really only appear once in the directory tree
         # below a given run_id, so we use `glob` to make this easier.
 
-        self._rss_fits_filepath = archive._base_directory_path
+        self._rss_fits_filepath = self.archive._base_directory_path
 
         # The Run ID section
         self._rss_fits_filepath += self._run_id
@@ -246,7 +243,6 @@ class SAMIRowStackedSpectra(SpectralMap):
 
         self._rss_fits_filepath = possible_paths[0]
 
-        super(SAMIRowStackedSpectra, self).__init__(archive, trait_key)
 
     def preload(self):
         self._hdu = fits.open(self._rss_fits_filepath)
@@ -313,14 +309,10 @@ class SAMISpectralCube(SpectralMap):
         info = cube_info_from_path(path)
         return TraitKey(cls.trait_type, info['color'] + "." + info['binning'], info['plate_id'], info['sami_id'])
 
-    def __init__(self, archive, trait_key):
-        self.archive = archive
-        self.trait_key = trait_key
-        self.object_id = trait_key.object_id
-        self._trait_name = trait_key.trait_name
+    def init(self):
 
         # Get necessary parameters from the trait_name, filling in defaults if necessary
-        trait_name_split = trait_key.trait_name.split(".")
+        trait_name_split = self.trait_name.split(".")
         if len(trait_name_split) > 0:
             # First item is the color:
             self._color = trait_name_split[0]
@@ -328,18 +320,18 @@ class SAMISpectralCube(SpectralMap):
             raise Exception("Programming error")
         if len(trait_name_split) > 1:
             # Second item is the binning (optional, defaults to 05):
-            self._binning = trait_key.trait_name.split(".")[1]
+            self._binning = self.trait_key.trait_name.split(".")[1]
         else:
             self._binning = "05"
 
         # Get necessary parameters from the trait_version, filling in defaults if necessary
-        if trait_key.version is None:
+        if self.trait_key.version is None:
             # Default requested. For now, we simply choose the first item
             # appearing in the archive's cube_directory.
             self._plate_id = self.archive._cubes_directory.ix[self.object_id, self._color, self._binning]\
                 .reset_index()['plate_id'].iloc[0]
         else:
-            self._plate_id = trait_key.version
+            self._plate_id = self.version
 
         # Confirm the requested data actually exists:
         try:
@@ -347,17 +339,18 @@ class SAMISpectralCube(SpectralMap):
         except KeyError:
             log.error("Cannot retrieve cube info for key %s",
                       [self.object_id, self._color, self._binning, self._plate_id])
-            raise DataNotAvailable("SAMISpectralCube data not available for {}".format(trait_key))
+            raise DataNotAvailable("SAMISpectralCube data not available for {}".format(self.trait_key))
         else:
             if not isinstance(path, str):
                 log.debug("Something's wrong, `path` is not a string?!, probably: ")
-                log.debug("More than one cube file found for TraitKey %s", trait_key)
-                raise MultipleResults("Multiple SAMISpectralCubes available for {}.".format(trait_key))
+                log.debug("More than one cube file found for TraitKey %s", self.trait_key)
+                raise MultipleResults("Multiple SAMISpectralCubes available for {}.".format(self.trait_key))
 
         self._cube_path = self.archive._cubes_directory\
             .ix[self.object_id, self._color, self._binning, self._plate_id]['path']
 
-        super(SAMISpectralCube, self).__init__(archive, trait_key)
+        # Add links to sub_traits
+        self._sub_traits[TraitKey('rss',None, None, None)] = SAMIRowStackedSpectra
 
     def preload(self):
         self.hdu = fits.open(self._cube_path)

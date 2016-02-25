@@ -18,6 +18,12 @@ def test_incomplete_trait_fails():
 
     class ValidTestTrait(AbstractBaseTrait):
 
+        def known_keys(cls, object_id):
+            return []
+
+        def schema(cls):
+            return []
+
         @property
         def value(self):
             return 5

@@ -275,3 +275,4 @@ class TraitProperty(object):
                 return obj._trait_dict[self.name]
 
             raise Exception("Programming error")
+
