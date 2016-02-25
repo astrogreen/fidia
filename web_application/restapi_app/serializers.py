@@ -1,3 +1,7 @@
+import fidia
+
+from fidia.traits.utilities import TraitProperty
+
 from rest_framework import serializers, mixins
 from .models import (
     Query,
@@ -286,116 +290,39 @@ class AstroObjectSerializer(serializers.Serializer):
 #
 #     return TraitSerializer
 
+# class TraitSerializerFactory:
 
-def manufacture_trait_serializer(trait):
- 
-    class TraitSerializer(serializers.Serializer):
-        redshift = serializers.CharField(required=False, max_length=100, read_only=True)
-        line_map = serializers.CharField(required=False, max_length=100, read_only=True)
+class TraitPropertySerializer(serializers.Serializer):
 
-        # id = serializers.IntegerField(read_only=True)
-        # asvoid = serializers.CharField(read_only=True, max_length=100)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        def __init__(self, *args, **kwargs):
-            super(TraitSerializer,self).__init__(*args, **kwargs)
+        trait_property = self.instance
+        assert isinstance(trait_property, TraitProperty)
 
-            # for tp in trait._trait_properties():
-            #     print('--TraitProperties')
-            #     print(tp.name, tp.type)
-            #     if tp.type == "float":
-            #         print("Creating a float")
-            #         self.fields[tp.name] = serializers.FloatField(required=False, read_only=True)
-            #         # setattr(TraitSerializer, tp.name, serializers.FloatField(required=False))
-            #     if tp.type == "string":
-            #         print("Creating a string")
-            #         self.fields[tp.name] = serializers.CharField(required=False, max_length=100, read_only=True)
-            #         # setattr(TraitSerializer, tp.name, serializers.CharField(required=False))
-            #     if tp.type == 'float.array':
-            #         print(tp)
+        value = serializers.CharField(source="*")
 
-    return TraitSerializer
+TRAIT_SERIALIZER_CACHE = dict()
 
+class SimpleTraitSerializer(serializers.Serializer):
+    """Serializer which simply returns the string representation of the Trait"""
+    trait_repr = serializers.CharField(source="*")
 
-def manufacture_galaxy_serializer_for_archive(archive):
+def get_serializer_for_trait(self, trait):
+    return SimpleTraitSerializer
 
-    # Get the schema for the galaxies.
-            #
-            # {'line_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'},
-            # 'redshift': {'value': 'float'},
-            # 'spectral_map': {'extra_value': 'float',
-            #    'galaxy_name': 'string',
-            #    'value': 'float.array',
-            #    'variance': 'float.array'},
-            # 'velocity_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'}}
-    schema = archive.schema()
+class AstroOjbectSerializer(serializers.Serializer):
 
-    class GalaxySerializer(serializers.Serializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        def __init__(self, *args, **kwargs):
-            super(GalaxySerializer,self).__init__(*args, **kwargs)
+        astro_object = self.instance
+        assert isinstance(astro_object, fidia.AstronomicalObject)
 
-            for trait in schema:
-                if trait != 'spectral_map':
-                    self.fields[trait] = TraitSerializer(required=False)
-
-        #pk = serializers.CharField(required=False, max_length=10000, read_only=True)
-
-    class TraitSerializer(serializers.Serializer):
-
-        def __init__(self, *args, **kwargs):
-            super(TraitSerializer,self).__init__(*args, **kwargs)
-
-        # Get the schema for the traits
-            for trait in schema:
-                for traitproperty in schema[trait]:
-                    if schema[trait][traitproperty] == "string":
-                        self.fields[traitproperty] = serializers.CharField(required=False, max_length=10000, read_only=True)
-                    elif schema[trait][traitproperty] == "float":
-                        self.fields[traitproperty] = serializers.FloatField(required=False, read_only=True)
-
-                    elif schema[trait][traitproperty] == 'float.ndarray':
-                        self.fields[traitproperty] = serializers.CharField(max_length=10000, required=False, read_only=True)
-
-                    elif schema[trait][traitproperty] == 'float.array':
-                        self.fields[traitproperty] = serializers.CharField(required=False, max_length=10000, read_only=True)
-
-                    else:
-                        self.fields[traitproperty] = serializers.CharField(required=False, max_length=10000, read_only=True)
-        #pk = serializers.CharField(required=False, max_length=10000, read_only=True)
-
-    return GalaxySerializer
-
-
-
-def manufacture_trait_serializer_for_archive(archive):
-
-    schema = archive.schema()
-
-    class TraitPropertySerializer(serializers.Serializer):
-
-        def __init__(self, *args, **kwargs):
-            super(TraitPropertySerializer,self).__init__(*args, **kwargs)
-
-            # Get the schema for the traits
-            for trait in schema:
-                if trait != 'spectral_map':
-                    for traitproperty in schema[trait]:
-                        if (schema[trait][traitproperty] == "string"):
-                            self.fields[traitproperty] = serializers.CharField(required=False, max_length=10000, read_only=True)
-                        elif (schema[trait][traitproperty] == "float"):
-                            self.fields[traitproperty] = serializers.FloatField(required=False, read_only=True)
-                        elif (schema[trait][traitproperty] == 'float.ndarray'):
-                            self.fields[traitproperty] = serializers.CharField(max_length=10000, required=False, read_only=True)
-                        elif (schema[trait][traitproperty] == 'float.array'):
-                            self.fields[traitproperty] = serializers.CharField(required=False, max_length=10000, read_only=True)
-                        else:
-                            self.fields[traitproperty] = serializers.CharField(required=False, max_length=10000, read_only=True)
-
-        value = serializers.HyperlinkedIdentityField(view_name='trait-detail')
-        object_id = serializers.CharField(required=False, max_length=10000, read_only=True)
-
-    repr(TraitPropertySerializer())
-    return TraitPropertySerializer
+        # Iterate over the AstroObject keys (which are keys to traits)
+        for key in astro_object.keys():
+            serializer = get_serializer_for_trait(astro_object[key])
+            self.fields[key] = serializer(required=False)
 
 
 

@@ -81,8 +81,9 @@ class AstronomicalObject(collections.MutableMapping):
         keys = set()
         for ar in self.sample.archives:
             archive_id = self.sample.get_archive_id(ar, self.identifier)
-            for trait_type in ar.schema():
-                keys.update(ar.available_traits[trait_type].known_keys(ar, object_id=archive_id))
+            # for trait_type in ar.schema():
+            #     keys.update(ar.available_traits[trait_type].known_keys(ar, object_id=archive_id))
+            keys.update(ar.schema())
         return keys
 
     def __len__(self):
