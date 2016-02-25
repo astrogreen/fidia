@@ -275,7 +275,7 @@ class Trait(AbstractBaseTrait):
         if type(self).value.type in ("float.array", "int.array"):
             primary_hdu = fits.PrimaryHDU(self.value)
             hdulist.append(primary_hdu)
-        if type(self).value.type in ("float", "int")
+        if type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value])
             hdulist.append(primary_hdu)
         else:
