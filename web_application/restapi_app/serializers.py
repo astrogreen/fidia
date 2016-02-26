@@ -254,14 +254,18 @@ class AstroObjectSerializer_old(serializers.Serializer):
 
 # - - - - - - - -    - - -  -   -   -   -   -   -   -   -   -
 
+def get_and_update_depth_limit(kwargs):
+    depth_limit = kwargs.pop('depth_limit', -1)
+    if isinstance(depth_limit, int):
+        if depth_limit > 0:
+            depth_limit -= 1
+        else:
+            depth_limit = 0
+    return depth_limit
+
 class AstroObjectPropertyTraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
-        depth_limit = kwargs.pop('depth_limit', -1)
-        if isinstance(depth_limit, int):
-            if depth_limit > 0:
-                depth_limit -= 1
-            else:
-                depth_limit = 0
+        depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
     object_id = serializers.CharField(max_length=100, required=False, source="*")
@@ -269,12 +273,7 @@ class AstroObjectPropertyTraitSerializer(serializers.Serializer):
 
 class AstroObjectTraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
-        depth_limit = kwargs.pop('depth_limit', -1)
-        if isinstance(depth_limit, int):
-            if depth_limit > 0:
-                depth_limit -= 1
-            else:
-                depth_limit = 0
+        depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
         trait = self.instance
@@ -287,12 +286,7 @@ class AstroObjectTraitSerializer(serializers.Serializer):
 
 class AstroObjectSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
-        depth_limit = kwargs.pop('depth_limit', -1)
-        if isinstance(depth_limit, int):
-            if depth_limit > 0:
-                depth_limit -= 1
-            else:
-                depth_limit = 0
+        depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
         astro_object = self.instance
@@ -310,12 +304,7 @@ class AstroObjectSerializer(serializers.Serializer):
 
 class SampleSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
-        depth_limit = kwargs.pop('depth_limit', -1)
-        if isinstance(depth_limit, int):
-            if depth_limit > 0:
-                depth_limit -= 1
-            else:
-                depth_limit = 0
+        depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
         sample = self.instance
