@@ -268,7 +268,9 @@ class AstroObjectPropertyTraitSerializer(serializers.Serializer):
         depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
-    object_id = serializers.CharField(max_length=100, required=False, source="*")
+        # construct a meaningful key (the current traitproperty in question)
+        self.traitproperty_name = self.context['request'].parser_context['kwargs']['traitproperty_pk']
+        self.fields[self.traitproperty_name] = serializers.CharField(max_length=100, required=False, source="*")
 
 
 class AstroObjectTraitSerializer(serializers.Serializer):
@@ -279,7 +281,7 @@ class AstroObjectTraitSerializer(serializers.Serializer):
         trait = self.instance
         assert isinstance(trait, Trait)
 
-        self.fields['object_id'] = serializers.CharField(max_length=100, required=False, source="*")
+        self.fields['object'] = serializers.CharField(max_length=100, required=False, source="*")
         for trait_property in trait._trait_properties():
             self.fields[trait_property.name] = serializers.CharField(max_length=100, required=False)
 
@@ -299,7 +301,7 @@ class AstroObjectSerializer(serializers.Serializer):
                 # Recurse displaying details at lower level
                 self.fields[trait] = AstroObjectTraitSerializer(instance=astro_object[trait], depth_limit=depth_limit)
 
-    object_id = serializers.CharField(max_length=100, required=False, source="*")
+    object = serializers.CharField(max_length=100, required=False, source="*")
 
 
 class SampleSerializer(serializers.Serializer):
