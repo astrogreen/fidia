@@ -256,8 +256,8 @@ class AstroObjectSerializer_old(serializers.Serializer):
 
 class AstroObjectPropertyTraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
-        depth_limit = kwargs.pop('depth_limit')
-        if depth_limit is not None and isinstance(depth_limit, int):
+        depth_limit = kwargs.pop('depth_limit', -1)
+        if isinstance(depth_limit, int):
             if depth_limit > 0:
                 depth_limit -= 1
             else:
