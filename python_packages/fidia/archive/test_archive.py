@@ -8,9 +8,9 @@ from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
 
-    def init(self):
-        if self.trait_name != 'mymap':
-            raise DataNotAvailable("ExampleSpectraMap only has trait_name='mymap' data.")
+    # def init(self):
+    #     if self.trait_name != 'mymap':
+    #         raise DataNotAvailable("ExampleSpectraMap only has trait_name='mymap' data.")
 
     @classmethod
     def known_keys(cls, object_id):
