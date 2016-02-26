@@ -629,17 +629,17 @@ def get_next_astobj_id():
     return max(astroobjects) + 1
 
 class AstroObjectViewSet(viewsets.ViewSet):
-    serializer_class = AstroObjectSerializer
+    serializer_class = AstroObjectSerializer_old
     # required for browsable API to render handy form
 
     def list(self, request):
-        serializer = AstroObjectSerializer(
+        serializer = AstroObjectSerializer_old(
             instance = astroobjects.values(), many=True
         )
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = AstroObjectSerializer(data=request.data)
+        serializer = AstroObjectSerializer_old(data=request.data)
         if serializer.is_valid():
             astroobj = serializer.save()
             astroobj.id = get_next_astobj_id()
@@ -656,7 +656,7 @@ class AstroObjectViewSet(viewsets.ViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = AstroObjectSerializer(instance=astroobject)
+        serializer = AstroObjectSerializer_old(instance=astroobject)
         return Response(serializer.data)
 
 
@@ -668,7 +668,7 @@ class AstroObjectViewSet(viewsets.ViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = AstroObjectSerializer(
+        serializer = AstroObjectSerializer_old(
             data=request.data, instance=astroobject)
         if serializer.is_valid():
             astroobject = serializer.save()
@@ -685,7 +685,7 @@ class AstroObjectViewSet(viewsets.ViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = AstroObjectSerializer(
+        serializer = AstroObjectSerializer_old(
             data=request.data,
             instance=astroobject,
             partial=True)
@@ -732,9 +732,9 @@ sample = ar.get_full_sample()
 
 class SampleViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
-    def list(self,request, pk=None, sample_pk=None, format=None):
+    def list(self, request, pk=None, sample_pk=None, format=None):
         try:
-            astroobject = sample
+            sample
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -742,8 +742,9 @@ class SampleViewSet(mixins.ListModelMixin,
 
         serializer_class = SampleSerializer
         serializer = serializer_class(
-            instance=astroobject, many=False,
-            context={'request':request}
+            instance=sample, many=False,
+            context={'request': request},
+            depth_limit=1
         )
         return Response(serializer.data)
 
@@ -770,7 +771,7 @@ class TraitViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
         try:
-            astroobject = sample[galaxy_pk][trait_pk]
+            trait = sample[galaxy_pk][trait_pk]
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -778,7 +779,7 @@ class TraitViewSet(mixins.ListModelMixin,
 
         serializer_class = AstroObjectTraitSerializer
         serializer = serializer_class(
-            instance = astroobject, many=False,
+            instance=trait, many=False,
             context={'request': request}
         )
         return Response(serializer.data)
@@ -789,7 +790,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
             # address trait properties via . not []
-            astroobject = getattr(sample[galaxy_pk][trait_pk],traitproperty_pk)
+            trait_property = getattr(sample[galaxy_pk][trait_pk], traitproperty_pk)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -797,7 +798,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
 
         serializer_class = AstroObjectPropertyTraitSerializer
         serializer = serializer_class(
-            instance=astroobject, many=False,
+            instance=trait_property, many=False,
             context={'request': request}
         )
         return Response(serializer.data)

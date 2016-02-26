@@ -1,6 +1,7 @@
 import fidia
 
 from fidia.traits.utilities import TraitProperty
+from fidia.traits.base_traits import Trait
 
 from rest_framework import serializers, mixins
 from .models import (
@@ -255,6 +256,12 @@ class AstroObjectSerializer_old(serializers.Serializer):
 
 class AstroObjectPropertyTraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
+        depth_limit = kwargs.pop('depth_limit')
+        if depth_limit is not None and isinstance(depth_limit, int):
+            if depth_limit > 0:
+                depth_limit -= 1
+            else:
+                depth_limit = 0
         super().__init__(*args, **kwargs)
 
     object_id = serializers.CharField(max_length=100, required=False, source="*")
@@ -262,26 +269,67 @@ class AstroObjectPropertyTraitSerializer(serializers.Serializer):
 
 class AstroObjectTraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
+        depth_limit = kwargs.pop('depth_limit', -1)
+        if isinstance(depth_limit, int):
+            if depth_limit > 0:
+                depth_limit -= 1
+            else:
+                depth_limit = 0
         super().__init__(*args, **kwargs)
 
-    object_id = serializers.CharField(max_length=100, required=False, source="*")
+        trait = self.instance
+        assert isinstance(trait, Trait)
+
+        self.fields['object_id'] = serializers.CharField(max_length=100, required=False, source="*")
+        for trait_property in trait._trait_properties():
+            self.fields[trait_property.name] = serializers.CharField(max_length=100, required=False)
 
 
 class AstroObjectSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
+        depth_limit = kwargs.pop('depth_limit', -1)
+        if isinstance(depth_limit, int):
+            if depth_limit > 0:
+                depth_limit -= 1
+            else:
+                depth_limit = 0
         super().__init__(*args, **kwargs)
+
+        astro_object = self.instance
+        assert isinstance(astro_object, fidia.AstronomicalObject)
+        for trait in astro_object:
+            if depth_limit == 0:
+                # No details to be displayed below this level
+                self.fields[trait] = serializers.CharField()
+            else:
+                # Recurse displaying details at lower level
+                self.fields[trait] = AstroObjectTraitSerializer(instance=astro_object[trait], depth_limit=depth_limit)
 
     object_id = serializers.CharField(max_length=100, required=False, source="*")
 
 
 class SampleSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
+        depth_limit = kwargs.pop('depth_limit', -1)
+        if isinstance(depth_limit, int):
+            if depth_limit > 0:
+                depth_limit -= 1
+            else:
+                depth_limit = 0
         super().__init__(*args, **kwargs)
 
-        for object in self.instance:
-            # self.fields[object] = AstroObjectSerializer2()
-            self.fields[object] = serializers.CharField(max_length=100, required=False)
+        sample = self.instance
+        assert isinstance(sample, fidia.Sample), \
+            "SampleSerializer must have an instance of fidia.Sample, " +\
+            "not '%s': try SampleSerializer(instance=sample)" % sample
 
+        for astro_object in sample:
+            if depth_limit == 0:
+                # No details to be displayed below this level
+                self.fields[astro_object] = serializers.CharField()
+            else:
+                # Recurse displaying details at lower level
+                self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
 
 
 
