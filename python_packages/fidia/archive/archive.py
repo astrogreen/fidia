@@ -95,13 +95,5 @@ class Archive(BaseArchive):
                 result[trait_type].update(trait.schema())
         return result
 
-    def known_trait_keys(self):
-        known_trait_keys = set()
-        for k in self.available_traits:
-            # Ask each trait class for it's known keys,
-            # and add them to the full set:
-            known_trait_keys.update(self.available_traits[k].known_keys(self))
-        return known_trait_keys
-
     def define_available_traits(self):
         return NotImplementedError()

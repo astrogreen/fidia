@@ -12,10 +12,6 @@ class ExampleSpectralMap(SpectralMap):
     #     if self.trait_name != 'mymap':
     #         raise DataNotAvailable("ExampleSpectraMap only has trait_name='mymap' data.")
 
-    @classmethod
-    def known_keys(cls, object_id):
-        return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
-
     def preload(self):
         # Make an object have typically the same random data.
         np.random.seed(hash(self.object_id) % 500000)
@@ -40,10 +36,6 @@ class ExampleSpectralMap(SpectralMap):
 
 
 class ExampleSpectralMapExtra(SpectralMap):
-
-    @classmethod
-    def known_keys(cls, object_id):
-        return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -77,9 +69,6 @@ class ExampleSpectralMapExtra(SpectralMap):
 
 class VelocityMap(Image):
 
-    def known_keys(self):
-        return [TraitKey('velocity_map')]
-
     @property
     def shape(self):
         return self.value.shape
@@ -98,9 +87,6 @@ class VelocityMap(Image):
 
 class LineMap(Image):
 
-    def known_keys(self):
-        return [TraitKey('line_map')]
-
     @property
     def shape(self):
         return self.value.shape
@@ -118,9 +104,6 @@ class LineMap(Image):
 
 class Redshift(Measurement):
 
-    def known_keys(self):
-        return [TraitKey('redshift')]
-
     @trait_property('float')
     def value(self):
         return 3.14159
@@ -134,10 +117,6 @@ class TestMissingProperty(SpectralMap):
     def shape(self):
         return 0
 
-    @classmethod
-    def known_keys(cls, object_id):
-        return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
-
     @trait_property('float.array')
     def value(self):
         return np.random.random((3, 5, 10))
@@ -148,7 +127,6 @@ class TestMissingProperty(SpectralMap):
     @trait_property('string')
     def galaxy_name(self):
         return self.object_id
-
 
 class ExampleArchive(Archive):
 

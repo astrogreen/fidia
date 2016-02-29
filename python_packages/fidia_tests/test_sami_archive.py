@@ -110,19 +110,19 @@ class TestSAMIArchive:
             # Each element should be dictionary-like
             assert isinstance(schema[trait_type], dict)
 
-    def test_get_trait_keys_for_rss(self, sami_archive):
-        rss_keys = sami_archive.available_traits[('rss_map')].known_keys(sami_archive)
-        key = rss_keys.pop()
-        sample = sami_archive.get_full_sample()
-        assert isinstance(sample[key.object_id][key], AbstractBaseTrait)
-
-    def test_get_all_trait_keys_archive(self, sami_archive):
-        rss_keys = sami_archive.known_trait_keys()
-        sample = sami_archive.get_full_sample()
-        for key in random.sample(rss_keys, 10):
-            try:
-                trait = sample[key.object_id][key]
-            except DataNotAvailable:
-                continue
-            else:
-                assert isinstance(trait, AbstractBaseTrait)
+    # def test_get_trait_keys_for_rss(self, sami_archive):
+    #     rss_keys = sami_archive.available_traits[('rss_map')].known_keys(sami_archive)
+    #     key = rss_keys.pop()
+    #     sample = sami_archive.get_full_sample()
+    #     assert isinstance(sample[key.object_id][key], AbstractBaseTrait)
+    #
+    # def test_get_all_trait_keys_archive(self, sami_archive):
+    #     rss_keys = sami_archive.known_trait_keys()
+    #     sample = sami_archive.get_full_sample()
+    #     for key in random.sample(rss_keys, 10):
+    #         try:
+    #             trait = sample[key.object_id][key]
+    #         except DataNotAvailable:
+    #             continue
+    #         else:
+    #             assert isinstance(trait, AbstractBaseTrait)
