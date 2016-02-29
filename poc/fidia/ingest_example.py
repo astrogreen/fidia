@@ -12,7 +12,10 @@ sample = ar.get_full_sample()
 def store_data_for_trait(hierarchy, trait):
     assert isinstance(trait, Trait)
     for trait_property_name in trait.trait_property_dir():
-        data_to_store = getattr(sample[object_id][trait_key], trait_property_name)
+        data_to_store = getattr(trait, trait_property_name)
+
+        # Need to put data_to_store at "location" hierarchy in the database
+
     # for sub_trait in trait.sub_trait_list():
     #     store_data_for_trait(hierarchy + (sub_trait.key,), sub_trait)
 
