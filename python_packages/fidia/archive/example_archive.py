@@ -12,6 +12,12 @@ class ExampleSpectralMap(SpectralMap):
     #     if self.trait_name != 'mymap':
     #         raise DataNotAvailable("ExampleSpectraMap only has trait_name='mymap' data.")
 
+    trait_type = "spectral_map"
+
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
+
     def preload(self):
         # Make an object have typically the same random data.
         np.random.seed(hash(self.object_id) % 500000)
@@ -36,6 +42,12 @@ class ExampleSpectralMap(SpectralMap):
 
 
 class ExampleSpectralMapExtra(SpectralMap):
+
+    trait_type = "spectral_map"
+
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -69,6 +81,12 @@ class ExampleSpectralMapExtra(SpectralMap):
 
 class VelocityMap(Image):
 
+    trait_type = "velocity_map"
+
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
+
     @property
     def shape(self):
         return self.value.shape
@@ -87,6 +105,12 @@ class VelocityMap(Image):
 
 class LineMap(Image):
 
+    trait_type = "line_map"
+
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
+
     @property
     def shape(self):
         return self.value.shape
@@ -104,6 +128,12 @@ class LineMap(Image):
 
 class Redshift(Measurement):
 
+    trait_type = "redshift"
+
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
+
     @trait_property('float')
     def value(self):
         return 3.14159
@@ -112,6 +142,12 @@ class Redshift(Measurement):
         return None
 
 class TestMissingProperty(SpectralMap):
+
+    trait_type = "spectral_map"
+
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
 
     @property
     def shape(self):
@@ -130,35 +166,48 @@ class TestMissingProperty(SpectralMap):
 
 class SimpleTrait(Trait):
 
-        # NOTE: Tests rely on this, so changing it will require updating the tests!
+    # NOTE: Tests rely on this class, so changing it will require updating the tests!
 
-        @trait_property('float')
-        def value(self):
-            return 5.5
+    trait_type = "simple_trait"
 
-        @trait_property('string')
-        def extra(self):
-            return "Extra info"
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
+
+    @trait_property('float')
+    def value(self):
+        return 5.5
+
+    @trait_property('string')
+    def extra(self):
+        return "Extra info"
 
 class SimpleTraitWithSubtraits(Trait):
 
-        # NOTE: Tests rely on this, so changing it will require updating the tests!
+    # NOTE: Tests rely on this class, so changing it will require updating the tests!
 
-        _sub_traits = TraitMapping()
-        _sub_traits[TraitKey('sub_trait')] = SimpleTrait
+    trait_type = "simple_heir_trait"
 
-        @trait_property('float')
-        def value(self):
-            return 5.5
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, trait_name="", version="")]
 
-        @trait_property('string')
-        def extra(self):
-            return "Extra info"
+    _sub_traits = TraitMapping()
+    _sub_traits[TraitKey('sub_trait')] = SimpleTrait
+
+    @trait_property('float')
+    def value(self):
+        return 5.5
+
+    @trait_property('string')
+    def extra(self):
+        return "Extra info"
 
 
 class ExampleArchive(Archive):
 
     def __init__(self):
+        # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
         self._contents = ['Gal1', 'Gal2', 'Gal3']
 
         # Local cache for traits

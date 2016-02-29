@@ -32,9 +32,14 @@ class TestSample:
 
     def test_sample_behaives_like_dict(self, example_archive_sample):
 
+        example_archive_sample.keys()
+        len(example_archive_sample)
+
         for key in example_archive_sample:
             assert isinstance(key, str)
 
+        for key in example_archive_sample.keys():
+            assert isinstance(key, str)
 
 
     # Tests for a writeable Sample

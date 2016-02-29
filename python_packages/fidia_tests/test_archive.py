@@ -8,6 +8,8 @@ from fidia.traits.utilities import TraitKey, TraitMapping, trait_property
 from fidia.traits.base_traits import SpectralMap
 from fidia.exceptions import DataNotAvailable
 
+from fidia.archive.example_archive import ExampleSpectralMap
+
 class TestArchive:
 
     @pytest.fixture
@@ -20,8 +22,8 @@ class TestArchive:
                     raise DataNotAvailable("ExampleSpectraMap only has 'mymap' data.")
 
             @classmethod
-            def known_keys(cls, object_id):
-                return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
+            def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+                return [TraitKey('spectral_map', 'mymap', None, object_id=object_id)]
 
             def preload(self):
                 # Make an object have typically the same random data.
@@ -53,8 +55,8 @@ class TestArchive:
         class ExampleSpectralMapExtra(SpectralMap):
 
             @classmethod
-            def known_keys(cls, object_id):
-                return TraitKey('spectral_map', 'mymap', None, object_id=object_id)
+            def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+                return [TraitKey('spectral_map', 'mymap', None, object_id=object_id)]
 
             def preload(self):
                 # Make an object have typically the same random data.

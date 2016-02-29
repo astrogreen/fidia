@@ -42,6 +42,10 @@ class AbstractBaseTrait(metaclass=ABCMeta):
     def value(self):
         raise NotImplementedError
 
+    @abstractclassmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        raise NotImplementedError
+
     # @abstractproperty
     # def description(self): raise NotImplementedError
 

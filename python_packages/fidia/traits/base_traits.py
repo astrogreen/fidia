@@ -206,6 +206,10 @@ class Trait(AbstractBaseTrait):
     #             log.debug("Found trait property '{}'".format(key))
     #             yield obj
 
+    def trait_property_dir(self):
+        for tp in self._trait_properties():
+            yield tp.name
+
     def trait_property_values(self, trait_type=None):
         """Generator which returns the values of the TraitProperties of the given type.
 
