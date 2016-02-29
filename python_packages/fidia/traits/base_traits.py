@@ -18,8 +18,10 @@ log.enable_console_logging()
 
 class Trait(AbstractBaseTrait):
 
+    _sub_traits = TraitMapping()
+
     @classmethod
-    def schema(cls):
+    def schema(cls, include_subtraits=True):
         """Provide the schema of data in this trait as a dictionary.
 
         The schema is presented as a dictionary, where the keys are strings
@@ -34,12 +36,78 @@ class Trait(AbstractBaseTrait):
             {'value': 'float', 'variance': 'float'}
 
         """
+
+
         schema = dict()
-        for attr in dir(cls):
-            if isinstance(getattr(cls, attr), TraitProperty):
-                schema[attr] = getattr(cls, attr).type
+        for trait_property in cls._trait_properties():
+                schema[trait_property.name] = trait_property.type
+
+        if include_subtraits:
+            for trait_type in cls._sub_traits.get_trait_types():
+                # Create empty this sub-trait type:
+                schema[trait_type] = dict()
+                # Populate the dict with schema from each sub-type:
+                for trait_class in cls.sub_traits(trait_type_filter=trait_type):
+                    # FIXME: This will break if different sub-traits have different schemas (I think).
+                    #
+                    #   The update needs to be done recursively, not just on the top
+                    #   level of the sub-trait dictionary. Otherwise, the schema
+                    #   produced will be incomplete. This can best be fixed by
+                    #   implementing a special sub-class of dict expressly for this
+                    #   purpose, which knows how to do such a recurisve update.
+                    schema[trait_type].update(trait_class.schema())
 
         return schema
+
+    @classmethod
+    def sub_traits(cls, trait_type_filter=None):
+        """Generate list of sub_traits.
+
+        :parameter trait_type_filter:
+            The list of trait_types that should be included in the results, or None for all Traits.
+
+        :returns:
+            The sub-trait classes (not instances!).
+
+        """
+
+        if trait_type_filter is None:
+            # Include all sub-traits
+            trait_type_filter = cls._sub_traits.get_trait_types()
+
+        for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
+            yield trait_class
+
+    def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
+        super().__init__()
+        self.archive = archive
+        if object_id is not None:
+            trait_key = trait_key.replace(object_id=object_id)
+        self.trait_key = trait_key
+        self.version = trait_key.version
+        self.object_id = trait_key.object_id
+        self._parent_trait = parent_trait
+        self._trait_name = trait_key.trait_name
+
+        self._trait_cache = OrderedDict()
+
+
+        # The preload count is used to track how many accesses there are to this
+        # trait so that it can be properly cleaned up when all loads are
+        # complete.
+        self._preload_count = 0
+
+        if loading not in ('eager', 'lazy', 'verylazy'):
+            raise ValueError("loading keyword must be one of ('eager', 'lazy', 'verylazy')")
+        self._loading = loading
+
+        # Call user provided `init` funciton
+        self.init()
+
+        # Preload all traits
+        # @TODO: Modify preloading to respect preload argument
+        self._trait_dict = dict()
+        self._realise()
 
     def get_sub_trait(self, trait_key):
 
@@ -67,55 +135,6 @@ class Trait(AbstractBaseTrait):
             self._trait_cache[trait_key] = trait
 
         return self._trait_cache[trait_key]
-
-    def sub_traits(self, trait_type_filter=None):
-        """(NOT IMPLEMENTED) Generate list of sub_traits.
-
-        :parameter trait_type_filter:
-            The list of Trait Classes that should be included in the results, or None for all Traits.
-
-        :returns:
-            The sub-trait instances.
-
-        """
-        raise NotImplementedError("I don't yet know how to get my sub_traits")
-
-        for trait in []:
-            if trait_type_filter is None or isinstance(trait, trait_type_filter):
-                yield trait
-
-
-    def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
-        super().__init__()
-        self.archive = archive
-        if object_id is not None:
-            trait_key = trait_key.replace(object_id=object_id)
-        self.trait_key = trait_key
-        self.version = trait_key.version
-        self.object_id = trait_key.object_id
-        self._parent_trait = parent_trait
-        self._trait_name = trait_key.trait_name
-
-        self._sub_traits = TraitMapping()
-        self._trait_cache = OrderedDict()
-
-
-        # The preload count is used to track how many accesses there are to this
-        # trait so that it can be properly cleaned up when all loads are
-        # complete.
-        self._preload_count = 0
-
-        if loading not in ('eager', 'lazy', 'verylazy'):
-            raise ValueError("loading keyword must be one of ('eager', 'lazy', 'verylazy')")
-        self._loading = loading
-
-        # Call user provided `init` funciton
-        self.init()
-
-        # Preload all traits
-        # @TODO: Modify preloading to respect preload argument
-        self._trait_dict = dict()
-        self._realise()
 
     @property
     def trait_name(self):
@@ -150,7 +169,8 @@ class Trait(AbstractBaseTrait):
         """
         pass
 
-    def _trait_properties(self, trait_type=None):
+    @classmethod
+    def _trait_properties(cls, trait_type=None):
         """Generator which iterates over the TraitProperties attached to this Trait.
 
         :param trait_type:
@@ -170,10 +190,10 @@ class Trait(AbstractBaseTrait):
             trait_type = tuple(trait_type)
 
         # Search class attributes:
-        for key in dir(type(self)):
-            obj = getattr(type(self), key)
+        for attr in dir(cls):
+            obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
-                log.debug("Found trait property '{} of type'".format(key, obj.type))
+                log.debug("Found trait property '{} of type'".format(attr, obj.type))
                 if (trait_type is None) or (obj.type in trait_type):
                     yield obj
 
