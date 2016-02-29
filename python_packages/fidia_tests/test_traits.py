@@ -6,7 +6,7 @@ import pytest
 from fidia.traits.abstract_base_traits import *
 from fidia.traits.base_traits import Trait
 from fidia.traits.utilities import TraitProperty, trait_property, TraitKey, TraitMapping
-from fidia.archive import test_archive
+from fidia.archive import example_archive
 
 
 def test_incomplete_trait_fails():
@@ -82,7 +82,7 @@ class TestTraits:
 
     def test_get_trait_properties(self):
 
-        test_trait = test_archive.SimpleTrait(None, TraitKey('test_trait'))
+        test_trait = example_archive.SimpleTrait(None, TraitKey('test_trait'))
 
         for prop in test_trait._trait_properties():
             assert isinstance(prop, TraitProperty)
@@ -92,7 +92,7 @@ class TestTraits:
 
     def test_trait_schema(self):
 
-        test_trait = test_archive.SimpleTrait(None, TraitKey('test_trait'))
+        test_trait = example_archive.SimpleTrait(None, TraitKey('test_trait'))
 
         schema = test_trait.schema()
 
@@ -105,7 +105,7 @@ class TestTraits:
 
     def test_trait_schema_with_subtraits(self):
 
-        test_trait = test_archive.SimpleTraitWithSubtraits(None, TraitKey('test_trait'))
+        test_trait = example_archive.SimpleTraitWithSubtraits(None, TraitKey('test_trait'))
 
         schema = test_trait.schema()
 

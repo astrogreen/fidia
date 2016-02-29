@@ -2,7 +2,7 @@ import pytest
 
 from fidia import Sample, AstronomicalObject
 from fidia.archive import MemoryArchive
-from fidia.archive.test_archive import ExampleArchive
+from fidia.archive.example_archive import ExampleArchive
 
 class TestSample:
 

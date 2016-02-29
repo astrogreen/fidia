@@ -711,7 +711,7 @@ class AstroObjectViewSet(viewsets.ViewSet):
 
 # ASVO:
 
-from fidia.archive.test_archive import ExampleArchive
+from fidia.archive.example_archive import ExampleArchive
 
 ar = ExampleArchive()
 sample = ar.get_full_sample()
