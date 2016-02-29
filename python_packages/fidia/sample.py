@@ -93,9 +93,6 @@ class Sample(collections.MutableMapping):
         if self.read_only:
             raise Exception()
 
-    def keys(self):
-        return self._ids
-
     def __len__(self):
         return len(self._id_cross_matches)
 
@@ -141,7 +138,7 @@ class Sample(collections.MutableMapping):
 
     @property
     def ids(self):
-        return self._id_cross_matches.index
+        return self.keys()
     # @ids.setter
     # def ids(self, value):
     #     if self._mutable and not self.read_only:
@@ -159,9 +156,9 @@ class Sample(collections.MutableMapping):
 
 
 
-    @property
-    def contents(self):
-        return self._objects
+    # @property
+    # def contents(self):
+    #     return self._objects
 
     @property
     def archives(self):
