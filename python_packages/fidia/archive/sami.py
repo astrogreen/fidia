@@ -174,6 +174,11 @@ class SAMIRowStackedSpectra(SpectralMap):
 
     trait_type = 'rss_map'
 
+
+    @classmethod
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        return [TraitKey(cls.trait_type, "")]
+
     @classmethod
     def known_keys(cls, archive, object_id=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
@@ -286,23 +291,28 @@ class SAMISpectralCube(SpectralMap):
     trait_type = 'spectral_cube'
 
     @classmethod
-    def known_keys(cls, archive, object_id=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
+        # Currently only knows about "red" and "blue" (because a default plate ID is chosen).
+        return [TraitKey(cls.trait_type, 'red'), TraitKey(cls.trait_type, 'blue')]
 
-        # @TODO: This still uses old code to determine the available keys instead of the cube_directory.
-
-        if object_id is None:
-            # Return a list for all possible data
-            cube_files = []
-            for id in archive.contents:
-                 cube_files.extend(glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*"))
-        else:
-            # Only asked for data for a particular object_id
-            cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*.fits*")
-
-        # cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
-        known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
-        return known_keys
+    # @classmethod
+    # def known_keys(cls, archive, object_id=None):
+    #     """Return a list of unique identifiers which can be used to retrieve actual data."""
+    #
+    #     # @TODO: This still uses old code to determine the available keys instead of the cube_directory.
+    #
+    #     if object_id is None:
+    #         # Return a list for all possible data
+    #         cube_files = []
+    #         for id in archive.contents:
+    #              cube_files.extend(glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*"))
+    #     else:
+    #         # Only asked for data for a particular object_id
+    #         cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*.fits*")
+    #
+    #     # cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
+    #     known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
+    #     return known_keys
 
     @classmethod
     def _traitkey_from_cube_path(cls, path):
@@ -312,17 +322,8 @@ class SAMISpectralCube(SpectralMap):
     def init(self):
 
         # Get necessary parameters from the trait_name, filling in defaults if necessary
-        trait_name_split = self.trait_name.split(".")
-        if len(trait_name_split) > 0:
-            # First item is the color:
-            self._color = trait_name_split[0]
-        else:
-            raise Exception("Programming error")
-        if len(trait_name_split) > 1:
-            # Second item is the binning (optional, defaults to 05):
-            self._binning = self.trait_key.trait_name.split(".")[1]
-        else:
-            self._binning = "05"
+        self._color = self.trait_name
+        self._binning = "05"
 
         # Get necessary parameters from the trait_version, filling in defaults if necessary
         if self.trait_key.version is None:
@@ -350,7 +351,9 @@ class SAMISpectralCube(SpectralMap):
             .ix[self.object_id, self._color, self._binning, self._plate_id]['path']
 
         # Add links to sub_traits
-        self._sub_traits[TraitKey('rss',None, None, None)] = SAMIRowStackedSpectra
+        # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
+        # self._sub_traits[TraitKey('rss', None, None, None)] = SAMIRowStackedSpectra
+
 
     def preload(self):
         self.hdu = fits.open(self._cube_path)
@@ -447,19 +450,10 @@ class LZIFUVelocityMap(VelocityMap):
     trait_type = "velocity_map"
 
     @classmethod
-    def known_keys(cls, archive, object_id=None):
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
-
-        if object_id is None:
-            # Return a list for all possible data
-            known_keys = []
-            for id in archive.contents:
-                known_keys.append(TraitKey(cls.trait_type, 'lzifu', None, id))
-        else:
-            # Only asked for data for a particular object_id
-            known_keys = [TraitKey(cls.trait_type, 'lzifu', None, object_id)]
+        known_keys = [TraitKey(cls.trait_type, None, None, None)]
         return known_keys
-
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -481,11 +475,11 @@ class LZIFUVelocityMap(VelocityMap):
     def unit(self):
         return None
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def value(self):
         return self._hdu['V'].data[1, :, :]
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def variance(self):
         return self._hdu['V_ERR'].data[1, :, :]
 
@@ -509,18 +503,11 @@ class LZIFULineMap(Image):
     }
 
     @classmethod
-    def known_keys(cls, archive, object_id=None):
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
-
-        if object_id is None:
-            # Return a list for all possible data
-            known_keys = []
-            for id, line in itertools.product(archive.contents, cls.line_name_map):
-                known_keys.append(TraitKey(cls.trait_type, line, None, id))
-        else:
-            # Only asked for data for a particular object_id
-            for line in cls.line_name_map:
-                known_keys = [TraitKey(cls.trait_type, line, None, object_id)]
+        known_keys = []
+        for line in cls.line_name_map:
+            known_keys.append(TraitKey(cls.trait_type, line, None, object_id))
         return known_keys
 
     def preload(self):
@@ -539,13 +526,13 @@ class LZIFULineMap(Image):
     def unit(self):
         return None
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def value(self):
         value = self._hdu[self.line_name_map[self._trait_name]].data[1, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def variance(self):
         variance = self._hdu[self.line_name_map[self._trait_name] + '_ERR'].data[1, :, :]
         log.debug("Returning type: %s", type(variance))
@@ -557,20 +544,12 @@ class LZIFUContinuum(SpectralMap):
     trait_type = 'spectral_continuum_cube'
 
     @classmethod
-    def known_keys(cls, archive, object_id=None):
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
-
-        if object_id is None:
-            # Return a list for all possible data
-            known_keys = []
-            for id, color in itertools.product(archive.contents, ('red', 'blue')):
-                known_keys.append(TraitKey(cls.trait_type, color, None, id))
-        else:
-            # Only asked for data for a particular object_id
-            for color in ('red', 'blue'):
-                known_keys = [TraitKey(cls.trait_type, color, None, object_id)]
+        known_keys = []
+        for color in ('red', 'blue'):
+            known_keys.append(TraitKey(cls.trait_type, color, None, object_id))
         return known_keys
-
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -585,7 +564,7 @@ class LZIFUContinuum(SpectralMap):
     def shape(self):
         return self.value.shape
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def value(self):
         # Determine which colour:
         if self._trait_name == "blue":
@@ -596,26 +575,21 @@ class LZIFUContinuum(SpectralMap):
             raise ValueError("unknown trait name")
         return self._hdu[color + '_CONTINUUM'].data
 
+    @trait_property
+    def variance(self):
+        return None
 
 class LZIFULineSpectrum(SpectralMap):
 
     trait_type = 'spectral_line_cube'
 
     @classmethod
-    def known_keys(cls, archive, object_id=None):
+    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
-
-        if object_id is None:
-            # Return a list for all possible data
-            known_keys = []
-            for id, color in itertools.product(archive.contents, ('red', 'blue')):
-                known_keys.append(TraitKey(cls.trait_type, color, None, id))
-        else:
-            # Only asked for data for a particular object_id
-            for color in ('red', 'blue'):
-                known_keys = [TraitKey(cls.trait_type, color, None, object_id)]
+        known_keys = []
+        for color in ('red', 'blue'):
+            known_keys.append(TraitKey(cls.trait_type, color, None, object_id))
         return known_keys
-
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -630,7 +604,7 @@ class LZIFULineSpectrum(SpectralMap):
     def shape(self):
         return self.value.shape
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def value(self):
         # Determine which colour:
         if self._trait_name == "blue":
@@ -641,6 +615,9 @@ class LZIFULineSpectrum(SpectralMap):
             raise ValueError("unknown trait name")
         return self._hdu[color + '_LINE'].data
 
+    @trait_property
+    def variance(self):
+        return None
 
 class SAMITeamArchive(Archive):
 
