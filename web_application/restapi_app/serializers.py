@@ -281,12 +281,18 @@ class AstroObjectTraitSerializer(serializers.Serializer):
         trait = self.instance
         assert isinstance(trait, Trait)
 
-        self.fields['object'] = serializers.CharField(max_length=100, required=False, source="*")
         for trait_property in trait._trait_properties():
             self.fields[trait_property.name] = serializers.CharField(max_length=100, required=False)
 
+        # self.fields['object'] = serializers.CharField(max_length=100, required=False, source="*")
+
 
 class AstroObjectSerializer(serializers.Serializer):
+    asvo_id = serializers.SerializerMethodField()
+
+    def get_asvo_id(self,obj):
+        return '0000001'
+
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
@@ -294,6 +300,8 @@ class AstroObjectSerializer(serializers.Serializer):
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
         for trait in astro_object:
+            print(depth_limit)
+            depth_limit=1
             if depth_limit == 0:
                 # No details to be displayed below this level
                 self.fields[trait] = serializers.CharField()
@@ -301,7 +309,8 @@ class AstroObjectSerializer(serializers.Serializer):
                 # Recurse displaying details at lower level
                 self.fields[trait] = AstroObjectTraitSerializer(instance=astro_object[trait], depth_limit=depth_limit)
 
-    object = serializers.CharField(max_length=100, required=False, source="*")
+    # object = serializers.CharField(max_length=100, required=False, source="*")
+
 
 
 class SampleSerializer(serializers.Serializer):
