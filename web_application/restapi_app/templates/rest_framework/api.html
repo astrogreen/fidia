@@ -9,7 +9,8 @@
 <head>
   {% block head %}
     {% include "restapi_app/header/header.html" %}
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.css"/>
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.css"/>
+      <script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
   {% endblock %}
 </head>
 

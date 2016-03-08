@@ -25,7 +25,7 @@
         {% autoescape off %}{{ content|urlize_quoted_links }}{% endautoescape %}
 
 {% endcomment %}
-
+<!--<div id="myDiv"></div>-->
         <div class="tabbable" id="SOV">
             <ul class="nav nav-tabs">
                 <li > <a name="Profile-tab" href="#Profile-SOV" data-toggle="tab" >Profile</a></li>
@@ -279,7 +279,25 @@
 
                                                 {% for trait_name, trait_value in value.items %}
                                                     <h5>{{ trait_name }}</h5>
-                                                    <p>{{trait_value}}</p>
+
+                                                    {% if trait_name == "value" %}
+                                                        {% if key == 'velocity_map' %}
+                                                            <div id="{{ key }}" onload="fPlotly()" style="border:blue 1px solid">
+                                                                <input type="range" id = "{{key}}-slider" value="0" min="0" max="1" onchange="applyAvg();">
+                                                                <div class="checkbox">
+                                                                    <label>
+                                                                      <input type="checkbox" id = "{{key}}-log" value="0" onchange='fLogScale("{{ key }}")';>Log scaling
+                                                                    </label>
+                                                                  </div>
+
+                                                            </div>
+                                                        {% else %}
+                                                            <p>{{trait_value}}</p>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <p>{{trait_value}}</p>
+                                                    {% endif %}
+
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
@@ -313,11 +331,11 @@
 
 
 
-
  <script type="text/javascript"> 
-    data = JSON.parse("{{ content|escapejs }}");
-    console.log(data);
+    //make astroobject available as json
+    AstroObjectJson = JSON.parse("{{ content|escapejs }}");
 </script>
+<script src="{% static 'restapi_app/js/sov/2DHistogram.js' %}"></script>
 {% endblock %}
 
 {% comment %} enabling block extra overwrites the default response rendering in api.html {% endcomment %}
