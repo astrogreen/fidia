@@ -34,7 +34,6 @@ class FITSRenderer(renderers.BaseRenderer):
 
 
 
-
 class ListNoDetailRenderer(renderers.BaseRenderer):
     """
     Use this as a parent class for all asvo sample/galaxy/trait/traitproperty

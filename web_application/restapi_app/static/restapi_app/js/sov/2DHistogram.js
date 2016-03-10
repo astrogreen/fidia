@@ -25,12 +25,14 @@ function getMinMaxOf2DIndex (arr, idx) {
         max: Math.max.apply(null, arrayMap)
     }
 }
+
 function fNthArrayMin(arr){
     // Get minimum value in 2D array
     return arr.reduce(function(min, arr) {
         return Math.min(min, arr[0]);
     }, +Infinity);
 };
+
 function fNthArrayMax(arr){
     // Get minimum value in 2D array
     return arr.reduce(function(max, arr) {
@@ -38,46 +40,81 @@ function fNthArrayMax(arr){
     }, -Infinity);
 };
 
+function fGenerateColourScale(map_name, map_val){
 
+    var colors=['rgb(165,0,38)','rgb(215,48,39)','rgb(244,109,67)','rgb(253,174,97)','rgb(254,224,144)','rgb(224,243,248)','rgb(171,217,233)','rgb(116,173,209)','rgb(69,117,180)','rgb(49,54,149)'];
+    // red to white to blue -->
+
+    //var colorscale_old= [
+    //    ['0.0', 'rgb(165,0,38)'],
+    //    ['0.111111111111', 'rgb(215,48,39)'],
+    //    ['0.222222222222', 'rgb(244,109,67)'],
+    //    ['0.333333333333', 'rgb(253,174,97)'],
+    //    ['0.444444444444', 'rgb(254,224,144)'],
+    //    ['0.555555555556', 'rgb(224,243,248)'],
+    //    ['0.666666666667', 'rgb(171,217,233)'],
+    //    ['0.777777777778', 'rgb(116,173,209)'],
+    //    ['0.888888888889', 'rgb(69,117,180)'],
+    //    ['1.0', 'rgb(49,54,149)']
+    //];
+
+    var colorscale = [];
+    var numcolors = colors.length;
+
+    var Zmin = fNthArrayMin(map_val);
+    var Zmax = fNthArrayMax(map_val);
+    //console.log("Zmin,Zmax: ",Zmin, Zmax);
+
+    var Zscale = Zmax-Zmin;
+    var tickvals = [];
+
+    // Generate mapping between colours and colorbar, log or linear
+    //var colorbarlog = fLogScale(map_name);
+    var colorbarlog = $('#'+map_name+"-log").is(':checked');
+
+    for (i=0; i<numcolors; i++){
+        if (colorbarlog==false){
+            colorscale[i] = [i/(numcolors-1), colors[i]];
+            //if (i % 2 ==0){
+                tickvals[i] = ((Zscale*i)/(numcolors-1)+Zmin).toPrecision(2);
+            //}
+        } else {
+            colorscale[i] = [parseFloat(1/(Math.pow(10,(numcolors-(i+1))))), colors[i]];
+            if (i==0){colorscale[i] = [i, colors[i]];}
+            //if (i % 2 ==1) {
+                tickvals[i] = (Math.pow(10, (numcolors - (i + 1)))).toPrecision(2);
+            //}
+        }
+        //console.log(colorscale[i],tickvals[i]);
+    };
+
+    return {
+        colorscale:colorscale,
+        tickvals:tickvals
+    };
+};
+
+function fGetTraitPropertyValue(key){
+    return JSON.parse(AstroObjectJson[key].value);
+}
 
 function fAstroMap(k,v){
     var map_name = k;
-    var map_val = JSON.parse(v.value);
+    var map_val = fGetTraitPropertyValue(k);
     var map_title = ftoTitleCase(map_name.split("_").join(" "));
-
-    //test = [[ 0.75362986,  0.85060664,  0.81329006,  0.52951276,  0.29646403],
-    //         [ 0.87069105,  0.67854957,  0.72128648,  0.07452028,  0.14661033],
-    //         [ 0.17558352,  0.34659373,  0.78048335,  0.34665987,  0.48257683],
-    //         [ 0.87636844,  0.43451588,  0.28513813,  0.77172319,  0.26592765],
-    //         [ 0.19636954,  0.75303641,  0.53733789,  0.92042435,  0.23448685]];
 
     // Get number of pixels
     var row_pixel_count = map_val.length;
     var col_pixel_count = map_val[0].length;
-    console.log("rows, cols: ",row_pixel_count,col_pixel_count);
+    //console.log("rows, cols: ",row_pixel_count,col_pixel_count);
     var rows = range(1,row_pixel_count);
     var cols = range(1,col_pixel_count);
 
     // - note that position is at center of pixel (rather than at origin left bottom)
     // - no normalization applied
-
-    var colors=['rgb(165,0,38)','rgb(215,48,39)','rgb(244,109,67)','rgb(253,174,97)','rgb(254,224,144)','rgb(224,243,248)','rgb(171,217,233)','rgb(116,173,209)','rgb(69,117,180)','rgb(49,54,149)'];
-
-    var colorscale = [];
-    var numcolors = colors.length;
-
-
-    var Zmin = fNthArrayMin(map_val);
-    var Zmax = fNthArrayMax(map_val);
-    console.log("Zmin,Zmax: ",Zmin, Zmax);
-
-    var Zscale = Zmax-Zmin;
-    var tickvalues = [];
-
-    for (i=0; i<numcolors; i++){
-        colorscale[i] = [String((i/(numcolors-1))*Zscale+Zmin), colors[i]];
-        tickvalues[i] = (i/(numcolors-1))*Zscale+Zmin;
-    };
+    var temp = fGenerateColourScale(map_name, map_val);
+    var colorscale = temp.colorscale;
+    var tickvals = temp.tickvals;
 
     var map_data = [
         {
@@ -94,7 +131,8 @@ function fAstroMap(k,v){
                 outlinewidth: 0,
                 xpad:0, ypad:0,
                 x: 1.02,
-                //tickvals:tickvalues
+                //tickmode: 'array',
+                //tickvals: tickvals,
             },
         }
     ];
@@ -110,11 +148,11 @@ function fAstroMap(k,v){
             b:0.09*elementWidth,
             t: 0.09*elementWidth,
         },
-        paper_bgcolor: '#7f7f7f',
+        //paper_bgcolor: '#7f7f7f',
         title: map_title,
     };
-
-    Plotly.newPlot(map_name, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false});
+    var plotDiv = document.getElementById(map_name);
+    Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false});
 
 
     // RESPONSIVE TO CHANGING WINDOW SIZE
@@ -130,8 +168,6 @@ function fAstroMap(k,v){
 };
 
 
-
-
 $.each(AstroObjectJson, function(k,v){
     // k == trait name
     // v == trait value
@@ -143,7 +179,8 @@ $.each(AstroObjectJson, function(k,v){
     };
 });
 
-function fLogScale(key){
-    console.log(key)
 
-}
+// UPDATES # TODO refactor as bindings
+
+
+

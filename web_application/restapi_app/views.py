@@ -32,7 +32,11 @@ from .serializers import (
     AstroObjectPropertyTraitSerializer
 )
 
-from .renderers import FITSRenderer, GalaxySOVRenderer, ListNoDetailRenderer
+from .renderers import (
+    FITSRenderer,
+    GalaxySOVRenderer,
+    ListNoDetailRenderer
+)
 
 from . import AstroObject
 
@@ -760,7 +764,7 @@ class GalaxyViewSet(mixins.ListModelMixin,
     # TODO split the SOV html template into per-survey-type
     # TODO THIS SHOULD WORK: renderer_classes = (SOVRenderer, ) + api_settings.DEFAULT_RENDERER_CLASSES
 
-    renderer_classes = (GalaxySOVRenderer,renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (GalaxySOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
         try:
