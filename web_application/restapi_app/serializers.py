@@ -299,15 +299,16 @@ class AstroObjectSerializer(serializers.Serializer):
 
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
-        for trait in astro_object:
+        for trait_key in astro_object:
             print(depth_limit)
-            depth_limit=1
+            depth_limit = 1
             if depth_limit == 0:
                 # No details to be displayed below this level
-                self.fields[trait] = serializers.CharField()
+                self.fields[str(trait_key)] = serializers.CharField()
             else:
                 # Recurse displaying details at lower level
-                self.fields[trait] = AstroObjectTraitSerializer(instance=astro_object[trait], depth_limit=depth_limit)
+                self.fields[str(trait_key)] = \
+                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
 
     # object = serializers.CharField(max_length=100, required=False, source="*")
 

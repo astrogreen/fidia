@@ -716,9 +716,15 @@ class AstroObjectViewSet(viewsets.ViewSet):
 
 # ASVO:
 
-from fidia.archive.example_archive import ExampleArchive
+# from fidia.archive.example_archive import ExampleArchive
+# ar = ExampleArchive()
+# sample = ar.get_full_sample()
 
-ar = ExampleArchive()
+from fidia.archive.sami import SAMITeamArchive
+ar = SAMITeamArchive(
+    "/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
+    "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
+    "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
 sample = ar.get_full_sample()
 
 # >>> ar.schema()

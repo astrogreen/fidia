@@ -58,6 +58,12 @@ class TraitKey(tuple):
         """Exclude the OrderedDict from pickling"""
         pass
 
+    def __str__(self):
+        trait_string = self.trait_type
+        if self.trait_name:
+            trait_string += "-" + self.trait_name
+        return trait_string
+
     trait_type = property(_itemgetter(0), doc='Alias for field number 0')
 
     trait_name = property(_itemgetter(1), doc='Alias for field number 1')
@@ -66,7 +72,22 @@ class TraitKey(tuple):
 
     object_id = property(_itemgetter(3), doc='Alias for field number 3')
 
+def parse_trait_key(key):
+    """Return a fully fledged TraitKey for the key given.
 
+    Effectively this is just a smart "cast" from string or tuple."""
+    if isinstance(key, TraitKey):
+        return key
+    if isinstance(key, tuple):
+        return TraitKey(*key)
+    if isinstance(key, str):
+        if "-" in key:
+            # We have both a trait_type and a trait_name:
+            (trait_type, trait_name) = key.split("-")
+            return TraitKey(trait_type, trait_name)
+        else:
+            return TraitKey(key)
+    raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
 
 
 class TraitMapping(collections.MutableMapping):
@@ -210,11 +231,11 @@ class TraitProperty(object):
         return self
 
     def loader(self, fload):
+        if self.name is None:
+            self.name = fload.__name__
         log.debug("Setting loader for TraitProperty '%s'", self.name)
         if self.__doc__ is None:
             self.__doc__ = fload.__doc__
-        if self.name is None:
-            self.name = fload.__name__
         self.fload = fload
         return self
 

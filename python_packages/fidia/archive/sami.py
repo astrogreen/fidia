@@ -678,8 +678,8 @@ class SAMITeamArchive(Archive):
 
         # Trait 'spectral_cube'
         self.available_traits[TraitKey(SAMISpectralCube.trait_type, None, None, None)] = SAMISpectralCube
-        # Trait 'rss_map'
-        self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
+        # Trait 'rss_map' (now a sub-trait of spectral_cube above.)
+        # self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
 
         # LZIFU Items
 

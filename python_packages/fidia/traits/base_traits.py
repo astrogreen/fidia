@@ -193,7 +193,7 @@ class Trait(AbstractBaseTrait):
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
-                log.debug("Found trait property '{} of type'".format(attr, obj.type))
+                log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
                 if (trait_type is None) or (obj.type in trait_type):
                     yield obj
 
