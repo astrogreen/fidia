@@ -249,9 +249,6 @@ class AstroObjectSerializer_old(serializers.Serializer):
 
         return instance
 
-
-
-
 # - - - - - - - -    - - -  -   -   -   -   -   -   -   -   -
 
 def get_and_update_depth_limit(kwargs):
@@ -263,14 +260,51 @@ def get_and_update_depth_limit(kwargs):
             depth_limit = 0
     return depth_limit
 
-class AstroObjectPropertyTraitSerializer(serializers.Serializer):
+
+def get_trait_type_to_serializer_field(traitproperty_type, serializer_type):
+    """
+    Handles the mapping between FIDIA trait property types
+    and DRF serializer types.
+
+    :param traitproperty_type: string
+    :return: field type
+    """
+    # TODO map between FIDIA properties and DRF serializer fields
+    # AstroObjectTraitPropertySerializer
+    if serializer_type == "source":
+        if traitproperty_type == 'ndarray':
+            field = serializers.ListField(required=False, source="*")
+        elif traitproperty_type == 'float':
+            field = serializers.FloatField(required=False, source="*")
+        else:
+            field = serializers.CharField(max_length=100, required=False, source="*")
+        return field
+
+    elif serializer_type == "flat":
+        if traitproperty_type == 'float.ndarray' or traitproperty_type == "float.array":
+            field = serializers.ListField(required=False)
+        elif traitproperty_type == 'float':
+            field = serializers.FloatField(required=False)
+        else:
+            field = serializers.CharField(max_length=100, required=False)
+        return field
+
+
+
+class AstroObjectTraitPropertySerializer(serializers.Serializer):
+
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
         # construct a meaningful key (the current traitproperty in question)
         self.traitproperty_name = self.context['request'].parser_context['kwargs']['traitproperty_pk']
-        self.fields[self.traitproperty_name] = serializers.CharField(max_length=100, required=False, source="*")
+
+        # define serializer type by instance type
+        traitproperty_type = type(self.instance).__name__
+
+        self.fields[self.traitproperty_name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="source")
+
 
 
 class AstroObjectTraitSerializer(serializers.Serializer):
@@ -282,9 +316,13 @@ class AstroObjectTraitSerializer(serializers.Serializer):
         assert isinstance(trait, Trait)
 
         for trait_property in trait._trait_properties():
-            self.fields[trait_property.name] = serializers.CharField(max_length=100, required=False)
+            # define serializer type by instance type
+            traitproperty_type = getattr(trait_property, 'type')
 
-        # self.fields['object'] = serializers.CharField(max_length=100, required=False, source="*")
+            print(traitproperty_type)
+            self.fields[trait_property.name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="flat")
+
+
 
 
 class AstroObjectSerializer(serializers.Serializer):
@@ -332,12 +370,6 @@ class SampleSerializer(serializers.Serializer):
                 self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
 
 
-
-
-
-
-
-# class TraitSerializerFactory:
 
 class TraitPropertySerializer(serializers.Serializer):
 

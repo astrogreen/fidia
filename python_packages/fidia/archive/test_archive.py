@@ -90,12 +90,8 @@ class VelocityMap(Image):
     @trait_property('float.array')
     def value(self):
         # return np.random.random((5, 5))
-        # LM edit: added .tolist() to provide comma delimiters
-        # TODO chat to andy, is this a problem?
-        # return (np.random.random((50, 50))).tolist()
-        return (np.random.uniform(-50, 50, [35, 35])).tolist()
-
-        #return np.random.random((50, 50))
+        # return (np.random.uniform(-50, 50, [8, 10])).tolist()
+        return np.random.random((5, 5))
 
     @trait_property('float.array')
     def variance(self):
@@ -115,7 +111,7 @@ class LineMap(Image):
 
     @trait_property('float.ndarray')
     def value(self):
-        return np.random.random((2, 2, 2)).tolist()
+        return np.random.random((2, 2, 2))
 
     @trait_property('float.ndarray')
     def variance(self):
