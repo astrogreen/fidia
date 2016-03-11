@@ -1,6 +1,7 @@
 import json
 import random
 from pprint import pprint
+from rest_framework.settings import api_settings
 
 from .models import (
     Query,
@@ -31,7 +32,11 @@ from .serializers import (
     AstroObjectPropertyTraitSerializer
 )
 
-from .renderers import FITSRenderer
+from .renderers import (
+    FITSRenderer,
+    GalaxySOVRenderer,
+    ListNoDetailRenderer
+)
 
 from . import AstroObject
 
@@ -44,7 +49,7 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.settings import api_settings
 from django.contrib.auth.models import User
-
+from rest_framework_csv import renderers as r
 
 
 
@@ -732,6 +737,9 @@ sample = ar.get_full_sample()
 
 class SampleViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
+
+    renderer_classes = (ListNoDetailRenderer,renderers.JSONRenderer, r.CSVRenderer)
+
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
             sample
@@ -749,8 +757,15 @@ class SampleViewSet(mixins.ListModelMixin,
         return Response(serializer.data)
 
 
+
 class GalaxyViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
+    # TODO ensure proper http status code is returned (page not found) on non-identifiable traits
+    # TODO split the SOV html template into per-survey-type
+    # TODO THIS SHOULD WORK: renderer_classes = (SOVRenderer, ) + api_settings.DEFAULT_RENDERER_CLASSES
+
+    renderer_classes = (GalaxySOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
+
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
         try:
             astroobject = sample[galaxy_pk]
@@ -767,8 +782,12 @@ class GalaxyViewSet(mixins.ListModelMixin,
         return Response(serializer.data)
 
 
+
 class TraitViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
+
+    renderer_classes = (ListNoDetailRenderer,renderers.JSONRenderer, r.CSVRenderer)
+
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
         try:
             trait = sample[galaxy_pk][trait_pk]
@@ -787,6 +806,9 @@ class TraitViewSet(mixins.ListModelMixin,
 
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
+
+    renderer_classes = (ListNoDetailRenderer,renderers.JSONRenderer, r.CSVRenderer)
+
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
             # address trait properties via . not []
