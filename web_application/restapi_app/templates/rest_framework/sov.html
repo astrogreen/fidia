@@ -5,7 +5,7 @@
 {% load internal_extras %}
 
 
-{% block content-main %}
+{% block SOV %}
 
     {{ objname }}
     <!--{{ request.build_absolute_uri }}{{ object.get_absolute_url }}-->
@@ -271,22 +271,12 @@
                                                         <h5>{{ trait_name }}</h5>
 
                                                         {% if trait_name == "value" %}
-                                                            {% if key == 'velocity_map' %}
-                                                                <div id="{{ key }}">
-                                                                    <!--<input type="range" id = "{{key}}-slider" value="0" min="0" max="1" onchange="applyAvg();">-->
-                                                                    <!--<div class="checkbox">-->
-                                                                        <!--<label>-->
-                                                                          <!--<input type="checkbox" id = "{{key}}-log" checked value="1" >Log scaling-->
-                                                                        <!--</label>-->
-                                                                    <!--</div>-->
-                                                                </div>
-                                                            {% else %}
+                                                            <div id="{{ key }}">
                                                                 <p>{{trait_value}}</p>
-                                                            {% endif %}
+                                                            </div>
                                                         {% else %}
                                                             <p>{{trait_value}}</p>
                                                         {% endif %}
-
                                                     {% endfor %}
                                                 {% endif %}
                                             </div>
@@ -321,6 +311,7 @@
      <script type="text/javascript"> 
         //make astroobject available as json
         AstroObjectJson = JSON.parse("{{ content|escapejs }}");
+
     </script>
     <script src="{% static 'restapi_app/js/sov/2DHistogram.js' %}"></script>
 {% endblock %}

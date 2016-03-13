@@ -28,7 +28,7 @@ router.register(r'sample', views.SampleViewSet, base_name='sample')
 
 
 object_nested_router = NestedExtendDefaultRouter(router, r'sample', lookup='sample')
-object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.GalaxyViewSet, base_name='galaxy')
+object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.AstroObjectViewSet, base_name='galaxy')
 
 trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<galaxy_pk>[^/.]+)', lookup='galaxy')
 trait_nested_router.register(r'(?P<trait_pk>[^/.]+)', views.TraitViewSet, base_name='trait')

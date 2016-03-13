@@ -2,6 +2,7 @@ import json
 import random
 from pprint import pprint
 from rest_framework.settings import api_settings
+from .exceptions import NoPropertyFound
 
 from .models import (
     Query,
@@ -29,7 +30,7 @@ from .serializers import (
     SampleSerializer,
     AstroObjectSerializer,
     AstroObjectTraitSerializer,
-    AstroObjectPropertyTraitSerializer
+    AstroObjectTraitPropertySerializer
 )
 
 from .renderers import (
@@ -771,7 +772,7 @@ class SampleViewSet(mixins.ListModelMixin,
 
 
 
-class GalaxyViewSet(mixins.ListModelMixin,
+class AstroObjectViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
     # TODO ensure proper http status code is returned (page not found) on non-identifiable traits
     # TODO split the SOV html template into per-survey-type
@@ -830,8 +831,11 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        except AttributeError:
+            raise NoPropertyFound("No property %s" % traitproperty_pk)
+            # return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer_class = AstroObjectPropertyTraitSerializer
+        serializer_class = AstroObjectTraitPropertySerializer
         serializer = serializer_class(
             instance=trait_property, many=False,
             context={'request': request}

@@ -95,7 +95,11 @@ function fGenerateColourScale(map_name, map_val){
 };
 
 function fGetTraitPropertyValue(key){
-    return JSON.parse(AstroObjectJson[key].value);
+    //return JSON.parse(AstroObjectJson[key].value);
+    if (getdim(AstroObjectJson[key.value]) !== false) {
+        return AstroObjectJson[key].value;
+    }
+    else {console.log('value array irregular ')};
 }
 
 function fAstroMap(k,v){
@@ -103,10 +107,14 @@ function fAstroMap(k,v){
     var map_val = fGetTraitPropertyValue(k);
     var map_title = ftoTitleCase(map_name.split("_").join(" "));
 
+    console.log(map_name)
+
     // Get number of pixels
     var row_pixel_count = map_val.length;
     var col_pixel_count = map_val[0].length;
-    //console.log("rows, cols: ",row_pixel_count,col_pixel_count);
+    console.log("rows, cols: ",row_pixel_count,col_pixel_count);
+    console.log(getdim(map_val));
+    console.log((map_val));
     var rows = range(1,row_pixel_count);
     var cols = range(1,col_pixel_count);
 
@@ -115,6 +123,14 @@ function fAstroMap(k,v){
     var temp = fGenerateColourScale(map_name, map_val);
     var colorscale = temp.colorscale;
     var tickvals = temp.tickvals;
+
+    console.log('---')
+    // might look as (where last is wavelength)
+    test_map_val = [
+        [[1,2],[3,4],[5550]],
+        [[5,6],[7,8],[3232]],
+    ]
+    map_val = [test_map_val[0][0], test_map_val[0][1]]
 
     var map_data = [
         {
@@ -174,13 +190,63 @@ $.each(AstroObjectJson, function(k,v){
     // value == trait property name
 
     // If element exists (defined in django template sov.html)
-    if ($('#'+k).length){
-        fAstroMap(k,v);
-    };
+    if (typeof v.value == "object" && (k == "line_map" || k == "velocity_map")){
+        if ($('#'+k).length){
+            // Drop current content (<p>value(arr)</p>
+            $('#'+k).html('');
+            fAstroMap(k,v);
+        };
+    } else if (typeof v.value == "number"){
+        // do nothing
+    }
 });
 
 
-// UPDATES # TODO refactor as bindings
+
+// UPDATES # TODO refactor as bindings - necessary for interactive plots
+
+// TESTING
+// Assumes a valid matrix and returns its dimension array.
+// Won't work for irregular matrices, but is cheap.
+function dim(mat) {
+    if (mat instanceof Array) {
+        return [mat.length].concat(dim(mat[0]));
+    } else {
+        return [];
+    }
+}
+
+// Makes a validator function for a given matrix structure d.
+function validator(d) {
+    return function (mat) {
+        if (mat instanceof Array) {
+            return d.length > 0
+                && d[0] === mat.length
+                && every(mat, validator(d.slice(1)));
+        } else {
+            return d.length === 0;
+        }
+    };
+}
+
+// Combines dim and validator to get the required function.
+function getdim(mat) {
+    var d = dim(mat);
+    return validator(d)(mat) ? d : false;
+}
+
+// Checks whether predicate applies to every element of array arr.
+// This ought to be built into JS some day!
+function every(arr, predicate) {
+    var i, N;
+    for (i = 0, N = arr.length; i < N; ++i) {
+        if (!predicate(arr[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 
 

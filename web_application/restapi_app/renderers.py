@@ -12,7 +12,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.request import is_form_media_type, override_method
 from rest_framework.settings import api_settings
 # from rest_framework.utils.breadcrumbs import get_breadcrumbs
-from .utils.breadcrumbs import get_breadcrumbs
+from .utils.breadcrumbs import get_breadcrumbs_by_viewname, get_breadcrumbs_by_id
 
 from fidia.traits.base_traits import Trait
 
@@ -242,17 +242,22 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
     def get_name(self, view):
         return view.get_view_name()
 
-    def get_object_name(self,request):
-        print((getattr(request,'kwargs')))
-        return 'test'
+    def get_astro_object_name(self, request):
+        """
+        Return the astro object name
+        """
+        return request.kwargs['galaxy_pk']
 
     def get_description(self, view, status_code):
         if status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
             return ''
         return view.get_view_description(html=True)
 
-    def get_breadcrumbs(self, request):
-        return get_breadcrumbs(request.path, request)
+    def get_breadcrumbs_by_viewname(self, request):
+        return get_breadcrumbs_by_viewname(request.path, request)
+
+    def get_breadcrumbs_by_id(self, request):
+        return get_breadcrumbs_by_id(request.path, request)
 
     def get_filter_form(self, data, view, request):
         if not hasattr(view, 'get_queryset') or not hasattr(view, 'filter_backends'):
@@ -320,10 +325,10 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
             'response': response,
             'description': self.get_description(view, response.status_code),
             'name': self.get_name(view),
-            'objname': self.get_object_name(view),
+            'objname': self.get_astro_object_name(view),
             'version': VERSION,
             'paginator': paginator,
-            'breadcrumblist': self.get_breadcrumbs(request),
+            'breadcrumblist': self.get_breadcrumbs_by_id(request),
             'allowed_methods': view.allowed_methods,
             'available_formats': [renderer_cls.format for renderer_cls in view.renderer_classes],
             'response_headers': response_headers,
@@ -530,4 +535,5 @@ class GalaxySOVRenderer(ListNoDetailRenderer):
     """
 
     template = 'rest_framework/sov.html'
+
     # TODO edit the breadcrumbs function to show galaxy_pk/trait_pk etc
