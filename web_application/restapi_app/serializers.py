@@ -5,18 +5,11 @@ from fidia.traits.base_traits import Trait
 
 from rest_framework import serializers, mixins
 from .models import (
-    Query,
-    GAMAPublic,
-    Survey,
-    ReleaseType,
-    Catalogue, CatalogueGroup,
-    Image
+    Query
 )
-from . import AstroObject
+from .fields import AstroObjectAbsoluteURLField
 from django.contrib.auth.models import User
-from rest_framework_extensions.fields import ResourceUriField
-from rest_framework.routers import reverse
-from django.conf import settings
+from rest_framework.reverse import reverse
 
 """
 Serializers:
@@ -100,156 +93,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'username', 'query')
 
 
-#SOV
-class GAMASerializer(serializers.HyperlinkedModelSerializer):
-    InputCatA = serializers.JSONField(required=False, label='InputCatA')
-    TilingCat = serializers.JSONField(required=False, label='TilingCat')
-    SpecAll = serializers.JSONField(required=False, label='SpecAll')
-    SersicCat = serializers.JSONField(required=False, label='SersicCat')
-    Spectrum = serializers.ImageField(max_length=None, allow_empty_file=False, use_url=True)
-
-    CatList = serializers.SerializerMethodField()
-
-    def get_CatList(self,obj):
-        return GAMAPublic._meta.get_all_field_names()
-
-
-    class Meta:
-        model = GAMAPublic
-        fields = ('url','ASVOID', 'InputCatA', 'TilingCat','SpecAll', 'SersicCat', 'Spectrum', 'CatList')
-
-
-#FULL DATA MODEL
-class SurveySerializer(serializers.HyperlinkedModelSerializer):
-    releasetype = serializers.HyperlinkedRelatedField(       #the name of this field == related name of FK in model
-        many=True,
-        read_only=True,
-        view_name='releasetype-detail',
-        lookup_field='slugField'
-    )
-
-    class Meta:
-        model = Survey
-        fields = ('url', 'title', 'releasetype')
-        extra_kwargs={'url':{'lookup_field':'title'}}
-
-class ReleaseTypeSerializer(serializers.HyperlinkedModelSerializer):
-    survey = serializers.HyperlinkedRelatedField(
-        queryset=Survey.objects.all(),
-        view_name='survey-detail',
-        label='Survey',
-        lookup_field= 'title'
-    )
-
-    catalogue = serializers.HyperlinkedRelatedField(
-        many=True,
-        queryset=Catalogue.objects.all(),
-        view_name='catalogue-detail',
-        lookup_field='slugField'
-    )
-
-    image = serializers.HyperlinkedRelatedField(
-        many=True,
-        queryset=Image.objects.all(),
-        view_name='image-detail',
-        lookup_field='slugField'
-    )
-
-    class Meta:
-        model = ReleaseType
-        fields = ('url','slugField',  'survey', 'releaseTeam', 'dataRelease','catalogue', 'image')
-        extra_kwargs = {'survey': {'lookup_field': 'title'}, 'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
-
-class CatalogueGroupSerializer(serializers.HyperlinkedModelSerializer):
-    catalogue = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='catalogue-detail',
-        lookup_field='slugField'
-    )
-
-    class Meta:
-        model = CatalogueGroup
-        fields = ('url', 'group', 'catalogue')
-        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
-
-class CatalogueSerializer(serializers.HyperlinkedModelSerializer):
-    release = serializers.HyperlinkedRelatedField(
-        many=True,
-        # read_only=True,
-        queryset=ReleaseType.objects.all(),
-        view_name='releasetype-detail',
-        lookup_field='slugField'
-    )
-    catalogueGroup = serializers.HyperlinkedRelatedField(
-        queryset=CatalogueGroup.objects.all(),
-        view_name='cataloguegroup-detail',
-        lookup_field='slugField'
-    )
-
-    class Meta:
-        model = Catalogue
-
-        fields = ('url', 'title', 'content', 'meta', 'version', 'updated', 'release', 'catalogueGroup')
-        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
-
-class ImageSerializer(serializers.HyperlinkedModelSerializer):
-    release = serializers.HyperlinkedRelatedField(
-        many=True,
-        queryset=ReleaseType.objects.all(),
-        view_name='releasetype-detail',
-        lookup_field='slugField'
-    )
-
-    class Meta:
-        model = Image
-
-        fields = ('url', 'title', 'content', 'meta', 'version', 'updated', 'release')
-        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
-
-class SpectrumSerializer(serializers.HyperlinkedModelSerializer):
-    release = serializers.HyperlinkedRelatedField(
-        many=True,
-        queryset=ReleaseType.objects.all(),
-        view_name='releasetype-detail',
-        lookup_field='slugField'
-    )
-
-    class Meta:
-        model = Image
-
-        fields = ('url', 'title', 'content', 'meta', 'version', 'updated', 'release')
-        extra_kwargs = {'url':{'lookup_field':'slugField'}, 'slugField':{'read_only':True}}
-
-# NON-MODEL SERIALIZER
-class AstroObjectSerializer_old(serializers.Serializer):
-    """
-    Inherits Serializer as opposed to ModelSerializer and describes the fields
-    create() and update() ensure writable
-
-    create() passes validated_data to the AstroObjects initialization
-    update() pushes the validated_data values to the given instance. It does
-    not assume all fields are available (for patch requests)
-
-    """
-    id = serializers.IntegerField(read_only=True)
-    asvoid = serializers.CharField(read_only=True, max_length=100)
-    gamacataid = serializers.CharField(max_length=100)
-    samiid = serializers.CharField(max_length=100, required=False)
-    redshift = serializers.FloatField(required=False)
-    spectrum = serializers.FileField(required=False)
-
-    def create(self, validated_data):
-        return AstroObject(id=None, **validated_data)
-
-
-    def update(self, instance, validated_data):
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
-
-        return instance
-
-# - - - - - - - -    - - -  -   -   -   -   -   -   -   -   -
+# ASVO SAMI DR - - - - - - - -    - - -  -   -   -   -   -   -   -   -   -
 
 def get_and_update_depth_limit(kwargs):
     depth_limit = kwargs.pop('depth_limit', -1)
@@ -324,7 +168,6 @@ class AstroObjectTraitSerializer(serializers.Serializer):
 
 
 
-
 class AstroObjectSerializer(serializers.Serializer):
     asvo_id = serializers.SerializerMethodField()
 
@@ -338,15 +181,13 @@ class AstroObjectSerializer(serializers.Serializer):
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
         for trait in astro_object:
-            print(depth_limit)
-            depth_limit=1
+            depth_limit = 1
             if depth_limit == 0:
                 # No details to be displayed below this level
                 self.fields[trait] = serializers.CharField()
             else:
                 # Recurse displaying details at lower level
                 self.fields[trait] = AstroObjectTraitSerializer(instance=astro_object[trait], depth_limit=depth_limit)
-
     # object = serializers.CharField(max_length=100, required=False, source="*")
 
 
@@ -371,35 +212,60 @@ class SampleSerializer(serializers.Serializer):
 
 
 
-class TraitPropertySerializer(serializers.Serializer):
+# class TraitPropertySerializer(serializers.Serializer):
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         trait_property = self.instance
+#         assert isinstance(trait_property, TraitProperty)
+#
+#         value = serializers.CharField(source="*")
+#
+# TRAIT_SERIALIZER_CACHE = dict()
+#
+# class SimpleTraitSerializer(serializers.Serializer):
+#     """Serializer which simply returns the string representation of the Trait"""
+#     trait_repr = serializers.CharField(source="*")
+#
+# def get_serializer_for_trait(self, trait):
+#     return SimpleTraitSerializer
 
+
+# TESTING SOV
+class BrowseObjectSerializer(serializers.Serializer):
+    """
+    return list available objects in sample
+
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        trait_property = self.instance
-        assert isinstance(trait_property, TraitProperty)
+        sample = self.instance
+        assert isinstance(sample, fidia.Sample), \
+            "SampleSerializer must have an instance of fidia.Sample, " +\
+            "not '%s': try SampleSerializer(instance=sample)" % sample
 
-        value = serializers.CharField(source="*")
+    # def get_url(self, view_name, astro_object):
+        # url_kwargs = {
+        #     'galaxy_pk': astro_object
+        # }
+        # return reverse(view_name, kwargs=url_kwargs)
 
-TRAIT_SERIALIZER_CACHE = dict()
+    def get_name(self, obj_name):
+        return obj_name
 
-class SimpleTraitSerializer(serializers.Serializer):
-    """Serializer which simply returns the string representation of the Trait"""
-    trait_repr = serializers.CharField(source="*")
+    def get_url(self, obj_name):
+        url_kwargs = {
+            'galaxy_pk': obj_name
+        }
+        view_name = 'galaxy-list'
+        return reverse(view_name, kwargs=url_kwargs)
 
-def get_serializer_for_trait(self, trait):
-    return SimpleTraitSerializer
+    name = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
 
-class AstroOjbectSerializer(serializers.Serializer):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        astro_object = self.instance
-        assert isinstance(astro_object, fidia.AstronomicalObject)
-
-        # Iterate over the AstroObject keys (which are keys to traits)
-        for key in astro_object.keys():
-            serializer = get_serializer_for_trait(astro_object[key])
-            self.fields[key] = serializer(required=False)
-
+        # for astro_object in sample:
+        #     url = get_url(self, view_name="galaxy-list", astro_object=astro_object)
+        #     self.fields[astro_object] = AstroObjectAbsoluteURLField(astro_object)

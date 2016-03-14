@@ -1,0 +1,93 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+{% block head-extra %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sov/sov.css' %}"/>
+
+{% endblock %}
+{% block bodyclass %}aat{% endblock %}
+{% block breadcrumbclass %}inverted{% endblock %}
+{% block content %}
+
+<div class="survey row">
+    <div class=" col-md-3 col-sm-3 text-center survey-container">
+        <i class="dummy" onclick="" id="dummya">
+        </i>
+        <p class="survey-detail">SURVEY</p>
+    </div>
+    <div class=" col-md-3 col-sm-3 text-center survey-container">
+        <i class="sami" onclick="fSurveyData(this.id)" id="sami">
+        </i>
+        <p class="survey-detail">SAMI</p>
+    </div>
+    <div class=" col-md-3 col-sm-3 text-center survey-container">
+        <i class="gama " onclick="fSurveyData(this.id)" id="gama">
+        </i>
+        <p class="survey-detail">GAMA </p>
+    </div>
+    <div class="col-md-3 col-sm-3 text-center survey-container">
+        <i class="dummy" onclick="" id="dummyb">
+        </i>
+        <p class="survey-detail">SURVEY </p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-offset-4 col-xs-4 text-center">
+        <input type="text"  class="selectized" id="autocomplete-widget" tabindex="-1" placeholder="GALAXY">
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-offset-4 col-xs-4 text-center">
+        <a class="btn btn-block btn-md btn-primary" type="button" href="" id="autocomplete-button" disabled>Go</a>
+    </div>
+</div>
+
+<script>
+    AstroObjectsJson = JSON.parse("{{ content|escapejs }}");
+
+    $(document).ready(function() {
+        $selector = $("#autocomplete-widget").selectize({
+            closeAfterSelect:true,
+            selectOnTab:true,
+            options: AstroObjectsJson.data,
+            valueField: 'url',
+            labelField: 'name',
+            searchField: 'name',
+            create: false,
+            maxItems:1,
+            onChange: function(value) {
+                $('#autocomplete-button').attr('href',value).attr('disabled', false)
+            }
+        });
+    });
+
+    //        var fSurveyData = function(id){
+    // declaration hoisted before initialization
+    function fSurveyData(id){
+        console.log($selector);
+        var control = $selector[0].selectize;
+        control.clear();
+        control.clearOptions();
+        control.addOption([{'name':id+'98655','url':'foo'}])
+
+
+//        $selector.addOption([{
+//            "name": id+'G765',
+//            "url": 'restfullink'
+//        }]);
+    };
+
+
+</script>
+{% endblock %}
+
+
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+{% endblock %}
+

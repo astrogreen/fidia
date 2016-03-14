@@ -16,6 +16,7 @@ from .utils.breadcrumbs import get_breadcrumbs_by_viewname, get_breadcrumbs_by_i
 
 from fidia.traits.base_traits import Trait
 
+
 class FITSRenderer(renderers.BaseRenderer):
     media_type = "application/fits"
     format = "fits"
@@ -246,7 +247,10 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
         """
         Return the astro object name
         """
-        return request.kwargs['galaxy_pk']
+        if 'galaxy_pk' in request.kwargs:
+            return request.kwargs['galaxy_pk']
+        else:
+            pass
 
     def get_description(self, view, status_code):
         if status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
@@ -526,9 +530,6 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
     #     return ret
 
 
-
-
-
 class GalaxySOVRenderer(ListNoDetailRenderer):
     """
     GalaxyViewSet (AstroObject view)
@@ -537,3 +538,12 @@ class GalaxySOVRenderer(ListNoDetailRenderer):
     template = 'rest_framework/sov.html'
 
     # TODO edit the breadcrumbs function to show galaxy_pk/trait_pk etc
+
+
+class SOVRenderer(renderers.BrowsableAPIRenderer):
+    """
+    BrowseSurveysViewSet
+    """
+
+    template = 'restapi_app/browse/browse.html'
+
