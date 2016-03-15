@@ -295,7 +295,6 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
         for trait in astro_object:
             depth_limit = 1
             trait_key = trait
-            print(trait_key)
             if str(trait_key) == "velocity_map":
                 if depth_limit == 0:
                     # No details to be displayed below this level
@@ -305,7 +304,15 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
                     self.fields[str(trait_key)] = \
                         AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
 
-    def get_name(self, obj):
+    def get_samiID(self, obj):
         return obj._identifier
 
-    name = serializers.SerializerMethodField()
+    def get_ra(self, obj):
+        return obj._ra
+
+    def get_dec(self, obj):
+        return obj._dec
+
+    samiID = serializers.SerializerMethodField()
+    ra = serializers.SerializerMethodField()
+    dec = serializers.SerializerMethodField()

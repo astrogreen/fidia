@@ -306,11 +306,11 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
             instance=sample, many=True,
             context={'request': request},
         )
-        return Response({'data': serializer.data})
+        return Response(serializer.data)
 
 
 # Necessary to split the list and detail views so different
-# renderer classes can be implemented (and therefore different html tmeplates)
+# renderer classes can be implemented (and therefore different html templates)
 
 
 class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
@@ -329,4 +329,4 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
             instance=astroobject, many=False,
             context={'request': request}
         )
-        return Response({'data': serializer.data})
+        return Response(serializer.data)
