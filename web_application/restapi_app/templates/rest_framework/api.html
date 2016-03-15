@@ -2,16 +2,14 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
-
 <!DOCTYPE html>
 <html>
 <head>
   {% block head %}
     {% include "restapi_app/header/header.html" %}
       <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.css"/>
-      <script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
   {% endblock %}
+  {% block head-extra %}{% endblock %}
 </head>
 
 {% block body %}
@@ -25,7 +23,7 @@
     <div class="container">
       {% if breadcrumblist %}
         {% block breadcrumbs %}
-          <ul class="breadcrumb">
+          <ul class="breadcrumb {% block breadcrumbclass %}{% endblock %}">
             {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
               {% if forloop.last %}
                 <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
@@ -243,12 +241,14 @@
     {% include "restapi_app/header/footer.html" %}
   {% endblock %}
 
+  {% block footer-extra %}{% endblock %}
 
   {% block script %}
-    <script src="{% static "rest_framework/js/jquery-1.11.3.min.js" %}"></script>
+    <!--<script src="{% static "rest_framework/js/jquery-1.11.3.min.js" %}"></script>-->
     <script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
     <script src="{% static "rest_framework/js/csrf.js" %}"></script>
-    <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "restapi_app/js/bootstrap/bootstrap.min.js" %}"></script>
+
     <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
     <script src="{% static "rest_framework/js/default.js" %}"></script>
 

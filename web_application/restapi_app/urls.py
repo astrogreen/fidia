@@ -10,22 +10,12 @@ from django.conf.urls.static import static
 
 router = ExtendDefaultRouter()
 
-router.register(r'query', views.QueryViewSet),
-router.register(r'users', views.UserViewSet),
-router.register(r'SOV', views.SOVViewSet),
+router.register(r'query', views.QueryViewSet)
+router.register(r'users', views.UserViewSet)
+router.register(r'browse', views.BrowseSurveysViewSet, base_name='browse')
 
-router.register(r'surveys', views.SurveyViewSet),
-router.register(r'releases', views.ReleaseTypeViewSet),
-router.register(r'catalogues', views.CatalogueViewSet),
-router.register(r'cataloguegroups', views.CatalogueGroupViewSet),
-router.register(r'imaging', views.ImageViewSet),
-router.register(r'spectra', views.SpectraViewSet),
-router.register(r'astro', views.AstroObjectViewSet, base_name='astro')
 
 router.register(r'sample', views.SampleViewSet, base_name='sample')
-# router.register(r'galaxy', views.GalaxyViewSet, base_name='galaxy')
-# router.register(r'trait', views.TraitViewSet, base_name='trait')
-
 
 object_nested_router = NestedExtendDefaultRouter(router, r'sample', lookup='sample')
 object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.AstroObjectViewSet, base_name='galaxy')
@@ -46,11 +36,6 @@ urlpatterns = [
     url(r'^data/', include(traitprop_nested_router.urls)),
 
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^relations/', include('django_spaghetti.urls')),
-    url(r'^simple-get/$', views.CustomGet.as_view(), name='customget'),
-    url(r'^model-free/resource/(?P<arg1>\w*\d*)[/]?(?P<arg2>\w*\d*)[/]?(?P<arg3>\w*\d*)[/]?', (views.ModelFreeView.as_view()), name='modelfree-list'),
-    url(r'^model-free/resource/$', (views.ModelFreeView.as_view()), name='modelfree'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

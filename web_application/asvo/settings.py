@@ -53,8 +53,7 @@ INSTALLED_APPS = (
     'restapi_app',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
-    'django_spaghetti',
+    # 'rest_framework_swagger',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -220,11 +219,4 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-}
-
-
-SPAGHETTI_SAUCE = {
-  'apps':['auth','restapi_app'],
-  # 'show_fields':False,
-  # 'exclude':{'restapi_app':['gamapublic']}
 }
