@@ -246,7 +246,10 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
         """
         Return the astro object name
         """
-        return request.kwargs['galaxy_pk']
+        if 'galaxy_pk' in request.kwargs:
+            return request.kwargs['galaxy_pk']
+        else:
+            pass
 
     def get_description(self, view, status_code):
         if status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN):
