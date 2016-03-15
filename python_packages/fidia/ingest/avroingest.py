@@ -78,20 +78,25 @@ def createSchema(schema):
                         \"name\": \"object_id\",
                         \"type\": \"string\"
                     },'''
-    sch = doSubtraits(schema, sch)
+    sch = doSubtraits(schema, sch, sub_trait=False)
 
     sch = sch[:-1] + ']}'
     return sch
 
 
-def doSubtraits(value, sch):
+def doSubtraits(value, sch, sub_trait=True):
     for k, v in value.items():
         if(isinstance(v, dict)):
+            # if not sub_trait:
+            #     print("Schema processing '{}' as trait.".format(k))
+            # else:
+            #     print("Schema processing '{}' as sub-trait.".format(k))
+
             sch += '''{
                         \"name\": \"''' + k + '''\",
                         \"type\": '''
 
-            if 'sub_trait' not in v:
+            if not sub_trait:
                 sch += '{\"type\": \"map\", \"values\": '
 
             sch += '''{
@@ -99,12 +104,13 @@ def doSubtraits(value, sch):
                             \"namespace\": \"au.gov.aao.asvo.model\",
                             \"name\": \"''' + k.capitalize() + '''\",
                             \"fields\": ['''
-            sch = doSubtraits(v, sch)
-            if 'sub_trait' not in v:
+            sch = doSubtraits(v, sch, sub_trait=True)
+            if not sub_trait:
                 sch += '}}},'
             else:
                 sch += '}},'
         else:
+            # print("Schema processing '{}' as trait property.".format(k))
             vals = v.split('.')
             if(len(vals) > 1 and vals[1] == 'array'):
                 type = '{\"type\": \"array\", \"items\": \"' + vals[0] + '\"}'
