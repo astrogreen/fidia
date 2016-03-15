@@ -21,7 +21,7 @@
     <div class="container">
       {% if breadcrumblist %}
         {% block breadcrumbs %}
-          <ul class="breadcrumb">
+          <ul class="breadcrumb {% block breadcrumbclass %}{% endblock %}">
             {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
               {% if forloop.last %}
                 <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
