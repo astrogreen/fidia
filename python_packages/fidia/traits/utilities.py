@@ -191,6 +191,15 @@ def trait_property(func_or_type):
 
 class TraitProperty(object):
 
+    allowed_types = [
+        'string',
+        'float',
+        'int',
+        'string.array',
+        'float.array',
+        'int.array'
+    ]
+
     def __init__(self, fload=None, fget=None, fset=None, fdel=None, doc=None, type=None, name=None):
         self.fload = fload
         self.fget = fget
@@ -217,6 +226,16 @@ class TraitProperty(object):
             self.name = fload.__name__
         self.fload = fload
         return self
+
+    @property
+    def type(self):
+        return self._type
+
+    @type.setter
+    def type(self, value):
+        if value not in self.allowed_types:
+            raise Exception("Trait property type '{}' not valid".format(value))
+        self._type = value
 
     def _get_with_load(self, obj):
         """Retrieve the trait property value via the user provided loader.
