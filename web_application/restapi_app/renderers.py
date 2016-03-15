@@ -529,21 +529,26 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
     #
     #     return ret
 
-
-class GalaxySOVRenderer(ListNoDetailRenderer):
-    """
-    GalaxyViewSet (AstroObject view)
-    """
-
-    template = 'rest_framework/sov.html'
-
-    # TODO edit the breadcrumbs function to show galaxy_pk/trait_pk etc
-
-
-class SOVRenderer(renderers.BrowsableAPIRenderer):
+class QueryRenderer(renderers.BrowsableAPIRenderer):
     """
     BrowseSurveysViewSet
     """
 
-    template = 'restapi_app/browse/browse.html'
+    template = 'restapi_app/sql/query.html'
+
+
+class SOVListRenderer(renderers.BrowsableAPIRenderer):
+    """
+    BrowseSurveysViewSet
+    """
+
+    template = 'restapi_app/sov/list.html'
+
+
+class SOVDetailRenderer(renderers.BrowsableAPIRenderer):
+    """
+    BrowseSurveysViewSet
+    """
+
+    template = 'restapi_app/sov/detail.html'
 

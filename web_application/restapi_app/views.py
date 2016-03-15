@@ -19,9 +19,10 @@ from .serializers import (
 
 from .renderers import (
     FITSRenderer,
-    GalaxySOVRenderer,
     ListNoDetailRenderer,
-    SOVRenderer
+    SOVListRenderer,
+    SOVDetailRenderer,
+    QueryRenderer
 )
 
 from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
@@ -43,7 +44,9 @@ class QueryViewSet(viewsets.ModelViewSet):
     #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
     #                       IsOwnerOrReadOnly,)
     queryset = Query.objects.all()
+    renderer_classes = [QueryRenderer, renderers.JSONRenderer, r.CSVRenderer]
   # base_name = 'query'
+    # TODO Polish Query view
 
     def get_serializer_class(self):
         serializer_class = QuerySerializerList
@@ -284,7 +287,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
 #  SOV
 class SOVListSurveysViewSet(viewsets.ViewSet):
 
-    renderer_classes = (SOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SOVListRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         """
@@ -312,12 +315,11 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
 
 class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
                                 viewsets.GenericViewSet):
-    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def retrieve(self, request, pk=None, sample_pk=None, format=None):
         try:
             astroobject = sample[pk]
-            print(astroobject)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:

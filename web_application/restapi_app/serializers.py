@@ -163,7 +163,6 @@ class AstroObjectTraitSerializer(serializers.Serializer):
             # define serializer type by instance type
             traitproperty_type = getattr(trait_property, 'type')
 
-            print(traitproperty_type)
             self.fields[trait_property.name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="flat")
 
 
@@ -284,28 +283,29 @@ class SOVListSurveysSerializer(serializers.Serializer):
 
 class SOVRetrieveObjectSerializer(serializers.Serializer):
     """
-    return object name
+    return object name & velocity map only
 
     """
     def __init__(self, *args, **kwargs):
+        depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
-        sample = self.instance
-        print(sample)
-        for trait in sample:
-            print(trait)
-            # self.fields[trait] = serializers.CharField()
-
-        # self.fields['velocity_map'] = AstroObjectTraitSerializer
+        astro_object = self.instance
+        assert isinstance(astro_object, fidia.AstronomicalObject)
+        for trait in astro_object:
+            depth_limit = 1
+            trait_key = trait
+            print(trait_key)
+            if str(trait_key) == "velocity_map":
+                if depth_limit == 0:
+                    # No details to be displayed below this level
+                    self.fields[str(trait_key)] = serializers.CharField()
+                else:
+                    # Recurse displaying details at lower level
+                    self.fields[str(trait_key)] = \
+                        AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
 
     def get_name(self, obj):
         return obj._identifier
 
     name = serializers.SerializerMethodField()
-
-    # for trait in obj:
-    #     print(trait)
-
-    # for astro_object in sample:
-    #     url = get_url(self, view_name="galaxy-list", astro_object=astro_object)
-    #     self.fields[astro_object] = AstroObjectAbsoluteURLField(astro_object)

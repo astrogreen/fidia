@@ -1,0 +1,325 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+{% block head-extra %}
+{% endblock %}
+
+{% block SOV %}
+
+    {{ objname }}
+    <!--{{ request.build_absolute_uri }}{{ object.get_absolute_url }}-->
+    {% for key, value in response.data.items %}
+        {{ key }} : {{ value|ValueType }}<br>
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>ASVO ID: {{ response.data.asvo_id}}</h2>
+            <div class="tabbable" id="SOV">
+                <ul class="nav nav-tabs">
+                    <li > <a name="Profile-tab" href="#Profile-SOV" data-toggle="tab" >Profile</a></li>
+                    <li> <a name="GAMA-tab" href="#GAMA-SOV" data-toggle="tab" aria-expanded="true">GAMA</a> </li>
+                    <li class="active"> <a name="SAMI-tab" href="#SAMI-SOV" data-toggle="tab">SAMI</a> </li>
+                </ul>
+                <div class="well tab-content">
+                    <div class="tab-pane " id="Profile-SOV">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <table class="table">
+                                    <thead>
+                                        <tr><th>ASVOID</th></tr>
+                                    </thead>
+                                    <tr>
+                                        <tr><td>{{response.data.asvo_id}}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="thumbnail">
+                                  <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.InputCatA.RA}}&dec={{response.data.InputCatA.DEC}}&scale=0.2&opt=IGPO&width=512&height=512" alt="..." class="img-responsive">
+                                  <div class="caption">
+                                    <h3>SDSS Image</h3>
+                                    <p>False colour, 512 × 512 pixel, 0.2 arcsec/pixel, 5-band composite from SDSS DR7.</p>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="GAMA-SOV">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <h2 style="margin-top:15px;">{{response.data.SpecAll.GAMA_NAME}}</h2>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <table class="table table-condensed">
+                                            <thead><tr><th>CATAID</th><th>RA</th><th>DEC (J2000)</th></tr></thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>{{response.data.InputCatA.CATAID}}</td>
+                                                <td>{{response.data.InputCatA.RA}}</td>
+                                                <td>{{response.data.InputCatA.DEC}}</td>
+                                            </tr></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="thumbnail">
+                                  <img src="{{ response.data.Spectrum }}" alt="..." class="img-responsive">
+                                  <div class="caption">
+                                    <h3>G{{response.data.InputCatA.CATAID}}</h3>
+                                    <p>SPECID = {{response.data.SpecAll.SPECID}}</p>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><h3 class="panel-title">InputCatA</h3></div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                {% for k,v in response.data.InputCatA.items %}
+                                                    <th>{{ k }}</th>
+                                                {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                {% for k,v in response.data.InputCatA.items %}
+                                                    <td>{{ v }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><h3 class="panel-title">TilingCat</h3></div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                {% for k,v in response.data.TilingCat.items %}
+                                                    <th>{{ k }}</th>
+                                                {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                {% for k,v in response.data.TilingCat.items %}
+                                                    <td>{{ v }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><h3 class="panel-title">SpecAll</h3></div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                {% for k,v in response.data.SpecAll.items %}
+                                                    <th>{{ k }}</th>
+                                                {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                {% for k,v in response.data.SpecAll.items %}
+                                                    <td>{{ v }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><h3 class="panel-title">SersicCat</h3></div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                {% for k,v in response.data.SersicCat.items %}
+                                                    <th>{{ k }}</th>
+                                                {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                {% for k,v in response.data.SersicCat.items %}
+                                                    <td>{{ v }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="col-sm-6">
+                                <div class="panel panel-default">
+                                  <div class="panel-heading">
+                                    <h3 class="panel-title">Catalogues</h3>
+                                  </div>
+                                  <div class="panel-body">
+                                      {% for k in response.data.CatList %}
+                                      <div class="row">
+                                      <div class="col-xs-4">
+                                        <code>{{ k }}</code>
+                                      </div>
+                                      <div class="col-xs-4">
+                                        <p></p>
+                                      </div>
+                                      </div>
+                                      {% endfor %}
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="panel panel-default">
+                                  <div class="panel-heading">
+                                    <h3 class="panel-title">TilingCat</h3>
+                                  </div>
+                                  <div class="panel-body">
+                                    <dl class="dl-horizontal">
+                                        {% for k,v in response.data.TilingCat.items %}
+                                        <dt>{{ k }}</dt>
+                                        <dd>{{ v }}</dd>
+                                        {% endfor %}
+                                    </dl>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+
+
+                        </div>
+                    </div>
+                    <div class="tab-pane active" id="SAMI-SOV">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <h2 style="margin-top:15px;">{{response.data.SpecAll.GAMA_NAME}}</h2>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <table class="table table-condensed">
+                                            <thead><tr><th>SAMI ID</th><th>RA</th><th>DEC (J2000)</th><th>Redshift</th></tr></thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>{{response.data.SAMID}}</td>
+                                                <td>{{response.data.InputCatA.RA}}</td>
+                                                <td>{{response.data.InputCatA.DEC}}</td>
+                                                <td>{{response.data.redshift.value}}</td>
+                                            </tr></tbody>
+                                        </table>
+                                    </div>
+                                    <!--need to figure out how to populate the available_formats for each endpoint-->
+                                    {% for key, value in response.data.items %}
+                                    {% if key != "asvo_is-turnoff" %}
+                                        <div class="col-sm-6" style="border:solid 1px red">
+                                            <div class="col-xs-6">
+                                                <h4>
+                                                    <a class="black" href="{{ request.get_full_path }}{{key}}">{{ key | CapsSentence }}</a>
+                                                </h4>
+                                            </div>
+                                            <div class="col-xs-6">
+                                                {% if value|ValueType != "str-turnoff" %}
+                                                    <fieldset class="pull-right">
+                                                      {% if api_settings.URL_FORMAT_OVERRIDE %}
+                                                        <div class="btn-group format-selection">
+                                                          <a class="btn btn-primary btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ key }} resource">Download</a>
+
+                                                          <button class="btn btn-primary btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
+                                                            <span class="caret"></span>
+                                                          </button>
+                                                          <ul class="dropdown-menu">
+                                                            {% for format in available_formats %}
+                                                              <li>
+                                                                <a class="js-tooltip format-option" href="{% add_query_param_trait request api_settings.URL_FORMAT_OVERRIDE format key %}" rel="nofollow" title="Make a GET request on the {{ key }} resource with the format set to `{{ format }}`">{{ format }}</a>
+                                                              </li>
+                                                            {% endfor %}
+                                                          </ul>
+                                                        </div>
+                                                      {% else %}
+                                                        <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path}}{{key}}" rel="nofollow" title="Make a GET request on the {{ key }} resource">GET</a>
+                                                      {% endif %}
+                                                    </fieldset>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="col-xs-12">
+                                                {% if value|ValueType == "str" %}
+                                                    {% if key == "redshift" %}
+                                                      This appears if variable somevar equals the string "x"
+                                                    {% endif %}
+                                                    <p>{{value}}</p>
+                                                {% elif value|ValueType == "OrderedDict" %}
+
+                                                    {% for trait_name, trait_value in value.items %}
+                                                        <h5>{{ trait_name }}</h5>
+
+                                                        {% if trait_name == "value" %}
+                                                            <div id="{{ key }}">
+                                                                <p>{{trait_value}}</p>
+                                                            </div>
+                                                        {% else %}
+                                                            <p>{{trait_value}}</p>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <hr>
+                                    {% comment %}
+                                    <div class="col-sm-6">
+                                        <h4>Velocity Map</h4>
+                                        <p>{{response.data.velocity_map}}</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <h4>Line Map</h4>
+                                        <p>{{response.data.line_map}}</p>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <h4>Spectral Map <small><a class="text-uppercase" href="{{ request.build_absolute_uri }}{{ object.get_absolute_url }}">download</a></small></h4>
+                                        <p>{{response.data.spectral_map}}</p>
+                                    </div>
+                                    {% endcomment %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+
+ <script type="text/javascript"> 
+        //make astroobject available as json
+        var AstroObjectJson = JSON.parseMore("{{ content|escapejs }}");
+
+        console.log(AstroObjectJson)
+    </script>
+<!--<script src="{% static 'restapi_app/js/sov/2DHistogram.js' %}"></script>-->
+{% endblock %}
