@@ -13,7 +13,8 @@ from .serializers import (
     AstroObjectSerializer,
     AstroObjectTraitSerializer,
     AstroObjectTraitPropertySerializer,
-    BrowseObjectSerializer
+    SOVListSurveysSerializer,
+    SOVRetrieveObjectSerializer
 )
 
 from .renderers import (
@@ -281,7 +282,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
 
 
 #  SOV
-class BrowseSurveysViewSet(viewsets.ViewSet):
+class SOVListSurveysViewSet(viewsets.ViewSet):
 
     renderer_classes = (SOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
@@ -297,29 +298,33 @@ class BrowseSurveysViewSet(viewsets.ViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = BrowseObjectSerializer
+        serializer_class = SOVListSurveysSerializer
         serializer = serializer_class(
             instance=sample, many=True,
             context={'request': request},
         )
-
         return Response({'data': serializer.data})
 
-    def retrieve(self, request, pk=None, sample_pk=None, format=None):
-        """
-        retrieve a single obj for SOV template
-            -sov template
-        """
 
+# Necessary to split the list and detail views so different
+# renderer classes can be implemented (and therefore different html tmeplates)
+
+
+class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
+    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+
+    def retrieve(self, request, pk=None, sample_pk=None, format=None):
         try:
             astroobject = sample[pk]
+            print(astroobject)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        serializer_class = AstroObjectSerializer
+        serializer_class = SOVRetrieveObjectSerializer
         serializer = serializer_class(
             instance=astroobject, many=False,
             context={'request': request}
         )
-        return Response({'data': serializer.data}, template_name='restapi_app/browse/browse.html')
+        return Response({'data': serializer.data})

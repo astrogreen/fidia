@@ -182,6 +182,7 @@ class AstroObjectSerializer(serializers.Serializer):
         assert isinstance(astro_object, fidia.AstronomicalObject)
         for trait in astro_object:
             depth_limit = 1
+            trait_key = trait
             if depth_limit == 0:
                 # No details to be displayed below this level
                 self.fields[str(trait_key)] = serializers.CharField()
@@ -214,41 +215,41 @@ class SampleSerializer(serializers.Serializer):
 
 
 
-class TraitPropertySerializer(serializers.Serializer):
+# class TraitPropertySerializer(serializers.Serializer):
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         trait_property = self.instance
+#         assert isinstance(trait_property, TraitProperty)
+#
+#         value = serializers.CharField(source="*")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+# TRAIT_SERIALIZER_CACHE = dict()
 
-        trait_property = self.instance
-        assert isinstance(trait_property, TraitProperty)
-
-        value = serializers.CharField(source="*")
-
-TRAIT_SERIALIZER_CACHE = dict()
-
-class SimpleTraitSerializer(serializers.Serializer):
-    """Serializer which simply returns the string representation of the Trait"""
-    trait_repr = serializers.CharField(source="*")
-
-def get_serializer_for_trait(self, trait):
-    return SimpleTraitSerializer
-
-class AstroOjbectSerializer(serializers.Serializer):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        astro_object = self.instance
-        assert isinstance(astro_object, fidia.AstronomicalObject)
-
-        # Iterate over the AstroObject keys (which are keys to traits)
-        for key in astro_object.keys():
-            serializer = get_serializer_for_trait(astro_object[key])
-            self.fields[key] = serializer(required=False)
+# class SimpleTraitSerializer(serializers.Serializer):
+#     """Serializer which simply returns the string representation of the Trait"""
+#     trait_repr = serializers.CharField(source="*")
+#
+# def get_serializer_for_trait(self, trait):
+#     return SimpleTraitSerializer
+#
+# class AstroOjbectSerializer(serializers.Serializer):
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         astro_object = self.instance
+#         assert isinstance(astro_object, fidia.AstronomicalObject)
+#
+#         # Iterate over the AstroObject keys (which are keys to traits)
+#         for key in astro_object.keys():
+#             serializer = get_serializer_for_trait(astro_object[key])
+#             self.fields[key] = serializer(required=False)
 
 
 # TESTING SOV
-class BrowseObjectSerializer(serializers.Serializer):
+class SOVListSurveysSerializer(serializers.Serializer):
     """
     return list available objects in sample
 
@@ -272,15 +273,39 @@ class BrowseObjectSerializer(serializers.Serializer):
 
     def get_url(self, obj_name):
         url_kwargs = {
-            'galaxy_pk': obj_name
+            'pk': obj_name
         }
-        view_name = 'galaxy-list'
+        view_name = 'browse-detail'
         return reverse(view_name, kwargs=url_kwargs)
 
     name = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
 
-        # for astro_object in sample:
-        #     url = get_url(self, view_name="galaxy-list", astro_object=astro_object)
-        #     self.fields[astro_object] = AstroObjectAbsoluteURLField(astro_object)
+class SOVRetrieveObjectSerializer(serializers.Serializer):
+    """
+    return object name
+
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        sample = self.instance
+        print(sample)
+        for trait in sample:
+            print(trait)
+            # self.fields[trait] = serializers.CharField()
+
+        # self.fields['velocity_map'] = AstroObjectTraitSerializer
+
+    def get_name(self, obj):
+        return obj._identifier
+
+    name = serializers.SerializerMethodField()
+
+    # for trait in obj:
+    #     print(trait)
+
+    # for astro_object in sample:
+    #     url = get_url(self, view_name="galaxy-list", astro_object=astro_object)
+    #     self.fields[astro_object] = AstroObjectAbsoluteURLField(astro_object)

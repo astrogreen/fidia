@@ -12,7 +12,8 @@ router = ExtendDefaultRouter()
 
 router.register(r'query', views.QueryViewSet)
 router.register(r'users', views.UserViewSet)
-router.register(r'browse', views.BrowseSurveysViewSet, base_name='browse')
+router.register(r'browse', views.SOVListSurveysViewSet, base_name='browse')
+router.register(r'browse', views.SOVRetrieveObjectViewSet, base_name='browse')
 
 
 router.register(r'sample', views.SampleViewSet, base_name='sample')
