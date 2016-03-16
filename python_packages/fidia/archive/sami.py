@@ -259,13 +259,13 @@ class SAMIRowStackedSpectra(SpectralMap):
     def shape(self):
         return 0
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
         return self._hdu[key].data
 
-    @trait_property('bytes.ndarray')
+    @trait_property('float.array')
     def variance(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self._hdu[str('VARIANCE')].data
@@ -575,7 +575,7 @@ class LZIFUContinuum(SpectralMap):
             raise ValueError("unknown trait name")
         return self._hdu[color + '_CONTINUUM'].data
 
-    @trait_property
+    @trait_property('float.array')
     def variance(self):
         return None
 
@@ -615,7 +615,7 @@ class LZIFULineSpectrum(SpectralMap):
             raise ValueError("unknown trait name")
         return self._hdu[color + '_LINE'].data
 
-    @trait_property
+    @trait_property('float.array')
     def variance(self):
         return None
 
