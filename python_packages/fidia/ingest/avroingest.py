@@ -20,9 +20,9 @@ def main():
 
 
 def ingestData(sample, schema):
-    gateway = JavaGateway()
 
     schema_string = createSchema(schema)
+    gateway = JavaGateway()
     astro_schema = gateway.entry_point.getSchema(schema_string)
     writer = gateway.entry_point.getParquetWriter(astro_schema)
     try:
@@ -101,7 +101,7 @@ def doSubtraits(value, sch, sub_trait=True):
 
             sch += '''{
                             \"type\": \"record\",
-                            \"namespace\": \"au.gov.aao.asvo.model\",
+                            \"namespace\": \"au.gov.aao.asvo.model.''' + k + '''\",
                             \"name\": \"''' + k.capitalize() + '''\",
                             \"fields\": ['''
             sch = doSubtraits(v, sch, sub_trait=True)
@@ -113,11 +113,15 @@ def doSubtraits(value, sch, sub_trait=True):
             # print("Schema processing '{}' as trait property.".format(k))
             vals = v.split('.')
             if(len(vals) > 1 and vals[1] == 'array'):
-                type = '{\"type\": \"array\", \"items\": \"' + vals[0] + '\"}'
+                t = '{\"type\": \"array\", \"items\": \"' + vals[0] + '\"}' #\"namespace\": \"au.gov.aao.asvo.model.''' + k + '''\",
+                type = '''{\"type\": \"record\",
+                            \"name\": \"''' + k + '''NDArray\",
+                            \"fields\": [{\"name\": \"shape\", \"type\": \"string\"},
+                                         {\"name\": \"data\", \"type\": ''' + t + '}]}'
             elif(len(vals) == 1):
                 type = '\"' + vals[0] + '\"'
             sch += '{\"name\": \"' + k + '''\",
-                    \"type\": ''' + type + '},'
+                    \"type\": [\"null\", ''' + type + ']},'     #if null allowed, put union here ["null", type]
     sch = sch[:-1] + ']'
     return sch
 
