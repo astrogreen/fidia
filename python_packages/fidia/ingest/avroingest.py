@@ -1,6 +1,7 @@
 import sys
 
 from fidia.archive import example_archive, archive
+from fidia.traits.base_traits import Trait
 
 from py4j.java_gateway import JavaGateway, GatewayParameters
 from py4j.java_collections import MapConverter, ListConverter
@@ -29,37 +30,61 @@ def ingestData(sample, schema):
         for object_id in sample:
             astro_record = gateway.entry_point.getDatum(astro_schema)
             astro_record.put("object_id", object_id)
-            has_traits = False
+            traits_found_for_this_object = False
             for trait_key in sample[object_id]:
-                if(trait_key.trait_type == 'simple_heir_trait' or trait_key.trait_type == 'spectral_map'):
-                    continue
-                has_traits = True
+                # if(trait_key.trait_type == 'simple_heir_trait' or trait_key.trait_type == 'spectral_map'):
+                #     continue
+                # Check that the Trait found is actually listed in the schema:
+                assert trait_key.trait_type in schema
+
                 trait = sample[object_id][trait_key]
-                mp = dict()
+                assert isinstance(trait, Trait)
+
+                # Dictionary to store the data from the trait to be added to the database
+                data_dict = dict()
 
                 #This needs to be a if else for nested traits
                 datum = gateway.entry_point.getDatum(astro_schema.getField(trait_key.trait_type).schema().getValueType())
-                # Iterate and put values
-                for data_name in schema[trait_key.trait_type]:
-                    try:
-                        #assert isinstance(getattr(trait, data_name), np.ndarray)
-                        #tt.addProperty(data_name, getattr(trait, data_name))
 
-                        # If trait attribute is an ndarray, convert it into a java array
-                        # is it possible to do that?
-                        attr = getattr(trait, data_name)
-                        if(isinstance(attr, ndarray)):
-                            #gateway.new_array(int, 2,3) # how do I know the shape of the ndarray? have to get ndarray shape
-                            attr_list = attr.tolist()
-                            attr = ListConverter().convert(attr_list, gateway._gateway_client)
-                        datum.put(data_name, attr)
+                # Iterate and put values
+                trait_schema = schema[trait_key.trait_type]
+                for trait_property_name in trait_schema:
+                    if isinstance(trait_schema[trait_property_name], dict):
+                        # This property is a sub-trait, so skip (for now)
+                        # TODO: Implement sub-trait ingestion
+                        continue
+                    else:
+                        trait_property_type = trait_schema[trait_property_name]
+                    try:
+                        trait_property_data = getattr(trait, trait_property_name)
                     except:
+                        # Unable to retrieve the trait property for some reason. Skip for now.
+                        # TODO: Provide a warning
                         tb = traceback.format_exc()
                         print(tb)
-                mp['b1_v1'] = datum
-                java_mp = MapConverter().convert(mp, gateway._gateway_client)
-                astro_record.put(trait_key.trait_type, java_mp)
-            if(has_traits):
+                        continue
+
+                    if 'array' in trait_property_type:
+                        # This is an array trait, so it will have to be flattened, and have it's shape stored.
+                        shape = trait_property_data.shape
+                        flat_list = trait_property_data.flatten().tolist()
+                        # Create a java list for this python list:
+                        java_list = ListConverter().convert(flat_list, gateway._gateway_client)
+                        # Convert the shape to a java list as well:
+                        java_shape = ListConverter().convert(shape, gateway._gateway_client)
+
+                        # TODO: pass the java_list and java_shape to AVRO
+                        # datum.put(trait_property_name, trait_property_data)
+                        # traits_found_for_this_object = True
+                    else: # Not an array type
+                        datum.put(trait_property_name, trait_property_data)
+                        traits_found_for_this_object = True
+
+                # TODO: Implement version/branch handling here
+                data_dict['b1_v1'] = datum
+                java_data_map = MapConverter().convert(data_dict, gateway._gateway_client)
+                astro_record.put(trait_key.trait_type, java_data_map)
+            if(traits_found_for_this_object):
                 # write the record out
                 writer.write(astro_record)
         writer.close()
