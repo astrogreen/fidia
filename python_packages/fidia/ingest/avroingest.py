@@ -44,17 +44,18 @@ def ingestData(sample, schema):
                 data_dict = dict()
 
                 #This needs to be a if else for nested traits
-                datum = gateway.entry_point.getDatum(astro_schema.getField(trait_key.trait_type).schema().getValueType())
+                avro_trait_schema = astro_schema.getField(trait_key.trait_type).schema()
+                datum = gateway.entry_point.getDatum(avro_trait_schema.getValueType())
 
                 # Iterate and put values
-                trait_schema = schema[trait_key.trait_type]
-                for trait_property_name in trait_schema:
-                    if isinstance(trait_schema[trait_property_name], dict):
+                trait_property_schema = schema[trait_key.trait_type]
+                for trait_property_name in trait_property_schema:
+                    if isinstance(trait_property_schema[trait_property_name], dict):
                         # This property is a sub-trait, so skip (for now)
                         # TODO: Implement sub-trait ingestion
                         continue
                     else:
-                        trait_property_type = trait_schema[trait_property_name]
+                        trait_property_type = trait_property_schema[trait_property_name]
                     try:
                         trait_property_data = getattr(trait, trait_property_name)
                     except:
@@ -70,11 +71,18 @@ def ingestData(sample, schema):
                         flat_list = trait_property_data.flatten().tolist()
                         # Create a java list for this python list:
                         java_list = ListConverter().convert(flat_list, gateway._gateway_client)
-                        # Convert the shape to a java list as well:
-                        java_shape = ListConverter().convert(shape, gateway._gateway_client)
+                        # Convert the shape to a java list as well: Not required.
+                        # java_shape = ListConverter().convert(shape, gateway._gateway_client)
 
-                        # TODO: pass the java_list and java_shape to AVRO
-                        # datum.put(trait_property_name, trait_property_data)
+                        # Here we need to get another record for the property.
+                        # This property's avro type is a union. We need to get all the avro types of this union.
+                        trait_property_union_types_schema = avro_trait_schema.getValueType().getField(trait_property_name).schema()
+                        union_types_list = trait_property_union_types_schema.getTypes()
+                        array_schema = union_types_list.get(1)
+                        array_datum = gateway.entry_point.getDatum(array_schema)
+                        array_datum.put('shape', str(shape))
+                        array_datum.put('data', java_list)
+                        datum.put(trait_property_name, array_datum)
                         # traits_found_for_this_object = True
                     else: # Not an array type
                         datum.put(trait_property_name, trait_property_data)
@@ -111,6 +119,8 @@ def createSchema(schema):
 
 def doSubtraits(value, sch, sub_trait=True):
     for k, v in value.items():
+        if(k=='sub_trait'):
+            continue
         if(isinstance(v, dict)):
             # if not sub_trait:
             #     print("Schema processing '{}' as trait.".format(k))
@@ -150,32 +160,6 @@ def doSubtraits(value, sch, sub_trait=True):
     sch = sch[:-1] + ']'
     return sch
 
-
-# This is an old version. Don't use this. Kept for me to experiment
-def doSubtraits_V1(value, sch):
-    # we know that this is a record
-    for k, v in value.items():
-        if(isinstance(v, dict)):
-            sch += '''{
-                        \"name\": \"''' + k + '''\",
-                        \"type\": {\"type\": \"map\", \"values\":
-                        \"type\": {
-                            \"type\": \"record\",
-                            \"namespace\": \"au.gov.aao.asvo.model\",
-                            \"name\": \"''' + k.capitalize() + '''\",
-                            \"fields\": ['''
-            sch = doSubtraits(v, sch)
-            sch += '}}},'
-        else:
-            vals = v.split('.')
-            if(len(vals) > 1 and vals[1] == 'array'):
-                type = '{\"type\": \"array\", \"items\": \"' + vals[0] + '\"}'
-            elif(len(vals) == 1):
-                type = '\"' + vals[0] + '\"'
-            sch += '{\"name\": \"' + k + '''\",
-                    \"type\": ''' + type + '},'
-    sch = sch[:-1] + ']'
-    return sch
 
 if __name__ == '__main__':
     main()
