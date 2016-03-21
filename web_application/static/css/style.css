@@ -310,7 +310,7 @@ body {
   /* Margin bottom by footer height */
   margin-bottom: 215px;
 }
-.wrapper{padding-bottom:30px;border:solid red 1px;}
+.wrapper{padding-bottom:30px;}
 .footer {
   background-color: #292F31;
   padding: 35px 0 0 0 ;
