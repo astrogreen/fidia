@@ -23,7 +23,8 @@ from .renderers import (
     SOVListRenderer,
     SOVDetailRenderer,
     QueryRenderer,
-    AstroObjectRenderer
+    AstroObjectRenderer,
+    SampleRenderer
 )
 
 from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
@@ -194,7 +195,7 @@ sample = ar.get_full_sample()
 class SampleViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SampleRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:

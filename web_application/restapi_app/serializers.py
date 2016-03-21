@@ -198,7 +198,7 @@ class AstroObjectSerializer(serializers.Serializer):
 
             url = reverse("trait-list", kwargs=url_kwargs)
             if depth_limit == 0:
-                self.fields[str(trait_key)] = AstroObjectTraitAbsoluteURLField(url=url)
+                self.fields[str(trait_key)] = AstroObjectTraitAbsoluteURLField(url=url, required=False)
                 # No details to be displayed below this level
             else:
                 # Recurse displaying details at lower level
@@ -222,11 +222,21 @@ class SampleSerializer(serializers.Serializer):
         assert isinstance(sample, fidia.Sample), \
             "SampleSerializer must have an instance of fidia.Sample, " +\
             "not '%s': try SampleSerializer(instance=sample)" % sample
+        depth_limit=0
+
+
 
         for astro_object in sample:
+            url_kwargs = {
+                    'galaxy_pk': str(astro_object),
+                }
+            url = reverse("galaxy-list", kwargs=url_kwargs)
+
+
             if depth_limit == 0:
                 # No details to be displayed below this level
-                self.fields[astro_object] = serializers.CharField()
+                # self.fields[astro_object] = serializers.CharField()
+                self.fields[astro_object] = AstroObjectTraitAbsoluteURLField(url=url, required=False)
             else:
                 # Recurse displaying details at lower level
                 self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)

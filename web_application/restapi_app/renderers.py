@@ -529,12 +529,18 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
     #
     #     return ret
 
+class SampleRenderer(renderers.BrowsableAPIRenderer):
+    """
+    SampleViewSet (list only)
+    """
+    template = 'restapi_app/browse/list-sample.html'
+
 
 class AstroObjectRenderer(renderers.BrowsableAPIRenderer):
     """
     AstroObjectViewSet (list only)
     """
-    template = 'restapi_app/browse/list.html'
+    template = 'restapi_app/browse/list-astroobject.html'
 
 
 class QueryRenderer(renderers.BrowsableAPIRenderer):
