@@ -1,5 +1,6 @@
 from __future__ import unicode_literals, absolute_import
 
+import re
 from django import template
 from django.template import Library
 from django.core.urlresolvers import reverse, NoReverseMatch, reverse_lazy
@@ -92,12 +93,32 @@ def ValueType(value):  # Only one argument.
 
 @register.filter
 def CapsSentence(value):  # Only one argument.
-    """returns the type of an object"""
+    """returns caps words"""
     words = value.split("_")
     sentence = " ".join(words)
     # .title capitalizes the first letter of every word in words list
     return sentence.title()
 
+
+@register.filter
+def LineOnly(value):  # Only one argument.
+    """returns formatted Line Values"""
+    words = value.split("-")
+    line = words[-1]
+    temp = re.split('(\d+)', line)
+    sentence = " ".join(temp)
+
+    return sentence.upper()
+
+
+@register.filter
+def TraitTypeSplit(value):  # Only one argument.
+    """returns formatted Line Values"""
+    words = value.split("-")
+    line = words[-1]
+    # sentence = " ".join(words)
+    # .title capitalizes the first letter of every word in words list
+    return line.title()
 
 
 @register.simple_tag

@@ -1,4 +1,4 @@
-import random
+import random, collections
 from pprint import pprint
 from .exceptions import NoPropertyFound
 from django.shortcuts import get_object_or_404
@@ -22,7 +22,8 @@ from .renderers import (
     ListNoDetailRenderer,
     SOVListRenderer,
     SOVDetailRenderer,
-    QueryRenderer
+    QueryRenderer,
+    AstroObjectRenderer
 )
 
 from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
@@ -220,9 +221,18 @@ class AstroObjectViewSet(mixins.ListModelMixin,
     # TODO THIS SHOULD WORK: renderer_classes = (SOVRenderer, ) + api_settings.DEFAULT_RENDERER_CLASSES
 
     # renderer_classes = (GalaxySOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
-    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
+        def get_serializer_context(self):
+            """
+            pass request attribute to serializer - add schema attribute
+            """
+            return {
+                'request': self.request,
+                'schema': ar.schema()
+            }
+
         try:
             astroobject = sample[galaxy_pk]
         except KeyError:
@@ -231,10 +241,17 @@ class AstroObjectViewSet(mixins.ListModelMixin,
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer_class = AstroObjectSerializer
+
+        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+
         serializer = serializer_class(
             instance=astroobject, many=False,
-            context={'request':request}
+            context={
+                'request': request,
+                'schema': sorted_schema
+                }
         )
+
         return Response(serializer.data)
 
 

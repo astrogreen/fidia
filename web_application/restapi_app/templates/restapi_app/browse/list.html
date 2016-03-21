@@ -1,0 +1,65 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+{% block head-extra %}
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block content-options %}{% endblock %}
+{% block content-delete %}{% endblock %}
+{% block content-filter-form %}{% endblock %}
+
+{% block content-page-header %}
+<h1>{{ name }} TEST</h1>
+{% endblock %}
+{% block content-input %}
+
+    <div class="container-browse-astroobject">
+        <div class="row">
+            {% for key, value in response.data.items %}
+                {% if key == 'schema' %}
+                    {% for keyb, valueb in value.items %}
+                        <div class="col-md-3 col-sm-4 col-xs-6">
+                            <div class="panel panel-default panel-primary">
+                                <!-- Default panel contents -->
+                                <div class="panel-heading"><h4>{{ keyb | CapsSentence }}</h4></div>
+                                <!--<div class="panel-body">-->
+                                <!--&lt;!&ndash;<p>Additional info here?</p>&ndash;&gt;-->
+                                <!--</div>-->
+
+                                 <!--List group-->
+                                <div class="list-group">
+                                    {% for keyc, valuec in response.data.items %}
+                                        {% if keyc != 'schema' and keyb in keyc %}
+                                            <a href="{{ valuec }}" class="list-group-item ">
+                                                {% if keyb == 'line_map' %}
+                                                    <p class="list-group-item-text">{{ keyc | LineOnly }}</p>
+                                                {% elif keyb == 'velocity_map' %}
+                                                    <p class="list-group-item-text">{{ keyc | CapsSentence }}</p>
+                                                {% else %}
+                                                    <p class="list-group-item-text">{{ keyc | TraitTypeSplit }}</p>
+                                                {% endif %}
+                                            </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+    </script>
+{% endblock %}
+
+{% block content-DRF %}{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}
+

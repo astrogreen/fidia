@@ -1,4 +1,4 @@
-import fidia
+import fidia, collections
 
 from fidia.traits.utilities import TraitProperty
 from fidia.traits.base_traits import Trait
@@ -7,7 +7,7 @@ from rest_framework import serializers, mixins
 from .models import (
     Query
 )
-from .fields import AstroObjectAbsoluteURLField
+from .fields import AstroObjectTraitAbsoluteURLField
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
@@ -168,10 +168,11 @@ class AstroObjectTraitSerializer(serializers.Serializer):
 
 
 class AstroObjectSerializer(serializers.Serializer):
-    asvo_id = serializers.SerializerMethodField()
 
-    def get_asvo_id(self,obj):
-        return '0000001'
+    # asvo_id = serializers.SerializerMethodField()
+    #
+    # def get_asvo_id(self,obj):
+    #     return '0000001'
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
@@ -186,35 +187,30 @@ class AstroObjectSerializer(serializers.Serializer):
         #     }
         #     return reverse(view_name, kwargs=url_kwargs)
 
-
-        url_kwargs = {
-            'galaxy_pk': astro_object._identifier
-        }
-        url = reverse("galaxy-list", kwargs=url_kwargs) + "/"
-
         for trait in astro_object:
-            # depth_limit = 1
             depth_limit = 0
             trait_key = trait
 
+            url_kwargs = {
+                'galaxy_pk': astro_object._identifier,
+                'trait_pk': str(trait_key)
+            }
+
+            url = reverse("trait-list", kwargs=url_kwargs)
             if depth_limit == 0:
-                print(str(trait_key))
-                # self.fields[str(trait_key)] = serializers.SerializerMethodField('get_url')
-
-                self.fields[str(trait_key)] = AstroObjectAbsoluteURLField(url=url + str(trait_key))
-
-    def get_url(self, obj):
-
-        return 'test'
-
+                self.fields[str(trait_key)] = AstroObjectTraitAbsoluteURLField(url=url)
                 # No details to be displayed below this level
-                # self.fields[str(trait_key)] = serializers.CharField()
-            # else:
-            #     # Recurse displaying details at lower level
-            #     self.fields[str(trait_key)] = \
-            #         AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
+            else:
+                # Recurse displaying details at lower level
+                self.fields[str(trait_key)] = \
+                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
 
+    def get_schema(self, obj):
+        return self.context['schema']
+
+    schema = serializers.SerializerMethodField()
     # object = serializers.CharField(max_length=100, required=False, source="*")
+
 
 
 class SampleSerializer(serializers.Serializer):

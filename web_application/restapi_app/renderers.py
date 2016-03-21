@@ -529,6 +529,14 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
     #
     #     return ret
 
+
+class AstroObjectRenderer(renderers.BrowsableAPIRenderer):
+    """
+    AstroObjectViewSet (list only)
+    """
+    template = 'restapi_app/browse/list.html'
+
+
 class QueryRenderer(renderers.BrowsableAPIRenderer):
     """
     BrowseSurveysViewSet
