@@ -309,7 +309,18 @@ class TraitProperty(object):
                 if self.name not in obj._trait_dict:
                     log.debug("Object '%s' has not cached a value for '%s'.", obj, self.name)
                     # Data not yet cached
-                    obj._trait_dict[self.name] = self._get_with_load(obj)
+                    if obj._loading != 'verylazy':
+                        obj._realise()
+                    else:
+                        obj._trait_dict[self.name] = self._get_with_load(obj)
+                    # Now confirm that the cache update has actually been done:
+                    try:
+                        obj._trait_dict[self.name]
+                    except:
+                        # Real problem! Just attempt to return the value using the loader!
+                        log.error("Trait property cache not being updated correctly for trait property '%s.%s'",
+                                  obj.trait_key, self.name)
+                        return self._get_with_load(obj)
                 else:
                     log.debug("Using cached a value for '%s' from object '%s'.", self.name, obj)
                 return obj._trait_dict[self.name]

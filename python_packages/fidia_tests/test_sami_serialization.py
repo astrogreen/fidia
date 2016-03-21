@@ -31,7 +31,7 @@ class TestSAMISerialization:
 
     def test_spectral_cube_serialization(self, sami_sample):
         # Collect a trait and generate a serialized version
-        t = sami_sample['23117']['spectral_cube', 'red.05']
+        t = sami_sample['23117']['spectral_cube', 'red']
         byte_data = t.as_bytes()
 
         with BytesIO(byte_data) as byte_file:
