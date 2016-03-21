@@ -107,7 +107,8 @@ class Trait(AbstractBaseTrait):
         # Preload all traits
         # @TODO: Modify preloading to respect preload argument
         self._trait_dict = dict()
-        self._realise()
+        if self._loading == 'eager':
+            self._realise()
 
     def get_sub_trait(self, trait_key):
 

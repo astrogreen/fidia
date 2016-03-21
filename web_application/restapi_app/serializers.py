@@ -186,6 +186,12 @@ class AstroObjectSerializer(serializers.Serializer):
         #     }
         #     return reverse(view_name, kwargs=url_kwargs)
 
+
+        url_kwargs = {
+            'galaxy_pk': astro_object._identifier
+        }
+        url = reverse("galaxy-list", kwargs=url_kwargs) + "/"
+
         for trait in astro_object:
             # depth_limit = 1
             depth_limit = 0
@@ -193,8 +199,9 @@ class AstroObjectSerializer(serializers.Serializer):
 
             if depth_limit == 0:
                 print(str(trait_key))
-                self.fields[str(trait_key)] = serializers.SerializerMethodField('get_url')
+                # self.fields[str(trait_key)] = serializers.SerializerMethodField('get_url')
 
+                self.fields[str(trait_key)] = AstroObjectAbsoluteURLField(url=url + str(trait_key))
 
     def get_url(self, obj):
 
