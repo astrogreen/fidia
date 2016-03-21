@@ -21,9 +21,16 @@
     <div class="container-browse-astroobject">
         <div class="row">
             {% for key, value in response.data.items %}
+
                 {% if key == 'schema' %}
                     {% for keyb, valueb in value.items %}
-                        <div class="col-md-3 col-sm-4 col-xs-6">
+
+                        <div class="col-md-5 col-sm-5 col-xs-6">
+                        {% comment %}
+                            {% if forloop.counter0|divisibleby:4 %}
+                                {{ forloop.counter0 }} COUNTER
+                            {% endif %}
+                        {% endcomment %}
                             <div class="panel panel-primary">
                                 <!-- Default panel contents -->
                                 <div class="panel-heading">{{ keyb | CapsSentence }}</div>
@@ -60,6 +67,5 @@
 
 {% block content-DRF %}{% endblock %}
 {% block footer-extra %}
-
 {% endblock %}
 

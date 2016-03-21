@@ -131,3 +131,23 @@ def add_query_param_trait(request, key, val, trait_name):
     uri = iri_to_uri(iri)+trait_name+'/'
 
     return escape(replace_query_param(uri, key, val))
+
+
+@register.filter
+def get_range(value):
+    """
+    Filter - returns a list containing range made from given value
+    Usage (in template):
+
+    <ul>{% for i in 3|get_range %}
+      <li>{{ i }}. Do something</li>
+    {% endfor %}</ul>
+
+    Results with the HTML:
+    <ul>
+      <li>0. Do something</li>
+      <li>1. Do something</li>
+      <li>2. Do something</li>
+    </ul>
+    """
+    return range(value)

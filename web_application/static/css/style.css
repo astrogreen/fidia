@@ -214,16 +214,14 @@ header .container .user a.register i{color:#ffffff;}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
-nav{background-color:#5aa8d8;}
+nav{
+    background-color:#5aa8d8;
+}
 nav .container{
 	position:relative;
-	/* -- OS -- */
-
-	/* -- /OS -- */
 	text-align:center;
 }
 
-/*
 /* custom navigation styles */
 .navbar {
   width: 100%;
@@ -236,7 +234,6 @@ nav .container{
   font-family: 'Roboto', sans-serif;
 }
 .navbar-static-top {
-
     border-width: 0 0 0px;
     border-top-width: 0px;
     border-right-width: 0px;
@@ -299,18 +296,39 @@ nav .container{
   margin-left: 10px;
 }
 
-/* FOOTER COMPONENT */
+/* - - - -FOOTER COMPONENT - - - -*/
 /* push footer */
+
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 215px;
+}
+.wrapper{padding-bottom:30px;border:solid red 1px;}
 .footer {
   background-color: #292F31;
   padding: 35px 0 0 0 ;
-  margin-top: 50px;
+  /*margin-top: 50px;*/
   position: relative;
   bottom: 0;
   width: 100%;
   /* Set the fixed height of the footer = footer height +margin */
   height: 215px;
   font-family:'Roboto', sans-serif;
+}
+#footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 215px;
+
 }
 
 .footer > .container > .row {display:table;width:100%;}
@@ -362,12 +380,6 @@ display: inline-block;
 padding: 0px 4px;
 }
 
-/*=== dabapps bootstrap styles ====*/
-
-/* sticky footer and footer */
-html, body {
-  height: 100%;
-}
 
 .form-switcher {
   margin-bottom: 0;
