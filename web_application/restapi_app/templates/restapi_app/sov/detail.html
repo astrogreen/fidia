@@ -5,17 +5,19 @@
 {% load internal_extras %}
 
 {% block head-extra %}
-<script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
 {% endblock %}
 
 {% block SOV %}
 
     {{ objname }}
     <!--{{ request.build_absolute_uri }}{{ object.get_absolute_url }}-->
-    {% for key, value in response.data.items %}
-        {{ key }} : {{ value|ValueType }}<br>
-    {% endfor %}
+    {% comment %}
+        {% for key, value in response.data.items %}
 
+                {{ key }}: {{value|ValueType}}<br>
+
+        {% endfor %}
+    {% endcomment %}
     <div class="row">
         <div class="col-xs-12">
             <h2>ASVO ID: {{ response.data.asvo_id}}</h2>
@@ -221,86 +223,85 @@
                                             <thead><tr><th>SAMI ID</th><th>RA</th><th>DEC (J2000)</th><th>Redshift</th></tr></thead>
                                             <tbody>
                                             <tr>
-                                                <td>{{response.data.SAMID}}</td>
-                                                <td>{{response.data.InputCatA.RA}}</td>
-                                                <td>{{response.data.InputCatA.DEC}}</td>
-                                                <td>{{response.data.redshift.value}}</td>
+                                                <td>{{response.data.samiID}}</td>
+                                                <td>{{response.data.ra}}</td>
+                                                <td>{{response.data.dec}}</td>
                                             </tr></tbody>
                                         </table>
                                     </div>
                                     <!--need to figure out how to populate the available_formats for each endpoint-->
+
                                     {% for key, value in response.data.items %}
-                                    {% if key != "asvo_is-turnoff" %}
-                                        <div class="col-sm-6" style="border:solid 1px red">
-                                            <div class="col-xs-6">
-                                                <h4>
-                                                    <a class="black" href="{{ request.get_full_path }}{{key}}">{{ key | CapsSentence }}</a>
-                                                </h4>
-                                            </div>
-                                            <div class="col-xs-6">
-                                                {% if value|ValueType != "str-turnoff" %}
-                                                    <fieldset class="pull-right">
-                                                      {% if api_settings.URL_FORMAT_OVERRIDE %}
-                                                        <div class="btn-group format-selection">
-                                                          <a class="btn btn-primary btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ key }} resource">Download</a>
+                                        {% if key == "velocity_map" or key == "line_map-SII6716" %}
+                                        <div class="col-sm-6">
+                                            <h4>
+                                                {{ key | CapsSentence }}
+                                            </h4>
+                                            <div id="{{ key }}"></div>
 
-                                                          <button class="btn btn-primary btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
-                                                            <span class="caret"></span>
-                                                          </button>
-                                                          <ul class="dropdown-menu">
-                                                            {% for format in available_formats %}
-                                                              <li>
-                                                                <a class="js-tooltip format-option" href="{% add_query_param_trait request api_settings.URL_FORMAT_OVERRIDE format key %}" rel="nofollow" title="Make a GET request on the {{ key }} resource with the format set to `{{ format }}`">{{ format }}</a>
-                                                              </li>
-                                                            {% endfor %}
-                                                          </ul>
-                                                        </div>
-                                                      {% else %}
-                                                        <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path}}{{key}}" rel="nofollow" title="Make a GET request on the {{ key }} resource">GET</a>
-                                                      {% endif %}
-                                                    </fieldset>
-                                                {% endif %}
-                                            </div>
-
-                                            <div class="col-xs-12">
-                                                {% if value|ValueType == "str" %}
-                                                    {% if key == "redshift" %}
-                                                      This appears if variable somevar equals the string "x"
-                                                    {% endif %}
-                                                    <p>{{value}}</p>
-                                                {% elif value|ValueType == "OrderedDict" %}
-
-                                                    {% for trait_name, trait_value in value.items %}
-                                                        <h5>{{ trait_name }}</h5>
-
-                                                        {% if trait_name == "value" %}
-                                                            <div id="{{ key }}">
-                                                                <p>{{trait_value}}</p>
-                                                            </div>
-                                                        {% else %}
-                                                            <p>{{trait_value}}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </div>
                                         </div>
-                                    {% endif %}
+                                        {% endif %}
+
+
+                                        {% comment %}
+                                        {% if key != "asvo_is-turnoff" %}
+                                            <div class="col-sm-6" style="border:solid 1px red">
+                                                <div class="col-xs-6">
+                                                    <h4>
+                                                        <a class="black" href="{{ request.get_full_path }}{{key}}">{{ key | CapsSentence }}</a>
+                                                    </h4>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    {% if value|ValueType != "str-turnoff" %}
+                                                        <fieldset class="pull-right">
+                                                          {% if api_settings.URL_FORMAT_OVERRIDE %}
+                                                            <div class="btn-group format-selection">
+                                                              <a class="btn btn-primary btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ key }} resource">Download</a>
+
+                                                              <button class="btn btn-primary btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
+                                                                <span class="caret"></span>
+                                                              </button>
+                                                              <ul class="dropdown-menu">
+                                                                {% for format in available_formats %}
+                                                                  <li>
+                                                                    <a class="js-tooltip format-option" href="{% add_query_param_trait request api_settings.URL_FORMAT_OVERRIDE format key %}" rel="nofollow" title="Make a GET request on the {{ key }} resource with the format set to `{{ format }}`">{{ format }}</a>
+                                                                  </li>
+                                                                {% endfor %}
+                                                              </ul>
+                                                            </div>
+                                                          {% else %}
+                                                            <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path}}{{key}}" rel="nofollow" title="Make a GET request on the {{ key }} resource">GET</a>
+                                                          {% endif %}
+                                                        </fieldset>
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="col-xs-12">
+                                                    {% if value|ValueType == "str" %}
+                                                        {% if key == "ra" %}
+                                                          This appears if variable somevar equals the string "x"
+                                                        {% endif %}
+                                                        <p>{{value}}</p>
+                                                    {% elif value|ValueType == "OrderedDict" %}
+
+                                                        {% for trait_name, trait_value in value.items %}
+                                                            <h5>{{ trait_name }}</h5>
+
+                                                            {% if trait_name == "value" %}
+                                                                <div id="{{ key }}">
+                                                                    <p>{{trait_value}}</p>
+                                                                </div>
+                                                            {% else %}
+                                                                <p>{{trait_value}}</p>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% endcomment %}
                                     {% endfor %}
                                     <hr>
-                                    {% comment %}
-                                    <div class="col-sm-6">
-                                        <h4>Velocity Map</h4>
-                                        <p>{{response.data.velocity_map}}</p>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <h4>Line Map</h4>
-                                        <p>{{response.data.line_map}}</p>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <h4>Spectral Map <small><a class="text-uppercase" href="{{ request.build_absolute_uri }}{{ object.get_absolute_url }}">download</a></small></h4>
-                                        <p>{{response.data.spectral_map}}</p>
-                                    </div>
-                                    {% endcomment %}
                                 </div>
                             </div>
                         </div>
@@ -309,16 +310,18 @@
             </div>
         </div>
     </div>
-
-
-     <script type="text/javascript"> 
-        //make astroobject available as json
-        AstroObjectJson = JSON.parse("{{ content|escapejs }}");
-
-    </script>
-    <script src="{% static 'restapi_app/js/sov/2DHistogram.js' %}"></script>
 {% endblock %}
 
-{% comment %} enabling block extra overwrites the default response rendering in api.html {% endcomment %}
-{% block EXTRAS %}
+
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+
+ <script type="text/javascript"> 
+        //make astroobject available as json
+        var AstroObjectJson = JSON.parseMore("{{ content|escapejs }}");
+
+        console.log(AstroObjectJson.velocity_map.value)
+    </script>
+<script src="{% static 'restapi_app/js/sov/2DHistogram.js' %}"></script>
 {% endblock %}

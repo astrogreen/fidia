@@ -107,7 +107,8 @@ class Trait(AbstractBaseTrait):
         # Preload all traits
         # @TODO: Modify preloading to respect preload argument
         self._trait_dict = dict()
-        self._realise()
+        if self._loading == 'eager':
+            self._realise()
 
     def get_sub_trait(self, trait_key):
 
@@ -193,7 +194,7 @@ class Trait(AbstractBaseTrait):
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
-                log.debug("Found trait property '{} of type'".format(attr, obj.type))
+                log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
                 if (trait_type is None) or (obj.type in trait_type):
                     yield obj
 

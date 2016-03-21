@@ -49,9 +49,17 @@
               <ul class="dropdown-menu">
                 <li><a href="">Query Form</a></li>
                 <li><a href="">SQL </a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Browse <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url "browse-list" %}">SOV</a></li>
+                <li class="disabled"><a href="">Explorer</a></li>
                 <li role="separator" class="divider"></li>
-                <li class="disabled"><a href="#">SOV</a></li>
-                <li class="disabled"><a href="#contact">Explorer</a></li>
+                <li class="dropdown-header">Surveys</li>
+                <li class=""><a href="{% url "sample-list" %}">SAMI</a></li>
+                <li class="disabled"><a href="">GAMA</a></li>
               </ul>
             </li>
             <li class="dropdown">
@@ -62,12 +70,12 @@
                 <li><a href="/asvo/documentation/#docs-examples">Examples</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">About</li>
-                <li class="disabled"><a href="#">Datasets</a></li>
-                <li class="disabled"><a href="#">Facilities</a></li>
-                <li class="disabled"><a href="#">Surveys</a></li>
+                <li class="disabled"><a href="">Datasets</a></li>
+                <li class="disabled"><a href="">Facilities</a></li>
+                <li class="disabled"><a href="">Surveys</a></li>
               </ul>
             </li>
-            <li class="dropdown">
+            <li class="disabled" class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li class="disabled"><a href="">Profile</a></li>
@@ -75,7 +83,7 @@
               </ul>
             </li>
             <li class="disabled"><a href="contact">Support</a></li>
-            <li class="dropdown">
+            <li class="disabled" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li class="disabled"><a href="#">Referencing AAT</a></li>
@@ -84,21 +92,6 @@
                     <li class="disabled"><a href="#">Meet the Team</a></li>
                 </ul>
             </li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">TEST API <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="{% url "api-root" %}">API-root </a></li>
-                    <li><a href="{% url "query-list" %}">Query (requires login) </a></li>
-                    <li><a href="{% url "survey-list" %}">Hyperlinked m2m etc (models.py)</a></li>
-                    <li><a href="{% url "plate" %}">Model relationships graphic</a></li>
-                    <li><a href="{% url "customget" %}">Simple non-model endpoint</a></li>
-                    <li><a href="{% url "modelfree" %}">Non-model endpoint: views</a></li>
-                    <li><a href="{% url "astro-list" %}">Non-model endpoint: viewsets</a></li>
-
-                </ul>
-            </li>
-
-            <li><a href="{% url "django.swagger.base.view" %}" target="_blank">Docs API </a></li>
           </ul>
         </div><!--/.nav-collapse -->
     </div>
