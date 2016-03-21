@@ -179,19 +179,35 @@ class AstroObjectSerializer(serializers.Serializer):
 
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
+
+        # def get_url(self, view_name, astro_object):
+        #     url_kwargs = {
+        #         'galaxy_pk': astro_object
+        #     }
+        #     return reverse(view_name, kwargs=url_kwargs)
+
         for trait in astro_object:
-            depth_limit = 1
+            # depth_limit = 1
+            depth_limit = 0
             trait_key = trait
+
             if depth_limit == 0:
+                print(str(trait_key))
+                self.fields[str(trait_key)] = serializers.SerializerMethodField('get_url')
+
+
+    def get_url(self, obj):
+
+        return 'test'
+
                 # No details to be displayed below this level
-                self.fields[str(trait_key)] = serializers.CharField()
-            else:
-                # Recurse displaying details at lower level
-                self.fields[str(trait_key)] = \
-                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
+                # self.fields[str(trait_key)] = serializers.CharField()
+            # else:
+            #     # Recurse displaying details at lower level
+            #     self.fields[str(trait_key)] = \
+            #         AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
 
     # object = serializers.CharField(max_length=100, required=False, source="*")
-
 
 
 class SampleSerializer(serializers.Serializer):
@@ -212,39 +228,6 @@ class SampleSerializer(serializers.Serializer):
                 # Recurse displaying details at lower level
                 self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
 
-
-
-# class TraitPropertySerializer(serializers.Serializer):
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#         trait_property = self.instance
-#         assert isinstance(trait_property, TraitProperty)
-#
-#         value = serializers.CharField(source="*")
-
-# TRAIT_SERIALIZER_CACHE = dict()
-
-# class SimpleTraitSerializer(serializers.Serializer):
-#     """Serializer which simply returns the string representation of the Trait"""
-#     trait_repr = serializers.CharField(source="*")
-#
-# def get_serializer_for_trait(self, trait):
-#     return SimpleTraitSerializer
-#
-# class AstroOjbectSerializer(serializers.Serializer):
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#         astro_object = self.instance
-#         assert isinstance(astro_object, fidia.AstronomicalObject)
-#
-#         # Iterate over the AstroObject keys (which are keys to traits)
-#         for key in astro_object.keys():
-#             serializer = get_serializer_for_trait(astro_object[key])
-#             self.fields[key] = serializer(required=False)
 
 
 # TESTING SOV
@@ -293,9 +276,10 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
         for trait in astro_object:
+            print(str(trait))
             depth_limit = 1
             trait_key = trait
-            if str(trait_key) == "velocity_map":
+            if str(trait_key) == "velocity_map" or str(trait_key) == 'line_map-SII6716':
                 if depth_limit == 0:
                     # No details to be displayed below this level
                     self.fields[str(trait_key)] = serializers.CharField()

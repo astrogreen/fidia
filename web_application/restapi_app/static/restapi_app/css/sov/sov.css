@@ -1,4 +1,5 @@
 /*!*AUTOCOMPLETE STYLES*!*/
+.container-sov-entry{margin-bottom:30px;}
 .aat{background: url('../../img/logo/aat.jpg') no-repeat fixed center;}
 .breadcrumb.inverted {background:transparent;color:#fff;}
 .breadcrumb.inverted li.active a {
@@ -51,3 +52,4 @@ input:-moz-placeholder { color: rgba(255, 255, 255, 0.8); }
     background-image:url('../../img/logo/logo-gama-dark.png');
     background-size:70% auto;
 }
+

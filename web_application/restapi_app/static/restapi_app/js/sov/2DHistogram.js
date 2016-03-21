@@ -190,7 +190,7 @@ $.each(AstroObjectJson, function(k,v){
     // value == trait property name
 
     // If element exists (defined in django template sov.html)
-    if ( k == "velocity_map"){
+    if ( k == "velocity_map" || k == 'line_map-SII6716'){
         if ($('#'+k).length){
             // Drop current content (<p>value(arr)</p>
             $('#'+k).html('');

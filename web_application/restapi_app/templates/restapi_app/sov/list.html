@@ -13,40 +13,40 @@
 {% block bodyclass %}aat{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
 {% block content %}
-
-<div class="survey row">
-    <div class=" col-md-3 col-sm-3 text-center survey-container">
-        <i class="dummy" onclick="" id="dummya">
-        </i>
-        <p class="survey-detail">SURVEY</p>
+<div class="container-sov-entry">
+    <div class="survey row">
+        <div class=" col-md-3 col-sm-3 text-center survey-container">
+            <i class="dummy" onclick="" id="dummya">
+            </i>
+            <p class="survey-detail">SURVEY</p>
+        </div>
+        <div class=" col-md-3 col-sm-3 text-center survey-container">
+            <i class="sami" onclick="fSurveyData(this.id)" id="sami">
+            </i>
+            <p class="survey-detail">SAMI</p>
+        </div>
+        <div class=" col-md-3 col-sm-3 text-center survey-container">
+            <i class="gama " onclick="fSurveyData(this.id)" id="gama">
+            </i>
+            <p class="survey-detail">GAMA </p>
+        </div>
+        <div class="col-md-3 col-sm-3 text-center survey-container">
+            <i class="dummy" onclick="" id="dummyb">
+            </i>
+            <p class="survey-detail">SURVEY </p>
+        </div>
     </div>
-    <div class=" col-md-3 col-sm-3 text-center survey-container">
-        <i class="sami" onclick="fSurveyData(this.id)" id="sami">
-        </i>
-        <p class="survey-detail">SAMI</p>
+    <div class="row">
+        <div class="col-xs-offset-4 col-xs-4 text-center">
+            <input type="text"  class="selectized" id="autocomplete-widget" tabindex="-1" placeholder="GALAXY">
+        </div>
     </div>
-    <div class=" col-md-3 col-sm-3 text-center survey-container">
-        <i class="gama " onclick="fSurveyData(this.id)" id="gama">
-        </i>
-        <p class="survey-detail">GAMA </p>
-    </div>
-    <div class="col-md-3 col-sm-3 text-center survey-container">
-        <i class="dummy" onclick="" id="dummyb">
-        </i>
-        <p class="survey-detail">SURVEY </p>
+    <div class="row">
+        <div class="col-xs-offset-4 col-xs-4 text-center">
+            <a class="btn btn-block btn-md btn-primary" type="button" href="" id="autocomplete-button" disabled>Go</a>
+        </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-xs-offset-4 col-xs-4 text-center">
-        <input type="text"  class="selectized" id="autocomplete-widget" tabindex="-1" placeholder="GALAXY">
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-offset-4 col-xs-4 text-center">
-        <a class="btn btn-block btn-md btn-primary" type="button" href="" id="autocomplete-button" disabled>Go</a>
-    </div>
-</div>
-
 <script>
     AstroObjectsJson = JSON.parse("{{ content|escapejs }}");
 
