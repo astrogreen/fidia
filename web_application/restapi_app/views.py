@@ -30,6 +30,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework_csv import renderers as r
 
+from django.conf import settings
 
 
 class QueryViewSet(viewsets.ModelViewSet):
@@ -167,13 +168,9 @@ from fidia.archive.sami import SAMITeamArchive
 #     "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
 
 ar = SAMITeamArchive(
-    # "/home/agreen/sami_test_release/",
-    "/Users/lmannering/Dropbox/AAO/SAMI/sami_test_release",
-    # "/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
-    # "/home/agreen/sami_test_release/sami_small_test_cat.fits")
-    "/Users/lmannering/Dropbox/AAO/SAMI/sami_test_release/sami_small_test_cat.fits")
-    # "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
-    # "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
+    settings.SAMI_TEAM_DATABASE,
+    settings.SAMI_TEAM_DATABSE_CATALOG)
+
 sample = ar.get_full_sample()
 
 # >>> ar.schema()

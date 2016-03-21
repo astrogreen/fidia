@@ -105,6 +105,14 @@ DATABASES = {
 SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
 SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 
+# SAMI Database:
+#
+#    Set these to the location of the SAMI database directory and corresponding
+#    catalog file.
+SAMI_TEAM_DATABASE = ''
+SAMI_TEAM_DATABSE_CATALOG = ''
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
