@@ -39,10 +39,11 @@
                                 <!--</div>-->
 
                                  <!--List group-->
-                                <div class="list-group">
+                                <div class="list-group list-group-collapse">
                                     {% for keyc, valuec in response.data.items %}
                                         {% if keyc != 'schema' and keyb in keyc %}
-                                            <a href="{{ valuec }}" class="list-group-item ">
+                                        <div class="list-group-item ">
+                                            <a href="{{ valuec }}" >
                                                 {% if keyb == 'line_map' %}
                                                     <p class="list-group-item-text">{{ keyc | LineOnly }}</p>
                                                 {% elif keyb == 'velocity_map' %}
@@ -51,6 +52,10 @@
                                                     <p class="list-group-item-text">{{ keyc | TraitTypeSplit }}</p>
                                                 {% endif %}
                                             </a>
+                                            {% for keyd, valued in valueb.items %}
+                                             <small><a href="{{ valuec }}{{ keyd }}" style="color:black">{{ keyd }}</a></small>
+                                            {%endfor%}
+                                        </div>
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -65,7 +70,7 @@
     </script>
 {% endblock %}
 
-{% block content-DRF %}{% endblock %}
+{% block content-DRFs %}{% endblock %}
 {% block footer-extra %}
 {% endblock %}
 
