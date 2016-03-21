@@ -31,7 +31,7 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -53,8 +53,7 @@ INSTALLED_APPS = (
     'restapi_app',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
-    'django_spaghetti',
+    # 'rest_framework_swagger',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -105,6 +104,14 @@ DATABASES = {
 # spark
 SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
 SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
+
+# SAMI Database:
+#
+#    Set these to the location of the SAMI database directory and corresponding
+#    catalog file.
+SAMI_TEAM_DATABASE = ''
+SAMI_TEAM_DATABSE_CATALOG = ''
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -220,11 +227,4 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-}
-
-
-SPAGHETTI_SAUCE = {
-  'apps':['auth','restapi_app'],
-  # 'show_fields':False,
-  # 'exclude':{'restapi_app':['gamapublic']}
 }

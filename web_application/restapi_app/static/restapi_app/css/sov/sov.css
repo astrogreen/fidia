@@ -1,0 +1,55 @@
+/*!*AUTOCOMPLETE STYLES*!*/
+.container-sov-entry{margin-bottom:30px;}
+.aat{background: url('../../img/logo/aat.jpg') no-repeat fixed center;}
+.breadcrumb.inverted {background:transparent;color:#fff;}
+.breadcrumb.inverted li.active a {
+    color: #fff;
+}
+.breadcrumb.inverted li a {
+    color: #ddd;
+}
+.selectize-input,
+.selectize-control.single .selectize-input.input-active{
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 2px solid rgba(255, 255, 255, 0.6) !important;
+    color:#ffffff;
+}
+::-webkit-input-placeholder { color: rgba(255, 255, 255, 0.8) }
+::-moz-placeholder { color: rgba(255, 255, 255, 0.8) } /* firefox 19+ */
+:-ms-input-placeholder { color: rgba(255, 255, 255, 0.8) } /* ie */
+input:-moz-placeholder { color: rgba(255, 255, 255, 0.8); }
+
+.survey{
+    margin:80px 0px 0px;
+}
+.survey > .survey-container{
+    margin-bottom:50px;
+}
+.survey i{
+    position:relative;
+    display:inline-block;
+    width:150px;height:150px;
+    background: rgba(255, 255, 255, 0.15) center no-repeat;
+    background-size: contain;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    color:#ffffff;
+    border-radius:50%;
+    padding:10px;
+    left:0px; right:0px;
+    opacity:1;
+    transition: opacity .5s ease-in-out;
+}
+.survey .survey-container .survey-detail{color:rgba(255,255,255,1)}
+/*.survey i:hover{*/
+    /*opacity:1;*/
+    /*transition: all 0.5s ease-in-out;*/
+/*}*/
+.survey i.sami{
+    background-image:url('../../img/logo/logo-sami-dark.png');
+    background-size:80% auto;
+}
+.survey i.gama{
+    background-image:url('../../img/logo/logo-gama-dark.png');
+    background-size:70% auto;
+}
+
