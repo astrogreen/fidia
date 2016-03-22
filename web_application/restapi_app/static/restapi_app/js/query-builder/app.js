@@ -233,12 +233,12 @@
             $scope.fValidate();
         };
 
+        // -- SELECT VALIDATION --
+
         $scope.fColClick = function(data){
-            console.log('click');
             $scope.fValidate();
         };
         $scope.fColClose = function(data){
-            console.log('close');
             $scope.fValidate();
         };
 
@@ -420,6 +420,7 @@
 
         // On load, populate the first select dropdown.
         $scope.fAddCatalogue();
+
 
         $scope.fOpenCat=function(){
             //$scope.fCatalogueController();
@@ -760,6 +761,21 @@
             $scope.warning['warningFlag']=false;
             $('#query-builder-submit').attr('disabled', false);
 
+            // TODO deal with outputwherevalue loop issues doesnt validate
+            // hack - change shape of outputWhereValue to be iterable
+            // this doesnt work well if user deletes a field entry and
+            // doesnt replace it...
+            var outputWhereValueTemp = [];
+            for (var i= 0; i<$scope.inputWhereOperators.length;i++){
+                var b = '';
+                if (undefined != $scope.outputWhereValue[i]){
+                    b = [($scope.outputWhereValue[i]).toString()];
+                } else {
+                    b = [];
+                }
+                outputWhereValueTemp.push(b);
+            };
+
             var validationObj = [
                 [$scope.outputCatalogues,"#outputCatalogue"],
                 [$scope.outputColumns, '#outputColumn'],
@@ -768,28 +784,26 @@
                 [$scope.outputJoinOperator,'#outputJoinOperator'],
                 [$scope.outputWheres, '#outputWhere'],
                 [$scope.outputWhereOperator,'#outputWhereOperator'],
-                [$scope.outputWhereValue, '#whereValue']
+                [outputWhereValueTemp, '#whereValue']
             ];
-            // TODO deal with outputwherevalue loop issues doesnt validate
-            //angular.toJson($scope.outputWhereValue);
-            //angular.toJson($scope.outputCatalogues)
 
             // loop over output arrays and elements, check populated
             // if not append warning and return warning=true
             for(var i=0; i<validationObj.length; i++) {
                 angular.forEach(validationObj[i][0], function(value,key){
                     if (validationObj[i][0][key].length<1){
-                        console.log('warning: '+validationObj[i][1]+key);
+                        //console.log('warning: '+validationObj[i][1]+key);
                         $(validationObj[i][1]+key).addClass('not-selected-warning');
                         $scope.warning['warningFlag']=true;
                         $scope.warning['Unselected Values']='Ensure all fields are populated';
                         $('#query-builder-submit').attr('disabled', true);
+                        warning=true;
                     } else {
                         $(validationObj[i][1]+key).removeClass('not-selected-warning');
                     }
                 });
             };
-
+            console.log('warning '+warning);
             return warning;
         };
 
@@ -799,14 +813,13 @@
             $scope.fResetWarnings();
 
             // If the validation throws errors, add an error message on 'submit'
-            if ($scope.fValidate()){
+            if ($scope.fValidate() == true ){
 
             } else {
 
                 $scope.fJoinStatus();
 
                 $scope.outputSQLWHERE='';
-                console.log($scope.outputWheres.length);
 
                 $scope.fcheckboxEval = function(val){
                     var text = "";
@@ -843,8 +856,8 @@
                         });
                     };
                 });
-                console.log(angular.toJson(outputColumnsList));
-                console.log(angular.toJson(outputCataloguesList));
+                //console.log(angular.toJson(outputColumnsList));
+                //console.log(angular.toJson(outputCataloguesList));
 
 
                 angular.forEach($scope.outputWheres, function(value,key){
