@@ -1,6 +1,6 @@
 (function() {
     var app = angular.module('queryBuilder', [ "isteven-multi-select", 'ngSanitize' ]);
-    console.log('TEST')
+
     //console.log = function() {};                      // TURN OFF/ON CONSOLE STATEMENTS FOR PRODUCTION
 
     app.controller('CatalogueController', ['$scope', '$timeout', function($scope, $timeout) {
@@ -233,6 +233,14 @@
             $scope.fValidate();
         };
 
+        $scope.fColClick = function(data){
+            console.log('click');
+            $scope.fValidate();
+        };
+        $scope.fColClose = function(data){
+            console.log('close');
+            $scope.fValidate();
+        };
 
         // -- CLONE CAT INPUT --
         // function fAddCatalogue ()
@@ -435,7 +443,8 @@
                 $scope.inputCatalogues;
                 $scope.outputCatalogues;
             },0);
-            $scope.error['errorFlag']=false;
+            //$scope.error['errorFlag']=false;
+            $scope.fValidate();
         };
 
 
@@ -507,11 +516,6 @@
             };
 
         };
-
-
-
-
-
 
         // -- UPDATE JOINS AFTER CHANGE IN SELECTS
         // function fUpdateJoins
@@ -610,8 +614,6 @@
             }
         };
 
-
-
         $scope.fRemoveJoin = function(data){
                 $scope.error={errorFlag:false};
             if ($scope.inputJoins.length < $scope.outputCatalogues.length){
@@ -632,6 +634,16 @@
             };
         };
 
+        // -- VALIDATE JOINS
+        $scope.fJoinClick= function(){
+            $scope.fValidate();
+        };
+        $scope.fJoinOperator= function(){
+            $scope.fValidate();
+        };
+        $scope.fJoinBClick= function(){
+            $scope.fValidate();
+        };
 
     // - - - - WHERES - - - -
 
@@ -690,17 +702,7 @@
 
         };
 
-
-        $scope.fWhereClick = function(data){
-            //console.log(data);
-            //fUpdateWheres();
-        }
-
-
         // -- ADD WHERE INPUT --
-        // function fAddWhere ()
-        //    params:
-        //    descript:
         $scope.fAddWhere = function(){
 
             $scope.warning={warningFlag: false};
@@ -722,10 +724,9 @@
             }
         };
 
+
         // -- REMOVE[POP] LAST CAT INPUT --
-        // function fRemoveCatalogue ()
-        //    params:
-        //    descript: removes last array from inputCatalogues
+        // removes last array from inputCatalogues
         $scope.fRemoveWhere = function(data){
 
             $scope.inputWheres.splice(data,1);
@@ -740,19 +741,53 @@
         };
 
 
+        // -- VALIDATE WHERE
+        $scope.fWhereClick= function(){
+            $scope.fValidate();
+        };
+        $scope.fWhereOperator= function(){
+            $scope.fValidate();
+        };
+        $scope.fWhereValue= function(){
+            $scope.fValidate();
+        };
+
+    // - - - - VALIDATION - - - -
 
         $scope.fValidate=function(){
             //console.log(e.currentTarget);
             var warning=false;
-            //loop over the output catalogues, if no value is set, change css + add warning
-            angular.forEach($scope.outputCatalogues, function(value,key){
-                if ($scope.outputCatalogues[key].length<1){
-                    $('#outputCatalogue'+key).addClass('not-selected-warning');
-                    warning=true;
-                } else {
-                    $('#outputCatalogue'+key).removeClass('not-selected-warning');
-                }
-            });
+            $scope.warning['warningFlag']=false;
+
+            var validationObj = [
+                [$scope.outputCatalogues,"#outputCatalogue"],
+                [$scope.outputColumns, '#outputColumn'],
+                [$scope.outputJoins, '#outputJoins'],
+                [$scope.outputJoinsB, '#outputJoinsB'],
+                [$scope.outputJoinOperator,'#outputJoinOperator'],
+                [$scope.outputWheres, '#outputWhere'],
+                [$scope.outputWhereOperator,'#outputWhereOperator'],
+                [$scope.outputWhereValue, '#whereValue']
+            ];
+            // TODO deal with outputwherevalue loop issues doesnt validate
+            //angular.toJson($scope.outputWhereValue);
+            //angular.toJson($scope.outputCatalogues)
+
+            // loop over output arrays and elements, check populated
+            // if not append warning and return warning=true
+            for(var i=0; i<validationObj.length; i++) {
+                angular.forEach(validationObj[i][0], function(value,key){
+                    if (validationObj[i][0][key].length<1){
+                        console.log('warning: '+validationObj[i][1]+key);
+                        $(validationObj[i][1]+key).addClass('not-selected-warning');
+                        $scope.warning['warningFlag']=true;
+                        $scope.warning['Unselected Values']='Ensure all fields are populated'
+                    } else {
+                        $(validationObj[i][1]+key).removeClass('not-selected-warning');
+                    }
+                });
+            };
+
             return warning;
         };
 
@@ -763,8 +798,7 @@
 
             // If the validation throws errors, add an error message on 'submit'
             if ($scope.fValidate()){
-                $scope.warning['warningFlag']=true;
-                $scope.warning['Unselected Values']='Ensure all fields are populated'
+
             } else {
 
                 $scope.fJoinStatus();
@@ -789,6 +823,27 @@
                     }
                     return text;
                 };
+
+                //SELECT t1.CATAID, t1.OBJID, t1.RA, t1.DEC, t1.FLAGS
+                //FROM   InputCatA as t1
+                //       INNER JOIN SpStandards as t2 on t2.CATAID = t1.CATAID
+                //       INNER JOIN TilingCat as t3 on t3.CATAID = t1.CATAID
+
+                //SELECTS
+                var outputCataloguesList = $scope.fGetOutputCatalogues();
+                var outputColumns = $scope.outputColumns;
+                var outputColumnsList=[];
+                angular.forEach(outputColumns,function(value,key){
+                    outputColumnsList.push([]);
+                    if (value.length>0){
+                        angular.forEach(value,function(valuea,keya){
+                            outputColumnsList[key].push(valuea.name);
+                        });
+                    };
+                });
+                console.log(angular.toJson(outputColumnsList));
+                console.log(angular.toJson(outputCataloguesList));
+
 
                 angular.forEach($scope.outputWheres, function(value,key){
                     if (undefined == $scope.outputWhereOperator[key][0]){
@@ -816,9 +871,7 @@
 
         };
 
-        $scope.fWhereOperator = function(){
-            $scope.error={errorFlag: false};
-        };
+
         $scope.fResetErrors = function(){
             $scope.error={errorFlag: false};
         };

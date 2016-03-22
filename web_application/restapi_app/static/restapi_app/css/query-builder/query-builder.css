@@ -105,3 +105,9 @@ form.query-form .floating-select{position:relative;float: left;margin-right:10px
 #query-form-errors .error.header{background:#d9534f;}
 
 
+.not-selected-warning {
+    border: 1px solid #F1CB76 !important;
+    }
+.not-selected-error {
+    border: 1px solid #d9534f !important;
+    }

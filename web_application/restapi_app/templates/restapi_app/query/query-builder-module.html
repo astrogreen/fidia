@@ -44,14 +44,13 @@
                                          disable-property="disabled" id="outputCatalogue{{$index}}">
                                     </div>
                                     <div isteven-multi-select input-model="outputCatalogues[$index][0].columns" output-model="outputColumns[$index]"
-                                        on-item-click="fColClick(data)" on-select-all="" on-close="" ng-show="outputCatalogues[$index].length>0"
-                                       button-label="name " item-label=" name " tick-property="ticked" class="floating-select">
+                                        on-item-click="fColClick(data)" on-select-all="" on-close="fColClose()" ng-show="outputCatalogues[$index].length>0"
+                                        button-label="name " item-label=" name " tick-property="ticked" class="floating-select"
+                                        id="outputColumn{{$index}}" >
                                     </div>
                                     <button class="btn outline red pull-right" href="" ng-click="fRemoveCatalogue($index)">
                                         <i class="fa fa-times"></i>
                                     </button>
-                                    <!--<button class="btn outline yellow" href="">Up</button>-->
-                                    <!--<button class="btn outline green" href="">Down</button>-->
                                     <hr>
                                 </div>
                             </div>
@@ -71,15 +70,18 @@
                                 <div class="col-sm-12 col-xs-12">
                                     <div isteven-multi-select input-model="join" output-model="outputJoins[$index]"
                                           group-property="catGroup" button-label="buttonname" item-label="name"
-                                          tick-property="ticked" selection-mode="single" class="floating-select" on-item-click="fJoinClick(data)">
+                                          tick-property="ticked" selection-mode="single" class="floating-select"
+                                         on-item-click="fJoinClick(data)" id="outputJoins{{$index}}">
                                     </div>
                                     <div isteven-multi-select input-model="inputJoinOperators[$index]" output-model="outputJoinOperator[$index]"
                                           button-label="operator" item-label="operator" helper-elements="none" on-item-click="fJoinOperator()"
-                                          tick-property="ticked" selection-mode="single" class="floating-select smallContainer">
+                                          tick-property="ticked" selection-mode="single" class="floating-select smallContainer"
+                                          id="outputJoinOperator{{$index}}">
                                     </div>
                                     <div isteven-multi-select input-model="inputJoinsB[$index]" output-model="outputJoinsB[$index]"
                                           group-property="catGroup" button-label="buttonname" item-label="name"
-                                          tick-property="ticked" selection-mode="single" class="floating-select" on-item-click="fJoinClick(data)">
+                                          tick-property="ticked" selection-mode="single" class="floating-select"
+                                         on-item-click="fJoinBClick(data)" id="outputJoinsB{{$index}}">
                                     </div>
                                     <button class="btn outline red pull-right" href="" ng-click="fRemoveJoin($index)">
                                         <i class="fa fa-times"></i>
@@ -103,7 +105,8 @@
                                 <div class="col-sm-12 col-xs-12">
                                      <div isteven-multi-select input-model="nodewhere" output-model="outputWheres[$index]"
                                           group-property="catGroup" button-label="name" item-label="name"
-                                          tick-property="ticked" selection-mode="single" class="floating-select" on-item-click="fWhereClick(data)">
+                                          tick-property="ticked" selection-mode="single" class="floating-select"
+                                          on-item-click="fWhereClick(data)" id="outputWhere{{$index}}">
                                       </div>
                                      <label class="checkbox-inline querynot col-xs-1">
                                       <input type="checkbox" id="'inlineCheckbox{{$index}}'" value="1" ng-model="queryCheckbox[$index]"> not
@@ -111,9 +114,12 @@
                                     <input class="col-sm-2 col-xs-3 input-box" ng-show="outputWhereOperator[$index][0].operator=='BETWEEN'" type="text" class="form-control" id="'lowerWhereValue{{$index}}'" ng-model="outputLowerWhereValue[$index]" placeholder="value">
                                     <div isteven-multi-select input-model="inputWhereOperators[$index]" output-model="outputWhereOperator[$index]"
                                           button-label="operator" item-label="operator" helper-elements="none" on-item-click="fWhereOperator()"
-                                          tick-property="ticked" selection-mode="single" class="floating-select smallContainer">
+                                          tick-property="ticked" selection-mode="single" class="floating-select smallContainer"
+                                          id="outputWhereOperator{{$index}}"  >
                                     </div>
-                                    <input class="col-sm-2 col-xs-3 input-box" type="text" class="form-control" id="'whereValue{{$index}}'" ng-model="outputWhereValue[$index]" placeholder="value">
+                                    <input class="col-sm-2 col-xs-3 input-box" type="text" class="form-control"
+                                           id="whereValue{{$index}}" ng-model="outputWhereValue[$index]" placeholder="value"
+                                           on-item-click="fWhereValue()">
                                     <button class="btn outline red pull-right" href="" ng-click="fRemoveWhere($index)">
                                         <i class="fa fa-times"></i>
                                     </button>
@@ -151,13 +157,6 @@
                                                 <i class="fa fa-times-circle"></i></a>
                                      </h4>
                                  </div>
-
-                                     <!--<div class="col-sm-10 col-xs-6"><h4>ERROR</h4></div>-->
-                                        <!--<div class="col-sm-2 col-xs-6">-->
-                                            <!--<button class="btn outline white pull-right" href="" ng-click="fResetErrors()">-->
-                                                <!--<i class="fa fa-times-circle"></i>-->
-                                            <!--</button>-->
-                                    <!--</div>-->
                             </div>
                              <div class="row">
                                 <div class="col-xs-12">
