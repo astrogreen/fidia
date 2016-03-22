@@ -1,6 +1,6 @@
 (function() {
     var app = angular.module('queryBuilder', [ "isteven-multi-select", 'ngSanitize' ]);
-
+    console.log('TEST')
     //console.log = function() {};                      // TURN OFF/ON CONSOLE STATEMENTS FOR PRODUCTION
 
     app.controller('CatalogueController', ['$scope', '$timeout', function($scope, $timeout) {

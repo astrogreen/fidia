@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load internal_extras %}
 <!DOCTYPE html>
-<html>
+<html {% block angular-ng-app-class %}{% endblock %}>
 <head>
   {% include "restapi_app/header/header.html" %}
   {% block head-extra %}
