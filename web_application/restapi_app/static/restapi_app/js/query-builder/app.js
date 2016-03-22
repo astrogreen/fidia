@@ -758,6 +758,7 @@
             //console.log(e.currentTarget);
             var warning=false;
             $scope.warning['warningFlag']=false;
+            $('#query-builder-submit').attr('disabled', false);
 
             var validationObj = [
                 [$scope.outputCatalogues,"#outputCatalogue"],
@@ -781,7 +782,8 @@
                         console.log('warning: '+validationObj[i][1]+key);
                         $(validationObj[i][1]+key).addClass('not-selected-warning');
                         $scope.warning['warningFlag']=true;
-                        $scope.warning['Unselected Values']='Ensure all fields are populated'
+                        $scope.warning['Unselected Values']='Ensure all fields are populated';
+                        $('#query-builder-submit').attr('disabled', true);
                     } else {
                         $(validationObj[i][1]+key).removeClass('not-selected-warning');
                     }
