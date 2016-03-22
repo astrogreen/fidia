@@ -6,7 +6,6 @@
 <html>
 <head>
   {% include "restapi_app/header/header.html" %}
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.css"/>
   {% block head-extra %}
   {% endblock %}
 </head>
@@ -130,7 +129,7 @@
                               {% csrf_token %}
                               {{ post_form }}
                               <div class="form-actions">
-                                <button class="btn btn-primary" title="Make a POST request on the {{ name }} resource">POST</button>
+                                <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
                               </div>
                             </fieldset>
                           </form>
@@ -144,7 +143,7 @@
                           <fieldset>
                             {% include "rest_framework/raw_data_form.html" %}
                             <div class="form-actions">
-                              <button class="btn btn-primary" title="Make a POST request on the {{ name }} resource">POST</button>
+                              <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
                             </div>
                           </fieldset>
                         </form>
@@ -172,11 +171,6 @@
               {% if display_edit_forms %}
                 <!--UPDATE EXISTING REQUEST INSTANCE-->
                 {% if put_form or raw_data_put_form or raw_data_patch_form %}
-
-                  {% if content %}
-                  <div class="data-table-container">
-                  </div>
-                  {% endif %}
 
                   <div {% if put_form %}class="tabbable"{% endif %}>
                     {% if put_form %}

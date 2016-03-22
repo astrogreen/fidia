@@ -62,11 +62,11 @@ class QuerySerializerList(serializers.HyperlinkedModelSerializer):
     """
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
-    csvButton = serializers.SerializerMethodField(label='CSV Link')
+    updated = serializers.DateTimeField(required=True, format="%Y-%m-%d, %H:%M:%S")
 
     class Meta:
         model = Query
-        fields = ('title', 'SQL', 'owner', 'url', 'queryResults', 'updated', 'csvButton')
+        fields = ('title', 'SQL', 'owner', 'url', 'queryResults', 'updated')
         extra_kwargs = {
             "queryResults": {
                 "read_only": True,
@@ -75,9 +75,6 @@ class QuerySerializerList(serializers.HyperlinkedModelSerializer):
                 "read_only": True,
             },
         }
-
-    def get_csvButton(self, obj):
-        return 'csv_url_string'
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     """

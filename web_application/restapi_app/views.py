@@ -35,20 +35,15 @@ from rest_framework_csv import renderers as r
 
 
 class QueryViewSet(viewsets.ModelViewSet):
-    """
-    RESTFUL SQL QUERY DUMMY DATA
-
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-    """
     serializer_class = QuerySerializerList
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
     #                       IsOwnerOrReadOnly,)
     queryset = Query.objects.all()
     renderer_classes = [QueryRenderer, renderers.JSONRenderer, r.CSVRenderer]
+
   # base_name = 'query'
-    # TODO Polish Query view
 
     def get_serializer_class(self):
         serializer_class = QuerySerializerList
@@ -71,12 +66,12 @@ class QueryViewSet(viewsets.ModelViewSet):
     def run_FIDIA(self, request, *args, **kwargs):
         # TODO ADD FIDIA(request.data['SQL'])
         dummyData = {"columns":["cataid","z","metal"],
-               "index":  [random.randint(1,5),1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+               # "index":  [random.randint(1,5),1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
                "data":   [[8823,0.0499100015,0.0163168724],
                           [63147,0.0499799997,0.0380015143],
                           [91963,0.0499899983,0.0106879927]]}
-        for i in range(1):
-            dummyData['data'].append([i,i,i])
+        for i in range(5):
+            dummyData['data'].append([random.randint(1,5),random.randint(1,5),random.randint(1,5)])
 
         return dict(dummyData)
 

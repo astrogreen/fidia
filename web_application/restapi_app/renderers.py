@@ -548,7 +548,7 @@ class QueryRenderer(renderers.BrowsableAPIRenderer):
     BrowseSurveysViewSet
     """
 
-    template = 'restapi_app/sql/query.html'
+    template = 'restapi_app/query/query.html'
 
 
 class SOVListRenderer(renderers.BrowsableAPIRenderer):
