@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^data/', include(object_nested_router.urls)),
     url(r'^data/', include(trait_nested_router.urls)),
     url(r'^data/', include(traitprop_nested_router.urls)),
+    # url(r'^data/query-builder/$', TemplateView.as_view(template_name='restapi_app/query/query-builder.html'), name='query-builder'),
 
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 

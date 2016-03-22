@@ -3,10 +3,9 @@
 {% load i18n %}
 {% load internal_extras %}
 <!DOCTYPE html>
-<html>
+<html {% block angular-ng-app-class %}{% endblock %}>
 <head>
   {% include "restapi_app/header/header.html" %}
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.css"/>
   {% block head-extra %}
   {% endblock %}
 </head>
@@ -36,57 +35,62 @@
       {% block content %}
       <!-- Content -->
       <div id="content">
-        {% if name == 'Sov Instance' %}
-          {% include "restapi_app/sov/gama-sov.html" %}
-        {% endif%}
+        {% block content-header %}
+          {% block content-format %}
+            {% if 'GET' in allowed_methods %}
+              <form id="get-form" class="pull-right">
+                <fieldset>
+                  {% if api_settings.URL_FORMAT_OVERRIDE %}
+                    <div class="btn-group format-selection">
+                      <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
 
-        {% if 'GET' in allowed_methods %}
-          <form id="get-form" class="pull-right">
-            <fieldset>
-              {% if api_settings.URL_FORMAT_OVERRIDE %}
-                <div class="btn-group format-selection">
-                  <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
-
-                  <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu">
-                    {% for format in available_formats %}
-                      <li>
-                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}" rel="nofollow" title="Make a GET request on the {{ name }} resource with the format set to `{{ format }}`">{{ format }}</a>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              {% else %}
-                <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
-              {% endif %}
-            </fieldset>
-          </form>
-        {% endif %}
-
-        {% if options_form %}
-          <form class="button-form" action="{{ request.get_full_path }}" data-method="OPTIONS">
-            <button class="btn btn-primary js-tooltip" title="Make an OPTIONS request on the {{ name }} resource">OPTIONS</button>
-          </form>
-        {% endif %}
-
-        {% if delete_form %}
-          <form class="button-form" action="{{ request.get_full_path }}" data-method="DELETE">
-            <button class="btn btn-danger js-tooltip" title="Make a DELETE request on the {{ name }} resource">DELETE</button>
-          </form>
-        {% endif %}
-
-        {% if filter_form %}
-            <button style="float: right; margin-right: 10px" data-toggle="modal" data-target="#filtersModal" class="btn btn-default">
-                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-                {% trans "Filters" %}
-            </button>
-        {% endif %}
+                      <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                        {% for format in available_formats %}
+                          <li>
+                            <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}" rel="nofollow" title="Make a GET request on the {{ name }} resource with the format set to `{{ format }}`">{{ format }}</a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% else %}
+                    <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
+                  {% endif %}
+                </fieldset>
+              </form>
+            {% endif %}
+          {% endblock %}
+          {% block content-options %}
+            {% if options_form %}
+              <form class="button-form" action="{{ request.get_full_path }}" data-method="OPTIONS">
+                <button class="btn btn-primary js-tooltip" title="Make an OPTIONS request on the {{ name }} resource">OPTIONS</button>
+              </form>
+            {% endif %}
+          {% endblock %}
+          {% block content-delete %}
+            {% if delete_form %}
+              <form class="button-form" action="{{ request.get_full_path }}" data-method="DELETE">
+                <button class="btn btn-danger js-tooltip" title="Make a DELETE request on the {{ name }} resource">DELETE</button>
+              </form>
+            {% endif %}
+          {% endblock %}
+          {% block content-filter-form %}
+            {% if filter_form %}
+                <button style="float: right; margin-right: 10px" data-toggle="modal" data-target="#filtersModal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+                    {% trans "Filters" %}
+                </button>
+            {% endif %}
+          {% endblock %}
+        {% endblock %}
         {% block content-main %}
           <div class="content-main">
             <div class="page-header">
+              {% block content-page-header %}
                 <h1>{{ name }}</h1>
+              {% endblock %}
             </div>
             <div style="float:left">
               {% block description %}
@@ -125,7 +129,7 @@
                               {% csrf_token %}
                               {{ post_form }}
                               <div class="form-actions">
-                                <button class="btn btn-primary" title="Make a POST request on the {{ name }} resource">POST</button>
+                                <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
                               </div>
                             </fieldset>
                           </form>
@@ -139,7 +143,7 @@
                           <fieldset>
                             {% include "rest_framework/raw_data_form.html" %}
                             <div class="form-actions">
-                              <button class="btn btn-primary" title="Make a POST request on the {{ name }} resource">POST</button>
+                              <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
                             </div>
                           </fieldset>
                         </form>
@@ -149,28 +153,24 @@
                 </div>
               {% endif %}
             {% endif %}
-            {% block SOV %}
-            {% endblock %}
 
-            {% block query-form %}
-                <div class="response-info" style="clear: both">
-                <div class="response-info" style="clear: both">
-                  <pre class="prettyprint"><span class="meta nocode"><b>HTTP {{ response.status_code }} {{ response.status_text }}</b>{% autoescape off %}
-    {% for key, val in response_headers.items %}<b>{{ key }}:</b> <span class="lit">{{ val|break_long_headers|urlize_quoted_links }}</span>
-    {% endfor %}
-    </span>{{ content|urlize_quoted_links }}{% endautoescape %}</div>
-                </pre>
-              </div>
+            {% block content-input %}
             {% endblock %}
+            {% block content-DRF %}
+              {% block query-form %}
+                  <div class="response-info" style="clear: both">
+                  <div class="response-info" style="clear: both">
+                    <pre class="prettyprint"><span class="meta nocode"><b>HTTP {{ response.status_code }} {{ response.status_text }}</b>{% autoescape off %}
+      {% for key, val in response_headers.items %}<b>{{ key }}:</b> <span class="lit">{{ val|break_long_headers|urlize_quoted_links }}</span>
+      {% endfor %}
+      </span>{{ content|urlize_quoted_links }}{% endautoescape %}</div>
+                  </pre>
+                </div>
+              {% endblock %}
 
               {% if display_edit_forms %}
                 <!--UPDATE EXISTING REQUEST INSTANCE-->
                 {% if put_form or raw_data_put_form or raw_data_patch_form %}
-
-                  {% if content %}
-                  <div class="data-table-container">
-                  </div>
-                  {% endif %}
 
                   <div {% if put_form %}class="tabbable"{% endif %}>
                     {% if put_form %}
@@ -224,7 +224,9 @@
             <strong>Request method</strong>
               <pre class="prettyprint"><b>{{ request.method }}</b> asvo{{request.get_full_path }}</pre>
           </div>
+            {% endblock %}
 
+        </div><!-- /.content -->
       </div><!-- /.content -->
       {% endblock %}
     </div><!-- /.container -->

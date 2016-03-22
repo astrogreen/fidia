@@ -1,4 +1,4 @@
-import random
+import random, collections
 from pprint import pprint
 from .exceptions import NoPropertyFound
 from django.shortcuts import get_object_or_404
@@ -22,7 +22,9 @@ from .renderers import (
     ListNoDetailRenderer,
     SOVListRenderer,
     SOVDetailRenderer,
-    QueryRenderer
+    QueryRenderer,
+    AstroObjectRenderer,
+    SampleRenderer
 )
 
 from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
@@ -34,20 +36,15 @@ from django.conf import settings
 
 
 class QueryViewSet(viewsets.ModelViewSet):
-    """
-    RESTFUL SQL QUERY DUMMY DATA
-
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-    """
     serializer_class = QuerySerializerList
     permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.AllowAny]
     #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
     #                       IsOwnerOrReadOnly,)
     queryset = Query.objects.all()
     renderer_classes = [QueryRenderer, renderers.JSONRenderer, r.CSVRenderer]
+
   # base_name = 'query'
-    # TODO Polish Query view
 
     def get_serializer_class(self):
         serializer_class = QuerySerializerList
@@ -65,17 +62,17 @@ class QueryViewSet(viewsets.ModelViewSet):
         for the currently authenticated user.
         """
         user = self.request.user
-        return Query.objects.filter(owner=user)
+        return Query.objects.filter(owner=user).order_by('-updated')
 
     def run_FIDIA(self, request, *args, **kwargs):
         # TODO ADD FIDIA(request.data['SQL'])
         dummyData = {"columns":["cataid","z","metal"],
-               "index":  [random.randint(1,5),1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+               # "index":  [random.randint(1,5),1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
                "data":   [[8823,0.0499100015,0.0163168724],
                           [63147,0.0499799997,0.0380015143],
                           [91963,0.0499899983,0.0106879927]]}
-        for i in range(1):
-            dummyData['data'].append([i,i,i])
+        for i in range(5):
+            dummyData['data'].append([random.randint(1,5),random.randint(1,5),random.randint(1,5)])
 
         return dict(dummyData)
 
@@ -146,6 +143,14 @@ class QueryViewSet(viewsets.ModelViewSet):
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -190,7 +195,7 @@ sample = ar.get_full_sample()
 class SampleViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SampleRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
@@ -217,9 +222,18 @@ class AstroObjectViewSet(mixins.ListModelMixin,
     # TODO THIS SHOULD WORK: renderer_classes = (SOVRenderer, ) + api_settings.DEFAULT_RENDERER_CLASSES
 
     # renderer_classes = (GalaxySOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
-    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
+        def get_serializer_context(self):
+            """
+            pass request attribute to serializer - add schema attribute
+            """
+            return {
+                'request': self.request,
+                'schema': ar.schema()
+            }
+
         try:
             astroobject = sample[galaxy_pk]
         except KeyError:
@@ -228,10 +242,17 @@ class AstroObjectViewSet(mixins.ListModelMixin,
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer_class = AstroObjectSerializer
+
+        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+
         serializer = serializer_class(
             instance=astroobject, many=False,
-            context={'request':request}
+            context={
+                'request': request,
+                'schema': sorted_schema
+                }
         )
+
         return Response(serializer.data)
 
 

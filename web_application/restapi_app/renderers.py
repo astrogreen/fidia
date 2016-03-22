@@ -529,12 +529,27 @@ class ListNoDetailRenderer(renderers.BaseRenderer):
     #
     #     return ret
 
+class SampleRenderer(renderers.BrowsableAPIRenderer):
+    """
+    SampleViewSet (list only)
+    """
+    template = 'restapi_app/browse/list-sample.html'
+
+
+class AstroObjectRenderer(renderers.BrowsableAPIRenderer):
+    """
+    AstroObjectViewSet (list only)
+    """
+    template = 'restapi_app/browse/list-astroobject.html'
+
+
 class QueryRenderer(renderers.BrowsableAPIRenderer):
     """
     BrowseSurveysViewSet
     """
-
-    template = 'restapi_app/sql/query.html'
+    # note this template extends restapi_app/query/query.html
+    # where most of the html structure resides
+    template = 'restapi_app/query/query-builder-module.html'
 
 
 class SOVListRenderer(renderers.BrowsableAPIRenderer):
