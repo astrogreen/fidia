@@ -61,7 +61,7 @@ class QueryViewSet(viewsets.ModelViewSet):
         for the currently authenticated user.
         """
         user = self.request.user
-        return Query.objects.filter(owner=user)
+        return Query.objects.filter(owner=user).order_by('-updated')
 
     def run_FIDIA(self, request, *args, **kwargs):
         # TODO ADD FIDIA(request.data['SQL'])
@@ -141,6 +141,14 @@ class QueryViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):

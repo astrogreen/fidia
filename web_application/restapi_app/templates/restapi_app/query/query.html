@@ -6,23 +6,29 @@
 
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.css"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/ace/ace.css' %}"/>
 <style type="text/css">
-table{
-    table-layout: fixed;
-}
-table tr {
-    height:1em;
-}
-td {
-    overflow:hidden;white-space:nowrap;
-}
+    table{
+        table-layout: fixed;
+    }
+    table tr {
+        height:1em;
+    }
+    td {
+        overflow:hidden;white-space:nowrap;
+    }
+    .nav-pagination{
+        background-color:transparent;
+        float:right;
+    }
+    #SQL-ace-editor{border:solid 1px #eeeeee;}
+
 </style>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
 
-{% block content-options %}{% endblock %}
-{% block content-delete %}{% endblock %}
+
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
 
@@ -70,15 +76,16 @@ td {
                 <fieldset>
                   {% if api_settings.URL_FORMAT_OVERRIDE %}
                     <div class="btn-group format-selection">
-                      <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Download user {{user}}'s {{ name }} by format type">DOWNLOAD</a>
-
-                      <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
+                      <a class="btn btn-primary  btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                         title="Download user {{user}}'s {{ name }} by format type">DOWNLOAD</a>
+                      <button class="btn btn-primary btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
                         <span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu">
                         {% for format in available_formats %}
                           <li>
-                            <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}" rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
+                            <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                               rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
                           </li>
                         {% endfor %}
                       </ul>
@@ -97,8 +104,8 @@ td {
                 <div class="table-responsisve well">
                     <table class="table table-condensed">
                         <colgroup>
-                           <col span="1" style="width: 15%;">
-                           <col span="1" style="width: 50%;">
+                           <col span="1" style="width: 25%;">
+                           <col span="1" style="width: 40%;">
                            <col span="1" style="width: 10%;">
                            <col span="1" style="width: 25%;">
                         </colgroup>
@@ -135,6 +142,11 @@ td {
             {% endif %}
         {% endfor %}
       </div>
+        {% if paginator %}
+          <nav class="nav-pagination">
+            {% get_pagination_html paginator %}
+          </nav>
+        {% endif %}
 
     {% endif %}
 
@@ -144,9 +156,33 @@ td {
     {% if response.data.queryResults %}
     <h1>
         <span>Query Result</span>
+        <a class="btn btn-primary btn-sm pull-right text-uppercase" href="{{ response.data.url }}">permanent link</a>
+        <a class="btn btn-primary btn-sm pull-right text-uppercase" href="{% url "query-list" %}" style="margin-right:5px"><i class="fa fa-angle-left"></i> Back to Query List</a>
+        <a class="btn btn-default btn-sm pull-right text-uppercase" href="{% url "query-list" %}" style="margin-right:5px">New Query</a>
+        {% block content-delete %}
+            {% if delete_form %}
+                <form style="display:inline; font-size:14px; margin-right:5px;" class="pull-right" action="{{ request.get_full_path }}" data-method="DELETE">
+                    <button  type="button" class="btn btn-sm btn-danger js-tooltip"
+                            title="DELETE this query" id="DELETE_RESOURCE"
+                            data-toggle="modal"><i class="fa fa-trash-o"></i> DELETE</button>
+                </form>
+                <!-- Confirmation modal -->
+                <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                  <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h5>Are you sure?</h5>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
+                            <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            {% endif %}
+        {% endblock %}
 
-        <a class="btn btn-danger btn-md pull-right text-uppercase" href="{{ response.data.url }}">permanent link</a>
-        <a class="btn btn-primary btn-md pull-right text-uppercase" href="{% url "query-list" %}" style="margin-right:5px">New Query</a>
     </h1>
     <div class="data-table-container" id="data-table-container">
     </div>
@@ -173,7 +209,33 @@ td {
       {% endif %}
     {% endif %}
 
+    {% comment %}
+    ------ DISPLAY 404 AND SUGGESTIONS ------
+    {% endcomment %}
+    {% if response.status_code == 404 %}
+        <div class="col-md-12 well">
+            <div class="text-center">
+                <h1>Oops!</h1>
+                <h2>
+                    404 Not Found</h2>
+
+                    <p>The requested page has not been found.</p>
+                    <br>
+                    <a href="{% url "query-list" %}" class="btn btn-primary btn-md"><i class="fa fa-angle-left"></i> Back to Query List</a>
+                    <a href="{% url "index" %}" class="btn btn-primary btn-md">Home</a>
+                    <br><br>
+                    <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a></p>
+
+            </div>
+        </div>
+    {% endif %}
+
+
+
 {% endblock %}
+
+
+
 
 {% comment %}
 ------ TURN OFF DRF JSON DATA DISPLAY ------
@@ -195,13 +257,13 @@ td {
             //Hide the results form group to prevent users trying to patch results
             //back-end will drop this if tampered with
             $('input[name="queryResults"]').parents('.form-group').hide();
+
             // SQL
             $('textarea[name=SQL]').each(function () {
                 //destroy previous instances if patching/putting data
                 {% if request.method == "PUT" %}
-                  SQLAceEditor.container.remove();
+//                  SQLAceEditor.container.remove();
                 {% endif %}
-
 
                 $('form').find('textarea[name=SQL]').attr('id','textarea-code');
 
@@ -209,7 +271,6 @@ td {
                 $('#textarea-code').parent().not(':first').remove();
                 $('#textarea-code').parent().append('<div id="SQL-ace-editor" class="ace-editor-class" style="height: auto;min-height:100px"></div>');  
                 var textarea = $('#textarea-code').css('display', 'none'); 
-
 
                 var SQLAceEditor = ace.edit("SQL-ace-editor"); 
                 SQLAceEditor.$blockScrolling = Infinity;
@@ -289,5 +350,20 @@ td {
 
     {% endautoescape %}
     </script> 
+
+    {% comment %}
+    ------ CONFIRM RESOURCE DELETE ------
+    {% endcomment %}
+    <script>
+    $('#DELETE_RESOURCE').on('click', function(e){
+        var $form=$(this).closest('form');
+        e.preventDefault();
+        $('#delete-modal-sm').modal({ backdrop: 'static', keyboard: false })
+            .one('click', '#delete', function (e) {
+                $form.trigger('submit');
+            });
+    });
+
+</script>
 {% endblock %}
 
