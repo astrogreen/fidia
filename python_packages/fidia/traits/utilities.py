@@ -1,9 +1,7 @@
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
-
 log.enable_console_logging()
-
+# log.setLevel(slogging.DEBUG)
 
 import collections
 

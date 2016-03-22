@@ -10,7 +10,7 @@ from .utilities import TraitProperty, TraitMapping, TraitKey
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+# log.setLevel(slogging.WARN)
 log.enable_console_logging()
 
 

@@ -19,6 +19,8 @@ put the overrides there. They are loaded at the end of this file.
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+import logging
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
@@ -145,15 +147,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
 
 CACHE_DIR = '/tmp/asvo_cache/'
 
+class DebugLogFilter:
+    def filter(self, record):
+        assert isinstance(record, logging.LogRecord)
+        emitting_logger = logging.getLogger(record.name)
+        return (record.levelno >= emitting_logger.level and
+                emitting_logger.level != logging.NOTSET) or record.levelno >= logging.WARNING
+
+
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
+            'format': '%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s'
+        },
+        'verbose_with_times': {
             'format': '%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'debug_filter': {
+            '()': DebugLogFilter,
         },
     },
     # 'filters': {
@@ -171,12 +189,13 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + '/aatnode-django.log',
-            'formatter': 'verbose'
+            'formatter': 'verbose_with_times'
         },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'verbose',
+            'filters': ['debug_filter']
         }
         # 'mail_admins': {
         #     'level': 'ERROR',
