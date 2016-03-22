@@ -51,7 +51,7 @@
                           {% csrf_token %}
                           {{ post_form }}
                           <div class="form-actions">
-                            <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
+                            <button class="btn btn-primary  btn-sm pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
                           </div>
                         </fieldset>
                       </form>
@@ -91,7 +91,7 @@
                       </ul>
                     </div>
                   {% else %}
-                    <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="View user {{user}}'s {{ name }}">GET</a>
+                    <a class="btn btn-primary btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="View user {{user}}'s {{ name }}">GET</a>
                   {% endif %}
                 </fieldset>
               </form>
@@ -105,37 +105,25 @@
                     <table class="table table-condensed">
                         <colgroup>
                            <col span="1" style="width: 25%;">
-                           <col span="1" style="width: 40%;">
-                           <col span="1" style="width: 10%;">
+                           <col span="1" style="width: 50%;">
                            <col span="1" style="width: 25%;">
                         </colgroup>
                         <thead>
                             <tr>
                                 <th>Title</th>
                                 <th>SQL</th>
-                                <th>Link</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                    {% for valueb in value %}
-                        {% comment %}{{ valueb }} <br>{% endcomment %}
-                            <tr>
-                            {% for keyc, valuec in valueb.items %}
-                                <!--{{keyc}}-->
-                                {% if keyc == 'title' or keyc == 'SQL' or keyc == 'url' or keyc == 'updated' %}
-
-                                    {% if keyc == 'url' %}
-                                        <td><a href="{{valuec}}" class="btn btn-xs btn-primary text-uppercase"> View <i class="fa fa-long-arrow-right"></i></a></td>
-                                    {% else %}
-                                        <td>{{ valuec }}</td>
-                                    {% endif %}
-
-                                {% endif %}
-                            {% endfor %}
-                            </tr>
-                    {% endfor %}
-
+                        {% for valueb in value %}
+                            {% comment %}{{ valueb }} <br>{% endcomment %}
+                                <tr>
+                                    <td><a href="{{valueb.url}}" class=" text-uppercwase"> {{ valueb.title }} </a></td>
+                                    <td>{{valueb.SQL}}</td>
+                                    <td>{{valueb.updated}}</td>
+                                </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -197,7 +185,7 @@
                     <fieldset>
                       {{ put_form }}
                       <div class="form-actions">
-                        <button class="btn btn-primary js-tooltip pull-right" title="Update (make a PUT request on the {{ name }} resource)">UPDATE</button>
+                        <button class="btn btn-primary btn-sm js-tooltip pull-right" title="Update (make a PUT request on the {{ name }} resource)">UPDATE</button>
                       </div>
                     </fieldset>
                   </form>
