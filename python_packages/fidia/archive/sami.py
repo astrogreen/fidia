@@ -19,9 +19,7 @@ from .archive import Archive
 
 from ..utilities import WildcardDictionary
 
-from ..traits.utilities import TraitKey, trait_property
-from ..traits.base_traits import SpectralMap, Image
-from ..traits.galaxy_traits import VelocityMap
+from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 
 from .. import slogging
 log = slogging.getLogger(__name__)
