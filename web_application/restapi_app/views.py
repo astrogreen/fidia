@@ -36,8 +36,8 @@ from rest_framework_csv import renderers as r
 
 class QueryViewSet(viewsets.ModelViewSet):
     serializer_class = QuerySerializerList
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.AllowAny]
     #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
     #                       IsOwnerOrReadOnly,)
     queryset = Query.objects.all()
