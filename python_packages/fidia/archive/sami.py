@@ -4,7 +4,7 @@ from glob import glob
 import os.path
 import datetime
 import re
-import itertools
+import time
 
 from astropy import wcs
 from astropy.io import fits
@@ -12,6 +12,8 @@ from astropy.io import fits
 import pandas as pd
 
 from cached_property import cached_property
+
+from asvo_spark import ASVOSparkConnector
 
 # FIDIA Relative Imports
 from fidia import *
@@ -707,7 +709,7 @@ class SAMITeamArchive(Archive):
         start_time = time.clock()
 
         # Get Query Results from Spark (as a SchemaRDD object):
-        results_rdd = hive_context.sql(query_string)
+        results_rdd = ASVOSparkConnector.hive_context.sql(query_string)
 
         log.debug("Elapsed time: %f", time.clock() - start_time)
 
@@ -733,7 +735,7 @@ class SAMITeamArchive(Archive):
         new_sample.extend(id_cross_match)
         log.debug("Elapsed time: %f", time.time() - start_time)
 
-        self.tabular_data = results_pddf
+        new_sample.tabular_data = results_pddf
 
         new_sample._archives = {self}
 
