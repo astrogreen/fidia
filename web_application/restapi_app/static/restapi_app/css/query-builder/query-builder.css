@@ -128,3 +128,32 @@ form.query-form .floating-select{position:relative;float: left;margin-right:10px
     transform:rotate(-270deg) scaleX(-1);
 }
 
+.nav-tabs > li {
+  float: left;
+}
+
+@keyframes border-pulsate {
+    0%   { border-color: #5aa8d8;}
+    50% { border-color: #eee; }
+    100%   { border-color: #5aa8d8; }
+}
+.pulsing-button{
+    animation: border-pulsate 1.5s infinite;
+}
+
+
+
+/* Media Queries */
+
+@media (max-width: 991px) {
+    /*.floating-select{border:1px solid green;}*/
+}
+@media (max-width: 767px) {
+    /*.floating-select{border:1px solid blue;}*/
+}
+@media (max-width: 550px) {
+    /*.floating-select{border:1px solid red;}*/
+    .floating-select{max-width:45%;}
+
+
+}

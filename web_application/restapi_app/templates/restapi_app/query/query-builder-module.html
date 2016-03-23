@@ -7,7 +7,7 @@
 {% block angular-ng-app-class %}ng-app="queryBuilder"{% endblock %}
 
 {% block head-extra-extra %}
-    <link rel="stylesheet" href="{% static 'restapi_app/css/query-builder/query-builder.css' %}" type="text/css"/>
+
 
     <script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
     <script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
@@ -20,7 +20,7 @@
     <script type="text/javascript" src="{% static 'restapi_app/js/query-builder/isteven-multi-select.js' %}"></script>
 
     <link rel="stylesheet" href="{% static 'restapi_app/css/query-builder/isteven-multi-select.css' %}" type="text/css"/>
-
+    <link rel="stylesheet" href="{% static 'restapi_app/css/query-builder/query-builder.css' %}" type="text/css"/>
 {% endblock %}
 
 {% block query-builder %}
@@ -46,12 +46,12 @@
                                     <div isteven-multi-select input-model="nodecat" output-model="outputCatalogues[$index]"
                                        on-item-click="fCatClick( data )" selection-mode="single" on-open="fOpenCat()"
                                        button-label="name" item-label="name" tick-property="ticked" class="floating-select selectCatalogues"
-                                         disable-property="disabled" id="outputCatalogue{{$index}}">
+                                         disable-property="disabled" id="outputCatalogue{{$index}}" >
                                     </div>
                                     <div isteven-multi-select input-model="outputCatalogues[$index][0].columns" output-model="outputColumns[$index]"
                                         on-item-click="fColClick(data)" on-select-all="" on-close="fColClose()" ng-show="outputCatalogues[$index].length>0"
                                         button-label="name " item-label=" name " tick-property="ticked" class="floating-select"
-                                        id="outputColumn{{$index}}" >
+                                        id="outputColumn{{$index}}" max-labels="5">
                                     </div>
                                     <button class="btn outline red pull-right btn-cat-remove" data-value="{{$index}}" href="" ng-click="fRemoveCatalogue($index)">
                                         <i class="fa fa-times"></i>
@@ -146,8 +146,8 @@
                         </div>
                          <div class="row">
                              <div  style="margin-top:15px">
-                                 <button class="btn btn-sm btn-primary pull-right text-uppercase" type="button" ng-click=""
-                                 id="query-builder-submit" disabled>Send to Form</button>
+                                    <button type="button" class="btn btn-sm btn-default text-uppercase pull-right pulsing-button" ng-click="fValidate()"
+                             title="Check form is correctly populated" id="check-button"><i class="fa fa-refresh"></i> Check Form</button>
                                  <button class="btn btn-sm btn-default pull-left text-uppercase" type="button" ng-click="fReset()"
                                  id="query-builder-reset" >Reset</button>
                              </div>
@@ -203,23 +203,18 @@
                             </div>
                              <div class="row">
                                 <div class="col-xs-12">
-                                    <p><strong>VALID</strong><br>Click <button class="btn btn-xs btn-default" >
-                                        <i class="fa fa-code"></i> VIEW SQL</button> below to view your generated query.</p>
+                                    <p><strong>VALID</strong> <i class="fa fa-level-down"></i><br>
+
+                                        <button class="btn btn-sm btn-default text-uppercase" type="button" ng-click="fBuildSQL()"
+                             title="Display SQL" style="margin-bottom:5px" id="sql-button"><i class="fa fa-code"></i> View SQL</button><span> <i class="fa fa-level-down"></i></span><br>
+                                        <button class="btn btn-sm btn-primary text-uppercase" type="button" ng-click=""
+                                 id="query-builder-submit" disabled>Send to Form</button>
+                                    </p>
+
                                 </div>
                              </div>
                         </div>
                      </div>
-                    <div class="row" role="group">
-                         <div class="col-xs-12" style="margin-top:15px">
-                             <button class="btn btn-sm btn-default text-uppercase" type="button" ng-click="fBuildSQL()"
-                             title="Display SQL"><i class="fa fa-code"></i> View SQL</button>
-                             <button type="button" class="btn btn-sm btn-default text-uppercase" ng-click="fValidate()"
-                             title="Check form is correctly populated"><i class="fa fa-refresh"></i> Check Form</button>
-                             <!--<button type="button" class="btn btn-sm btn-default " onclick="fCopy()"><i class="fa fa-files-o"-->
-                             <!--title="Copy SQL"></i> COPY</button>-->
-
-                         </div>
-                    </div><br><br>
                     <div class="row">
                         <div class="col-xs-12">
                             <p><strong>Create simple SQL queries with ease.</strong>
@@ -242,6 +237,18 @@
         SQLAceEditor.session.insert(1, $('#outputSQL').text());
         $('#query-builder-form').removeClass('active');
         $('#post-object-form').addClass('active');
+    });
+    $('#check-button').click(function(){
+       $(this).removeClass('pulsing-button');
+       $('#sql-button').addClass('pulsing-button');
+    });
+
+    $('#sql-button').click(function(){
+       $(this).removeClass('pulsing-button');
+       $('#query-builder-submit').addClass('pulsing-button');
+    });
+    $('#query-builder-submit').click(function(){
+       $(this).removeClass('pulsing-button');
     });
 
 </script>
