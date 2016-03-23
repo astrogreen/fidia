@@ -53,8 +53,9 @@ class ASVOSparkConnector:
         self._spark_conf = None
         self._hive_context = None
 
-    def staart_spark(self):
-        if self.spark_context is not None:
+
+    def start_spark(self):
+        if self._spark_context is not None:
             log.warn("Spark already started.")
         else:
             self._spark_conf = pyspark.SparkConf()# .setAppName("andy_jupyter").setMaster("local")
@@ -75,10 +76,10 @@ class ASVOSparkConnector:
 
 
     def stop_spark(self):
-        if self.spark_context is None:
+        if self._spark_context is None:
             log.warn("Spark already stopped.")
         else:
             self._spark_context.stop()
-            spark_conf = None
-            spark_context = None
-            hive_context = None
+            self._spark_conf = None
+            self._spark_context = None
+            self._hive_context = None
