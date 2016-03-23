@@ -27,7 +27,8 @@ from .renderers import (
     SOVDetailRenderer,
     QueryRenderer,
     AstroObjectRenderer,
-    SampleRenderer
+    SampleRenderer,
+    RegisterRenderer
 )
 
 from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
@@ -50,6 +51,8 @@ class CreateUserView(generics.CreateAPIView):
     model = User
     permissions = [IsNotAuthenticated]
     serializer_class = CreateUserSerializer
+    renderer_classes = [RegisterRenderer]
+    template_name = 'restapi_api/register/register.html'
 
 
 class QueryViewSet(viewsets.ModelViewSet):

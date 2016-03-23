@@ -1,0 +1,42 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+{% block head-extra %}{% endblock %}
+
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+
+{% block content-filter-form %}{% endblock %}
+{% block content-header %}{% endblock %}
+
+{% block content-main %}
+<h1 class="headline"><span>Register</span></h1>
+    {% if display_edit_forms %}
+        {% if post_form or raw_data_post_form %}
+            <div class="row">
+                <div class="col-sm-offset-3 col-sm-6">
+                {% if post_form %}
+                    <div class="tab-pane" id="post-object-form">
+                        {% with form=post_form %}
+                        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                            <fieldset>
+                                {% csrf_token %}
+                                {{ post_form }}
+                                <div class="form-actions">
+                                    <button class="btn btn-primary pull-right" title="Create New User">SUBMIT</button>
+                                </div>
+                            </fieldset>
+                        </form>
+                        {% endwith %}
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+{% endblock content-main %}

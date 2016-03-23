@@ -571,3 +571,13 @@ class SOVDetailRenderer(renderers.BrowsableAPIRenderer):
 
     template = 'restapi_app/sov/detail.html'
 
+
+
+
+
+class RegisterRenderer(renderers.BrowsableAPIRenderer):
+    """
+    BrowseSurveysViewSet
+    """
+
+    template = 'restapi_app/register/register.html'
