@@ -13,7 +13,7 @@ import pandas as pd
 
 from cached_property import cached_property
 
-from asvo_spark import ASVOSparkConnector
+# from asvo_spark import ASVOSparkConnector
 
 # FIDIA Relative Imports
 from fidia import *
@@ -653,6 +653,30 @@ class SAMITeamArchive(Archive):
         cube_directory = pd.DataFrame(cube_directory)
         cube_directory.set_index(['sami_id', 'color', 'binning', 'plate_id'], inplace=True)
         return cube_directory
+
+    def create_table_available_data(self, filename):
+        # Create an empty data frame indexed by all of the SAMI sample
+        table = pd.DataFrame(index=pd.Index(self.contents, name='sami_id'))
+        # Generate a set of unique IDs for which there are cubes
+        cube_list = set(self._cubes_directory.index.get_level_values('sami_id'))
+        # Add this list to the data frame
+        table['cube_available'] = pd.Series([True for i in range(len(cube_list))], index=pd.Index(cube_list))
+        # The objects without cubes will have NaN; so fix that now by setting the not trues to explicitly False
+        table.loc[table['cube_available'] != True, 'cube_available'] = False
+
+        # Write to file
+        with open(filename, 'w') as f:
+            f.write(table.to_csv())
+
+        # Then upload file to HDFS, and run a Hive query like the following:
+        #
+        #     CREATE EXTERNAL TABLE sami(
+        #         sami_id STRING COMMENT 'SAMI ID (matches GAMA ID when the same object)',
+        #         cube_available BOOLEAN COMMENT 'Is a cube available in the database')
+        #     COMMENT 'Table containing SAMI sample with observation information'
+        #     ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+        #     STORED AS TEXTFILE
+        #     LOCATION '/user/agreen/sami_test.csv';
 
     def data_available(self, object_id=None):
         if object_id is None:
