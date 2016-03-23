@@ -362,7 +362,7 @@ class SAMISpectralCube(SpectralMap):
 
     @property
     def shape(self):
-        return 0
+        return self.value.shape
 
     @trait_property('float.array')
     def value(self):
@@ -387,30 +387,32 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float')
     def total_exposure(self):
+        """Total exposure time for this cube"""
         return self.hdu[0].header['TOTALEXP']
 
     @trait_property('string')
     def cubing_code_version(self):
+        """Version of the cubing code used"""
         return self.hdu[0].header['HGCUBING']
 
     @trait_property('string')
     def plate_id(self):
-        """The plate identification string."""
+        """Plate identification string"""
         return self.hdu[0].header['PLATEID']
 
     @trait_property('string')
     def plate_label(self):
-        """The label assigned to the plate."""
+        """Label assigned to the plate"""
         return self.hdu[0].header['LABEL']
 
     @trait_property('float')
     def ra(self):
-        """The label assigned to the plate."""
+        """Catalog right-ascension of the galaxy"""
         return self.hdu[0].header['CATARA']
 
     @trait_property('float')
     def dec(self):
-        """The label assigned to the plate."""
+        """Catalog declination of the galaxy."""
         return self.hdu[0].header['CATADEC']
 
 

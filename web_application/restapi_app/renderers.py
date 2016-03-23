@@ -1,4 +1,5 @@
 from io import BytesIO
+import logging
 from django.template import Context, RequestContext, Template, loader
 from rest_framework import VERSION, exceptions, serializers, status
 from rest_framework import renderers
@@ -16,6 +17,8 @@ from .utils.breadcrumbs import get_breadcrumbs_by_viewname, get_breadcrumbs_by_i
 
 from fidia.traits.base_traits import Trait
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 class FITSRenderer(renderers.BaseRenderer):
     media_type = "application/fits"
@@ -23,6 +26,7 @@ class FITSRenderer(renderers.BaseRenderer):
     charset = None
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
+        log.debug("Render response: %s" % renderer_context['response'])
         trait = data.serializer.instance
         if not isinstance(trait, Trait):
             raise UnsupportedMediaType("Renderer doesn't support anything but Traits!")

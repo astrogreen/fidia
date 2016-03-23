@@ -1,3 +1,5 @@
+import logging
+
 import fidia, collections
 
 from fidia.traits.utilities import TraitProperty
@@ -29,6 +31,9 @@ HyperlinkedModelSerializer sub-classes ModelSerializer and uses hyperlinked rela
 instead of primary key relationships.
 
 """
+
+log = logging.getLogger(__name__)
+
 # QUERYING
 class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     """
@@ -147,20 +152,26 @@ class AstroObjectTraitPropertySerializer(serializers.Serializer):
         self.fields[self.traitproperty_name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="source")
 
 
-
 class AstroObjectTraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
+        log.debug("depth_limit: %s", depth_limit)
         super().__init__(*args, **kwargs)
 
         trait = self.instance
         assert isinstance(trait, Trait)
 
+
         for trait_property in trait._trait_properties():
             # define serializer type by instance type
-            traitproperty_type = getattr(trait_property, 'type')
+            traitproperty_type = trait_property.type
 
-            self.fields[trait_property.name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="flat")
+            if depth_limit > 0:
+                # Recurse into trait properties
+                self.fields[trait_property.name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="flat")
+            else:
+                # Simply show the trait types and descriptions
+                self.fields[trait_property.name] = serializers.CharField()
 
 
 

@@ -1,7 +1,10 @@
+import logging
 import random, collections
 from pprint import pprint
+
 from .exceptions import NoPropertyFound
 from django.shortcuts import get_object_or_404
+
 
 from .models import (
     Query,
@@ -33,6 +36,8 @@ from django.contrib.auth.models import User
 from rest_framework_csv import renderers as r
 
 from django.conf import settings
+
+log = logging.getLogger(__name__)
 
 
 class QueryViewSet(viewsets.ModelViewSet):
@@ -259,9 +264,11 @@ class AstroObjectViewSet(mixins.ListModelMixin,
 class TraitViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (ListNoDetailRenderer,renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer, FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
+        log.debug("Format requested is '%s'", format)
+
         try:
             trait = sample[galaxy_pk][trait_pk]
         except KeyError:
@@ -276,6 +283,14 @@ class TraitViewSet(mixins.ListModelMixin,
         )
         return Response(serializer.data)
 
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'fits':
+            filename = "{obj_id}-{trait}.fits".format(
+                obj_id=kwargs['galaxy_pk'],
+                trait=kwargs['trait_pk'])
+            response['content-disposition'] = "attachment; filename=%s" % filename
+        return response
 
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
@@ -301,6 +316,12 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
         )
         return Response(serializer.data)
 
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'fits':
+            filename = "{galaxy_pk}-{trait_pk}-{traitproperty_pk}.fits".format(**kwargs)
+            response['content-disposition'] = "attachment; filename=%s" % filename
+        return response
 
 #  SOV
 class SOVListSurveysViewSet(viewsets.ViewSet):

@@ -10,7 +10,7 @@ from .utilities import TraitProperty, TraitMapping, TraitKey
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-# log.setLevel(slogging.WARN)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
@@ -171,10 +171,10 @@ class Trait(AbstractBaseTrait):
         pass
 
     @classmethod
-    def _trait_properties(cls, trait_type=None):
+    def _trait_properties(cls, trait_property_types=None):
         """Generator which iterates over the TraitProperties attached to this Trait.
 
-        :param trait_type:
+        :param trait_property_types:
             Either a string trait type or a list of string trait types or None.
             None will return all trait types, otherwise only traits of the
             requested type are returned.
@@ -187,15 +187,16 @@ class Trait(AbstractBaseTrait):
 
         """
 
-        if isinstance(trait_type, str):
-            trait_type = tuple(trait_type)
+        if isinstance(trait_property_types, str):
+            trait_property_types = tuple(trait_property_types)
 
         # Search class attributes:
+        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", cls.trait_type, trait_property_types)
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
                 log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
-                if (trait_type is None) or (obj.type in trait_type):
+                if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
 
     # def sub_traits(self):
@@ -317,9 +318,24 @@ class Trait(AbstractBaseTrait):
         #     primary_hdu.header[trait.short_name + "_ERR"] = (trait.value, trait.short_comment)
 
         # Create extensions for additional array-like values
-        # for trait_property in self.trait_property_values(['float.array', 'int.array']):
-        #     extension = fits.ImageHDU(trait_property)
-        #     hdulist.append(extension)
+        for trait_property in self._trait_properties(['float.array', 'int.array']):
+            extension = fits.ImageHDU(getattr(self, trait_property.name))
+            extension.name = trait_property.name
+            hdulist.append(extension)
+
+        # Add single-value TraitProperties to the header:
+        for trait_property in self._trait_properties(['float', 'int']):
+            primary_hdu.header[trait_property.name] = (
+                getattr(self, trait_property.name),
+                trait_property.doc)
+
+        for trait_property in self._trait_properties(['string']):
+            value = getattr(self, trait_property.name)
+            if len(value) >= 80:
+                continue
+            primary_hdu.header[trait_property.name] = (
+                value,
+                trait_property.doc)
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
         # for trait_property in self.trait_property_values('catalog'):
