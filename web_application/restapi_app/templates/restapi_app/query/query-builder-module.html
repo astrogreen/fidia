@@ -40,7 +40,7 @@
                                 <div class="col-sm-12 col-xs-12">
                                     <div isteven-multi-select input-model="nodecat" output-model="outputCatalogues[$index]"
                                        on-item-click="fCatClick( data )" on-reset="fReset()" selection-mode="single" on-open="fOpenCat()"
-                                       button-label="name" item-label="name" tick-property="ticked" class="floating-select"
+                                       button-label="name" item-label="name" tick-property="ticked" class="floating-select selectCatalogues"
                                          disable-property="disabled" id="outputCatalogue{{$index}}">
                                     </div>
                                     <div isteven-multi-select input-model="outputCatalogues[$index][0].columns" output-model="outputColumns[$index]"
@@ -71,7 +71,7 @@
                                     <div isteven-multi-select input-model="join" output-model="outputJoins[$index]"
                                           group-property="catGroup" button-label="buttonname" item-label="name"
                                           tick-property="ticked" selection-mode="single" class="floating-select"
-                                         on-item-click="fJoinClick(data)" id="outputJoins{{$index}}">
+                                         on-item-click="fJoinClick(data)" id="outputJoins{{$index}}" disable-property="disabled">
                                     </div>
                                     <div isteven-multi-select input-model="inputJoinOperators[$index]" output-model="outputJoinOperator[$index]"
                                           button-label="operator" item-label="operator" helper-elements="none" on-item-click="fJoinOperator()"
@@ -80,7 +80,7 @@
                                     </div>
                                     <div isteven-multi-select input-model="inputJoinsB[$index]" output-model="outputJoinsB[$index]"
                                           group-property="catGroup" button-label="buttonname" item-label="name"
-                                          tick-property="ticked" selection-mode="single" class="floating-select"
+                                          tick-property="ticked" selection-mode="single" class="floating-select" disable-property="disabled"
                                          on-item-click="fJoinBClick(data)" id="outputJoinsB{{$index}}">
                                     </div>
                                     <button class="btn outline red pull-right" href="" ng-click="fRemoveJoin($index)">
@@ -202,14 +202,25 @@
                         </div>
                      </div>
                     <div class="row" role="group">
-                             <div class="col-xs-12" style="margin-top:15px">
-                                 <button class="btn btn-sm btn-default pull-right" type="button" ng-click="fBuildSQL()"
-                                 title="Display SQL"><i class="fa fa-code"></i> SQL</button>
-                                 <button type="button" class="btn btn-sm btn-default pull-right" ><i class="fa fa-files-o"
-                                 title="Copy SQL"></i> COPY</button>
-                                 <button type="button" class="btn btn-sm btn-default pull-right" ng-click="fValidate()"
-                                 title="Check form is correctly populated"><i class="fa fa-refresh"></i> CHECK</button>
-                             </div>
+                         <div class="col-xs-12" style="margin-top:15px">
+                             <button type="button" class="btn btn-sm btn-default " ng-click="fValidate()"
+                             title="Check form is correctly populated"><i class="fa fa-refresh"></i> CHECK</button>
+                             <button type="button" class="btn btn-sm btn-default " ><i class="fa fa-files-o"
+                             title="Copy SQL"></i> COPY</button>
+                             <button class="btn btn-sm btn-default " type="button" ng-click="fBuildSQL()"
+                             title="Display SQL"><i class="fa fa-code"></i> SQL</button>
+                         </div>
+                    </div><br><br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p><strong>Create simple SQL queries with ease.</strong>
+                            </p>
+                            <p>
+                                Multiple catalogues are joined back to the
+                            first catalogue row ( <i class="fa fa-level-up fa-flip-horizontal" style="transform:rotate(-270deg)
+                            scaleX(-1);"></i> ).
+                            </p>
+                        </div>
                     </div>
                 </div>
              </div>

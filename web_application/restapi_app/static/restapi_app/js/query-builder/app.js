@@ -495,7 +495,6 @@
             //go through the catalogues in the output array
             angular.forEach(temp_array_cats,function(value,key){
                 var temp = value.sort();
-                console.log(temp);
                 // if that row does appear in the array of unique matches...
                 if ($.inArray(temp[0]+temp[1],temp_array_unique)>-1){
                     //append to list
@@ -540,7 +539,15 @@
             var inputJoinArray=[inputJoin,inputJoinB];
             var inputJoinsArray=[$scope.inputJoins,$scope.inputJoinsB];
 
-            for (i=0; i<=outputJoinArray.length; i++){
+            // NEW: disable all catalogues in the first join that aren't the first table.
+            // get first output catalogue;
+            if (undefined != $scope.fGetOutputCatalogues()[0]){
+                var currentFirstCatalogue = $scope.fGetOutputCatalogues()[0];
+                var disabledProperty = false;
+            };
+
+
+            for (var i = 0; i<=outputJoinArray.length; i++){
 
                 angular.forEach(outputJoinArray[i],function(value,key){
                     outputJoinListArray[i].push([]);
@@ -563,6 +570,18 @@
                         //only populate with selected catalogues
                         if (itemb.length>0){
                         //console.log('cycle over output catalogues: '+ key);
+                            // DISABLE JOINA catalogues that aren't the first row
+                            // only implement for JOINA(i=0) (joinB should contain all catalogues enabled)
+                            if (i==0){
+                                if (itemb[0].name == currentFirstCatalogue){
+                                    disabledProperty = false;
+                                } else {
+                                    disabledProperty = true;
+                                };
+                            } else {
+                                disabledProperty = false;
+                            };
+
                             inputJoinArray[i].push({name:itemb[0].name, catGroup:true});
                             angular.forEach(itemb[0].columns, function (itemc, keyc) {
                                 //associated catalogue is in the 'cat' property
@@ -573,22 +592,27 @@
                                     inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name, ticked:true});
                                     //console.log("name: "+itemc.name+", cat: "+itemb[0].name);
                                 } else {
-                                    inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name});
+                                    inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name, disabled:disabledProperty});
                                 };
                             });
                             inputJoinArray[i].push({catGroup:false});
+
+
                         };
                     });
 
                     //set e.g., outputJoinList to joinListArray[i];
                     inputJoinsArray[i][key]=inputJoinArray[i];
-
                     //angular.copy creates a deep copy of the source (dropping the hash keys)
                     //$scope.inputJoinsB[key]=angular.copy(inputJoin);
 
                 });
                 window[inputJoinsArray[i]]=inputJoinsArray[i];
             };
+
+
+            console.log('here')
+            console.log(currentFirstCatalogue);
 
             console.log('- end fUpdateJoins()');
         };
@@ -803,7 +827,6 @@
                     }
                 });
             };
-            console.log('warning '+warning);
             return warning;
         };
 
@@ -819,6 +842,8 @@
 
                 $scope.fJoinStatus();
 
+                $scope.outputSQLSELECT='SELECT ';
+                $scope.outputSQLJOIN='';
                 $scope.outputSQLWHERE='';
 
                 $scope.fcheckboxEval = function(val){
@@ -844,7 +869,16 @@
                 //       INNER JOIN SpStandards as t2 on t2.CATAID = t1.CATAID
                 //       INNER JOIN TilingCat as t3 on t3.CATAID = t1.CATAID
 
+                //SELECT t1.CATAID, t1.A_NUV, t1.A_r, t2.PRIMTARGET, t2.PETRORAD_R, t3.CATAID, t3.OBJID,
+                //       t3.RA
+                //FROM   GalacticExtinction as t1
+                //       LEFT OUTER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+
+
                 //SELECTS
+
+                //construct the output lists
                 var outputCataloguesList = $scope.fGetOutputCatalogues();
                 var outputColumns = $scope.outputColumns;
                 var outputColumnsList=[];
@@ -856,8 +890,36 @@
                         });
                     };
                 });
-                //console.log(angular.toJson(outputColumnsList));
-                //console.log(angular.toJson(outputCataloguesList));
+
+                // construct SELECT
+                //SELECT t1.CATAID, t1.A_NUV, t1.A_r, t2.PRIMTARGET, t2.PETRORAD_R, t3.CATAID, t3.OBJID,
+                //       t3.RA
+                var counter=1;
+
+                angular.forEach(outputCataloguesList, function(value,key){
+                    var tablename = 't'+counter;
+
+                    angular.forEach(outputColumnsList[key],function(valueb,keyb){
+                        $scope.outputSQLSELECT+=tablename+"."+valueb;
+                        if (keyb < outputColumnsList[key].length-1){
+                            $scope.outputSQLSELECT+=", ";
+                        };
+                    });
+                    if (key < outputCataloguesList.length-1){
+                            $scope.outputSQLSELECT+=", ";
+                    };
+                    counter++;
+                });
+
+                // construct JOIN
+                //FROM   GalacticExtinction as t1
+                //       LEFT OUTER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+                console.log($scope.outputSQLSELECT);
+                console.log(angular.toJson(outputColumnsList));
+                console.log(angular.toJson(outputCataloguesList));
+
+
 
 
                 angular.forEach($scope.outputWheres, function(value,key){
