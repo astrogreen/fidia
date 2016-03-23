@@ -34,108 +34,123 @@
         $scope.queryCheckbox=[];
 
         // AVAILABLE CATALOGUES                                                     TODO: is this really needed here? TEST
-        var nodeCatalogues = [
-    {
-        name: "InputCatA",
-        catalogueId: 1,
-        survey: "GAMA",
-        version: "v05",
-        DMU: "InputCat",
-        Date: "2010-05-21",
-        description: "SS DR6 data of GAMA I survey regions. This is GAMA`s master input catalogue.",
-        dimension: "960510 rows × 25 columns",
-        contact: "Ivan Baldry",
-        columns: [
-        {
-            cid: "1",
-            name: "CATAID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique GAMA ID of object"
-        }, {
-            cid: "2",
-            name: "OBJID",
-            units: "-",
-            UCD: "meta.id;",
-            description: "SDSS objid"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    }, {
-        name: "ExternalSpecAll",
-        catalogueId: 2,
-        survey: "GAMA",
-        version: "v01",
-        DMU: "ExternalSpec",
-        Date: "2011-03-03",
-        description: "This table lists all spectra of GAMA DR2 objects that are available from previous spectroscopic surveys (such as the SDSS), including duplicate observations. Every spectrum listed in this table is available in the GAMA DR2 database.",
-        contact: "Joe Liske",
-        columns: [{
-            cid: "1",
-            name: "SPECID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique ID of spectrum"
-        }, {
-            cid: "2",
-            name: "SURVEY",
-            units: "-",
-            UCD: "meta.dataset",
-            description: "Survey this spectrum originated from"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    },{
-        name: "Test",
-        catalogueId: 2,
+    //    var nodeCatalogues = [
+    //{
+    //    name: "InputCatA",
+    //    catalogueId: 1,
+    //    survey: "GAMA",
+    //    version: "v05",
+    //    DMU: "InputCat",
+    //    Date: "2010-05-21",
+    //    description: "SS DR6 data of GAMA I survey regions. This is GAMA`s master input catalogue.",
+    //    dimension: "960510 rows × 25 columns",
+    //    contact: "Ivan Baldry",
+    //    columns: [
+    //    {
+    //        cid: "1",
+    //        name: "CATAID",
+    //        units: "-",
+    //        UCD: "meta.id;meta.main",
+    //        description: "Unique GAMA ID of object"
+    //    }, {
+    //        cid: "2",
+    //        name: "OBJID",
+    //        units: "-",
+    //        UCD: "meta.id;",
+    //        description: "SDSS objid"
+    //    }, {
+    //        cid: "3",
+    //        name: "RA",
+    //        units: "deg",
+    //        UCD: "pos.eq.ra",
+    //        description: "J2000 coordinate"
+    //    }, {
+    //        cid: "4",
+    //        name: "DEC",
+    //        units: "deg",
+    //        UCD: "pos.eq.dec",
+    //        description: "J2000 coordinate"
+    //    }, ]
+    //}, {
+    //    name: "ExternalSpecAll",
+    //    catalogueId: 2,
+    //    survey: "GAMA",
+    //    version: "v01",
+    //    DMU: "ExternalSpec",
+    //    Date: "2011-03-03",
+    //    description: "This table lists all spectra of GAMA DR2 objects that are available from previous spectroscopic surveys (such as the SDSS), including duplicate observations. Every spectrum listed in this table is available in the GAMA DR2 database.",
+    //    contact: "Joe Liske",
+    //    columns: [{
+    //        cid: "1",
+    //        name: "SPECID",
+    //        units: "-",
+    //        UCD: "meta.id;meta.main",
+    //        description: "Unique ID of spectrum"
+    //    }, {
+    //        cid: "2",
+    //        name: "SURVEY",
+    //        units: "-",
+    //        UCD: "meta.dataset",
+    //        description: "Survey this spectrum originated from"
+    //    }, {
+    //        cid: "3",
+    //        name: "RA",
+    //        units: "deg",
+    //        UCD: "pos.eq.ra",
+    //        description: "J2000 coordinate"
+    //    }, {
+    //        cid: "4",
+    //        name: "DEC",
+    //        units: "deg",
+    //        UCD: "pos.eq.dec",
+    //        description: "J2000 coordinate"
+    //    }, ]
+    //},{
+    //    name: "Test",
+    //    catalogueId: 2,
+    //
+    //    columns: [{
+    //        name: "a",
+    //    }, {
+    //        name: "NEW",
+    //    }, {
+    //        name: "COLUMNS",
+    //    }, {
+    //        name: "HERE",
+    //    }, ]
+    //},{
+    //    name: "Test2Cat",
+    //    catalogueId: 2,
+    //
+    //    columns: [{
+    //        name: "aasda",
+    //    }, {
+    //        name: "NEWasda",
+    //    }, {
+    //        name: "COLUMNSasdas",
+    //    }, {
+    //        name: "HEREasds",
+    //    }, ]
+    //} ];
 
-        columns: [{
-            name: "a",
-        }, {
-            name: "NEW",
-        }, {
-            name: "COLUMNS",
-        }, {
-            name: "HERE",
-        }, ]
-    },{
-        name: "Test2Cat",
-        catalogueId: 2,
+        var nodeCataloguesGlobal = (function () {
+            var json = null;
+            $.ajax({
+                'async': false,
+                'global': false,
+                'url': urlCataloguesGlobal,
+                'dataType': "json",
+                'success': function (data) {
+                    json = data;
+                }
+            });
+            return json;
+        })();
 
-        columns: [{
-            name: "aasda",
-        }, {
-            name: "NEWasda",
-        }, {
-            name: "COLUMNSasdas",
-        }, {
-            name: "HEREasds",
-        }, ]
-    } ];
-        $scope.inputCatalogueList = [];
-        angular.forEach(nodeCatalogues, function (item, key) {
-            $scope.inputCatalogueList.push(item.name);
-        });
+        //$scope.inputCatalogueList = [];
+        //angular.forEach(nodeCatalogues, function (item, key) {
+        //    $scope.inputCatalogueList.push(item.name);
+        //});
 
 
         /* -- SELECTS -- */
@@ -252,104 +267,8 @@
         $scope.fAddCatalogue = function(){
 
             $timeout( function() {  // Timeout with t=0 forces an $apply to update bindings
-                var nodeCatalogues = [
-    {
-        name: "InputCatA",
-        catalogueId: 1,
-        survey: "GAMA",
-        version: "v05",
-        DMU: "InputCat",
-        Date: "2010-05-21",
-        description: "SS DR6 data of GAMA I survey regions. This is GAMA`s master input catalogue.",
-        dimension: "960510 rows × 25 columns",
-        contact: "Ivan Baldry",
-        columns: [
-        {
-            cid: "1",
-            name: "CATAID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique GAMA ID of object"
-        }, {
-            cid: "2",
-            name: "OBJID",
-            units: "-",
-            UCD: "meta.id;",
-            description: "SDSS objid"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    }, {
-        name: "ExternalSpecAll",
-        catalogueId: 2,
-        survey: "GAMA",
-        version: "v01",
-        DMU: "ExternalSpec",
-        Date: "2011-03-03",
-        description: "This table lists all spectra of GAMA DR2 objects that are available from previous spectroscopic surveys (such as the SDSS), including duplicate observations. Every spectrum listed in this table is available in the GAMA DR2 database.",
-        contact: "Joe Liske",
-        columns: [{
-            cid: "1",
-            name: "SPECID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique ID of spectrum"
-        }, {
-            cid: "2",
-            name: "SURVEY",
-            units: "-",
-            UCD: "meta.dataset",
-            description: "Survey this spectrum originated from"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    },{
-        name: "Test",
-        catalogueId: 2,
+                var nodeCatalogues = angular.copy(nodeCataloguesGlobal);
 
-        columns: [{
-            name: "a",
-        }, {
-            name: "NEW",
-        }, {
-            name: "COLUMNS",
-        }, {
-            name: "HERE",
-        }, ]
-    },{
-        name: "Test2Cat",
-        catalogueId: 2,
-
-        columns: [{
-            name: "aasda",
-        }, {
-            name: "NEWasda",
-        }, {
-            name: "COLUMNSasdas",
-        }, {
-            name: "HEREasds",
-        }, ]
-    } ];
                 var temp_node;
 
                 temp_node=nodeCatalogues;

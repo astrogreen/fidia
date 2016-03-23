@@ -379,3 +379,15 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
             context={'request': request}
         )
         return Response(serializer.data)
+
+
+class AvailableTables(views.APIView):
+
+    def get(self, request, format=None):
+        """
+        Return hardcoded response: json data of available tables
+        """
+        with open('restapi_app/gama_database.json') as json_d:
+            json_data = json.load(json_d)
+            json_d.close()
+        return Response(json_data)
