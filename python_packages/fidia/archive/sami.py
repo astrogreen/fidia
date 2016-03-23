@@ -13,8 +13,6 @@ import pandas as pd
 
 from cached_property import cached_property
 
-from asvo_spark import ASVOSparkConnector
-
 # FIDIA Relative Imports
 from fidia import *
 from .archive import Archive
