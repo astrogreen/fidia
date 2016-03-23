@@ -2,14 +2,14 @@ import random, collections, logging
 import json
 from pprint import pprint
 
+from .permissions import IsNotAuthenticated
 from .exceptions import NoPropertyFound
-from django.shortcuts import get_object_or_404
-
 
 from .models import (
     Query,
 )
 from .serializers import (
+    CreateUserSerializer,
     UserSerializer,
     QuerySerializerCreateUpdate, QuerySerializerList,
     SampleSerializer,
@@ -42,7 +42,20 @@ from fidia.archive.asvo_spark import AsvoSparkArchive
 log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
 
+
+class CreateUserView(generics.CreateAPIView):
+    """
+    User View to allow registration
+    """
+    model = User
+    permissions = [IsNotAuthenticated]
+    serializer_class = CreateUserSerializer
+
+
 class QueryViewSet(viewsets.ModelViewSet):
+    """
+    Query the AAO Data Archive
+    """
     serializer_class = QuerySerializerList
     permission_classes = [permissions.IsAuthenticated]
     # permission_classes = [permissions.AllowAny]

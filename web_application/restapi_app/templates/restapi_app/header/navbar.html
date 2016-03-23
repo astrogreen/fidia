@@ -18,9 +18,9 @@
                 {% block userlinks %}
                   {% if user.is_authenticated %}
                     {% load internal_extras %}
-                    {% web_logout request user %}
+                    {% optional_logout request user %}
                   {% else %}
-                    {% web_login request %}
+                    {% optional_login request %}
                   {% endif %}
                 {% endblock %}
             </ul>
@@ -57,7 +57,7 @@
                 <li class="disabled"><a href="">Explorer</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">Surveys</li>
-                <li class=""><a href="{% url "sample-list" %}">SAMI</a></li>
+                <li ><a href="{% url "sample-list" %}">SAMI</a></li>
                 <li class="disabled"><a href="">GAMA</a></li>
               </ul>
             </li>
@@ -65,8 +65,8 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Documentation <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li class="disabled"><a href="#">Schema Browser</a></li>
-                <li><a href="/asvo/documentation/">Accessing Data</a></li>
-                <li><a href="/asvo/documentation/#docs-examples">Examples</a></li>
+                <li><a href="{% url "documentation" %}">Accessing Data</a></li>
+                <li><a href="{% url "documentation" %}#docs-examples">Examples</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">About</li>
                 <li class="disabled"><a href="">Datasets</a></li>

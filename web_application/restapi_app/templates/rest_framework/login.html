@@ -1,15 +1,19 @@
-{% extends "rest_framework/base.html" %}
+{% extends 'rest_framework/api.html' %}
 {% load staticfiles %}
 {% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
 
-{% block body %}
-    {% block head %}
-        {% include "restapi_app/header/header.html" %}
-    {% endblock %}
+{% block head-extra %}{% endblock %}
 
-    {% block navbar %}
-        {% include "restapi_app/header/navbar.html" %}
-    {% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+
+{% block content-filter-form %}{% endblock %}
+{% block content-header %}{% endblock %}
+
+{% block content-main %}
 <body class="container">
   <div class="container-fluid" style="margin-top: 30px">
     <div class="row-fluid">

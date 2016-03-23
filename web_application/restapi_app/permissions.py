@@ -14,3 +14,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.owner == request.user
         #returns true false
 
+
+class IsNotAuthenticated(permissions.BasePermission):
+    """
+    Custom permission to only allow only unauthenticated users (registration page)
+    """
+    def has_permission(self, request, view):
+        return not (request.user and request.user.is_authenticated())

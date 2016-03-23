@@ -30,12 +30,14 @@ traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', views.TraitPro
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='restapi_app/web_only/index.html'), name='index'),
+    url(r'^documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
 
     url(r'^data/', include(router.urls)),
     url(r'^data/', include(object_nested_router.urls)),
     url(r'^data/', include(trait_nested_router.urls)),
     url(r'^data/', include(traitprop_nested_router.urls)),
     url(r'^data/catalogues/', views.AvailableTables.as_view(), name='catalogues'),
+    url(r'^register/', views.CreateUserView.as_view(), name='user-register'),
 
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 

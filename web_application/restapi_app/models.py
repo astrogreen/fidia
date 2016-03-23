@@ -12,3 +12,5 @@ class Query(models.Model):
 
     class Meta:
         ordering = ('created',)
+
+
