@@ -439,6 +439,7 @@
             };
 
             $scope.fCatalogueController();
+            $scope.fUpdateJoins();
             $scope.fUpdateWheres();
             $timeout( function() {
                 $scope.inputCatalogues;
@@ -495,7 +496,6 @@
             //go through the catalogues in the output array
             angular.forEach(temp_array_cats,function(value,key){
                 var temp = value.sort();
-                console.log(temp);
                 // if that row does appear in the array of unique matches...
                 if ($.inArray(temp[0]+temp[1],temp_array_unique)>-1){
                     //append to list
@@ -540,7 +540,15 @@
             var inputJoinArray=[inputJoin,inputJoinB];
             var inputJoinsArray=[$scope.inputJoins,$scope.inputJoinsB];
 
-            for (i=0; i<=outputJoinArray.length; i++){
+            // NEW: disable all catalogues in the first join that aren't the first table.
+            // get first output catalogue;
+            if (undefined != $scope.fGetOutputCatalogues()[0]){
+                var currentFirstCatalogue = $scope.fGetOutputCatalogues()[0];
+                var disabledProperty = false;
+            };
+
+
+            for (var i = 0; i<=outputJoinArray.length; i++){
 
                 angular.forEach(outputJoinArray[i],function(value,key){
                     outputJoinListArray[i].push([]);
@@ -563,6 +571,23 @@
                         //only populate with selected catalogues
                         if (itemb.length>0){
                         //console.log('cycle over output catalogues: '+ key);
+                            // DISABLE JOINA catalogues that aren't the first row (i=0)
+                            // DISABLE JOINB catalogues that are the first row (i=1)
+                            // shouldn't match to itself
+                            if (i==0){
+                                if (itemb[0].name == currentFirstCatalogue){
+                                    disabledProperty = false;
+                                } else {
+                                    disabledProperty = true;
+                                };
+                            } else {
+                                if (itemb[0].name != currentFirstCatalogue){
+                                    disabledProperty = false;
+                                } else {
+                                    disabledProperty = true;
+                                };
+                            };
+
                             inputJoinArray[i].push({name:itemb[0].name, catGroup:true});
                             angular.forEach(itemb[0].columns, function (itemc, keyc) {
                                 //associated catalogue is in the 'cat' property
@@ -573,16 +598,17 @@
                                     inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name, ticked:true});
                                     //console.log("name: "+itemc.name+", cat: "+itemb[0].name);
                                 } else {
-                                    inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name});
+                                    inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name, disabled:disabledProperty});
                                 };
                             });
                             inputJoinArray[i].push({catGroup:false});
+
+
                         };
                     });
 
                     //set e.g., outputJoinList to joinListArray[i];
                     inputJoinsArray[i][key]=inputJoinArray[i];
-
                     //angular.copy creates a deep copy of the source (dropping the hash keys)
                     //$scope.inputJoinsB[key]=angular.copy(inputJoin);
 
@@ -625,6 +651,8 @@
                 $scope.inputJoinsB.splice(data,1);
                 $scope.outputJoins.splice(data,1);
                 $scope.outputJoinsB.splice(data,1);
+                $scope.inputJoinOperators.splice(data,1);
+                $scope.outputJoinOperator.splice(data,1);
                 //$scope.fUpdateJoins();
                 $timeout(function(){
                     $scope.inputJoins;
@@ -733,7 +761,13 @@
             $scope.inputWheres.splice(data,1);
             $scope.outputWheres.splice(data,1);
 
+            $scope.inputWhereOperators.splice(data,1);
+            $scope.outputWhereOperator.splice(data,1);
+
+            $scope.outputWhereValue.splice(data,1);
+
             $scope.fUpdateWheres();
+
             $timeout( function() {
                 $scope.inputWheres;
                 $scope.outputWheres;
@@ -757,6 +791,9 @@
 
         $scope.fValidate=function(){
             //console.log(e.currentTarget);
+            //$scope.fUpdateJoins();
+            $scope.fUpdateWheres();
+
             var warning=false;
             $scope.warning['warningFlag']=false;
             $('#query-builder-submit').attr('disabled', false);
@@ -766,6 +803,7 @@
             // this doesnt work well if user deletes a field entry and
             // doesnt replace it...
             var outputWhereValueTemp = [];
+
             for (var i= 0; i<$scope.inputWhereOperators.length;i++){
                 var b = '';
                 if (undefined != $scope.outputWhereValue[i]){
@@ -775,27 +813,33 @@
                 }
                 outputWhereValueTemp.push(b);
             };
+            //console.log('OUTPUTJOINS');
+            //console.log(angular.toJson($scope.outputJoins));
+            //console.log(angular.toJson($scope.outputJoinOperator));
+            //console.log(angular.toJson($scope.outputJoinsB));
 
             var validationObj = [
-                [$scope.outputCatalogues,"#outputCatalogue"],
-                [$scope.outputColumns, '#outputColumn'],
-                [$scope.outputJoins, '#outputJoins'],
-                [$scope.outputJoinsB, '#outputJoinsB'],
-                [$scope.outputJoinOperator,'#outputJoinOperator'],
-                [$scope.outputWheres, '#outputWhere'],
-                [$scope.outputWhereOperator,'#outputWhereOperator'],
-                [outputWhereValueTemp, '#whereValue']
+                [$scope.outputCatalogues,"#outputCatalogue", ' catalogue on row '],
+                [$scope.outputColumns, '#outputColumn', ' column(s) on row '],
+                [$scope.outputJoins, '#outputJoins', ' first join on row '],
+                [$scope.outputJoinsB, '#outputJoinsB', ' second join on row '],
+                [$scope.outputJoinOperator,'#outputJoinOperator', ' join operator on row '],
+                [$scope.outputWheres, '#outputWhere', ' where selection on row '],
+                [$scope.outputWhereOperator,'#outputWhereOperator', ' where operator on row '],
+                [outputWhereValueTemp, '#whereValue', ' where value on row ']
             ];
 
             // loop over output arrays and elements, check populated
             // if not append warning and return warning=true
+            var missing = 'Missing ';
             for(var i=0; i<validationObj.length; i++) {
                 angular.forEach(validationObj[i][0], function(value,key){
                     if (validationObj[i][0][key].length<1){
                         //console.log('warning: '+validationObj[i][1]+key);
                         $(validationObj[i][1]+key).addClass('not-selected-warning');
                         $scope.warning['warningFlag']=true;
-                        $scope.warning['Unselected Values']='Ensure all fields are populated';
+                        $scope.warning['Unselected Values']="Ensure all fields are populated. "
+                        missing += validationObj[i][2]+key+',';
                         $('#query-builder-submit').attr('disabled', true);
                         warning=true;
                     } else {
@@ -803,7 +847,7 @@
                     }
                 });
             };
-            console.log('warning '+warning);
+            $scope.warning['Unselected Values']+=missing;
             return warning;
         };
 
@@ -814,11 +858,13 @@
 
             // If the validation throws errors, add an error message on 'submit'
             if ($scope.fValidate() == true ){
-
+                $scope.outputSQL = '';
             } else {
 
                 $scope.fJoinStatus();
-
+                $scope.outputSQL = '';
+                $scope.outputSQLSELECT='SELECT ';
+                $scope.outputSQLJOIN='';
                 $scope.outputSQLWHERE='';
 
                 $scope.fcheckboxEval = function(val){
@@ -844,7 +890,16 @@
                 //       INNER JOIN SpStandards as t2 on t2.CATAID = t1.CATAID
                 //       INNER JOIN TilingCat as t3 on t3.CATAID = t1.CATAID
 
+                //SELECT t1.CATAID, t1.A_NUV, t1.A_r, t2.PRIMTARGET, t2.PETRORAD_R, t3.CATAID, t3.OBJID,
+                //       t3.RA
+                //FROM   GalacticExtinction as t1
+                //       LEFT OUTER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+
+
                 //SELECTS
+
+                //construct the output lists
                 var outputCataloguesList = $scope.fGetOutputCatalogues();
                 var outputColumns = $scope.outputColumns;
                 var outputColumnsList=[];
@@ -856,31 +911,93 @@
                         });
                     };
                 });
-                //console.log(angular.toJson(outputColumnsList));
-                //console.log(angular.toJson(outputCataloguesList));
 
+                // construct SELECT
+                //SELECT t1.CATAID, t1.A_NUV, t1.A_r, t2.PRIMTARGET, t2.PETRORAD_R, t3.CATAID, t3.OBJID,
+                //       t3.RA
+                var counter=1;
+                var tablenameArr = [];
+                angular.forEach(outputCataloguesList, function(value,key){
+                    var tablename = 't'+counter;
 
-                angular.forEach($scope.outputWheres, function(value,key){
-                    if (undefined == $scope.outputWhereOperator[key][0]){
-                        //user has not selected operator for a row - alert
-                        $scope.error['eWhereOperatorMissing']='Missing operator in row '+key;
-                        $scope.error['errorFlag']=true;
-                    } else if (undefined == $scope.outputWheres[key][0]){
-                        $scope.error['eWhereOptionMissing']='Missing WHERE selector in row '+key;
-                        $scope.error['errorFlag']=true;
-                    } else {
-                        $scope.outputSQLWHERE+=value[0].cat+"."+value[0].name+" "+
-                        $scope.fcheckboxEval($scope.queryCheckbox[key])+" "+
-                        $scope.outputWhereOperator[key][0].operator+" "+
-                        $scope.fBetweenValue($scope.outputWhereOperator[key][0].operator,key)+
-                        $scope.outputWhereValue[key];
+                    angular.forEach(outputColumnsList[key],function(valueb,keyb){
+                        $scope.outputSQLSELECT+=tablename+"."+valueb;
+                        if (keyb < outputColumnsList[key].length-1){
+                            $scope.outputSQLSELECT+=", ";
+                        };
+                    });
+                    if (key < outputCataloguesList.length-1){
+                            $scope.outputSQLSELECT+=", ";
                     };
-
-                    if (key < $scope.outputWheres.length-1){
-                        $scope.outputSQLWHERE+=", AND ";
-                    };
-                    //key is row
+                    counter++;
+                    //FROM   GalacticExtinction as t1
+                    tablenameArr.push(outputCataloguesList[key]+' AS '+tablename)
                 });
+                console.log(angular.toJson(tablenameArr));
+
+                // if joins are present
+                if (undefined != $scope.outputJoins[0]){
+                    //first cat always first with this syntax:
+                    $scope.outputSQLJOIN='<br>FROM '+tablenameArr[0];
+                    //sort out joins
+                    angular.forEach($scope.outputJoins, function(value,key){
+                        var tablename = 't'+counter;
+
+                    });
+                } else {
+                    //if no joins (single table) append FROM to statement
+                    $scope.outputSQLSELECT+='<br>FROM '+tablenameArr[0];
+                }
+
+
+                // construct JOIN
+                //FROM   GalacticExtinction as t1
+                //       LEFT OUTER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+
+
+                //FROM   GalacticExtinction as t1
+                //       INNER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID and t2.RA = t1.RA and t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+
+
+
+                console.log($scope.outputSQLSELECT);
+                console.log(angular.toJson(outputColumnsList));
+                console.log(angular.toJson(outputCataloguesList));
+
+
+
+                if (undefined != $scope.outputWheres[0]){
+                    $scope.outputSQLWHERE='WHERE ';
+                    angular.forEach($scope.outputWheres, function(value,key){
+                        if (undefined == $scope.outputWhereOperator[key][0]){
+                            //user has not selected operator for a row - alert
+                            $scope.error['eWhereOperatorMissing']='Missing operator in row '+key;
+                            $scope.error['errorFlag']=true;
+                        } else if (undefined == $scope.outputWheres[key][0]){
+                            $scope.error['eWhereOptionMissing']='Missing WHERE selector in row '+key;
+                            $scope.error['errorFlag']=true;
+                        } else {
+                            $scope.outputSQLWHERE+=value[0].cat+"."+value[0].name+" "+
+                            $scope.fcheckboxEval($scope.queryCheckbox[key])+" "+
+                            $scope.outputWhereOperator[key][0].operator+" "+
+                            $scope.fBetweenValue($scope.outputWhereOperator[key][0].operator,key)+
+                            $scope.outputWhereValue[key];
+                        };
+
+                        if (key < $scope.outputWheres.length-1){
+                            $scope.outputSQLWHERE+=", AND ";
+                        };
+                        //key is row
+                    });
+                };
+
+
+
+                // construct full SQL
+                $scope.outputSQL = $scope.outputSQLSELECT +'<br>'+ $scope.outputSQLJOIN +'<br>'+ $scope.outputSQLWHERE;
+
 
             };
 
