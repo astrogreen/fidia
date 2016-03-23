@@ -796,7 +796,6 @@
 
             var warning=false;
             $scope.warning['warningFlag']=false;
-            $('#query-builder-submit').attr('disabled', false);
 
             // TODO deal with outputwherevalue loop issues doesnt validate
             // hack - change shape of outputWhereValue to be iterable
@@ -840,7 +839,6 @@
                         $scope.warning['warningFlag']=true;
                         $scope.warning['Unselected Values']="Ensure all fields are populated. "
                         missing += validationObj[i][2]+key+',';
-                        $('#query-builder-submit').attr('disabled', true);
                         warning=true;
                     } else {
                         $(validationObj[i][1]+key).removeClass('not-selected-warning');
@@ -859,8 +857,9 @@
             // If the validation throws errors, add an error message on 'submit'
             if ($scope.fValidate() == true ){
                 $scope.outputSQL = '';
+                $('#query-builder-submit').attr('disabled', true);
             } else {
-
+                $('#query-builder-submit').attr('disabled', false);
                 $scope.fJoinStatus();
                 $scope.outputSQL = '';
                 $scope.outputSQLSELECT='SELECT ';
@@ -931,22 +930,39 @@
                     };
                     counter++;
                     //FROM   GalacticExtinction as t1
-                    tablenameArr.push(outputCataloguesList[key]+' AS '+tablename)
+                    tablenameArr.push([outputCataloguesList[key], tablename]);
                 });
-                console.log(angular.toJson(tablenameArr));
+                console.log(angular.toJson(tablenameArr))
+
 
                 // if joins are present
                 if (undefined != $scope.outputJoins[0]){
                     //first cat always first with this syntax:
-                    $scope.outputSQLJOIN='<br>FROM '+tablenameArr[0];
+                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1];
+
                     //sort out joins
                     angular.forEach($scope.outputJoins, function(value,key){
-                        var tablename = 't'+counter;
+                        var joinCatAliasB =''; var joinCatAlias ='';
+                        //get table alias (tablenameArr looks like: [["ExternalSpecAll","t1"],["Test","t2"]])
+                        angular.forEach(tablenameArr,function(valueb, keyb){
+                            //catalogue
+                            console.log(valueb[0])
+                            if ($scope.outputJoins[key][0].cat == valueb[0]){
+                                joinCatAlias = valueb[1];
+                            }
+                            if ($scope.outputJoinsB[key][0].cat == valueb[0]){
+                                joinCatAliasB = valueb[1];
+                            }
+                        });
+
+                        $scope.outputSQLJOIN+='<br>'+$scope.outputJoinOperator[key][0].operator+' JOIN '
+                            + $scope.outputJoinsB[key][0].cat + ' as ' + joinCatAliasB + ' on ' +
+                            joinCatAliasB+'.'+$scope.outputJoinsB[key][0].name+' = '+joinCatAlias+'.'+$scope.outputJoins[key][0].name;
 
                     });
                 } else {
                     //if no joins (single table) append FROM to statement
-                    $scope.outputSQLSELECT+='<br>FROM '+tablenameArr[0];
+                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1];
                 }
 
 
@@ -971,6 +987,16 @@
                 if (undefined != $scope.outputWheres[0]){
                     $scope.outputSQLWHERE='WHERE ';
                     angular.forEach($scope.outputWheres, function(value,key){
+                        var whereCatAlias ='';
+
+                        //get table alias (tablenameArr looks like: [["ExternalSpecAll","t1"],["Test","t2"]])
+                        angular.forEach(tablenameArr,function(valueb, keyb){
+                            if (value[0].cat == valueb[0]){
+                                whereCatAlias = valueb[1];
+                            }
+                        });
+
+
                         if (undefined == $scope.outputWhereOperator[key][0]){
                             //user has not selected operator for a row - alert
                             $scope.error['eWhereOperatorMissing']='Missing operator in row '+key;
@@ -979,7 +1005,7 @@
                             $scope.error['eWhereOptionMissing']='Missing WHERE selector in row '+key;
                             $scope.error['errorFlag']=true;
                         } else {
-                            $scope.outputSQLWHERE+=value[0].cat+"."+value[0].name+" "+
+                            $scope.outputSQLWHERE+=whereCatAlias+"."+value[0].name+" "+
                             $scope.fcheckboxEval($scope.queryCheckbox[key])+" "+
                             $scope.outputWhereOperator[key][0].operator+" "+
                             $scope.fBetweenValue($scope.outputWhereOperator[key][0].operator,key)+
@@ -996,7 +1022,7 @@
 
 
                 // construct full SQL
-                $scope.outputSQL = $scope.outputSQLSELECT +'<br>'+ $scope.outputSQLJOIN +'<br>'+ $scope.outputSQLWHERE;
+                $scope.outputSQL = $scope.outputSQLSELECT +' <br>'+ $scope.outputSQLJOIN +' <br>'+ $scope.outputSQLWHERE;
 
 
             };
@@ -1020,9 +1046,28 @@
                     }
                 });
             return outputCataloguesList;
-        }
+        };
+
+        $scope.fReset = function (){
+            $($('.btn-cat-remove').get().reverse()).each(function(i, obj) {
+                if ($(this).attr('data-value')>0){
+                    $scope.fRemoveCatalogue($(this).attr('data-value'));
+                };
+            });
+            $($('.btn-join-remove').get().reverse()).each(function(i, obj) {
+                $scope.fRemoveJoin($(this).attr('data-value'));
+            });
+            $($('.btn-where-remove').get().reverse()).each(function(i, obj) {
+                $scope.fRemoveWhere($(this).attr('data-value'));
+            });
+
+            $scope.outputSQL='';
+            $scope.fValidate();
+        };
 
     } ]); //end controller
 
 })();
+
+
 

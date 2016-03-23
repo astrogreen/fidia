@@ -24,7 +24,7 @@
          <div ng-controller="CatalogueController as catCtrl">
              <div class="row">
                  <div class="col-sm-9">
-                     <form name="myForm" class="query-form " >
+                     <form id="queryform" name='queryForm' class="query-form " >
                         <!--SELECT-->
                         <div class="row header">
                             <div class="col-sm-12">
@@ -39,7 +39,7 @@
                             <div ng-repeat="nodecat in inputCatalogues track by $index" class="clearfix false-row">
                                 <div class="col-sm-12 col-xs-12">
                                     <div isteven-multi-select input-model="nodecat" output-model="outputCatalogues[$index]"
-                                       on-item-click="fCatClick( data )" on-reset="fReset()" selection-mode="single" on-open="fOpenCat()"
+                                       on-item-click="fCatClick( data )" selection-mode="single" on-open="fOpenCat()"
                                        button-label="name" item-label="name" tick-property="ticked" class="floating-select selectCatalogues"
                                          disable-property="disabled" id="outputCatalogue{{$index}}">
                                     </div>
@@ -48,7 +48,7 @@
                                         button-label="name " item-label=" name " tick-property="ticked" class="floating-select"
                                         id="outputColumn{{$index}}" >
                                     </div>
-                                    <button class="btn outline red pull-right" href="" ng-click="fRemoveCatalogue($index)">
+                                    <button class="btn outline red pull-right btn-cat-remove" data-value="{{$index}}" href="" ng-click="fRemoveCatalogue($index)">
                                         <i class="fa fa-times"></i>
                                     </button>
                                     <hr>
@@ -83,7 +83,7 @@
                                           tick-property="ticked" selection-mode="single" class="floating-select" disable-property="disabled"
                                          on-item-click="fJoinBClick(data)" id="outputJoinsB{{$index}}">
                                     </div>
-                                    <button class="btn outline red pull-right" href="" ng-click="fRemoveJoin($index)">
+                                    <button class="btn outline red pull-right btn-join-remove" href="" data-value="{{$index}}" ng-click="fRemoveJoin($index)">
                                         <i class="fa fa-times"></i>
                                     </button>
                                     <hr>
@@ -120,7 +120,7 @@
                                     <input class="col-sm-2 col-xs-3 input-box" type="text" class="form-control"
                                            id="whereValue{{$index}}" ng-model="outputWhereValue[$index]" placeholder="value"
                                            on-item-click="fWhereValue()">
-                                    <button class="btn outline red pull-right" href="" ng-click="fRemoveWhere($index)">
+                                    <button class="btn outline red pull-right btn-where-remove" href="" data-value="{{$index}}" ng-click="fRemoveWhere($index)">
                                         <i class="fa fa-times"></i>
                                     </button>
                                     <hr>
@@ -135,14 +135,16 @@
                         <div class="row content" id="sql-output">
                             <div class="col-xs-12">
                                 <p>
-                                <span ng-bind-html="outputSQL">{{ outputSQL }} &nbsp;</span>
+                                <span ng-bind-html="outputSQL" id="outputSQL">{{ outputSQL }} &nbsp;</span>
                                 </p>
                             </div>
                         </div>
                          <div class="row">
                              <div  style="margin-top:15px">
-                                 <button class="btn btn-md btn-primary pull-right" type="button" ng-click=""
-                                 id="query-builder-submit" disabled>Submit</button>
+                                 <button class="btn btn-sm btn-primary pull-right text-uppercase" type="button" ng-click=""
+                                 id="query-builder-submit" disabled>Send to Form</button>
+                                 <button class="btn btn-sm btn-default pull-left text-uppercase" type="button" ng-click="fReset()"
+                                 id="query-builder-reset" >Reset</button>
                              </div>
                         </div>
                      </form>
@@ -196,19 +198,21 @@
                             </div>
                              <div class="row">
                                 <div class="col-xs-12">
-                                    <p><strong>all good</strong> keep clicking</p>
+                                    <p><strong>VALID</strong><br>Click <button class="btn btn-xs btn-default" >
+                                        <i class="fa fa-code"></i> VIEW SQL</button> below to view your generated query.</p>
                                 </div>
                              </div>
                         </div>
                      </div>
                     <div class="row" role="group">
                          <div class="col-xs-12" style="margin-top:15px">
-                             <button type="button" class="btn btn-sm btn-default " ng-click="fValidate()"
-                             title="Check form is correctly populated"><i class="fa fa-refresh"></i> CHECK</button>
-                             <button type="button" class="btn btn-sm btn-default " ><i class="fa fa-files-o"
-                             title="Copy SQL"></i> COPY</button>
-                             <button class="btn btn-sm btn-default " type="button" ng-click="fBuildSQL()"
-                             title="Display SQL"><i class="fa fa-code"></i> SQL</button>
+                             <button class="btn btn-sm btn-default text-uppercase" type="button" ng-click="fBuildSQL()"
+                             title="Display SQL"><i class="fa fa-code"></i> View SQL</button>
+                             <button type="button" class="btn btn-sm btn-default text-uppercase" ng-click="fValidate()"
+                             title="Check form is correctly populated"><i class="fa fa-refresh"></i> Check Form</button>
+                             <!--<button type="button" class="btn btn-sm btn-default " onclick="fCopy()"><i class="fa fa-files-o"-->
+                             <!--title="Copy SQL"></i> COPY</button>-->
+
                          </div>
                     </div><br><br>
                     <div class="row">
@@ -226,4 +230,14 @@
              </div>
         </div>
     {% endverbatim %}
+<script>
+    $('#query-builder-submit').click(function(){
+        $('#textarea-code').val($('#outputSQL').text());
+        var SQLAceEditor = ace.edit("SQL-ace-editor");
+        SQLAceEditor.session.insert(1, $('#outputSQL').text());
+        $('#query-builder-form').removeClass('active');
+        $('#post-object-form').addClass('active');
+    });
+
+</script>
 {% endblock query-builder %}
