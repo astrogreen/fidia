@@ -203,8 +203,12 @@
                      </div>
                     <div class="row" role="group">
                              <div class="col-xs-12" style="margin-top:15px">
-                                 <button class="btn btn-sm btn-default pull-right" type="button" ng-click="fBuildSQL()"><i class="fa fa-code"></i> SQL</button>
-                                 <button type="button" class="btn btn-sm btn-default pull-right" ><i class="fa fa-files-o"></i> COPY</button>
+                                 <button class="btn btn-sm btn-default pull-right" type="button" ng-click="fBuildSQL()"
+                                 title="Display SQL"><i class="fa fa-code"></i> SQL</button>
+                                 <button type="button" class="btn btn-sm btn-default pull-right" ><i class="fa fa-files-o"
+                                 title="Copy SQL"></i> COPY</button>
+                                 <button type="button" class="btn btn-sm btn-default pull-right" ng-click="fValidate()"
+                                 title="Check form is correctly populated"><i class="fa fa-refresh"></i> CHECK</button>
                              </div>
                     </div>
                 </div>
