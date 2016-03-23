@@ -224,12 +224,15 @@ class TraitProperty(object):
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
+
         if name is None and fload is not None:
             name = fload.__name__
         self.name = name
+
         if doc is None and fload is not None:
             doc = fload.__doc__
-        self.__doc__ = doc
+        self.doc = doc
+
         self.type = type
 
     def getter(self, fget):
@@ -241,8 +244,8 @@ class TraitProperty(object):
         if self.name is None:
             self.name = fload.__name__
         log.debug("Setting loader for TraitProperty '%s'", self.name)
-        if self.__doc__ is None:
-            self.__doc__ = fload.__doc__
+        if self.doc is None:
+            self.doc = fload.__doc__
         self.fload = fload
         return self
 
@@ -255,6 +258,13 @@ class TraitProperty(object):
         if value not in self.allowed_types:
             raise Exception("Trait property type '{}' not valid".format(value))
         self._type = value
+
+    @property
+    def doc(self):
+        return self.__doc__
+    @doc.setter
+    def doc(self, value):
+        self.__doc__ = value
 
     def _get_with_load(self, obj):
         """Retrieve the trait property value via the user provided loader.
