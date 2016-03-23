@@ -796,7 +796,6 @@
 
             var warning=false;
             $scope.warning['warningFlag']=false;
-            $('#query-builder-submit').attr('disabled', false);
 
             // TODO deal with outputwherevalue loop issues doesnt validate
             // hack - change shape of outputWhereValue to be iterable
@@ -840,7 +839,6 @@
                         $scope.warning['warningFlag']=true;
                         $scope.warning['Unselected Values']="Ensure all fields are populated. "
                         missing += validationObj[i][2]+key+',';
-                        $('#query-builder-submit').attr('disabled', true);
                         warning=true;
                     } else {
                         $(validationObj[i][1]+key).removeClass('not-selected-warning');
@@ -859,8 +857,9 @@
             // If the validation throws errors, add an error message on 'submit'
             if ($scope.fValidate() == true ){
                 $scope.outputSQL = '';
+                $('#query-builder-submit').attr('disabled', true);
             } else {
-
+                $('#query-builder-submit').attr('disabled', false);
                 $scope.fJoinStatus();
                 $scope.outputSQL = '';
                 $scope.outputSQLSELECT='SELECT ';

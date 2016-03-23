@@ -141,9 +141,9 @@
                         </div>
                          <div class="row">
                              <div  style="margin-top:15px">
-                                 <button class="btn btn-md btn-primary pull-right" type="button" ng-click=""
-                                 id="query-builder-submit" disabled>Submit</button>
-                                 <button class="btn btn-md btn-default pull-left" type="button" ng-click="fReset()"
+                                 <button class="btn btn-sm btn-primary pull-right text-uppercase" type="button" ng-click=""
+                                 id="query-builder-submit" disabled>Send to Form</button>
+                                 <button class="btn btn-sm btn-default pull-left text-uppercase" type="button" ng-click="fReset()"
                                  id="query-builder-reset" >Reset</button>
                              </div>
                         </div>
@@ -198,19 +198,21 @@
                             </div>
                              <div class="row">
                                 <div class="col-xs-12">
-                                    <p><strong>all good</strong> keep clicking</p>
+                                    <p><strong>VALID</strong><br>Click <button class="btn btn-xs btn-default" >
+                                        <i class="fa fa-code"></i> VIEW SQL</button> below to view your generated query.</p>
                                 </div>
                              </div>
                         </div>
                      </div>
                     <div class="row" role="group">
                          <div class="col-xs-12" style="margin-top:15px">
+                             <button class="btn btn-sm btn-default text-uppercase" type="button" ng-click="fBuildSQL()"
+                             title="Display SQL"><i class="fa fa-code"></i> View SQL</button>
                              <button type="button" class="btn btn-sm btn-default text-uppercase" ng-click="fValidate()"
                              title="Check form is correctly populated"><i class="fa fa-refresh"></i> Check Form</button>
                              <!--<button type="button" class="btn btn-sm btn-default " onclick="fCopy()"><i class="fa fa-files-o"-->
                              <!--title="Copy SQL"></i> COPY</button>-->
-                             <button class="btn btn-sm btn-default text-uppercase" type="button" ng-click="fBuildSQL()"
-                             title="Display SQL"><i class="fa fa-code"></i> View SQL</button>
+
                          </div>
                     </div><br><br>
                     <div class="row">
@@ -228,9 +230,14 @@
              </div>
         </div>
     {% endverbatim %}
-<!--<script>-->
-    <!--$('#query-builder-reset').click(function(){-->
-        <!--$('#queryform')[0].reset();-->
-    <!--})-->
-<!--</script>-->
+<script>
+    $('#query-builder-submit').click(function(){
+        $('#textarea-code').val($('#outputSQL').text());
+        var SQLAceEditor = ace.edit("SQL-ace-editor");
+        SQLAceEditor.session.insert(1, $('#outputSQL').text());
+        $('#query-builder-form').removeClass('active');
+        $('#post-object-form').addClass('active');
+    });
+
+</script>
 {% endblock query-builder %}

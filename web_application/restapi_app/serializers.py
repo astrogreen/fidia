@@ -42,7 +42,7 @@ class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     """
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
-
+    title = serializers.CharField(default='My Query', max_length=100)
     class Meta:
         model = Query
         fields = ('title', 'SQL', 'owner', 'url', 'queryResults')
