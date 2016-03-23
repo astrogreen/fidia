@@ -218,6 +218,10 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'level': 'DEBUG'
         },
+        'restapi_app': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG'
+        },
         'fidia': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG'

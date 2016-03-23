@@ -1,5 +1,5 @@
-import logging
-import random, collections
+import random, collections, logging
+import json
 from pprint import pprint
 
 from .exceptions import NoPropertyFound
@@ -37,8 +37,10 @@ from rest_framework_csv import renderers as r
 
 from django.conf import settings
 
-log = logging.getLogger(__name__)
+from fidia.archive.asvo_spark import AsvoSparkArchive
 
+log = logging.getLogger(__name__)
+# log.setLevel(logging.DEBUG)
 
 class QueryViewSet(viewsets.ModelViewSet):
     serializer_class = QuerySerializerList
@@ -70,16 +72,24 @@ class QueryViewSet(viewsets.ModelViewSet):
         return Query.objects.filter(owner=user).order_by('-updated')
 
     def run_FIDIA(self, request, *args, **kwargs):
-        # TODO ADD FIDIA(request.data['SQL'])
-        dummyData = {"columns":["cataid","z","metal"],
-               # "index":  [random.randint(1,5),1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
-               "data":   [[8823,0.0499100015,0.0163168724],
-                          [63147,0.0499799997,0.0380015143],
-                          [91963,0.0499899983,0.0106879927]]}
-        for i in range(5):
-            dummyData['data'].append([random.randint(1,5),random.randint(1,5),random.randint(1,5)])
 
-        return dict(dummyData)
+        sample = AsvoSparkArchive().new_sample_from_query(request['SQL'])
+
+        (json_n_rows, json_n_cols) = sample.tabular_data().shape
+        json_element_cap = 100000
+        json_row_cap = 2000
+
+        if (json_n_rows*json_n_cols < json_element_cap ):
+            json_table = sample.tabular_data().reset_index().to_json(orient='split')
+            json_flag = 0
+        else:
+            # json_table = sample.tabular_data().reset_index().to_json(orient='split')
+            json_table = sample.tabular_data().iloc[:json_row_cap].reset_index().to_json(orient='split')
+            json_flag = json_row_cap
+
+        log.debug(json_table)
+        data = json.loads(json_table)
+        return data
 
     def create(self, request, *args, **kwargs):
         """

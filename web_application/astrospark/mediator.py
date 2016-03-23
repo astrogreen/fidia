@@ -1,13 +1,13 @@
 __author__ = 'lharischandra'
-from django.apps import apps
+# from django.apps import apps
 # Do spark related stuff here
 
-import asvo_spark
+from asvo_spark import ASVOSparkConnector
 
 
-appconf = apps.get_app_config('astrospark')
-sc = asvo_spark.spark_context
-hive_ctx = asvo_spark.hive_context
+# appconf = apps.get_app_config('astrospark')
+# sc = ASVOSparkConnector.spark_context
+# hive_ctx = ASVOSparkConnector.hive_context
 
 def execute_query(query):
     """
@@ -16,13 +16,13 @@ def execute_query(query):
     :return: A SparkSQL dataframe
     """
 
-    return hive_ctx.sql(query)
+    return ASVOSparkConnector.hive_ctx.sql(query)
 
 def stop_spark():
     """
     Stops spark context properly
     """
-    asvo_spark.stop_spark()
+    ASVOSparkConnector.stop_spark()
     print('Spark stopped properly')
 
 
@@ -30,9 +30,9 @@ def get_column_names(table_id):
     """
     Returns the names of the table
     """
-    df = hive_ctx.sql('Select name from columns where tableid=' + str(table_id))
+    df = ASVOSparkConnector.hive_context.sql('Select name from columns where tableid=' + str(table_id))
     return df.collect()
 
 def get_tables():
-    df = hive_ctx.sql('Select name, tableid from tables where tableid is not null')
+    df = ASVOSparkConnector.hive_context.sql('Select name, tableid from tables where tableid is not null')
     return df.collect()

@@ -4,7 +4,7 @@ from glob import glob
 import os.path
 import datetime
 import re
-import itertools
+import time
 
 from astropy import wcs
 from astropy.io import fits
@@ -12,6 +12,8 @@ from astropy.io import fits
 import pandas as pd
 
 from cached_property import cached_property
+
+from asvo_spark import ASVOSparkConnector
 
 # FIDIA Relative Imports
 from fidia import *
@@ -694,3 +696,53 @@ class SAMITeamArchive(Archive):
                 log.debug("   Key: %s", key)
 
         return self.available_traits
+
+    def new_sample_from_query(self, query_string):
+        """Create a new FIDIA sample containing the query results.
+
+        @TODO For now, an arbitrary index identifier is assigned.
+
+        @TODO: Once the identifier has been sorted out, the code in
+        `aatnode/views.py:QueryForm.post()` will need to be reviewed.
+
+        """
+
+        log.debug("Starting elapsed timer for function")
+        start_time = time.clock()
+
+        # Get Query Results from Spark (as a SchemaRDD object):
+        results_rdd = ASVOSparkConnector.hive_context.sql(query_string)
+
+        log.debug("Elapsed time: %f", time.clock() - start_time)
+
+        # Convert to a Pandas DataFrame
+        results_pddf = results_rdd.toPandas()
+
+        log.debug("Elapsed time: %f", time.clock() - start_time)
+
+        # Set the key to be the first column
+        #results_pddf.set_index(results_pddf.columns[0], inplace=True)
+
+
+        log.debug("Elapsed time: %f", time.clock() - start_time)
+
+        # Create an empty sample, and populate it via it's private interface
+        # (no suitable public interface at this time.)
+        new_sample = Sample()
+        id_cross_match = pd.DataFrame(pd.Series(results_pddf.index,
+                    name='ASVO',
+                    index=results_pddf.index))
+        log.debug("Elapsed time: %f", time.time() - start_time)
+        # print(id_cross_match)
+        new_sample.extend(id_cross_match)
+        log.debug("Elapsed time: %f", time.time() - start_time)
+
+        new_sample.tabular_data = results_pddf
+
+        new_sample._archives = {self}
+
+        # Finally, we mark this new sample as immutable.
+        new_sample.mutable = False
+
+        log.debug("Elapsed time: %f", time.clock() - start_time)
+        return new_sample
