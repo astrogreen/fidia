@@ -19,30 +19,6 @@ from rest_framework.utils.urls import replace_query_param
 register = template.Library()
 
 
-# @register.simple_tag
-# def web_logout(request, user):
-#     """
-#     Include a logout snippet if REST framework's logout view is in the URLconf.
-#     """
-#     try:
-#         logout_url = reverse('rest_framework:logout')
-#         requests_url = reverse('query-list')
-#     except NoReverseMatch:
-#         return '<li class="navbar-text">{user}</li>'.format(user=user)
-#
-#     snippet = """<li class="dropdown">
-#         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-#             {user}
-#             <b class="caret"></b>
-#         </a>
-#         <ul class="dropdown-menu">
-#             <li><a href="{requests}">Query History</a></li>
-#             <li><a href='{href}?next={next}'>Log out</a></li>
-#         </ul>
-#     </li>"""
-#
-#     return snippet.format(user=user, href=logout_url, requests=requests_url, next=escape(request.path))
-
 @register.simple_tag
 def optional_logout(request, user):
     """
@@ -88,7 +64,7 @@ def optional_login(request):
     except NoReverseMatch:
         return ''
 
-    snippet = "<li><a href='{href}?next={next}'>Log in</a></li>"
+    # snippet = "<li><a href='{href}?next={next}'>Log in</a></li>"
     snippet = """<div class="user">
                     <a href='{login}?next={next}' class="signin">
                         <span>Sign In</span>
@@ -104,35 +80,6 @@ def optional_login(request):
 
     return mark_safe(snippet)
 
-# @register.simple_tag
-# def web_login(request):
-#     """
-#     Include a login snippet if REST framework's login view is in the URLconf.
-#     """
-#     try:
-#         login_url = reverse('rest_framework:login')
-#     except NoReverseMatch:
-#         return ''
-#
-#     try:
-#         register_url = reverse('user-register')
-#     except NoReverseMatch:
-#         return ''
-#
-#     snippet = """<div class="user">
-#                     <a href='{login}?next={next}' class="signin">
-#                         <span>Sign In</span>
-#                         <i class="fa fa-lock"></i>
-#                     </a>
-#                     <span>OR</span>
-#                     <a href="{register}" class="register">
-#                         <span>Register</span>
-#                         <i class="fa fa-pencil-square-o"></i>
-#                     </a>
-#                 </div>"""
-#     snippet = format_html(snippet, login=login_url, register=register_url, next=escape(request.path))
-#
-#     return mark_safe(snippet)
 
 
 def remove_newlines(text):

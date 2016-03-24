@@ -44,15 +44,18 @@ log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
 
 
-class CreateUserView(generics.CreateAPIView):
+class CreateUserView(generics.ListCreateAPIView):
     """
     User View to allow registration
     """
     model = User
-    permissions = [IsNotAuthenticated]
+    permission_classes = [IsNotAuthenticated]
     serializer_class = CreateUserSerializer
     renderer_classes = [RegisterRenderer]
-    template_name = 'restapi_api/register/register.html'
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+        return queryset
 
 
 class QueryViewSet(viewsets.ModelViewSet):
