@@ -1,6 +1,6 @@
 import pickle
 from io import BytesIO
-from collections import OrderedDict
+from collections import OrderedDict, Mapping
 
 from astropy.io import fits
 
@@ -14,7 +14,23 @@ log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
-
+# class DictTrait(Mapping):
+#     """A "mix-in class which provides dict-like access for Traits
+#
+#     Requires that the class mixed into implements a `_trait_dict` cache
+#
+#     """
+#
+#     def __iter__(self):
+#         pass
+#     def __getitem__(self, item):
+#         if item in self._trait_cache:
+#             return self._trait_cache[item]
+#         else:
+#             return getattr(self, item)
+#
+#     def __len__(self):
+#         return 0
 
 class Trait(AbstractBaseTrait):
 
