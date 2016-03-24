@@ -29,8 +29,9 @@ traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', views.TraitPro
 
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='restapi_app/web_only/index.html'), name='index'),
+    url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
     url(r'^documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
+    url(r'^logged-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'), name='logout-page'),
 
     url(r'^data/', include(router.urls)),
     url(r'^data/', include(object_nested_router.urls)),

@@ -54,7 +54,7 @@ class CreateUserView(generics.ListCreateAPIView):
     renderer_classes = [RegisterRenderer]
 
     def get_queryset(self):
-        queryset = User.objects.all()
+        queryset = User.objects.none()
         return queryset
 
 

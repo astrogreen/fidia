@@ -13,16 +13,21 @@
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
 
-{% block content-input %}
-<h1 class="headline"><span>Register</span></h1>
-    {% if display_edit_forms %}
-        {% if post_form or raw_data_post_form %}
-            <div class="row">
-                <div class="col-sm-offset-3 col-sm-6">
+{% block content-main %}
+<div class="well col-sm-offset-3 col-sm-6" style="margin-top: 30px">
+    <div class="row-fluid">
+      <div>
+        {% block branding %}<h3 style="margin: 0 0 20px;">Register <i class="fa fa-pencil-square-o pull-right"></i></h3>{% endblock %}
+      </div>
+    </div><!-- /row fluid -->
+
+    <div class="row-fluid">
+        {% if display_edit_forms %}
+            {% if post_form or raw_data_post_form %}
                 {% if post_form %}
                     <div class="tab-pane" id="post-object-form">
                         {% with form=post_form %}
-                        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                        <form action="{{ request.get_full_path }}" class="form-horizontal" method="POST" enctype="multipart/form-data" novalidate>
                             <fieldset>
                                 {% csrf_token %}
                                 {{ post_form }}
@@ -34,9 +39,17 @@
                         {% endwith %}
                     </div>
                 {% endif %}
-                </div>
-            </div>
+            {% endif %}
         {% endif %}
-    {% endif %}
+        <h4>Already have an Account?</h4>
+        {% optional_login request %}
 
-{% endblock content-input %}
+    </div><!-- /.row-fluid -->
+  </div><!--/.well-->
+
+
+
+
+
+
+{% endblock %}

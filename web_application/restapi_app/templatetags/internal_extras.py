@@ -3,7 +3,8 @@ from __future__ import unicode_literals, absolute_import
 import re
 from django import template
 from django.template import Library
-from django.core.urlresolvers import reverse, NoReverseMatch, reverse_lazy
+from django.core.urlresolvers import reverse, NoReverseMatch, reverse_lazy, resolve
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import QueryDict
 from django.utils import six
 from django.utils.encoding import iri_to_uri
@@ -17,6 +18,37 @@ from django.conf.urls import patterns, url, include
 from rest_framework.utils.urls import replace_query_param
 
 register = template.Library()
+
+# {% block status-info %}
+#       {{ response.status_code }} {{ response.status_text }}
+#     {% endblock status-info %}
+
+@register.simple_tag
+def status_info(request, status_code, user):
+    """
+    Include a login snippet if REST framework's login view is in the URLconf.
+    # HTTP_403_FORBIDDEN
+    # HTTP_404_NOT_FOUND
+    # HTTP_405_METHOD_NOT_ALLOWED
+    """
+    snippet = """
+            <h3 style="margin: 0 0 20px;">Oops <i class="fa fa-exclamation pull-right"></i></h3>
+            <h4>{status_code} {message}</h4>
+            <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a></p>
+    """
+
+    if status_code == 403:
+        message = 'Access Forbidden'
+    elif status_code == 404:
+        message = 'Not found'
+    elif status_code == 405:
+        message = 'Method not allowed'
+    else:
+        message = ''
+
+    snippet = format_html(snippet, status_code=status_code, message=message, request=request, user=user)
+
+    return mark_safe(snippet)
 
 
 @register.simple_tag
@@ -33,6 +65,10 @@ def optional_logout(request, user):
         querylist_url = reverse('query-list')
     except NoReverseMatch:
         return ''
+    try:
+        logout_page = reverse('logout-page')
+    except NoReverseMatch:
+        return ''
 
 
     snippet = """<li class="dropdown">
@@ -42,10 +78,11 @@ def optional_logout(request, user):
         </a>
         <ul class="dropdown-menu">
             <li><a href="{requests}">Query History</a></li>
-            <li><a href='{href}?next={next}'>Log out</a></li>
+            <li><a href='{href}?next={logout_page}'>Sign out <i class="fa fa-sign-out"></i></a></li>
         </ul>
     </li>"""
-    snippet = format_html(snippet, user=escape(user), href=logout_url, requests=querylist_url, next=escape(request.path))
+    # TODO LOGOUT REDIRECT TO LOGOUT VIEW
+    snippet = format_html(snippet, user=escape(user), href=logout_url, requests=querylist_url, logout_page=logout_page)
 
     return mark_safe(snippet)
 
@@ -64,8 +101,25 @@ def optional_login(request):
     except NoReverseMatch:
         return ''
 
-    # snippet = "<li><a href='{href}?next={next}'>Log in</a></li>"
-    snippet = """<div class="user">
+
+    # On successful sign-in, prevent user being directed back to logout, register or login
+    next=(request.path)
+    next_url = escape(resolve(request.path_info).url_name)
+
+    if request.user != 'AnonymousUser':
+        if next_url == 'logout-page' or next_url == 'user-register' or next_url == 'login':
+            next = ''
+
+    # If this page is the registration form, drop that button
+    if next_url == 'user-register':
+        snippet = """<div class="user">
+                    <a href='{login}?next={next}' class="signin">
+                        <span>Sign In</span>
+                        <i class="fa fa-lock"></i>
+                    </a>
+                </div>"""
+    else:
+        snippet = """<div class="user">
                     <a href='{login}?next={next}' class="signin">
                         <span>Sign In</span>
                         <i class="fa fa-lock"></i>
@@ -76,7 +130,7 @@ def optional_login(request):
                         <i class="fa fa-pencil-square-o"></i>
                     </a>
                 </div>"""
-    snippet = format_html(snippet, login=login_url, register=register_url, next=escape(request.path))
+    snippet = format_html(snippet, login=login_url, register=register_url, next=next)
 
     return mark_safe(snippet)
 

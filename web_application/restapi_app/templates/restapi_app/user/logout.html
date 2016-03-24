@@ -1,0 +1,39 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+{% block head-extra %}
+{% endblock %}
+
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+
+{% block content-filter-form %}{% endblock %}
+{% block content-header %}{% endblock %}
+
+{% block content-main %}
+<div class="well" style="width: 320px; margin-left: auto; margin-right: auto; margin-top: 30px">
+    <div class="row-fluid">
+      <div>
+        {% block branding %}<h3 style="margin: 0 0 20px;">Signed Out <i class="fa fa-check pull-right"></i></h3>{% endblock %}
+      </div>
+    </div><!-- /row fluid -->
+
+    <div class="row-fluid">
+
+
+    {% if user.is_authenticated %}
+      {% load internal_extras %}
+      {% optional_logout request user %}
+    {% else %}
+      {% optional_login request %}
+    {% endif %}
+
+
+    </div><!-- /.row-fluid -->
+  </div><!--/.well-->
+
+{% endblock %}

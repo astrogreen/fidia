@@ -23,10 +23,4 @@ urlpatterns = [
     url(r'^asvo/', include('restapi_app.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
     #url(r'^/', include('aatnode.urls', namespace='aatnode')),
-    # url(r'^ajax/custom-chained-view-url/$', AjaxChainedView.as_view(), name='ajax_chained_view'),
-    #url(r'^ajax/chained-columns/$', AjaxChainedColumns.as_view(), name='ajax_chained_columns'),
-    #url(r'^$', IndexView.as_view(), name='index'),
-    #url(r'^query/$', queryForm.as_view(), name='queryForm'),
-    # url(r'^$',homePage, name='homePage'),
-    # url(r'^query/$', newForm),
 ]

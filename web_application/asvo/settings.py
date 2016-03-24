@@ -18,7 +18,7 @@ put the overrides there. They are loaded at the end of this file.
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
+from django.core.urlresolvers import reverse
 import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,7 +34,6 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 DEBUG = True
 
 # ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -87,6 +86,8 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGIN_REDIRECT_URL = 'index'
 
 WSGI_APPLICATION = 'asvo.wsgi.application'
 
@@ -251,3 +252,4 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
+

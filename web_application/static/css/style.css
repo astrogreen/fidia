@@ -202,6 +202,15 @@ header .container .user a.register{background-color:#5aa8d8;border-radius:5px;}
 header .container .user a.register span,
 header .container .user a.register i{color:#ffffff;}
 
+
+/*OUT OF THE HEADER*/
+.user a{display:inline-block;padding:0px 10px;}
+.user a span{height:28px;line-height:28px;font-weight:600;text-transform:uppercase;}
+.user > span{height:28px;line-height:28px;}
+.user a.login span,.user a.login i{color:#5aa8d8;}
+.user a.register{background-color:#5aa8d8;border-radius:5px;}
+.user a.register span,.user a.register i{color:#ffffff}
+.splitter{margin-top:20px;padding-top:20px; border-top:solid 1px #eee}
 /* -- -- */
 
 @media (max-width:767px){
