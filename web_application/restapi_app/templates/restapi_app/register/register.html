@@ -23,26 +23,31 @@
 
     <div class="row-fluid">
         {% if display_edit_forms %}
-            {% if post_form or raw_data_post_form %}
-                {% if post_form %}
-                    <div class="tab-pane" id="post-object-form">
-                        {% with form=post_form %}
-                        <form action="{{ request.get_full_path }}" class="form-horizontal" method="POST" enctype="multipart/form-data" novalidate>
-                            <fieldset>
-                                {% csrf_token %}
-                                {{ post_form }}
-                                <div class="form-actions">
-                                    <button class="btn btn-primary pull-right" title="Create New User">SUBMIT</button>
-                                </div>
-                            </fieldset>
-                        </form>
-                        {% endwith %}
-                    </div>
-                {% endif %}
+
+            {% if post_form %}
+                <div class="tab-pane" id="post-object-form">
+                    {% with form=post_form %}
+                    <form action="{{ request.get_full_path }}" class="form-horizontal" method="POST" enctype="multipart/form-data" novalidate>
+                        <fieldset>
+                            {% csrf_token %}
+                            {{ post_form }}
+                            <div class="form-actions">
+                                <button class="btn btn-primary pull-right" title="Create New User">SUBMIT</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                    {% endwith %}
+                </div>
+                <h4>Already have an Account?</h4>
+            {% else %}
+                <h4><i class="fa fa-check-circle blue" ></i> SUCCESS!</h4>
+                <h5>New user created. Click the link below to sign in. </h5>
             {% endif %}
+            {% optional_login request %}
+
+
         {% endif %}
-        <h4>Already have an Account?</h4>
-        {% optional_login request %}
+
 
     </div><!-- /.row-fluid -->
   </div><!--/.well-->
