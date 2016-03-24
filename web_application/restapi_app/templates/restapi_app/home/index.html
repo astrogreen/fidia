@@ -18,7 +18,7 @@
                     <p>Australian<br>Astronomical<br>Observatory</p>
                 </div>
                 <div class="right col col-md-6">
-                    <p><strong>Query the Australian Astronomical Observatory archive</strong> and retrieve data from current and
+                    <p style="margin-top:25px"><strong>Query the Australian Astronomical Observatory archive</strong> and retrieve data from current and
                         legacy surveys. Bring your code to the data.</p>
 
                 </div>
@@ -26,33 +26,37 @@
 
             <div class="infographic row">
                 <div class="col col-md-3 col-sm-3">
-                    <i class="data">
+                    <div class="circle">
+                        <i class="fa fa-search"></i>
                         <div class="line"></div>
-                    </i>
+                    </div>
                     <p>Query</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <i class="query">
+                    <div class="circle">
+                        <i class="fa fa-database"></i>
                         <div class="line"></div>
-                    </i>
+                    </div>
                     <p>Data</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <i class="modules">
+                    <div class="circle">
+                        <i class="fa fa-map-signs"></i>
                         <div class="line"></div>
-                    </i>
+                    </div>
                     <p>Explore</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <i class="mock">
-                    </i>
+                    <div class="circle">
+                        <i class="fa fa-code"></i>
+                    </div>
                     <p>Code</p>
                 </div>
             </div>
 
             <div class="cta row">
                 <a href="{% url "query-list" %}">Query</a>
-                <a type="button" data-toggle="tooltip" data-placement="right" title="Register with the AAO to re-visit saved queries and access the Python/R notebook. Learn more in the ABOUT tab." href="{% url "user-register" %}" class="white-tooltip">Register</a>
+                <a type="button" data-toggle="tooltip" data-placement="right" title="Browse available objects by survey." href="{% url "browse-list" %}" class="white-tooltip">Browse</a>
             </div>
 
             <div class="note row">
