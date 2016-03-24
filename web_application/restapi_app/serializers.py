@@ -143,6 +143,7 @@ def get_trait_type_to_serializer_field(traitproperty_type, serializer_type):
             field = serializers.FloatField(required=False, source="*")
         else:
             field = serializers.CharField(max_length=100, required=False, source="*")
+            print(field)
         return field
 
     elif serializer_type == "flat":
@@ -152,6 +153,7 @@ def get_trait_type_to_serializer_field(traitproperty_type, serializer_type):
             field = serializers.FloatField(required=False)
         else:
             field = serializers.CharField(max_length=100, required=False)
+            print(field)
         return field
 
 
@@ -180,11 +182,11 @@ class AstroObjectTraitSerializer(serializers.Serializer):
         trait = self.instance
         assert isinstance(trait, Trait)
 
-
         for trait_property in trait._trait_properties():
             # define serializer type by instance type
             traitproperty_type = trait_property.type
 
+            depth_limit = 1
             if depth_limit > 0:
                 # Recurse into trait properties
                 self.fields[trait_property.name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="flat")

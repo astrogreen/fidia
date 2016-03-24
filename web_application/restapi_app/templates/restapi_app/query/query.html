@@ -297,9 +297,10 @@
 {% autoescape off %}
  <script type="text/javascript">
     data = JSON.parse("{{ content|escapejs }}");
+    console.log(data)
     if (typeof data.queryResults !== 'undefined'){
         $('#data-table-container').html(' ').append('<div class="well"><div id="returnTableResultsWarning" class="spacer-10"></div><table id="returnTableResults" class="table table-responsive table-condensed"><thead><tr><th>Please wait, DataTable loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
-        renderLimit = 100;
+        renderLimit = 1000;
         queryData = (data.queryResults);
         queryDataRows = queryData.data.length;
         queryDataColumns = queryData.columns.length;
@@ -307,7 +308,7 @@
         if (queryDataRows*queryDataColumns >= renderLimit){
             //fire warning
             tableRowLength = parseInt(renderLimit/queryDataColumns);
-            console.log(queryData.data.slice(0, tableRowLength).length);
+            //console.log(queryData.data.slice(0, tableRowLength).length);
             queryData.data = queryData.data.slice(0, tableRowLength);
 
             $('#returnTableResultsWarning').append('<p class="bg-info"><p class="bg-info"><strong>Displaying '+tableRowLength+' out of '+queryDataRows+' rows</strong>. Please download the CSV for the full data set.</p>')

@@ -92,7 +92,13 @@ class QueryViewSet(viewsets.ModelViewSet):
 
     def run_FIDIA(self, request, *args, **kwargs):
 
+        print('SQL', request['SQL'])
+
+        # SELECT t1.CATAID FROM InputCatA AS t1 WHERE t1.CATAID  BETWEEN 65401 and 65410
         sample = AsvoSparkArchive().new_sample_from_query(request['SQL'])
+
+
+        print('SAMPLE ', sample)
 
         (json_n_rows, json_n_cols) = sample.tabular_data().shape
         json_element_cap = 100000
@@ -108,6 +114,8 @@ class QueryViewSet(viewsets.ModelViewSet):
 
         log.debug(json_table)
         data = json.loads(json_table)
+
+        data = {1,2,3}
         return data
 
     def create(self, request, *args, **kwargs):
