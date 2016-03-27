@@ -232,21 +232,26 @@
     </div><!-- /.container -->
     {% endblock %}
 
-    {% if response.status_code == 403 or response.status_code == 404 or response.status_code == 405 %}
-      <div class="well col-sm-offset-3 col-sm-6" style="margin-top: 30px">
-        <div class="row-fluid">
-          {% status_info request response.status_code user %}
+
+    {% block httpstatus %}
+      {% if response.status_code == 403 or response.status_code == 404 or response.status_code == 405 %}
+        <div class="well col-md-12" style="margin-top: 30px">
+          <div class="row-fluid">
+            {% status_info request response.status_code user %}
             <div class="text-center splitter">
-              {% if user.is_authenticated %}
-                {% load internal_extras %}
-                {% optional_logout request user %}
-              {% else %}
-                {% optional_login request %}
-              {% endif %}
+              {% block status_override %}
+                {% if user.is_authenticated %}
+                  {% load internal_extras %}
+                  {% optional_logout request user %}
+                {% else %}
+                  {% optional_login request %}
+                {% endif %}
+              {% endblock status_override %}
             </div>
-        </div><!-- /.row-fluid -->
-      </div><!--/.well-->
-    {% endif %}
+          </div><!-- /.row-fluid -->
+        </div><!--/.well-->
+      {% endif %}
+    {% endblock httpstatus %}
 
   </div><!-- ./wrapper -->
 

@@ -161,7 +161,7 @@
     {% endcomment %}
     {% if response.data.queryResults %}
         <h1>
-            <span>Query Result</span>
+            <span>Query Result <small># {{objname}}</small></span>
             <a class="btn btn-primary btn-sm pull-right text-uppercase" href="{{ response.data.url }}">permanent link</a>
             <a class="btn btn-primary btn-sm pull-right text-uppercase" href="{% url "query-list" %}" style="margin-right:5px"><i class="fa fa-angle-left"></i> Back to Query List</a>
             <a class="btn btn-default btn-sm pull-right text-uppercase" href="{% url "query-list" %}" style="margin-right:5px">New Query</a>
@@ -213,30 +213,24 @@
         {% endif %}
     {% endif %}
 
-    {% comment %}
-    ------ DISPLAY 404 AND SUGGESTIONS ------
-    {% endcomment %}
-    {% if response.status_code == 404 %}
-        <div class="col-md-12 well">
-            <div class="text-center">
-                <h1>Oops!</h1>
-                <h2>
-                    404 Not Found</h2>
-
-                <p>The requested page has not been found.</p>
-                <br>
-                <a href="{% url "query-list" %}" class="btn btn-primary btn-md"><i class="fa fa-angle-left"></i> Back to Query List</a>
-                <a href="{% url "index" %}" class="btn btn-primary btn-md">Home</a>
-                <br><br>
-                <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a></p>
-
-            </div>
-        </div>
-    {% endif %}
-
 {% endblock content-main %}
 
-
+{% comment %}
+------ DISPLAY 404 AND SUGGESTIONS ------
+{% endcomment %}
+{% block status_override %}
+    {% if response.status_code == 404 %}
+        <a href="{% url "query-list" %}" class="btn btn-primary btn-md"><i class="fa fa-angle-left"></i> Back to Query List</a>
+        <a href="{% url "index" %}" class="btn btn-primary btn-md">Home</a>
+    {% else %}
+        {% if user.is_authenticated %}
+          {% load internal_extras %}
+          {% optional_logout request user %}
+        {% else %}
+          {% optional_login request %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
 
 
 {% comment %}
