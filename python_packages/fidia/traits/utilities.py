@@ -3,6 +3,7 @@ log = slogging.getLogger(__name__)
 log.enable_console_logging()
 # log.setLevel(slogging.DEBUG)
 
+from abc import ABCMeta
 import collections
 
 #TraitKey = collections.namedtuple('TraitKey', ['trait_type', 'trait_name', 'object_id'], verbose=True)
@@ -208,7 +209,7 @@ def trait_property(func_or_type):
         return TraitProperty(func_or_type)
     raise Exception("trait_property decorator used incorrectly. Check documentation.")
 
-class TraitProperty(object):
+class TraitProperty(metaclass=ABCMeta):
 
     allowed_types = [
         'string',
@@ -295,7 +296,7 @@ class BoundTraitProperty:
         # Check if obj has a trait_dict cache:
         try:
             log.debug("Checking for trait_dict cache...")
-            self._trait._trait_dict
+            trait_cache = self._trait._trait_dict
         except KeyError:
             # No trait cache: simply get value and return
             # @TODO: This case should really not be needed: all traits should eventually have a cache.
@@ -303,16 +304,16 @@ class BoundTraitProperty:
             return self.uncached_value
         else:
             # Trait cache present, load value and store.
-            if self.name not in self._trait._trait_dict:
+            if self.name not in trait_cache:
                 log.debug("Object '%s' has not cached a value for '%s'.", self._trait, self.name)
                 # Data not yet cached
                 if self._trait._loading != 'verylazy':
                     self._trait._realise()
                 else:
-                    self._trait._trait_dict[self.name] = self.uncached_value
+                    trait_cache[self.name] = self.uncached_value
                 # Now confirm that the cache update has actually been done:
                 try:
-                    self._trait._trait_dict[self.name]
+                    trait_cache[self.name]
                 except:
                     # Real problem! Just attempt to return the value using the loader!
                     log.error("Trait property cache not being updated correctly for trait property '%s.%s'",
@@ -320,7 +321,7 @@ class BoundTraitProperty:
                     return self.uncached_value
             else:
                 log.debug("Using cached a value for '%s' from object '%s'.", self.name, self._trait)
-            return self._trait._trait_dict[self.name]
+            return trait_cache[self.name]
 
     @property
     def uncached_value(self):
@@ -349,3 +350,8 @@ class BoundTraitProperty:
             self._trait._load_incr()
 
         return value
+
+# Register `BoundTraitProperty` as a subclass of `TraitProperty`. This makes
+# `isinstance(value, TraitProperty)` work as expected for `TraitProperty`s that have
+# been bound to their `Trait`.
+TraitProperty.register(BoundTraitProperty)
