@@ -199,6 +199,9 @@ class Trait(AbstractBaseTrait):
         data, which is why this is implemented as a private method. See
         `trait_property_values` as a simpler alternative.
 
+        Alternately, use the public `trait_properties` method to retrieve bound
+        Trait Properties which do not have this complication (and see ASVO-425!)
+
         :returns: the TraitProperty descriptor object
 
         """
@@ -225,8 +228,52 @@ class Trait(AbstractBaseTrait):
     #             yield obj
 
     def trait_property_dir(self):
+        """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
         for tp in self._trait_properties():
             yield tp.name
+
+    def trait_properties(self, trait_property_types=None):
+        """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
+
+        :param trait_property_types:
+            Either a string trait type or a list of string trait types or None.
+            None will return all trait types, otherwise only traits of the
+            requested type are returned.
+
+        :yields: a TraitProperty which is bound to this trait
+
+        """
+
+        # If necessary, convert a single trait property type argument to a list:
+        if isinstance(trait_property_types, str):
+            trait_property_types = tuple(trait_property_types)
+
+        # Search class attributes. NOTE that this code is very similar to that
+        # in `_trait_properties`. It has been reproduced here as
+        # `_trait_properties` is probably going to be deprecated and removed if
+        # ASVO-425 works out.
+        #
+        # Also note that, as written, this method avoids creating
+        # BoundTraitProperty objects unless actually necessary.
+        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", self.trait_type, trait_property_types)
+        cls = type(self)
+        for attr in dir(cls):
+            descriptor_obj = getattr(cls, attr)
+            if isinstance(descriptor_obj, TraitProperty):
+                log.debug("Found trait property '{}' of type '{}'".format(attr, descriptor_obj.type))
+                if (trait_property_types is None) or (descriptor_obj.type in trait_property_types):
+                    # Retrieve the attribute for this object (which will create
+                    # the BoundTraitProperty: see `__get__` on `TraitProperty`)
+                    yield getattr(self, attr)
+
+    # def sub_traits(self):
+    #     """Generator which iterates over the sub-Traits of this Trait."""
+    #
+    #     for key in dir(type(self)):
+    #         obj = getattr(type(self), key)
+    #         if isinstance(obj, TraitProperty):
+    #             log.debug("Found trait property '{}'".format(key))
+    #             yield obj
 
     def trait_property_values(self, trait_type=None):
         """Generator which returns the values of the TraitProperties of the given type.
