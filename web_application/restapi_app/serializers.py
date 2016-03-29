@@ -9,7 +9,7 @@ from rest_framework import serializers, mixins
 from .models import (
     Query
 )
-from .fields import AstroObjectTraitAbsoluteURLField
+from .fields import AbsoluteURLField
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
@@ -126,52 +126,36 @@ def get_and_update_depth_limit(kwargs):
     return depth_limit
 
 
-def get_trait_type_to_serializer_field(traitproperty_type, serializer_type):
-    """
-    Handles the mapping between FIDIA trait property types
-    and DRF serializer types.
-
-    :param traitproperty_type: string
-    :return: field type
-    """
-    # TODO map between FIDIA properties and DRF serializer fields
-    # AstroObjectTraitPropertySerializer
-    if serializer_type == "source":
-        if traitproperty_type == 'ndarray':
-            field = serializers.ListField(required=False, source="*")
-        elif traitproperty_type == 'float':
-            field = serializers.FloatField(required=False, source="*")
-        else:
-            field = serializers.CharField(max_length=100, required=False, source="*")
-        return field
-
-    elif serializer_type == "flat":
-        if traitproperty_type == 'float.ndarray' or traitproperty_type == "float.array":
-            field = serializers.ListField(required=False)
-        elif traitproperty_type == 'float':
-            field = serializers.FloatField(required=False)
-        else:
-            field = serializers.CharField(max_length=100, required=False)
-        return field
-
-
-
 class AstroObjectTraitPropertySerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
+        data_display = kwargs.pop('data_display', 'include')
         super().__init__(*args, **kwargs)
 
-        # construct a meaningful key (the current traitproperty in question)
-        self.traitproperty_name = self.context['request'].parser_context['kwargs']['traitproperty_pk']
+        trait_property = self.instance
+        assert isinstance(trait_property, TraitProperty)
 
-        # define serializer type by instance type
-        traitproperty_type = type(self.instance).__name__
+        # Determine the appropriate serializer for the data
+        if 'array' in trait_property.type:
+            data_serializer = serializers.ListField(required=False)
+        elif trait_property.type == 'float':
+            data_serializer = serializers.FloatField(required=False)
+        elif trait_property.type == 'int':
+            data_serializer = serializers.IntegerField(required=False)
+        elif trait_property.type == 'string':
+            data_serializer = serializers.CharField(required=False)
 
-        self.fields[self.traitproperty_name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="source")
+
+        self.fields['name'] = serializers.CharField(required=False)
+        self.fields['type'] = serializers.CharField(required=False)
+        # Decide whether data will be included:
+        if data_display == 'include':
+            self.fields['value'] = data_serializer
 
 
 class AstroObjectTraitSerializer(serializers.Serializer):
+
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         log.debug("depth_limit: %s", depth_limit)
@@ -180,18 +164,18 @@ class AstroObjectTraitSerializer(serializers.Serializer):
         trait = self.instance
         assert isinstance(trait, Trait)
 
-
-        for trait_property in trait._trait_properties():
+        for trait_property in trait.trait_properties():
             # define serializer type by instance type
             traitproperty_type = trait_property.type
 
             if depth_limit > 0:
                 # Recurse into trait properties
-                self.fields[trait_property.name] = get_trait_type_to_serializer_field(traitproperty_type, serializer_type="flat")
+                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='include')
             else:
                 # Simply show the trait types and descriptions
-                self.fields[trait_property.name] = serializers.CharField()
-
+                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='exclude')
 
 
 class AstroObjectSerializer(serializers.Serializer):
@@ -225,7 +209,7 @@ class AstroObjectSerializer(serializers.Serializer):
 
             url = reverse("trait-list", kwargs=url_kwargs)
             if depth_limit == 0:
-                self.fields[str(trait_key)] = AstroObjectTraitAbsoluteURLField(url=url, required=False)
+                self.fields[str(trait_key)] = AbsoluteURLField(url=url, required=False)
                 # No details to be displayed below this level
             else:
                 # Recurse displaying details at lower level
@@ -239,7 +223,6 @@ class AstroObjectSerializer(serializers.Serializer):
     # object = serializers.CharField(max_length=100, required=False, source="*")
 
 
-
 class SampleSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
@@ -249,9 +232,7 @@ class SampleSerializer(serializers.Serializer):
         assert isinstance(sample, fidia.Sample), \
             "SampleSerializer must have an instance of fidia.Sample, " +\
             "not '%s': try SampleSerializer(instance=sample)" % sample
-        depth_limit=0
-
-
+        depth_limit = 0
 
         for astro_object in sample:
             url_kwargs = {
@@ -263,7 +244,7 @@ class SampleSerializer(serializers.Serializer):
             if depth_limit == 0:
                 # No details to be displayed below this level
                 # self.fields[astro_object] = serializers.CharField()
-                self.fields[astro_object] = AstroObjectTraitAbsoluteURLField(url=url, required=False)
+                self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
             else:
                 # Recurse displaying details at lower level
                 self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)

@@ -43,17 +43,17 @@ class TestSAMIArchive:
         sami_sample.get_archive_id(sami_sample.get_archive_for_property('spectral_cube'),'41144')
         # 1.0 arcsec binning
         t = sami_sample['41144']['spectral_cube', 'red', 'Y15SAR3_P002_12T085']
-        assert isinstance(t.value, numpy.ndarray)
+        assert isinstance(t.value(), numpy.ndarray)
         # 0.5 arcsec binning
         t = sami_sample['41144']['spectral_cube', 'blue', 'Y15SAR3_P002_12T085']
-        assert isinstance(t.value, numpy.ndarray)
+        assert isinstance(t.value(), numpy.ndarray)
 
     def test_retrieve_data_from_sample_version_not_required(self, sami_sample):
         # 1.0 arcsec binning
         t = sami_sample['23117']['spectral_cube', 'red']
-        assert isinstance(t.value, numpy.ndarray)
+        assert isinstance(t.value(), numpy.ndarray)
         t = sami_sample['28860']['spectral_cube', 'blue']
-        assert isinstance(t.value, numpy.ndarray)
+        assert isinstance(t.value(), numpy.ndarray)
 
     # This test is disabled because currently the code has been written to
     # always return a default (as this is what is needed for SAMI). How to
