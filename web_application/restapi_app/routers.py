@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_extensions.routers import NestedRouterMixin
-
+from rest_framework.renderers import TemplateHTMLRenderer, BrowsableAPIRenderer
 
 
 class ExtendDefaultRouter(SimpleRouter):
@@ -20,7 +20,7 @@ class ExtendDefaultRouter(SimpleRouter):
     """
     include_root_view = True
     include_format_suffixes = True
-    root_view_name = 'api-root'
+    root_view_name = 'data'
 
     def get_api_root_view(self):
         """
@@ -31,8 +31,11 @@ class ExtendDefaultRouter(SimpleRouter):
         for prefix, viewset, basename in self.registry:
             api_root_dict[prefix] = list_name.format(basename=basename)
 
-        class APIRoot(views.APIView):
-            _ignore_model_permissions = True
+        class DATA(views.APIView):
+            # _ignore_model_permissions = True
+            # renderer_classes = [BrowsableAPIRenderer, ]
+
+            # template_name = 'restapi_app/api-root/list.html'
 
             def get(self, request, *args, **kwargs):
                 ret = OrderedDict()
@@ -53,8 +56,8 @@ class ExtendDefaultRouter(SimpleRouter):
                         continue
 
                 return Response(ret)
+        return DATA.as_view()
 
-        return APIRoot.as_view()
 
     def get_urls(self):
         """

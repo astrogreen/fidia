@@ -22,16 +22,18 @@ from .serializers import (
 
 from .renderers import (
     FITSRenderer,
-    ListNoDetailRenderer,
+
     SOVListRenderer,
     SOVDetailRenderer,
     QueryRenderer,
     AstroObjectRenderer,
     SampleRenderer,
-    RegisterRenderer
+    RegisterRenderer,
+    TraitRenderer,
+    TraitPropertyRenderer
 )
 
-from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
+from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework_csv import renderers as r
@@ -196,7 +198,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
 
-# ASVO
 
 # from fidia.archive.example_archive import ExampleArchive
 # ar = ExampleArchive()
@@ -295,7 +296,7 @@ class AstroObjectViewSet(mixins.ListModelMixin,
 class TraitViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (ListNoDetailRenderer, renderers.JSONRenderer, r.CSVRenderer, FITSRenderer)
+    renderer_classes = (TraitRenderer, renderers.JSONRenderer, r.CSVRenderer, FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
         log.debug("Format requested is '%s'", format)
@@ -326,7 +327,7 @@ class TraitViewSet(mixins.ListModelMixin,
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
 
-    renderer_classes = (ListNoDetailRenderer,renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (TraitPropertyRenderer,renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
@@ -353,6 +354,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
             filename = "{galaxy_pk}-{trait_pk}-{traitproperty_pk}.fits".format(**kwargs)
             response['content-disposition'] = "attachment; filename=%s" % filename
         return response
+
 
 #  SOV
 class SOVListSurveysViewSet(viewsets.ViewSet):

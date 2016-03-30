@@ -32,9 +32,11 @@ def status_info(request, status_code, user):
     # HTTP_405_METHOD_NOT_ALLOWED
     """
     snippet = """
-            <h3 style="margin: 0 0 20px;">Oops <i class="fa fa-exclamation pull-right"></i></h3>
-            <h4>{status_code} {message}</h4>
+            <div class="text-center">
+            <h1 style="margin: 0 0 20px;">Oops! </h1>
+            <h2>{status_code} {message}</h2>
             <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a></p>
+            </div>
     """
 
     if status_code == 403:
@@ -81,7 +83,6 @@ def optional_logout(request, user):
             <li><a href='{href}?next={logout_page}'>Sign out <i class="fa fa-sign-out"></i></a></li>
         </ul>
     </li>"""
-    # TODO LOGOUT REDIRECT TO LOGOUT VIEW
     snippet = format_html(snippet, user=escape(user), href=logout_url, requests=querylist_url, logout_page=logout_page)
 
     return mark_safe(snippet)
