@@ -3,6 +3,7 @@ log = slogging.getLogger(__name__)
 log.enable_console_logging()
 # log.setLevel(slogging.DEBUG)
 
+from abc import ABCMeta
 import collections
 
 #TraitKey = collections.namedtuple('TraitKey', ['trait_type', 'trait_name', 'object_id'], verbose=True)
@@ -208,7 +209,7 @@ def trait_property(func_or_type):
         return TraitProperty(func_or_type)
     raise Exception("trait_property decorator used incorrectly. Check documentation.")
 
-class TraitProperty(object):
+class TraitProperty(metaclass=ABCMeta):
 
     allowed_types = [
         'string',
@@ -219,28 +220,23 @@ class TraitProperty(object):
         'int.array'
     ]
 
-    def __init__(self, fload=None, fget=None, fset=None, fdel=None, doc=None, type=None, name=None):
+    def __init__(self, fload=None, fset=None, fdel=None, doc=None, type=None, name=None):
         self.fload = fload
-        self.fget = fget
         self.fset = fset
         self.fdel = fdel
 
         if name is None and fload is not None:
             name = fload.__name__
         self.name = name
-
         if doc is None and fload is not None:
             doc = fload.__doc__
         self.doc = doc
 
+        # @TODO: Note that the type must be defined for now, should inherit from Trait parent class.
         self.type = type
 
-    def getter(self, fget):
-        log.debug("Setting getter for TraitProperty '%s'", self.name)
-        self.fget = fget
-        return self
-
     def loader(self, fload):
+        """Decorator which sets the loader function for this TraitProperty"""
         if self.name is None:
             self.name = fload.__name__
         log.debug("Setting loader for TraitProperty '%s'", self.name)
@@ -252,7 +248,6 @@ class TraitProperty(object):
     @property
     def type(self):
         return self._type
-
     @type.setter
     def type(self, value):
         if value not in self.allowed_types:
@@ -266,7 +261,70 @@ class TraitProperty(object):
     def doc(self, value):
         self.__doc__ = value
 
-    def _get_with_load(self, obj):
+    def __get__(self, instance, instance_type):
+        if instance is None:
+            return self
+        else:
+            log.debug("Creating a bound trait property '%s.%s'", instance_type.__name__, self.name)
+            return BoundTraitProperty(instance, self)
+
+
+class BoundTraitProperty:
+
+    def __init__(self, trait, trait_property):
+        self._trait = trait
+        self._trait_property = trait_property
+
+    @property
+    def name(self):
+        return self._trait_property.name
+
+    @property
+    def type(self):
+        return self._trait_property.type
+
+    @property
+    def doc(self):
+        return self._trait_property.doc
+
+    def __call__(self):
+        """Retrieve the value of this TraitProperty"""
+        return self.value
+
+    @property
+    def value(self):
+        # Check if obj has a trait_dict cache:
+        try:
+            log.debug("Checking for trait_dict cache...")
+            trait_cache = self._trait._trait_dict
+        except KeyError:
+            # No trait cache: simply get value and return
+            # @TODO: This case should really not be needed: all traits should eventually have a cache.
+            log.debug("Object '%s' has no trait cache...using user provided loader.", self._trait)
+            return self.uncached_value
+        else:
+            # Trait cache present, load value and store.
+            if self.name not in trait_cache:
+                log.debug("Object '%s' has not cached a value for '%s'.", self._trait, self.name)
+                # Data not yet cached
+                if self._trait._loading != 'verylazy':
+                    self._trait._realise()
+                else:
+                    trait_cache[self.name] = self.uncached_value
+                # Now confirm that the cache update has actually been done:
+                try:
+                    trait_cache[self.name]
+                except:
+                    # Real problem! Just attempt to return the value using the loader!
+                    log.error("Trait property cache not being updated correctly for trait property '%s.%s'",
+                              self._trait.trait_key, self.name)
+                    return self.uncached_value
+            else:
+                log.debug("Using cached a value for '%s' from object '%s'.", self.name, self._trait)
+            return trait_cache[self.name]
+
+    @property
+    def uncached_value(self):
         """Retrieve the trait property value via the user provided loader.
 
         The preload and cleanup functions of the Trait are called if present
@@ -279,59 +337,21 @@ class TraitProperty(object):
         try:
 
             # Preload the Trait if necessary.
-            obj._load_incr()
+            self._trait._load_incr()
 
             # Call the actual user defined loader function to get the value of the TraitProperty.
-            value = self.fload(obj)
+            value = self._trait_property.fload(self._trait)
         except DataNotAvailable:
             raise
         except:
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
             # Cleanup the Trait if necessary.
-            obj._load_incr()
+            self._trait._load_incr()
 
         return value
 
-    def __get__(self, obj, objtype=None):
-        if obj is None:
-            return self
-        if self.fget is None:
-            log.debug("Descriptor '%s.%s' retrieving its value...", type(obj).__name__, self.name)
-            # No special getter (unusual) has been provided, so check for a
-            # cached version, and either return that or run the loader to get
-            # the value.
-
-            # Check if obj has a trait_dict cache:
-            try:
-                log.debug("Checking for trait_dict cache...")
-                obj._trait_dict
-            except KeyError:
-                # No trait cache: simply get value and return
-                # @TODO: This case should really not be needed: all traits
-                #        should eventually have a cache.
-                log.debug("Object '%s' has no trait cache...using user provided loader.", obj)
-                return self._get_with_load(obj)
-            else:
-                # Trait cache present, load value and store.
-                if self.name not in obj._trait_dict:
-                    log.debug("Object '%s' has not cached a value for '%s'.", obj, self.name)
-                    # Data not yet cached
-                    if obj._loading != 'verylazy':
-                        obj._realise()
-                    else:
-                        obj._trait_dict[self.name] = self._get_with_load(obj)
-                    # Now confirm that the cache update has actually been done:
-                    try:
-                        obj._trait_dict[self.name]
-                    except:
-                        # Real problem! Just attempt to return the value using the loader!
-                        log.error("Trait property cache not being updated correctly for trait property '%s.%s'",
-                                  obj.trait_key, self.name)
-                        return self._get_with_load(obj)
-                else:
-                    log.debug("Using cached a value for '%s' from object '%s'.", self.name, obj)
-                return obj._trait_dict[self.name]
-
-            raise Exception("Programming error")
-
+# Register `BoundTraitProperty` as a subclass of `TraitProperty`. This makes
+# `isinstance(value, TraitProperty)` work as expected for `TraitProperty`s that have
+# been bound to their `Trait`.
+TraitProperty.register(BoundTraitProperty)

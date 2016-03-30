@@ -362,7 +362,7 @@ class SAMISpectralCube(SpectralMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -469,7 +469,7 @@ class LZIFUVelocityMap(VelocityMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @property
     def unit(self):
@@ -521,7 +521,7 @@ class LZIFULineMap(Image):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     def unit(self):
         return None
@@ -562,7 +562,7 @@ class LZIFUContinuum(SpectralMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -602,7 +602,7 @@ class LZIFULineSpectrum(SpectralMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
