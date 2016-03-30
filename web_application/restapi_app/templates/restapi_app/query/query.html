@@ -300,7 +300,7 @@
     console.log(data)
     if (typeof data.queryResults !== 'undefined'){
         $('#data-table-container').html(' ').append('<div class="well"><div id="returnTableResultsWarning" class="spacer-10"></div><table id="returnTableResults" class="table table-responsive table-condensed"><thead><tr><th>Please wait, DataTable loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
-        renderLimit = 1000;
+        renderLimit = 100000;
         queryData = (data.queryResults);
         queryDataRows = queryData.data.length;
         queryDataColumns = queryData.columns.length;
