@@ -95,8 +95,8 @@ function fGenerateColourScale(map_name, map_val){
 };
 
 function fGetTraitPropertyValue(key){
-    if (getdim(AstroObjectJson[key].value) !== false) {
-        return AstroObjectJson[key].value;
+    if (getdim(AstroObjectJson[key].value.value) !== false) {
+        return AstroObjectJson[key].value.value;
     }
     else {console.log('value array irregular ')};
 }

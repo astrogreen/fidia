@@ -291,32 +291,24 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
 
     """
     def __init__(self, *args, **kwargs):
-        depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
         for trait in astro_object:
             print(str(trait))
-            depth_limit = 1
             trait_key = trait
             if str(trait_key) == "velocity_map" or str(trait_key) == 'line_map-SII6716':
-                if depth_limit == 0:
-                    # No details to be displayed below this level
-                    self.fields[str(trait_key)] = serializers.CharField()
-                else:
-                    # Recurse displaying details at lower level
-                    self.fields[str(trait_key)] = \
-                        AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
-
+                self.fields[str(trait_key)] = \
+                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=2)
     def get_samiID(self, obj):
         return obj._identifier
 
     def get_ra(self, obj):
-        return obj._ra
+        return obj['spectral_cube-red'].ra()
 
     def get_dec(self, obj):
-        return obj._dec
+        return obj['spectral_cube-red'].dec()
 
     samiID = serializers.SerializerMethodField()
     ra = serializers.SerializerMethodField()

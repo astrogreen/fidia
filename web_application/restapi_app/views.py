@@ -394,8 +394,7 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        serializer_class = SOVRetrieveObjectSerializer
-        serializer = serializer_class(
+        serializer = SOVRetrieveObjectSerializer(
             instance=astroobject, many=False,
             context={'request': request}
         )
