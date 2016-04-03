@@ -15,7 +15,7 @@ def get_object_name(url, request=None):
             if name_space == 'query-detail':
                 pk = request.parser_context['kwargs']['pk']
                 name = pk
-            if name_space == 'browse-detail':
+            if name_space == 'SOV-detail':
                 pk = request.parser_context['kwargs']['pk']
                 name = pk
         elif 'galaxy_pk' in request.parser_context['kwargs']:
@@ -30,6 +30,13 @@ def get_object_name(url, request=None):
             if name_space == 'traitproperty-list':
                 traitproperty_pk = request.parser_context['kwargs']['traitproperty_pk'].split("_")
                 name = (" ".join(traitproperty_pk)).title()
+
+    if name_space == 'GAMA-list':
+        name = 'GAMA'
+    elif name_space == 'SAMI-list':
+        name = 'SAMI'
+    elif name_space == 'SOV-list':
+        name = 'SOV'
 
     return name
 

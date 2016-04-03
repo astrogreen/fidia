@@ -1,1 +1,32 @@
-yoohoo
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/api-root/list.css' %}"/>
+{% endblock %}
+
+
+{% block bodyclass %}aat{% endblock %}
+{% block breadcrumbclass %}inverted{% endblock %}
+{% block content %}
+
+
+<div class="container">
+    <div class="infographic row">
+
+        {% for key, value in response.data.items %}
+            <div class="col col-md-3 col-sm-3">
+                <a href="{{value}}">
+                    <div class="circle {{key}}">
+                    </div>
+                </a>
+                <p>{{ key }}</p>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

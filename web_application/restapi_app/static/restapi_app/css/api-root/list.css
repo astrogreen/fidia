@@ -1,0 +1,74 @@
+h1{color:#fff;}
+
+.infographic {
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.infographic .circle {
+    position: relative;
+    display: inline-block;
+    width: 112px;
+    height: 112px;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 112px;
+
+    /*width:150px;height:150px;*/
+}
+
+.infographic .circle .line {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    display: inline-block;
+    display:none;
+    width: 56px;
+    border-top: 2px solid #ffffff;
+}
+
+.infographic .circle i, .infographic .circle:before {
+    color: #fff;
+    font-size: 3em;
+    weight: 100;;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    font-family: FontAwesome;
+}
+.infographic .circle.SOV:before{
+    content: "\f1e5";
+}
+.infographic .circle.query:before{
+    content: "\f002";
+}
+
+.infographic .circle.SAMI{
+    background:rgba(0, 0, 0, 0.20) url('../../img/logo/logo-sami-dark.png') center no-repeat;
+    background-size:80% auto;
+}
+.infographic .circle.GAMA{
+    background:rgba(0, 0, 0, 0.20) url('../../img/logo/logo-gama-dark.png') center no-repeat;
+    background-size:80% auto;
+}
+.infographic.row p {
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.aat {
+    background: url('../../img/logo/aat.jpg') no-repeat fixed center;
+}
+
+.breadcrumb.inverted {
+    background: transparent;
+    color: #fff;
+}
+
+.breadcrumb.inverted li.active a {
+    color: #fff;
+}
+
+.breadcrumb.inverted li a {
+    color: #ddd;
+}

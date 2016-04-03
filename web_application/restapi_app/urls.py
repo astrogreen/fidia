@@ -12,12 +12,13 @@ router = ExtendDefaultRouter()
 
 router.register(r'query', views.QueryViewSet)
 # router.register(r'users', views.UserViewSet)
-router.register(r'browse', views.SOVListSurveysViewSet, base_name='browse')
-router.register(r'browse', views.SOVRetrieveObjectViewSet, base_name='browse')
-router.register(r'sample', views.SampleViewSet, base_name='sample')
+router.register(r'SOV', views.SOVListSurveysViewSet, base_name='SOV')
+router.register(r'SOV', views.SOVRetrieveObjectViewSet, base_name='SOV')
+router.register(r'GAMA', views.GAMAViewSet, base_name='GAMA')
+router.register(r'SAMI', views.SAMIViewSet, base_name='SAMI')
 
-# Nested routes for sample
-object_nested_router = NestedExtendDefaultRouter(router, r'sample', lookup='sample')
+# Nested routes for sample (SAMI)
+object_nested_router = NestedExtendDefaultRouter(router, r'SAMI', lookup='SAMI')
 object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.AstroObjectViewSet, base_name='galaxy')
 
 trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<galaxy_pk>[^/.]+)', lookup='galaxy')

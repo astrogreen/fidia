@@ -278,7 +278,7 @@ class SOVListSurveysSerializer(serializers.Serializer):
         url_kwargs = {
             'pk': obj_name
         }
-        view_name = 'browse-detail'
+        view_name = 'SOV-detail'
         return reverse(view_name, kwargs=url_kwargs)
 
     name = serializers.SerializerMethodField()
