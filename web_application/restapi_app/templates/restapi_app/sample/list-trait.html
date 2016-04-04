@@ -110,29 +110,38 @@
 
     var valueURL = "{{request.build_absolute_uri}}value/?format=json";
     var mapName = "{% get_pks request.path -2 %}";
-    var handleData = function(data){
-        console.log('handledata');
-        console.log(data)
+    console.log(mapName)
+    console.log(mapName.indexOf("spectral"))
+    // only run if ! spectral
+    if (mapName.indexOf("spectral") < 0){
+        var handleData = function(data){
+            console.log('handledata');
+            console.log(data)
+        };
+
+        function testAjax(handleData) {
+            console.log(valueURL);
+          $.ajax({
+            url:valueURL,
+            dataType:'text',
+            success:function(data) {
+              handleData(data);
+            }
+          });
+        };
+
+        testAjax(function(output){
+          // here you use the output
+            $('#'+mapName).html('');
+            var dataJSON = JSON.parseMore(output);
+            console.log(dataJSON);
+            fAstroMap(mapName,dataJSON);
+        });
+
+    } else {
+        $('#'+mapName).html('tbd');
     };
 
-    function testAjax(handleData) {
-        console.log(valueURL);
-      $.ajax({
-        url:valueURL,
-        dataType:'text',
-        success:function(data) {
-          handleData(data);
-        }
-      });
-    };
-
-    testAjax(function(output){
-      // here you use the output
-        $('#'+mapName).html('');
-        var dataJSON = JSON.parseMore(output);
-        console.log(dataJSON);
-        fAstroMap(mapName,dataJSON);
-    });
 
 
 
