@@ -10,14 +10,15 @@
 }
 .selectize-input,
 .selectize-control.single .selectize-input.input-active{
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 2px solid rgba(255, 255, 255, 0.6) !important;
-    color:#ffffff;
+    border-radius:0px;
+    /*background: rgba(255, 255, 255, 0.15) !important;*/
+    /*border: 2px solid rgba(255, 255, 255, 0.6) !important;*/
+    /*color:#ffffff;*/
 }
-::-webkit-input-placeholder { color: rgba(255, 255, 255, 0.8) }
-::-moz-placeholder { color: rgba(255, 255, 255, 0.8) } /* firefox 19+ */
-:-ms-input-placeholder { color: rgba(255, 255, 255, 0.8) } /* ie */
-input:-moz-placeholder { color: rgba(255, 255, 255, 0.8); }
+/*::-webkit-input-placeholder { color: rgba(255, 255, 255, 0.8) }*/
+/*::-moz-placeholder { color: rgba(255, 255, 255, 0.8) } !* firefox 19+ *!*/
+/*:-ms-input-placeholder { color: rgba(255, 255, 255, 0.8) } !* ie *!*/
+/*input:-moz-placeholder { color: rgba(255, 255, 255, 0.8); }*/
 
 .survey{
     margin:80px 0px 0px;
