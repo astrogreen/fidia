@@ -21,118 +21,122 @@
 
 {% block content %}
 
-    {% for key, value in response.data.items %}
-    {% endfor %}
+{% for key, value in response.data.items %}
+{% endfor %}
 
-    <!--<div class="pull-right survey {{ objname }}"></div>-->
-    <h1 class="headline">
-        <span>{{objname}}</span>
-    </h1>
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="panel panel-default">
-              <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">Available Data</h3>
-              </div>
-              <div class="panel-body">
-                  <h4><strong>View {{objname}} Survey DR 1.0</strong></h4>
-                  <p>Browse the {{objname}} data products available by source.</p>
-                  <p>Select a galaxy from the dropdown to get started.</p>
-                  <br>
-                  <select type="text"  class="selectized text-center" id="autocomplete-widget" placeholder="GALAXY">
+<!--<div class="pull-right survey {{ objname }}"></div>-->
+<h1 class="headline">
+    <span>{{objname}}</span>
+</h1>
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Data</h3>
+            </div>
+            <div class="panel-body">
+                <h4>View {{objname}} Survey DR 1.0</h4>
+                <p>Browse the {{objname}} data products available by source.</p>
+                <p>Select a galaxy from the dropdown to get started.</p>
+                <br>
+                <select type="text" class="selectized text-center" id="autocomplete-widget" placeholder="GALAXY">
                     <option value="" disabled selected>Select an object</option>
                     {% for key, value in response.data.items %}
-                        <option value="{{value}}">{{key}}</option>
+                    <option value="{{value}}">{{key}}</option>
                     {% endfor %}
-                  </select>
-                <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled id="autocomplete-button">Go</a>
-              </div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="panel panel-default ">
-              <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">Survey Documentation</h3>
-              </div>
-              <div class="panel-body">
-                   <h4><strong>View Documentation</strong></h4>
-                  <div class="col-xs-6">
-                      <img src="../../../static/restapi_app/img/logo/logo-{{objname}}.png" class="img-responsive">
-                  </div>
-                  <div class=" col-xs-6">
-                       <a href="" disabled >{{objname}} docs</a><br>
-                        <a  href="" disabled > Schema Browser</a>
-
-                  </div>
-              </div>
-            </div>
-            <div class="panel panel-default ">
-              <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">SOV</h3>
-              </div>
-              <div class="panel-body">
-                   <h4><strong>{{objname}} Single Object Viewer</strong></h4>
-                  <p>View <a href="{% url 'SOV-list'%}" disabled >{{objname}} SOV</a><br></p>
-
-              </div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="panel panel-default ">
-              <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">Data Release Details</h3>
-              </div>
-              <div class="panel-body">
-                  <h4><strong>{{objname}} Survey DR1.0 Details</strong></h4>
-                  <p>Download a list of {{objname}} objects.</p><br>
-                {% if 'GET' in allowed_methods %}
-                    <form id="get-form" >
-                        <fieldset>
-                            {% if api_settings.URL_FORMAT_OVERRIDE %}
-                            <div class="btn-group  btn-block format-selection">
-                                <!--<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
-                                   <!--title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>-->
-                                <button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
-                                    Download {{objname}} object list  <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    {% for format in available_formats %}
-                                    <li>
-                                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            {% else %}
-                                <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
-                                   title="View user {{user}}'s {{ name }}">GET</a>
-                            {% endif %}
-                        </fieldset>
-                    </form>
-                {% endif %}
-              </div>
+                </select>
+                <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">Go</a>
             </div>
         </div>
     </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">SOV</h3>
+            </div>
+            <div class="panel-body">
+                <h4>{{objname}} Single Object Viewer</h4>
+                <p>View a summary of main data products <a href="{% url 'SOV-list'%}" disabled>{{objname}} SOV</a>.<br></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Documentation</h3>
+            </div>
+            <div class="panel-body">
+                <h4><strong>View Documentation</strong></h4>
+                <div class="col-xs-6">
+                    <img src="../../../static/restapi_app/img/logo/logo-{{objname}}.png" class="img-responsive">
+                </div>
+                <div class=" col-xs-6">
+                    <a href="" disabled>{{objname}} docs</a><br>
+                    <a href="" disabled> Schema Browser</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Data Release Details</h3>
+            </div>
+            <div class="panel-body">
+                <h4><strong>{{objname}} Survey DR1.0 Details</strong></h4>
+                <p>Download a list of {{objname}} objects.</p><br>
+                {% if 'GET' in allowed_methods %}
+                <form id="get-form">
+                    <fieldset>
+                        {% if api_settings.URL_FORMAT_OVERRIDE %}
+                        <div class="btn-group  btn-block format-selection">
+                            <!--<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
+                            <!--title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>-->
+                            <button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip"
+                                    data-toggle="dropdown" title="Specify a format for the request">
+                                Download {{objname}} object list <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for format in available_formats %}
+                                <li>
+                                    <a class="js-tooltip format-option"
+                                       href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                       rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">
+                                        {{ format }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                        <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                           title="View user {{user}}'s {{ name }}">GET</a>
+                        {% endif %}
+                    </fieldset>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
 
-    <script>
+<script>
 
-        $(document).ready(function() {
-            $selector = $("#autocomplete-widget").selectize({
-                closeAfterSelect:true,
-                selectOnTab:true,
-                placeholder: "GALAXY",
-                create: false,
-                maxItems:1,
-                onChange: function(value) {
-                    $('#autocomplete-button').attr('href',value).attr('disabled', false)
-                }
-            });
+    $(document).ready(function () {
+        $selector = $("#autocomplete-widget").selectize({
+            closeAfterSelect: true,
+            selectOnTab: true,
+            placeholder: "GALAXY",
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                $('#autocomplete-button').attr('href', value).attr('disabled', false)
+            }
         });
+    });
 
-    </script>
+</script>
 {% endblock %}
 
 {% block content-DRF %}{% endblock %}
