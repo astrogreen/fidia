@@ -6,7 +6,6 @@ from django.core.urlresolvers import get_script_prefix, resolve
 def get_object_name(url, request=None):
 
     from django.utils.html import escape
-    print(url)
     # change for query-detail, galaxy-list and trait-list
     name_space = escape(resolve(url).url_name)
     name = ''

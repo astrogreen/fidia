@@ -162,9 +162,15 @@ def ValueType(value):  # Only one argument.
 def CapsSentence(value):  # Only one argument.
     """returns caps words"""
     words = value.split("_")
-    sentence = " ".join(words)
+    sentence = (" ".join(words)).title()
     # .title capitalizes the first letter of every word in words list
-    return sentence.title()
+
+    corrections = [['Rss', 'RSS'], ['Wcs', 'WCS'], ['Ra', 'RA'], ['Id', 'ID']]
+    for arr_el in corrections:
+        if arr_el[0] in sentence:
+            sentence = sentence.replace(arr_el[0], arr_el[1])
+
+    return sentence
 
 
 @register.filter
@@ -218,3 +224,13 @@ def get_range(value):
     </ul>
     """
     return range(value)
+
+
+@register.simple_tag
+def get_pks(url, index):
+    """
+    split by /
+    note that [-1] will give last item, [-2] the one before etc
+    """
+    pk_arr = url.split('/')
+    return pk_arr[index]

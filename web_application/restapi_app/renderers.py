@@ -151,7 +151,7 @@ class AstroObjectRenderer(ExtendBrowsableAPIRenderer):
 
 
 class TraitRenderer(ExtendBrowsableAPIRenderer):
-    pass
+    template = 'restapi_app/sample/list-trait.html'
 
 
 class TraitPropertyRenderer(ExtendBrowsableAPIRenderer):
