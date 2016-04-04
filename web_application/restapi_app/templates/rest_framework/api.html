@@ -17,10 +17,13 @@
       {% include "restapi_app/header/navbar.html" %}
     {% endblock %}
 
-    <div class="container">
-      {% if breadcrumblist %}
+    <div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+      <div class="container">
+        {% block breadcrumbs-outer %}
+        {% if breadcrumblist %}
         {% block breadcrumbs %}
-          <ul class="breadcrumb {% block breadcrumbclass %}{% endblock %}">
+          <ul class="breadcrumb ">
+            <li><a href="{% url 'index' %}">Home</a></li>
             {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
               {% if forloop.last %}
                 <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
@@ -31,7 +34,12 @@
           </ul>
         {% endblock %}
       {% endif %}
+        {% endblock %}
+      </div>
+    </div>
 
+
+    <div class="container">
       {% block content %}
       <!-- Content -->
       <div id="content">

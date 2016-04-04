@@ -3,6 +3,13 @@
 {% block title %} Home {% endblock %}
 
 {% block bodyclass %}galaxy-dark{% endblock %}
+{% block breadcrumbclass %}inverted{% endblock %}
+{% block breadcrumbs-outer %}
+  <ul class="breadcrumb ">
+    <li class="active"><a href="{% url 'index' %}">Home</a></li>
+  </ul>
+{% endblock %}
+
 {% block content %}
 <section class="welcome row">
     <div class="container">
