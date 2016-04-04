@@ -16,27 +16,35 @@ function range(start, count) {
     return temp;
 };
 
-function getMinMaxOf2DIndex (arr, idx) {
-    var arrayMap = arr.map(function (e) { return e[idx]});
-    return {
-        min: Math.min.apply(null, arrayMap),
-        max: Math.max.apply(null, arrayMap)
-    }
+// Remove NaN
+function bouncer(arr) {
+  var filteredArray = arr.filter(Boolean);
+  return filteredArray;
 }
 
-function fNthArrayMin(arr){
-    // Get minimum value in 2D array
-    return arr.reduce(function(min, arr) {
-        return Math.min(min, arr[0]);
-    }, +Infinity);
-};
+function standardDeviation(values){
+  var avg = average(values);
 
-function fNthArrayMax(arr){
-    // Get minimum value in 2D array
-    return arr.reduce(function(max, arr) {
-        return Math.max(max, arr[0]);
-    }, -Infinity);
-};
+  var squareDiffs = values.map(function(value){
+    var diff = value - avg;
+    var sqrDiff = diff * diff;
+    return sqrDiff;
+  });
+
+  var avgSquareDiff = average(squareDiffs);
+
+  var stdDev = Math.sqrt(avgSquareDiff);
+  return stdDev;
+}
+
+function average(data){
+  var sum = data.reduce(function(sum, value){
+    return sum + value;
+  }, 0);
+
+  var avg = sum / data.length;
+  return avg;
+}
 
 function fGenerateColourScale(map_name, map_val){
 
@@ -62,8 +70,34 @@ function fGenerateColourScale(map_name, map_val){
     var colorscale = [];
     var numcolors = colors.length;
 
-    var Zmin = fNthArrayMin(map_val);
-    var Zmax = fNthArrayMax(map_val);
+    // Flatten array
+    var FlatArr = map_val.reduce(function (p, c) {
+      return p.concat(c);
+    });
+
+    // Remove NaN
+    var NumArr = bouncer(FlatArr);
+
+    //ZMIN ZMAX (without sigma clip)
+    var Zmax_old = Math.max.apply(null, bouncer(FlatArr));
+    var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
+
+    //After sigma clipping....
+    console.log('AVERAGE',average(NumArr));
+    console.log('SD',standardDeviation(NumArr));
+    //one sigma clip (average+1SD < values < average+1SD)
+    var SigClip = NumArr.filter(function(x) {
+        return x > (average(NumArr)-standardDeviation(NumArr)) && x < (average(NumArr)+standardDeviation(NumArr));
+    });
+    console.log('AVERAGE',average(SigClip));
+    console.log('SD',standardDeviation(SigClip));
+
+    var Zmin=average(SigClip)-standardDeviation(SigClip);
+    var Zmax=average(SigClip)+standardDeviation(SigClip);
+    console.log(Zmin);
+    console.log(Zmax);
+
+    var Zscale = Zmax-Zmin;
 
     var Zscale = Zmax-Zmin;
     var tickvals = [];
@@ -90,7 +124,9 @@ function fGenerateColourScale(map_name, map_val){
 
     return {
         colorscale:colorscale,
-        tickvals:tickvals
+        tickvals:tickvals,
+        Zmin:Zmin,
+        Zmax:Zmax
     };
 };
 
@@ -122,6 +158,8 @@ function fAstroMap(k,v){
     var temp = fGenerateColourScale(map_name, map_val);
     var colorscale = temp.colorscale;
     var tickvals = temp.tickvals;
+    var Zmin = temp.Zmin;
+    var Zmax = temp.Zmax;
 
     // might look as (where last is wavelength)
     //test_map_val = [
@@ -136,8 +174,8 @@ function fAstroMap(k,v){
             y:rows,
             z: map_val,
             colorscale:colorscale,
-            zmin: -80,
-            zmax: -30,
+            zmin: Zmin,
+            zmax: Zmax,
             type: 'heatmap',
             colorbar:{
                 lenmode:'fraction',
