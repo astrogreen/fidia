@@ -213,7 +213,7 @@ from fidia.archive.sami import SAMITeamArchive
 
 ar = SAMITeamArchive(
     settings.SAMI_TEAM_DATABASE,
-    settings.SAMI_TEAM_DATABSE_CATALOG)
+    settings.SAMI_TEAM_DATABASE_CATALOG)
 
 sample = ar.get_full_sample()
 
