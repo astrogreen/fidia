@@ -23,7 +23,7 @@ from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityM
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
@@ -624,9 +624,12 @@ class SAMITeamArchive(Archive):
     def __init__(self, base_directory_path, master_catalog_path):
         self._base_directory_path = base_directory_path
         self._master_catalog_path = master_catalog_path
-        self._contents = None
+
+        log.debug("master_catalog_path: %s", self._master_catalog_path)
 
         self._cubes_directory = self._get_cube_info()
+
+        self._contents = set(self._cubes_directory.index.get_level_values('sami_id'))
 
         # Local cache for traits
         self._trait_cache = dict()
@@ -636,15 +639,14 @@ class SAMITeamArchive(Archive):
     @property
     def contents(self):
         """List (set?) of available objects in this archive."""
-        if self._contents is None:
-            with fits.open(self._master_catalog_path) as m:
-                # Master Catalogue is a binary table in extension 1 of the FITS File.
-                self._contents = list(map(str, m[1].data['CATID']))
         return self._contents
 
     def _get_cube_info(self):
         cube_file_paths = []
-        for id in self.contents:
+        with fits.open(self._master_catalog_path) as m:
+            # Master Catalogue is a binary table in extension 1 of the FITS File.
+            contents = list(map(str, m[1].data['CATID']))
+        for id in contents:
              cube_file_paths.extend(glob(self._base_directory_path + "*/cubed/" + id + "/*.fits*"))
         cube_directory = []
         for path in cube_file_paths:
