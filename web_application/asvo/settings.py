@@ -47,7 +47,7 @@ INSTALLED_APPS = (
     'aatnode',
     'astrospark',
     'bootstrap3',
-    'captcha',
+    # 'captcha',
     'clever_selects',
     'django_extensions',
     'mathfilters',

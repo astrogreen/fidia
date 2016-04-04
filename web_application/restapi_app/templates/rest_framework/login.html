@@ -14,16 +14,16 @@
 {% block content-header %}{% endblock %}
 
 {% block content-main %}
-<div class="well col-sm-offset-4 col-sm-4" style="margin-top: 30px">
-    <div class="row-fluid">
-      <div>
-        {% block branding %}<h3 style="margin: 0 0 20px;">Sign In <i class="fa fa-lock pull-right"></i></h3>{% endblock %}
-      </div>
-    </div><!-- /row fluid -->
-
-    <div class="row-fluid">
-      <div>
-        <form action="{% url 'rest_framework:login' %}" role="form" method="post">
+<br>
+<div class="row">
+    <div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+              <strong> Sign In </strong>
+              <i class="fa fa-lock pull-right" style="margin-top:3px"></i>
+            </div>
+            <div class="panel-body">
+              <form action="{% url 'rest_framework:login' %}" role="form" method="post">
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ next }}" />
 
@@ -65,8 +65,10 @@
             <input type="submit" name="submit" value="Sign In" class="btn btn-primary form-control" id="submit-id-submit">
           </div>
         </form>
-      </div>
-    </div><!-- /.row-fluid -->
-  </div><!--/.well-->
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}

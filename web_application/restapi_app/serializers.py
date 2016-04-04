@@ -84,13 +84,31 @@ class QuerySerializerList(serializers.HyperlinkedModelSerializer):
 
 class CreateUserSerializer(serializers.ModelSerializer):
 
+    def validate(self, data):
+        """
+        Checks to be sure that the received password and confirm_password
+        fields are exactly the same
+        """
+        if data['password'] != data.pop('confirm_password'):
+            raise serializers.ValidationError("Passwords do not match")
+        return data
+
     password = serializers.CharField(
           write_only=True,
     )
+    confirm_password = serializers.CharField(allow_blank=False, write_only=True, required=True)
+
+    # def validate(self, data):
+    #     if data.get('password') != data.get('confirm_password'):
+    #         raise serializers.ValidationError("Those passwords don't match.")
+    #     return data
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'password',)
+        fields = ('first_name', 'last_name', 'username', 'password', 'confirm_password')
+
+
+
 
     def create(self, validated_data):
         user = super(CreateUserSerializer, self).create(validated_data)

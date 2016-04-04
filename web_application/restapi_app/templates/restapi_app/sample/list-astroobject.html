@@ -13,10 +13,11 @@
 {% block content-delete %}{% endblock %}
 {% block content-filter-form %}{% endblock %}
 
-{% block content-page-header %}
-<h1>{{ objname }}</h1>
-{% endblock %}
-{% block content-input %}
+{% block content-page-header %}{% endblock %}
+{% block content %}
+    <h1 class="headline">
+        <span>{{ objname }}</span>
+    </h1>
 
     <div class="container-browse-astroobject">
         <div class="row">
@@ -64,6 +65,36 @@
                     {% endfor %}
                 {% endif %}
             {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-sm-offset-8 col-sm-4">
+                {% if 'GET' in allowed_methods %}
+                    <form id="get-form" class="pull-right">
+                        <fieldset>
+                            {% if api_settings.URL_FORMAT_OVERRIDE %}
+                            <div class="btn-group  btn-block format-selection">
+                                <!--<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
+                                   <!--title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>-->
+                                <button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
+                                    Download list of available data for {{objname}}  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% for format in available_formats %}
+                                    <li>
+                                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% else %}
+                                <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                                   title="View user {{user}}'s {{ name }}">GET</a>
+                            {% endif %}
+                        </fieldset>
+                    </form>
+                {% endif %}
+            </div>
         </div>
     </div>
     <script>

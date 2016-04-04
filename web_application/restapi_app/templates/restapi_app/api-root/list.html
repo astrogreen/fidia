@@ -13,10 +13,11 @@
 {% block breadcrumbclass %}inverted{% endblock %}
 {% block content %}
 
-
+<h1 class="headline">
+    <span>Data</span>
+</h1>
 <div class="container">
     <div class="infographic row">
-
         {% for key, value in response.data.items %}
             <div class="col col-md-3 col-sm-3">
                 <a href="{{value}}">

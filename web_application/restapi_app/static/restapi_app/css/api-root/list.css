@@ -12,18 +12,7 @@ h1{color:#fff;}
     height: 112px;
     border: 2px solid rgba(255, 255, 255, 0.6);
     border-radius: 112px;
-
-    /*width:150px;height:150px;*/
-}
-
-.infographic .circle .line {
-    position: absolute;
-    top: 50%;
-    left: 100%;
-    display: inline-block;
-    display:none;
-    width: 56px;
-    border-top: 2px solid #ffffff;
+    background-color:rgba(0, 0, 0, 0.20);
 }
 
 .infographic .circle i, .infographic .circle:before {
@@ -35,6 +24,7 @@ h1{color:#fff;}
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     font-family: FontAwesome;
+
 }
 .infographic .circle.SOV:before{
     content: "\f1e5";
@@ -62,6 +52,7 @@ h1{color:#fff;}
 
 .breadcrumb.inverted {
     background: transparent;
+    background:rgba(0, 0, 0, 0.20);
     color: #fff;
 }
 
