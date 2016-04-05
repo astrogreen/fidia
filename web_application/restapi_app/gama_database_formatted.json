@@ -16932,6 +16932,14 @@
                 "tableid": -1,
                 "ucd": "",
                 "units": "-"
+            },
+            {
+                "columnid": -1,
+                "description": "URL of the data browser for this object",
+                "name": "data_browser_url",
+                "tableid": -1,
+                "ucd": "",
+                "units": "-"
             }
         ],
         "contact": "Andy Green <andrew.green@aao.gov.au>",

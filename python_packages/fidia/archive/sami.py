@@ -666,19 +666,25 @@ class SAMITeamArchive(Archive):
         # The objects without cubes will have NaN; so fix that now by setting the not trues to explicitly False
         table.loc[table['cube_available'] != True, 'cube_available'] = False
 
+        table['data_browser_url'] = pd.Series(['/asvo/data/sami/%s' % id for id in cube_list],
+                                               index=pd.Index(cube_list))
+
         # Write to file
         with open(filename, 'w') as f:
             f.write(table.to_csv())
 
         # Then upload file to HDFS, and run a Hive query like the following:
         #
+        #     DROP TABLE sami;
         #     CREATE EXTERNAL TABLE sami(
-        #         sami_id STRING COMMENT 'SAMI ID (matches GAMA ID when the same object)',
-        #         cube_available BOOLEAN COMMENT 'Is a cube available in the database')
-        #     COMMENT 'Table containing SAMI sample with observation information'
-        #     ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
-        #     STORED AS TEXTFILE
-        #     LOCATION '/user/agreen/sami_test.csv';
+        #          sami_id STRING COMMENT 'SAMI ID (matches GAMA ID when the same object)',
+        #          cube_available BOOLEAN COMMENT 'Is a cube available in the database',
+        #          data_browser_url STRING COMMENT 'URL of the data browser'
+        #       )
+        #      COMMENT 'Table containing SAMI sample with observation information'
+        #      ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+        #      STORED AS TEXTFILE
+        #      LOCATION '/user/agreen/sami_table.csv';
 
     def data_available(self, object_id=None):
         if object_id is None:
