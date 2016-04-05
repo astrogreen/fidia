@@ -1,0 +1,15 @@
+.sami {
+    background-color:#fff;
+    max-width:115px;
+    position:relative;
+    top:8px;
+    border-left:solid 15px #fff;
+}
+
+.gama{
+    background-color:#fff;
+    max-width:80px;
+    position:relative;
+    top:0px;
+    border-left:solid 15px #fff;
+}

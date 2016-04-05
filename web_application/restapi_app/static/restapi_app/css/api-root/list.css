@@ -43,7 +43,7 @@ h3 {
 
 }
 
-.circle.SOV:before {
+.circle.sov:before {
     content: "\f1e5";
 }
 
@@ -51,12 +51,12 @@ h3 {
     content: "\f002";
 }
 
-.circle.SAMI {
+.circle.sami {
     background: url('../../img/logo/logo-sami.png') center no-repeat;
     background-size: 80% auto;
 }
 
-.circle.GAMA {
+.circle.gama {
     background: url('../../img/logo/logo-gama.png') center no-repeat;
     background-size: 80% auto;
 }

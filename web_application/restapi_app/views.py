@@ -330,6 +330,7 @@ class TraitViewSet(mixins.ListModelMixin,
                 'request': request,
             }
         )
+
         return Response(serializer.data)
 
     def finalize_response(self, request, response, *args, **kwargs):

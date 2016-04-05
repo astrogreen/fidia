@@ -3,7 +3,7 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
+{% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
@@ -40,7 +40,7 @@
                     <a class="btn btn-default btn-block SAMI btn-survey" onclick="fSurveyData(this.id)" id="SAMI">SAMI</a>
                 </div>
                 <div class="col-xs-6">
-                    <a class="btn btn-default btn-block GAMA btn-survey" disabled=true onclick="fSurveyData(this.id)" id="GAMA">GAMA</a>
+                    <a class="btn btn-default btn-block GAMA btn-survey disabled" onclick="fSurveyData(this.id)" id="GAMA">GAMA</a>
                 </div>
                 <br><br>
                 <h4>2. Select Source</h4>

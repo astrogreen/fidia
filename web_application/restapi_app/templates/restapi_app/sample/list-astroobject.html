@@ -3,8 +3,9 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
+{% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
@@ -17,6 +18,10 @@
 {% block content %}
     <h1 class="headline">
         <span>{{ objname }}</span>
+        {% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
+        {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
+            <img class="img-responsive pull-right sami" src="{% static image_static %}">
+        {% endwith %}
     </h1>
 
     <div class="container-browse-astroobject">
