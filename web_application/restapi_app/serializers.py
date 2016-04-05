@@ -296,7 +296,7 @@ class SOVListSurveysSerializer(serializers.Serializer):
         url_kwargs = {
             'pk': obj_name
         }
-        view_name = 'SOV-detail'
+        view_name = 'sov-detail'
         return reverse(view_name, kwargs=url_kwargs)
 
     name = serializers.SerializerMethodField()
@@ -314,11 +314,11 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
         for trait in astro_object:
-            print(str(trait))
             trait_key = trait
             if str(trait_key) == "velocity_map" or str(trait_key) == 'line_map-SII6716':
                 self.fields[str(trait_key)] = \
                     AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=2)
+
     def get_samiID(self, obj):
         return obj._identifier
 

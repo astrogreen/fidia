@@ -3,9 +3,8 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
+{% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
-
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
@@ -16,14 +15,16 @@
 {% block content-filter-form %}{% endblock %}
 
 {% block content-page-header %}
-<h1>{{ objname }}</h1>
 {% endblock %}
-
 {% block content %}
-<!--<div class="pull-right survey {{ objname }}"></div>-->
 <h1 class="headline">
-    <span>{% get_pks request.path -4 %} {% get_pks request.path -3 %}: {{objname}}</span>
+    <span>{% filter uppercase %}{% get_pks request.path -4 %}{% endfilter %} {% get_pks request.path -3 %}: {{objname}}</span>
+    {% captureas survey %}{% get_pks request.path -4 %}{% endcaptureas %}
+    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
+        <img class="img-responsive pull-right {{survey}}" src="{% static image_static %}">
+    {% endwith %}
 </h1>
+<br>
 <div class="row">
     <div class="col-sm-3">
         <div class="panel panel-default ">
@@ -81,7 +82,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-8">
+    <div class="col-sm-6">
         <div id="{% get_pks request.path -2 %}">
             <p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p>
             {% comment %}
@@ -94,6 +95,14 @@
                 <br>
                 {% endfor %}
             {% endcomment %}
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <p><strong>Plot Options</strong></p>
+                <p>interactive plotting options go here</p>
+            </div>
         </div>
     </div>
 

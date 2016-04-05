@@ -55,6 +55,8 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
         # except Exception:
         #     pass
         # else:
+        print(request)
+        print(request.path)
         return get_object_name(request.path, request)
 
     def get_breadcrumbs(self, request):

@@ -3,7 +3,7 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
+{% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 {% endblock %}
 
@@ -222,7 +222,7 @@
                                             <thead><tr><th>SAMI ID</th><th>RA</th><th>DEC (J2000)</th><th>Redshift</th></tr></thead>
                                             <tbody>
                                             <tr>
-                                                <td><a href="{% url "SAMI-list" %}{{response.data.samiID}}"> {{response.data.samiID}}</a></td>
+                                                <td><a href="{% url "sami-list" %}{{response.data.samiID}}"> {{response.data.samiID}}</a></td>
                                                 <td>{{response.data.ra}}</td>
                                                 <td>{{response.data.dec}}</td>
                                             </tr></tbody>
@@ -234,7 +234,7 @@
                                         {% if key == "velocity_map" or key == "line_map-SII6716" %}
                                         <div class="col-sm-6">
                                             <h4>
-                                                <a href="{% url "SAMI-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>
+                                                <a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>
                                             </h4>
                                             <div id="{{ key }}"></div>
 

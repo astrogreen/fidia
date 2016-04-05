@@ -3,7 +3,7 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
+{% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
@@ -27,6 +27,10 @@
 <!--<div class="pull-right survey {{ objname }}"></div>-->
 <h1 class="headline">
     <span>{{objname}}</span>
+    {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
+    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
+        <img class="img-responsive pull-right sami" src="{% static image_static %}">
+    {% endwith %}
 </h1>
 <div class="row">
     <div class="col-sm-3">
@@ -67,14 +71,12 @@
                 <h3 class="panel-title">Documentation</h3>
             </div>
             <div class="panel-body">
-                <h4><strong>View Documentation</strong></h4>
-                <div class="col-xs-6">
-                    <img src="../../../static/restapi_app/img/logo/logo-{{objname | lowercase }}.png" class="img-responsive">
-                </div>
-                <div class=" col-xs-6">
-                    <a href="" disabled>{{objname}} docs</a><br>
-                    <a href="" disabled> Schema Browser</a>
-                </div>
+                <h4>View Documentation</h4>
+                <p>
+                    <a href="" class="disabled" >{{objname}} docs</a><br>
+                    <a href="" class="disabled" > Schema Browser</a>
+                </p>
+
             </div>
         </div>
     </div>
@@ -84,7 +86,7 @@
                 <h3 class="panel-title">Data Release Details</h3>
             </div>
             <div class="panel-body">
-                <h4><strong>{{objname}} Survey DR1.0 Details</strong></h4>
+                <h4>{{objname}} Survey DR1.0 Details</h4>
                 <p>Download a list of {{objname}} objects.</p><br>
                 {% if 'GET' in allowed_methods %}
                 <form id="get-form">

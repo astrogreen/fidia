@@ -79,3 +79,6 @@ a.underline-red p {
     margin-right: 7px;
     display: inline;
 }
+a.disabled {
+    pointer-events: none;
+}
