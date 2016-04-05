@@ -16912,5 +16912,31 @@
         "description": "This DMU provides emission and absorption line measurements for all GAMA DR2 AAT spectra, as well as derived physical properties, including the star-formation rate, for all GAMA DR2 spectra and for all SDSS spectra of GAMA DR2 objects.",
         "name": "EmLinesPhysSDSS",
         "version": "v04"
+    },
+    {
+        "DMU": "SAMI",
+        "catalogId": -1,
+        "columns": [
+            {
+                "columnid": -1,
+                "description": "SAMI ID (matches GAMA ID when the same object)",
+                "name": "sami_id",
+                "tableid": -1,
+                "ucd": "meta.id;",
+                "units": "-"
+            },
+            {
+                "columnid": -1,
+                "description": "Is a cube available in the database",
+                "name": "cube_available",
+                "tableid": -1,
+                "ucd": "",
+                "units": "-"
+            }
+        ],
+        "contact": "Andy Green <andrew.green@aao.gov.au>",
+        "description": "Table containing SAMI sample with observation information",
+        "name": "SAMI",
+        "version": "v01"
     }
 ]

@@ -1,0 +1,29 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}GAMA{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
+{% endblock %}
+
+
+{% block content %}
+<h1 class="headline">
+    <span>GAMA</span>
+    {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
+    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
+        <img class="img-responsive pull-right {{survey}}" src="{% static image_static %}">
+    {% endwith %}
+</h1>
+<div class="container">
+    <div class=" row">
+        <div class="col col-md-3 col-sm-3">
+            <p class="lead">In Progress</p>
+            <p>GAMA data re-ingestion is underway!</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

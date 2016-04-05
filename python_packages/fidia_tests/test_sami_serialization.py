@@ -41,4 +41,4 @@ class TestSAMISerialization:
                 if isinstance(test_dict[key], numpy.ndarray):
                     numpy.testing.assert_array_equal(test_dict[key], getattr(t, key))
                 else:
-                    assert test_dict[key] == getattr(t, key)
+                    assert test_dict[key] == getattr(t, key)()

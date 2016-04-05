@@ -34,108 +34,123 @@
         $scope.queryCheckbox=[];
 
         // AVAILABLE CATALOGUES                                                     TODO: is this really needed here? TEST
-        var nodeCatalogues = [
-    {
-        name: "InputCatA",
-        catalogueId: 1,
-        survey: "GAMA",
-        version: "v05",
-        DMU: "InputCat",
-        Date: "2010-05-21",
-        description: "SS DR6 data of GAMA I survey regions. This is GAMA`s master input catalogue.",
-        dimension: "960510 rows × 25 columns",
-        contact: "Ivan Baldry",
-        columns: [
-        {
-            cid: "1",
-            name: "CATAID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique GAMA ID of object"
-        }, {
-            cid: "2",
-            name: "OBJID",
-            units: "-",
-            UCD: "meta.id;",
-            description: "SDSS objid"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    }, {
-        name: "ExternalSpecAll",
-        catalogueId: 2,
-        survey: "GAMA",
-        version: "v01",
-        DMU: "ExternalSpec",
-        Date: "2011-03-03",
-        description: "This table lists all spectra of GAMA DR2 objects that are available from previous spectroscopic surveys (such as the SDSS), including duplicate observations. Every spectrum listed in this table is available in the GAMA DR2 database.",
-        contact: "Joe Liske",
-        columns: [{
-            cid: "1",
-            name: "SPECID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique ID of spectrum"
-        }, {
-            cid: "2",
-            name: "SURVEY",
-            units: "-",
-            UCD: "meta.dataset",
-            description: "Survey this spectrum originated from"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    },{
-        name: "Test",
-        catalogueId: 2,
+    //    var nodeCatalogues = [
+    //{
+    //    name: "InputCatA",
+    //    catalogueId: 1,
+    //    survey: "GAMA",
+    //    version: "v05",
+    //    DMU: "InputCat",
+    //    Date: "2010-05-21",
+    //    description: "SS DR6 data of GAMA I survey regions. This is GAMA`s master input catalogue.",
+    //    dimension: "960510 rows × 25 columns",
+    //    contact: "Ivan Baldry",
+    //    columns: [
+    //    {
+    //        cid: "1",
+    //        name: "CATAID",
+    //        units: "-",
+    //        UCD: "meta.id;meta.main",
+    //        description: "Unique GAMA ID of object"
+    //    }, {
+    //        cid: "2",
+    //        name: "OBJID",
+    //        units: "-",
+    //        UCD: "meta.id;",
+    //        description: "SDSS objid"
+    //    }, {
+    //        cid: "3",
+    //        name: "RA",
+    //        units: "deg",
+    //        UCD: "pos.eq.ra",
+    //        description: "J2000 coordinate"
+    //    }, {
+    //        cid: "4",
+    //        name: "DEC",
+    //        units: "deg",
+    //        UCD: "pos.eq.dec",
+    //        description: "J2000 coordinate"
+    //    }, ]
+    //}, {
+    //    name: "ExternalSpecAll",
+    //    catalogueId: 2,
+    //    survey: "GAMA",
+    //    version: "v01",
+    //    DMU: "ExternalSpec",
+    //    Date: "2011-03-03",
+    //    description: "This table lists all spectra of GAMA DR2 objects that are available from previous spectroscopic surveys (such as the SDSS), including duplicate observations. Every spectrum listed in this table is available in the GAMA DR2 database.",
+    //    contact: "Joe Liske",
+    //    columns: [{
+    //        cid: "1",
+    //        name: "SPECID",
+    //        units: "-",
+    //        UCD: "meta.id;meta.main",
+    //        description: "Unique ID of spectrum"
+    //    }, {
+    //        cid: "2",
+    //        name: "SURVEY",
+    //        units: "-",
+    //        UCD: "meta.dataset",
+    //        description: "Survey this spectrum originated from"
+    //    }, {
+    //        cid: "3",
+    //        name: "RA",
+    //        units: "deg",
+    //        UCD: "pos.eq.ra",
+    //        description: "J2000 coordinate"
+    //    }, {
+    //        cid: "4",
+    //        name: "DEC",
+    //        units: "deg",
+    //        UCD: "pos.eq.dec",
+    //        description: "J2000 coordinate"
+    //    }, ]
+    //},{
+    //    name: "Test",
+    //    catalogueId: 2,
+    //
+    //    columns: [{
+    //        name: "a",
+    //    }, {
+    //        name: "NEW",
+    //    }, {
+    //        name: "COLUMNS",
+    //    }, {
+    //        name: "HERE",
+    //    }, ]
+    //},{
+    //    name: "Test2Cat",
+    //    catalogueId: 2,
+    //
+    //    columns: [{
+    //        name: "aasda",
+    //    }, {
+    //        name: "NEWasda",
+    //    }, {
+    //        name: "COLUMNSasdas",
+    //    }, {
+    //        name: "HEREasds",
+    //    }, ]
+    //} ];
 
-        columns: [{
-            name: "a",
-        }, {
-            name: "NEW",
-        }, {
-            name: "COLUMNS",
-        }, {
-            name: "HERE",
-        }, ]
-    },{
-        name: "Test2Cat",
-        catalogueId: 2,
+        var nodeCataloguesGlobal = (function () {
+            var json = null;
+            $.ajax({
+                'async': false,
+                'global': false,
+                'url': urlCataloguesGlobal,
+                'dataType': "json",
+                'success': function (data) {
+                    json = data;
+                }
+            });
+            return json;
+        })();
 
-        columns: [{
-            name: "aasda",
-        }, {
-            name: "NEWasda",
-        }, {
-            name: "COLUMNSasdas",
-        }, {
-            name: "HEREasds",
-        }, ]
-    } ];
-        $scope.inputCatalogueList = [];
-        angular.forEach(nodeCatalogues, function (item, key) {
-            $scope.inputCatalogueList.push(item.name);
-        });
+        //$scope.inputCatalogueList = [];
+        //angular.forEach(nodeCatalogues, function (item, key) {
+        //    $scope.inputCatalogueList.push(item.name);
+        //});
 
 
         /* -- SELECTS -- */
@@ -252,104 +267,8 @@
         $scope.fAddCatalogue = function(){
 
             $timeout( function() {  // Timeout with t=0 forces an $apply to update bindings
-                var nodeCatalogues = [
-    {
-        name: "InputCatA",
-        catalogueId: 1,
-        survey: "GAMA",
-        version: "v05",
-        DMU: "InputCat",
-        Date: "2010-05-21",
-        description: "SS DR6 data of GAMA I survey regions. This is GAMA`s master input catalogue.",
-        dimension: "960510 rows × 25 columns",
-        contact: "Ivan Baldry",
-        columns: [
-        {
-            cid: "1",
-            name: "CATAID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique GAMA ID of object"
-        }, {
-            cid: "2",
-            name: "OBJID",
-            units: "-",
-            UCD: "meta.id;",
-            description: "SDSS objid"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    }, {
-        name: "ExternalSpecAll",
-        catalogueId: 2,
-        survey: "GAMA",
-        version: "v01",
-        DMU: "ExternalSpec",
-        Date: "2011-03-03",
-        description: "This table lists all spectra of GAMA DR2 objects that are available from previous spectroscopic surveys (such as the SDSS), including duplicate observations. Every spectrum listed in this table is available in the GAMA DR2 database.",
-        contact: "Joe Liske",
-        columns: [{
-            cid: "1",
-            name: "SPECID",
-            units: "-",
-            UCD: "meta.id;meta.main",
-            description: "Unique ID of spectrum"
-        }, {
-            cid: "2",
-            name: "SURVEY",
-            units: "-",
-            UCD: "meta.dataset",
-            description: "Survey this spectrum originated from"
-        }, {
-            cid: "3",
-            name: "RA",
-            units: "deg",
-            UCD: "pos.eq.ra",
-            description: "J2000 coordinate"
-        }, {
-            cid: "4",
-            name: "DEC",
-            units: "deg",
-            UCD: "pos.eq.dec",
-            description: "J2000 coordinate"
-        }, ]
-    },{
-        name: "Test",
-        catalogueId: 2,
+                var nodeCatalogues = angular.copy(nodeCataloguesGlobal);
 
-        columns: [{
-            name: "a",
-        }, {
-            name: "NEW",
-        }, {
-            name: "COLUMNS",
-        }, {
-            name: "HERE",
-        }, ]
-    },{
-        name: "Test2Cat",
-        catalogueId: 2,
-
-        columns: [{
-            name: "aasda",
-        }, {
-            name: "NEWasda",
-        }, {
-            name: "COLUMNSasdas",
-        }, {
-            name: "HEREasds",
-        }, ]
-    } ];
                 var temp_node;
 
                 temp_node=nodeCatalogues;
@@ -439,6 +358,7 @@
             };
 
             $scope.fCatalogueController();
+            $scope.fUpdateJoins();
             $scope.fUpdateWheres();
             $timeout( function() {
                 $scope.inputCatalogues;
@@ -495,7 +415,6 @@
             //go through the catalogues in the output array
             angular.forEach(temp_array_cats,function(value,key){
                 var temp = value.sort();
-                console.log(temp);
                 // if that row does appear in the array of unique matches...
                 if ($.inArray(temp[0]+temp[1],temp_array_unique)>-1){
                     //append to list
@@ -540,7 +459,15 @@
             var inputJoinArray=[inputJoin,inputJoinB];
             var inputJoinsArray=[$scope.inputJoins,$scope.inputJoinsB];
 
-            for (i=0; i<=outputJoinArray.length; i++){
+            // NEW: disable all catalogues in the first join that aren't the first table.
+            // get first output catalogue;
+            if (undefined != $scope.fGetOutputCatalogues()[0]){
+                var currentFirstCatalogue = $scope.fGetOutputCatalogues()[0];
+                var disabledProperty = false;
+            };
+
+
+            for (var i = 0; i<=outputJoinArray.length; i++){
 
                 angular.forEach(outputJoinArray[i],function(value,key){
                     outputJoinListArray[i].push([]);
@@ -563,6 +490,23 @@
                         //only populate with selected catalogues
                         if (itemb.length>0){
                         //console.log('cycle over output catalogues: '+ key);
+                            // DISABLE JOINA catalogues that aren't the first row (i=0)
+                            // DISABLE JOINB catalogues that are the first row (i=1)
+                            // shouldn't match to itself
+                            if (i==0){
+                                if (itemb[0].name == currentFirstCatalogue){
+                                    disabledProperty = false;
+                                } else {
+                                    disabledProperty = true;
+                                };
+                            } else {
+                                if (itemb[0].name != currentFirstCatalogue){
+                                    disabledProperty = false;
+                                } else {
+                                    disabledProperty = true;
+                                };
+                            };
+
                             inputJoinArray[i].push({name:itemb[0].name, catGroup:true});
                             angular.forEach(itemb[0].columns, function (itemc, keyc) {
                                 //associated catalogue is in the 'cat' property
@@ -573,16 +517,17 @@
                                     inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name, ticked:true});
                                     //console.log("name: "+itemc.name+", cat: "+itemb[0].name);
                                 } else {
-                                    inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name});
+                                    inputJoinArray[i].push({name:itemc.name, cat:itemb[0].name, buttonname: itemb[0].name+"."+itemc.name, disabled:disabledProperty});
                                 };
                             });
                             inputJoinArray[i].push({catGroup:false});
+
+
                         };
                     });
 
                     //set e.g., outputJoinList to joinListArray[i];
                     inputJoinsArray[i][key]=inputJoinArray[i];
-
                     //angular.copy creates a deep copy of the source (dropping the hash keys)
                     //$scope.inputJoinsB[key]=angular.copy(inputJoin);
 
@@ -625,6 +570,8 @@
                 $scope.inputJoinsB.splice(data,1);
                 $scope.outputJoins.splice(data,1);
                 $scope.outputJoinsB.splice(data,1);
+                $scope.inputJoinOperators.splice(data,1);
+                $scope.outputJoinOperator.splice(data,1);
                 //$scope.fUpdateJoins();
                 $timeout(function(){
                     $scope.inputJoins;
@@ -663,7 +610,7 @@
                     });
                 };
             });
-
+            console.log('OUTPUTWHERES'+angular.toJson(outputWhereList));
             //console.log(angular.toJson(outputWhereList));
             //associated catalogue is in the 'cat' property
 
@@ -685,7 +632,7 @@
                             //associated catalogue is in the 'cat' property
                             //ie., each where selection contains the catalogue it belongs to
                             //console.log(itemc.name+" "+angular.toJson(outputWhereList[key]));
-
+                            // TODO ADD CATALOGUE CHECK HERE AS WELL AS COLUMN
                             if ((undefined != outputWhereList[key])&&(undefined != outputWhereList[key][0])&&(outputWhereList[key][0].name==itemc.name)){
                                 $scope.inputWhere.push({name:itemc.name, cat:itemb[0].name, ticked:true});
                                 //console.log("name: "+itemc.name+", cat: "+itemb[0].name);
@@ -733,7 +680,13 @@
             $scope.inputWheres.splice(data,1);
             $scope.outputWheres.splice(data,1);
 
+            $scope.inputWhereOperators.splice(data,1);
+            $scope.outputWhereOperator.splice(data,1);
+
+            $scope.outputWhereValue.splice(data,1);
+
             $scope.fUpdateWheres();
+
             $timeout( function() {
                 $scope.inputWheres;
                 $scope.outputWheres;
@@ -757,15 +710,18 @@
 
         $scope.fValidate=function(){
             //console.log(e.currentTarget);
+            //$scope.fUpdateJoins();
+            $scope.fUpdateWheres();
+
             var warning=false;
             $scope.warning['warningFlag']=false;
-            $('#query-builder-submit').attr('disabled', false);
 
             // TODO deal with outputwherevalue loop issues doesnt validate
             // hack - change shape of outputWhereValue to be iterable
             // this doesnt work well if user deletes a field entry and
             // doesnt replace it...
             var outputWhereValueTemp = [];
+
             for (var i= 0; i<$scope.inputWhereOperators.length;i++){
                 var b = '';
                 if (undefined != $scope.outputWhereValue[i]){
@@ -775,50 +731,61 @@
                 }
                 outputWhereValueTemp.push(b);
             };
+            //console.log('OUTPUTJOINS');
+            //console.log(angular.toJson($scope.outputJoins));
+            //console.log(angular.toJson($scope.outputJoinOperator));
+            //console.log(angular.toJson($scope.outputJoinsB));
 
             var validationObj = [
-                [$scope.outputCatalogues,"#outputCatalogue"],
-                [$scope.outputColumns, '#outputColumn'],
-                [$scope.outputJoins, '#outputJoins'],
-                [$scope.outputJoinsB, '#outputJoinsB'],
-                [$scope.outputJoinOperator,'#outputJoinOperator'],
-                [$scope.outputWheres, '#outputWhere'],
-                [$scope.outputWhereOperator,'#outputWhereOperator'],
-                [outputWhereValueTemp, '#whereValue']
+                [$scope.outputCatalogues,"#outputCatalogue", ' catalogue on row '],
+                [$scope.outputColumns, '#outputColumn', ' column(s) on row '],
+                [$scope.outputJoins, '#outputJoins', ' first join on row '],
+                [$scope.outputJoinsB, '#outputJoinsB', ' second join on row '],
+                [$scope.outputJoinOperator,'#outputJoinOperator', ' join operator on row '],
+                [$scope.outputWheres, '#outputWhere', ' where selection on row '],
+                [$scope.outputWhereOperator,'#outputWhereOperator', ' where operator on row '],
+                [outputWhereValueTemp, '#whereValue', ' where value on row ']
             ];
 
             // loop over output arrays and elements, check populated
             // if not append warning and return warning=true
+            var missing = 'Missing ';
+
             for(var i=0; i<validationObj.length; i++) {
                 angular.forEach(validationObj[i][0], function(value,key){
                     if (validationObj[i][0][key].length<1){
                         //console.log('warning: '+validationObj[i][1]+key);
                         $(validationObj[i][1]+key).addClass('not-selected-warning');
                         $scope.warning['warningFlag']=true;
-                        $scope.warning['Unselected Values']='Ensure all fields are populated';
-                        $('#query-builder-submit').attr('disabled', true);
+                        $scope.warning['Unselected Values']="Ensure all fields are populated. "
+                        missing += validationObj[i][2]+key+',';
                         warning=true;
                     } else {
                         $(validationObj[i][1]+key).removeClass('not-selected-warning');
                     }
                 });
             };
-            console.log('warning '+warning);
+            $scope.fBuildSQL(warning);
+
+            $scope.warning['Unselected Values']+=missing;
             return warning;
         };
 
 
-        $scope.fBuildSQL=function(){
+        $scope.fBuildSQL=function(warning){
             $scope.fResetErrors;
             $scope.fResetWarnings();
 
             // If the validation throws errors, add an error message on 'submit'
-            if ($scope.fValidate() == true ){
-
+            if (warning == true ){
+                //$scope.outputSQL = '';
+                $('#query-builder-submit').attr('disabled', true);
             } else {
-
+                $('#query-builder-submit').attr('disabled', false);
                 $scope.fJoinStatus();
-
+                $scope.outputSQL = '';
+                $scope.outputSQLSELECT='SELECT ';
+                $scope.outputSQLJOIN='';
                 $scope.outputSQLWHERE='';
 
                 $scope.fcheckboxEval = function(val){
@@ -844,7 +811,16 @@
                 //       INNER JOIN SpStandards as t2 on t2.CATAID = t1.CATAID
                 //       INNER JOIN TilingCat as t3 on t3.CATAID = t1.CATAID
 
+                //SELECT t1.CATAID, t1.A_NUV, t1.A_r, t2.PRIMTARGET, t2.PETRORAD_R, t3.CATAID, t3.OBJID,
+                //       t3.RA
+                //FROM   GalacticExtinction as t1
+                //       LEFT OUTER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+
+
                 //SELECTS
+
+                //construct the output lists
                 var outputCataloguesList = $scope.fGetOutputCatalogues();
                 var outputColumns = $scope.outputColumns;
                 var outputColumnsList=[];
@@ -856,31 +832,120 @@
                         });
                     };
                 });
-                //console.log(angular.toJson(outputColumnsList));
-                //console.log(angular.toJson(outputCataloguesList));
 
+                // construct SELECT
+                //SELECT t1.CATAID, t1.A_NUV, t1.A_r, t2.PRIMTARGET, t2.PETRORAD_R, t3.CATAID, t3.OBJID,
+                //       t3.RA
+                var counter=1;
+                var tablenameArr = [];
+                angular.forEach(outputCataloguesList, function(value,key){
+                    var tablename = 't'+counter;
 
-                angular.forEach($scope.outputWheres, function(value,key){
-                    if (undefined == $scope.outputWhereOperator[key][0]){
-                        //user has not selected operator for a row - alert
-                        $scope.error['eWhereOperatorMissing']='Missing operator in row '+key;
-                        $scope.error['errorFlag']=true;
-                    } else if (undefined == $scope.outputWheres[key][0]){
-                        $scope.error['eWhereOptionMissing']='Missing WHERE selector in row '+key;
-                        $scope.error['errorFlag']=true;
-                    } else {
-                        $scope.outputSQLWHERE+=value[0].cat+"."+value[0].name+" "+
-                        $scope.fcheckboxEval($scope.queryCheckbox[key])+" "+
-                        $scope.outputWhereOperator[key][0].operator+" "+
-                        $scope.fBetweenValue($scope.outputWhereOperator[key][0].operator,key)+
-                        $scope.outputWhereValue[key];
+                    angular.forEach(outputColumnsList[key],function(valueb,keyb){
+                        $scope.outputSQLSELECT+=tablename+"."+valueb;
+                        if (keyb < outputColumnsList[key].length-1){
+                            $scope.outputSQLSELECT+=", ";
+                        };
+                    });
+                    if (key < outputCataloguesList.length-1){
+                            $scope.outputSQLSELECT+=", ";
                     };
-
-                    if (key < $scope.outputWheres.length-1){
-                        $scope.outputSQLWHERE+=", AND ";
-                    };
-                    //key is row
+                    counter++;
+                    //FROM   GalacticExtinction as t1
+                    tablenameArr.push([outputCataloguesList[key], tablename]);
                 });
+                console.log(angular.toJson(tablenameArr))
+
+
+                // if joins are present
+                if (undefined != $scope.outputJoins[0]){
+                    //first cat always first with this syntax:
+                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1];
+
+                    //sort out joins
+                    angular.forEach($scope.outputJoins, function(value,key){
+                        var joinCatAliasB =''; var joinCatAlias ='';
+                        //get table alias (tablenameArr looks like: [["ExternalSpecAll","t1"],["Test","t2"]])
+                        angular.forEach(tablenameArr,function(valueb, keyb){
+                            //catalogue
+                            console.log(valueb[0])
+                            if ($scope.outputJoins[key][0].cat == valueb[0]){
+                                joinCatAlias = valueb[1];
+                            }
+                            if ($scope.outputJoinsB[key][0].cat == valueb[0]){
+                                joinCatAliasB = valueb[1];
+                            }
+                        });
+
+                        $scope.outputSQLJOIN+='<br>'+$scope.outputJoinOperator[key][0].operator+' JOIN '
+                            + $scope.outputJoinsB[key][0].cat + ' as ' + joinCatAliasB + ' on ' +
+                            joinCatAliasB+'.'+$scope.outputJoinsB[key][0].name+' = '+joinCatAlias+'.'+$scope.outputJoins[key][0].name;
+
+                    });
+                } else {
+                    //if no joins (single table) append FROM to statement
+                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1];
+                }
+
+
+                // construct JOIN
+                //FROM   GalacticExtinction as t1
+                //       LEFT OUTER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+
+
+                //FROM   GalacticExtinction as t1
+                //       INNER JOIN InputCatA as t2 on t2.CATAID = t1.CATAID and t2.RA = t1.RA and t2.CATAID = t1.CATAID
+                //       LEFT OUTER JOIN SpStandards as t3 on t3.CATAID = t1.CATAID
+
+
+
+                console.log($scope.outputSQLSELECT);
+                console.log(angular.toJson(outputColumnsList));
+                console.log(angular.toJson(outputCataloguesList));
+
+
+
+                if (undefined != $scope.outputWheres[0]){
+                    $scope.outputSQLWHERE='WHERE ';
+                    angular.forEach($scope.outputWheres, function(value,key){
+                        var whereCatAlias ='';
+
+                        //get table alias (tablenameArr looks like: [["ExternalSpecAll","t1"],["Test","t2"]])
+                        angular.forEach(tablenameArr,function(valueb, keyb){
+                            if (value[0].cat == valueb[0]){
+                                whereCatAlias = valueb[1];
+                            }
+                        });
+
+
+                        if (undefined == $scope.outputWhereOperator[key][0]){
+                            //user has not selected operator for a row - alert
+                            $scope.error['eWhereOperatorMissing']='Missing operator in row '+key;
+                            $scope.error['errorFlag']=true;
+                        } else if (undefined == $scope.outputWheres[key][0]){
+                            $scope.error['eWhereOptionMissing']='Missing WHERE selector in row '+key;
+                            $scope.error['errorFlag']=true;
+                        } else {
+                            $scope.outputSQLWHERE+=whereCatAlias+"."+value[0].name+" "+
+                            $scope.fcheckboxEval($scope.queryCheckbox[key])+" "+
+                            $scope.outputWhereOperator[key][0].operator+" "+
+                            $scope.fBetweenValue($scope.outputWhereOperator[key][0].operator,key)+
+                            $scope.outputWhereValue[key];
+                        };
+
+                        if (key < $scope.outputWheres.length-1){
+                            $scope.outputSQLWHERE+=", AND ";
+                        };
+                        //key is row
+                    });
+                };
+
+
+
+                // construct full SQL
+                $scope.outputSQL = $scope.outputSQLSELECT +' <br>'+ $scope.outputSQLJOIN +' <br>'+ $scope.outputSQLWHERE;
+
 
             };
 
@@ -903,9 +968,28 @@
                     }
                 });
             return outputCataloguesList;
-        }
+        };
+
+        $scope.fReset = function (){
+            $($('.btn-cat-remove').get().reverse()).each(function(i, obj) {
+                if ($(this).attr('data-value')>0){
+                    $scope.fRemoveCatalogue($(this).attr('data-value'));
+                };
+            });
+            $($('.btn-join-remove').get().reverse()).each(function(i, obj) {
+                $scope.fRemoveJoin($(this).attr('data-value'));
+            });
+            $($('.btn-where-remove').get().reverse()).each(function(i, obj) {
+                $scope.fRemoveWhere($(this).attr('data-value'));
+            });
+
+            $scope.outputSQL='';
+            $scope.fValidate();
+        };
 
     } ]); //end controller
 
 })();
+
+
 

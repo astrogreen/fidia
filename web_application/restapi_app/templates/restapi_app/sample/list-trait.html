@@ -1,0 +1,160 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}{{objname}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block content-options %}{% endblock %}
+{% block content-delete %}{% endblock %}
+{% block content-filter-form %}{% endblock %}
+
+{% block content-page-header %}
+{% endblock %}
+{% block content %}
+<h1 class="headline">
+    <span>{% filter uppercase %}{% get_pks request.path -4 %}{% endfilter %} {% get_pks request.path -3 %}: {{objname}}</span>
+    {% captureas survey %}{% get_pks request.path -4 %}{% endcaptureas %}
+    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
+        <img class="img-responsive pull-right {{survey}}" src="{% static image_static %}">
+    {% endwith %}
+</h1>
+<br>
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Download</h3>
+            </div>
+            <div class="panel-body">
+                <p>Download {{objname}} in one of the following formats:<br></p>
+                {% if 'GET' in allowed_methods %}
+                <form id="get-form">
+                    <fieldset>
+                        {% if api_settings.URL_FORMAT_OVERRIDE %}
+                        <div class="btn-group  btn-block format-selection">
+                            <ul class="">
+
+                                {% for format in available_formats %}
+                                {% if format != 'api' %}
+                                    <li>
+                                        <a class="js-tooltip format-option"
+                                           href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">
+                                            {{ format }}</a>
+                                    </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                        <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                           title="View user {{user}}'s {{ name }}">GET</a>
+                        {% endif %}
+                    </fieldset>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Description</h3>
+            </div>
+            <div class="panel-body">
+                <h4>{{objname}}</h4>
+                <p>Description of data goes here.<br></p>
+            </div>
+        </div>
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Component Properties</h3>
+            </div>
+            <div class="panel-body">
+                <p>The component properties for {{objname}} are listed below. Click for more details.<br></p>
+                {% for key, value in response.data.items %}
+                    <a href="{{key}}"><h4>{{key | CapsSentence}}</h4></a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div id="{% get_pks request.path -2 %}">
+            <p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p>
+            {% comment %}
+                {% for key, value in response.data.items %}
+                <strong>{{key}}</strong><br>
+                    {% for keya, valuea in value.items %}
+                        keya:{{keya}}<br>
+                        valuea:{{valuea}}<br>
+                    {% endfor %}
+                <br>
+                {% endfor %}
+            {% endcomment %}
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <p><strong>Plot Options</strong></p>
+                <p>interactive plotting options go here</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block content-DRFs %}{% endblock %}
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script src="{% static 'restapi_app/js/sample/plotly.float.array.js' %}"></script>
+<script type="text/javascript">
+    var AstroObjectJson = JSON.parseMore("{{ content|escapejs }}");
+
+    var valueURL = "{{request.build_absolute_uri}}value/?format=json";
+    var mapName = "{% get_pks request.path -2 %}";
+    console.log(mapName)
+    console.log(mapName.indexOf("spectral"))
+    // only run if ! spectral
+    if (mapName.indexOf("spectral") < 0){
+        var handleData = function(data){
+            console.log('handledata');
+            console.log(data)
+        };
+
+        function testAjax(handleData) {
+            console.log(valueURL);
+          $.ajax({
+            url:valueURL,
+            dataType:'text',
+            success:function(data) {
+              handleData(data);
+            }
+          });
+        };
+
+        testAjax(function(output){
+          // here you use the output
+            $('#'+mapName).html('');
+            var dataJSON = JSON.parseMore(output);
+            console.log(dataJSON);
+            fAstroMap(mapName,dataJSON);
+        });
+
+    } else {
+        $('#'+mapName).html('tbd');
+    };
+
+
+
+
+</script>
+
+{% endblock %}
+

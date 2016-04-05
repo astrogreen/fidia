@@ -1,13 +1,15 @@
 import random, collections, logging
 import json
 from pprint import pprint
+
+from .permissions import IsNotAuthenticated
 from .exceptions import NoPropertyFound
-from django.shortcuts import get_object_or_404
 
 from .models import (
     Query,
 )
 from .serializers import (
+    CreateUserSerializer,
     UserSerializer,
     QuerySerializerCreateUpdate, QuerySerializerList,
     SampleSerializer,
@@ -20,15 +22,20 @@ from .serializers import (
 
 from .renderers import (
     FITSRenderer,
-    ListNoDetailRenderer,
+
     SOVListRenderer,
     SOVDetailRenderer,
     QueryRenderer,
     AstroObjectRenderer,
-    SampleRenderer
+    GAMARenderer,
+    # SAMIRenderer,
+    SampleRenderer,
+    RegisterRenderer,
+    TraitRenderer,
+    TraitPropertyRenderer
 )
 
-from rest_framework import generics, permissions, renderers, views, viewsets, status, mixins
+from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework_csv import renderers as r
@@ -40,7 +47,25 @@ from fidia.archive.asvo_spark import AsvoSparkArchive
 log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
 
+
+class CreateUserView(generics.ListCreateAPIView):
+    """
+    User View to allow registration
+    """
+    model = User
+    permission_classes = [IsNotAuthenticated]
+    serializer_class = CreateUserSerializer
+    renderer_classes = [RegisterRenderer]
+
+    def get_queryset(self):
+        queryset = User.objects.none()
+        return queryset
+
+
 class QueryViewSet(viewsets.ModelViewSet):
+    """
+    Query the AAO Data Archive
+    """
     serializer_class = QuerySerializerList
     permission_classes = [permissions.IsAuthenticated]
     # permission_classes = [permissions.AllowAny]
@@ -71,6 +96,7 @@ class QueryViewSet(viewsets.ModelViewSet):
 
     def run_FIDIA(self, request, *args, **kwargs):
 
+        # SELECT t1.CATAID FROM InputCatA AS t1 WHERE t1.CATAID  BETWEEN 65401 and 65410
         sample = AsvoSparkArchive().new_sample_from_query(request['SQL'])
 
         (json_n_rows, json_n_cols) = sample.tabular_data().shape
@@ -87,6 +113,7 @@ class QueryViewSet(viewsets.ModelViewSet):
 
         log.debug(json_table)
         data = json.loads(json_table)
+
         return data
 
     def create(self, request, *args, **kwargs):
@@ -173,7 +200,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
 
-# ASVO
 
 # from fidia.archive.example_archive import ExampleArchive
 # ar = ExampleArchive()
@@ -187,7 +213,7 @@ from fidia.archive.sami import SAMITeamArchive
 
 ar = SAMITeamArchive(
     settings.SAMI_TEAM_DATABASE,
-    settings.SAMI_TEAM_DATABSE_CATALOG)
+    settings.SAMI_TEAM_DATABASE_CATALOG)
 
 sample = ar.get_full_sample()
 
@@ -203,9 +229,22 @@ sample = ar.get_full_sample()
 # >>> sample['Gal1']['redshift'].value
 # 3.14159
 #
+class GAMAViewSet(mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+
+    renderer_classes = (GAMARenderer, renderers.JSONRenderer, r.CSVRenderer)
+    def list(self, request, pk=None, sample_pk=None, format=None):
+        try:
+            sample
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'nodata': True})
 
 
-class SampleViewSet(mixins.ListModelMixin,
+class SAMIViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
     renderer_classes = (SampleRenderer, renderers.JSONRenderer, r.CSVRenderer)
@@ -238,14 +277,14 @@ class AstroObjectViewSet(mixins.ListModelMixin,
     renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
-        def get_serializer_context(self):
-            """
-            pass request attribute to serializer - add schema attribute
-            """
-            return {
-                'request': self.request,
-                'schema': ar.schema()
-            }
+        # def get_serializer_context(self):
+        #     """
+        #     pass request attribute to serializer - add schema attribute
+        #     """
+        #     return {
+        #         'request': self.request,
+        #         'schema': ar.schema()
+        #     }
 
         try:
             astroobject = sample[galaxy_pk]
@@ -272,9 +311,11 @@ class AstroObjectViewSet(mixins.ListModelMixin,
 class TraitViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (ListNoDetailRenderer,renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (TraitRenderer, renderers.JSONRenderer, r.CSVRenderer, FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
+        log.debug("Format requested is '%s'", format)
+
         try:
             trait = sample[galaxy_pk][trait_pk]
         except KeyError:
@@ -285,15 +326,26 @@ class TraitViewSet(mixins.ListModelMixin,
         serializer_class = AstroObjectTraitSerializer
         serializer = serializer_class(
             instance=trait, many=False,
-            context={'request': request}
+            context={
+                'request': request,
+            }
         )
+
         return Response(serializer.data)
 
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'fits':
+            filename = "{obj_id}-{trait}.fits".format(
+                obj_id=kwargs['galaxy_pk'],
+                trait=kwargs['trait_pk'])
+            response['content-disposition'] = "attachment; filename=%s" % filename
+        return response
 
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
 
-    renderer_classes = (ListNoDetailRenderer,renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (TraitPropertyRenderer,renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
@@ -313,6 +365,13 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
             context={'request': request}
         )
         return Response(serializer.data)
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'fits':
+            filename = "{galaxy_pk}-{trait_pk}-{traitproperty_pk}.fits".format(**kwargs)
+            response['content-disposition'] = "attachment; filename=%s" % filename
+        return response
 
 
 #  SOV
@@ -355,9 +414,19 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        serializer_class = SOVRetrieveObjectSerializer
-        serializer = serializer_class(
+        serializer = SOVRetrieveObjectSerializer(
             instance=astroobject, many=False,
             context={'request': request}
         )
         return Response(serializer.data)
+
+
+class AvailableTables(views.APIView):
+
+    def get(self, request, format=None):
+        """
+        Return hardcoded response: json data of available tables
+        """
+        with open('restapi_app/gama_database.json') as json_d:
+            json_data = json.load(json_d)
+        return Response(json_data)

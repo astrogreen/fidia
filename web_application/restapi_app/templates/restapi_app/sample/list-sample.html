@@ -1,0 +1,148 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}{{objname}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block content-options %}{% endblock %}
+{% block content-delete %}{% endblock %}
+{% block content-filter-form %}{% endblock %}
+
+{% block content-page-header %}
+<h1>{{ objname }}</h1>
+{% endblock %}
+
+{% block content %}
+
+{% for key, value in response.data.items %}
+{% endfor %}
+
+<!--<div class="pull-right survey {{ objname }}"></div>-->
+<h1 class="headline">
+    <span>{{objname}}</span>
+    {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
+    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
+        <img class="img-responsive pull-right sami" src="{% static image_static %}">
+    {% endwith %}
+</h1>
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Data</h3>
+            </div>
+            <div class="panel-body">
+                <h4>View {{objname}} Survey DR 1.0</h4>
+                <p>Browse the {{objname}} data products available by source.</p>
+                <p>Select a galaxy from the dropdown to get started.</p>
+                <br>
+                <select type="text" class="selectized text-center" id="autocomplete-widget" placeholder="GALAXY">
+                    <option value="" disabled selected>Select an object</option>
+                    {% for key, value in response.data.items %}
+                    <option value="{{value}}">{{key}}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">Go</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">SOV</h3>
+            </div>
+            <div class="panel-body">
+                <h4>{{objname}} Single Object Viewer</h4>
+                <p>View a summary of main data products <a href="{% url 'sov-list'%}" disabled>{{objname}} SOV</a>.<br></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Documentation</h3>
+            </div>
+            <div class="panel-body">
+                <h4>View Documentation</h4>
+                <p>
+                    <a href="" class="disabled" >{{objname}} docs</a><br>
+                    <a href="" class="disabled" > Schema Browser</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Data Release Details</h3>
+            </div>
+            <div class="panel-body">
+                <h4>{{objname}} Survey DR1.0 Details</h4>
+                <p>Download a list of {{objname}} objects.</p><br>
+                {% if 'GET' in allowed_methods %}
+                <form id="get-form">
+                    <fieldset>
+                        {% if api_settings.URL_FORMAT_OVERRIDE %}
+                        <div class="btn-group  btn-block format-selection">
+                            <!--<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
+                            <!--title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>-->
+                            <button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip"
+                                    data-toggle="dropdown" title="Specify a format for the request">
+                                Download {{objname}} object list <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for format in available_formats %}
+                                <li>
+                                    <a class="js-tooltip format-option"
+                                       href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                       rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">
+                                        {{ format }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                        <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                           title="View user {{user}}'s {{ name }}">GET</a>
+                        {% endif %}
+                    </fieldset>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        $selector = $("#autocomplete-widget").selectize({
+            closeAfterSelect: true,
+            selectOnTab: true,
+            placeholder: "GALAXY",
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                $('#autocomplete-button').attr('href', value).attr('disabled', false)
+            }
+        });
+    });
+
+</script>
+{% endblock %}
+
+{% block content-DRF %}{% endblock %}
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+{% endblock %}
+

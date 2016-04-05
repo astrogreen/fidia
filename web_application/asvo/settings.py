@@ -18,7 +18,7 @@ put the overrides there. They are loaded at the end of this file.
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
+from django.core.urlresolvers import reverse
 import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +35,6 @@ DEBUG = True
 
 # ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -48,7 +47,7 @@ INSTALLED_APPS = (
     'aatnode',
     'astrospark',
     'bootstrap3',
-    'captcha',
+    # 'captcha',
     'clever_selects',
     'django_extensions',
     'mathfilters',
@@ -88,6 +87,8 @@ TEMPLATES = [
     },
 ]
 
+LOGIN_REDIRECT_URL = 'index'
+
 WSGI_APPLICATION = 'asvo.wsgi.application'
 
 
@@ -112,7 +113,7 @@ SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 #    Set these to the location of the SAMI database directory and corresponding
 #    catalog file.
 SAMI_TEAM_DATABASE = ''
-SAMI_TEAM_DATABSE_CATALOG = ''
+SAMI_TEAM_DATABASE_CATALOG = ''
 
 
 # Internationalization
@@ -240,14 +241,15 @@ RECAPTCHA_PRIVATE_KEY = '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn'
 NOCAPTCHA = True
 
 REST_FRAMEWORK = {
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework_csv.renderers.CSVRenderer',
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
+

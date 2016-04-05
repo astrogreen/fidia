@@ -1,0 +1,113 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}{{objname}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block content-options %}{% endblock %}
+{% block content-delete %}{% endblock %}
+{% block content-filter-form %}{% endblock %}
+
+{% block content-page-header %}{% endblock %}
+{% block content %}
+    <h1 class="headline">
+        <span>{{ objname }}</span>
+        {% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
+        {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
+            <img class="img-responsive pull-right sami" src="{% static image_static %}">
+        {% endwith %}
+    </h1>
+
+    <div class="container-browse-astroobject">
+        <h3>Available Data</h3>
+        <div class="row">
+            {% for key, value in response.data.items %}
+
+                {% if key == 'schema' %}
+                    {% for keyb, valueb in value.items %}
+
+                        <div class="col-md-5 col-sm-5 col-xs-6">
+                        {% comment %}
+                            {% if forloop.counter0|divisibleby:4 %}
+                                {{ forloop.counter0 }} COUNTER
+                            {% endif %}
+                        {% endcomment %}
+                            <div class="panel panel-default">
+                                <!-- Default panel contents -->
+                                <div class="panel-heading panel-background-grey"><strong>{{ keyb | CapsSentence }}</strong></div>
+                                <!--<div class="panel-body">-->
+                                <!--&lt;!&ndash;<p>Additional info here?</p>&ndash;&gt;-->
+                                <!--</div>-->
+
+                                 <!--List group-->
+                                <div class="list-group list-group-collapse">
+                                    {% for keyc, valuec in response.data.items %}
+                                        {% if keyc != 'schema' and keyb in keyc %}
+                                        <div class="list-group-item ">
+                                            <a href="{{ valuec }}" class="underline-blue">
+                                                {% if keyb == 'line_map' %}
+                                                    <p class=" list-group-item-text">{{ keyc | LineOnly }}</p>
+                                                {% elif keyb == 'velocity_map' %}
+                                                    <p class=" list-group-item-text">{{ keyc | CapsSentence }}</p>
+                                                {% else %}
+                                                    <p class=" list-group-item-text">{{ keyc | TraitTypeSplit }}</p>
+                                                {% endif %}
+                                            </a>
+                                            {% for keyd, valued in valueb.items %}
+                                             <a href="{{ valuec }}{{ keyd }}" class="underline-red"><p>{{ keyd }}</p></a>
+                                            {%endfor%}
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-sm-offset-8 col-sm-4">
+                {% if 'GET' in allowed_methods %}
+                    <form id="get-form" class="pull-right">
+                        <fieldset>
+                            {% if api_settings.URL_FORMAT_OVERRIDE %}
+                            <div class="btn-group  btn-block format-selection">
+                                <!--<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
+                                   <!--title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>-->
+                                <button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
+                                    Download list of available data for {{objname}}  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% for format in available_formats %}
+                                    <li>
+                                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% else %}
+                                <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                                   title="View user {{user}}'s {{ name }}">GET</a>
+                            {% endif %}
+                        </fieldset>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script>
+    </script>
+{% endblock %}
+
+{% block content-DRFs %}{% endblock %}
+{% block footer-extra %}
+{% endblock %}
+

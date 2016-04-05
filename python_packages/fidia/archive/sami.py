@@ -13,8 +13,6 @@ import pandas as pd
 
 from cached_property import cached_property
 
-# from asvo_spark import ASVOSparkConnector
-
 # FIDIA Relative Imports
 from fidia import *
 from .archive import Archive
@@ -25,7 +23,7 @@ from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityM
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
@@ -364,7 +362,7 @@ class SAMISpectralCube(SpectralMap):
 
     @property
     def shape(self):
-        return 0
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -389,30 +387,32 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float')
     def total_exposure(self):
+        """Total exposure time for this cube"""
         return self.hdu[0].header['TOTALEXP']
 
     @trait_property('string')
     def cubing_code_version(self):
+        """Version of the cubing code used"""
         return self.hdu[0].header['HGCUBING']
 
     @trait_property('string')
     def plate_id(self):
-        """The plate identification string."""
+        """Plate identification string"""
         return self.hdu[0].header['PLATEID']
 
     @trait_property('string')
     def plate_label(self):
-        """The label assigned to the plate."""
+        """Label assigned to the plate"""
         return self.hdu[0].header['LABEL']
 
     @trait_property('float')
     def ra(self):
-        """The label assigned to the plate."""
+        """Catalog right-ascension of the galaxy"""
         return self.hdu[0].header['CATARA']
 
     @trait_property('float')
     def dec(self):
-        """The label assigned to the plate."""
+        """Catalog declination of the galaxy."""
         return self.hdu[0].header['CATADEC']
 
 
@@ -469,7 +469,7 @@ class LZIFUVelocityMap(VelocityMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @property
     def unit(self):
@@ -521,7 +521,7 @@ class LZIFULineMap(Image):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     def unit(self):
         return None
@@ -562,7 +562,7 @@ class LZIFUContinuum(SpectralMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -602,7 +602,7 @@ class LZIFULineSpectrum(SpectralMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -624,9 +624,12 @@ class SAMITeamArchive(Archive):
     def __init__(self, base_directory_path, master_catalog_path):
         self._base_directory_path = base_directory_path
         self._master_catalog_path = master_catalog_path
-        self._contents = None
+
+        log.debug("master_catalog_path: %s", self._master_catalog_path)
 
         self._cubes_directory = self._get_cube_info()
+
+        self._contents = set(self._cubes_directory.index.get_level_values('sami_id'))
 
         # Local cache for traits
         self._trait_cache = dict()
@@ -636,15 +639,14 @@ class SAMITeamArchive(Archive):
     @property
     def contents(self):
         """List (set?) of available objects in this archive."""
-        if self._contents is None:
-            with fits.open(self._master_catalog_path) as m:
-                # Master Catalogue is a binary table in extension 1 of the FITS File.
-                self._contents = list(map(str, m[1].data['CATID']))
         return self._contents
 
     def _get_cube_info(self):
         cube_file_paths = []
-        for id in self.contents:
+        with fits.open(self._master_catalog_path) as m:
+            # Master Catalogue is a binary table in extension 1 of the FITS File.
+            contents = list(map(str, m[1].data['CATID']))
+        for id in contents:
              cube_file_paths.extend(glob(self._base_directory_path + "*/cubed/" + id + "/*.fits*"))
         cube_directory = []
         for path in cube_file_paths:

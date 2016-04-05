@@ -1,0 +1,39 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Sign Out{% endblock %}
+{% block head-extra %}
+{% endblock %}
+
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+
+{% block content-filter-form %}{% endblock %}
+{% block content-header %}{% endblock %}
+
+{% block content-main %}
+<br>
+<div class="row">
+    <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong> Signed Out </strong>
+                <i class="fa fa-check pull-right" style="margin-top:3px"></i>
+            </div>
+            <div class="panel-body">
+                {% if user.is_authenticated %}
+                  {% load internal_extras %}
+                  {% optional_logout request user %}
+                {% else %}
+                  {% optional_login request %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

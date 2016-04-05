@@ -1,6 +1,6 @@
 import pickle
 from io import BytesIO
-from collections import OrderedDict
+from collections import OrderedDict, Mapping
 
 from astropy.io import fits
 
@@ -10,11 +10,27 @@ from .utilities import TraitProperty, TraitMapping, TraitKey
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-# log.setLevel(slogging.WARN)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
-
+# class DictTrait(Mapping):
+#     """A "mix-in class which provides dict-like access for Traits
+#
+#     Requires that the class mixed into implements a `_trait_dict` cache
+#
+#     """
+#
+#     def __iter__(self):
+#         pass
+#     def __getitem__(self, item):
+#         if item in self._trait_cache:
+#             return self._trait_cache[item]
+#         else:
+#             return getattr(self, item)
+#
+#     def __len__(self):
+#         return 0
 
 class Trait(AbstractBaseTrait):
 
@@ -171,10 +187,10 @@ class Trait(AbstractBaseTrait):
         pass
 
     @classmethod
-    def _trait_properties(cls, trait_type=None):
+    def _trait_properties(cls, trait_property_types=None):
         """Generator which iterates over the TraitProperties attached to this Trait.
 
-        :param trait_type:
+        :param trait_property_types:
             Either a string trait type or a list of string trait types or None.
             None will return all trait types, otherwise only traits of the
             requested type are returned.
@@ -183,19 +199,23 @@ class Trait(AbstractBaseTrait):
         data, which is why this is implemented as a private method. See
         `trait_property_values` as a simpler alternative.
 
+        Alternately, use the public `trait_properties` method to retrieve bound
+        Trait Properties which do not have this complication (and see ASVO-425!)
+
         :returns: the TraitProperty descriptor object
 
         """
 
-        if isinstance(trait_type, str):
-            trait_type = tuple(trait_type)
+        if isinstance(trait_property_types, str):
+            trait_property_types = tuple(trait_property_types)
 
         # Search class attributes:
+        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", cls.trait_type, trait_property_types)
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
                 log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
-                if (trait_type is None) or (obj.type in trait_type):
+                if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
 
     # def sub_traits(self):
@@ -208,8 +228,52 @@ class Trait(AbstractBaseTrait):
     #             yield obj
 
     def trait_property_dir(self):
+        """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
         for tp in self._trait_properties():
             yield tp.name
+
+    def trait_properties(self, trait_property_types=None):
+        """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
+
+        :param trait_property_types:
+            Either a string trait type or a list of string trait types or None.
+            None will return all trait types, otherwise only traits of the
+            requested type are returned.
+
+        :yields: a TraitProperty which is bound to this trait
+
+        """
+
+        # If necessary, convert a single trait property type argument to a list:
+        if isinstance(trait_property_types, str):
+            trait_property_types = tuple(trait_property_types)
+
+        # Search class attributes. NOTE that this code is very similar to that
+        # in `_trait_properties`. It has been reproduced here as
+        # `_trait_properties` is probably going to be deprecated and removed if
+        # ASVO-425 works out.
+        #
+        # Also note that, as written, this method avoids creating
+        # BoundTraitProperty objects unless actually necessary.
+        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", self.trait_type, trait_property_types)
+        cls = type(self)
+        for attr in dir(cls):
+            descriptor_obj = getattr(cls, attr)
+            if isinstance(descriptor_obj, TraitProperty):
+                log.debug("Found trait property '{}' of type '{}'".format(attr, descriptor_obj.type))
+                if (trait_property_types is None) or (descriptor_obj.type in trait_property_types):
+                    # Retrieve the attribute for this object (which will create
+                    # the BoundTraitProperty: see `__get__` on `TraitProperty`)
+                    yield getattr(self, attr)
+
+    # def sub_traits(self):
+    #     """Generator which iterates over the sub-Traits of this Trait."""
+    #
+    #     for key in dir(type(self)):
+    #         obj = getattr(type(self), key)
+    #         if isinstance(obj, TraitProperty):
+    #             log.debug("Found trait property '{}'".format(key))
+    #             yield obj
 
     def trait_property_values(self, trait_type=None):
         """Generator which returns the values of the TraitProperties of the given type.
@@ -298,10 +362,10 @@ class Trait(AbstractBaseTrait):
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
         if type(self).value.type in ("float.array", "int.array"):
-            primary_hdu = fits.PrimaryHDU(self.value)
+            primary_hdu = fits.PrimaryHDU(self.value())
             hdulist.append(primary_hdu)
         elif type(self).value.type in ("float", "int"):
-            primary_hdu = fits.PrimaryHDU([self.value])
+            primary_hdu = fits.PrimaryHDU([self.value()])
             hdulist.append(primary_hdu)
         else:
             log.error("Attempted to export trait with value type '%s'", type(self).value.type)
@@ -317,9 +381,24 @@ class Trait(AbstractBaseTrait):
         #     primary_hdu.header[trait.short_name + "_ERR"] = (trait.value, trait.short_comment)
 
         # Create extensions for additional array-like values
-        # for trait_property in self.trait_property_values(['float.array', 'int.array']):
-        #     extension = fits.ImageHDU(trait_property)
-        #     hdulist.append(extension)
+        for trait_property in self.trait_properties(['float.array', 'int.array']):
+            extension = fits.ImageHDU(trait_property.value)
+            extension.name = trait_property.name
+            hdulist.append(extension)
+
+        # Add single-value TraitProperties to the header:
+        for trait_property in self._trait_properties(['float', 'int']):
+            primary_hdu.header[trait_property.name] = (
+                getattr(self, trait_property.name),
+                trait_property.doc)
+
+        for trait_property in self._trait_properties(['string']):
+            value = getattr(self, trait_property.name)
+            if len(value) >= 80:
+                continue
+            primary_hdu.header[trait_property.name] = (
+                value,
+                trait_property.doc)
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
         # for trait_property in self.trait_property_values('catalog'):
