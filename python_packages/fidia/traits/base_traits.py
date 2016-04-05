@@ -362,10 +362,10 @@ class Trait(AbstractBaseTrait):
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
         if type(self).value.type in ("float.array", "int.array"):
-            primary_hdu = fits.PrimaryHDU(self.value)
+            primary_hdu = fits.PrimaryHDU(self.value())
             hdulist.append(primary_hdu)
         elif type(self).value.type in ("float", "int"):
-            primary_hdu = fits.PrimaryHDU([self.value])
+            primary_hdu = fits.PrimaryHDU([self.value()])
             hdulist.append(primary_hdu)
         else:
             log.error("Attempted to export trait with value type '%s'", type(self).value.type)
@@ -381,8 +381,8 @@ class Trait(AbstractBaseTrait):
         #     primary_hdu.header[trait.short_name + "_ERR"] = (trait.value, trait.short_comment)
 
         # Create extensions for additional array-like values
-        for trait_property in self._trait_properties(['float.array', 'int.array']):
-            extension = fits.ImageHDU(getattr(self, trait_property.name))
+        for trait_property in self.trait_properties(['float.array', 'int.array']):
+            extension = fits.ImageHDU(trait_property.value)
             extension.name = trait_property.name
             hdulist.append(extension)
 
