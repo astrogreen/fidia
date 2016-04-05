@@ -256,11 +256,6 @@
 
                 // SQL
                 $('textarea[name=SQL]').each(function () {
-                    //destroy previous instances if patching/putting data
-                    {% if request.method == "PUT" %}
-//                  SQLAceEditor.container.remove();
-                    {% endif %}
-
                     $('form').find('textarea[name=SQL]').attr('id','textarea-code');
 
                     // clear out parent container

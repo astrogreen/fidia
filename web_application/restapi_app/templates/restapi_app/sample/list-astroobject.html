@@ -41,26 +41,29 @@
                             <div class="panel panel-default">
                                 <!-- Default panel contents -->
                                 <div class="panel-heading panel-background-grey"><strong>{{ keyb | CapsSentence }}</strong></div>
-                                <!--<div class="panel-body">-->
-                                <!--&lt;!&ndash;<p>Additional info here?</p>&ndash;&gt;-->
-                                <!--</div>-->
 
                                  <!--List group-->
                                 <div class="list-group list-group-collapse">
                                     {% for keyc, valuec in response.data.items %}
                                         {% if keyc != 'schema' and keyb in keyc %}
                                         <div class="list-group-item ">
-                                            <a href="{{ valuec }}" class="underline-blue">
-                                                {% if keyb == 'line_map' %}
-                                                    <p class=" list-group-item-text">{{ keyc | LineOnly }}</p>
-                                                {% elif keyb == 'velocity_map' %}
-                                                    <p class=" list-group-item-text">{{ keyc | CapsSentence }}</p>
-                                                {% else %}
-                                                    <p class=" list-group-item-text">{{ keyc | TraitTypeSplit }}</p>
-                                                {% endif %}
+                                            <a href="{{ valuec }}" class="">
+                                                <span class="pull-right ">view</span>
                                             </a>
+                                            <h4 class="list-group-item-text">
+                                                {% if keyb == 'line_map' %}
+                                                    {{ keyc | LineOnly }}
+                                                {% elif keyb == 'velocity_map' %}
+                                                    {{ keyc | CapsSentence }}
+                                                {% else %}
+                                                    {{ keyc | TraitTypeSplit }}
+                                                {% endif %}
+                                            </h4>
+
+                                            <h6 class="text-uppercase">Properties</h6>
                                             {% for keyd, valued in valueb.items %}
-                                             <a href="{{ valuec }}{{ keyd }}" class="underline-red"><p>{{ keyd }}</p></a>
+                                             <a href="{{ valuec }}{{ keyd }}" class="inline-links"><p>{{ keyd }}</p></a>
+
                                             {%endfor%}
                                         </div>
                                         {% endif %}
@@ -86,10 +89,12 @@
                                 </button>
                                 <ul class="dropdown-menu">
                                     {% for format in available_formats %}
-                                    <li>
-                                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
-                                    </li>
+                                    {% if format != 'api' %}
+                                        <li>
+                                            <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                               rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
+                                        </li>
+                                    {% endif %}
                                     {% endfor %}
                                 </ul>
                             </div>

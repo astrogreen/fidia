@@ -1,64 +1,22 @@
 /*!*AUTOCOMPLETE STYLES*!*/
 .container-sov-entry{margin-bottom:30px;}
-.aat{background: url('../../img/logo/aat.jpg') no-repeat fixed center;}
-.breadcrumb.inverted {background:transparent;color:#fff;}
-.breadcrumb.inverted li.active a {
-    color: #fff;
-}
-.breadcrumb.inverted li a {
-    color: #ddd;
-}
+
 .selectize-input,
 .selectize-control.single .selectize-input.input-active{
     border-radius:0px;
-    /*background: rgba(255, 255, 255, 0.15) !important;*/
-    /*border: 2px solid rgba(255, 255, 255, 0.6) !important;*/
-    /*color:#ffffff;*/
 }
-/*::-webkit-input-placeholder { color: rgba(255, 255, 255, 0.8) }*/
-/*::-moz-placeholder { color: rgba(255, 255, 255, 0.8) } !* firefox 19+ *!*/
-/*:-ms-input-placeholder { color: rgba(255, 255, 255, 0.8) } !* ie *!*/
-/*input:-moz-placeholder { color: rgba(255, 255, 255, 0.8); }*/
+.panel-body.extra-padding{padding:20px 15px;}
 
-.survey{
-    margin:80px 0px 0px;
-}
-.survey > .survey-container{
-    margin-bottom:50px;
-}
-.survey i{
+.sami {
+    background-color:#fff;
+    max-width:115px;
     position:relative;
-    display:inline-block;
-    width:112px;height:112px;
-    /*width:150px;height:150px;*/
+    padding-top:13px;
+}
 
-    background-color: rgba(0, 0, 0, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    color:#ffffff;
-    border-radius:50%;
-    padding:10px;
-    left:0px; right:0px;
-    opacity:0.7;
-    transition: opacity .5s ease-in-out, background-color .5s ease-in-out;
+.gama{
+    background-color:#fff;
+    max-width:80px;
+    position:relative;
 }
-.survey i.sami{
-    background: url('../../img/logo/logo-sami-dark.png') center no-repeat;
-    background-size:80% auto;
-}
-.survey i.gama{
-    background:url('../../img/logo/logo-gama-dark.png') center no-repeat;
-    background-size:70% auto;
-}
-.survey i:hover{
-    opacity:1;
-    background-color: rgba(0, 0, 0, 0.25);
-    transition: all 0.5s ease-in-out;
-}
-.survey .survey-container .survey-detail{color:rgba(255,255,255,1)}
-
-
-/*TEMP BEFORE GAMA IS ADDED AND ONCLICK IS TURNED BACK ON*/
-.survey i.sami{
-    opacity:1;
-    background-color: rgba(0, 0, 0, 0.25);
-}
+.sov-logo{margin-bottom:20px;}

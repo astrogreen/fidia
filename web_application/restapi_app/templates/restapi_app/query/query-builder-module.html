@@ -11,7 +11,7 @@
 
     <script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
     <script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
-    <script src="{% static 'restapi_app/js/query-builder/gama_database.js' %}"></script>
+    <!--<script src="{% static 'restapi_app/js/query-builder/gama_database.js' %}"></script>-->
     <script type="text/javascript">
         //get url for available catalogues
         urlCataloguesGlobal = "{% url "catalogues" %}"
@@ -242,9 +242,13 @@
     {% endverbatim %}
 <script>
     $('#query-builder-submit').click(function(){
-        $('#textarea-code').val($('#outputSQL').text());
+        //shouldnt need this, editor and textareacode are already bound
+        //$('#textarea-code').val('');
+        //$('#textarea-code').val($('#outputSQL').text());
+
         var SQLAceEditor = ace.edit("SQL-ace-editor");
-        SQLAceEditor.session.insert(1, $('#outputSQL').text());
+        SQLAceEditor.setValue($('#outputSQL').text(), -1);
+
         $('#query-builder-form').removeClass('active');
         $('a[href="#query-builder-form"]').parent('li').removeClass('active');
         $('#post-object-form').addClass('active');

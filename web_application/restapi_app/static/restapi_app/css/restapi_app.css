@@ -56,29 +56,6 @@ body {
     background: url("../img/panel-background.png") repeat-x;
 }
 
-a.underline-blue p {
-    font-size: 16px;
-    line-height: 1.6;
-}
-
-a.underline-blue {
-    color: #3f9ad2;
-    text-decoration: underline;
-}
-
-a.underline-red {
-    color: #A30000;
-    text-decoration: underline;
-}
-
-a.underline-blue:hover, a.underline-red:hover {
-    font-weight: 600;
-}
-
-a.underline-red p {
-    margin-right: 7px;
-    display: inline;
-}
 a.disabled {
     pointer-events: none;
 }
