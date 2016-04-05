@@ -1,5 +1,4 @@
-function ftoTitleCase(str)
-{
+function ftoTitleCase(str) {
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
@@ -99,7 +98,6 @@ function fGenerateColourScale(map_name, map_val){
 
     var Zscale = Zmax-Zmin;
 
-    var Zscale = Zmax-Zmin;
     var tickvals = [];
 
     // Generate mapping between colours and colorbar, log or linear
@@ -130,26 +128,25 @@ function fGenerateColourScale(map_name, map_val){
     };
 };
 
-function fGetTraitPropertyValue(key){
-    if (getdim(AstroObjectJson[key].value.value) !== false) {
-        return AstroObjectJson[key].value.value;
+function fGetTraitPropertyValue(value){
+    if (getdim(value) !== false) {
+        return value;
     }
     else {console.log('value array irregular ')};
 }
 
 function fAstroMap(k,v){
     var map_name = k;
-    var map_val = fGetTraitPropertyValue(k);
-    var map_title = ftoTitleCase(map_name.split("_").join(" "));
+    var map_val = v.value;
 
-    console.log(map_name)
+    var map_title = ftoTitleCase(map_name.split("_").join(" "));
 
     // Get number of pixels
     var row_pixel_count = map_val.length;
     var col_pixel_count = map_val[0].length;
     console.log("rows, cols: ",row_pixel_count,col_pixel_count);
     console.log(getdim(map_val));
-    console.log((map_val));
+
     var rows = range(1,row_pixel_count);
     var cols = range(1,col_pixel_count);
 
@@ -205,7 +202,9 @@ function fAstroMap(k,v){
         //paper_bgcolor: '#7f7f7f',
         title: map_title,
     };
+    console.log(map_name);
     var plotDiv = document.getElementById(map_name);
+
     Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false});
 
 
@@ -220,27 +219,6 @@ function fAstroMap(k,v){
         Plotly.relayout(map_name, update);
     });
 };
-
-
-$.each(AstroObjectJson, function(k,v){
-    // k == trait name
-    // v == trait value
-    // value == trait property name
-
-    // If element exists (defined in django template sov.html)
-    if ( k == "velocity_map" || k == 'line_map-SII6716'){
-        if ($('#'+k).length){
-            // Drop current content (<p>value(arr)</p>
-            $('#'+k).html('');
-            fAstroMap(k,v);
-        };
-    }
-    //else if (typeof v.value == "number"){
-    //    // do nothing
-    //}
-});
-
-
 
 // UPDATES # TODO refactor as bindings - necessary for interactive plots
 

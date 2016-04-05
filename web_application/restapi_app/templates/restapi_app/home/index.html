@@ -3,6 +3,13 @@
 {% block title %} Home {% endblock %}
 
 {% block bodyclass %}galaxy-dark{% endblock %}
+{% block breadcrumbclass %}inverted{% endblock %}
+{% block breadcrumbs-outer %}
+  <ul class="breadcrumb ">
+    <li class="active"><a href="{% url 'index' %}">Home</a></li>
+  </ul>
+{% endblock %}
+
 {% block content %}
 <section class="welcome row">
     <div class="container">
@@ -55,8 +62,9 @@
             </div>
 
             <div class="cta row">
-                <a href="{% url "query-list" %}">Query</a>
-                <a type="button" data-toggle="tooltip" data-placement="right" title="Browse available objects by survey." href="{% url "SOV-list" %}" class="white-tooltip">Single Object Viewer</a>
+                <a href="{% url "data" %}" title="Explore ASVO-AAT Node Data">Data</a>
+                <a type="button" title="View your previous queries." href="{% url "query-list" %}" class="white-tooltip">My Account</a>
+                <a type="button" title="Browse current release documenation." href="{% url "documentation" %}" class="white-tooltip">Documentation</a>
             </div>
 
             <div class="note row">

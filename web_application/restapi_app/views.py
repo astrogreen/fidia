@@ -277,14 +277,14 @@ class AstroObjectViewSet(mixins.ListModelMixin,
     renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
-        def get_serializer_context(self):
-            """
-            pass request attribute to serializer - add schema attribute
-            """
-            return {
-                'request': self.request,
-                'schema': ar.schema()
-            }
+        # def get_serializer_context(self):
+        #     """
+        #     pass request attribute to serializer - add schema attribute
+        #     """
+        #     return {
+        #         'request': self.request,
+        #         'schema': ar.schema()
+        #     }
 
         try:
             astroobject = sample[galaxy_pk]
@@ -326,7 +326,9 @@ class TraitViewSet(mixins.ListModelMixin,
         serializer_class = AstroObjectTraitSerializer
         serializer = serializer_class(
             instance=trait, many=False,
-            context={'request': request}
+            context={
+                'request': request,
+            }
         )
         return Response(serializer.data)
 

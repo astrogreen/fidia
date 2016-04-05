@@ -750,6 +750,7 @@
             // loop over output arrays and elements, check populated
             // if not append warning and return warning=true
             var missing = 'Missing ';
+
             for(var i=0; i<validationObj.length; i++) {
                 angular.forEach(validationObj[i][0], function(value,key){
                     if (validationObj[i][0][key].length<1){
@@ -764,18 +765,21 @@
                     }
                 });
             };
+            console.log('MISSING'+warning);
+            $scope.fBuildSQL(warning);
+
             $scope.warning['Unselected Values']+=missing;
             return warning;
         };
 
 
-        $scope.fBuildSQL=function(){
+        $scope.fBuildSQL=function(warning){
             $scope.fResetErrors;
             $scope.fResetWarnings();
 
             // If the validation throws errors, add an error message on 'submit'
-            if ($scope.fValidate() == true ){
-                $scope.outputSQL = '';
+            if (warning == true ){
+                //$scope.outputSQL = '';
                 $('#query-builder-submit').attr('disabled', true);
             } else {
                 $('#query-builder-submit').attr('disabled', false);
