@@ -765,8 +765,9 @@
                     }
                 });
             };
-            $scope.fBuildSQL(warning);
-
+            if (warning != true){
+                $scope.fBuildSQL(warning);
+            };
             $scope.warning['Unselected Values']+=missing;
             return warning;
         };
