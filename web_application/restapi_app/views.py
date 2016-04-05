@@ -345,7 +345,7 @@ class TraitViewSet(mixins.ListModelMixin,
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
 
-    renderer_classes = (TraitPropertyRenderer,renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (TraitPropertyRenderer, renderers.JSONRenderer, r.CSVRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:

@@ -157,7 +157,7 @@ class TraitRenderer(ExtendBrowsableAPIRenderer):
 
 
 class TraitPropertyRenderer(ExtendBrowsableAPIRenderer):
-    pass
+    template = 'restapi_app/sample/list-traitproperty.html'
 
 
 class QueryRenderer(ExtendBrowsableAPIRenderer):
