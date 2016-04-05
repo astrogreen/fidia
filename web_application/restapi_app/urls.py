@@ -12,13 +12,13 @@ router = ExtendDefaultRouter()
 
 router.register(r'query', views.QueryViewSet)
 # router.register(r'users', views.UserViewSet)
-router.register(r'SOV', views.SOVListSurveysViewSet, base_name='SOV')
-router.register(r'SOV', views.SOVRetrieveObjectViewSet, base_name='SOV')
-router.register(r'GAMA', views.GAMAViewSet, base_name='GAMA')
-router.register(r'SAMI', views.SAMIViewSet, base_name='SAMI')
+router.register(r'sov', views.SOVListSurveysViewSet, base_name='sov')
+router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')
+router.register(r'gama', views.GAMAViewSet, base_name='gama')
+router.register(r'sami', views.SAMIViewSet, base_name='sami')
 
 # Nested routes for sample (SAMI)
-object_nested_router = NestedExtendDefaultRouter(router, r'SAMI', lookup='SAMI')
+object_nested_router = NestedExtendDefaultRouter(router, r'sami', lookup='sami')
 object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.AstroObjectViewSet, base_name='galaxy')
 
 trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<galaxy_pk>[^/.]+)', lookup='galaxy')
@@ -37,15 +37,15 @@ user_detail = views.UserViewSet.as_view({
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
-    url(r'^documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
-    url(r'^logged-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'), name='logout-page'),
+    url(r'^(?i)documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
+    url(r'^(?i)logged-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'), name='logout-page'),
 
-    url(r'^data/', include(router.urls)),
-    url(r'^data/', include(object_nested_router.urls)),
-    url(r'^data/', include(trait_nested_router.urls)),
-    url(r'^data/', include(traitprop_nested_router.urls)),
+    url(r'^(?i)data/', include(router.urls)),
+    url(r'^(?i)data/', include(object_nested_router.urls)),
+    url(r'^(?i)data/', include(trait_nested_router.urls)),
+    url(r'^(?i)data/', include(traitprop_nested_router.urls)),
 
-    url(r'^data/catalogues/', views.AvailableTables.as_view(), name='catalogues'),
+    url(r'^(?i)data/catalogues/', views.AvailableTables.as_view(), name='catalogues'),
 
     url(r'^users/$', user_list, name='user-list'),
     url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),

@@ -57,7 +57,7 @@
             </div>
             <div class="panel-body">
                 <h4>{{objname}} Single Object Viewer</h4>
-                <p>View a summary of main data products <a href="{% url 'SOV-list'%}" disabled>{{objname}} SOV</a>.<br></p>
+                <p>View a summary of main data products <a href="{% url 'sov-list'%}" disabled>{{objname}} SOV</a>.<br></p>
             </div>
         </div>
     </div>
@@ -69,7 +69,7 @@
             <div class="panel-body">
                 <h4><strong>View Documentation</strong></h4>
                 <div class="col-xs-6">
-                    <img src="../../../static/restapi_app/img/logo/logo-{{objname}}.png" class="img-responsive">
+                    <img src="../../../static/restapi_app/img/logo/logo-{{objname | lowercase }}.png" class="img-responsive">
                 </div>
                 <div class=" col-xs-6">
                     <a href="" disabled>{{objname}} docs</a><br>

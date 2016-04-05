@@ -172,6 +172,10 @@ def CapsSentence(value):  # Only one argument.
 
     return sentence
 
+@register.filter
+def lowercase(value):  # Only one argument.
+    """returns caps words"""
+    return value.lower()
 
 @register.filter
 def LineOnly(value):  # Only one argument.

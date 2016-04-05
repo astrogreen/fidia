@@ -34,7 +34,6 @@ class ExtendDefaultRouter(SimpleRouter):
         class DATA(views.APIView):
             # _ignore_model_permissions = True
             renderer_classes = [APIRootRenderer, JSONRenderer]
-
             def get(self, request, *args, **kwargs):
                 ret = OrderedDict()
                 namespace = request.resolver_match.namespace
@@ -52,7 +51,6 @@ class ExtendDefaultRouter(SimpleRouter):
                     except NoReverseMatch:
                         # Don't bail out if eg. no list routes exist, only detail routes.
                         continue
-
                 return Response(ret)
         return DATA.as_view()
 

@@ -33,32 +33,40 @@
 
             <div class="infographic row">
                 <div class="col col-md-3 col-sm-3">
-                    <div class="circle">
-                        <i class="fa fa-search"></i>
-                        <div class="line"></div>
-                    </div>
+                    <a href="{% url 'query-list'%}">
+                        <div class="circle">
+                            <i class="fa fa-search"></i>
+                            <div class="line"></div>
+                        </div>
+                    </a>
                     <p>Query</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <div class="circle">
-                        <i class="fa fa-database"></i>
-                        <div class="line"></div>
-                    </div>
+                    <a href="{% url 'data'%}">
+                        <div class="circle">
+                            <i class="fa fa-database"></i>
+                            <div class="line"></div>
+                        </div>
+                    </a>
                     <p>Data</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <div class="circle">
-                        <i class="fa fa-map-signs"></i>
-                        <div class="line"></div>
-                    </div>
+                    <a href="{% url 'sami-list'%}">
+                        <div class="circle">
+                            <i class="fa fa-map-signs"></i>
+                            <div class="line"></div>
+                        </div>
+                    </a>
                     <p>Explore</p>
                 </div>
-                <div class="col col-md-3 col-sm-3">
-                    <div class="circle">
-                        <i class="fa fa-code"></i>
+                 <a href="{% url 'query-list'%}">
+                    <div class="col col-md-3 col-sm-3">
+                        <div class="circle">
+                            <i class="fa fa-code"></i>
+                        </div>
+                        <p>Code</p>
                     </div>
-                    <p>Code</p>
-                </div>
+                 </a>
             </div>
 
             <div class="cta row">

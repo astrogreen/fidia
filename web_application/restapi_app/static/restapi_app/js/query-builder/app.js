@@ -610,7 +610,7 @@
                     });
                 };
             });
-
+            console.log('OUTPUTWHERES'+angular.toJson(outputWhereList));
             //console.log(angular.toJson(outputWhereList));
             //associated catalogue is in the 'cat' property
 
@@ -632,7 +632,7 @@
                             //associated catalogue is in the 'cat' property
                             //ie., each where selection contains the catalogue it belongs to
                             //console.log(itemc.name+" "+angular.toJson(outputWhereList[key]));
-
+                            // TODO ADD CATALOGUE CHECK HERE AS WELL AS COLUMN
                             if ((undefined != outputWhereList[key])&&(undefined != outputWhereList[key][0])&&(outputWhereList[key][0].name==itemc.name)){
                                 $scope.inputWhere.push({name:itemc.name, cat:itemb[0].name, ticked:true});
                                 //console.log("name: "+itemc.name+", cat: "+itemb[0].name);
@@ -765,7 +765,6 @@
                     }
                 });
             };
-            console.log('MISSING'+warning);
             $scope.fBuildSQL(warning);
 
             $scope.warning['Unselected Values']+=missing;
