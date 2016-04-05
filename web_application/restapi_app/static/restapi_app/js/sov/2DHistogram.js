@@ -83,6 +83,7 @@ function fGenerateColourScale(map_name, map_val){
     var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
 
     //After sigma clipping....
+    console.log(FlatArr);
     console.log('AVERAGE',average(NumArr));
     console.log('SD',standardDeviation(NumArr));
     //one sigma clip (average+1SD < values < average+1SD)
@@ -94,6 +95,12 @@ function fGenerateColourScale(map_name, map_val){
 
     var Zmin=average(SigClip)-standardDeviation(SigClip);
     var Zmax=average(SigClip)+standardDeviation(SigClip);
+
+    // 98 percentile clip, i.e. 0.01 to 0.99 of the actual values.
+    var NumArrSort = NumArr.sort(function(a,b){return a - b});
+    var Zmin = NumArrSort[Math.floor(NumArr.length * 0.01) + 1];
+    var Zmax = NumArrSort[Math.floor(NumArr.length * 0.99)];
+
     console.log(Zmin);
     console.log(Zmax);
 
@@ -228,7 +235,7 @@ $.each(AstroObjectJson, function(k,v){
     // value == trait property name
 
     // If element exists (defined in django template sov.html)
-    if ( k == "velocity_map" || k == 'line_map-SII6716'){
+    if ( k == "velocity_map" || k.substr(0,8) == 'line_map'){
         if ($('#'+k).length){
             // Drop current content (<p>value(arr)</p>
             $('#'+k).html('');

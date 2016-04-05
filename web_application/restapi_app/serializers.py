@@ -315,7 +315,7 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
         assert isinstance(astro_object, fidia.AstronomicalObject)
         for trait in astro_object:
             trait_key = trait
-            if str(trait_key) == "velocity_map" or str(trait_key) == 'line_map-SII6716':
+            if str(trait_key) == "velocity_map" or 'line_map' in str(trait_key):
                 self.fields[str(trait_key)] = \
                     AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=2)
 

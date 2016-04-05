@@ -231,7 +231,7 @@
                                     <!--need to figure out how to populate the available_formats for each endpoint-->
 
                                     {% for key, value in response.data.items %}
-                                        {% if key == "velocity_map" or key == "line_map-SII6716" %}
+                                        {% if key == "velocity_map" or "line_map" in key %}
                                         <div class="col-sm-6">
                                             <h4>
                                                 <a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>
