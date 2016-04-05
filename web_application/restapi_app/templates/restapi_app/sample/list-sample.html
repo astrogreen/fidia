@@ -24,6 +24,7 @@
 {% for key, value in response.data.items %}
 {% endfor %}
 
+<!--<div class="pull-right survey {{ objname }}"></div>-->
 <h1 class="headline">
     <span>{{objname}}</span>
     {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
@@ -100,12 +101,14 @@
                             </button>
                             <ul class="dropdown-menu">
                                 {% for format in available_formats %}
-                                <li>
-                                    <a class="js-tooltip format-option"
-                                       href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                       rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">
-                                        {{ format }}</a>
-                                </li>
+                                {% if format != 'api' %}
+                                    <li>
+                                        <a class="js-tooltip format-option"
+                                           href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">
+                                            {{ format }}</a>
+                                    </li>
+                                {% endif %}
                                 {% endfor %}
                             </ul>
                         </div>
