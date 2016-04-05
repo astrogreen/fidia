@@ -146,10 +146,27 @@
                         </div>
                          <div class="row">
                              <div  style="margin-top:15px">
-                                    <button type="button" class="btn btn-sm btn-default text-uppercase pull-right pulsing-button" ng-click="fValidate()"
-                             title="Check form is correctly populated" id="check-button"><i class="fa fa-refresh"></i> Check Form</button>
-                                 <button class="btn btn-sm btn-default pull-left text-uppercase" type="button" ng-click="fReset()"
-                                 id="query-builder-reset" >Reset</button>
+                                 <button class="btn btn-md btn-primary pull-right text-uppercase" type="button"
+                                         ng-click=""
+                                         id="query-builder-submit" disabled>Send to Form
+                                 </button>
+                                 <button type="button"
+                                         class="btn btn-md btn-default text-uppercase pull-right pulsing-button"
+                                         ng-click="fValidate()" style="margin-right:5px;"
+                                         title="Check form is correctly populated" id="check-button"><i
+                                         class="fa fa-code"></i> Update SQL
+                                 </button>
+
+                                 <!--<button class="btn btn-sm btn-default pull-right text-uppercase" type="button"-->
+                                         <!--ng-click="fBuildSQL()"-->
+                                         <!--title="Display SQL" style="margin-bottom:5px" id="sql-button"><i-->
+                                         <!--class="fa fa-code"></i> View SQL-->
+                                 <!--</button>-->
+
+                                 <button class="btn btn-md btn-default pull-left text-uppercase" type="button"
+                                         ng-click="fReset()"
+                                         id="query-builder-reset">Reset
+                                 </button>
                              </div>
                         </div>
                      </form>
@@ -203,14 +220,7 @@
                             </div>
                              <div class="row">
                                 <div class="col-xs-12">
-                                    <p><strong>VALID</strong> <i class="fa fa-level-down"></i><br>
-
-                                        <button class="btn btn-sm btn-default text-uppercase" type="button" ng-click="fBuildSQL()"
-                             title="Display SQL" style="margin-bottom:5px" id="sql-button"><i class="fa fa-code"></i> View SQL</button><span> <i class="fa fa-level-down"></i></span><br>
-                                        <button class="btn btn-sm btn-primary text-uppercase" type="button" ng-click=""
-                                 id="query-builder-submit" disabled>Send to Form</button>
-                                    </p>
-
+                                    <p><strong>VALID</strong> </p>
                                 </div>
                              </div>
                         </div>
@@ -236,8 +246,11 @@
         var SQLAceEditor = ace.edit("SQL-ace-editor");
         SQLAceEditor.session.insert(1, $('#outputSQL').text());
         $('#query-builder-form').removeClass('active');
+        $('a[href="#query-builder-form"]').parent('li').removeClass('active');
         $('#post-object-form').addClass('active');
+        $('a[href="#post-object-form"]').parent('li').addClass('active');
     });
+
     $('#check-button').click(function(){
        $(this).removeClass('pulsing-button');
        $('#sql-button').addClass('pulsing-button');
