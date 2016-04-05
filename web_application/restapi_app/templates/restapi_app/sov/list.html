@@ -17,34 +17,67 @@
     <span>{{objname}}</span>
 </h1>
 <div class="row">
-    <!--<div class="col-sm-6">-->
-        <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading panel-background-grey">-->
-                <!--&lt;!&ndash;<h3 class="panel-title">1. Survey</h3>&ndash;&gt;-->
-            <!--</div>-->
-            <!--<div class="panel-body">-->
-                <!---->
-
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
-    <div class="col-sm-offset-4 col-sm-4">
+    <div class=" col-sm-6 col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading panel-background-grey">
                 <!--<h3 class="panel-title">Source</h3>-->
             </div>
             <div class="panel-body">
-                <h4>1. Select Survey</h4>
-                <p>Click a survey to load available sources.</p><br>
+                <p class="lead">Single Object Viewer</p>
+                <p>
+                    View the key data products for any object.
+                    Where available, the SOV brings together data from all surveys hosted at the AAT-Node.
+                </p>
+                <p>Select a survey in the next panel to load available sources into the dropdown.</p><br>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-sm-6  col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Select Survey</h3>
+            </div>
+            <div class="panel-body extra-padding">
+
                 <div class="col-xs-6">
-                    <a class="btn btn-default btn-block SAMI btn-survey" onclick="fSurveyData(this.id)" id="SAMI">SAMI</a>
+                    <a class=" " onclick="fSurveyData('SAMI')" role="button">
+                        {% with 'restapi_app/img/logo/logo-'|add:'sami'|add:'.png' as image_static %}
+                        <img class="img-responsive center-block sami" src="{% static image_static %}">
+                        {% endwith %}
+                    </a>
                 </div>
                 <div class="col-xs-6">
-                    <a class="btn btn-default btn-block GAMA btn-survey disabled" onclick="fSurveyData(this.id)" id="GAMA">GAMA</a>
+                    <a class="disabled " onclick="fSurveyData('GAMA')" role="button">
+                        {% with 'restapi_app/img/logo/logo-'|add:'gama'|add:'.png' as image_static %}
+                        <img class="img-responsive center-block  gama" src="{% static image_static %}">
+                        {% endwith %}
+                    </a>
+
                 </div>
-                <br><br>
-                <h4>2. Select Source</h4>
-                <p>Select an object from the dropdown (or begin typing in the input box).</p>
+
+                <div class="col-xs-6"><br>
+                    <a class="btn btn-default btn-block SAMI btn-survey " onclick="fSurveyData(this.id)" id="SAMI">
+                        SAMI
+                    </a>
+                </div>
+                <div class="col-xs-6"><br>
+                    <a class="btn btn-default btn-block GAMA disabled btn-survey" onclick="fSurveyData(this.id)"
+                       id="GAMA">
+                        GAMA
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class=" col-sm-6 col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Select Source</h3>
+            </div>
+            <div class="panel-body extra-padding">
+
+                <p>Select an object from the dropdown. </p>
                 <br>
                 <select type="text" class="selectized text-center" id="autocomplete-widget" placeholder="GALAXY">
                     <option value="" disabled selected>Select an object</option>
@@ -55,44 +88,47 @@
                 <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled
                    id="autocomplete-button">Go</a>
             </div>
+
         </div>
     </div>
+
 </div>
 
 <script>
     AstroObjectsJson = JSON.parse("{{ content|escapejs }}");
-    var dummy = [{'name':'GALAXY','url':''}];
-    $(document).ready(function() {
+    var dummy = [{'name': 'GALAXY', 'url': ''}];
+    $(document).ready(function () {
         $selector = $("#autocomplete-widget").selectize({
-            closeAfterSelect:true,
-            selectOnTab:true,
+            closeAfterSelect: true,
+            selectOnTab: true,
             options: dummy,
             valueField: 'url',
             labelField: 'name',
             searchField: 'name',
             create: false,
-            maxItems:1,
-            onChange: function(value) {
-                $('#autocomplete-button').attr('href',value).attr('disabled', false)
+            maxItems: 1,
+            onChange: function (value) {
+                $('#autocomplete-button').attr('href', value).attr('disabled', false)
             }
         });
     });
 
-    function fSurveyData(id){
+    function fSurveyData(id) {
 //        console.log($selector);
 //        console.log(id)
-        if (id != 'GAMA'){
+        if (id != 'GAMA') {
             $('.btn-survey').removeClass('btn-success');
-            $('#'+id).addClass('btn-success');
+            $('#' + id).addClass('btn-success');
 
             // TODO ready for multiple complete survey data samples
             var control = $selector[0].selectize;
             control.clear();
             control.clearOptions();
-    //        control.addOption([{'name':id+'98655','url':'foo'}])
+            //        control.addOption([{'name':id+'98655','url':'foo'}])
             control.addOption(AstroObjectsJson);
         }
-    };
+    }
+    ;
 </script>
 {% endblock %}
 
