@@ -50,7 +50,7 @@
                                             <a href="{{ valuec }}" class="">
                                                 <span class="pull-right ">view</span>
                                             </a>
-                                            <h5 class="list-group-item-text">
+                                            <h4 class="list-group-item-text">
                                                 {% if keyb == 'line_map' %}
                                                     {{ keyc | LineOnly }}
                                                 {% elif keyb == 'velocity_map' %}
@@ -58,7 +58,7 @@
                                                 {% else %}
                                                     {{ keyc | TraitTypeSplit }}
                                                 {% endif %}
-                                            </h5>
+                                            </h4>
 
                                             <h6 class="text-uppercase">Properties</h6>
                                             {% for keyd, valued in valueb.items %}

@@ -36,8 +36,8 @@
     color: #3f9ad2;
     text-decoration: underline;
 }
-h5{margin-top:0px;}
-h6{margin-bottom:0px;}
+h4{margin-top:0px;}
+h6{margin-bottom:0px;color:#333333}
 
 .inline-links p {
     margin-right: 7px;
