@@ -20,9 +20,7 @@
 <h1 class="headline">
     <span>{% filter uppercase %}{% get_pks request.path -4 %}{% endfilter %} {% get_pks request.path -3 %}: {{objname}}</span>
     {% captureas survey %}{% get_pks request.path -4 %}{% endcaptureas %}
-    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
-        <img class="img-responsive pull-right {{survey}}" src="{% static image_static %}">
-    {% endwith %}
+    {% surveylogoimglink survey %}
 </h1>
 <br>
 <div class="row">

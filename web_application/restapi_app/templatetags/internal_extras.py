@@ -14,6 +14,7 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.text import normalize_newlines
 from django.conf.urls import patterns, url, include
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from rest_framework.utils.urls import replace_query_param
 
@@ -267,3 +268,27 @@ class CaptureasNode(template.Node):
         output = self.nodelist.render(context)
         context[self.varname] = output
         return ''
+
+
+@register.simple_tag
+def surveylogoimglink(survey):
+    """
+    Snippet for survey logo/link combo
+    """
+    snippet = """
+            <a href={surveylink} target="_blank">
+                <img class="img-responsive pull-right {surveyclass}" src="{imgpath}">
+            </a>
+    """
+    surveyclass=survey
+    imgpath = static('restapi_app/img/logo/logo-'+survey+'.png')
+
+    if survey == 'sami':
+        surveylink="http://sami-survey.org/"
+    elif survey == 'gama':
+        surveylink="http://www.gama-survey.org/"
+    else:
+        surveylink=""
+
+    snippet = format_html(snippet, surveylink=surveylink, surveyclass=surveyclass, imgpath=imgpath)
+    return mark_safe(snippet)

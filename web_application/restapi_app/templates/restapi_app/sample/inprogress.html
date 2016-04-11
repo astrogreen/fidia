@@ -14,9 +14,7 @@
 <h1 class="headline">
     <span>GAMA</span>
     {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
-    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
-        <img class="img-responsive pull-right {{survey}}" src="{% static image_static %}">
-    {% endwith %}
+    {% surveylogoimglink survey %}
 </h1>
 <div class="container">
     <div class=" row">

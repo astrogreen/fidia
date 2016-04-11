@@ -21,9 +21,7 @@
     <span>{% filter uppercase %}{% get_pks request.path -5 %} {% get_pks request.path -4 %} {% endfilter %}
         {% filter CapsSentence %} {% get_pks request.path -3 %}{% endfilter %}: {{objname}}</span>
     {% captureas survey %}{% get_pks request.path -5 %}{% endcaptureas %}
-    {% with 'restapi_app/img/logo/logo-'|add:survey|add:'.png' as image_static %}
-        <img class="img-responsive pull-right {{survey}}" src="{% static image_static %}">
-    {% endwith %}
+    {% surveylogoimglink survey %}
 </h1>
 <br>
 <div class="row">

@@ -51,7 +51,7 @@
                     <p>Data</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'sami-list'%}">
+                    <a href="{% url 'under-construction'%}">
                         <div class="circle">
                             <i class="fa fa-map-signs"></i>
                             <div class="line"></div>
@@ -59,7 +59,7 @@
                     </a>
                     <p>Explore</p>
                 </div>
-                 <a href="" class="disabled">
+                 <a href="{% url 'under-construction' %}" >
                     <div class="col col-md-3 col-sm-3">
                         <div class="circle">
                             <i class="fa fa-code"></i>
@@ -70,8 +70,8 @@
             </div>
 
             <div class="cta row">
-                <a href="{% url "data" %}" title="Explore ASVO-AAT Node Data">Data</a>
-                <a type="button" title="View your previous queries." href="{% url "query-list" %}" class="white-tooltip">My Account</a>
+                <a href="{% url "sov-list" %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>
+                <a type="button" title="View your previous queries." href="{% url "under-construction" %}" class="white-tooltip">My Account</a>
                 <a type="button" title="Browse current release documenation." href="{% url "documentation" %}" class="white-tooltip">Documentation</a>
             </div>
 
