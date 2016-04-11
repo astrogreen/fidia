@@ -108,13 +108,14 @@
                         <div class="row content">
                             <div ng-repeat="nodewhere in inputWheres track by $index" class="clearfix false-row">
                                 <div class="col-sm-12 col-xs-12">
-                                     <div isteven-multi-select input-model="nodewhere" output-model="outputWheres[$index]"
+                                    <div isteven-multi-select input-model="nodewhere" output-model="outputWheres[$index]"
                                           group-property="catGroup" button-label="name" item-label="name"
                                           tick-property="ticked" selection-mode="single" class="floating-select"
                                           on-item-click="fWhereClick(data)" id="outputWhere{{$index}}">
-                                      </div>
-                                     <label class="checkbox-inline querynot col-xs-1">
-                                      <input type="checkbox" id="'inlineCheckbox{{$index}}'" value="1" ng-model="queryCheckbox[$index]"> not
+                                    </div>
+                                    <label class="checkbox-inline querynot" for="'inlineCheckbox{{$index}}'" >
+                                      <input type="checkbox" id="'inlineCheckbox{{$index}}'" value="1" ng-model="queryCheckbox[$index]">
+                                      not
                                     </label>
                                     <input class="col-sm-2 col-xs-3 input-box" ng-show="outputWhereOperator[$index][0].operator=='BETWEEN'" type="text" class="form-control" id="'lowerWhereValue{{$index}}'" ng-model="outputLowerWhereValue[$index]" placeholder="value">
                                     <div isteven-multi-select input-model="inputWhereOperators[$index]" output-model="outputWhereOperator[$index]"

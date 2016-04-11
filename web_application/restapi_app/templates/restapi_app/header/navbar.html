@@ -1,7 +1,7 @@
 <header>
  <div class="container">
     <div class="row">
-        <div class="col-sm-6 col-xs-12">
+        <div class="col-sm-6 col-xs-6">
             <div class="logo ">
                 <a class="asvo" href="{% url "index" %}">
                     <img src="/static/img/logos/asvo_90x40.png" alt="ASVO - All-Sky Virtual Observatory">
@@ -13,8 +13,8 @@
                 </a>
             </div>
         </div><!--
-        --><div class="col-sm-6 col-xs-12">
-            <ul class="nav navbar-nav pull-right">
+        --><div class="col-sm-6 col-xs-6 text-right">
+            <ul class="nav navbar-nav navbar-user pull-right">
                 {% block userlinks %}
                   {% if user.is_authenticated %}
                     {% load internal_extras %}

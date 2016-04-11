@@ -41,61 +41,64 @@
         </div>
     </div>
     <div class="row">
-        <table class="table table-condensed" id="UserTestingTable">
-            <thead>
-            <tr class="text-uppercase">
-                <th>Date</th>
-                <th>Feature</th>
-                <th>Description</th>
-                <th>Development Status</th>
-                <th>Version</th>
-                <th>Documentation</th>
-                <th>Questions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>6th April 2016</td>
-                <td>Styling and UI</td>
-                <td>-</td>
-                <td><span class="yellow">User testing</span></td>
-                <td>0.1</td>
-                <td>-</td>
-                <td>First impressions. What works well, what doesn’t? What are you having trouble finding? What isn’t obvious? What problems do you have?</td>
-            </tr>
-            <tr>
-                <td>13th April 2016</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><a href="{% url 'sov-list' %}">Single Object Viewer</a></td>
-                <td>-</td>
-                <td><span class="orange">In Development</span></td>
-                <td>0.1</td>
-                <td><a href="{% url 'documentation' %}">SOV Doc</a></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><a href="{% url 'sov-list' %}">Data Browser</a></td>
-                <td>-</td>
-                <td><span class="yellow">User Testing</span></td>
-                <td>0.1</td>
-                <td><a href="{% url 'documentation' %}">Data Browser Doc</a></td>
-                <td></td>
-                <td></td>
-            </tr>
-            </tbody>
-        </table>
-
+        <div class="table-responsive">
+            <table class="table table-condensed" id="UserTestingTable">
+                <thead>
+                <tr class="text-uppercase">
+                    <th>Date</th>
+                    <th>Feature</th>
+                    <th>Description</th>
+                    <th>Development Status</th>
+                    <th>Version</th>
+                    <th>Documentation</th>
+                    <th>Questions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>6th April 2016</td>
+                    <td>Styling and UI</td>
+                    <td>-</td>
+                    <td><span class="yellow">User testing</span></td>
+                    <td>0.1</td>
+                    <td>-</td>
+                    <td>First impressions. What works well, what doesn’t? What are you having trouble finding? What
+                        isn’t obvious? What problems do you have?
+                    </td>
+                </tr>
+                <tr>
+                    <td>13th April 2016</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a href="{% url 'sov-list' %}">Single Object Viewer</a></td>
+                    <td>-</td>
+                    <td><span class="orange">In Development</span></td>
+                    <td>0.1</td>
+                    <td><a href="{% url 'documentation' %}">SOV Doc</a></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a href="{% url 'sov-list' %}">Data Browser</a></td>
+                    <td>-</td>
+                    <td><span class="yellow">User Testing</span></td>
+                    <td>0.1</td>
+                    <td><a href="{% url 'documentation' %}">Data Browser Doc</a></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
