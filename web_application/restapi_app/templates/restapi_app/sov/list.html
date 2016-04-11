@@ -28,7 +28,7 @@
                     View the key data products for any object.
                     Where available, the SOV brings together data from all surveys hosted at the AAT-Node.
                 </p>
-                <p>Select a survey in the next panel to load available sources into the dropdown.</p><br>
+                <p>Select a survey in the next panel to load available sources.</p><br>
             </div>
         </div>
 
@@ -77,9 +77,9 @@
             </div>
             <div class="panel-body extra-padding">
 
-                <p>Select an object from the dropdown. </p>
+                <p id="search-info">Search for an object.</p>
                 <br>
-                <select type="text" class="selectized text-center" id="autocomplete-widget" placeholder="GALAXY">
+                <select type="text" class="searchbox selectized text-center" id="autocomplete-widget" placeholder="SEARCH...">
                     <option value="" disabled selected>Select an object</option>
                     {% for key, value in response.data.items %}
                     <option value="{{value}}">{{key}}</option>
@@ -96,7 +96,8 @@
 
 <script>
     AstroObjectsJson = JSON.parse("{{ content|escapejs }}");
-    var dummy = [{'name': 'GALAXY', 'url': ''}];
+    console.log(AstroObjectsJson);
+    var dummy = [{'name': 'SEARCH..', 'url': ''}];
     $(document).ready(function () {
         $selector = $("#autocomplete-widget").selectize({
             closeAfterSelect: true,
@@ -111,17 +112,22 @@
                 $('#autocomplete-button').attr('href', value).attr('disabled', false)
             }
         });
+        var control = $selector[0].selectize;
+        control.disable();
     });
+
 
     function fSurveyData(id) {
 //        console.log($selector);
 //        console.log(id)
         if (id != 'GAMA') {
+            $('#search-info').html('Search for a '+id+' object.');
             $('.btn-survey').removeClass('btn-success');
             $('#' + id).addClass('btn-success');
 
             // TODO ready for multiple complete survey data samples
             var control = $selector[0].selectize;
+            control.enable();
             control.clear();
             control.clearOptions();
             //        control.addOption([{'name':id+'98655','url':'foo'}])

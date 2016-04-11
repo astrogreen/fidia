@@ -1,22 +1,25 @@
 /*!*AUTOCOMPLETE STYLES*!*/
-.container-sov-entry{margin-bottom:30px;}
-
-.selectize-input,
-.selectize-control.single .selectize-input.input-active{
-    border-radius:0px;
+.container-sov-entry {
+    margin-bottom: 30px;
 }
-.panel-body.extra-padding{padding:20px 15px;}
+
+.panel-body.extra-padding {
+    padding: 20px 15px;
+}
 
 .sami {
-    background-color:#fff;
-    max-width:115px;
-    position:relative;
-    padding-top:13px;
+    background-color: #fff;
+    max-width: 115px;
+    position: relative;
+    padding-top: 13px;
 }
 
-.gama{
-    background-color:#fff;
-    max-width:80px;
-    position:relative;
+.gama {
+    background-color: #fff;
+    max-width: 80px;
+    position: relative;
 }
-.sov-logo{margin-bottom:20px;}
+
+.sov-logo {
+    margin-bottom: 20px;
+}

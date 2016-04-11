@@ -38,10 +38,10 @@
             </div>
             <div class="panel-body">
                 <h4>View {{objname}} Survey DR 1.0</h4>
-                <p>Browse the {{objname}} data products available by source.</p>
-                <p>Select a galaxy from the dropdown to get started.</p>
+                <p>Browse the available {{objname}} data for each object.</p>
+                <p>Search for an object below.</p>
                 <br>
-                <select type="text" class="selectized text-center" id="autocomplete-widget" placeholder="GALAXY">
+                <select type="text" class="searchbox selectized text-center" id="autocomplete-widget" placeholder="SEARCH">
                     <option value="" disabled selected>Select an object</option>
                     {% for key, value in response.data.items %}
                     <option value="{{value}}">{{key}}</option>
@@ -129,7 +129,7 @@
         $selector = $("#autocomplete-widget").selectize({
             closeAfterSelect: true,
             selectOnTab: true,
-            placeholder: "GALAXY",
+            placeholder: "SEARCH...",
             create: false,
             maxItems: 1,
             onChange: function (value) {

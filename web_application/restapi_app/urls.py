@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
     url(r'^(?i)documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
     url(r'^(?i)under-construction/$', TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'), name='under-construction'),
+    url(r'^(?i)user-testing/$', TemplateView.as_view(template_name='restapi_app/documentation/usertesting.html'), name='user-testing'),
     url(r'^(?i)logged-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'), name='logout-page'),
 
     url(r'^(?i)data/', include(router.urls)),

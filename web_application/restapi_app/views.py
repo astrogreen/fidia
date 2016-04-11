@@ -430,3 +430,6 @@ class AvailableTables(views.APIView):
         with open('restapi_app/gama_database.json') as json_d:
             json_data = json.load(json_d)
         return Response(json_data)
+
+
+
