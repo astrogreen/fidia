@@ -632,13 +632,6 @@
                             //associated catalogue is in the 'cat' property
                             //ie., each where selection contains the catalogue it belongs to
                             //console.log(itemc.name+" "+angular.toJson(outputWhereList[key]));
-                            // TODO ADD CATALOGUE CHECK HERE AS WELL AS COLUMN
-                            //this is the outputcat selected
-                            console.log('keyb catalogue '+keyb+angular.toJson(itemb[0].name));
-                            //this is the current catalogue
-                            if (undefined != outputWhereList[key]){
-                                console.log(outputWhereList[key][0].cat);
-                            }
                             // if the [key] row of the selected outputWheres has a selection made on catalogue
                             // and column
                             // then iterating over available catalogues (itemb) and columns (itemc)
@@ -948,7 +941,7 @@
                         };
 
                         if (key < $scope.outputWheres.length-1){
-                            $scope.outputSQLWHERE+=", AND ";
+                            $scope.outputSQLWHERE+=" AND ";
                         };
                         //key is row
                     });
