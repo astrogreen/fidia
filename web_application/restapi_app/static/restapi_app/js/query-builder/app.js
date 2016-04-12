@@ -866,7 +866,7 @@
                 // if joins are present
                 if (undefined != $scope.outputJoins[0]){
                     //first cat always first with this syntax:
-                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1];
+                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1]+" ";
 
                     //sort out joins
                     angular.forEach($scope.outputJoins, function(value,key){
@@ -884,13 +884,13 @@
                         });
 
                         $scope.outputSQLJOIN+='<br>'+$scope.outputJoinOperator[key][0].operator+' JOIN '
-                            + $scope.outputJoinsB[key][0].cat + ' as ' + joinCatAliasB + ' on ' +
-                            joinCatAliasB+'.'+$scope.outputJoinsB[key][0].name+' = '+joinCatAlias+'.'+$scope.outputJoins[key][0].name;
+                            + $scope.outputJoinsB[key][0].cat + ' AS ' + joinCatAliasB + ' ON ' +
+                            joinCatAliasB+'.'+$scope.outputJoinsB[key][0].name+' = '+joinCatAlias+'.'+$scope.outputJoins[key][0].name+' ';
 
                     });
                 } else {
                     //if no joins (single table) append FROM to statement
-                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1];
+                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1]+" ";
                 }
 
 

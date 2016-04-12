@@ -27,218 +27,183 @@
     {% verbatim %}
           <!-- Content -->
          <div ng-controller="CatalogueController as catCtrl">
-             <div class="row">
-                 <div class="col-sm-9">
-                     <form id="queryform" name='queryForm' class="query-form " >
-                        <!--SELECT-->
-                        <div class="row header">
-                            <div class="col-sm-12">
-                                 <h4>
-                                     <span>SELECT</span>
-                                     <a class=" black pull-right" href="" ng-click="fAddCatalogue()">
-                                            <i class="fa fa-plus"></i></a>
-                                 </h4>
-                            </div>
-                        </div>
-                        <div class="row content">
-                            <div ng-repeat="nodecat in inputCatalogues track by $index" class="clearfix false-row">
-                                <div class="col-sm-12 col-xs-12">
-                                    <div isteven-multi-select input-model="nodecat" output-model="outputCatalogues[$index]"
-                                       on-item-click="fCatClick( data )" selection-mode="single" on-open="fOpenCat()"
-                                       button-label="name" item-label="name" tick-property="ticked" class="floating-select selectCatalogues"
-                                         disable-property="disabled" id="outputCatalogue{{$index}}" >
-                                    </div>
-                                    <div isteven-multi-select input-model="outputCatalogues[$index][0].columns" output-model="outputColumns[$index]"
-                                        on-item-click="fColClick(data)" on-select-all="" on-close="fColClose()" ng-show="outputCatalogues[$index].length>0"
-                                        button-label="name " item-label=" name " tick-property="ticked" class="floating-select"
-                                        id="outputColumn{{$index}}" max-labels="5">
-                                    </div>
-                                    <button class="btn outline red pull-right btn-cat-remove" data-value="{{$index}}" href="" ng-click="fRemoveCatalogue($index)">
-                                        <i class="fa fa-times"></i>
-                                    </button>
-                                    <hr>
+             <form id="queryform" name='queryForm' class="query-form" >
+                <!--SELECT-->
+                <div class="panel panel-default ">
+                    <div class="panel-heading panel-background-grey">
+                        <!--<h3 class="panel-title">SELECT</h3>-->
+                        <h4 class="panel-title">
+                             <span>SELECT</span>
+                             <a class=" black pull-right" href="" ng-click="fAddCatalogue()">
+                                    <i class="fa fa-plus"></i></a>
+                         </h4>
+                    </div>
+                    <div class="panel-body">
+                        <div ng-repeat="nodecat in inputCatalogues track by $index" class="clearfix false-row">
+                            <div class="col-sm-12 col-xs-12">
+                                <div isteven-multi-select input-model="nodecat" output-model="outputCatalogues[$index]"
+                                   on-item-click="fCatClick( data )" selection-mode="single" on-open="fOpenCat()"
+                                   button-label="name" item-label="name" tick-property="ticked" class="floating-select selectCatalogues"
+                                     disable-property="disabled" id="outputCatalogue{{$index}}" >
                                 </div>
-                            </div>
-                        </div>
-                         <!--JOIN-->
-                        <div class="row header" ng-show="inputJoins.length>0">
-                             <div class="col-sm-12">
-                                 <h4>
-                                     <span>JOIN</span>
-                                     <a class=" black pull-right" href="" ng-click="fAddJoin()">
-                                            <i class="fa fa-plus"></i></a>
-                                 </h4>
-                            </div>
-                        </div>
-                         <div class="row content" ng-show="inputJoins.length>0">
-                            <div ng-repeat="join in inputJoins track by $index" class="clearfix false-row">
-                                <div class="col-sm-12 col-xs-12">
-                                    <div isteven-multi-select input-model="join" output-model="outputJoins[$index]"
-                                          group-property="catGroup" button-label="buttonname" item-label="name"
-                                          tick-property="ticked" selection-mode="single" class="floating-select"
-                                         on-item-click="fJoinClick(data)" id="outputJoins{{$index}}" disable-property="disabled">
-                                    </div>
-                                    <div isteven-multi-select input-model="inputJoinOperators[$index]" output-model="outputJoinOperator[$index]"
-                                          button-label="operator" item-label="operator" helper-elements="none" on-item-click="fJoinOperator()"
-                                          tick-property="ticked" selection-mode="single" class="floating-select smallContainer"
-                                          id="outputJoinOperator{{$index}}">
-                                    </div>
-                                    <div isteven-multi-select input-model="inputJoinsB[$index]" output-model="outputJoinsB[$index]"
-                                          group-property="catGroup" button-label="buttonname" item-label="name"
-                                          tick-property="ticked" selection-mode="single" class="floating-select" disable-property="disabled"
-                                         on-item-click="fJoinBClick(data)" id="outputJoinsB{{$index}}">
-                                    </div>
-                                    <button class="btn outline red pull-right btn-join-remove" href="" data-value="{{$index}}" ng-click="fRemoveJoin($index)">
-                                        <i class="fa fa-times"></i>
-                                    </button>
-                                    <hr>
+                                <div isteven-multi-select input-model="outputCatalogues[$index][0].columns" output-model="outputColumns[$index]"
+                                    on-item-click="fColClick(data)" on-select-all="" on-close="fColClose()" ng-show="outputCatalogues[$index].length>0"
+                                    button-label="name " item-label=" name " tick-property="ticked" class="floating-select"
+                                    id="outputColumn{{$index}}" max-labels="5">
                                 </div>
+                                <button class="btn outline red pull-right btn-cat-remove" data-value="{{$index}}" href="" ng-click="fRemoveCatalogue($index)">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                                <hr>
                             </div>
-                        </div>
-                         <!--WHERE-->
-                        <div class="row header">
-                            <div class="col-sm-12">
-                                 <h4>
-                                     <span>WHERE</span>
-                                     <a class=" black pull-right" href="" ng-click="fAddWhere()">
-                                            <i class="fa fa-plus"></i></a>
-                                 </h4>
-                            </div>
-                        </div>
-                        <div class="row content">
-                            <div ng-repeat="nodewhere in inputWheres track by $index" class="clearfix false-row">
-                                <div class="col-sm-12 col-xs-12">
-                                    <div isteven-multi-select input-model="nodewhere" output-model="outputWheres[$index]"
-                                          group-property="catGroup" button-label="name" item-label="name"
-                                          tick-property="ticked" selection-mode="single" class="floating-select"
-                                          on-item-click="fWhereClick(data)" id="outputWhere{{$index}}">
-                                    </div>
-                                    <label class="checkbox-inline querynot" for="'inlineCheckbox{{$index}}'" >
-                                      <input type="checkbox" id="'inlineCheckbox{{$index}}'" value="1" ng-model="queryCheckbox[$index]">
-                                      not
-                                    </label>
-                                    <input class="col-sm-2 col-xs-3 input-box" ng-show="outputWhereOperator[$index][0].operator=='BETWEEN'" type="text" class="form-control" id="'lowerWhereValue{{$index}}'" ng-model="outputLowerWhereValue[$index]" placeholder="value">
-                                    <div isteven-multi-select input-model="inputWhereOperators[$index]" output-model="outputWhereOperator[$index]"
-                                          button-label="operator" item-label="operator" helper-elements="none" on-item-click="fWhereOperator()"
-                                          tick-property="ticked" selection-mode="single" class="floating-select smallContainer"
-                                          id="outputWhereOperator{{$index}}"  >
-                                    </div>
-                                    <input class="col-sm-2 col-xs-3 input-box" type="text" class="form-control"
-                                           id="whereValue{{$index}}" ng-model="outputWhereValue[$index]" placeholder="value"
-                                           on-item-click="fWhereValue()">
-                                    <button class="btn outline red pull-right btn-where-remove" href="" data-value="{{$index}}" ng-click="fRemoveWhere($index)">
-                                        <i class="fa fa-times"></i>
-                                    </button>
-                                    <hr>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row header">
-                            <div class="col-xs-12">
-                                <h4>OUTPUT</h4>
-                            </div>
-                        </div>
-                        <div class="row content" id="sql-output">
-                            <div class="col-xs-12">
-                                <p>
-                                <span ng-bind-html="outputSQL" id="outputSQL">{{ outputSQL }} &nbsp;</span>
-                                </p>
-                            </div>
-                        </div>
-                         <div class="row">
-                             <div  style="margin-top:15px">
-                                 <button class="btn btn-md btn-primary pull-right text-uppercase" type="button"
-                                         ng-click=""
-                                         id="query-builder-submit" disabled>Send to Form
-                                 </button>
-                                 <button type="button"
-                                         class="btn btn-md btn-default text-uppercase pull-right pulsing-button"
-                                         ng-click="fValidate()" style="margin-right:5px;"
-                                         title="Check form is correctly populated" id="check-button"><i
-                                         class="fa fa-code"></i> Update SQL
-                                 </button>
-
-                                 <!--<button class="btn btn-sm btn-default pull-right text-uppercase" type="button"-->
-                                         <!--ng-click="fBuildSQL()"-->
-                                         <!--title="Display SQL" style="margin-bottom:5px" id="sql-button"><i-->
-                                         <!--class="fa fa-code"></i> View SQL-->
-                                 <!--</button>-->
-
-                                 <button class="btn btn-md btn-default pull-left text-uppercase" type="button"
-                                         ng-click="fReset()"
-                                         id="query-builder-reset">Reset
-                                 </button>
-                             </div>
-                        </div>
-                     </form>
-                 </div>
-                <div class="col-sm-3">
-                    <div id="query-form-errors" class="">
-                         <div ng-show="error.errorFlag == true" class="row">
-                             <div class="error header row">
-                                 <div class="col-sm-12">
-                                     <h4>
-                                         <span>ERROR</span>
-                                         <a class="outline white pull-right" href="" ng-click="fResetErrors()">
-                                                <i class="fa fa-times-circle"></i></a>
-                                     </h4>
-                                 </div>
-                            </div>
-                             <div class="row">
-                                <div class="col-xs-12">
-                                    <div  ng-repeat="(key, value) in error" ng-if="key!='errorFlag'">
-                                            <p><strong>{{ key }}:</strong> {{value}}</p>
-                                    </div>
-                                </div>
-                             </div>
-                        </div>
-                         <div ng-show="warning.warningFlag == true" class="row">
-                             <div class="warning header row">
-                                  <div class="col-sm-12">
-                                     <h4>
-                                         <span>WARNING</span>
-                                         <a class="outline white pull-right" href="" ng-click="fResetWarnings()">
-                                                <i class="fa fa-times-circle"></i></a>
-                                     </h4>
-                                  </div>
-                            </div>
-                             <div class="row">
-                                <div class="col-xs-12">
-                                    <div  ng-repeat="(key, value) in warning" ng-if="key!='warningFlag'">
-                                            <p><strong>{{ key }}:</strong> {{value}}</p>
-                                    </div>
-                                </div>
-                             </div>
-                        </div>
-                        <div ng-show="warning.warningFlag != true && error.errorFlag != true" class="row">
-                             <div class="no-error header row">
-                                     <div class="col-sm-12">
-                                         <h4>
-                                             <span>SYNTAX</span>
-                                             <i class="outline white fa fa-check-circle pull-right"></i>
-                                         </h4>
-                                    </div>
-                            </div>
-                             <div class="row">
-                                <div class="col-xs-12">
-                                    <p><strong>VALID</strong> </p>
-                                </div>
-                             </div>
-                        </div>
-                     </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <p><strong>Create simple SQL queries with ease.</strong>
-                            </p>
-                            <p>
-                                Multiple catalogues are joined back to the
-                            first catalogue row ( <i class="fa fa-level-up fa-flip-horizontal" style="transform:rotate(-270deg)
-                            scaleX(-1);"></i> ).
-                            </p>
                         </div>
                     </div>
                 </div>
-             </div>
+                <div class="panel panel-default" ng-show="inputJoins.length>0">
+                    <div class="panel-heading panel-background-grey">
+                        <h4 class="panel-title">
+                             <span>JOIN</span>
+                             <a class=" black pull-right" href="" ng-click="fAddJoin()">
+                                    <i class="fa fa-plus"></i></a>
+                         </h4>
+                    </div>
+                    <div class="panel-body">
+                        <div ng-repeat="join in inputJoins track by $index" class="clearfix false-row">
+                            <div class="col-sm-12 col-xs-12">
+                                <div isteven-multi-select input-model="join" output-model="outputJoins[$index]"
+                                      group-property="catGroup" button-label="buttonname" item-label="name"
+                                      tick-property="ticked" selection-mode="single" class="floating-select"
+                                     on-item-click="fJoinClick(data)" id="outputJoins{{$index}}" disable-property="disabled">
+                                </div>
+                                <div isteven-multi-select input-model="inputJoinOperators[$index]" output-model="outputJoinOperator[$index]"
+                                      button-label="operator" item-label="operator" helper-elements="none" on-item-click="fJoinOperator()"
+                                      tick-property="ticked" selection-mode="single" class="floating-select smallContainer"
+                                      id="outputJoinOperator{{$index}}">
+                                </div>
+                                <div isteven-multi-select input-model="inputJoinsB[$index]" output-model="outputJoinsB[$index]"
+                                      group-property="catGroup" button-label="buttonname" item-label="name"
+                                      tick-property="ticked" selection-mode="single" class="floating-select" disable-property="disabled"
+                                     on-item-click="fJoinBClick(data)" id="outputJoinsB{{$index}}">
+                                </div>
+                                <button class="btn outline red pull-right btn-join-remove" href="" data-value="{{$index}}" ng-click="fRemoveJoin($index)">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading panel-background-grey">
+                        <h4 class="panel-title"><span>WHERE</span>
+                             <a class=" black pull-right" href="" ng-click="fAddWhere()">
+                                    <i class="fa fa-plus"></i></a></h4>
+                    </div>
+                    <div class="panel-body" ng-show="inputWheres.length>0">
+                        <div ng-repeat="nodewhere in inputWheres track by $index" class="clearfix false-row">
+                            <div class="col-sm-12 col-xs-12">
+                                <div isteven-multi-select input-model="nodewhere" output-model="outputWheres[$index]"
+                                      group-property="catGroup" button-label="name" item-label="name"
+                                      tick-property="ticked" selection-mode="single" class="floating-select"
+                                      on-item-click="fWhereClick(data)" id="outputWhere{{$index}}">
+                                </div>
+                                <label class="checkbox-inline querynot" for="'inlineCheckbox{{$index}}'" >
+                                  <input type="checkbox" id="'inlineCheckbox{{$index}}'" value="1" ng-model="queryCheckbox[$index]">
+                                  not
+                                </label>
+                                <input class="col-sm-2 col-xs-3 input-box" ng-show="outputWhereOperator[$index][0].operator=='BETWEEN'" type="text" class="form-control" id="'lowerWhereValue{{$index}}'" ng-model="outputLowerWhereValue[$index]" placeholder="value">
+                                <div isteven-multi-select input-model="inputWhereOperators[$index]" output-model="outputWhereOperator[$index]"
+                                      button-label="operator" item-label="operator" helper-elements="none" on-item-click="fWhereOperator()"
+                                      tick-property="ticked" selection-mode="single" class="floating-select smallContainer"
+                                      id="outputWhereOperator{{$index}}"  >
+                                </div>
+                                <input class="col-sm-2 col-xs-3 input-box" type="text" class="form-control"
+                                       id="whereValue{{$index}}" ng-model="outputWhereValue[$index]" placeholder="value"
+                                       on-item-click="fWhereValue()">
+                                <button class="btn outline red pull-right btn-where-remove" href="" data-value="{{$index}}" ng-click="fRemoveWhere($index)">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                                <hr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default ">
+                    <div class="panel-heading panel-background-grey">
+                        <!--<h3 class="panel-title">SELECT</h3>-->
+                        <h4 class="panel-title">
+                             <span>OUTPUT</span>
+                         </h4>
+                    </div>
+                    <div class="panel-body" ng-show="outputSQL.length>0">
+                        <p><span ng-bind-html="outputSQL" id="outputSQL">{{ outputSQL }} &nbsp;</span></p>
+                    </div>
+                </div>
+
+                <div id="query-form-errors">
+                    <div class="panel panel-default" ng-show="error.errorFlag == true">
+                        <div class="panel-heading error">
+                            <h4>
+                                 <span>ERROR</span>
+                                 <a class="outline white pull-right" href="" ng-click="fResetErrors()">
+                                        <i class="fa fa-times-circle"></i></a>
+                            </h4>
+                        </div>
+                        <div class="panel-body">
+                            <div  ng-repeat="(key, value) in error" ng-if="key!='errorFlag'">
+                                    <p><strong>{{ key }}:</strong> {{value}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default" ng-show="warning.warningFlag == true">
+                        <div class="panel-heading warning">
+                            <h4>
+                                 <span>WARNING</span>
+                                 <a class="outline white pull-right" href="" ng-click="fResetWarnings()">
+                                        <i class="fa fa-times-circle"></i></a>
+                            </h4>
+                        </div>
+                        <div class="panel-body">
+                            <div  ng-repeat="(key, value) in warning" ng-if="key!='warningFlag'">
+                                                <p><strong>{{ key }}:</strong> {{value}}</p>
+                                        </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default" ng-show="warning.warningFlag != true && error.errorFlag != true">
+                        <div class="panel-heading no-error">
+                            <h4>
+                                 <span>VALID INPUT</span>
+                                                 <i class="outline white fa fa-check-circle pull-right"></i>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                 <div class="row">
+                     <div  class="col-sm-12">
+                         <button class="btn btn-sm btn-primary pull-right text-uppercase" type="button"
+                                 ng-click=""
+                                 id="query-builder-submit" disabled>Send to Form
+                         </button>
+                         <button type="button"
+                                 class="btn btn-sm btn-default text-uppercase pull-right pulsing-button"
+                                 ng-click="fValidate()" style="margin-right:5px;"
+                                 title="Check form is correctly populated" id="check-button"><i
+                                 class="fa fa-code"></i> Update SQL
+                         </button>
+
+                         <!--<button class="btn btn-sm btn-default pull-right text-uppercase" type="button"-->
+                                 <!--ng-click="fBuildSQL()"-->
+                                 <!--title="Display SQL" style="margin-bottom:5px" id="sql-button"><i-->
+                                 <!--class="fa fa-code"></i> View SQL-->
+                         <!--</button>-->
+
+                         <button class="btn btn-sm btn-default pull-left text-uppercase" type="button"
+                                 ng-click="fReset()"
+                                 id="query-builder-reset">Reset
+                         </button>
+                     </div>
+                </div>
+             </form>
         </div>
     {% endverbatim %}
 <script>

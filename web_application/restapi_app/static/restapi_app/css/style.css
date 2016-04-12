@@ -835,8 +835,9 @@ td.nested > table {
 
 form select, form input, form textarea {
     width: 90%;
+    border-radius:0px !important;
 }
-
+.input-sm {border-radius:0px;}
 form select[multiple] {
     height: 150px;
 }
