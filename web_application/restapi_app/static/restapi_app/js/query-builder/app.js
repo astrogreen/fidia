@@ -351,7 +351,7 @@
         //    descript: removes last array from inputCatalogues
         $scope.fRemoveCatalogue = function(data){
             //don't remove first element
-            console.log(data);
+            //console.log(data);
             if ($scope.inputCatalogues.length>1){
                 $scope.inputCatalogues.splice(data,1);
                 $scope.outputCatalogues.splice(data,1);
@@ -610,7 +610,7 @@
                     });
                 };
             });
-            console.log('OUTPUTWHERES'+angular.toJson(outputWhereList));
+            //console.log('OUTPUTWHERES'+angular.toJson(outputWhereList));
             //console.log(angular.toJson(outputWhereList));
             //associated catalogue is in the 'cat' property
 
@@ -759,12 +759,23 @@
             for(var i=0; i<validationObj.length; i++) {
                 angular.forEach(validationObj[i][0], function(value,key){
                     if (validationObj[i][0][key].length<1){
-                        //console.log('warning: '+validationObj[i][1]+key);
-                        $(validationObj[i][1]+key).addClass('not-selected-warning');
-                        $scope.warning['warningFlag']=true;
-                        $scope.warning['Unselected Values']="Ensure all fields are populated. "
-                        missing += validationObj[i][2]+key+',';
-                        warning=true;
+
+                        //validation for value box needs custom function
+                        //if the operator for that row is null - bypass the compressor.
+                        // if the current obj is the where value, and its defined, and the operator on that row is NULL
+                        // then clear all warnings on the value box.
+                        if ((validationObj[i][1]=="#whereValue") && (undefined != $scope.outputWhereOperator) &&
+                            (undefined != $scope.outputWhereOperator[key][0]) && ($scope.outputWhereOperator[key][0].operator=="NULL")){
+                                //console.log($scope.outputWhereOperator[key][0].operator)
+                                $(validationObj[i][1]+key).removeClass('not-selected-warning');
+                        } else {
+                            // otherwise validate all fields (check not blank)
+                            $(validationObj[i][1]+key).addClass('not-selected-warning');
+                            $scope.warning['warningFlag']=true;
+                            $scope.warning['Unselected Values']="Ensure all fields are populated. "
+                            missing += validationObj[i][2]+key+',';
+                            warning=true;
+                        }
                     } else {
                         $(validationObj[i][1]+key).removeClass('not-selected-warning');
                     }
@@ -794,23 +805,39 @@
                 $scope.outputSQLJOIN='';
                 $scope.outputSQLWHERE='';
 
-                $scope.fcheckboxEval = function(val){
-                    var text = "";
-                    if (val == true){
-                        text = 'NOT'
-                    } else if (val == false) {
-                        text = "";
-                    }
-                    return text
-                };
+                $scope.fWhereSQL=function(operator,key, checkboxval){
+                    var text = ""; var cbv = "";
 
-                $scope.fBetweenValue=function(operator, key){
-                    var text = "";
+                    if (operator == "BETWEEN" || operator == "NULL"){
+                        if (checkboxval == true){
+                            cbv = 'NOT '
+                        } else if (checkboxval == false) {
+                            cbv = "";
+                        }
+                    } else {
+                        if (checkboxval == true){
+                            cbv = '!'
+                        } else if (checkboxval == false) {
+                            cbv = "";
+                        }
+                    };
+
                     if (operator=="BETWEEN"){
-                        text=$scope.outputLowerWhereValue[key]+" and ";
+                        text=" " + cbv + " " + operator+" " + $scope.outputLowerWhereValue[key] + " and " + $scope.outputWhereValue[key] + " ";
+                    } else if (operator == "NULL"){
+                        text = 'IS '+cbv+'NULL ';
+                    } else {
+                        text =" "+cbv+''+operator+" "+$scope.outputWhereValue[key];
                     }
                     return text;
                 };
+
+
+                //$scope.outputSQLWHERE+=whereCatAlias+"."+value[0].name+" "+
+                //$scope.fcheckboxEval($scope.queryCheckbox[key])+" "+
+                //$scope.outputWhereOperator[key][0].operator+" "+
+                //$scope.fBetweenValue($scope.outputWhereOperator[key][0].operator,key)+
+                //$scope.outputWhereValue[key];
 
                 //SELECT t1.CATAID, t1.OBJID, t1.RA, t1.DEC, t1.FLAGS
                 //FROM   InputCatA as t1
@@ -860,7 +887,7 @@
                     //FROM   GalacticExtinction as t1
                     tablenameArr.push([outputCataloguesList[key], tablename]);
                 });
-                console.log(angular.toJson(tablenameArr))
+                //console.log(angular.toJson(tablenameArr))
 
 
                 // if joins are present
@@ -874,7 +901,7 @@
                         //get table alias (tablenameArr looks like: [["ExternalSpecAll","t1"],["Test","t2"]])
                         angular.forEach(tablenameArr,function(valueb, keyb){
                             //catalogue
-                            console.log(valueb[0])
+                            //console.log(valueb[0])
                             if ($scope.outputJoins[key][0].cat == valueb[0]){
                                 joinCatAlias = valueb[1];
                             }
@@ -906,9 +933,9 @@
 
 
 
-                console.log($scope.outputSQLSELECT);
-                console.log(angular.toJson(outputColumnsList));
-                console.log(angular.toJson(outputCataloguesList));
+                //console.log($scope.outputSQLSELECT);
+                //console.log(angular.toJson(outputColumnsList));
+                //console.log(angular.toJson(outputCataloguesList));
 
 
 
@@ -934,10 +961,8 @@
                             $scope.error['errorFlag']=true;
                         } else {
                             $scope.outputSQLWHERE+=whereCatAlias+"."+value[0].name+" "+
-                            $scope.fcheckboxEval($scope.queryCheckbox[key])+" "+
-                            $scope.outputWhereOperator[key][0].operator+" "+
-                            $scope.fBetweenValue($scope.outputWhereOperator[key][0].operator,key)+
-                            $scope.outputWhereValue[key];
+                            $scope.fWhereSQL($scope.outputWhereOperator[key][0].operator, key, $scope.queryCheckbox[key]) +'<br>';
+                            //console.log($scope.fWhereSQL($scope.outputWhereOperator[key][0].operator, key, $scope.queryCheckbox[key] ))
                         };
 
                         if (key < $scope.outputWheres.length-1){
@@ -946,8 +971,6 @@
                         //key is row
                     });
                 };
-
-
 
                 // construct full SQL
                 $scope.outputSQL = $scope.outputSQLSELECT +' <br>'+ $scope.outputSQLJOIN +' <br>'+ $scope.outputSQLWHERE;

@@ -117,7 +117,7 @@
                                       tick-property="ticked" selection-mode="single" class="floating-select smallContainer"
                                       id="outputWhereOperator{{$index}}"  >
                                 </div>
-                                <input class="col-sm-2 col-xs-3 input-box" type="text" class="form-control"
+                                <input class="col-sm-2 col-xs-3 input-box" ng-hide="outputWhereOperator[$index][0].operator=='NULL'" type="text" class="form-control"
                                        id="whereValue{{$index}}" ng-model="outputWhereValue[$index]" placeholder="value"
                                        on-item-click="fWhereValue()">
                                 <button class="btn outline red pull-right btn-where-remove" href="" data-value="{{$index}}" ng-click="fRemoveWhere($index)">
@@ -165,8 +165,8 @@
                         </div>
                         <div class="panel-body">
                             <div  ng-repeat="(key, value) in warning" ng-if="key!='warningFlag'">
-                                                <p><strong>{{ key }}:</strong> {{value}}</p>
-                                        </div>
+                                    <p><strong>{{ key }}:</strong> {{value}}</p>
+                            </div>
                         </div>
                     </div>
                     <div class="panel panel-default" ng-show="warning.warningFlag != true && error.errorFlag != true">
