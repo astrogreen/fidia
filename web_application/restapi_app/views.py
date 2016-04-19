@@ -1,7 +1,7 @@
 import random, collections, logging
 import json
 from pprint import pprint
-
+from django.shortcuts import get_object_or_404
 from .permissions import IsNotAuthenticated
 from .exceptions import NoPropertyFound
 
@@ -11,6 +11,7 @@ from .models import (
 from .serializers import (
     CreateUserSerializer,
     UserSerializer,
+    ContactFormSerializer,
     QuerySerializerCreateUpdate, QuerySerializerList,
     SampleSerializer,
     AstroObjectSerializer,
@@ -433,4 +434,28 @@ class AvailableTables(views.APIView):
         return Response(json_data)
 
 
+class ContactForm(views.APIView):
+    """
+    Contact Form
+    """
+    permission_classes = (permissions.AllowAny,)
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'restapi_app/support/contact.html'
 
+    def get(self, request):
+
+        serializer = ContactFormSerializer
+
+        return Response({'serializer': serializer})
+
+    # def post(self, request, pk):
+    #     profile = get_object_or_404(Profile, pk=pk)
+    #     serializer = ProfileSerializer(profile, data=request.data)
+    #     if not serializer.is_valid():
+    #         return Response({'serializer': serializer, 'profile': profile})
+    #     serializer.save()
+    #     return redirect('profile-list')
+
+
+    def post(self, request, format=None):
+        pass

@@ -1,0 +1,159 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Team{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/team.css' %}"/>
+{% endblock %}
+
+
+<div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+    <div class="container">
+        {% block breadcrumbs-outer %}
+        {% block breadcrumbs %}
+        <ul class="breadcrumb ">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li class="active"><a href="{% url 'under-construction' %}">Team</a></li>
+        </ul>
+        {% endblock %}
+        {% endblock %}
+    </div>
+</div>
+
+{% block content %}
+<h1 class="headline">
+    <span>Team</span>
+</h1>
+<div class="container">
+    <div class="row">
+        <p>All-Sky Virtual Observatory (ASVO) Anglo-Australian Telescope (AAT) Node is developing an archive
+            infrastructure and interface that is extensible and scalable, designed to meet the current and future needs
+            of the Australian astronomical community. This will be demonstrated by the deployment of two exemplar
+            datasets (SAMI and GAMA survey data) that span the range of capabilities to be provided. The extensibility
+            requirement ensures that, at the conclusion of the Project, the AAO is capable of ingestion and deployment
+            of all AAT surveys of major national significance through the AAT Node. The node includes the requirement to
+            be interoperable with the other ASVO nodes and compliant with IVOA protocols.</p><br>
+        <p>
+
+            The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth Department of
+            Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has coordinated with the
+            Australian Astronomical Observatory (AAO), as the owners and operators of the AAT, to develop this ASVO
+            Node. This is a 2 year project with completion expected by June 2017. </p><br>
+    </div>
+    <div class="row">
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/ahopkins.jpg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Professor Andrew Hopkins </h3>
+                    <em>Project Director</em>
+                </div>
+                <div class="panel-body">
+                    <p>...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/ksealey.jpeg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale "
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Katrina Sealey </h3>
+                    <em>Project Manager</em>
+                </div>
+                <div class="panel-body">
+                    <p>...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/simonotoole.jpeg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Simon O'Toole </h3>
+                    <em>Project Scientist</em>
+                </div>
+                <div class="panel-body">
+                    <p>...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/LHarischandra.jpg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Mr Lloyd Harischandra</h3>
+                    <em>Database Engineer</em>
+                </div>
+                <div class="panel-body">
+                    <p>...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/agreen.png' %}"
+                 class="img-responsive img-circle center-block team-image greyscale "
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Andy Green </h3>
+                    <em>Astrophysicist/Software Engineer</em>
+                </div>
+                <div class="panel-body">
+                    <p>...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/lmannering.jpg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Elizabeth Mannering</h3>
+                    <em>Software Engineer/Astrophysicist</em>
+                </div>
+                <div class="panel-body">
+                    <p>Liz deals with all things web front-end related, from designing the User
+                        Interface to building the RESTful API.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4 text-center">
+            <img src="https://placebear.com/g/200/200"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Mr Minh Vuong </h3>
+                    <em>Software Engineer</em>
+                </div>
+                <div class="panel-body">
+                    <p>...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <h3>Contact Us</h3>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

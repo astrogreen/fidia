@@ -38,7 +38,11 @@ user_detail = views.UserViewSet.as_view({
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
     url(r'^(?i)documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
-    url(r'^(?i)under-construction/$', TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'), name='under-construction'),
+    url(r'^(?i)under-construction/$', TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'), name = 'under-construction'),
+    url(r'^(?i)about/team/$', TemplateView.as_view(template_name='restapi_app/about/team.html'), name='about-team'),
+
+    url(r'^(?i)contact/$', views.ContactForm.as_view(), name='contact'),
+
 
     url(r'^user-testing/feedback/$', TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'), name='user-feedback'),
     url(r'^user-testing/feature-tracking/$', TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'), name='feature-tracking'),

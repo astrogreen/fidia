@@ -64,6 +64,9 @@ h3 {
 .panel-background-grey {
     background: url("../img/panel-background.png") repeat-x;
 }
+.panel-background-team {
+    background: url("../img/panel-background-team.png") repeat-x;
+}
 
 .panel {
     border-radius: 0px;

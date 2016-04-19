@@ -1,5 +1,5 @@
 import logging
-
+from django.core.mail import send_mail
 import fidia, collections
 
 from fidia.traits.utilities import TraitProperty
@@ -134,6 +134,27 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'username', 'query')
+
+
+class ContactFormSerializer(serializers.Serializer):
+    name = serializers.CharField(
+        max_length=100,
+        style={'placeholder':'Name'}
+    )
+    email = serializers.EmailField(
+        max_length=100,
+        style={'placeholder': 'Email'}
+    )
+    message = serializers.CharField(
+        max_length=1000,
+        style={'placeholder': 'Message'}
+    )
+
+
+    # def save(self):
+    #     email = self.validated_data['email']
+    #     message = self.validated_data['message']
+    #     send_mail(from=email, message = message)
 
 
 # ASVO SAMI DR - - - - - - - -    - - -  -   -   -   -   -   -   -   -   -

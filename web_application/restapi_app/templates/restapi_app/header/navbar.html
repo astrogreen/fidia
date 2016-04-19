@@ -81,14 +81,19 @@
                 <li class="disabled"><a href="{% url 'under-construction' %}">Dashboard</a></li>
               </ul>
             </li>
-            <li class="disabled"><a href="{% url 'under-construction' %}">Support</a></li>
-            <li class="disabled" class="dropdown">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Support <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li class="disabled"><a href="{% url 'contact' %}">Contact</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li class="disabled"><a href="{% url 'under-construction' %}">Referencing AAT</a></li>
                     <li class="disabled"><a href="{% url 'under-construction' %}">Publications</a></li>
                     <li role="separator" class="divider"></li>
-                    <li class="disabled"><a href="{% url 'under-construction' %}">Meet the Team</a></li>
+                    <li ><a href="{% url 'about-team' %}">Meet the Team</a></li>
                 </ul>
             </li>
             <li class="dropdown">
