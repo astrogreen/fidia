@@ -16,6 +16,7 @@
 
 {% block content-page-header %}
 {% endblock %}
+{% if
 {% block content %}
 <h1 class="headline">
     <span>{% filter uppercase %}{% get_pks request.path -5 %} {% get_pks request.path -4 %} {% endfilter %}

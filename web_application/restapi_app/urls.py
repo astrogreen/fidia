@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^user-testing/feedback/$', TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'), name='user-feedback'),
     url(r'^user-testing/feature-tracking/$', TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'), name='feature-tracking'),
 
-    url(r'^(?i)logged-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'), name='logout-page'),
+    url(r'^(?i)signed-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'), name='logout-page'),
 
     url(r'^(?i)data/', include(router.urls)),
     url(r'^(?i)data/', include(object_nested_router.urls)),

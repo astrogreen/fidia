@@ -28,6 +28,7 @@ register = template.Library()
 def status_info(request, status_code, user):
     """
     Include a login snippet if REST framework's login view is in the URLconf.
+    # HTTP_400_BAD_REQUEST
     # HTTP_403_FORBIDDEN
     # HTTP_404_NOT_FOUND
     # HTTP_405_METHOD_NOT_ALLOWED
@@ -36,14 +37,18 @@ def status_info(request, status_code, user):
             <div class="text-center">
             <h1 style="margin: 0 0 20px;">Oops! </h1>
             <h2>{status_code} {message}</h2>
-            <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a></p>
+            <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">
+            Contact Support </a>
+            </p>
             </div>
     """
 
     if status_code == 403:
         message = 'Access Forbidden'
     elif status_code == 404:
-        message = 'Not found'
+        message = 'Not Found'
+    elif status_code == 400:
+        message = 'Bad Request'
     elif status_code == 405:
         message = 'Method not allowed'
     else:
