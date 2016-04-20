@@ -1,0 +1,37 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Under Construction{% endblock %}
+
+{% block head-extra %}
+{% endblock %}
+
+
+<<div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+  <div class="container">
+    {% block breadcrumbs-outer %}
+        {% block breadcrumbs %}
+          <ul class="breadcrumb ">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li class="active"><a href="{% url 'under-construction' %}">Under Construction</a></li>
+          </ul>
+        {% endblock %}
+    {% endblock %}
+  </div>
+</div>
+
+{% block content %}
+<h1 class="headline">
+    <span>Under Construction</span>
+</h1>
+<div class="container">
+    <div class="row">
+        <p>This page is in development.</p>
+    </div>
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

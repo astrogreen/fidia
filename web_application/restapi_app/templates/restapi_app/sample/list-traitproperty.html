@@ -1,0 +1,137 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}{{objname}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block content-options %}{% endblock %}
+{% block content-delete %}{% endblock %}
+{% block content-filter-form %}{% endblock %}
+
+{% block content-page-header %}
+{% endblock %}
+{% if
+{% block content %}
+<h1 class="headline">
+    <span>{% filter uppercase %}{% get_pks request.path -5 %} {% get_pks request.path -4 %} {% endfilter %}
+        {% filter CapsSentence %} {% get_pks request.path -3 %}{% endfilter %}: {{objname}}</span>
+    {% captureas survey %}{% get_pks request.path -5 %}{% endcaptureas %}
+    {% surveylogoimglink survey %}
+</h1>
+<br>
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Download</h3>
+            </div>
+            <div class="panel-body">
+                <p>Download {{objname}} in one of the following formats:<br></p>
+                {% if 'GET' in allowed_methods %}
+                <form id="get-form">
+                    <fieldset>
+                        {% if api_settings.URL_FORMAT_OVERRIDE %}
+                        <div class="btn-group  btn-block format-selection">
+                            <ul class="">
+
+                                {% for format in available_formats %}
+                                {% if format != 'api' %}
+                                    <li>
+                                        <a class="js-tooltip format-option"
+                                           href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">
+                                            {{ format }}</a>
+                                    </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                        <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                           title="View user {{user}}'s {{ name }}">GET</a>
+                        {% endif %}
+                    </fieldset>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Data Release</h3>
+            </div>
+            <div class="panel-body">
+                <p>DR info</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-default ">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Description</h3>
+            </div>
+            <div class="panel-body">
+                <p>{{objname}} is a component property of [{% filter uppercase %}{% get_pks request.path -5 %} {% get_pks request.path -4 %} {% endfilter %}
+        {% filter CapsSentence %} {% get_pks request.path -3 %}{% endfilter %}]. </p>
+                <p>It has the following attributes: </p>
+                <p>
+                    <dl class="dl-horizontal">
+                           {% for key, value in response.data.items %}
+                          <dt>{{key | CapsSentence}}</dt>
+                          <dd class="overflow ellipsis">{{value}}</dd>
+                        {% endfor %}
+                          <dt>Parent Property</dt>
+                          <dd class="overflow ellipsis">{% filter CapsSentence %} {% get_pks request.path -3 %}{% endfilter %}</dd>
+                          <dt>Associated Object</dt>
+                          <dd class="overflow ellipsis">{% filter CapsSentence %} {% get_pks request.path -4 %}{% endfilter %}</dd>
+                          <dt>Associated Survey</dt>
+                          <dd class="overflow ellipsis">{% filter uppercase %} {% get_pks request.path -5 %}{% endfilter %}</dd>
+                    </dl>
+                </p>
+            </div>
+        </div>
+        <!--<div class="panel panel-default ">-->
+            <!--<div class="panel-heading panel-background-grey">-->
+                <!--<h3 class="panel-title">Raw Data</h3>-->
+            <!--</div>-->
+            <!--<div class="panel-body">-->
+            <!--</div>-->
+        <!--</div>-->
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <p><strong>Raw Data</strong></p>
+
+                <div class="collapse-group">
+                    <p>View JSON-formatted data. <br>
+                        <a class="" role="button" id="raw-data" href="#">Expand &raquo;</a>
+                    </p>
+                    <div class="response-info collapse raw-data" style="clear: both">
+                    <pre class="prettyprint"><span class="meta nocode">{% autoescape off %}</span>{{ content|urlize_quoted_links }}{% endautoescape %}</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block content-DRFs %}{% endblock %}
+{% block footer-extra %}
+<script>
+    $('#raw-data').on('click', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var $collapse = $this.closest('.collapse-group').find('.collapse');
+        $collapse.collapse('toggle');
+    });
+</script>
+{% endblock %}
+

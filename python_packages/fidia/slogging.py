@@ -1,7 +1,9 @@
 '''
 slogging: the SAMI Logging utility
 
-This provides a simple logging utility suitable for use in SAMI modules.
+This provides a simple logging utility suitable for use in libraries, etc. It
+was originally written for the SAMI Python Package by Andy Green, but has been
+adapted for use elsewhere.
 
 Generically, one only needs to add the following lines to the top of a file:
 
@@ -42,6 +44,9 @@ History:
 
     Module level configuration options updated 27 April 2015 by Andy Green
 
+    Extensive modifications to better handle interactions with other logging
+    systems, namely Django, 23 March 2016 by Andy Green
+
 
 @author: agreen
 '''
@@ -52,8 +57,14 @@ import types
 
 
 logging_configured = False
+external_loggers = False
 file_handler = None
 console_handler = None
+
+# Setting complement_existing_loggers to True will make this add to any existing
+# handlers at the module level, otherwise this package will not set up handlers
+# if there are any already present.
+complement_existing_loggers = False
 
 PACKAGE_LOGGER_NAME = 'fidia'
 
@@ -65,23 +76,31 @@ ERROR = logging.ERROR
 INFO = logging.INFO
 
 def configure_logging():
-    
+    """Configure logging for this package and return the package level logger"""
+
+    global logging_configured, complement_existing_loggers, external_loggers
+
+    package_log = logging.getLogger(PACKAGE_LOGGER_NAME)
+
+    if logging_configured:
+        return package_log
+
     # Set up logging for the package. Note that any modules who set up logging
     # below this package logger (using the `slogging.getLogger(__name__)` 
     # functionality) will propogate messages to this logger.
     #
-    package_log = logging.getLogger(PACKAGE_LOGGER_NAME)
+
+    if not complement_existing_loggers and len(package_log.handlers) > 0:
+        print("slogging not set up because existing log handlers found: %s" % package_log.handlers)
+        logging_configured = True
+        external_loggers = True
+        return
 
     # NOTE: The logging level should not be set here, but rather at the top of
-    # each file. The setting below ensures that this logger will catch all 
+    # each file. The setting below ensures that this logger will catch all
     # requests from child loggers.
     package_log.setLevel(logging.DEBUG)
 
-    try:
-        if package_log.logging_configured: 
-            return package_log
-    except:
-        pass
 
     # The code below should only ever be called once, so we raise an exception if this doesn't seem to be the case.
     # if len(package_log.handlers) > 0:
@@ -90,32 +109,55 @@ def configure_logging():
     formatter = logging.Formatter('%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s')
 
     # Default is to log messages to the 
-    if 'SAMI_DB_LOG_FILE' in os.environ:
-        filename = os.environ['SAMI_DB_LOG_FILE']
+    if 'FIDIA_LOG_FILE' in os.environ:
+        filename = os.environ['FIDIA_LOG_FILE']
         file_handler = logging.FileHandler(filename)
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         package_log.addHandler(file_handler)
-    
-    package_log.logging_configured = True
+
+    logging_configured = True
 
     return package_log
 
-def add_file(self, filename):
+def add_file(self, filename, override=False):
+    """Add a file handler to this module's logger which writes to the given filename.
+
+    The file will only contain messages from the module corresponding to the
+    logger (no parent or sub-modules).
+
+    """
+
+    # assert isinstance(self, logging.Logger)
+
+    if external_loggers and not override:
+        return
 
     formatter = logging.Formatter('%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s')
 
-    global file_handler
+    class LogFilter:
+        """Filters log messages not created by the provided logger name."""
+        def __init__(self, logger_name):
+            self.logger_name = logger_name
+        def filter(self, record):
+            return record.name == self.logger_name
 
-    if file_handler is None:
-        file_handler = logging.FileHandler(filename)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
+    file_handler = logging.FileHandler(filename)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+    file_handler.addFilter(LogFilter(self.name))
     self.addHandler(file_handler)
 
-def enable_console_logging(self):
+def enable_console_logging(self, override=False):
+    """Add console logging to this module's logger.
 
-    global console_handler
+    If external logging is available and this module is not set to
+    `complement_existing_loggers`, then nothing is done unless `override=True`.
+    """
+    global console_handler, external_loggers
+
+    if external_loggers and not override:
+        return
 
     if console_handler is None:
         formatter = logging.Formatter('%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s')
@@ -128,7 +170,7 @@ def enable_console_logging(self):
         self.addHandler(console_handler)
 
 def disable_console_logging(self):
-
+    """Remove console logging previously added using `enable_console_logging`."""
     if len(self.handlers) == 0:
         return
 
@@ -141,10 +183,10 @@ def disable_console_logging(self):
         if hndlr is console_handler:
             self.removeHandler(hndlr)
 
+
 def getLogger(name):
-    
-    if not logging_configured:
-        package_log = configure_logging()
+    """Get the logger for `name`, adding some special convenience functions and setup if required."""
+    package_log = configure_logging()
 
     if PACKAGE_LOGGER_NAME != name[:len(PACKAGE_LOGGER_NAME)]:
         package_log.warn('Logging setup request for non-%s-package member "%s"', PACKAGE_LOGGER_NAME, name)
@@ -156,6 +198,7 @@ def getLogger(name):
     log.add_file = types.MethodType(add_file, log)
     log.enable_console_logging = types.MethodType(enable_console_logging, log)
     log.disable_console_logging = types.MethodType(disable_console_logging, log)
+    # log.set_console_level = types.MethodType(set_console_level, log)
 
     return log
         

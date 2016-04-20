@@ -3,7 +3,44 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import get_script_prefix, resolve
 
 
-def get_breadcrumbs(url, request=None):
+def get_object_name(url, request=None):
+
+    from django.utils.html import escape
+    # change for query-detail, galaxy-list and trait-list
+    name_space = escape(resolve(url).url_name)
+    name = ''
+    if request.parser_context['kwargs']:
+        if 'pk' in request.parser_context['kwargs']:
+            if name_space == 'query-detail':
+                pk = request.parser_context['kwargs']['pk']
+                name = pk
+            if name_space == 'sov-detail':
+                pk = request.parser_context['kwargs']['pk']
+                name = pk
+        elif 'galaxy_pk' in request.parser_context['kwargs']:
+            if name_space == 'galaxy-list':
+                galaxy_pk = request.parser_context['kwargs']['galaxy_pk']
+                name = galaxy_pk
+            if name_space == 'trait-list':
+                # format to human readable
+                trait_pk = request.parser_context['kwargs']['trait_pk'].split("_")
+                # .title capitalizes the first letter of every word in words list
+                name = (" ".join(trait_pk)).title()
+            if name_space == 'traitproperty-list':
+                traitproperty_pk = request.parser_context['kwargs']['traitproperty_pk'].split("_")
+                name = (" ".join(traitproperty_pk)).title()
+
+    if name_space == 'gama-list':
+        name = 'GAMA'
+    elif name_space == 'sami-list':
+        name = 'SAMI'
+    elif name_space == 'sov-list':
+        name = 'SOV'
+
+    return name
+
+
+def get_breadcrumbs_by_viewname(url, request=None):
     """
     Given a url returns a list of breadcrumbs, which are each a
     tuple of (name, url).
@@ -30,14 +67,20 @@ def get_breadcrumbs(url, request=None):
             # Check if this is a REST framework view,
             # and if so add it to the breadcrumbs
             cls = getattr(view, 'cls', None)
+
             if cls is not None and issubclass(cls, APIView):
                 # Don't list the same view twice in a row.
                 # Probably an optional trailing slash.
                 if not seen or seen[-1] != view:
-                    # suffix = getattr(view, 'suffix', None)
                     # PREVENT 'list' or 'detail' being appended
+                    # suffix = getattr(view, 'suffix', None)
                     suffix = ''
                     name = view_name_func(cls, suffix)
+
+                    new_name = get_object_name(url, request)
+                    if new_name != '':
+                        name = new_name
+
                     insert_url = preserve_builtin_query_params(prefix + url, request)
                     breadcrumbs_list.insert(0, (name, insert_url))
                     seen.append(view)
@@ -60,3 +103,11 @@ def get_breadcrumbs(url, request=None):
     prefix = get_script_prefix().rstrip('/')
     url = url[len(prefix):]
     return breadcrumbs_recursive(url, [], prefix, [])
+
+
+
+
+
+
+
+

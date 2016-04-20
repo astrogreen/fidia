@@ -1,5 +1,3 @@
-console.log(AstroObjectJson);
-
 function ftoTitleCase(str)
 {
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
@@ -18,32 +16,43 @@ function range(start, count) {
     return temp;
 };
 
-function getMinMaxOf2DIndex (arr, idx) {
-    var arrayMap = arr.map(function (e) { return e[idx]});
-    return {
-        min: Math.min.apply(null, arrayMap),
-        max: Math.max.apply(null, arrayMap)
-    }
+// Remove NaN
+function bouncer(arr) {
+  var filteredArray = arr.filter(Boolean);
+  return filteredArray;
 }
 
-function fNthArrayMin(arr){
-    // Get minimum value in 2D array
-    return arr.reduce(function(min, arr) {
-        return Math.min(min, arr[0]);
-    }, +Infinity);
-};
+function standardDeviation(values){
+  var avg = average(values);
 
-function fNthArrayMax(arr){
-    // Get minimum value in 2D array
-    return arr.reduce(function(max, arr) {
-        return Math.max(max, arr[0]);
-    }, -Infinity);
-};
+  var squareDiffs = values.map(function(value){
+    var diff = value - avg;
+    var sqrDiff = diff * diff;
+    return sqrDiff;
+  });
+
+  var avgSquareDiff = average(squareDiffs);
+
+  var stdDev = Math.sqrt(avgSquareDiff);
+  return stdDev;
+}
+
+function average(data){
+  var sum = data.reduce(function(sum, value){
+    return sum + value;
+  }, 0);
+
+  var avg = sum / data.length;
+  return avg;
+}
 
 function fGenerateColourScale(map_name, map_val){
 
     var colors=['rgb(165,0,38)','rgb(215,48,39)','rgb(244,109,67)','rgb(253,174,97)','rgb(254,224,144)','rgb(224,243,248)','rgb(171,217,233)','rgb(116,173,209)','rgb(69,117,180)','rgb(49,54,149)'];
     // red to white to blue -->
+
+    colors = colors.reverse();
+    // red higher value
 
     //var colorscale_old= [
     //    ['0.0', 'rgb(165,0,38)'],
@@ -61,9 +70,41 @@ function fGenerateColourScale(map_name, map_val){
     var colorscale = [];
     var numcolors = colors.length;
 
-    var Zmin = fNthArrayMin(map_val);
-    var Zmax = fNthArrayMax(map_val);
-    //console.log("Zmin,Zmax: ",Zmin, Zmax);
+    // Flatten array
+    var FlatArr = map_val.reduce(function (p, c) {
+      return p.concat(c);
+    });
+
+    // Remove NaN
+    var NumArr = bouncer(FlatArr);
+
+    //ZMIN ZMAX (without sigma clip)
+    var Zmax_old = Math.max.apply(null, bouncer(FlatArr));
+    var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
+
+    //After sigma clipping....
+    console.log(FlatArr);
+    console.log('AVERAGE',average(NumArr));
+    console.log('SD',standardDeviation(NumArr));
+    //one sigma clip (average+1SD < values < average+1SD)
+    var SigClip = NumArr.filter(function(x) {
+        return x > (average(NumArr)-standardDeviation(NumArr)) && x < (average(NumArr)+standardDeviation(NumArr));
+    });
+    console.log('AVERAGE',average(SigClip));
+    console.log('SD',standardDeviation(SigClip));
+
+    var Zmin=average(SigClip)-standardDeviation(SigClip);
+    var Zmax=average(SigClip)+standardDeviation(SigClip);
+
+    // 98 percentile clip, i.e. 0.01 to 0.99 of the actual values.
+    var NumArrSort = NumArr.sort(function(a,b){return a - b});
+    var Zmin = NumArrSort[Math.floor(NumArr.length * 0.01) + 1];
+    var Zmax = NumArrSort[Math.floor(NumArr.length * 0.99)];
+
+    console.log(Zmin);
+    console.log(Zmax);
+
+    var Zscale = Zmax-Zmin;
 
     var Zscale = Zmax-Zmin;
     var tickvals = [];
@@ -85,17 +126,22 @@ function fGenerateColourScale(map_name, map_val){
                 tickvals[i] = (Math.pow(10, (numcolors - (i + 1)))).toPrecision(2);
             //}
         }
-        //console.log(colorscale[i],tickvals[i]);
+        console.log(colorscale[i],tickvals[i]);
     };
 
     return {
         colorscale:colorscale,
-        tickvals:tickvals
+        tickvals:tickvals,
+        Zmin:Zmin,
+        Zmax:Zmax
     };
 };
 
 function fGetTraitPropertyValue(key){
-    return JSON.parse(AstroObjectJson[key].value);
+    if (getdim(AstroObjectJson[key].value.value) !== false) {
+        return AstroObjectJson[key].value.value;
+    }
+    else {console.log('value array irregular ')};
 }
 
 function fAstroMap(k,v){
@@ -103,10 +149,14 @@ function fAstroMap(k,v){
     var map_val = fGetTraitPropertyValue(k);
     var map_title = ftoTitleCase(map_name.split("_").join(" "));
 
+    console.log(map_name)
+
     // Get number of pixels
     var row_pixel_count = map_val.length;
     var col_pixel_count = map_val[0].length;
-    //console.log("rows, cols: ",row_pixel_count,col_pixel_count);
+    console.log("rows, cols: ",row_pixel_count,col_pixel_count);
+    console.log(getdim(map_val));
+    console.log((map_val));
     var rows = range(1,row_pixel_count);
     var cols = range(1,col_pixel_count);
 
@@ -115,6 +165,15 @@ function fAstroMap(k,v){
     var temp = fGenerateColourScale(map_name, map_val);
     var colorscale = temp.colorscale;
     var tickvals = temp.tickvals;
+    var Zmin = temp.Zmin;
+    var Zmax = temp.Zmax;
+
+    // might look as (where last is wavelength)
+    //test_map_val = [
+    //    [[1,2],[3,4],[5550]],
+    //    [[5,6],[7,8],[3232]],
+    //]
+    //map_val = [test_map_val[0][0], test_map_val[0][1]]
 
     var map_data = [
         {
@@ -122,6 +181,8 @@ function fAstroMap(k,v){
             y:rows,
             z: map_val,
             colorscale:colorscale,
+            zmin: Zmin,
+            zmax: Zmax,
             type: 'heatmap',
             colorbar:{
                 lenmode:'fraction',
@@ -174,13 +235,64 @@ $.each(AstroObjectJson, function(k,v){
     // value == trait property name
 
     // If element exists (defined in django template sov.html)
-    if ($('#'+k).length){
-        fAstroMap(k,v);
-    };
+    if ( k == "velocity_map" || k.substr(0,8) == 'line_map'){
+        if ($('#'+k).length){
+            // Drop current content (<p>value(arr)</p>
+            $('#'+k).html('');
+            fAstroMap(k,v);
+        };
+    }
+    //else if (typeof v.value == "number"){
+    //    // do nothing
+    //}
 });
 
 
-// UPDATES # TODO refactor as bindings
+
+// UPDATES # TODO refactor as bindings - necessary for interactive plots
+
+// TESTING
+// Assumes a valid matrix and returns its dimension array.
+// Won't work for irregular matrices, but is cheap.
+function dim(mat) {
+    if (mat instanceof Array) {
+        return [mat.length].concat(dim(mat[0]));
+    } else {
+        return [];
+    }
+}
+
+// Makes a validator function for a given matrix structure d.
+function validator(d) {
+    return function (mat) {
+        if (mat instanceof Array) {
+            return d.length > 0
+                && d[0] === mat.length
+                && every(mat, validator(d.slice(1)));
+        } else {
+            return d.length === 0;
+        }
+    };
+}
+
+// Combines dim and validator to get the required function.
+function getdim(mat) {
+    var d = dim(mat);
+    return validator(d)(mat) ? d : false;
+}
+
+// Checks whether predicate applies to every element of array arr.
+// This ought to be built into JS some day!
+function every(arr, predicate) {
+    var i, N;
+    for (i = 0, N = arr.length; i < N; ++i) {
+        if (!predicate(arr[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 
 

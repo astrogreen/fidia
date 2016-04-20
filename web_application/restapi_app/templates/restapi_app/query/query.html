@@ -1,0 +1,408 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Query{% endblock %}
+{% block head-extra %}
+<!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.css"/>-->
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/query-builder/dataTables.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/ace/ace.css' %}"/>
+
+<style type="text/css">
+    table{
+        table-layout: fixed;
+    }
+    table tr {
+        height:1em;
+    }
+    td {
+        overflow:hidden;white-space:nowrap;
+    }
+    .nav-pagination{
+        background-color:transparent;
+        float:right;
+    }
+    #SQL-ace-editor{border:solid 1px #eeeeee;}
+
+</style>
+{% block head-extra-extra%}{% endblock %}
+{% endblock %}
+
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+
+{% block content-filter-form %}{% endblock %}
+{% block content-header %}{% endblock %}
+
+{% block content-main %}
+
+    {% comment %}
+    ------ NEW QUERY FORM ------
+    {% endcomment %}
+    {% if display_edit_forms %}
+        {% if post_form or raw_data_post_form %}
+            {% if not response.data.queryResults %}
+            <h1 class="headline">
+                <span>Query</span>
+                <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
+                    <!--<button type="button" class="btn btn-default btn-sm text-uppercase" onclick="fTabSwitch('post-object-form')" title="Query the ASVO-AAT Node database.">SQL</button>-->
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'under-construction' %}" title="Query Documentation">Documentation</a>
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="#query-history" title="Re-visit previous queries.">Query History</a>
+                </div>
+            </h1>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>Submit an <a onclick="fTabSwitch('post-object-form')" title="Query the ASVO-AAT Node database.">SQL</a>
+                        (Structured Query Language) query to the ASVO-AAT Node database via the form below.</p>
+                    <p>The <a onclick="fTabSwitch('query-builder-form')" title="Create simple SQL queries with ease.">Query Builder</a> allows you to construct long and complicated
+                        SQL queries without prior knowledge of the syntax.
+                    </p>
+                    <p>Re-visit and manage
+                        your past queries in <a href="#query-history" title="Re-visit previous queries.">Query History</a>. </p>
+                </div>
+            </div>
+            <h2 class="headline" id="new-query">
+                <span>New Query</span>
+            </h2>
+            <div class="row">
+                <div class="col-sm-8">
+                    <div class="tabbable">
+                        {% if post_form %}
+                        <ul class="nav nav-tabs form-switcher">
+                            <li>
+                                <a name='html-tab' href="#post-object-form" data-toggle="tab">SQL Form</a>
+                            </li>
+                            <li>
+                                <a name='raw-tab' href="#query-builder-form" data-toggle="tab">Query Builder</a>
+                            </li>
+                        </ul>
+                        {% endif %}
+                        <div class="well tab-content">
+                            {% if post_form %}
+                            <div class="tab-pane" id="post-object-form">
+                                {% with form=post_form %}
+                                <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                                    <fieldset>
+                                        {% csrf_token %}
+                                        {{ post_form }}
+                                        <div class="form-actions">
+                                            <button class="btn btn-primary  btn-sm pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                                {% endwith %}
+                            </div>
+                            {% endif %}
+
+                            <div id="query-builder-form" class="tab-pane">
+                                {% block query-builder %}{% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    Schema Browser
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {% comment %}
+    ------ QUERY HISTORY TABLE ------
+    {% endcomment %}
+
+    {% if response.data.count > 0 %}
+        <h2 class="headline" id="query-history">
+            <span>Query History</span>
+        </h2>
+        <div class="well">
+            {% for key, value in response.data.items %}
+                {% if key == "results" %}
+                    {% comment %}{{ key }} : {{ value }}<br>{% endcomment %}
+                    <div class="table-responsisve">
+                        <table class="table table-condensed">
+                            <colgroup>
+                                <col span="1" style="width: 25%;">
+                                <col span="1" style="width: 50%;">
+                                <col span="1" style="width: 25%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>SQL</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for valueb in value %}
+                            {% comment %}{{ valueb }} <br>{% endcomment %}
+                            <tr>
+                                <td><a href="{{valueb.url}}" class=" text-uppercwase"> {{ valueb.title }} </a></td>
+                                <td>{{valueb.SQL}}</td>
+                                <td>{{valueb.updated}}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if 'GET' in allowed_methods %}
+                <form id="get-form" class="text-right">
+                    <fieldset>
+                        {% if api_settings.URL_FORMAT_OVERRIDE %}
+                        <div class="btn-group format-selection">
+                            <a class="btn btn-default  btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                               title="Download user {{user}}'s {{ name }} by format type">Download Query List</a>
+                            <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for format in available_formats %}
+                                <li>
+                                    <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                       rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                            <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                               title="View user {{user}}'s {{ name }}">GET</a>
+                        {% endif %}
+                    </fieldset>
+                </form>
+            {% endif %}
+        </div>
+        {% if paginator %}
+            <nav class="nav-pagination">
+                {% get_pagination_html paginator %}
+            </nav>
+        {% endif %}
+    {% endif %}
+
+    {% comment %}
+    ------DATATABLES ------
+    {% endcomment %}
+    {% if response.data.queryResults %}
+        <h1 class="headline">
+            <span>Query <small># {{objname}}</small></span>
+
+            <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
+                {% block content-delete %}
+                    {% if delete_form %}
+                        <form style="display:inline-block; font-size:14px;" class="pull-left" action="{{ request.get_full_path }}" data-method="DELETE">
+                            <button  type="button" class="btn btn-sm btn-default js-tooltip" style="border-right:0px;"
+                                     title="DELETE this query" id="DELETE_RESOURCE"
+                                     data-toggle="modal"><i class="fa fa-trash-o text-red"></i> DELETE</button>
+                        </form>
+                        <!-- Confirmation modal -->
+                        <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h5>Are you sure?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
+                                        <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+                <!--<a type="button" class="btn btn-primary btn-sm pull-right text-uppercase" href="{{ response.data.url }}">permanent link</a>-->
+                <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url "query-list" %}"><i class="fa fa-angle-left text-blue"></i> Back to Query History</a>
+                <a type="button" class="btn btn-default btn-sm  text-uppercase" href="{% url "query-list" %}">New Query</a>
+            </div>
+        </h1>
+        <div class="data-table-container" id="data-table-container">
+        </div>
+        {% if display_edit_forms %}
+        <!--UPDATE EXISTING REQUEST INSTANCE-->
+            {% if put_form or raw_data_put_form or raw_data_patch_form %}
+                <div class="row">
+
+                    <div class="col-sm-8">
+                        <ul class="nav nav-tabs">
+                            <li role="" class="active"><a href="#">SQL</a></li>
+                        </ul>
+                        <div class="well tab-content">
+                            {% if put_form %}
+                            <div class="" id="put-object-form">
+                                <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
+                                      class="form-horizontal" novalidate>
+                                    <fieldset>
+                                        {{ put_form }}
+                                        <div class="form-actions">
+                                            <button class="btn btn-primary btn-sm js-tooltip pull-right"
+                                                    title="Update (make a PUT request on the {{ name }} resource)">UPDATE
+                                            </button>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+{% endblock content-main %}
+
+{% comment %}
+------ DISPLAY 404 AND SUGGESTIONS ------
+{% endcomment %}
+{% block status_override %}
+    {% if response.status_code == 404 %}
+        <a href="{% url "query-list" %}" class="btn btn-primary btn-md"><i class="fa fa-angle-left"></i> Back to Query List</a>
+        <a href="{% url "index" %}" class="btn btn-primary btn-md">Home</a>
+    {% else %}
+        {% if user.is_authenticated %}
+          {% load internal_extras %}
+          {% optional_logout request user %}
+        {% else %}
+          {% optional_login request %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+
+{% comment %}
+------ TURN OFF DRF JSON DATA DISPLAY ------
+{% endcomment %}
+{% block content-DRFs %}{% endblock %}
+
+{% comment %}
+------ ACE EDITOR FOR ANY SQL BOXES ------
+{% endcomment %}
+{% block footer-extra %}
+<script src="{% static "restapi_app/js/ace-min-noconflict/ace.js" %}"></script>
+
+<script type="text/javascript">
+        $(document).ready(function() {
+            $('form').ajaxForm();
+
+            // CODE EDITOR
+            $(function () {
+                //Hide the results form group to prevent users trying to patch results
+                //back-end will drop this if tampered with
+                $('input[name="queryResults"]').parents('.form-group').hide();
+
+                // SQL
+                $('textarea[name=SQL]').each(function () {
+                    $('form').find('textarea[name=SQL]').attr('id','textarea-code');
+
+                    // clear out parent container
+                    $('#textarea-code').parent().not(':first').remove();
+                    $('#textarea-code').parent().append('<div id="SQL-ace-editor" class="ace-editor-class" style="height: auto;min-height:100px"></div>');
+                    var textarea = $('#textarea-code').css('display', 'none');
+
+                    var SQLAceEditor = ace.edit("SQL-ace-editor");
+                    SQLAceEditor.$blockScrolling = Infinity;
+                    SQLAceEditor.setTheme("ace/theme/crimson_editor");
+                    SQLAceEditor.getSession().setMode("ace/mode/sql");
+                    SQLAceEditor.getSession().setValue(textarea.val());
+                    SQLAceEditor.getSession().on('change', function(){
+                        textarea.val(SQLAceEditor.getSession().getValue());
+                        SQLAceEditor.resize(true);
+                    });
+                });
+
+            });
+        });
+</script>
+
+{% comment %}
+------ TURN ON DATATABLES ------
+{% endcomment %}
+<script src="{% static 'restapi_app/js/query-builder/dataTables.js' %}"></script>
+<!--<script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.js"></script>-->
+
+{% autoescape off %}
+ <script type="text/javascript">
+    data = JSON.parse("{{ content|escapejs }}");
+    console.log(data)
+    if (typeof data.queryResults !== 'undefined'){
+        $('#data-table-container').html(' ').append('<div class=""><div id="returnTableResultsWarning" class="spacer-10"></div><table id="returnTableResults" class="table table-responsive table-condensed"><thead><tr><th>Please wait, DataTable loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
+        renderLimit = 100000;
+        queryData = (data.queryResults);
+        queryDataRows = queryData.data.length;
+        queryDataColumns = queryData.columns.length;
+
+        if (queryDataRows*queryDataColumns >= renderLimit){
+            //fire warning
+            tableRowLength = parseInt(renderLimit/queryDataColumns);
+            //console.log(queryData.data.slice(0, tableRowLength).length);
+            queryData.data = queryData.data.slice(0, tableRowLength);
+
+            $('#returnTableResultsWarning').append('<p class="bg-info"><p class="bg-info"><strong>Displaying '+tableRowLength+' out of '+queryDataRows+' rows</strong>. Please download the CSV for the full data set.</p>')
+        };
+
+        if((typeof queryData !== 'undefined') && queryData.data.length < renderLimit){
+            var queryColumns = [];
+            var thead = '';
+            $('#returnTableResults').find('thead > tr').empty();
+            //APPEND COLUMN VALUES TO TABLE HEAD
+            $.each(queryData.columns, function(i,k){
+                var b = { title: k };
+
+                if (k.indexOf("url_img") > -1){
+                    b = {
+                        "title":k,
+                        "render": function(data, type, row) {
+                            return '<img class="img-responsive" style="max-width:70px" src="'+data+'" />';
+                        }
+                    }
+                }
+                th = '<th>'+k+'</th>';
+                queryColumns.push(b);
+                $('#returnTableResults').find('thead > tr').append(th);
+            });
+            var data = queryData.data;
+
+            if (typeof data == 'undefined'){data=[];}
+
+            var table = $('#returnTableResults').DataTable( {
+                data : data,
+                columns : queryColumns,
+                "orderClasses": false,
+                "scrollX": true,
+                "deferRender": true,
+                "language": {
+                    "loadingRecords": "Please wait - loading..."
+                }
+            });
+        };
+    };
+
+    {% endautoescape %}
+</script> 
+
+{% comment %}
+------ CONFIRM RESOURCE DELETE ------
+{% endcomment %}
+<script>
+    $('#DELETE_RESOURCE').on('click', function(e){
+        var $form=$(this).closest('form');
+        e.preventDefault();
+        $('#delete-modal-sm').modal({ backdrop: 'static', keyboard: false })
+        .one('click', '#delete', function (e) {
+            $form.trigger('submit');
+        });
+    });
+
+    fTabSwitch = function(id){
+        $('[href=#'+id+']').tab('show');
+    }
+</script>
+
+{% endblock %}
+

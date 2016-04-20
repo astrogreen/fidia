@@ -18,6 +18,8 @@ put the overrides there. They are loaded at the end of this file.
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from django.core.urlresolvers import reverse
+import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -31,8 +33,7 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -46,15 +47,14 @@ INSTALLED_APPS = (
     'aatnode',
     'astrospark',
     'bootstrap3',
-    'captcha',
+    # 'captcha',
     'clever_selects',
     'django_extensions',
     'mathfilters',
     'restapi_app',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
-    'django_spaghetti',
+    # 'rest_framework_swagger',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,6 +87,8 @@ TEMPLATES = [
     },
 ]
 
+LOGIN_REDIRECT_URL = 'index'
+
 WSGI_APPLICATION = 'asvo.wsgi.application'
 
 
@@ -105,6 +107,14 @@ DATABASES = {
 # spark
 SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
 SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
+
+# SAMI Database:
+#
+#    Set these to the location of the SAMI database directory and corresponding
+#    catalog file.
+SAMI_TEAM_DATABASE = ''
+SAMI_TEAM_DATABASE_CATALOG = ''
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -138,15 +148,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
 
 CACHE_DIR = '/tmp/asvo_cache/'
 
+class DebugLogFilter:
+    def filter(self, record):
+        assert isinstance(record, logging.LogRecord)
+        emitting_logger = logging.getLogger(record.name)
+        return (record.levelno >= emitting_logger.level and
+                emitting_logger.level != logging.NOTSET) or record.levelno >= logging.WARNING
+
+
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
+            'format': '%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s'
+        },
+        'verbose_with_times': {
             'format': '%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'debug_filter': {
+            '()': DebugLogFilter,
         },
     },
     # 'filters': {
@@ -164,12 +190,13 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + '/aatnode-django.log',
-            'formatter': 'verbose'
+            'formatter': 'verbose_with_times'
         },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'verbose',
+            'filters': ['debug_filter']
         }
         # 'mail_admins': {
         #     'level': 'ERROR',
@@ -192,6 +219,10 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'level': 'DEBUG'
         },
+        'restapi_app': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG'
+        },
         'fidia': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG'
@@ -210,21 +241,15 @@ RECAPTCHA_PRIVATE_KEY = '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn'
 NOCAPTCHA = True
 
 REST_FRAMEWORK = {
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework_csv.renderers.CSVRenderer',
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
 
-
-SPAGHETTI_SAUCE = {
-  'apps':['auth','restapi_app'],
-  # 'show_fields':False,
-  # 'exclude':{'restapi_app':['gamapublic']}
-}

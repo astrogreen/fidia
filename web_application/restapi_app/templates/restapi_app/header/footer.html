@@ -1,17 +1,17 @@
-<footer class="footer">
+<footer class="footer" id="footer">
     <div class="container">
         <div class="row">
             <div class="col-md-3 col-sm-3 col-xs-4">
                 <h3>Explore <span>data</span></h3>
-                        <a href="#">Query Builder</a>
-                        <a href="#">SQL</a>
-                        <a href="#">Data Explorer</a>
+                    <a href="{% url "data" %}">Data</a>
+                    <a href="{% url "query-list" %}">Query Builder</a>
+                    <a class="disabled">Data Explorer</a>
             </div>
             <div class="col-md-3 col-sm-3 col-xs-4">
               <h3>Help <span>& Support</span></h3>
-                      <a href="#">Contact us</a>
-                      <a href="#">About </a>
-                      <a href="#">Schema Browser </a>
+                      <a href="mailto:asvo@aao.gov.au">Contact us</a>
+                      <a class="disabled">About</a>
+                      <a class="disabled">Schema Browser</a>
             </div>
             <div class="col-md-6 col-sm-6 col-xs-4 img-wrapper">
               <div class='img-inner'>
@@ -27,9 +27,9 @@
 
     <div class="footer-bottom">
       <div class="container">
-          <div class="pull-left"> <small>Copyright © 2015 All-Sky Virtual Observatory.</small></div>
+          <div class="pull-left"> <small>Copyright © 2016 All-Sky Virtual Observatory.</small></div>
           <div class="pull-right">
-              <a href='asvo.org' target='_blank'>ASVO </a> &nbsp;&nbsp;
+              <a href='http://www.asvo.org.au/' target='_blank'>ASVO </a> &nbsp;&nbsp;
               <a href="https://tao.asvo.org.au/tao/">TAO</a> |
               <a href="https://skymapper.anu.edu.au/">SkyMapper</a> |
               <a href="http://www.asvo.org.au/about/about-mwa/">MWA</a>

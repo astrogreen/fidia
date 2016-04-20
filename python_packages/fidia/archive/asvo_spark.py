@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 import pandas as pd
 
 # Custom Packages
-from asvo_spark import hive_context
+from asvo_spark import ASVOSparkConnector
 
 # Relative imports in this package
 from .base_archive import BaseArchive
@@ -27,7 +27,7 @@ class AsvoSparkArchive(BaseArchive):
         super(AsvoSparkArchive, self).__init__()
 
         # Store connection to spark.
-        self._hive_context = hive_context
+        # self._hive_context = ASVOSparkConnector.hive_context
 
         self.contents = dict()
 
@@ -62,7 +62,7 @@ class AsvoSparkArchive(BaseArchive):
         start_time = time.clock()
 
         # Get Query Results from Spark (as a SchemaRDD object):
-        results_rdd = hive_context.sql(query_string)
+        results_rdd = ASVOSparkConnector.hive_context.sql(query_string)
 
         log.debug("Elapsed time: %f", time.clock() - start_time)
 
@@ -107,7 +107,7 @@ class AsvoSparkArchive(BaseArchive):
         """
 
         # Get Query Results from Spark (as a SchemaRDD object):
-        results_rdd = hive_context.sql(query_string)
+        results_rdd = ASVOSparkConnector.hive_context.sql(query_string)
 
         # Create an empty sample, and populate it via it's private interface
         # (no suitable public interface at this time.)

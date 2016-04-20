@@ -4,7 +4,7 @@ from glob import glob
 import os.path
 import datetime
 import re
-import itertools
+import time
 
 from astropy import wcs
 from astropy.io import fits
@@ -19,13 +19,11 @@ from .archive import Archive
 
 from ..utilities import WildcardDictionary
 
-from ..traits.utilities import TraitKey, trait_property
-from ..traits.base_traits import SpectralMap, Image
-from ..traits.galaxy_traits import VelocityMap
+from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
@@ -364,7 +362,7 @@ class SAMISpectralCube(SpectralMap):
 
     @property
     def shape(self):
-        return 0
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -389,30 +387,32 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float')
     def total_exposure(self):
+        """Total exposure time for this cube"""
         return self.hdu[0].header['TOTALEXP']
 
     @trait_property('string')
     def cubing_code_version(self):
+        """Version of the cubing code used"""
         return self.hdu[0].header['HGCUBING']
 
     @trait_property('string')
     def plate_id(self):
-        """The plate identification string."""
+        """Plate identification string"""
         return self.hdu[0].header['PLATEID']
 
     @trait_property('string')
     def plate_label(self):
-        """The label assigned to the plate."""
+        """Label assigned to the plate"""
         return self.hdu[0].header['LABEL']
 
     @trait_property('float')
     def ra(self):
-        """The label assigned to the plate."""
+        """Catalog right-ascension of the galaxy"""
         return self.hdu[0].header['CATARA']
 
     @trait_property('float')
     def dec(self):
-        """The label assigned to the plate."""
+        """Catalog declination of the galaxy."""
         return self.hdu[0].header['CATADEC']
 
 
@@ -469,7 +469,7 @@ class LZIFUVelocityMap(VelocityMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @property
     def unit(self):
@@ -521,7 +521,7 @@ class LZIFULineMap(Image):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     def unit(self):
         return None
@@ -562,7 +562,7 @@ class LZIFUContinuum(SpectralMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -602,7 +602,7 @@ class LZIFULineSpectrum(SpectralMap):
 
     @property
     def shape(self):
-        return self.value.shape
+        return self.value().shape
 
     @trait_property('float.array')
     def value(self):
@@ -624,9 +624,12 @@ class SAMITeamArchive(Archive):
     def __init__(self, base_directory_path, master_catalog_path):
         self._base_directory_path = base_directory_path
         self._master_catalog_path = master_catalog_path
-        self._contents = None
+
+        log.debug("master_catalog_path: %s", self._master_catalog_path)
 
         self._cubes_directory = self._get_cube_info()
+
+        self._contents = set(self._cubes_directory.index.get_level_values('sami_id'))
 
         # Local cache for traits
         self._trait_cache = dict()
@@ -636,15 +639,14 @@ class SAMITeamArchive(Archive):
     @property
     def contents(self):
         """List (set?) of available objects in this archive."""
-        if self._contents is None:
-            with fits.open(self._master_catalog_path) as m:
-                # Master Catalogue is a binary table in extension 1 of the FITS File.
-                self._contents = list(map(str, m[1].data['CATID']))
         return self._contents
 
     def _get_cube_info(self):
         cube_file_paths = []
-        for id in self.contents:
+        with fits.open(self._master_catalog_path) as m:
+            # Master Catalogue is a binary table in extension 1 of the FITS File.
+            contents = list(map(str, m[1].data['CATID']))
+        for id in contents:
              cube_file_paths.extend(glob(self._base_directory_path + "*/cubed/" + id + "/*.fits*"))
         cube_directory = []
         for path in cube_file_paths:
@@ -653,6 +655,36 @@ class SAMITeamArchive(Archive):
         cube_directory = pd.DataFrame(cube_directory)
         cube_directory.set_index(['sami_id', 'color', 'binning', 'plate_id'], inplace=True)
         return cube_directory
+
+    def create_table_available_data(self, filename):
+        # Create an empty data frame indexed by all of the SAMI sample
+        table = pd.DataFrame(index=pd.Index(self.contents, name='sami_id'))
+        # Generate a set of unique IDs for which there are cubes
+        cube_list = set(self._cubes_directory.index.get_level_values('sami_id'))
+        # Add this list to the data frame
+        table['cube_available'] = pd.Series([True for i in range(len(cube_list))], index=pd.Index(cube_list))
+        # The objects without cubes will have NaN; so fix that now by setting the not trues to explicitly False
+        table.loc[table['cube_available'] != True, 'cube_available'] = False
+
+        table['data_browser_url'] = pd.Series(['/asvo/data/sami/%s' % id for id in cube_list],
+                                               index=pd.Index(cube_list))
+
+        # Write to file
+        with open(filename, 'w') as f:
+            f.write(table.to_csv())
+
+        # Then upload file to HDFS, and run a Hive query like the following:
+        #
+        #     DROP TABLE sami;
+        #     CREATE EXTERNAL TABLE sami(
+        #          sami_id STRING COMMENT 'SAMI ID (matches GAMA ID when the same object)',
+        #          cube_available BOOLEAN COMMENT 'Is a cube available in the database',
+        #          data_browser_url STRING COMMENT 'URL of the data browser'
+        #       )
+        #      COMMENT 'Table containing SAMI sample with observation information'
+        #      ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+        #      STORED AS TEXTFILE
+        #      LOCATION '/user/agreen/sami_table.csv';
 
     def data_available(self, object_id=None):
         if object_id is None:
@@ -678,8 +710,8 @@ class SAMITeamArchive(Archive):
 
         # Trait 'spectral_cube'
         self.available_traits[TraitKey(SAMISpectralCube.trait_type, None, None, None)] = SAMISpectralCube
-        # Trait 'rss_map'
-        self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
+        # Trait 'rss_map' (now a sub-trait of spectral_cube above.)
+        # self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
 
         # LZIFU Items
 

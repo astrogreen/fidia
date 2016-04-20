@@ -1,7 +1,7 @@
 <header>
  <div class="container">
     <div class="row">
-        <div class="col-sm-6 col-xs-12">
+        <div class="col-sm-6 col-xs-6">
             <div class="logo ">
                 <a class="asvo" href="{% url "index" %}">
                     <img src="/static/img/logos/asvo_90x40.png" alt="ASVO - All-Sky Virtual Observatory">
@@ -13,14 +13,14 @@
                 </a>
             </div>
         </div><!--
-        --><div class="col-sm-6 col-xs-12">
-            <ul class="nav navbar-nav pull-right">
+        --><div class="col-sm-6 col-xs-6 text-right">
+            <ul class="nav navbar-nav navbar-user pull-right">
                 {% block userlinks %}
                   {% if user.is_authenticated %}
                     {% load internal_extras %}
-                    {% web_logout request user %}
+                    {% optional_logout request user %}
                   {% else %}
-                    {% web_login request %}
+                    {% optional_login request %}
                   {% endif %}
                 {% endblock %}
             </ul>
@@ -47,58 +47,57 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Query <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="">Query Form</a></li>
-                <li><a href="">SQL </a></li>
+                <li><a href="{% url "query-list" %}">Query Builder / SQL</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Browse <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url "sov-list" %}">SOV</a></li>
+                <li><a href="{% url 'under-construction' %}">Explorer</a></li>
                 <li role="separator" class="divider"></li>
-                <li class="disabled"><a href="#">SOV</a></li>
-                <li class="disabled"><a href="#contact">Explorer</a></li>
+                <li class="dropdown-header">Surveys</li>
+                <li ><a href="{% url "sami-list" %}">SAMI</a></li>
+                <li class=""><a href="{% url "gama-list" %}">GAMA</a></li>
               </ul>
             </li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Documentation <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li class="disabled"><a href="#">Schema Browser</a></li>
-                <li><a href="/asvo/documentation/">Accessing Data</a></li>
-                <li><a href="/asvo/documentation/#docs-examples">Examples</a></li>
+                <li><a href="{% url 'under-construction' %}">Schema Browser</a></li>
+                <li><a href="{% url "documentation" %}">Accessing Data</a></li>
+                <li><a href="{% url "documentation" %}#docs-examples">Examples</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">About</li>
-                <li class="disabled"><a href="#">Datasets</a></li>
-                <li class="disabled"><a href="#">Facilities</a></li>
-                <li class="disabled"><a href="#">Surveys</a></li>
+                <li class="disabled"><a href="{% url 'under-construction' %}">Datasets</a></li>
+                <li class="disabled"><a href="{% url 'under-construction' %}">Facilities</a></li>
+                <li class="disabled"><a href="{% url 'under-construction' %}">Surveys</a></li>
               </ul>
             </li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
+            <li class="disabled" class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li class="disabled"><a href="">Profile</a></li>
-                <li class=""><a href="">Dashboard</a></li>
+                <li class="disabled"><a href="{% url 'under-construction' %}">Profile</a></li>
+                <li class="disabled"><a href="{% url 'under-construction' %}">Dashboard</a></li>
               </ul>
             </li>
-            <li class="disabled"><a href="contact">Support</a></li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
+            <li class="disabled"><a href="{% url 'under-construction' %}">Support</a></li>
+            <li class="disabled" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li class="disabled"><a href="#">Referencing AAT</a></li>
-                    <li class="disabled"><a href="#">Publications</a></li>
+                    <li class="disabled"><a href="{% url 'under-construction' %}">Referencing AAT</a></li>
+                    <li class="disabled"><a href="{% url 'under-construction' %}">Publications</a></li>
                     <li role="separator" class="divider"></li>
-                    <li class="disabled"><a href="#">Meet the Team</a></li>
+                    <li class="disabled"><a href="{% url 'under-construction' %}">Meet the Team</a></li>
                 </ul>
             </li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">TEST API <span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">User Testing <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="{% url "api-root" %}">API-root </a></li>
-                    <li><a href="{% url "query-list" %}">Query (requires login) </a></li>
-                    <li><a href="{% url "survey-list" %}">Hyperlinked m2m etc (models.py)</a></li>
-                    <li><a href="{% url "plate" %}">Model relationships graphic</a></li>
-                    <li><a href="{% url "customget" %}">Simple non-model endpoint</a></li>
-                    <li><a href="{% url "modelfree" %}">Non-model endpoint: views</a></li>
-                    <li><a href="{% url "astro-list" %}">Non-model endpoint: viewsets</a></li>
-
+                    <li><a href="{% url 'feature-tracking' %}">Feature Tracking</a></li>
+                    <li><a href="{% url 'user-feedback' %}">User Feedback</a></li>
                 </ul>
             </li>
-
-            <li><a href="{% url "django.swagger.base.view" %}" target="_blank">Docs API </a></li>
           </ul>
         </div><!--/.nav-collapse -->
     </div>

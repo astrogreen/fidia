@@ -97,9 +97,8 @@ class VelocityMap(Image):
     @trait_property('float.array')
     def value(self):
         # return np.random.random((5, 5))
-        return (np.random.uniform(-50, 50, [35, 35]))
-
-        #return np.random.random((50, 50))
+        # return (np.random.uniform(-50, 50, [8, 10])).tolist()
+        return np.random.random((5, 5))
 
     @trait_property('float.array')
     def variance(self):

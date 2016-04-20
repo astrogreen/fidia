@@ -10,25 +10,16 @@ from django.conf.urls.static import static
 
 router = ExtendDefaultRouter()
 
-router.register(r'query', views.QueryViewSet),
-router.register(r'users', views.UserViewSet),
-router.register(r'SOV', views.SOVViewSet),
+router.register(r'query', views.QueryViewSet)
+# router.register(r'users', views.UserViewSet)
+router.register(r'sov', views.SOVListSurveysViewSet, base_name='sov')
+router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')
+router.register(r'gama', views.GAMAViewSet, base_name='gama')
+router.register(r'sami', views.SAMIViewSet, base_name='sami')
 
-router.register(r'surveys', views.SurveyViewSet),
-router.register(r'releases', views.ReleaseTypeViewSet),
-router.register(r'catalogues', views.CatalogueViewSet),
-router.register(r'cataloguegroups', views.CatalogueGroupViewSet),
-router.register(r'imaging', views.ImageViewSet),
-router.register(r'spectra', views.SpectraViewSet),
-router.register(r'astro', views.AstroObjectViewSet, base_name='astro')
-
-router.register(r'sample', views.SampleViewSet, base_name='sample')
-# router.register(r'galaxy', views.GalaxyViewSet, base_name='galaxy')
-# router.register(r'trait', views.TraitViewSet, base_name='trait')
-
-
-object_nested_router = NestedExtendDefaultRouter(router, r'sample', lookup='sample')
-object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.GalaxyViewSet, base_name='galaxy')
+# Nested routes for sample (SAMI)
+object_nested_router = NestedExtendDefaultRouter(router, r'sami', lookup='sami')
+object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.AstroObjectViewSet, base_name='galaxy')
 
 trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<galaxy_pk>[^/.]+)', lookup='galaxy')
 trait_nested_router.register(r'(?P<trait_pk>[^/.]+)', views.TraitViewSet, base_name='trait')
@@ -36,21 +27,36 @@ trait_nested_router.register(r'(?P<trait_pk>[^/.]+)', views.TraitViewSet, base_n
 traitprop_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/.]+)', lookup='trait')
 traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', views.TraitPropertyViewSet, base_name='traitproperty')
 
+# keep users out of the api-root router.register
+user_list = views.UserViewSet.as_view({
+    'get': 'list'
+})
+user_detail = views.UserViewSet.as_view({
+    'get': 'retrieve'
+})
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='restapi_app/web_only/index.html'), name='index'),
+    url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
+    url(r'^(?i)documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
+    url(r'^(?i)under-construction/$', TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'), name='under-construction'),
 
-    url(r'^data/', include(router.urls)),
-    url(r'^data/', include(object_nested_router.urls)),
-    url(r'^data/', include(trait_nested_router.urls)),
-    url(r'^data/', include(traitprop_nested_router.urls)),
+    url(r'^user-testing/feedback/$', TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'), name='user-feedback'),
+    url(r'^user-testing/feature-tracking/$', TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'), name='feature-tracking'),
 
+    url(r'^(?i)signed-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'), name='logout-page'),
+
+    url(r'^(?i)data/', include(router.urls)),
+    url(r'^(?i)data/', include(object_nested_router.urls)),
+    url(r'^(?i)data/', include(trait_nested_router.urls)),
+    url(r'^(?i)data/', include(traitprop_nested_router.urls)),
+
+    url(r'^(?i)data/catalogues/', views.AvailableTables.as_view(), name='catalogues'),
+
+    url(r'^users/$', user_list, name='user-list'),
+    url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
+
+    url(r'^register/', views.CreateUserView.as_view(), name='user-register'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^relations/', include('django_spaghetti.urls')),
-    url(r'^simple-get/$', views.CustomGet.as_view(), name='customget'),
-    url(r'^model-free/resource/(?P<arg1>\w*\d*)[/]?(?P<arg2>\w*\d*)[/]?(?P<arg3>\w*\d*)[/]?', (views.ModelFreeView.as_view()), name='modelfree-list'),
-    url(r'^model-free/resource/$', (views.ModelFreeView.as_view()), name='modelfree'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

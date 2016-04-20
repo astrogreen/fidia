@@ -17,6 +17,8 @@ class TestArchive:
 
         class ExampleSpectralMap(SpectralMap):
 
+            trait_type = 'spectral_map'
+
             def init(self):
                 if self.trait_name != 'mymap':
                     raise DataNotAvailable("ExampleSpectraMap only has 'mymap' data.")
@@ -53,6 +55,8 @@ class TestArchive:
     def example_spectral_map_with_extra(self):
 
         class ExampleSpectralMapExtra(SpectralMap):
+
+            trait_type = 'spectral_map'
 
             @classmethod
             def all_keys_for_id(cls, archive, object_id, parent_trait=None):
@@ -136,14 +140,14 @@ class TestArchive:
     def test_trait_has_data(self, simple_archive):
         sample = simple_archive().get_full_sample()
         trait = sample['Gal1']['spectral_map', 'mymap']
-        trait.value
-        assert isinstance(trait.value, np.ndarray)
+        trait.value()
+        assert isinstance(trait.value(), np.ndarray)
 
     def test_trait_inherited_has_parent_data(self, simple_archive):
         sample = simple_archive().get_full_sample()
         trait = sample['Gal1']['spectral_map', 'extra']
-        trait.value
-        assert isinstance(trait.value, np.ndarray)
+        trait.value()
+        assert isinstance(trait.value(), np.ndarray)
 
 
     def test_trait_has_correct_schema(self, simple_archive):
@@ -183,7 +187,7 @@ class TestArchive:
         sample = simple_archive().get_full_sample()
         trait = sample['Gal1']['spectral_map', 'mymap']
 
-        assert type(trait).value.__doc__ == "TheSpectralMapDocumentation"
+        assert trait.value.doc == "TheSpectralMapDocumentation"
 
     def test_trait_property_list(self, simple_archive):
         sample = simple_archive().get_full_sample()
