@@ -57,7 +57,7 @@ def ingestData(sample, schema):
                     else:
                         trait_property_type = trait_property_schema[trait_property_name]
                     try:
-                        trait_property_data = getattr(trait, trait_property_name)
+                        trait_property_data = getattr(trait, trait_property_name).value
                     except:
                         # Unable to retrieve the trait property for some reason. Skip for now.
                         # TODO: Provide a warning
