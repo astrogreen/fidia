@@ -147,14 +147,14 @@ class ContactFormSerializer(serializers.Serializer):
     )
     message = serializers.CharField(
         max_length=1000,
-        style={'placeholder': 'Message'}
+        style={'placeholder': 'Message', 'base_template': 'textarea.html', 'rows': 6}
     )
 
-
-    # def save(self):
-    #     email = self.validated_data['email']
-    #     message = self.validated_data['message']
-    #     send_mail(from=email, message = message)
+    def save(self):
+        email = self.validated_data['email']
+        message = self.validated_data['message']
+        send_mail('Subject here', message=message, from_email=email, recipient_list=['liz.ophiuchus@gmail.com'],
+                  fail_silently=False)
 
 
 # ASVO SAMI DR - - - - - - - -    - - -  -   -   -   -   -   -   -   -   -

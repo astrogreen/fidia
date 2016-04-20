@@ -1,7 +1,6 @@
 import random, collections, logging
 import json
 from pprint import pprint
-from django.shortcuts import get_object_or_404
 from .permissions import IsNotAuthenticated
 from .exceptions import NoPropertyFound
 
@@ -438,6 +437,7 @@ class ContactForm(views.APIView):
     """
     Contact Form
     """
+
     permission_classes = (permissions.AllowAny,)
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'restapi_app/support/contact.html'
@@ -448,14 +448,13 @@ class ContactForm(views.APIView):
 
         return Response({'serializer': serializer})
 
-    # def post(self, request, pk):
-    #     profile = get_object_or_404(Profile, pk=pk)
-    #     serializer = ProfileSerializer(profile, data=request.data)
-    #     if not serializer.is_valid():
-    #         return Response({'serializer': serializer, 'profile': profile})
-    #     serializer.save()
-    #     return redirect('profile-list')
-
-
     def post(self, request, format=None):
-        pass
+
+        serializer = ContactFormSerializer(data=request.data)
+        serializer.is_valid()
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
