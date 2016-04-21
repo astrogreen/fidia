@@ -81,7 +81,7 @@ def ingestData(sample, schema):
                         array_schema = union_types_list.get(1)
                         array_datum = gateway.entry_point.getDatum(array_schema)
                         array_datum.put('shape', str(shape))
-                        array_datum.put('data', java_list)
+                        array_datum.put('dataValues', java_list)
                         datum.put(trait_property_name, array_datum)
                         # traits_found_for_this_object = True
                     else: # Not an array type
@@ -152,7 +152,7 @@ def doSubtraits(value, sch, sub_trait=True):
                 type = '''{\"type\": \"record\",
                             \"name\": \"''' + k + '''NDArray\",
                             \"fields\": [{\"name\": \"shape\", \"type\": \"string\"},
-                                         {\"name\": \"data\", \"type\": ''' + t + '}]}'
+                                         {\"name\": \"dataValues\", \"type\": ''' + t + '}]}'
             elif(len(vals) == 1):
                 type = '\"' + vals[0] + '\"'
             sch += '{\"name\": \"' + k + '''\",
