@@ -7,14 +7,21 @@
     cursor: default;
 }
 
-#schema-browser .nav>li>a {
-    color:#777;
+#schema-browser .nav > li > a {
+    color: #777;
 }
-#schema-browser dl dt {text-transform: capitalize;}
+
+#schema-browser dl dt {
+    text-transform: capitalize;
+}
 
 #schema-browser .multiSelect > button {
 
     border: 0px solid #c6c6c6;
     border-bottom: 1px solid #c6c6c6;
 
+}
+
+#schema-browser dl.dl-horizontal {
+    padding-top: 5px;
 }
