@@ -24,4 +24,10 @@
 
 #schema-browser dl.dl-horizontal {
     padding-top: 5px;
+
 }
+#schema-browser .information {
+    border-bottom: 1px solid #e9e9e9;
+}
+
+#schema-browser .row.schema-element {margin:10px 0px 10px 0px;}

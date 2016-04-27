@@ -223,15 +223,15 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
         // if
 
         for (var k in obj) {
-            console.log('Function call ' + struccounter + ' key ' + k);
+            //console.log('Function call ' + struccounter + ' key ' + k);
             if (typeof obj[k] == "object" && obj[k] !== null) {
-                console.log('typeof obj[' + k + '] == "object"');
-                console.log('RECURSE - - - - - - - - - - - - -  obj[' + k + ']');
+                //console.log('typeof obj[' + k + '] == "object"');
+                //console.log('RECURSE - - - - - - - - - - - - -  obj[' + k + ']');
                 struccounter++;
                 objStruct(obj[k], struccounter);
 
             } else {
-                console.log('typeof obj[' + k + '] ==  ' + typeof obj[k]);
+                //console.log('typeof obj[' + k + '] ==  ' + typeof obj[k]);
             }
             // if (!foo.hasOwnProperty(key)){
             //     continue;
@@ -273,8 +273,27 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
                 // Negotiate output by type
                 // console.log('typeof obj['+keyb+'] ==  '+typeof valueb);
                 if (typeof valueb == 'object') {
+                    var temp = Object.keys($scope.inputSchema).length;
+                    //delete inputschema beyond this click.
+                    // iterate baackwardds over arr and stop deleting at this point.
+                    for (var i = temp; i>0; i--){
+                        //console.log('i'+i);console.log('key'+key)
+
+                        // never remove the first dropdown
+                        if(i>0 && i > key){
+                            //console.log(angular.toJson($scope.inputSchema))
+
+                            $scope.inputSchema.splice(i,1);
+                            //clear previous rows
+                            $('#schema-element-' + i + '  .information dl').html('')
+                            $('#schema-element-' + i + '  .description').html('')
+                        };
+                    };
+
                     //populate another dropdown
                     $scope.inputSchema.push([]);
+                    // here - don't add to last object, but next object and clear the rest.
+
                     // Add data to last key in object (not arr so need to be careful here)
                     var k = Object.keys($scope.inputSchema).length - 1;
                     $scope.inputSchema[k] = valueb;
@@ -293,8 +312,7 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
                     $('#schema-element-' + key + ' .information dl').append("<dt>" + String(keyb) + " </dt><dd><a href='mailto:" + email + "'>" + String(valueb) + "</a></dd>");
                     if (null != email) {
 
-                    } else
-                    {
+                    } else {
                         // TODO depends on other contact detail types - may need helper function here
                     }
                 }
