@@ -83,15 +83,15 @@ function fGenerateColourScale(map_name, map_val){
     var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
 
     //After sigma clipping....
-    console.log(FlatArr);
-    console.log('AVERAGE',average(NumArr));
-    console.log('SD',standardDeviation(NumArr));
+    // console.log(FlatArr);
+    // console.log('AVERAGE',average(NumArr));
+    // console.log('SD',standardDeviation(NumArr));
     //one sigma clip (average+1SD < values < average+1SD)
     var SigClip = NumArr.filter(function(x) {
         return x > (average(NumArr)-standardDeviation(NumArr)) && x < (average(NumArr)+standardDeviation(NumArr));
     });
-    console.log('AVERAGE',average(SigClip));
-    console.log('SD',standardDeviation(SigClip));
+    // console.log('AVERAGE',average(SigClip));
+    // console.log('SD',standardDeviation(SigClip));
 
     var Zmin=average(SigClip)-standardDeviation(SigClip);
     var Zmax=average(SigClip)+standardDeviation(SigClip);
@@ -101,8 +101,8 @@ function fGenerateColourScale(map_name, map_val){
     var Zmin = NumArrSort[Math.floor(NumArr.length * 0.01) + 1];
     var Zmax = NumArrSort[Math.floor(NumArr.length * 0.99)];
 
-    console.log(Zmin);
-    console.log(Zmax);
+    // console.log(Zmin);
+    // console.log(Zmax);
 
     var Zscale = Zmax-Zmin;
 
@@ -126,7 +126,7 @@ function fGenerateColourScale(map_name, map_val){
                 tickvals[i] = (Math.pow(10, (numcolors - (i + 1)))).toPrecision(2);
             //}
         }
-        console.log(colorscale[i],tickvals[i]);
+        // console.log(colorscale[i],tickvals[i]);
     };
 
     return {
@@ -149,14 +149,14 @@ function fAstroMap(k,v){
     var map_val = fGetTraitPropertyValue(k);
     var map_title = ftoTitleCase(map_name.split("_").join(" "));
 
-    console.log(map_name)
+    // console.log(map_name)
 
     // Get number of pixels
     var row_pixel_count = map_val.length;
     var col_pixel_count = map_val[0].length;
-    console.log("rows, cols: ",row_pixel_count,col_pixel_count);
-    console.log(getdim(map_val));
-    console.log((map_val));
+    // console.log("rows, cols: ",row_pixel_count,col_pixel_count);
+    // console.log(getdim(map_val));
+    // console.log((map_val));
     var rows = range(1,row_pixel_count);
     var cols = range(1,col_pixel_count);
 

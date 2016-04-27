@@ -168,6 +168,9 @@
                                         <div class="col-xs-12 col-sm-4">
                                             <h4>
                                                 <a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>
+                                                <button role="button" class="btn btn-xs btn-default show-hide-button">
+                                                    Hide
+                                                </button>
                                             </h4>
                                             <div id="{{ key }}">test</div>
                                         </div>
@@ -178,6 +181,9 @@
                                         <div class="col-xs-12 col-sm-4 col-md-4">
                                             <h4>
                                                 <a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>
+                                                <button role="button" class="btn btn-xs btn-default show-hide-button">
+                                                    Hide
+                                                </button>
                                             </h4>
                                             <div id="{{ key }}">test</div>
                                         </div>
@@ -227,6 +233,22 @@
 
 
 {% block footer-extra %}
+<script>
+    $(".show-hide-button").click(function () {
+//  $( "p" ).toggle( flip++ % 2 === 0 );
+        console.log();
+        var elemID = $(this).parent('h4').siblings('.js-plotly-plot').attr('id');
+
+        $("#" + elemID).toggle();
+
+        if ($("#" + elemID).is(":visible")) {
+            $(this).html('Hide')
+        } else {
+            $(this).html('Show')
+        }
+    });
+
+</script>
 <script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
 <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
 
