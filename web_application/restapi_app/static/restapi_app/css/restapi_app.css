@@ -43,6 +43,13 @@ h3 {
     font-weight: 400;
 }
 
+.fa-text-inner {
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 12px;
+    font-size: 35% !important;
+    margin-top: 10% !important;
+}
+
 .btn {
     border-radius: 0px;
 }
@@ -51,6 +58,11 @@ h3 {
     background-color: #f2f2f2;
 }
 
+.fixed-panel {
+    min-height: 10%;
+    max-height: 400px;
+    overflow-y: scroll;
+}
 .pagination {
     font-size: 12px;
 
@@ -60,12 +72,25 @@ h3 {
 .pagination > li:last-child > a, .pagination > li:last-child > span {
     border-radius: 0px;
 }
-#dataTables_paginate{float:right}
-.panel-background-grey {
-    background: url("../img/panel-background.png") repeat-x;
+
+#dataTables_paginate {
+    float: right
 }
+
+.panel-background-grey {
+    background: url("../img/background/panel-background.png") repeat-x;
+}
+
 .panel-background-team {
-    background: url("../img/panel-background-team.png") repeat-x;
+    background: url("../img/background/panel-background-team.png") repeat-x;
+}
+
+.panel-background-check {
+    background: url("../img/background/grey.png") repeat-x;
+}
+
+.panel-background-1 {
+    background: url("../img/background/panel-background2.png") repeat-x;
 }
 
 .panel {
@@ -92,6 +117,19 @@ hr {
     margin-top: 5px;
 }
 
+input {
+    border-radius: 0px
+}
 
-input {border-radius:0px}
-.google-maps{min-height:400px;}
+.google-maps {
+    min-height: 400px;
+}
+
+.search-result h4 {
+    margin: 0
+}
+
+.search-result h4 a {
+    color: #5aa8d8;
+    margin: 0
+}

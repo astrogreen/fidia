@@ -1,17 +1,6 @@
 {% load staticfiles %}
 {% verbatim %}
 <div ng-controller="Ctrl2" id="schema-browser">
-    <!--<ul id="myTabs" class="nav nav-tabs" role="tablist">-->
-    <!--<li role="presentation" class="active"><a href="#gama" id="gama-tab" role="tab" data-toggle="tab"-->
-    <!--aria-controls="gama" aria-expanded="true">GAMA</a></li>-->
-    <!--<li role="presentation" class=""><a href="#sami" role="tab" id="sami-tab" data-toggle="tab"-->
-    <!--aria-controls="sami" aria-expanded="false">SAMI</a></li>-->
-    <!--</ul>-->
-
-    <!--<div id="myTabContent" class="tab-content">-->
-    <!--<div role="tabpanel" class="tab-pane fade" id="gama" aria-labelledby="gama-tab"><p></p></div>-->
-    <!--<div role="tabpanel" class="tab-pane fade" id="sami" aria-labelledby="sami-tab"><p>SAMI</p></div>-->
-    <!--</div>-->
     <div ng-repeat="row in inputSchema track by $index" class="clearfix row schema-element"
          id="schema-element-{{$index}}">
         <div class="col-xs-6">

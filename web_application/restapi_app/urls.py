@@ -37,7 +37,20 @@ user_detail = views.UserViewSet.as_view({
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
-    url(r'^(?i)documentation/$', TemplateView.as_view(template_name='restapi_app/documentation/documentation.html'), name='documentation'),
+
+                  url(r'^(?i)documentation/$',
+                      TemplateView.as_view(template_name='restapi_app/documentation/sub-menu.html'),
+                      name='documentation'),
+                  url(r'^(?i)documentation/data-access/$',
+                      TemplateView.as_view(template_name='restapi_app/documentation/data-access.html'),
+                      name='documentation-data-access'),
+                  url(r'^(?i)documentation/query-builder/$',
+                      TemplateView.as_view(template_name='restapi_app/documentation/query.html'),
+                      name='documentation-query-builder'),
+                  url(r'^(?i)documentation/schema-browser/$',
+                      TemplateView.as_view(template_name='restapi_app/documentation/schema-browser.html'),
+                      name='documentation-schema-browser'),
+
     url(r'^(?i)under-construction/$', TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'), name = 'under-construction'),
     url(r'^(?i)about/team/$', TemplateView.as_view(template_name='restapi_app/about/team.html'), name='about-team'),
 
