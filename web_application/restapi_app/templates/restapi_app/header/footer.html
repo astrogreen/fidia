@@ -37,3 +37,10 @@
       </div>
     </div> <!--/.footer-bottom-->
 </footer>
+<script>
+    console.log(location.pathname);
+    if (location.pathname != '/asvo/under-construction/') {
+        $('a[href="' + location.pathname + '"]').parents('li,ul').addClass('active');
+    }
+
+</script>
