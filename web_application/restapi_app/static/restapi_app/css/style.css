@@ -523,9 +523,15 @@ nav .container {
 
 .nav-list > .active > a, .nav-list > .active > a:hover {
     background: #2C2C2C;
+    background: #EEEEEE;
+    color: #C20000;
 }
 
-.navbar .dropdown-menu li a, .navbar .dropdown-menu li {
+#navbar .dropdown-menu > .active > a {
+    background-color: #eeeeee;
+}
+
+#navbar .dropdown-menu li a, .navbar .dropdown-menu li {
     color: #333;
 }
 
@@ -910,7 +916,6 @@ pre {
 
 .prettyprint {
     padding: 8px;
-    background-color: #f7f7f9;
     background-color: #ffffff;
     border: 1px solid #e1e1e8;
 }

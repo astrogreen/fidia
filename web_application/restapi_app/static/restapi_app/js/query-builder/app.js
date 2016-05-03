@@ -222,7 +222,7 @@ var app = angular.module("myApp", [ "isteven-multi-select", 'ngSanitize' ]);
 //
 //                 } else {
 //
-//                     $scope.error['eNoCats']='No catalogues available, please contact systems administrator';
+//                     $scope.error['eNoCats']='No catalogues available, please support systems administrator';
 //                     $scope.error['errorFlag']=true;
 //
 //                 };

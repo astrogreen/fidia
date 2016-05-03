@@ -1,0 +1,27 @@
+.nav-tabs {
+    border: 0;
+}
+
+.nav-tabs > li {
+    float: right;
+}
+
+.nav-tabs li a {
+    margin-right: 0;
+}
+
+.nav-tabs > .active > a {
+    background: #F5F5F5;
+}
+
+.nav-tabs > .active > a:hover {
+    background: #F5F5F5;
+}
+
+#SOV .nav-tabs > li {
+    float: left;
+}
+
+.tabbable.first-tab-active .tab-content {
+    border-top-right-radius: 0;
+}

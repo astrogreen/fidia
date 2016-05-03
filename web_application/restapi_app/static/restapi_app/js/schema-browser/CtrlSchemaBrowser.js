@@ -313,7 +313,7 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
                     if (null != email) {
 
                     } else {
-                        // TODO depends on other contact detail types - may need helper function here
+                        // TODO depends on other support detail types - may need helper function here
                     }
                 }
             });

@@ -215,7 +215,7 @@ app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeou
 
                 } else {
 
-                    $scope.error['eNoCats']='No catalogues available, please contact systems administrator';
+                    $scope.error['eNoCats'] = 'No catalogues available, please support systems administrator';
                     $scope.error['errorFlag']=true;
 
                 };
