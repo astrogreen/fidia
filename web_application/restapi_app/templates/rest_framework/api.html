@@ -271,13 +271,15 @@
     {% include "restapi_app/header/footer.html" %}
   {% endblock %}
 
-
-  <script src="{% static "rest_framework/js/jquery-1.11.3.min.js" %}"></script>
-  <script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
-  <script src="{% static "rest_framework/js/csrf.js" %}"></script>
-  <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
-  <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
-  <script src="{% static "rest_framework/js/default.js" %}"></script>
+  {% comment %}
+  <!--v2 jQuery sourced in header.html -->
+  <script src="{% static 'rest_framework/js/jquery-1.11.3.min.js' %}"></script>
+  {% endcomment %}
+  <script src="{% static 'rest_framework/js/ajax-form.js' %}"></script>
+  <script src="{% static 'rest_framework/js/csrf.js' %}"></script>
+  <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
+  <script src="{% static 'rest_framework/js/default.js' %}"></script>
 
   {% block footer-extra %}
   {% endblock %}

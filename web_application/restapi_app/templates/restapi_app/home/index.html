@@ -23,7 +23,8 @@
         <div class="content">
 
             <div class="logo row">
-                <img src="/static/img/logos/asvo-small-white.png" class="" alt="ASVO - All-Sky Virtual Observatory">
+                <img src="{% static 'restapi_app/img/logo/asvo-small-white.png' %}" class=""
+                     alt="ASVO - All-Sky Virtual Observatory">
                 <span>ASVO - All-Sky Virtual Observatory</span>
             </div>
 
@@ -78,11 +79,11 @@
             </div>
 
             <div class="cta row">
-                <a href="{% url "sov-list" %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>
-                <a type="button" title="View your previous queries." href="{% url " under-construction" %}"
+                <a href="{% url 'sov-list' %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>
+                <a type="button" title="View your previous queries." href="{% url 'under-construction' %}"
                 class="white-tooltip">My Account</a>
-                <a type="button" title="Browse current release documenation." href="{% url " documentation" %}"
-                class="white-tooltip">Documentation</a>
+                <a type="button" title="Browse current release documenation." href="{% url 'documentation' %}"
+                   class="white-tooltip">Documentation</a>
             </div>
 
             <div class="note row">

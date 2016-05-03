@@ -1,0 +1,61 @@
+h3 {
+    color: #0079d1;
+}
+
+.a-hover:hover {
+    text-decoration: none;
+}
+
+.a-hover .panel:hover {
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+    border: solid 1px #5aa8d8;
+}
+
+.circle {
+    opacity: 0.7;
+}
+
+.a-hover .panel:hover .circle {
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+}
+
+.circle {
+    position: relative;
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    /*background-color: rgba(0, 0, 0, 0.20);*/
+}
+
+.circle i,
+.circle:before {
+    color: #2f3537;
+    font-size: 3em;
+    weight: 100;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    font-family: FontAwesome;
+}
+
+.circle.sov:before {
+    content: "\f1e5";
+}
+
+.circle.query:before {
+    content: "\f002";
+}
+
+.circle.sami {
+    background: url('../../img/logo/logo-sami.png') center no-repeat;
+    background-size: 80% auto;
+}
+
+.circle.gama {
+    background: url('../../img/logo/logo-gama.png') center no-repeat;
+    background-size: 80% auto;
+}

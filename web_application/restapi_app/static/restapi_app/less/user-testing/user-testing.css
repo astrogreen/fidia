@@ -1,0 +1,24 @@
+span.red,
+span.green,
+span.yellow,
+span.orange {
+    padding: 0px 5px;
+    height: 10px;
+    width: 10px;
+}
+
+span.red {
+    border-left: solid 5px #CA6650 !important;
+}
+
+span.green {
+    border-left: solid 5px #8CCD91 !important;
+}
+
+span.orange {
+    border-left: solid 5px #D08948 !important;
+}
+
+span.yellow {
+    border-left: solid 5px #E6C452 !important;
+}

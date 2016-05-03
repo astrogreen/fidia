@@ -10,13 +10,13 @@
     background-color: #fff;
     max-width: 80px;
     position: relative;
-    top: 0px;
+    top: 0;
     border-left: solid 15px #fff;
 }
 
 .raw-data {
     max-height: 300px;
-    overflow: scroll
+    overflow: scroll;
 }
 
 .ellipsis {
@@ -26,8 +26,8 @@
 .overflow {
     width: 20em;
     /**
-     * Required properties to achieve text-overflow
-     */
+       * Required properties to achieve text-overflow
+       */
     white-space: nowrap;
     overflow: hidden;
 }
@@ -43,11 +43,10 @@ h4 {
 
 h6 {
     margin-bottom: 0px;
-    color: #333333
+    color: #333333;
 }
 
 .inline-links p {
     margin-right: 7px;
     display: inline;
 }
-

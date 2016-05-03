@@ -1,16 +1,25 @@
-/*.tab-content.well{padding:5px;}*/
-.text-red{color:#a30000}
-.text-blue{color:#5aa8d8}
 /* OUTLINE BUTTONS */
+.text-red {
+    color: #a30000;
+}
+
+.text-blue {
+    color: #5aa8d8;
+}
+
 .btn.outline {
     transition: all 0.1s ease;
     border-radius: 0px;
     background-color: transparent;
     background-image: none;
 }
-form select, form input, form textarea {
+
+form select,
+form input,
+form textarea {
     width: auto;
 }
+
 .blue {
     color: #fff;
     background-color: #5aa8d8 !important;
@@ -24,39 +33,40 @@ form select, form input, form textarea {
     color: #aaa;
 }
 
-/*.btn.grey:hover, .btn.grey:focus, .btn.grey.focus {*/
-/*color: #d9534f;*/
-/*background-radius:50%;*/
-/*text-decoration: none;*/
-/*}*/
-.btn.red:hover, .btn.red:focus, .btn.red.focus {
+.btn.red:hover,
+.btn.red:focus,
+.btn.red.focus {
     color: #d9534f;
-    background-radius: 50%;
     text-decoration: none;
 }
 
-.btn.white:hover, .btn.white:focus, .btn.white.focus {
+.btn.white:hover,
+.btn.white:focus,
+.btn.white.focus {
     color: #f9f9f9;
-    background-radius: 50%;
     text-decoration: none;
 }
 
-.btn.blue:hover, .btn.blue:focus, .btn.blue.focus {
+.btn.blue:hover,
+.btn.blue:focus,
+.btn.blue.focus {
     color: #5aa8d8;
     border-color: #5aa8d8;
     background-color: #fff !important;
     text-decoration: none;
 }
 
-.btn.green:hover, .btn.green:focus, .btn.green.focus {
+.btn.green:hover,
+.btn.green:focus,
+.btn.green.focus {
     color: #5cb85c;
-    background-radius: 50%;
     text-decoration: none;
 }
 
-.btn.yellow:hover, .btn.yellow:focus, .btn.yellow.focus {
+.btn.yellow:hover,
+.btn.yellow:focus,
+.btn.yellow.focus {
     color: #f0ad4e;
-    background-radius: 50%;
     text-decoration: none;
 }
 
@@ -72,7 +82,7 @@ i.fa.fa-plus.fa-stack-1x {
     margin-top: 1px;
 }
 
-btn.blue {
+.btn.blue {
     background-color: #5aa8d8;
     border-radius: 5px;
 }
@@ -81,7 +91,7 @@ btn.blue {
 form.query-form {
     /*padding: 0px 15px;*/
     margin-bottom: 20px;
-    padding-bottom: 15px
+    padding-bottom: 15px;
 }
 
 form.query-form .false-row {
@@ -90,44 +100,37 @@ form.query-form .false-row {
 
 form.query-form .row.header {
     margin-bottom: -1px;
-    color: #eeeeee;
     color: #333;
     border: solid 1px #dddddd;
-    background: #5aa8d8;
     background: #F5F5F5;
-}
-
-form.query-form .row.content {
-    border: solid 1px #dddddd;
-    padding: 10px 0px
 }
 
 form.query-form .row.header .blue {
     background: #5aa8d8;
 }
 
-form.query-form .row {
-    /*padding:0px 15px*/
+form.query-form .row.content {
+    border: solid 1px #dddddd;
+    padding: 10px 0px;
 }
 
 form.query-form h4 {
     margin-top: 8px;
     margin-bottom: 8px;
     font-weight: normal;
-
-font-size:14px;
+    font-size: 14px;
     text-transform: uppercase;
     font-family: 'Roboto', sans-serif;
 }
 
-
-form.query-form .querynot{
-    float:left;
-    margin:10px;
+form.query-form .querynot {
+    float: left;
+    margin: 10px;
 }
 
-.querynot span {padding:5px;}
-
+form.query-form .querynot span {
+    padding: 5px;
+}
 
 form.query-form .input-box {
     height: 38px;
@@ -140,34 +143,36 @@ form.query-form .floating-select {
     margin-right: 10px;
 }
 
-#query-form-errors {
+form.query-form #query-form-errors {
     margin-bottom: 10px;
 }
-#query-form-errors .panel-heading{
-    padding:1px 15px;
+
+form.query-form #query-form-errors .panel-heading {
+    padding: 1px 15px;
 }
 
-#query-form-errors .warning {
+form.query-form #query-form-errors .warning {
     background: #F1CB76;
 }
 
-#query-form-errors .no-error {
+form.query-form #query-form-errors .no-error {
     background: #5aa8d8;
 }
 
-#query-form-errors .error {
+form.query-form #query-form-errors .error {
     background: #d9534f;
 }
 
-.not-selected-warning {
+form.query-form .not-selected-warning {
     border: 1px solid #F1CB76 !important;
 }
 
-.not-selected-error {
+form.query-form .not-selected-error {
     border: 1px solid #d9534f !important;
 }
 
-#outputCatalogue0:before, .selectCatalogues:before {
+form.query-form #outputCatalogue0:before,
+form.query-form .selectCatalogues:before {
     font: normal normal normal 18px/1 FontAwesome;
     position: absolute;
     font-weight: 300;
@@ -175,11 +180,11 @@ form.query-form .floating-select {
     top: 30%;
 }
 
-.selectCatalogues:before {
+form.query-form .selectCatalogues:before {
     content: "\f176";
 }
 
-#outputCatalogue0:before {
+form.query-form #outputCatalogue0:before {
     content: "\f148";
     transform: rotate(-270deg) scaleX(-1);
 }
@@ -204,12 +209,7 @@ form.query-form .floating-select {
     animation: border-pulsate 1.5s infinite;
 }
 
-
-
-
-
 /* Media Queries */
-
 @media (max-width: 991px) {
     /*.floating-select{border:1px solid green;}*/
 }
@@ -223,5 +223,4 @@ form.query-form .floating-select {
     .floating-select {
         max-width: 45%;
     }
-
 }

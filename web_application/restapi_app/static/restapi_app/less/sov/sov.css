@@ -1,27 +1,46 @@
+/*!*AUTOCOMPLETE STYLES*!*/
+.container-sov-entry {
+  margin-bottom: 30px;
+}
+
+.panel-body.extra-padding {
+  padding: 20px 15px;
+}
+
+.sami {
+  background-color: #fff;
+  max-width: 115px;
+  position: relative;
+  padding-top: 13px;
+}
+
+.gama {
+  background-color: #fff;
+  max-width: 80px;
+  position: relative;
+}
+
+.sov-logo {
+  margin-bottom: 20px;
+}
 .nav-tabs {
-    border: 0;
+  border: 0;
 }
-
 .nav-tabs > li {
-    float: right;
+  float: right;
 }
-
 .nav-tabs li a {
-    margin-right: 0;
+  margin-right: 0;
 }
-
 .nav-tabs > .active > a {
-    background: #F5F5F5;
+  background: #F5F5F5;
 }
-
 .nav-tabs > .active > a:hover {
-    background: #F5F5F5;
+  background: #F5F5F5;
 }
-
 #SOV .nav-tabs > li {
-    float: left;
+  float: left;
 }
-
 .tabbable.first-tab-active .tab-content {
-    border-top-right-radius: 0;
+  border-top-right-radius: 0;
 }

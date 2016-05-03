@@ -5,7 +5,7 @@
 {% load internal_extras %}
 {% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/list.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/sample/list.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
@@ -31,7 +31,7 @@
                 {% if key == 'schema' %}
                     {% for keyb, valueb in value.items %}
 
-                        <div class="col-md-5 col-sm-5 col-xs-6">
+            <div class="col-md-3 col-sm-3 col-xs-6">
                         {% comment %}
                             {% if forloop.counter0|divisibleby:4 %}
                                 {{ forloop.counter0 }} COUNTER

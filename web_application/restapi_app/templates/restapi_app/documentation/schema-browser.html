@@ -11,14 +11,12 @@
 <script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
 <script type="text/javascript">
     //get url for available catalogues
-    urlCataloguesGlobal = "{% url "
-    catalogues
-    " %}"
+    urlCataloguesGlobal = "{% url 'catalogues' %}"
 </script>
 <script src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>
 <script src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
 <script type="text/javascript" src="{% static 'restapi_app/js/query-builder/isteven-multi-select.js' %}"></script>
-<link rel="stylesheet" href="{% static 'restapi_app/css/query-builder/isteven-multi-select.css' %}" type="text/css"/>
+<link rel="stylesheet" href="{% static 'restapi_app/less/query/isteven-multi-select.css' %}" type="text/css"/>
 {% endblock %}
 {% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
 

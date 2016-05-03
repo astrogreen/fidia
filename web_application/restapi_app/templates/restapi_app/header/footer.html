@@ -1,10 +1,11 @@
+{% load staticfiles %}
 <footer class="footer" id="footer">
     <div class="container">
         <div class="row">
             <div class="col-md-3 col-sm-3 col-xs-4">
                 <h3>Explore <span>data</span></h3>
-                    <a href="{% url "data" %}">Data</a>
-                    <a href="{% url "query-list" %}">Query Builder</a>
+                <a href="{% url 'data' %}">Data</a>
+                <a href="{% url 'query-list' %}">Query Builder</a>
                     <a class="disabled">Data Explorer</a>
             </div>
             <div class="col-md-3 col-sm-3 col-xs-4">
@@ -15,10 +16,12 @@
             </div>
             <div class="col-md-6 col-sm-6 col-xs-4 img-wrapper">
               <div class='img-inner'>
-                <img class='img-responsive screen-logo pull-left' src='/static/img/logos/asvo_logo_white_big.png'>
-                <img class='img-responsive screen-logo pull-right' src='/static/img/logos/DIIS_AAO_logo_inline_inverted.png'>
-                <img class='img-responsive mobile-logo' src='/static/img/logos/asvo_logo_white.png'>
-                <img class='img-responsive mobile-logo' src='/static/img/logos/aao_logo_white.png'>
+                  <img class='img-responsive screen-logo pull-left'
+                       src="{% static 'restapi_app/img/logo/asvo_logo_white_big.png' %}">
+                  <img class='img-responsive screen-logo pull-right'
+                       src="{% static 'restapi_app/img/logo/DIIS_AAO_logo_inline_inverted.png' %}">
+                  <img class='img-responsive mobile-logo' src="{% static 'restapi_app/img/logo/asvo_logo_white.png' %}">
+                  <img class='img-responsive mobile-logo' src="{% static 'restapi_app/img/logo/aao_logo_white.png' %}">
               </div>
             </div>
 
@@ -38,9 +41,8 @@
     </div> <!--/.footer-bottom-->
 </footer>
 <script>
-    console.log(location.pathname);
     if (location.pathname != '/asvo/under-construction/') {
         $('a[href="' + location.pathname + '"]').parents('li,ul').addClass('active');
     }
-
+    ;
 </script>
