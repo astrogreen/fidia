@@ -1,52 +1,44 @@
 .sami {
-    background-color: #fff;
-    max-width: 115px;
-    position: relative;
-    top: 8px;
-    border-left: solid 15px #fff;
+  background-color: #fff;
+  max-width: 115px;
+  position: relative;
+  top: 8px;
+  border-left: solid 15px #fff;
 }
-
 .gama {
-    background-color: #fff;
-    max-width: 80px;
-    position: relative;
-    top: 0;
-    border-left: solid 15px #fff;
+  background-color: #fff;
+  max-width: 80px;
+  position: relative;
+  top: 0;
+  border-left: solid 15px #fff;
 }
-
 .raw-data {
-    max-height: 300px;
-    overflow: scroll;
+  max-height: 300px;
+  overflow: scroll;
 }
-
 .ellipsis {
-    text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
-
 .overflow {
-    width: 20em;
-    /**
-       * Required properties to achieve text-overflow
-       */
-    white-space: nowrap;
-    overflow: hidden;
+  width: 20em;
+  /**
+     * Required properties to achieve text-overflow
+     */
+  white-space: nowrap;
+  overflow: hidden;
 }
-
 .underline-blue {
-    color: #3f9ad2;
-    text-decoration: underline;
+  color: #3f9ad2;
+  text-decoration: underline;
 }
-
 h4 {
-    margin-top: 0px;
+  margin-top: 0px;
 }
-
 h6 {
-    margin-bottom: 0px;
-    color: #333333;
+  margin-bottom: 0px;
+  color: #333333;
 }
-
 .inline-links p {
-    margin-right: 7px;
-    display: inline;
+  margin-right: 7px;
+  display: inline;
 }
