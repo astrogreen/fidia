@@ -66,6 +66,7 @@
 
                     {% captureas imgpath %}{% static 'restapi_app/img/documentation/query/query-builder'
                     %}{%endcaptureas %}
+
                     <h3 id="query-builder-select">Selecting Catalogues</h3>
                     <div class="row">
                         <div class="col-sm-8 col-md-8">
@@ -108,9 +109,7 @@
                             <p>
                                 The Query Builder will automatically generate the SQL for valid selections.
                                 The
-                                <button class="btn btn-default btn-xs" disabled style="opacity:1"><i
-                                        class="fa fa-code"></i> UPDATE
-                                </button>
+                                faq
                                 button
                                 will re-generate the SQL if you have changed the form input. Check the SQL is as you
                                 would expect before hitting the
@@ -270,32 +269,88 @@
                                     </h3>
                                 </div>
                                 <div class="panel-body">
-                                    answer
+                                    This button is disabled if your selections are currently invalid/missing.
+                                    Check the form for inputs outlined in red (error) or yellow (warning) and edit as
+                                    appropriate.
+                                    The
+                                    <button class="btn btn-default btn-xs" disabled style="opacity:1"><i
+                                            class="fa fa-code"></i> UPDATE
+                                    </button>
+                                    button will re-check the Query Builder and update the SQL.
                                 </div>
                             </div>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">2.
-                                        The
-                                        <button class="btn btn-primary btn-xs" disabled style="opacity:1"><i
-                                                class="fa fa-code"></i> SEND TO FORM
-                                        </button>
-                                        button is disabled. How can I submit the form?
-                                    </h3>
-                                </div>
-                                <div class="panel-body">
-                                    answer
-                                </div>
+                            <!--<div class="panel panel-default">-->
+                            <!--<div class="panel-heading">-->
+                            <!--<h3 class="panel-title">2.-->
+                            <!--The-->
+                            <!--<button class="btn btn-primary btn-xs" disabled style="opacity:1"><i-->
+                            <!--class="fa fa-code"></i> SEND TO FORM-->
+                            <!--</button>-->
+                            <!--button is disabled. How can I submit the form?-->
+                            <!--</h3>-->
+                            <!--</div>-->
+                            <!--<div class="panel-body">-->
+                            <!--answer-->
+                            <!--</div>-->
+                            <!--</div>-->
+                        </div>
+                    </div>
+                    <br>
+                    <h3 id="query-builder-examples">Examples</h3>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p>
+                                Examples of various queries that can be constructed using the query form are shown here.
+                                If you have an impressive query constructed with the form that you would like us to
+                                feature, please let <a href="mailto:asvo@aao.gov.au"> us</a> know.
+                            </p>
+                            <h4>Example 1</h4>
+                            <p>Return all galaxies in a pair, with redshift (0.1 &lt;
+                                z &lt; 0.3) and quality flag cut.</p>
+                            <table class="table table-bordered ">
+                                <thead>
+                                <tr>
+                                    <th>DMU</th>
+                                    <th>Catalogue</th>
+                                    <th>Parameter</th>
+                                    <th>Info</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th scope="row">Groupfindingv05</th>
+                                    <td>G3CGalsInPair</td>
+                                    <td>Gal1CATAID, Gal2CATAID</td>
+                                    <td>G3CGalsInPair is a catalogue of galaxies that
+                                        live in pairs (thus gal1-gal2 and gal2-gal1 combinations
+                                        are both listed), so here we need only match to
+                                        Gal1CATAID.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">StellarMassesv08</th>
+                                    <td>StellarMasses</td>
+                                    <td>CATAID, Z, nQ</td>
+                                    <td>All CATAID matched to Gal1CATAID, where 0.1 &lt; Z &lt;
+                                        0.3, nQ &gt; 2
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div class="restricted-height-400">
+                                <img src="{{imgpath}}-example0.png" class="img-responsive img-thumbnail "
+                                     alt="Screen shot of query">
                             </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <h4>Example 2</h4>
+                            <p>...</p>
 
+                            <br>
 
                         </div>
                     </div>
-                    <h3 id="query-builder-examples">Examples</h3>
-
-
                 </div>
-
             </section>
 
         </div>
@@ -303,13 +358,4 @@
 </div>
 {% endblock %}
 {% block footer-extra %}
-<script>
-    $(document).ready(function () {
-        //DOCS
-        $('body').scrollspy({
-            target: '.docs-sidebar',
-            offset: 40
-        });
-    });
-</script>
 {% endblock %}

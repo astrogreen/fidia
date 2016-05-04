@@ -22,7 +22,11 @@ nav.docs-sidebar {
   color: #5aa8d8;
   margin: 0;
 }
-
 .panel-default {
   margin: 0;
+}
+
+.restricted-height-400 {
+  max-height: 400px;
+  overflow-y: scroll;
 }

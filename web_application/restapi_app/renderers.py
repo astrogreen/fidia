@@ -164,7 +164,7 @@ class QueryRenderer(ExtendBrowsableAPIRenderer):
     """
     BrowseSurveysViewSet
     """
-    # note this template extends restapi_app/query/query.html
+    # note this template extends restapi_app/query/query-builder.html
     # where most of the html structure resides
     template = 'restapi_app/query/query-builder-module.html'
 

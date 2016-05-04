@@ -45,8 +45,13 @@ urlpatterns = [
                       TemplateView.as_view(template_name='restapi_app/documentation/data-access.html'),
                       name='documentation-data-access'),
                   url(r'^(?i)documentation/query-builder/$',
-                      TemplateView.as_view(template_name='restapi_app/documentation/query.html'),
+                      TemplateView.as_view(template_name='restapi_app/documentation/query-builder.html'),
                       name='documentation-query-builder'),
+
+                  url(r'^(?i)documentation/query-history/$',
+                      TemplateView.as_view(template_name='restapi_app/documentation/query-history.html'),
+                      name='documentation-query-history'),
+
                   url(r'^(?i)documentation/schema-browser/$',
                       TemplateView.as_view(template_name='restapi_app/documentation/schema-browser.html'),
                       name='documentation-schema-browser'),
