@@ -107,6 +107,11 @@ class Trait(AbstractBaseTrait):
 
         self._trait_cache = OrderedDict()
 
+        if parent_trait is not None:
+            self.trait_path = parent_trait.trait_path + tuple(self.trait_key)
+        else:
+            self.trait_path = tuple(self.trait_key)
+
 
         # The preload count is used to track how many accesses there are to this
         # trait so that it can be properly cleaned up when all loads are
@@ -227,9 +232,10 @@ class Trait(AbstractBaseTrait):
     #             log.debug("Found trait property '{}'".format(key))
     #             yield obj
 
-    def trait_property_dir(self):
+    @classmethod
+    def trait_property_dir(cls):
         """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
-        for tp in self._trait_properties():
+        for tp in cls._trait_properties():
             yield tp.name
 
     def trait_properties(self, trait_property_types=None):
@@ -283,7 +289,7 @@ class Trait(AbstractBaseTrait):
 
         """
         for tp in self._trait_properties(trait_type):
-            yield getattr(self, tp.name)
+            yield getattr(self, tp.name).value
 
     def _load_incr(self):
         """Internal function to handle preloading. Prevents a Trait being loaded multiple times.

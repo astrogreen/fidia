@@ -1,7 +1,7 @@
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
-# log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.DEBUG)
 
 from abc import ABCMeta
 import collections
@@ -209,6 +209,7 @@ def trait_property(func_or_type):
         return TraitProperty(func_or_type)
     raise Exception("trait_property decorator used incorrectly. Check documentation.")
 
+
 class TraitProperty(metaclass=ABCMeta):
 
     allowed_types = [
@@ -293,35 +294,15 @@ class BoundTraitProperty:
 
     @property
     def value(self):
-        # Check if obj has a trait_dict cache:
-        try:
-            log.debug("Checking for trait_dict cache...")
-            trait_cache = self._trait._trait_dict
-        except KeyError:
-            # No trait cache: simply get value and return
-            # @TODO: This case should really not be needed: all traits should eventually have a cache.
-            log.debug("Object '%s' has no trait cache...using user provided loader.", self._trait)
-            return self.uncached_value
-        else:
-            # Trait cache present, load value and store.
-            if self.name not in trait_cache:
-                log.debug("Object '%s' has not cached a value for '%s'.", self._trait, self.name)
-                # Data not yet cached
-                if self._trait._loading != 'verylazy':
-                    self._trait._realise()
-                else:
-                    trait_cache[self.name] = self.uncached_value
-                # Now confirm that the cache update has actually been done:
-                try:
-                    trait_cache[self.name]
-                except:
-                    # Real problem! Just attempt to return the value using the loader!
-                    log.error("Trait property cache not being updated correctly for trait property '%s.%s'",
-                              self._trait.trait_key, self.name)
-                    return self.uncached_value
-            else:
-                log.debug("Using cached a value for '%s' from object '%s'.", self.name, self._trait)
-            return trait_cache[self.name]
+        """The value of this TraitProperty, retrieved using cache requests.
+
+        The value is retrieved from the cache stack of the archive to which this
+        TraitProperty (and therefore Trait) belong to. At the bottom of the
+        cache stack (i.e. if no cache has the necessary data), the request is
+        passed back to the `uncached_value` property of this TraitProperty.
+        """
+
+        return self._trait.archive.cache.cache_request(self._trait, self.name)
 
     @property
     def uncached_value(self):
@@ -347,7 +328,7 @@ class BoundTraitProperty:
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
             # Cleanup the Trait if necessary.
-            self._trait._load_incr()
+            self._trait._load_decr()
 
         return value
 

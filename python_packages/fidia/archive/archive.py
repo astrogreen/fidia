@@ -12,6 +12,7 @@ import pandas as pd
 from ..sample import Sample
 from ..traits.utilities import TraitKey, TraitMapping
 from .base_archive import BaseArchive
+from ..cache import MemoryCache
 
 class Archive(BaseArchive):
     def __init__(self):
@@ -19,6 +20,8 @@ class Archive(BaseArchive):
         self.available_traits = TraitMapping()
         self.define_available_traits()
         self._trait_cache = OrderedDict()
+
+        self.cache = MemoryCache()
 
         super(BaseArchive, self).__init__()
 

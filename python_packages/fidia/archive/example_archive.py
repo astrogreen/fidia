@@ -237,4 +237,3 @@ class ExampleArchive(Archive):
         self.available_traits[TraitKey('simple_heir_trait', None, None, None)] = SimpleTraitWithSubtraits
 
 
-        return self.available_traits
