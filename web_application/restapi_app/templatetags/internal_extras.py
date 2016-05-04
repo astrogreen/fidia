@@ -297,3 +297,14 @@ def surveylogoimglink(survey):
 
     snippet = format_html(snippet, surveylink=surveylink, surveyclass=surveyclass, imgpath=imgpath)
     return mark_safe(snippet)
+
+
+@register.simple_tag
+def fstrip_trailing_slash(url):
+    """
+    Snippet for stripping the trailing slash on a url
+    Necessary for pages with anchor at the end
+
+    """
+    new_url = url.rstrip('/')
+    return new_url

@@ -670,6 +670,7 @@ app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeou
                             $scope.warning['Unselected Values']="Ensure all fields are populated. "
                             missing += validationObj[i][2]+key+',';
                             warning=true;
+                            $('#query-builder-submit').attr('disabled', true);
                         }
                     } else {
                         $(validationObj[i][1]+key).removeClass('not-selected-warning');
@@ -685,8 +686,8 @@ app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeou
 
 
         $scope.fBuildSQL=function(warning){
-            $scope.fResetErrors;
-            $scope.fResetWarnings();
+            // $scope.fResetErrors();
+            // $scope.fResetWarnings();
 
             // If the validation throws errors, add an error message on 'submit'
             if (warning == true ){

@@ -314,6 +314,8 @@
                     var SQLAceEditor = ace.edit("SQL-ace-editor");
                     SQLAceEditor.$blockScrolling = Infinity;
                     SQLAceEditor.setTheme("ace/theme/crimson_editor");
+                    SQLAceEditor.setOption("maxLines", 20);
+                    SQLAceEditor.setOption("minLines", 10);
                     SQLAceEditor.getSession().setMode("ace/mode/sql");
                     SQLAceEditor.getSession().setValue(textarea.val());
                     SQLAceEditor.getSession().on('change', function(){
@@ -409,6 +411,36 @@
         $('[href=#'+id+']').tab('show');
     }
 </script>
+<script>
+    // Check slug for #anchor, change tab view if appropriate
+    function fchange_tab() {
+        var url = window.location.href;
+        var hash = url.substring(url.indexOf("#") + 1);
+        console.log(hash);
+        if (hash == 'query-builder-form' || hash == 'post-object-form') {
+            $('#query-builder-form').removeClass('active');
+            $('#post-object-form').removeClass('active');
 
+            $('a[href="#query-builder-form"]').parent('li').removeClass('active');
+            $('a[href="#post-object-form"]').parent('li').removeClass('active');
+
+            $('#' + hash).addClass('active');
+            $('a[href="#' + hash + '"]').parent('li').addClass('active');
+        }
+    }
+    ;
+
+    fchange_tab();
+
+    $('.li-query').click(function () {
+        // bind navigation after 0.5s
+        // ensures url has changed and will read new hash
+        setTimeout(function () {
+            fchange_tab();
+        }, 500);
+
+    });
+
+</script>
 {% endblock %}
 

@@ -44,66 +44,112 @@
                     <span>Query Builder</span>
                 </h2>
                 <div id="docs-query-builder" class="subgroup">
-                    <div class="col-xs-12">
-                        <p>
-                            The Query Builder form allows you to construct complicated
-                            queries on the database with ease without writing any
-                            code. It provides available catalogues and columns easily
-                            to reduce query mistakes and query construction time, allowing for
-                            less SQL-writing and more data exploration.
-                        </p>
-                        <div class="docs-example">
-                            <!--<img src="/static/images/documentation/GAMA-example0.png" class='img-responsive'-->
-                            <!--alt="Screen shot of query">-->
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p>
+                                The <a href="{% url 'query-list' %}#query-builder-form">Query Builder</a> allows you to
+                                construct complicated
+                                queries on the database with ease without writing any
+                                code. It provides available catalogues and columns easily
+                                to reduce query mistakes and query construction time, allowing for
+                                less SQL-writing and more data exploration.
+                            </p>
+                            <p><br>
+                                Queries can be made on known survey objects or
+                                at specific coordinates on the sky (RA, DEC). The query
+                                builder is sufficient for most use cases, however particularly
+                                complicated queries can be submitted via the <a
+                                        href="{% url 'query-list' %}#post-object-form">SQL form</a>.
+                            </p>
                         </div>
-                        <p><br>
-                            Queries can be made on known survey objects or
-                            at specific coordinates on the sky (RA, DEC). The query
-                            builder is sufficient for most use cases, however particularly
-                            complicated queries can be submitted via the SQL form.
-                        </p><br>
                     </div>
-                    <h4>SQL Syntax</h4>
-                    <dl class="dl-horizontal">
-                        <dt>Select</dt>
-                        <dd>Select the catalogues you wish to query via the
-                            <button class="btn btn-default btn-xs btn-demo" type="button">
-                                Catalogue <span class="caret"></span></button>
-                            dropdown.
-                        </dd>
-                        <dd>Available columns for the selected catalogue will be
-                            shown in the
-                            <button class="btn btn-default btn-xs btn-demo"
-                                    type="button"> Columns <span class="caret"></span></button>
-                            dropdown. If you are looking for a particular column, the
-                            search bar can help.
-                        </dd>
-                        <dd>
-                            Multiple catalogues can be added using the
-                            <button class='btn btn-demo btn-circle'><span class='glyphicon
-                         glyphicon-plus'></span></button>
-                            Add Fields button. Currently,
-                            up to 5 catalogues can be queried simultaneously.
-                        </dd>
-                        <dt>Join</dt>
-                        <dd>If you have selected two or more catalogues to return results
-                            from, use the Join row to choose which columns from each are
-                            common fields. For example, you may want to return filtered
-                            results from both the catalogues <samp>g3cgal</samp> and <samp>specobj</samp>.
-                            In which case, you could join as:
-                            <button class="btn btn-default btn-xs btn-demo"
-                                    type="button"> G3CGAL.CATAID <span class="caret"></span></button>
-                            <button class="btn btn-default btn-xs btn-demo"
-                                    type="button"> INNER <span class="caret"></span></button>
-                            <button class="btn btn-default btn-xs btn-demo"
-                                    type="button"> SpecObj.CATAID <span class="caret"></span></button>
-                            <br>
-                            <strong>If you wish to return columns from
-                                multiple catalogues, you must join the appropriate columns
-                                from each catalogue</strong>.
-                        </dd>
-                        <br>
-                        <dd>
+
+                    {% captureas imgpath %}{% static 'restapi_app/img/documentation/query/query-builder'
+                    %}{%endcaptureas %}
+                    <h3 id="query-builder-select">Selecting Catalogues</h3>
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8">
+                            <img src="{{imgpath}}2.png" class="img-responsive img-thumbnail">
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            <p>Select the catalogue you wish to query via the catalogue dropdown. If you are
+                                looking for a particular catalogue, the
+                                search bar can help. </p>
+
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8">
+                            <img src="{{imgpath}}3.png" class="img-responsive img-thumbnail">
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            <p>Available columns for the selected catalogue will be
+                                shown in the columns dropdown.
+                                If you are looking for a particular column, the
+                                search bar can help. Multiple columns can be selected, or alternatively you can click
+                                the
+
+                                <button type="button btn-xs" class="helperButton" disabled="true">✓&nbsp;&nbsp;Select
+                                    All
+                                </button>
+                                button.
+                            </p>
+                            <p>The Query Builder will provide warnings and errors if insufficient
+                                information has been supplied (e.g., columns have not been selected). </p>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8">
+                            <img src="{{imgpath}}4.png" class="img-responsive img-thumbnail">
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            <p>
+                                The Query Builder will automatically generate the SQL for valid selections.
+                                The
+                                <button class="btn btn-default btn-xs" disabled style="opacity:1"><i
+                                        class="fa fa-code"></i> UPDATE
+                                </button>
+                                button
+                                will re-generate the SQL if you have changed the form input. Check the SQL is as you
+                                would expect before hitting the
+                                <button class="btn btn-primary btn-xs" disabled style="opacity:1"><i
+                                        class="fa fa-code"></i> SEND TO FORM
+                                </button>
+                                button
+                            </p>
+                        </div>
+                    </div>
+                    <br><br>
+                    <h3 id="query-builder-join">Joining Catalogues</h3>
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8">
+                            <img src="{{imgpath}}5.png" class="img-responsive img-thumbnail">
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            <p>
+                                Multiple catalogues can be added using the <i class="black fa fa-plus"></i>
+                                Add Field button (circled in green). Remove catalogues using the <i
+                                    class="black fa fa-times"></i>
+                                Remove Field button.
+                            </p>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8">
+                            <img src="{{imgpath}}10.png" class="img-responsive img-thumbnail">
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            <p> Use the Join row to specify how the catalogues are related.
+                                In the example above, we will return all rows that have a CATAID that exists in
+                                both SpecObj AND InputCatA catalogues.</p>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="row">
+                        <div class="col-xs-12">
                             Supported join types are detailed below.
                             <table class="table table-bordered">
                                 <thead>
@@ -124,9 +170,9 @@
                                     <td>
                                         Limited to the rows that exist in both tables. For example,
                                         in our join above, a <samp>CATAID</samp> that
-                                        appears in both <samp>g3cgal</samp> and <samp>specobj</samp> catalogues
+                                        appears in both <samp>InputCatA</samp> and <samp>SpecObj</samp> catalogues
                                         would be returned, however if a <samp>CATAID</samp>
-                                        appeared in only one of <samp>g3cgal</samp> and <samp>specobj</samp>,
+                                        appeared in only one of <samp>InputCatA</samp> and <samp>SpecObj</samp>,
                                         it would not be returned. If you are unsure which join
                                         type to select, <samp>INNER</samp> is usually the best option.
                                     </td>
@@ -169,132 +215,85 @@
                                 </tr>
                                 </tbody>
                             </table>
-                        </dd>
-                        <dt>Filter</dt>
-                        <dd>Set the constraints that determine which rows of the
+                        </div>
+                    </div>
+                    <br><br>
+                    <h3 id="query-builder-where">Adding Filters</h3>
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8">
+                            <img src="{{imgpath}}-11.png" class="img-responsive img-thumbnail">
+                        </div>
+                        <div class="col-sm-4 col-md-4">
+                            <p>Set the constraints that determine which rows of the
                             above catalogues(s) will be returned by your query. Leaving this
-                            empty will simply return all rows.
-                        </dd>
-                        <dd>To constrain a parameter
-                            <samp>BETWEEN</samp> two values, simply separate by a
-                            comma, for example to filter a column value between 0.1 and 0.3
-                            enter <samp>0.1,0.3</samp> in the filter value input box.
-                        </dd>
-                        <dt>Results Format</dt>
-                        <dd>Format the results file as <samp>ASCII</samp>,
-                            <samp>CSV</samp> or <samp>FITS</samp>.
-                        </dd>
-                    </dl>
-                </div>
-                <div id="docs-query-builder-examples" class="subgroup">
-                    <h3>Examples</h3>
-                    <p>
-                        Examples of various queries that can be constructed using the query form are shown here. If you
-                        have an
-                        impressive query constructed with the form that you would like us to feature, please let us
-                        know.
-                    </p>
-                    <h4>Example 1</h4>
-                    <p>Return all galaxies in a pair, with redshift (0.1 &#60;
-                        z &#60; 0.3) and quality flag cut.</p>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <table class="table table-bordered ">
-                                <thead>
-                                <tr>
-                                    <th>DMU</th>
-                                    <th>Catalogue</th>
-                                    <th>Parameter</th>
-                                    <th>Info</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <th scope="row">Groupfindingv05</th>
-                                    <td>G3CGalsInPair</td>
-                                    <td>Gal1CATAID, Gal2CATAID</td>
-                                    <td>G3CGalsInPair is a catalogue of galaxies that
-                                        live in pairs (thus gal1-gal2 and gal2-gal1 combinations
-                                        are both listed), so here we need only match to
-                                        Gal1CATAID.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">StellarMassesv08</th>
-                                    <td>StellarMasses</td>
-                                    <td>CATAID, Z, nQ</td>
-                                    <td>All CATAID matched to Gal1CATAID, where 0.1 &#60; Z &#60;
-                                        0.3, nQ &#62; 2
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="docs-example">
-                                <img src="{% static 'restapi_app/img/documentation/example1.png' %}"
-                                     class='img-responsive'
-                                     alt="Screen shot of query">
-                            </div>
+                                empty will simply return all rows.</p>
+                            <p> Multiple filters can be added using the <i class="black fa fa-plus"></i>
+                                Add Field button (circled in green). Remove filters using the <i
+                                        class="black fa fa-times"></i>
+                                Remove Field button.</p>
                         </div>
                     </div>
-                </div>
-                <div id="docs-sql" class="subgroup">
-                    <h3>SQL</h3>
-                    <p></p>
-                </div>
-                <div id="docs-sql-examples" class="subgroup">
-                    <h3>Examples</h3>
-                    <p>
-                        Examples of various queries that can be constructed using the query form are shown here. If you
-                        have an
-                        impressive query constructed with the form that you would like us to feature, please let us
-                        know.
-                    </p>
-                    <h4>Example 1</h4>
-                    <p>Return all galaxies in a pair, with redshift (0.1 &#60;
-                        z &#60; 0.3) and quality flag cut.</p>
+                    <br><br>
+                    <h3 id="query-builder-schema">Schema Browser</h3>
                     <div class="row">
-                        <div class="col-sm-6">
-                            <table class="table table-bordered ">
-                                <thead>
-                                <tr>
-                                    <th>DMU</th>
-                                    <th>Catalogue</th>
-                                    <th>Parameter</th>
-                                    <th>Info</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <th scope="row">Groupfindingv05</th>
-                                    <td>G3CGalsInPair</td>
-                                    <td>Gal1CATAID, Gal2CATAID</td>
-                                    <td>G3CGalsInPair is a catalogue of galaxies that
-                                        live in pairs (thus gal1-gal2 and gal2-gal1 combinations
-                                        are both listed), so here we need only match to
-                                        Gal1CATAID.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">StellarMassesv08</th>
-                                    <td>StellarMasses</td>
-                                    <td>CATAID, Z, nQ</td>
-                                    <td>All CATAID matched to Gal1CATAID, where 0.1 &#60; Z &#60;
-                                        0.3, nQ &#62; 2
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+                        <div class="col-sm-8 col-md-8">
+                            <img src="{{imgpath}}0big.png" class="img-responsive img-thumbnail" style="padding:0">
                         </div>
-                        <div class="col-sm-6">
-                            <div class="docs-example">
-                                <img src="{% static 'restapi_app/img/documentation/example1.png' %}"
-                                     class='img-responsive'
-                                     alt="Screen shot of query">
-                            </div>
+                        <div class="col-sm-4 col-md-4">
+                            <p>Use the Schema Browser to explore the available data and build a meaningful
+                                query. Click a catalogue in the dropdown to view its meta data.
+
+                                Where available, additional dropdowns will appear allowing you to view the
+                                column meta data.
+                            </p>
+                            <p>
+                                The Schema Browser content is provided by the survey teams, if you
+                                find any of this information incorrect or unclear, please either contact <a
+                                    href="mailto:asvo@aao.gov.au"> us</a> or the email provided in the
+                                <strong>Contact</strong>
+                                field.
+                            </p>
                         </div>
                     </div>
+                    <br><br>
+                    <h3 id="query-builder-faq">FAQ</h3>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">1.
+                                        The
+                                        <button class="btn btn-primary btn-xs" disabled style="opacity:1"><i
+                                                class="fa fa-code"></i> SEND TO FORM
+                                        </button>
+                                        button is disabled. How can I submit the form?
+                                    </h3>
+                                </div>
+                                <div class="panel-body">
+                                    answer
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">2.
+                                        The
+                                        <button class="btn btn-primary btn-xs" disabled style="opacity:1"><i
+                                                class="fa fa-code"></i> SEND TO FORM
+                                        </button>
+                                        button is disabled. How can I submit the form?
+                                    </h3>
+                                </div>
+                                <div class="panel-body">
+                                    answer
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <h3 id="query-builder-examples">Examples</h3>
+
+
                 </div>
 
             </section>

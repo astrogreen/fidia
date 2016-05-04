@@ -3,14 +3,12 @@
   border-right: 0 solid #F4F5F6;
   padding: 0 5px 5px 5px;
 }
-
 #documentation-sidebar .nav li > a {
   padding: 0 5px 5px 5px;
 }
 #documentation-sidebar .nav-list {
   font-family: 'Roboto', sans-serif;
 }
-
 #documentation-sidebar .nav-list {
   padding-left: 10px;
 }
@@ -22,5 +20,9 @@ nav.docs-sidebar {
 }
 .search-result h4 a {
   color: #5aa8d8;
+  margin: 0;
+}
+
+.panel-default {
   margin: 0;
 }
