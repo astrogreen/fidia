@@ -42,13 +42,14 @@ class TestDataRetriver():
         #
         # assert isinstance(data, DataFrame)
         #
-        # # scenario 5
-        # trait_key = 'velocity_map'
-        # trait_property_name = 'value.datavalues.item'
-        #
-        # data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name)
-        #
-        # assert isinstance(data, DataFrame)
+        # scenario 5
+        trait_key = 'velocity_map'
+        trait_property_name = 'value'
+        trait_property_type = 'array'
+
+        data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name, trait_property_type)
+
+        assert isinstance(data, DataFrame)
         #
         # scenario 6
         trait_key = 'velocity_map'

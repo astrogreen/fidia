@@ -26,8 +26,8 @@ class DataRetriver():
         table_name = 'sami_test2_5_parquet'
 
         if 'array' in trait_property_type:
-            query = 'Select ' + trait_property_name + '.shape, item from ' + table_name + ',' + table_name + '.' + trait_key + ',' \
-                          + table_name + '.' + trait_key + '.' + trait_property_name + '.datavalues where object_id="' + object_id + '"'
+            query = 'Select value.' + trait_property_name + '.shape, item from ' + table_name + ',' + table_name + '.' + trait_key + ',' \
+                          + table_name + '.' + trait_key + '.value.' + trait_property_name + '.datavalues where object_id="' + object_id + '"'
         else:
             query = 'Select ' + trait_property_name + ' from ' + table_name + ',' + table_name + '.' + trait_key + ' where object_id="' + object_id + '"'
 
