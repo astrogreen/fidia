@@ -164,7 +164,21 @@ form.query-form #outputCatalogue0:before {
   float: left;
 }
 .btn-group-head {
-  margin-top: 27px;
+  margin-top: 30px;
+  margin-bottom: 5px;
+}
+.btn-group-head > form,
+.btn-group-head > .btn {
+  position: relative;
+  float: right;
+  margin-left: -1px;
+  margin-top: -1px;
+}
+.custom-inline {
+  display: inline;
+}
+.custom-inline-block {
+  display: inline-block;
 }
 @keyframes border-pulsate {
   0% {
@@ -181,15 +195,22 @@ form.query-form #outputCatalogue0:before {
   animation: border-pulsate 1.5s infinite;
 }
 /* Media Queries */
-@media (max-width: 991px) {
-  /*.floating-select{border:1px solid green;}*/
-}
 @media (max-width: 767px) {
-  /*.floating-select{border:1px solid blue;}*/
+  .btn-group-head {
+    margin-top: 0;
+  }
 }
 @media (max-width: 550px) {
-  /*.floating-select{border:1px solid red;}*/
   .floating-select {
     max-width: 45%;
+  }
+  #download-list {
+    display: none;
+  }
+  .form-inline .input-group > .form-control {
+    width: 100%;
+  }
+  div.dataTables_filter input {
+    width: 100%;
   }
 }
