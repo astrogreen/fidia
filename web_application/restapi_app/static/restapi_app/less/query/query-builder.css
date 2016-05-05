@@ -163,6 +163,9 @@ form.query-form #outputCatalogue0:before {
 .nav-tabs > li {
   float: left;
 }
+.btn-group-head {
+  margin-top: 27px;
+}
 @keyframes border-pulsate {
   0% {
     border-color: #5aa8d8;

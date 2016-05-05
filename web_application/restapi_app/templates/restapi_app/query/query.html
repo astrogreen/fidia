@@ -37,7 +37,7 @@
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
 
-{% block content-main %}
+{% block content %}
 
     {% comment %}
     ------ NEW QUERY FORM ------
@@ -164,7 +164,7 @@
                         <div class="btn-group format-selection">
                             <a class="btn btn-default  btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
                                title="Download user {{user}}'s {{ name }} by format type">Download Query List</a>
-                            <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
+                            <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
@@ -195,38 +195,78 @@
     ------DATATABLES ------
     {% endcomment %}
     {% if response.data.queryResults %}
-        <h1 class="headline">
-            <span>Query <small># {{objname}}</small></span>
+        <div class="row">
+            <div class="col-sm-6">
+                <h1 class="headline">
+                    <span>Query <small># {{objname}}</small></span>
+                </h1>
+            </div>
 
-            <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
-                {% block content-delete %}
+
+            <div class="col-sm-6">
+                <div class="btn-group btn-group-head pull-right" role="group" aria-label="...">
+                    {% block content-delete %}
                     {% if delete_form %}
-                        <form style="display:inline-block; font-size:14px;" class="pull-left" action="{{ request.get_full_path }}" data-method="DELETE">
-                            <button  type="button" class="btn btn-sm btn-default js-tooltip" style="border-right:0px;"
-                                     title="DELETE this query" id="DELETE_RESOURCE"
-                                     data-toggle="modal"><i class="fa fa-trash-o text-red"></i> DELETE</button>
-                        </form>
-                        <!-- Confirmation modal -->
-                        <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
-                            <div class="modal-dialog modal-sm">
-                                <div class="modal-content">
-                                    <div class="modal-body">
-                                        <h5>Are you sure?</h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
-                                        <button type="button" data-dismiss="modal" class="btn">Cancel</button>
-                                    </div>
+                    <form style="display:inline-block; font-size:14px;" class="pull-left" action="{{ request.get_full_path }}"
+                          data-method="DELETE">
+                        <button type="button" class="btn btn-sm btn-default js-tooltip" style="border-right:0px;"
+                                title="DELETE this query" id="DELETE_RESOURCE"
+                                data-toggle="modal"><i class="fa fa-trash-o text-red"></i> DELETE
+                        </button>
+                    </form>
+                    <!-- Confirmation modal -->
+                    <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <h5>Are you sure?</h5>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete
+                                    </button>
+                                    <button type="button" data-dismiss="modal" class="btn">Cancel</button>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    {% endif %}
+                    {% endblock %}
+
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}"><i
+                        class="fa fa-caret-left text-bslue"></i> Back to Query History</a>
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}">New Query</a>
+                    {% block content-download %}
+                    {% if 'GET' in allowed_methods %}
+                        <form id="download-list" class="pull-right">
+                            <fieldset>
+                                {% if api_settings.URL_FORMAT_OVERRIDE %}
+                                <div class="btn-group format-selection">
+                                    <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" style="border-left:0px;" data-toggle="dropdown" title="Specify a format for data download">
+                                        DOWNLOAD <i class="fa fa-caret-down texst-blue"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% for format in available_formats %}
+                                        <li>
+                                            <a class="js-tooltip format-optsion" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                               rel="nofollow" title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% else %}
+                                    <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                                       title="Download {{user}}'s query # {{objname}}">PERMANENT LINK</a>
+                                {% endif %}
+                            </fieldset>
+                        </form>
                     {% endif %}
                 {% endblock %}
-                <!--<a type="button" class="btn btn-primary btn-sm pull-right text-uppercase" href="{{ response.data.url }}">permanent link</a>-->
-                <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url "query-list" %}"><i class="fa fa-angle-left text-blue"></i> Back to Query History</a>
-                <a type="button" class="btn btn-default btn-sm  text-uppercase" href="{% url "query-list" %}">New Query</a>
+                </div>
+
             </div>
-        </h1>
+        </div>
+
+
         <div class="data-table-container" id="data-table-container">
         </div>
         {% if display_edit_forms %}
@@ -261,7 +301,7 @@
         {% endif %}
     {% endif %}
 
-{% endblock content-main %}
+{% endblock %}
 
 {% comment %}
 ------ DISPLAY 404 AND SUGGESTIONS ------
@@ -388,6 +428,11 @@
                     "loadingRecords": "Please wait - loading..."
                 }
             });
+            $('#returnTableResults_filter input').unwrap().wrap("<div class='input-group' role='search'></div>")
+                    .attr('placeholder', 'SEARCH...')
+                    .after('<span class="input-group-btn"> <button class="btn btn-default btn-sm" type="button"><i class="fa fa-search fa-fw"></i></button> </span>');
+            document.getElementById('returnTableResults_filter').firstChild.data = "";
+
         };
     };
 
@@ -416,7 +461,6 @@
     function fchange_tab() {
         var url = window.location.href;
         var hash = url.substring(url.indexOf("#") + 1);
-        console.log(hash);
         if (hash == 'query-builder-form' || hash == 'post-object-form') {
             $('#query-builder-form').removeClass('active');
             $('#post-object-form').removeClass('active');
