@@ -213,10 +213,12 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         {% for format in available_formats %}
-                                        <li>
-                                            <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                               rel="nofollow" title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
-                                        </li>
+                                        {% if format != "api" %}
+                                            <li>
+                                                <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                                   rel="nofollow" title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
+                                            </li>
+                                        {% endif %}
                                         {% endfor %}
                                     </ul>
                                 </div>

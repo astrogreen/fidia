@@ -35,6 +35,8 @@ from .renderers import (
     TraitPropertyRenderer
 )
 
+from .renderers_custom.renderer_flat_csv import FlatCSVRenderer
+
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins
 from rest_framework.response import Response
 from django.contrib.auth.models import User
@@ -73,7 +75,25 @@ class QueryViewSet(viewsets.ModelViewSet):
     #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
     #                       IsOwnerOrReadOnly,)
     queryset = Query.objects.all()
-    renderer_classes = [QueryRenderer, renderers.JSONRenderer, r.CSVRenderer]
+    renderer_classes = [QueryRenderer, renderers.JSONRenderer, FlatCSVRenderer ]
+
+    def get_renderer_context(self):
+        """
+        This can be set per view, useful for using the FlatCSVRenderer elsewhere.
+        Provide the particular json property you wish to be wrapped up, the relevant
+        column name and data name field
+        e.g., if your data looks as:
+        {'owner': 'lmannering', 'SQL': 'sdfsdfs', 'title': 'test', 'updated': '2016-05-03, 06:59:18', 'queryResults':
+            {'data': [[8823, 0.0499100015, 0.0163168724], [63147, 0.0499799997, 0.0380015143], [91963, 0.0499899983,
+            0.0106879927], [4, 2, 5], [3, 2, 1], [3, 3, 3], [1, 2, 2], [3, 1, 1]], 'columns': ['cataid', 'z', 'metal']},
+            'url': 'http://127.0.0.1:8000/asvo/data/query/32/?format=csv'}
+        """
+        context = super().get_renderer_context()
+        context['json_property_name'] = "queryResults"
+        context['data_name'] = 'data'
+        context['column_name'] = 'columns'
+
+        return context
 
   # base_name = 'query'
 

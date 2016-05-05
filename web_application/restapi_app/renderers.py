@@ -197,3 +197,4 @@ class APIRootRenderer(ExtendBrowsableAPIRenderer):
     APIROOT Template
     """
     template = 'restapi_app/api-root/list.html'
+
