@@ -124,13 +124,20 @@ class QueryViewSet(viewsets.ModelViewSet):
         json_element_cap = 100000
         json_row_cap = 2000
 
-        if (json_n_rows*json_n_cols < json_element_cap ):
-            json_table = sample.tabular_data().reset_index().to_json(orient='split')
-            json_flag = 0
-        else:
-            # json_table = sample.tabular_data().reset_index().to_json(orient='split')
-            json_table = sample.tabular_data().iloc[:json_row_cap].reset_index().to_json(orient='split')
-            json_flag = json_row_cap
+        json_table = sample.tabular_data().reset_index().to_json(orient='split')
+
+        # Here, turn off capping data on the back end. The time issue is due to the
+        # browser rendering on the front end using dataTables.js.
+        # This view should still pass back *all* the data:
+        # http: // 127.0.0.1:8000/asvo/data/query/32/?format=json
+
+        # if (json_n_rows*json_n_cols < json_element_cap ):
+        #     json_table = sample.tabular_data().reset_index().to_json(orient='split')
+        #     json_flag = 0
+        # else:
+        #     # json_table = sample.tabular_data().reset_index().to_json(orient='split')
+        #     json_table = sample.tabular_data().iloc[:json_row_cap].reset_index().to_json(orient='split')
+        #     json_flag = json_row_cap
 
         log.debug(json_table)
         data = json.loads(json_table)

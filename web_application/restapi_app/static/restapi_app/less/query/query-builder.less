@@ -1,4 +1,8 @@
-/* OUTLINE BUTTONS */
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ QUERY BUILDER
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
 .text-red {
   color: #a30000
 }
@@ -9,7 +13,7 @@
 
 .btn.outline {
   transition: all 0.1s ease;
-  border-radius: 0px;
+  border-radius: 0;
   background-color: transparent;
   background-image: none;
 }
@@ -134,6 +138,7 @@ form.query-form {
     margin-bottom: 10px;
     .panel-heading {
       padding: 1px 15px;
+      border-radius:0;
     }
     .warning {
       background: #F1CB76;
@@ -191,6 +196,34 @@ form.query-form {
 
 .custom-inline{display:inline;}
 .custom-inline-block{display:inline-block;}
+
+
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ QUERY RESULTS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+
+.panel-heading.warning, .panel-heading.error, .panel-heading.info {
+  background: #F1CB76;
+  border-radius:0;
+  padding: 1px 15px;
+  h4 {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-weight: normal;
+
+    font-size: 14px;
+    text-transform: uppercase;
+    font-family: 'Roboto', sans-serif;
+  }
+}
+.panel-heading.info {
+  background: #5aa8d8;
+}
+.panel-heading.error {
+   background: #d9534f;
+}
 
 
 @keyframes border-pulsate {

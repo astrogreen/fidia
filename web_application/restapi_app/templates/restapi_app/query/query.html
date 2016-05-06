@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/query/data-tables.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/schema-browser/schema-browser.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/ace/ace.css' %}"/>
-
+<link rel="stylesheet" href="{% static 'restapi_app/less/query/query-builder.css' %}" type="text/css"/>
 <style type="text/css">
     table{
         table-layout: fixed;
@@ -262,41 +262,46 @@
             </div>
         </div>
         <div class="data-table-container" id="data-table-container">
-        </div> 
+        </div>
         {% if display_edit_forms %}
         <!--UPDATE EXISTING REQUEST INSTANCE-->
             {% if put_form or raw_data_put_form or raw_data_patch_form %}
                 <div class="row">
                     <div class="col-xs-12">
-                        <h3>Edit Query {{objname}}</h3>
-                        <p class="text-warning">Please note, submitting this form will override
-                            the previous query and results.
-                        </p>
-                        <p>Alternatively, you can create a
-                            <a type="button" class="btn btn-default btn-xs text-uppercase"
-                               href="{% url 'query-list' %}">New Query</a>
-                        </p>
+                        <h2 class="headline"><span>Update</span> </h2>
                     </div>
                     <div class="col-sm-8">
-                        <ul class="nav nav-tabs">
-                            <li role="" class="active"><a href="#">SQL</a></li>
-                        </ul>
-                        <div class="well tab-content">
+                        <div class="well">
                             {% if put_form %}
                             <div class="" id="put-object-form">
                                 <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
                                       class="form-horizontal" novalidate>
-                                    <fieldset>
+
                                         {{ put_form }}
-                                        <div class="form-actions">
+                                        <div class="row">
+                                            <div class="col-xs-12">
                                             <button class="btn btn-primary btn-sm js-tooltip pull-right"
                                                     title="Overwrite Query {{objname}}">SUBMIT
                                             </button>
+                                                </div>
                                         </div>
-                                    </fieldset>
+
                                 </form>
                             </div>
                             {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading info text-uppercase"><h4><span>information</span></h4></div>
+                            <div class="panel-body">
+                                <p>Submitting this form will override
+                                    the previous query and results.
+                                    Alternatively, you can create a
+                                    <a type="button" class=""
+                                       href="{% url 'query-list' %}">New Query</a>.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -387,6 +392,8 @@
         queryData = (data.queryResults);
         queryDataRows = queryData.data.length;
         queryDataColumns = queryData.columns.length;
+        console.log(queryDataRows);
+        console.log(queryDataColumns);
 
         if (queryDataRows*queryDataColumns >= renderLimit){
             //fire warning
@@ -394,7 +401,7 @@
             //console.log(queryData.data.slice(0, tableRowLength).length);
             queryData.data = queryData.data.slice(0, tableRowLength);
 
-            $('#returnTableResultsWarning').append('<p class="bg-info"><p class="bg-info"><strong>Displaying '+tableRowLength+' out of '+queryDataRows+' rows</strong>. Please download the CSV for the full data set.</p>')
+            $('#returnTableResultsWarning').append('<div class="row"><div class="col-sm-12"><div class="panel panel-default"><div class="panel-heading warning"><h4><span>WARNING</span></h4></div><div class="panel-body"><strong>Displaying '+tableRowLength+' out of '+queryDataRows+' rows</strong>. Please download the CSV file to explore the full set of results.</p></div></div></div></div>')
         };
 
         if((typeof queryData !== 'undefined') && queryData.data.length < renderLimit){
