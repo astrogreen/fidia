@@ -5,11 +5,12 @@ import fidia, collections
 from fidia.traits.utilities import TraitProperty
 from fidia.traits.base_traits import Trait
 
-from rest_framework import serializers, mixins
+from rest_framework import serializers, mixins, status
 from .models import (
     Query
 )
 from .fields import AbsoluteURLField
+from .exceptions import Conflict, CustomValidation
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
@@ -34,6 +35,7 @@ instead of primary key relationships.
 
 log = logging.getLogger(__name__)
 
+
 # QUERYING
 class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     """
@@ -48,9 +50,11 @@ class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
     title = serializers.CharField(default='My Query', max_length=100)
+
     class Meta:
         model = Query
         fields = ('title', 'SQL', 'owner', 'url', 'queryResults')
+
 
 class QuerySerializerList(serializers.HyperlinkedModelSerializer):
     """
@@ -83,36 +87,38 @@ class QuerySerializerList(serializers.HyperlinkedModelSerializer):
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'username', 'password', 'confirm_password')
 
-    def validate(self, data):
-        """
-        Checks to be sure that the received password and confirm_password
-        fields are exactly the same
-        """
-        if data['password'] != data.pop('confirm_password'):
-            raise serializers.ValidationError("Passwords do not match")
-        return data
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
 
+    email = serializers.EmailField(
+        allow_blank=False, required=True
+    )
+    username = serializers.CharField(required=True, allow_blank=False)
     password = serializers.CharField(
-          write_only=True,
-          style={'input_type': 'password'}
+        write_only=True, required=True, allow_blank=False,
+        style={'input_type': 'password'}
     )
     confirm_password = serializers.CharField(
         allow_blank=False, write_only=True,
         required=True, style={'input_type': 'password'}
     )
 
-    # def validate(self, data):
-    #     if data.get('password') != data.get('confirm_password'):
-    #         raise serializers.ValidationError("Those passwords don't match.")
-    #     return data
+    def validate(self, data):
+        """
+        Checks to be sure that the received password and confirm_password
+        fields are exactly the same
+        """
+        if User.objects.filter(username=data['username']).exists():
+            raise Conflict('User %s already exists' % data['username'])
 
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'username', 'password', 'confirm_password')
+        if data['password'] != data.pop('confirm_password'):
+            raise serializers.ValidationError("Passwords do not match")
 
-
-
+        return data
 
     def create(self, validated_data):
         user = super(CreateUserSerializer, self).create(validated_data)

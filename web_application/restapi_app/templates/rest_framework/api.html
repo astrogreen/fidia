@@ -39,28 +39,15 @@
       </div>
     </div>
 
-
     <div class="container" id="page-content">
-      {% block httpstatus %}
-      {% if response.status_code == 400 or response.status_code == 403 or response.status_code == 404 or response.status_code == 405 %}
-        <div class=" col-md-12" style="margin-top: 30px">
-          <div class="row-fluid">
-            {% status_info request response.status_code user %}
-            <div class="text-center splitter">
-              {% block status_override %}
-                {% if user.is_authenticated %}
-                  {% comment %}
-                    {% load internal_extras %}
-                    {% optional_logout request user %}
-                  {% endcomment %}
-                {% else %}
-                  {% optional_login request %}
+        {% block http_status %}
+            {% block http_status_info %}
+                {% if response.status_code %}
+                        {% status_info request response.status_code user response.data.detail %}
                 {% endif %}
-              {% endblock status_override %}
-            </div>
-          </div><!-- /.row-fluid -->
-        </div><!--/.well-->
-      {% else %}
+            {% endblock %}
+        {% endblock %}
+
         {% block content %}
         <!-- Content -->
         <div id="content">
@@ -260,9 +247,6 @@
         {% endblock %}
       </div><!-- /.container -->
       {% endblock %}
-      {% endif %}
-
-    {% endblock httpstatus %}
 
   </div><!-- ./wrapper -->
 
