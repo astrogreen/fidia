@@ -1,13 +1,16 @@
 import json
 from collections import OrderedDict
 from impala.dbapi import connect
+from MySQLdb import connect as mysqlconnect
 
 from cached_property import cached_property
+
 
 def singleton(cls):
     instance = cls()
     instance.__call__ = lambda: instance
     return instance
+
 
 @singleton
 class GAMADatabase:
@@ -18,7 +21,8 @@ class GAMADatabase:
         self.table_description_cache = dict()
 
     def open_connection(self):
-        self.conn = connect(host='asvotest1.aao.gov.au', port=10000, auth_mechanism='PLAIN')
+        # self.conn = connect(host='asvotest1.aao.gov.au', port=10000, auth_mechanism='PLAIN')
+        self.conn = mysqlconnect(host='10.80.10.137', user='agreen', passwd='agreen', db='dr2')
         self.cursor = self.conn.cursor()
 
     @cached_property
@@ -26,9 +30,18 @@ class GAMADatabase:
         if self.conn is None:
             self.open_connection()
 
-        self.cursor.execute("SELECT name FROM tables WHERE tableid IS NOT NULL")
+        self.cursor.execute("SELECT `name` FROM `tables` WHERE `tableid` IS NOT NULL")
         tables = [row[0] for row in self.cursor]
         return tables
+
+    @cached_property
+    def dmus(self):
+        if self.conn is None:
+            self.open_connection()
+
+        self.cursor.execute("SELECT `name` FROM `DMUs` WHERE `DMUID` IS NOT NULL")
+        dmus = [row[0] for row in self.cursor]
+        return dmus
 
     def describe_gama_table(self, table_name):
 
@@ -44,15 +57,19 @@ class GAMADatabase:
 
         #self.cursor.execute("DESCRIBE dmus")
         #columns = [row[0] for row in self.cursor]
-        columns = OrderedDict({"name": "tables.name",
-                               "catalogId": "tables.tableid",
-                               "version": "tables.version",
-                               "DMU": "dmus.name",
-                               "description": "dmus.shortdescription",
-                               "contact": "tables.contact"
+        columns = OrderedDict({"name": "`tables`.`name`",
+                               "catalogId": "`tables`.`tableid`",
+                               "version": "`tables`.`version`",
+                               "DMU": "`DMUs`.`name`",
+                               "description": "`tables`.`shortDescription`",
+                               "dmu_description": "`DMUs`.`shortdescription`",
+                               "contact": "`tables`.`contact`"
                                })
 
-        self.cursor.execute("SELECT {columns} FROM tables JOIN dmus ON (tables.dmuid = dmus.dmuid ) WHERE tables.name = '{table_name}'".format(
+        self.cursor.execute(
+            """SELECT {columns}
+            FROM `tables` JOIN `DMUs` ON (`tables`.`DMUID` = `DMUs`.`dmuid` )
+            WHERE tables.name = '{table_name}'""".format(
             columns=", ".join(columns.values()),
             table_name=table_name))
 
@@ -94,6 +111,9 @@ def get_gama_database_as_json():
         schema.append(GAMADatabase.describe_gama_table(table))
 
     return json.dumps(schema)
+
+def add_sami_tables_to_json(json):
+
 
 if __name__ == '__main__':
     print("\n\nTables found are:")
