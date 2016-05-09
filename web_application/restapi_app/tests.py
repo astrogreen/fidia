@@ -20,6 +20,8 @@ class GeneralAPITests(APITestCase):
 
 
 class UserTests(APITestCase):
+    url = reverse('user-register')
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = APIClient()
@@ -30,10 +32,9 @@ class UserTests(APITestCase):
         """
         Ensure we can create a new User object
         """
-        url = reverse('user-register')
         data = {'first_name': 'test_first_name', 'last_name': 'test_last_name', 'username': 'test_username_new',
                 'email': 'test_username@test.com', 'password': 'test_password', 'confirm_password': "test_password"}
-        self.response = self.client.post(url, data, format='json')
+        self.response = self.client.post(self.url, data, format='json')
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 2)
 
@@ -41,23 +42,30 @@ class UserTests(APITestCase):
         """
         Check response if user account already exists
         """
-        url = reverse('user-register')
         data = {'first_name': 'test_first_name', 'last_name': 'test_last_name', 'username': 'test_username',
                 'email': 'test_username@test.com', 'password': 'test_password', 'confirm_password': "test_password"}
-        self.response = self.client.post(url, data, format='json')
+        self.response = self.client.post(self.url, data, format='json')
         self.assertEqual(self.response.status_code, status.HTTP_409_CONFLICT)
 
     def test_create_account_mismatch_passwords(self):
         """
         Check response if user enters mis-matched passwords
         """
-        pass
+        data = {'first_name': 'test_first_name', 'last_name': 'test_last_name', 'username': 'test_username_new',
+                'email': 'test_username@test.com', 'password': 'test_password',
+                'confirm_password': "test_password_incorrect"}
+        self.response = self.client.post(self.url, data, format='json')
+        self.assertEqual(self.response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_account_incomplete_data(self):
         """
         Check response if user doesn't fill out all fields
         """
-        pass
+        data = {'username': 'test_username_new2', 'password': 'test_password',
+                'confirm_password': "test_password"}
+        self.response = self.client.post(self.url, data, format='json')
+        self.assertEqual(self.response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class QueryTests(APITestCase):
     def setUp(self):

@@ -20,18 +20,15 @@
         <span>{{ objname }}</span>
         {% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
         {% surveylogoimglink survey %}
-
     </h1>
 
     <div class="container-browse-astroobject">
         <h3>Available Data</h3>
         <div class="row">
             {% for key, value in response.data.items %}
-
                 {% if key == 'schema' %}
                     {% for keyb, valueb in value.items %}
-
-            <div class="col-md-3 col-sm-3 col-xs-6">
+                    <div class="col-md-3 col-sm-3 col-xs-6">
                         {% comment %}
                             {% if forloop.counter0|divisibleby:4 %}
                                 {{ forloop.counter0 }} COUNTER
@@ -39,7 +36,7 @@
                         {% endcomment %}
                             <div class="panel panel-default">
                                 <!-- Default panel contents -->
-                                <div class="panel-heading panel-background-grey"><strong>{{ keyb | CapsSentence }}</strong></div>
+                                <div class="panel-heading panel-background-grey"><h3 class="panel-title">{{ keyb | CapsSentence }}</h3></div>
 
                                  <!--List group-->
                                 <div class="list-group list-group-collapse">
@@ -74,6 +71,7 @@
                 {% endif %}
             {% endfor %}
         </div>
+        {% comment %}
         <div class="row">
             <div class="col-sm-offset-8 col-sm-4">
                 {% if 'GET' in allowed_methods %}
@@ -106,6 +104,7 @@
                 {% endif %}
             </div>
         </div>
+        {% endcomment %}
     </div>
     <script>
     </script>

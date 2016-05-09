@@ -5,7 +5,7 @@ import fidia, collections
 from fidia.traits.utilities import TraitProperty
 from fidia.traits.base_traits import Trait
 
-from rest_framework import serializers, mixins
+from rest_framework import serializers, mixins, status
 from .models import (
     Query
 )

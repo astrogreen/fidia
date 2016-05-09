@@ -15,7 +15,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.text import normalize_newlines
 from django.conf.urls import patterns, url, include
 from django.contrib.staticfiles.templatetags.staticfiles import static
-
+from rest_framework import status
 from rest_framework.utils.urls import replace_query_param
 
 register = template.Library()
@@ -25,36 +25,30 @@ register = template.Library()
 #     {% endblock status-info %}
 
 @register.simple_tag
-def status_info(request, status_code, user):
+def status_info(request, status_code, user, status_code_detail):
     """
-    Include a login snippet if REST framework's login view is in the URLconf.
-    # HTTP_400_BAD_REQUEST
-    # HTTP_403_FORBIDDEN
-    # HTTP_404_NOT_FOUND
-    # HTTP_405_METHOD_NOT_ALLOWED
+    Display status info if not success (HTTP_2xx)
     """
-    snippet = """
-            <div class="text-center">
-            <h1 style="margin: 0 0 20px;">Oops! </h1>
-            <h2>{status_code} {message}</h2>
-            <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">
-            Contact Support </a>
-            </p>
-            </div>
-    """
-
-    if status_code == 403:
-        message = 'Access Forbidden'
-    elif status_code == 404:
-        message = 'Not Found'
-    elif status_code == 400:
-        message = 'Bad Request'
-    elif status_code == 405:
-        message = 'Method not allowed'
+    if status.is_success(status_code):
+        snippet = ""
     else:
-        message = ''
-
-    snippet = format_html(snippet, status_code=status_code, message=message, request=request, user=user)
+        snippet = """
+                <div class=" col-md-12" style="margin-top: 30px">
+                    <div class="row-fluid text-center">
+                        <h1>Oops! </h1>
+                        <h2>Status Code: {status_code}</h2>
+                        <h4>{status_code_detail}</h4>
+                        <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a>
+                        </p>
+                    </div>
+                    <div class="text-center splitter">
+                    <br>
+                        {optional_login}
+                    </div>
+                </div>
+            """
+        snippet = format_html(snippet, status_code=status_code, request=request, user=user,
+                              status_code_detail=status_code_detail, optional_login=optional_login(request))
 
     return mark_safe(snippet)
 

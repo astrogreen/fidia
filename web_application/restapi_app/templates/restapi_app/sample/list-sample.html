@@ -32,70 +32,48 @@
 </h1>
 <div class="row">
     <div class="col-sm-3">
+        <h2 class="headline"><span>Data</span></h2>
         <div class="panel panel-default">
             <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">Data</h3>
+                <h3 class="panel-title">Data Browser</h3>
             </div>
             <div class="panel-body">
-                <h4>View {{objname}} Survey DR 1.0</h4>
-                <p>Browse the available {{objname}} data for each object.</p>
-                <p>Search for an object below.</p>
-                <br>
+                <p>Browse the available {{objname}} data for each object. Search for an object below.</p><br>
                 <select type="text" class="searchbox selectized text-center" id="autocomplete-widget" placeholder="SEARCH">
-                    <option value="" disabled selected>Select an object</option>
-                    {% for key, value in response.data.items %}
-                    <option value="{{value}}">{{key}}</option>
-                    {% endfor %}
-                </select>
-                <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled
-                   id="autocomplete-button">Go</a>
+                <option value="" disabled selected>Select an object</option>
+                {% for key, value in response.data.items %}
+                <option value="{{value}}">{{key}}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled
+               id="autocomplete-button">Go</a>
             </div>
         </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="panel panel-default ">
-            <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">SOV</h3>
-            </div>
-            <div class="panel-body">
-                <h4>{{objname}} Single Object Viewer</h4>
-                <p>View a summary of main data products <a href="{% url 'sov-list'%}" disabled>{{objname}} SOV</a>.<br></p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3">
+
         <div class="panel panel-default">
             <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">Documentation</h3>
+                <h3 class="panel-title">Single Object Viewer</h3>
             </div>
             <div class="panel-body">
-                <h4>View Documentation</h4>
-                <p>
-                    <a href="" class="disabled" >{{objname}} docs</a><br>
-                    <a href="" class="disabled" > Schema Browser</a>
-                </p>
-
+               <p>View a summary of main data products: <a href="{% url 'sov-list'%}" disabled>{{objname}} SOV</a>.</p>
             </div>
         </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="panel panel-default ">
+
+        <div class="panel panel-default">
             <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">Data Release Details</h3>
+                <h3 class="panel-title">{{objname}} Data Release Details</h3>
             </div>
             <div class="panel-body">
-                <h4>{{objname}} Survey DR1.0 Details</h4>
-                <p>Download a list of {{objname}} objects.</p><br>
+                <p>{{objname}} Survey DR1.0 Info</p>
+                <p>Download a list of available objects in {{objname}} DR1.0.</p>
                 {% if 'GET' in allowed_methods %}
-                <form id="get-form">
+                <form id="get-form" class="form-inline">
                     <fieldset>
                         {% if api_settings.URL_FORMAT_OVERRIDE %}
                         <div class="btn-group  btn-block format-selection">
-                            <!--<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
-                            <!--title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>-->
                             <button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip"
                                     data-toggle="dropdown" title="Specify a format for the request">
-                                Download {{objname}} object list <span class="caret"></span>
+                                Download <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
                                 {% for format in available_formats %}
@@ -119,9 +97,24 @@
                 {% endif %}
             </div>
         </div>
-    </div>
-</div>
 
+    </div>
+    <div class="col-sm-8">
+        <h2 class="headline"><span>About</span></h2>
+        {% with "restapi_app/survey/"|add:objname|add:"/about.html" as template %}
+        {% include template %}
+        {% endwith %}
+        <h2 class="headline"><span>Documentation</span></h2>
+        <p>
+            <a href="{% url 'documentation' %}" class="disabled" >{{objname}} docs</a><br>
+            <a href="{% url 'documentation-schema-browser' %}" class="disabled" > Schema Browser</a>
+        </p>
+    </div>
+    <div class="col-sm-4">
+        </div></div>
+<div class="row">
+
+</div>
 
 <script>
 

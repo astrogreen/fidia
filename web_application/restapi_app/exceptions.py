@@ -2,6 +2,7 @@ from rest_framework.exceptions import APIException
 from rest_framework import status
 from django.utils.encoding import force_text
 
+
 class NoPropertyFound(APIException):
     status_code = 404
     default_detail = 'No Property found'
@@ -10,6 +11,7 @@ class NoPropertyFound(APIException):
 class Conflict(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = 'Already Exists.'
+    detail = 'Already Exists'
 
 
 class CustomValidation(APIException):

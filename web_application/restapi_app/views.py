@@ -74,7 +74,7 @@ class QueryViewSet(viewsets.ModelViewSet):
     #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
     #                       IsOwnerOrReadOnly,)
     queryset = Query.objects.all()
-    renderer_classes = [QueryRenderer, renderers.JSONRenderer, FlatCSVRenderer ]
+    renderer_classes = [QueryRenderer, renderers.JSONRenderer, FlatCSVRenderer]
 
     def get_renderer_context(self):
         """
