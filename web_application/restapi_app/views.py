@@ -64,7 +64,6 @@ class CreateUserView(generics.ListCreateAPIView):
         return queryset
 
 
-
 class QueryViewSet(viewsets.ModelViewSet):
     """
     Query the AAO Data Archive

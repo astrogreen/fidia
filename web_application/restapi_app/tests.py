@@ -4,12 +4,13 @@ from rest_framework import status, response
 from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from .views import QueryViewSet
-# Create your tests here.
+from .models import Query
 
-factory = APIRequestFactory()
-data = {'title': 'my_test_SQL', 'SQL': 'SELECT * from InputCatA'}
-request = factory.post('/data/query/', data, format='json')
+# factory = APIRequestFactory()
+# data = {'title': 'my_test_SQL', 'SQL': 'SELECT * from InputCatA'}
+# request = factory.post('/data/query/', data, format='json')
 # request = factory.put('/data/query/1/', {'title': 'my_test_SQL', 'SQL': 'SELECT * from InputCatA'}, format='json')
+
 
 class GeneralAPITests(APITestCase):
     def test_url_root(self):
@@ -18,7 +19,47 @@ class GeneralAPITests(APITestCase):
         self.assertTrue(status.is_success(self.response.status_code))
 
 
-class QueryTestCase(APITestCase):
+class UserTests(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='test_username', password='test_password')
+        self.user.save()
+
+    def test_create_account(self):
+        """
+        Ensure we can create a new User object
+        """
+        url = reverse('user-register')
+        data = {'first_name': 'test_first_name', 'last_name': 'test_last_name', 'username': 'test_username_new',
+                'email': 'test_username@test.com', 'password': 'test_password', 'confirm_password': "test_password"}
+        self.response = self.client.post(url, data, format='json')
+        self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(User.objects.count(), 2)
+
+    def test_create_account_already_exists(self):
+        """
+        Check response if user account already exists
+        """
+        url = reverse('user-register')
+        data = {'first_name': 'test_first_name', 'last_name': 'test_last_name', 'username': 'test_username',
+                'email': 'test_username@test.com', 'password': 'test_password', 'confirm_password': "test_password"}
+        self.response = self.client.post(url, data, format='json')
+        self.assertEqual(self.response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_create_account_mismatch_passwords(self):
+        """
+        Check response if user enters mis-matched passwords
+        """
+        pass
+
+    def test_create_account_incomplete_data(self):
+        """
+        Check response if user doesn't fill out all fields
+        """
+        pass
+
+class QueryTests(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = APIClient()
@@ -34,6 +75,7 @@ class QueryTestCase(APITestCase):
         list view is forbidden (403) if unauthenticated, HTTP_200_OK if authenticated
 
         """
+        #TODO this should be 401 UNAUTHORIZED
         url = reverse('query-list')
         self.response = self.client.get(url)
         # status.is_success / status.is_client_error helper functions from DRF
@@ -77,14 +119,3 @@ class QueryTestCase(APITestCase):
 
     def test_delete_resource(self):
         pass
-
-    # format tests
-
-
-#     def test_get_user_query_if_unauthenticated(self):
-#         request = factory.get(reverse('query-list'))
-#         self.assertEqual(response.status_code, 404)
-
-    # def test_get_user_query(self):
-    #     request = factory.get(reverse('query-list'))
-    #     self.assertEqual(response.status_code, status.OK)
