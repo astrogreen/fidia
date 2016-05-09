@@ -15,6 +15,16 @@ def singleton(cls):
 @singleton
 class GAMADatabase:
 
+    table_meta_data_columns = OrderedDict({
+            "name": "`tables`.`name`",
+            "catalogId": "`tables`.`tableid`",
+            "version": "`tables`.`version`",
+            "DMU": "`DMUs`.`name`",
+            "description": "`tables`.`shortDescription`",
+            "dmu_description": "`DMUs`.`shortdescription`",
+            "contact": "`tables`.`contact`"
+            })
+
     def __init__(self):
         self.conn = None
         self.cursor = None
@@ -53,24 +63,14 @@ class GAMADatabase:
         if table_name not in self.tables:
             raise ValueError("Table '%s' not in GAMA database" % table_name)
 
-        # Collect the meta data
 
-        #self.cursor.execute("DESCRIBE dmus")
-        #columns = [row[0] for row in self.cursor]
-        columns = OrderedDict({"name": "`tables`.`name`",
-                               "catalogId": "`tables`.`tableid`",
-                               "version": "`tables`.`version`",
-                               "DMU": "`DMUs`.`name`",
-                               "description": "`tables`.`shortDescription`",
-                               "dmu_description": "`DMUs`.`shortdescription`",
-                               "contact": "`tables`.`contact`"
-                               })
+        # Collect the table meta data
 
         self.cursor.execute(
             """SELECT {columns}
             FROM `tables` JOIN `DMUs` ON (`tables`.`DMUID` = `DMUs`.`dmuid` )
             WHERE tables.name = '{table_name}'""".format(
-            columns=", ".join(columns.values()),
+            columns=", ".join(self.table_meta_data_columns.values()),
             table_name=table_name))
 
         data = self.cursor.fetchall()
@@ -81,28 +81,32 @@ class GAMADatabase:
             assert len(data) != 1, "Multiple or no GAMA tables found for table name '%s'" % table_name
 
         gama_table = dict()
-        for column, value in zip(columns, data[0]):
+        for column, value in zip(self.table_meta_data_columns, data[0]):
             gama_table[column] = value
 
+        gama_table['columns'] = self.get_column_data(gama_table['catalogId'])
+
+        self.table_description_cache[table_name] = gama_table
+
+        return gama_table
 
 
-        # Collect information on the columns
-
+    def get_column_data(self, catalog_id):
+        """Collect information on the columns in GAMA table identified by catalog_id"""
         columns = ("columnid", "tableid", "name", "units", "ucd", "description")
 
         self.cursor.execute("SELECT {columns} FROM columns WHERE tableid = '{tableid}'".format(
             columns=", ".join(columns),
-            tableid=gama_table['catalogId']))
+            tableid=catalog_id))
         column_info = list()
         for cid, row in enumerate(self.cursor):
             column_dict = {col: value for col, value in zip(columns, row)}
             column_info.append(column_dict)
 
-        gama_table['columns'] = column_info
+        return column_info
 
-        self.table_description_cache[table_name] = gama_table
 
-        return gama_table
+
 
 def get_gama_database_as_json():
 
@@ -112,10 +116,52 @@ def get_gama_database_as_json():
 
     return json.dumps(schema)
 
-def add_sami_tables_to_json(json):
+def add_sami_tables_to_json(json_string):
 
+    schema = json.loads(json_string)
+
+    sami_table = dict()
+
+    for key in GAMADatabase.table_meta_data_columns:
+        sami_table[key] = None
+    sami_table['name'] = "SAMI"
+    sami_table['description'] = "Table containing SAMI sample with observation information"
+    sami_table['contact'] = "Andy Green <andrew.green@aao.gov.au>"
+    sami_table['version'] = "v01"
+    sami_table['DMU'] = "SAMI"
+    sami_table['catalogId'] = -1
+
+    sami_table['columns'] = list()
+
+    sami_table['columns'].append(
+        {"columnid": -1,
+         "description": "SAMI ID (matches GAMA ID when the same object)",
+         "name": "sami_id",
+         "tableid": -1,
+         "ucd": "meta.id;",
+         "units": "-"})
+
+    sami_table['columns'].append(
+        {"columnid": -1,
+         "description": "Is a cube available in the database",
+         "name": "cube_available",
+         "tableid": -1,
+         "ucd": "",
+         "units": "-"})
+
+    sami_table['columns'].append(
+        {"columnid": -1,
+         "description": "URL of the data browser for this object",
+         "name": "data_browser_url",
+         "tableid": -1,
+         "ucd": "",
+         "units": "-"})
+
+    schema.append(sami_table)
+    return json.dumps(schema)
 
 if __name__ == '__main__':
+    import sys, os.path
     print("\n\nTables found are:")
     for t in GAMADatabase.tables:
         print("   " + t)
@@ -123,3 +169,17 @@ if __name__ == '__main__':
     print("\n\nDescription of StellarMasses:")
     for r in desc:
         print("    " + r + ": " + str(desc[r]))
+
+    print("\n\n")
+
+    outfile = os.path.split(os.path.realpath(__file__))[0] + "/../web_application/restapi_app/gama_database.json"
+    if len(sys.argv) > 1 and sys.argv[1] == 'write':
+        json_to_write = add_sami_tables_to_json(get_gama_database_as_json())
+        with open(outfile, 'w') as f:
+            f.write(json_to_write)
+        with open(outfile[:-5] + "_formatted.json", 'w') as f:
+            f.write(json.dumps(json.loads(json_to_write), indent=2))
+
+    else:
+        print("Call with 'write' command to update {}".format(outfile))
+
