@@ -48,7 +48,7 @@ INSTALLED_APPS = (
     'astrospark',
     'bootstrap3',
     # 'captcha',
-    'clever_selects',
+    # 'clever_selects',
     'django_extensions',
     'mathfilters',
     'restapi_app',
