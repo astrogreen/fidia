@@ -5,7 +5,7 @@ from fidia.traits.base_traits import Trait
 
 from py4j.java_gateway import JavaGateway, GatewayParameters
 from py4j.java_collections import MapConverter, ListConverter
-from numpy import ndarray
+import numpy as np
 
 import traceback
 
@@ -68,9 +68,11 @@ def ingestData(sample, schema):
                     if 'array' in trait_property_type:
                         # This is an array trait, so it will have to be flattened, and have it's shape stored.
                         shape = trait_property_data.shape
-                        flat_list = trait_property_data.flatten().tolist()
-                        # Create a java list for this python list:
-                        java_list = ListConverter().convert(flat_list, gateway._gateway_client)
+                        # flat_list = trait_property_data.flatten().tolist()
+                        # # Create a java list for this python list:
+                        # java_list = ListConverter().convert(flat_list, gateway._gateway_client)
+
+                        java_list = convert_ndarray_to_java_list(trait_property_data.flatten())
                         # Convert the shape to a java list as well: Not required.
                         # java_shape = ListConverter().convert(shape, gateway._gateway_client)
 
@@ -159,6 +161,43 @@ def doSubtraits(value, sch, sub_trait=True):
                     \"type\": [\"null\", ''' + type + ']},'     #if null allowed, put union here ["null", type]
     sch = sch[:-1] + ']'
     return sch
+
+
+def convert_ndarray_to_java_list(ndarray, gateway):
+
+    assert isinstance(ndarray, np.ndarray)
+
+    max_transfer_block_size = 1024**2
+
+    def byte_array_split(byte_array, max_transfer_block_size):
+        """An iterator which returns the byte array in chunks no larger than max_transfer_block_size."""
+        for offset_block_index in range(len(byte_array) // max_transfer_block_size):
+            offset_block_end_index = min(offset_block_index + max_transfer_block_size, len(byte_array))
+            yield byte_array[offset_block_index:offset_block_end_index]
+
+
+    if ndarray.dtype.type not in (np.float64, np.int32):
+        # Type conversion will be necessary before handing to Java.
+        raise NotImplementedError()
+
+    if not ndarray.flags.c_contiguous:
+        print("Warning, ndarray is not C-contigous and will have to be copied")
+    python_bytes = ndarray.tobytes('C')
+
+    #
+    # Pass the byte array into Java
+    #
+    java_byte_list = ListConverter().convert(byte_array_split(python_bytes, max_transfer_block_size), gateway._gateway_client)
+    java_byte_array = gateway.entry_point.combineByteList(java_byte_list, len(python_bytes), max_transfer_block_size)
+    del java_byte_list
+
+    #
+    # Convert the java copy of the byte array to the appropriate java list type (int or double)
+    #
+    if ndarray.dtype.type is np.float64:
+        return gateway.entry_point.viewAsDoubleList(java_byte_array)
+    if ndarray.dtype.type is np.int32:
+        return gateway.entry_point.viewAsIntList(java_byte_array)
 
 
 if __name__ == '__main__':

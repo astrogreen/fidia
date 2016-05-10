@@ -19,8 +19,13 @@ import py4j.GatewayServer;
 
 import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.lang.Math;
+// import java.util.Arrays;
+// import java.util.List;
+// import java.util.Collection;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class RecordEntryPoint {
 
@@ -145,6 +150,48 @@ public class RecordEntryPoint {
         return datum;
     }
 
+    public static byte[] combineByteList(List<byte[]> byteList, int totalSize, int chunkSize){
+        /* Byte array big enough to hold full output */
+        byte[] combinedBytes = new byte[totalSize];
+
+        /* Variable to track offset within the output byte array */
+        int offset = 0;
+
+        /* Loop over the input list of byte arrays and copy each into the output byte array */
+        for (int i=0; i < byteList.size(); i++) {
+            int end_offset = Math.min(offset + chunkSize, totalSize);
+            System.arraycopy(byteList.get(i), 0, combinedBytes, offset, end_offset);
+            offset += chunkSize;
+        }
+        return combinedBytes;
+    }
+
+    public static List viewAsDoubleList(byte[] byteArray) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
+        double[] doubleArray = byteBuffer.asDoubleBuffer().array();
+        return Arrays.asList(doubleArray);
+    }
+
+    public static List<Integer> viewAsIntList(byte[] byteArray) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
+        IntBuffer intBuffer = byteBuffer.asIntBuffer();
+        int size = intBuffer.remaining();
+        System.out.println("Remaining=" + size);
+        List<Integer> outList = new ArrayList(size);
+        for (int i=0; i < size; i++) {
+            outList.add(intBuffer.get());
+        }
+        // Integer[] intArray = new Integer[intBuffer.remaining()];
+        // intBuffer.get(intArray, 0, intBuffer.remaining());
+        // return Arrays.asList(intArray);
+        return outList;
+    }
+
+
+    public static List intListFromByteArray(List<byte[]> byteList, int totalSize, int chunkSize) {
+        byte[] combinedBytes = combineByteList(byteList, totalSize, chunkSize);
+        return viewAsIntList(combinedBytes);
+    }
 
     public static void main(String[] args) {
         GatewayServer gatewayServer = new GatewayServer(new RecordEntryPoint());
