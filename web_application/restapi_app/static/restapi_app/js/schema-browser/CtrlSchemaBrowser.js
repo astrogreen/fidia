@@ -220,13 +220,11 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
 
     struccounter = 0;
     function objStruct(obj, struccounter) {
-        // if
-
         for (var k in obj) {
-            //console.log('Function call ' + struccounter + ' key ' + k);
+            // console.log('Function call ' + struccounter + ' key ' + k);
             if (typeof obj[k] == "object" && obj[k] !== null) {
-                //console.log('typeof obj[' + k + '] == "object"');
-                //console.log('RECURSE - - - - - - - - - - - - -  obj[' + k + ']');
+                // console.log('typeof obj[' + k + '] == "object"');
+                // console.log('RECURSE - - - - - - - - - - - - -  obj[' + k + ']');
                 struccounter++;
                 objStruct(obj[k], struccounter);
 
@@ -238,7 +236,9 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
             // }
         }
     };
+
     // objStruct(dummy, struccounter)
+
     function getData() {
         return $.ajax({
             'async': false,
@@ -254,13 +254,27 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
         $scope.inputSchema[0] = data;
     };
 
+    function fMapColumnNames(data){
+        var description = ["name", "contact", "columns", "DMU", "description", "version", "catalogId", "dmu_description", "ticked", "columnid", "units", "tableid", "ucd" ];
+        var description_formatted = ["Name", "Contact", "Columns", "DMU", "Description", "Version", "Catalog ID", "DMU Description", "ticked", "Column ID", "Units", "Table ID", "UCD" ];
+        var description_string = data;
+        description.forEach(function(val, i){
+           // Update the description string if a value is found in the array above
+           if (data == val){
+               description_string = description_formatted[i];
+           };
+        });
+        return description_string;
+    };
+
+
     getData().done(fBuildSchema);
 
     // the dropdown needs to take the data from output schema... here is always taking row 0.
     // dropdown should just populate the immediate thingy, remove the looping over outputshema, pass index
     $scope.fDropClick = function (key) {
 
-        var restricted_arr = ['ticked', 'columns', 'description', 'contact'];
+        var restricted_arr = ['ticked', 'columns', 'contact'];
 
         // angular.forEach($scope.outputSchema, function (value, key) {
         // current dropdown (row) == key
@@ -269,20 +283,21 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
             // keya == 0 (each in arr)
             $('#schema-element-' + key + '  .information dl').html('')
             $('#schema-element-' + key + '  .description').html('')
+            var descriptions = [];
             angular.forEach($scope.outputSchema[key][keya], function (valueb, keyb) {
+                descriptions.push(keyb);
                 // Negotiate output by type
                 // console.log('typeof obj['+keyb+'] ==  '+typeof valueb);
-                if (typeof valueb == 'object') {
+                // Reminder: Javascript spec typeof(null) == obj (legacy standard)
+                if ((typeof valueb == 'object') && (valueb !== null)) {
                     var temp = Object.keys($scope.inputSchema).length;
                     //delete inputschema beyond this click.
                     // iterate baackwardds over arr and stop deleting at this point.
                     for (var i = temp; i>0; i--){
                         //console.log('i'+i);console.log('key'+key)
-
                         // never remove the first dropdown
                         if(i>0 && i > key){
                             //console.log(angular.toJson($scope.inputSchema))
-
                             $scope.inputSchema.splice(i,1);
                             //clear previous rows
                             $('#schema-element-' + i + '  .information dl').html('')
@@ -301,15 +316,14 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
                 // Sort alphabetically...
 
                 if (restricted_arr.indexOf(keyb) < 0) {
-                    $('#schema-element-' + key + ' .information dl').append("<dt>" + String(keyb) + "</dt><dd>" + String(valueb) + " </dd>");
+                    $('#schema-element-' + key + ' .information dl').append("<dt>" + fMapColumnNames(String(keyb)) + "</dt><dd>" + String(valueb) + " </dd>");
                 }
-                if (keyb == 'description') {
-                    $('#schema-element-' + key + ' p.description').append(String(valueb));
-                }
-                ;
+                // if (keyb == 'description') {
+                //     $('#schema-element-' + key + ' p.description').append(String(valueb));
+                // }
                 if (keyb == 'contact') {
                     var email = valueb.match("<(.*)>")[1];
-                    $('#schema-element-' + key + ' .information dl').append("<dt>" + String(keyb) + " </dt><dd><a href='mailto:" + email + "'>" + String(valueb) + "</a></dd>");
+                    $('#schema-element-' + key + ' .information dl').append("<dt>" + fMapColumnNames(String(keyb)) + " </dt><dd><a href='mailto:" + email + "'>" + String(valueb) + "</a></dd>");
                     if (null != email) {
 
                     } else {
@@ -318,43 +332,5 @@ app.controller('Ctrl2', ['$scope', '$http', function ($scope, $http) {
                 }
             });
         });
-        // })
-        // Populate HTML info panels
-
-        // Populate next dropdown
     };
-    // var nodeCataloguesGlobal = (function () {
-    //     var json = null;
-    //     $.ajax({
-    //         'async': false,
-    //         'global': false,
-    //         'url': urlCataloguesGlobal,
-    //         'dataType': "json",
-    //         'success': function (data) {
-    //             fBuildSchema(data);
-    //         },
-    //         'error': function(err){
-    //             // Fail silently
-    //         }
-    //     });
-    //     return json;
-    // })();
-
-    //
-    //
-    // var fBuildSchema = function(data){
-    //     // RUN once, populate the schema browser dropdowns
-    //     $scope.inputSchema.push([]);
-    //
-    //     $scope.inputSchema[0]=data;
-    //     console.log($scope.inputSchema)
-    //     angular.forEach($scope.inputSchema, function(value,key){
-    //         console.log(value)
-    //         console.log(key);
-    //     });
-    // };
-    //
-    // function fPopulateNext(data){
-    //
-    // }
 }]);

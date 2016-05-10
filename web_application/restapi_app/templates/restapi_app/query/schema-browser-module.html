@@ -3,15 +3,12 @@
 <div ng-controller="Ctrl2" id="schema-browser">
     <div ng-repeat="row in inputSchema track by $index" class="clearfix row schema-element"
          id="schema-element-{{$index}}">
-        <div class="col-xs-6">
+        <div class="col-xs-12">
             <div isteven-multi-select input-model="inputSchema[$index]" output-model="outputSchema[$index]"
                  selection-mode="single" on-item-click="fDropClick($index)"
                  button-label="name" item-label="name" tick-property="ticked" class="floating-select"
                  disable-property="disabled" id="outputSchema{{$index}}">
             </div>
-        </div>
-        <div class="col-xs-6">
-            <p class="description"></p>
         </div>
         <div class="col-xs-12 information">
             <dl class="dl-horizontal"></dl>
