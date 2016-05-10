@@ -50,7 +50,8 @@ class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
     title = serializers.CharField(default='My Query', max_length=100)
-    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False)
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
+                                style={'base_template': 'textarea.html'})
 
     class Meta:
         model = Query
@@ -64,7 +65,8 @@ class QuerySerializerList(serializers.HyperlinkedModelSerializer):
     """
     owner = serializers.ReadOnlyField(source='owner.username')
     updated = serializers.DateTimeField(required=True, format="%Y-%m-%d, %H:%M:%S")
-    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False)
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
+                                style={'base_template': 'textarea.html'})
 
     class Meta:
         model = Query
@@ -87,7 +89,6 @@ class QuerySerializerRetrieve(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
     updated = serializers.DateTimeField(required=True, format="%Y-%m-%d, %H:%M:%S")
-    # SQL = serializers.CharField(required=True, allow_blank=False)
 
     class Meta:
         model = Query

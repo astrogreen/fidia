@@ -37,6 +37,7 @@ class UserTests(APITestCase):
         self.response = self.client.post(self.url, data, format='json')
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 2)
+        # self.assertEqual(test_response.data, {'id': 1, 'title': 'test_title'})
 
     def test_create_account_already_exists(self):
         """
@@ -117,7 +118,7 @@ class QueryTests(APITestCase):
         self._require_login()
         data = {
             "title": "test_title",
-            "SQL": "SELECT t1.sami_id, t1.cube_available FROM SAMI AS t1 LIMIT 10",
+            "SQL": "SELECT t1.sami_id, t1.cube_available FROM SAMI AS t1 LIMIT 1",
         }
         test_response = self.client.post(self.url, data, format='json')
         self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
@@ -131,10 +132,16 @@ class QueryTests(APITestCase):
         }
         test_response = self.client.post(self.url, data, format='json')
         self.assertTrue(status.is_client_error(test_response.status_code))
-        self.assertEqual(Query.objects.count(), 0)
-
         # Assert new resource does not exist
-        # self.assertTrue(Query.objects.count(), current_count)
+        self.assertEqual(Query.objects.count(), 0)
+        data = {
+            "title": "test_title",
+            "SQL": "",
+        }
+        test_response_2 = self.client.post(self.url, data, format='json')
+        self.assertTrue(status.is_client_error(test_response_2.status_code))
+        # Assert new resource does not exist
+        self.assertEqual(Query.objects.count(), 0)
 
     def test_retrieve_resource(self):
         """Retrieve Query Data"""

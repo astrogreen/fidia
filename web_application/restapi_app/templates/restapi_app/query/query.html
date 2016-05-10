@@ -342,38 +342,38 @@
         $(document).ready(function() {
             $('form').ajaxForm();
 
-//            // CODE EDITOR
-//            $(function () {
-//                //Hide the results form group to prevent users trying to patch results
-//                //back-end will drop this if tampered with
-//                $('input[name="queryResults"]').parents('.form-group').hide();
-//
-//                // SQL
-//                $('textarea[name=SQL]').each(function () {
-//                    $('form').find('textarea[name=SQL]').attr('id','textarea-code');
-//
-//                    // clear out parent container
-//                    $('#textarea-code').parent().not(':first').remove();
-//                    $('#textarea-code').parent().append('<div id="SQL-ace-editor" class="ace-editor-class" style="height: auto;min-height:100px"></div>');
-//                    var textarea = $('#textarea-code').css('display', 'none');
-//
-//                    var SQLAceEditor = ace.edit("SQL-ace-editor");
-//                    SQLAceEditor.$blockScrolling = Infinity;
-//                    SQLAceEditor.setTheme("ace/theme/crimson_editor");
-//                    SQLAceEditor.setOption("maxLines", 20);
-//                    SQLAceEditor.setOption("minLines", 10);
-//                    SQLAceEditor.getSession().setMode("ace/mode/sql");
-//                    SQLAceEditor.getSession().setValue(textarea.val());
-//                    SQLAceEditor.getSession().on('change', function(){
-//                        textarea.val(SQLAceEditor.getSession().getValue());
-//                        SQLAceEditor.resize(true);
-//                    });
-//                });
-//            });
-//            $('#button-sql-submit').click(function(){
-//                $(this).attr('disabled','disabled');
-//                $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>')
-//            });
+            // CODE EDITOR
+            $(function () {
+                //Hide the results form group to prevent users trying to patch results
+                //back-end will drop this if tampered with
+                $('input[name="queryResults"]').parents('.form-group').hide();
+
+                // SQL
+                $('textarea[name=SQL]').each(function () {
+                    $('form').find('textarea[name=SQL]').attr('id','textarea-code');
+
+                    // clear out parent container
+                    $('#textarea-code').parent().not(':first').remove();
+                    $('#textarea-code').parent().append('<div id="SQL-ace-editor" class="ace-editor-class" style="height: auto;min-height:100px"></div>');
+                    var textarea = $('#textarea-code').css('display', 'none');
+
+                    var SQLAceEditor = ace.edit("SQL-ace-editor");
+                    SQLAceEditor.$blockScrolling = Infinity;
+                    SQLAceEditor.setTheme("ace/theme/crimson_editor");
+                    SQLAceEditor.setOption("maxLines", 20);
+                    SQLAceEditor.setOption("minLines", 10);
+                    SQLAceEditor.getSession().setMode("ace/mode/sql");
+                    SQLAceEditor.getSession().setValue(textarea.val());
+                    SQLAceEditor.getSession().on('change', function(){
+                        textarea.val(SQLAceEditor.getSession().getValue());
+                        SQLAceEditor.resize(true);
+                    });
+                });
+            });
+            $('#button-sql-submit').click(function(){
+                $(this).attr('disabled','disabled');
+                $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>')
+            });
         });
 </script>
 

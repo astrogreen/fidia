@@ -20,11 +20,11 @@ log = logging.getLogger(__name__)
 
 __author__ = "Andy Green"
 
-SPARK_HOME = '/Users/agreen/Documents/ASVO/software/spark/spark-1.5.0-bin-hadoop2.6'
-PYSPARK_PATH = ["/Users/agreen/Documents/ASVO/software/spark/spark-1.5.0-bin-hadoop2.6/python"]
+# SPARK_HOME = '/Users/agreen/Documents/ASVO/software/spark/spark-1.5.0-bin-hadoop2.6'
+# PYSPARK_PATH = ["/Users/agreen/Documents/ASVO/software/spark/spark-1.5.0-bin-hadoop2.6/python"]
 
-# SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
-# PYSPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
+SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
+PYSPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 
 try:
     SPARK_HOME = os.environ["SPARK_HOME"]

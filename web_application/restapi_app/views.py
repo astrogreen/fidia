@@ -148,16 +148,19 @@ class QueryViewSet(viewsets.ModelViewSet):
         """
         saved_object = request.data
         # Raise error if SQL field is empty
-        if not saved_object["SQL"]:
-            raise CustomValidation("SQL Field Blank", 'detail', 400)
+        if "SQL" in saved_object:
+            if not saved_object["SQL"]:
+                raise CustomValidation("SQL Field Blank", 'detail', 400)
+            else:
+                saved_object["queryResults"] = self.run_FIDIA(saved_object["SQL"])
+                # serializer = self.get_serializer(data=request.data)
+                serializer = self.get_serializer(data=saved_object)
+                serializer.is_valid(raise_exception=True)
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         else:
-            saved_object["queryResults"] = self.run_FIDIA(saved_object["SQL"])
-            # serializer = self.get_serializer(data=request.data)
-            serializer = self.get_serializer(data=saved_object)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            raise CustomValidation("SQL Field Blank", 'detail', 400)
 
     def perform_create(self, serializer):
         """
