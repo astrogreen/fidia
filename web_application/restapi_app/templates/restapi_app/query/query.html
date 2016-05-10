@@ -88,7 +88,7 @@
                                         {% csrf_token %}
                                         {{ post_form }}
                                         <div class="form-actions">
-                                            <button class="btn btn-primary  btn-sm pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
+                                            <button class="btn btn-primary btn-sm pull-right" title="Make a POST request on the {{ name }} resource" id="button-sql-submit">SUBMIT</button>
                                         </div>
                                     </fieldset>
                                 </form>
@@ -208,14 +208,14 @@
                                 {% if api_settings.URL_FORMAT_OVERRIDE %}
                                 <div class="btn-group format-selection">
                                     <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
-                                        DOWNLOAD <i class="fa fa-caret-down texst-blue"></i>
+                                        DOWNLOAD <i class="fa fa-caret-down"></i>
                                     </button>
                                     <ul class="dropdown-menu">
                                         {% for format in available_formats %}
                                         {% if format != "api" %}
                                             <li>
                                                 <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                                   rel="nofollow" title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
+                                                   rel="nofollow" target="_blank"  title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
                                             </li>
                                         {% endif %}
                                         {% endfor %}
@@ -307,7 +307,6 @@
             {% endif %}
         {% endif %}
     {% endif %}
-
 {% endblock %}
 
 {% comment %}
@@ -343,35 +342,38 @@
         $(document).ready(function() {
             $('form').ajaxForm();
 
-            // CODE EDITOR
-            $(function () {
-                //Hide the results form group to prevent users trying to patch results
-                //back-end will drop this if tampered with
-                $('input[name="queryResults"]').parents('.form-group').hide();
-
-                // SQL
-                $('textarea[name=SQL]').each(function () {
-                    $('form').find('textarea[name=SQL]').attr('id','textarea-code');
-
-                    // clear out parent container
-                    $('#textarea-code').parent().not(':first').remove();
-                    $('#textarea-code').parent().append('<div id="SQL-ace-editor" class="ace-editor-class" style="height: auto;min-height:100px"></div>');
-                    var textarea = $('#textarea-code').css('display', 'none');
-
-                    var SQLAceEditor = ace.edit("SQL-ace-editor");
-                    SQLAceEditor.$blockScrolling = Infinity;
-                    SQLAceEditor.setTheme("ace/theme/crimson_editor");
-                    SQLAceEditor.setOption("maxLines", 20);
-                    SQLAceEditor.setOption("minLines", 10);
-                    SQLAceEditor.getSession().setMode("ace/mode/sql");
-                    SQLAceEditor.getSession().setValue(textarea.val());
-                    SQLAceEditor.getSession().on('change', function(){
-                        textarea.val(SQLAceEditor.getSession().getValue());
-                        SQLAceEditor.resize(true);
-                    });
-                });
-
-            });
+//            // CODE EDITOR
+//            $(function () {
+//                //Hide the results form group to prevent users trying to patch results
+//                //back-end will drop this if tampered with
+//                $('input[name="queryResults"]').parents('.form-group').hide();
+//
+//                // SQL
+//                $('textarea[name=SQL]').each(function () {
+//                    $('form').find('textarea[name=SQL]').attr('id','textarea-code');
+//
+//                    // clear out parent container
+//                    $('#textarea-code').parent().not(':first').remove();
+//                    $('#textarea-code').parent().append('<div id="SQL-ace-editor" class="ace-editor-class" style="height: auto;min-height:100px"></div>');
+//                    var textarea = $('#textarea-code').css('display', 'none');
+//
+//                    var SQLAceEditor = ace.edit("SQL-ace-editor");
+//                    SQLAceEditor.$blockScrolling = Infinity;
+//                    SQLAceEditor.setTheme("ace/theme/crimson_editor");
+//                    SQLAceEditor.setOption("maxLines", 20);
+//                    SQLAceEditor.setOption("minLines", 10);
+//                    SQLAceEditor.getSession().setMode("ace/mode/sql");
+//                    SQLAceEditor.getSession().setValue(textarea.val());
+//                    SQLAceEditor.getSession().on('change', function(){
+//                        textarea.val(SQLAceEditor.getSession().getValue());
+//                        SQLAceEditor.resize(true);
+//                    });
+//                });
+//            });
+//            $('#button-sql-submit').click(function(){
+//                $(this).attr('disabled','disabled');
+//                $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>')
+//            });
         });
 </script>
 
@@ -387,12 +389,12 @@
 
     if (typeof data.queryResults !== 'undefined'){
         $('#data-table-container').html(' ').append('<div class=""><div id="returnTableResultsWarning" class="spacer-10"></div><table id="returnTableResults" class="table table-responsive table-condensed"><thead><tr><th>Please wait, DataTable loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
-        renderLimit = 100000;
+        renderLimit = 10000;
         queryData = (data.queryResults);
         queryDataRows = queryData.data.length;
         queryDataColumns = queryData.columns.length;
-        console.log(queryDataRows);
-        console.log(queryDataColumns);
+        //console.log(queryDataRows);
+        //console.log(queryDataColumns);
 
         if (queryDataRows*queryDataColumns >= renderLimit){
             //fire warning
@@ -400,7 +402,7 @@
             //console.log(queryData.data.slice(0, tableRowLength).length);
             queryData.data = queryData.data.slice(0, tableRowLength);
 
-            $('#returnTableResultsWarning').append('<div class="row"><div class="col-sm-12"><div class="panel panel-default"><div class="panel-heading warning"><h4><span>WARNING</span></h4></div><div class="panel-body"><strong>Displaying '+tableRowLength+' out of '+queryDataRows+' rows</strong>. Please download the CSV file to explore the full set of results.</p></div></div></div></div>')
+            $('#returnTableResultsWarning').append('<div class="row"><div class="col-sm-12"><div class="panel panel-default information"><div class="panel-body"><strong class="text-uppercase">Warning</strong><p>Displaying '+tableRowLength+' out of '+queryDataRows+' rows. Please download the CSV file to explore the full set of results.</p></div></div></div></div>')
         };
 
         if((typeof queryData !== 'undefined') && queryData.data.length < renderLimit){

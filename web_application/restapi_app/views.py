@@ -2,7 +2,7 @@ import random, collections, logging
 import json
 from pprint import pprint
 from .permissions import IsNotAuthenticated
-from .exceptions import NoPropertyFound
+from .exceptions import NoPropertyFound, CustomValidation
 
 from .models import (
     Query,
@@ -11,7 +11,7 @@ from .serializers import (
     CreateUserSerializer,
     UserSerializer,
     ContactFormSerializer,
-    QuerySerializerCreateUpdate, QuerySerializerList,
+    QuerySerializerCreateUpdate, QuerySerializerList, QuerySerializerRetrieve,
     SampleSerializer,
     AstroObjectSerializer,
     AstroObjectTraitSerializer,
@@ -22,7 +22,6 @@ from .serializers import (
 
 from .renderers import (
     FITSRenderer,
-
     SOVListRenderer,
     SOVDetailRenderer,
     QueryRenderer,
@@ -37,7 +36,7 @@ from .renderers import (
 
 from .renderers_custom.renderer_flat_csv import FlatCSVRenderer
 
-from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins
+from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework_csv import renderers as r
@@ -94,17 +93,17 @@ class QueryViewSet(viewsets.ModelViewSet):
 
         return context
 
-  # base_name = 'query'
-
     def get_serializer_class(self):
         serializer_class = QuerySerializerList
-
-        if self.request.method == 'GET':
+        if self.action == 'list':
             serializer_class = QuerySerializerList
-        elif (self.request.method == 'POST') or (self.request.method == 'PUT'):
+        if self.action == 'retrieve':
+            serializer_class = QuerySerializerRetrieve
+        if self.action == 'create' or self.action == 'update':
             serializer_class = QuerySerializerCreateUpdate
 
         return serializer_class
+
 
     def get_queryset(self):
         """
@@ -114,10 +113,10 @@ class QueryViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Query.objects.filter(owner=user).order_by('-updated')
 
-    def run_FIDIA(self, request, *args, **kwargs):
+    def run_FIDIA(self, request_string):
 
         # SELECT t1.CATAID FROM InputCatA AS t1 WHERE t1.CATAID  BETWEEN 65401 and 65410
-        sample = AsvoSparkArchive().new_sample_from_query(request['SQL'])
+        sample = AsvoSparkArchive().new_sample_from_query(request_string)
 
         (json_n_rows, json_n_cols) = sample.tabular_data().shape
         json_element_cap = 100000
@@ -125,7 +124,7 @@ class QueryViewSet(viewsets.ModelViewSet):
 
         json_table = sample.tabular_data().reset_index().to_json(orient='split')
 
-        # Here, turn off capping data on the back end. The time issue is due to the
+        # Turned off capping data on the back end. The time issue is due to the
         # browser rendering on the front end using dataTables.js.
         # This view should still pass back *all* the data:
         # http: // 127.0.0.1:8000/asvo/data/query/32/?format=json
@@ -147,15 +146,18 @@ class QueryViewSet(viewsets.ModelViewSet):
         """
         Create a model instance. Override CreateModelMixin create to catch the POST data for processing before save
         """
-        # Overwrite the post request data (don't forget to set mutable!!)
-        saved_object = request.POST
-        saved_object._mutable = True
-        saved_object['queryResults'] = self.run_FIDIA(request.data)
-        serializer = self.get_serializer(data=saved_object)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        saved_object = request.data
+        # Raise error if SQL field is empty
+        if not saved_object["SQL"]:
+            raise CustomValidation("SQL Field Blank", 'detail', 400)
+        else:
+            saved_object["queryResults"] = self.run_FIDIA(saved_object["SQL"])
+            # serializer = self.get_serializer(data=request.data)
+            serializer = self.get_serializer(data=saved_object)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         """

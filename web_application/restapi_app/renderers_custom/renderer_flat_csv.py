@@ -28,7 +28,8 @@ class FlatCSVRenderer(BaseRenderer):
         """
         Renders serialized *data* into CSV. For a dictionary:
         """
-        print(data)
+        temp_head = ''
+        temp_data = []
         # Serve only the queryResults field, strip all other meta data
         data_name = renderer_context['data_name']
         column_name = renderer_context['column_name']

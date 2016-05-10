@@ -50,6 +50,7 @@ class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
     title = serializers.CharField(default='My Query', max_length=100)
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False)
 
     class Meta:
         model = Query
@@ -58,20 +59,35 @@ class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
 
 class QuerySerializerList(serializers.HyperlinkedModelSerializer):
     """
+    Does not display the queryResult field in the list view (no need, extra overhead).
+
+    """
+    owner = serializers.ReadOnlyField(source='owner.username')
+    updated = serializers.DateTimeField(required=True, format="%Y-%m-%d, %H:%M:%S")
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False)
+
+    class Meta:
+        model = Query
+        fields = ('title', 'SQL', 'owner', 'url', 'updated')
+        extra_kwargs = {
+            "updated": {
+                "read_only": True,
+            },
+        }
+
+
+class QuerySerializerRetrieve(serializers.HyperlinkedModelSerializer):
+    """
     List an existing object instance, given the validated data
 
     ModelSerializer creates serializer classes (from model) with an automatically
     determined set of fields and simple implementations of CRUD methods.
 
-    NOTE: SerializerMethodField is a read-only field.
-    It can be used to add any sort of data to the serialized representation
-    of an object. Here, the csv file and url can be generated (from the
-    pre-existing sample under queryResults) on the fly
-
     """
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
     updated = serializers.DateTimeField(required=True, format="%Y-%m-%d, %H:%M:%S")
+    # SQL = serializers.CharField(required=True, allow_blank=False)
 
     class Meta:
         model = Query

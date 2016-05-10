@@ -25,6 +25,14 @@ register = template.Library()
 #     {% endblock status-info %}
 
 @register.simple_tag
+def status_is_success(status_code):
+    if status.is_success(status_code):
+        return True
+    else:
+        return False
+    
+
+@register.simple_tag
 def status_info(request, status_code, user, status_code_detail):
     """
     Display status info if not success (HTTP_2xx)
@@ -35,9 +43,9 @@ def status_info(request, status_code, user, status_code_detail):
         snippet = """
                 <div class=" col-md-12" style="margin-top: 30px">
                     <div class="row-fluid text-center">
-                        <h1>Oops! </h1>
-                        <h2>Status Code: {status_code}</h2>
-                        <h4>{status_code_detail}</h4>
+                        <h1>Oops!</h1>
+                        <h2>{status_code_detail}</h2>
+                        <h4>Status Code: {status_code}</h4>
                         <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a>
                         </p>
                     </div>
@@ -72,7 +80,6 @@ def optional_logout(request, user):
     except NoReverseMatch:
         return ''
 
-
     snippet = """<li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             {user}
@@ -102,16 +109,15 @@ def optional_login(request):
     except NoReverseMatch:
         return ''
 
-
     # On successful sign-in, prevent user being directed back to logout, register or login
-    next=(request.path)
+    next_page = request.path
     next_url = escape(resolve(request.path_info).url_name)
 
     if request.user != 'AnonymousUser':
         if next_url == 'logout-page' or next_url == 'user-register' or next_url == 'login':
-            next = ''
+            next_page = ''
 
-    # If this page is the registration form, drop that button
+    # If this page is the registration form, drop register button
     if next_url == 'user-register':
         snippet = """<div class="user">
                     <a href='{login}?next={next}' class="signin">
@@ -119,6 +125,9 @@ def optional_login(request):
                         <i class="fa fa-lock"></i>
                     </a>
                 </div>"""
+    # If logged in, drop both buttons
+    elif request.user != 'AnonymousUser':
+        snippet = ""
     else:
         snippet = """<div class="user">
                     <a href='{login}?next={next}' class="signin">
@@ -131,10 +140,8 @@ def optional_login(request):
                         <i class="fa fa-pencil-square-o"></i>
                     </a>
                 </div>"""
-    snippet = format_html(snippet, login=login_url, register=register_url, next=next)
-
+    snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
     return mark_safe(snippet)
-
 
 
 def remove_newlines(text):
