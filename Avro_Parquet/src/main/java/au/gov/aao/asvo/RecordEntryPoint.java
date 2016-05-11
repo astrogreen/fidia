@@ -1,24 +1,17 @@
-package py4j.examples;
+package au.gov.aao.asvo;
 
 /**
  * Created by lharischandra on 27/01/2016.
  */
 import com.google.common.primitives.Bytes;
 import org.apache.avro.Schema;
-import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.io.DatumWriter;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.Progressable;
 import org.apache.parquet.avro.AvroParquetWriter;
 import py4j.GatewayServer;
 
 import java.io.*;
-import java.net.URI;
 import java.util.*;
 import java.lang.Math;
 // import java.util.Arrays;
@@ -163,7 +156,7 @@ public class RecordEntryPoint {
      * mechanism. The resulting list of byte arrays must be re-concatenated
      * in Java, which is what this function does.
      */
-    public static byte[] combineByteList(List<byte[]> byteList, int totalSize, int chunkSize){
+    private static byte[] combineByteList(List<byte[]> byteList, int totalSize, int chunkSize){
         /* Byte array big enough to hold full output */
         byte[] combinedBytes = new byte[totalSize];
 
@@ -179,7 +172,7 @@ public class RecordEntryPoint {
         return combinedBytes;
     }
 
-    public static List<Double> convertByteArrayToDoubleList(byte[] byteArray, String endian) {
+    private static List<Double> convertByteArrayToDoubleList(byte[] byteArray, String endian) {
         /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
         if (endian.equals("<")) {
@@ -198,7 +191,7 @@ public class RecordEntryPoint {
         return outList;
     }
 
-    public static List<Integer> convertByteArrayToIntegerList(byte[] byteArray, String endian) {
+    private static List<Integer> convertByteArrayToIntegerList(byte[] byteArray, String endian) {
         /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
         if (endian.equals("<")) {
@@ -215,7 +208,7 @@ public class RecordEntryPoint {
         return outList;
     }
 
-    public static List<Long> convertByteArrayToLongList(byte[] byteArray, String endian) {
+    private static List<Long> convertByteArrayToLongList(byte[] byteArray, String endian) {
         /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
         if (endian.equals("<")) {
