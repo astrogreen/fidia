@@ -5,7 +5,7 @@ from fidia.traits.base_traits import Trait
 
 from py4j.java_gateway import JavaGateway, GatewayParameters
 from py4j.java_collections import MapConverter, ListConverter
-from numpy import ndarray
+import numpy as np
 
 import traceback
 
@@ -68,11 +68,14 @@ def ingestData(sample, schema):
                     if 'array' in trait_property_type:
                         # This is an array trait, so it will have to be flattened, and have it's shape stored.
                         shape = trait_property_data.shape
-                        flat_list = trait_property_data.flatten().tolist()
-                        # Create a java list for this python list:
-                        java_list = ListConverter().convert(flat_list, gateway._gateway_client)
+                        # flat_list = trait_property_data.flatten().tolist()
+                        # # Create a java list for this python list:
+                        # java_list = ListConverter().convert(flat_list, gateway._gateway_client)
+
+                        java_list = convert_ndarray_to_java_list(trait_property_data.flatten(), gateway)
                         # Convert the shape to a java list as well: Not required.
                         # java_shape = ListConverter().convert(shape, gateway._gateway_client)
+
 
                         # Here we need to get another record for the property.
                         # This property's avro type is a union. We need to get all the avro types of this union.
@@ -159,6 +162,65 @@ def doSubtraits(value, sch, sub_trait=True):
                     \"type\": [\"null\", ''' + type + ']},'     #if null allowed, put union here ["null", type]
     sch = sch[:-1] + ']'
     return sch
+
+
+def convert_ndarray_to_java_list(ndarray, gateway):
+
+    assert isinstance(ndarray, np.ndarray)
+
+    max_transfer_block_size = 1024**2
+
+    def byte_array_split(byte_array, max_transfer_block_size):
+        """An iterator which returns the byte array in chunks no larger than max_transfer_block_size."""
+        for offset_block_index in range(len(byte_array) // max_transfer_block_size):
+            offset_block_end_index = min(offset_block_index + max_transfer_block_size, len(byte_array))
+            yield byte_array[offset_block_index:offset_block_end_index]
+
+
+    if ndarray.dtype.type not in (np.float64, np.int32, np.int64):
+        # Type conversion will be necessary before handing to Java.
+        raise NotImplementedError()
+
+    if not ndarray.flags.c_contiguous:
+        print("Warning, ndarray is not C-contigous and will have to be copied")
+    ndarray_bytes = ndarray.tobytes('C')
+
+    endianness = get_endianness(ndarray)
+
+    #
+    # Pass the byte array into Java and convert to a Java list according to type
+    #
+    if ndarray.dtype.type is np.float64:
+        return gateway.entry_point.doubleListFromSplitByteArray(
+            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+            len(ndarray_bytes),
+            max_transfer_block_size,
+            endianness)
+    if ndarray.dtype.type is np.int32:
+        return gateway.entry_point.integerListFromSplitByteArray(
+            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+            len(ndarray_bytes),
+            max_transfer_block_size,
+            endianness)
+    if ndarray.dtype.type is np.int64:
+        return gateway.entry_point.longListFromSplitByteArray(
+            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+            len(ndarray_bytes),
+            max_transfer_block_size,
+            endianness)
+
+def get_endianness(ndarray):
+    """Return a single character string which encodes the endianness of the ndarray for java."""
+    if ndarray.dtype.byteorder == '=':
+        if sys.byteorder == 'little':
+            byteorder = '<'
+        else:
+            byteorder = '>'
+    elif ndarray.dtype.byteorder == '|':
+        byteorder = '>'
+    else:
+        byteorder = ndarray.dtype.byteorder
+    return byteorder
 
 
 if __name__ == '__main__':
