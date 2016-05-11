@@ -26,6 +26,10 @@ import java.lang.Math;
 // import java.util.Collection;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.LongBuffer;
+import java.nio.ByteOrder;
+
 
 public class RecordEntryPoint {
 
@@ -150,6 +154,15 @@ public class RecordEntryPoint {
         return datum;
     }
 
+    /**
+     * combineByteList
+     *
+     * There is a limit to how big a byte array Py4J can handle. To overcome
+     * that limit, the byte array must be broken into chunks on the Python
+     * side, and then handed to Java one-by-one through the Py4J `ListConvert`
+     * mechanism. The resulting list of byte arrays must be re-concatenated
+     * in Java, which is what this function does.
+     */
     public static byte[] combineByteList(List<byte[]> byteList, int totalSize, int chunkSize){
         /* Byte array big enough to hold full output */
         byte[] combinedBytes = new byte[totalSize];
@@ -166,31 +179,84 @@ public class RecordEntryPoint {
         return combinedBytes;
     }
 
-    public static List viewAsDoubleList(byte[] byteArray) {
+    public static List<Double> convertByteArrayToDoubleList(byte[] byteArray, String endian) {
+        /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
-        double[] doubleArray = byteBuffer.asDoubleBuffer().array();
-        return Arrays.asList(doubleArray);
+        if (endian.equals("<")) {
+            /* Input is not Java native big endian. */
+            System.out.println("Changing byte order to little endian");
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        }
+
+        /* Consider also using ByteBuffer.getDouble */
+        DoubleBuffer doubleBuffer = byteBuffer.asDoubleBuffer();
+        int size = doubleBuffer.remaining();
+        List<Double> outList = new ArrayList(size);
+        for (int i=0; i < size; i++) {
+            outList.add(doubleBuffer.get());
+        }
+        return outList;
     }
 
-    public static List<Integer> viewAsIntList(byte[] byteArray) {
+    public static List<Integer> convertByteArrayToIntegerList(byte[] byteArray, String endian) {
+        /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
+        if (endian.equals("<")) {
+            /* Input is not Java native big endian. */
+            System.out.println("Changing byte order to little endian");
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        }
         IntBuffer intBuffer = byteBuffer.asIntBuffer();
         int size = intBuffer.remaining();
-        System.out.println("Remaining=" + size);
         List<Integer> outList = new ArrayList(size);
         for (int i=0; i < size; i++) {
             outList.add(intBuffer.get());
         }
-        // Integer[] intArray = new Integer[intBuffer.remaining()];
-        // intBuffer.get(intArray, 0, intBuffer.remaining());
-        // return Arrays.asList(intArray);
         return outList;
     }
 
+    public static List<Long> convertByteArrayToLongList(byte[] byteArray, String endian) {
+        /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
+        if (endian.equals("<")) {
+            /* Input is not Java native big endian. */
+            System.out.println("Changing byte order to little endian");
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        }
+        LongBuffer longBuffer = byteBuffer.asLongBuffer();
+        int size = longBuffer.remaining();
+        List<Long> outList = new ArrayList(size);
+        for (int i=0; i < size; i++) {
+            outList.add(longBuffer.get());
+        }
+        return outList;
+    }
 
-    public static List intListFromByteArray(List<byte[]> byteList, int totalSize, int chunkSize) {
+    /**
+     * integerListFromSplitByteArray combines the tasks of recombining a list 
+     * of bytes arrays provided from Python and converting it into a Java 
+     * list. These steps must be combined in Java, otherwise Py4J simply tries
+     * to copy the byte array back to Python.
+     */
+    public static List<Integer> integerListFromSplitByteArray(List<byte[]> byteList, int totalSize, int chunkSize, String endian) {
         byte[] combinedBytes = combineByteList(byteList, totalSize, chunkSize);
-        return viewAsIntList(combinedBytes);
+        return convertByteArrayToIntegerList(combinedBytes, endian);
+    }
+
+    /**
+     * doubleListFromSplitByteArray combines the tasks of recombining a list 
+     * of bytes arrays provided from Python and converting it into a Java 
+     * list. These steps must be combined in Java, otherwise Py4J simply tries
+     * to copy the byte array back to Python.
+     */
+    public static List<Double> doubleListFromSplitByteArray(List<byte[]> byteList, int totalSize, int chunkSize, String endian) {
+        byte[] combinedBytes = combineByteList(byteList, totalSize, chunkSize);
+        return convertByteArrayToDoubleList(combinedBytes, endian);
+    }
+
+    public static List<Long> longListFromSplitByteArray(List<byte[]> byteList, int totalSize, int chunkSize, String endian) {
+        byte[] combinedBytes = combineByteList(byteList, totalSize, chunkSize);
+        return convertByteArrayToLongList(combinedBytes, endian);
     }
 
     public static void main(String[] args) {

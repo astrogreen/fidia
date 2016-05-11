@@ -72,9 +72,10 @@ def ingestData(sample, schema):
                         # # Create a java list for this python list:
                         # java_list = ListConverter().convert(flat_list, gateway._gateway_client)
 
-                        java_list = convert_ndarray_to_java_list(trait_property_data.flatten())
+                        java_list = convert_ndarray_to_java_list(trait_property_data.flatten(), gateway)
                         # Convert the shape to a java list as well: Not required.
                         # java_shape = ListConverter().convert(shape, gateway._gateway_client)
+
 
                         # Here we need to get another record for the property.
                         # This property's avro type is a union. We need to get all the avro types of this union.
@@ -176,28 +177,50 @@ def convert_ndarray_to_java_list(ndarray, gateway):
             yield byte_array[offset_block_index:offset_block_end_index]
 
 
-    if ndarray.dtype.type not in (np.float64, np.int32):
+    if ndarray.dtype.type not in (np.float64, np.int32, np.int64):
         # Type conversion will be necessary before handing to Java.
         raise NotImplementedError()
 
     if not ndarray.flags.c_contiguous:
         print("Warning, ndarray is not C-contigous and will have to be copied")
-    python_bytes = ndarray.tobytes('C')
+    ndarray_bytes = ndarray.tobytes('C')
+
+    endianness = get_endianness(ndarray)
 
     #
-    # Pass the byte array into Java
-    #
-    java_byte_list = ListConverter().convert(byte_array_split(python_bytes, max_transfer_block_size), gateway._gateway_client)
-    java_byte_array = gateway.entry_point.combineByteList(java_byte_list, len(python_bytes), max_transfer_block_size)
-    del java_byte_list
-
-    #
-    # Convert the java copy of the byte array to the appropriate java list type (int or double)
+    # Pass the byte array into Java and convert to a Java list according to type
     #
     if ndarray.dtype.type is np.float64:
-        return gateway.entry_point.viewAsDoubleList(java_byte_array)
+        return gateway.entry_point.doubleListFromSplitByteArray(
+            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+            len(ndarray_bytes),
+            max_transfer_block_size,
+            endianness)
     if ndarray.dtype.type is np.int32:
-        return gateway.entry_point.viewAsIntList(java_byte_array)
+        return gateway.entry_point.integerListFromSplitByteArray(
+            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+            len(ndarray_bytes),
+            max_transfer_block_size,
+            endianness)
+    if ndarray.dtype.type is np.int64:
+        return gateway.entry_point.longListFromSplitByteArray(
+            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+            len(ndarray_bytes),
+            max_transfer_block_size,
+            endianness)
+
+def get_endianness(ndarray):
+    """Return a single character string which encodes the endianness of the ndarray for java."""
+    if ndarray.dtype.byteorder == '=':
+        if sys.byteorder == 'little':
+            byteorder = '<'
+        else:
+            byteorder = '>'
+    elif ndarray.dtype.byteorder == '|':
+        byteorder = '>'
+    else:
+        byteorder = ndarray.dtype.byteorder
+    return byteorder
 
 
 if __name__ == '__main__':
