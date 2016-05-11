@@ -18,10 +18,6 @@ import java.lang.Math;
 // import java.util.List;
 // import java.util.Collection;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.LongBuffer;
-import java.nio.FloatBuffer;
 import java.nio.ByteOrder;
 
 
@@ -173,72 +169,62 @@ public class RecordEntryPoint {
         return combinedBytes;
     }
 
-    private static List<Double> convertByteArrayToDoubleList(byte[] byteArray, String endian) {
+    public static List<Double> convertByteArrayToDoubleList(byte[] byteArray, String endian) {
         /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
         if (endian.equals("<")) {
             /* Input is not Java native big endian. */
-            System.out.println("Changing byte order to little endian");
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         }
-
-        /* Consider also using ByteBuffer.getDouble */
-        DoubleBuffer doubleBuffer = byteBuffer.asDoubleBuffer();
-        int size = doubleBuffer.remaining();
+        int size = byteBuffer.remaining() / (Double.SIZE/Byte.SIZE);
         List<Double> outList = new ArrayList(size);
         for (int i=0; i < size; i++) {
-            outList.add(doubleBuffer.get());
+            outList.add(byteBuffer.getDouble());
         }
         return outList;
     }
 
-    private static List<Integer> convertByteArrayToIntegerList(byte[] byteArray, String endian) {
+    public static List<Integer> convertByteArrayToIntegerList(byte[] byteArray, String endian) {
         /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
         if (endian.equals("<")) {
             /* Input is not Java native big endian. */
-            System.out.println("Changing byte order to little endian");
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         }
-        IntBuffer intBuffer = byteBuffer.asIntBuffer();
-        int size = intBuffer.remaining();
+        int size = byteBuffer.remaining() / (Integer.SIZE/Byte.SIZE);
         List<Integer> outList = new ArrayList(size);
         for (int i=0; i < size; i++) {
-            outList.add(intBuffer.get());
+            outList.add(byteBuffer.getInt());
         }
         return outList;
     }
 
-    private static List<Long> convertByteArrayToLongList(byte[] byteArray, String endian) {
+    public static List<Long> convertByteArrayToLongList(byte[] byteArray, String endian) {
         /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
         if (endian.equals("<")) {
             /* Input is not Java native big endian. */
-            System.out.println("Changing byte order to little endian");
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         }
-        LongBuffer longBuffer = byteBuffer.asLongBuffer();
-        int size = longBuffer.remaining();
+        int size = byteBuffer.remaining() / (Long.SIZE/Byte.SIZE);
         List<Long> outList = new ArrayList(size);
         for (int i=0; i < size; i++) {
-            outList.add(longBuffer.get());
+            outList.add(byteBuffer.getLong());
         }
         return outList;
     }
 
-    private static List<Float> convertByteArrayToFloatList(byte[] byteArray, String endian) {
+    public static List<Float> convertByteArrayToFloatList(byte[] byteArray, String endian) {
         /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
         ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
         if (endian.equals("<")) {
             /* Input is not Java native big endian. */
-            System.out.println("Changing byte order to little endian");
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         }
-        FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
-        int size = floatBuffer.remaining();
+        int size = byteBuffer.remaining() / (Float.SIZE/Byte.SIZE);
         List<Float> outList = new ArrayList(size);
         for (int i=0; i < size; i++) {
-            outList.add(floatBuffer.get());
+            outList.add(byteBuffer.getFloat());
         }
         return outList;
     }
