@@ -126,20 +126,20 @@ def optional_login(request):
                     </a>
                 </div>"""
     # If logged in, drop both buttons
-    elif request.user != 'AnonymousUser':
-        snippet = ""
-    else:
-        snippet = """<div class="user">
-                    <a href='{login}?next={next}' class="signin">
-                        <span>Sign In</span>
-                        <i class="fa fa-lock"></i>
-                    </a>
-                    <span>OR</span>
-                    <a href="{register}" class="register">
-                        <span>Register</span>
-                        <i class="fa fa-pencil-square-o"></i>
-                    </a>
-                </div>"""
+    # elif request.user != 'AnonymousUser':
+    #     snippet = ""
+    # else:
+    snippet = """<div class="user">
+                <a href='{login}?next={next}' class="signin">
+                    <span>Sign In</span>
+                    <i class="fa fa-lock"></i>
+                </a>
+                <span>OR</span>
+                <a href="{register}" class="register">
+                    <span>Register</span>
+                    <i class="fa fa-pencil-square-o"></i>
+                </a>
+            </div>"""
     snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
     return mark_safe(snippet)
 

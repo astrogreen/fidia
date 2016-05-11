@@ -1,25 +1,27 @@
-{% extends 'restapi_app/query/query.html' %}
+{% comment %}{% extends 'restapi_app/query/query.html' %}{% endcomment %}
 {% load staticfiles %}
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
+{% comment %}
 {% block head-extra-extra %}
-    <script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
-    <script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
-    <script type="text/javascript">
-        //get url for available catalogues
-        urlCataloguesGlobal = "{% url "catalogues" %}"
-    </script>
-    <script src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>
-    <script src="{% static 'restapi_app/js/query-builder/CtrlQueryBuilder.js' %}"></script>
-    <script src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
-    <script type="text/javascript" src="{% static 'restapi_app/js/query-builder/isteven-multi-select.js' %}"></script>
+    <!--<script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>-->
+    <!--<script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>-->
+    <!--<script type="text/javascript">-->
+        <!--//get url for available catalogues-->
+        <!--urlCataloguesGlobal = "{% url "catalogues" %}"-->
+    <!--</script>-->
+    <!--<script src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>-->
+    <!--<script src="{% static 'restapi_app/js/query-builder/CtrlQueryBuilder.js' %}"></script>-->
+    <!--<script src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'restapi_app/js/query-builder/isteven-multi-select.js' %}"></script>-->
 
-<link rel="stylesheet" href="{% static 'restapi_app/less/query/isteven-multi-select.css' %}" type="text/css"/>
+<!--<link rel="stylesheet" href="{% static 'restapi_app/less/query/isteven-multi-select.css' %}" type="text/css"/>-->
 <!--<link rel="stylesheet" href="{% static 'restapi_app/less/query/query-builder.css' %}" type="text/css"/>-->
 {% endblock %}
 {% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
+{% endcomment %}
+
 
 {% block query-builder %}
     {% verbatim %}

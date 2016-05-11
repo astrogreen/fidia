@@ -5,6 +5,7 @@ from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from .views import QueryViewSet
 from .models import Query
+import json
 
 # factory = APIRequestFactory()
 # data = {'title': 'my_test_SQL', 'SQL': 'SELECT * from InputCatA'}
@@ -144,14 +145,23 @@ class QueryTests(APITestCase):
         self.assertEqual(Query.objects.count(), 0)
 
     def test_retrieve_resource(self):
-        """Retrieve Query Data"""
-        pass
-        # self._require_login()
-        # Create Query
-        # url = self.url+'1/'
-        #
-        # self.response = self.client.get(url)
-        # self.assertTrue(status.is_success(self.response.status_code))
+        """Create & Retrieve Query Data"""
+        self._require_login()
+        data = {
+            "title": "test_title",
+            "SQL": "SELECT t1.sami_id, t1.cube_available FROM SAMI AS t1 LIMIT 1",
+        }
+        test_response = self.client.post(self.url, data, format='json')
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Query.objects.count(), 1)
+        test_url = self.url+'1/'
+        test_response_2 = self.client.get(test_url)
+        self.assertEqual(test_response_2.data['title'], "test_title")
+        self.assertEqual(test_response_2.data['owner'], 'test_user')
+        # Test Request Media Types
+        test_request = self.factory.get(test_url, format="json")
+        # print(test_request.accepted_renderer)
+        # print(test_request.accepted_media_type)
 
     def test_retrieve_resource_unauthenticated(self):
         """Retrieve query data if unauthenticated"""

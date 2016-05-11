@@ -49,13 +49,18 @@ class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     """
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
-    title = serializers.CharField(default='My Query', max_length=100)
+    title = serializers.CharField(default='Query Result', max_length=100)
     SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
                                 style={'base_template': 'textarea.html'})
+    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    flag = serializers.SerializerMethodField()
+
+    def get_flag(self, obj):
+        return ''
 
     class Meta:
         model = Query
-        fields = ('title', 'SQL', 'owner', 'url', 'queryResults')
+        fields = ('title', 'SQL', 'owner', 'url', 'queryResults', 'flag', 'created')
 
 
 class QuerySerializerList(serializers.HyperlinkedModelSerializer):
@@ -89,10 +94,14 @@ class QuerySerializerRetrieve(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     queryResults = serializers.JSONField(required=False, label='Result')
     updated = serializers.DateTimeField(required=True, format="%Y-%m-%d, %H:%M:%S")
+    flag = serializers.SerializerMethodField()
+
+    def get_flag(self, obj):
+        return ''
 
     class Meta:
         model = Query
-        fields = ('title', 'SQL', 'owner', 'url', 'queryResults', 'updated')
+        fields = ('title', 'SQL', 'owner', 'url', 'queryResults', 'updated', 'flag')
         extra_kwargs = {
             "queryResults": {
                 "read_only": True,

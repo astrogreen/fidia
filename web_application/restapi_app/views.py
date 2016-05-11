@@ -57,11 +57,9 @@ class CreateUserView(generics.ListCreateAPIView):
     permission_classes = [IsNotAuthenticated]
     serializer_class = CreateUserSerializer
     renderer_classes = [RegisterRenderer]
-
     def get_queryset(self):
         queryset = User.objects.none()
         return queryset
-
 
 class QueryViewSet(viewsets.ModelViewSet):
     """
@@ -73,6 +71,7 @@ class QueryViewSet(viewsets.ModelViewSet):
     #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
     #                       IsOwnerOrReadOnly,)
     queryset = Query.objects.all()
+
     renderer_classes = [QueryRenderer, renderers.JSONRenderer, FlatCSVRenderer]
 
     def get_renderer_context(self):
@@ -90,10 +89,11 @@ class QueryViewSet(viewsets.ModelViewSet):
         context['json_property_name'] = "queryResults"
         context['data_name'] = 'data'
         context['column_name'] = 'columns'
-
         return context
 
     def get_serializer_class(self):
+        # Check the request type - if browser return truncated json
+        # If CSV/JSON return full payload.
         serializer_class = QuerySerializerList
         if self.action == 'list':
             serializer_class = QuerySerializerList
@@ -104,23 +104,59 @@ class QueryViewSet(viewsets.ModelViewSet):
 
         return serializer_class
 
-
     def get_queryset(self):
         """
         This view should return a list of all thqueriests
         for the currently authenticated user.
+
         """
         user = self.request.user
         return Query.objects.filter(owner=user).order_by('-updated')
 
-    def run_FIDIA(self, request_string):
+    def truncated_api_response_data(self, accepted_media_type, serialized_valid_data):
+        """
+        If the response is text/html (browsable api) then truncate to render limit and send flag info
+
+        """
+        # Make a copy of the data (already know is_valid() in create method)
+        new_serializer_data = serialized_valid_data
+
+        if accepted_media_type == 'text/html':
+            # Truncate response to browser but leave json and csv
+            query_results_rows = len(serialized_valid_data['queryResults']['index'])
+            query_results_cols = len(serialized_valid_data['queryResults']['columns'])
+            render_limit = 10000
+            # render_limit = 10
+
+            if query_results_cols * query_results_rows >= render_limit:
+                # Get new row limit
+                new_query_results_rows = int(render_limit / query_results_cols)
+                # Truncate results
+                new_data = serialized_valid_data['queryResults']['data'][0:new_query_results_rows]
+                new_index = serialized_valid_data['queryResults']['index'][0:new_query_results_rows]
+                new_serializer_data['queryResults']['data'] = new_data
+                new_serializer_data['queryResults']['index'] = new_index
+                new_serializer_data['flag'] = {'query_results_rows': query_results_rows, 'render_limit': render_limit,
+                                               'new_query_results_rows': new_query_results_rows}
+
+        return new_serializer_data
+
+    def retrieve(self, request, *args, **kwargs):
+        """ Retrieve a model instance. """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(self.truncated_api_response_data(accepted_media_type=request.accepted_media_type,
+                                                         serialized_valid_data=serializer.data))
+
+    def run_fidia(self, request_string):
 
         # SELECT t1.CATAID FROM InputCatA AS t1 WHERE t1.CATAID  BETWEEN 65401 and 65410
         sample = AsvoSparkArchive().new_sample_from_query(request_string)
 
-        (json_n_rows, json_n_cols) = sample.tabular_data().shape
-        json_element_cap = 100000
-        json_row_cap = 2000
+        # (json_n_rows, json_n_cols) = sample.tabular_data().shape
+        # json_element_cap = 100000
+        # json_row_cap = 2000
 
         json_table = sample.tabular_data().reset_index().to_json(orient='split')
 
@@ -145,6 +181,7 @@ class QueryViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         """
         Create a model instance. Override CreateModelMixin create to catch the POST data for processing before save
+        Return only the location of the new resource in data['url'] as per HTTP spec.
         """
         saved_object = request.data
         # Raise error if SQL field is empty
@@ -152,13 +189,20 @@ class QueryViewSet(viewsets.ModelViewSet):
             if not saved_object["SQL"]:
                 raise CustomValidation("SQL Field Blank", 'detail', 400)
             else:
-                saved_object["queryResults"] = self.run_FIDIA(saved_object["SQL"])
+                saved_object["queryResults"] = self.run_fidia(saved_object["SQL"])
                 # serializer = self.get_serializer(data=request.data)
                 serializer = self.get_serializer(data=saved_object)
                 serializer.is_valid(raise_exception=True)
                 self.perform_create(serializer)
                 headers = self.get_success_headers(serializer.data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                location_only = serializer.data
+                location_only.clear()
+                location_only['url'] = serializer.data['url']
+                location_only['title'] = serializer.data['title']
+                location_only['created'] = serializer.data['created']
+
+                return Response(location_only, status=status.HTTP_201_CREATED, headers=headers)
         else:
             raise CustomValidation("SQL Field Blank", 'detail', 400)
 
@@ -175,31 +219,20 @@ class QueryViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
-        #current SQL
+        # current SQL
         saved_object = instance
-        #inbound request
+        # inbound request
         incoming_object = self.request.data
-        # pprint('- - - - NEW PUT - - - -')
-        # print(json.loads(incoming_object['queryResults']))
-        # pprint('- - - - end PUT - - - -')
-        # testQueryResultsTamper=self.get_serializer(instance, data=incoming_object, partial=True)
-        # testQueryResultsTamper.is_valid(raise_exception=True)
-        #
-        # pprint(testQueryResultsTamper.data['queryResults'])
-        # pprint(saved_object.queryResults)
 
-        #override the incoming queryResults with the saved version
+        # override the incoming queryResults with the saved version
         incoming_object['queryResults']=(saved_object.queryResults)
 
         # if new sql (and/or results have been tampered with), re-run fidia and override results
         # if (incoming_object['SQL'] != saved_object.SQL) or (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
         if incoming_object['SQL'] != saved_object.SQL:
-            pprint('sql or qR changed')
-
             # if (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
             #     pprint('qR changed')
             #     raise PermissionDenied(detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
-
             incoming_object['queryResults'] = self.run_FIDIA(self.request.data)
             pprint('update object')
 

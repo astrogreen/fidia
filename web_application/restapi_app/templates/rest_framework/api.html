@@ -48,7 +48,7 @@
             {% endblock %}
         {% endblock %}
 
-        {% if response.status_code < 299 and response.status_code > 199 %}
+
         {% block content %}
           <!-- Content -->
           <div id="content">
@@ -248,7 +248,7 @@
           {% endblock content-main %}
           </div><!-- /.content -->
       {% endblock content %}
-      {% endif %}
+
       </div><!-- /.container -->
 
   </div><!-- ./wrapper -->

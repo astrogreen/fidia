@@ -38,13 +38,14 @@
                 <h3 class="panel-title">Data Browser</h3>
             </div>
             <div class="panel-body">
-                <p>Browse the available {{objname}} data for each object. Search for an object below.</p><br>
+                <p>Browse the available {{objname}} data for each object. Search for an object below.</p>
+                <div class="half-br"></div>
                 <select type="text" class="searchbox selectized text-center" id="autocomplete-widget" placeholder="SEARCH">
                 <option value="" disabled selected>Select an object</option>
                 {% for key, value in response.data.items %}
                 <option value="{{value}}">{{key}}</option>
                 {% endfor %}
-            </select>
+                </select>
             <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled
                id="autocomplete-button">Go</a>
             </div>
@@ -99,7 +100,7 @@
         </div>
 
     </div>
-    <div class="col-sm-8">
+    <div class="col-sm-9">
         <h2 class="headline"><span>About</span></h2>
         {% with "restapi_app/survey/"|add:objname|add:"/about.html" as template %}
         {% include template %}
