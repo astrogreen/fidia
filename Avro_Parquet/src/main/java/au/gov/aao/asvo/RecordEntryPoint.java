@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.LongBuffer;
+import java.nio.FloatBuffer;
 import java.nio.ByteOrder;
 
 
@@ -225,6 +226,23 @@ public class RecordEntryPoint {
         return outList;
     }
 
+    private static List<Float> convertByteArrayToFloatList(byte[] byteArray, String endian) {
+        /* ByteBuffer: https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html */
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byteArray);
+        if (endian.equals("<")) {
+            /* Input is not Java native big endian. */
+            System.out.println("Changing byte order to little endian");
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        }
+        FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
+        int size = floatBuffer.remaining();
+        List<Float> outList = new ArrayList(size);
+        for (int i=0; i < size; i++) {
+            outList.add(floatBuffer.get());
+        }
+        return outList;
+    }
+
     /**
      * integerListFromSplitByteArray combines the tasks of recombining a list 
      * of bytes arrays provided from Python and converting it into a Java 
@@ -250,6 +268,11 @@ public class RecordEntryPoint {
     public static List<Long> longListFromSplitByteArray(List<byte[]> byteList, int totalSize, int chunkSize, String endian) {
         byte[] combinedBytes = combineByteList(byteList, totalSize, chunkSize);
         return convertByteArrayToLongList(combinedBytes, endian);
+    }
+
+    public static List<Float> floatListFromSplitByteArray(List<byte[]> byteList, int totalSize, int chunkSize, String endian) {
+        byte[] combinedBytes = combineByteList(byteList, totalSize, chunkSize);
+        return convertByteArrayToFloatList(combinedBytes, endian);
     }
 
     public static void main(String[] args) {

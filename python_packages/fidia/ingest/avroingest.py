@@ -177,7 +177,7 @@ def convert_ndarray_to_java_list(ndarray, gateway):
             yield byte_array[offset_block_index:offset_block_end_index]
 
 
-    if ndarray.dtype.type not in (np.float64, np.int32, np.int64):
+    if ndarray.dtype.type not in (np.float64, np.int32, np.int64, np.float32):
         # Type conversion will be necessary before handing to Java.
         raise NotImplementedError()
 
@@ -190,24 +190,20 @@ def convert_ndarray_to_java_list(ndarray, gateway):
     #
     # Pass the byte array into Java and convert to a Java list according to type
     #
-    if ndarray.dtype.type is np.float64:
-        return gateway.entry_point.doubleListFromSplitByteArray(
-            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
-            len(ndarray_bytes),
-            max_transfer_block_size,
-            endianness)
-    if ndarray.dtype.type is np.int32:
-        return gateway.entry_point.integerListFromSplitByteArray(
-            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
-            len(ndarray_bytes),
-            max_transfer_block_size,
-            endianness)
-    if ndarray.dtype.type is np.int64:
-        return gateway.entry_point.longListFromSplitByteArray(
-            ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
-            len(ndarray_bytes),
-            max_transfer_block_size,
-            endianness)
+    data_type_to_java_converter_map = {
+        np.float64: gateway.entry_point.doubleListFromSplitByteArray,
+        np.int32: gateway.entry_point.integerListFromSplitByteArray,
+        np.int64: gateway.entry_point.longListFromSplitByteArray,
+        np.float32: gateway.entry_point.floatListFromSplitByteArray
+    }
+
+    java_list = data_type_to_java_converter_map[ndarray.dtype.type](
+        ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+        len(ndarray_bytes),
+        max_transfer_block_size,
+        endianness)
+
+    return java_list
 
 def get_endianness(ndarray):
     """Return a single character string which encodes the endianness of the ndarray for java."""
