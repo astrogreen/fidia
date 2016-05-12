@@ -15,7 +15,7 @@ router.register(r'query', views.QueryViewSet)
 router.register(r'sov', views.SOVListSurveysViewSet, base_name='sov')
 router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')
 router.register(r'gama', views.GAMAViewSet, base_name='gama')
-router.register(r'sami', views.SAMIViewSet, base_name='sami')
+router.register(r'sami', views.samiViewSet, base_name='sami')
 
 # Nested routes for sample (SAMI)
 object_nested_router = NestedExtendDefaultRouter(router, r'sami', lookup='sami')

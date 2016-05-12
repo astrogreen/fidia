@@ -309,7 +309,7 @@ class GAMAViewSet(mixins.ListModelMixin,
         return Response({'nodata': True})
 
 
-class SAMIViewSet(mixins.ListModelMixin,
+class samiViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
     renderer_classes = (SampleRenderer, renderers.JSONRenderer, r.CSVRenderer)

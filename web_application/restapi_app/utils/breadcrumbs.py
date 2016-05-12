@@ -31,9 +31,9 @@ def get_object_name(url, request=None):
                 name = (" ".join(traitproperty_pk)).title()
 
     if name_space == 'gama-list':
-        name = 'GAMA'
+        name = 'gama'
     elif name_space == 'sami-list':
-        name = 'SAMI'
+        name = 'sami'
     elif name_space == 'sov-list':
         name = 'SOV'
 
@@ -78,6 +78,11 @@ def get_breadcrumbs_by_viewname(url, request=None):
                     name = view_name_func(cls, suffix)
 
                     new_name = get_object_name(url, request)
+                    surveys = ['sami', 'gama']
+                    # Temporary fix for survey names in breadcrumbs
+                    if any(new_name in s for s in surveys):
+                        new_name = new_name.upper()
+
                     if new_name != '':
                         name = new_name
 
