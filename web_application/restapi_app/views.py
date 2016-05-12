@@ -113,14 +113,14 @@ class QueryViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Query.objects.filter(owner=user).order_by('-updated')
 
-    def truncated_api_response_data(self, accepted_media_type, serialized_valid_data):
+    def truncated_api_response_data(self, accepted_media_type, accepted_renderer_format, serialized_valid_data):
         """
         If the response is text/html (browsable api) then truncate to render limit and send flag info
 
         """
         # Make a copy of the data (already know is_valid() in create method)
         new_serializer_data = serialized_valid_data
-
+        # if accepted_renderer_format == 'html':
         if accepted_media_type == 'text/html':
             # Truncate response to browser but leave json and csv
             query_results_rows = len(serialized_valid_data['queryResults']['index'])
@@ -147,6 +147,7 @@ class QueryViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
 
         return Response(self.truncated_api_response_data(accepted_media_type=request.accepted_media_type,
+                                                         accepted_renderer_format=request.accepted_renderer.format,
                                                          serialized_valid_data=serializer.data))
 
     def run_fidia(self, request_string):
