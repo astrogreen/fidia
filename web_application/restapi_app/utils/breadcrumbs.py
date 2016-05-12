@@ -81,7 +81,7 @@ def get_breadcrumbs_by_viewname(url, request=None):
                     surveys = ['sami', 'gama']
                     # Temporary fix for survey names in breadcrumbs
                     if any(new_name in s for s in surveys):
-                        new_name = new_name.upper() 
+                        new_name = new_name.upper()
 
                     if new_name != '':
                         name = new_name
