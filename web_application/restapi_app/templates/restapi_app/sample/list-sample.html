@@ -24,9 +24,9 @@
 {% for key, value in response.data.items %}
 {% endfor %}
 
-<!--<div class="pull-right survey {{ objname }}"></div>-->
+{% captureas survey_name %}{{objname | upper}}{% endcaptureas %}
 <h1 class="headline">
-    <span>{{objname}}</span>
+    <span>{{survey_name}}</span>
     {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
     {% surveylogoimglink survey %}
 </h1>
@@ -38,7 +38,7 @@
                 <h3 class="panel-title">Data Browser</h3>
             </div>
             <div class="panel-body">
-                <p>Browse the available {{objname}} data for each object. Search for an object below.</p>
+                <p>Browse the available {{survey_name}} data for each object. Search for an object below.</p>
                 <div class="half-br"></div>
                 <select type="text" class="searchbox selectized text-center" id="autocomplete-widget" placeholder="SEARCH">
                 <option value="" disabled selected>Select an object</option>
@@ -56,17 +56,17 @@
                 <h3 class="panel-title">Single Object Viewer</h3>
             </div>
             <div class="panel-body">
-               <p>View a summary of main data products: <a href="{% url 'sov-list'%}">{{objname}} SOV</a>.</p>
+               <p>View a summary of main data products: <a href="{% url 'sov-list'%}">{{survey_name}} SOV</a>.</p>
             </div>
         </div>
 
         <div class="panel panel-default">
             <div class="panel-heading panel-background-grey">
-                <h3 class="panel-title">{{objname}} Data Release Details</h3>
+                <h3 class="panel-title">{{survey_name}} Data Release Details</h3>
             </div>
             <div class="panel-body">
-                <p>{{objname}} Survey DR1.0 Info</p>
-                <p>Download a list of available objects in {{objname}} DR1.0.</p>
+                <p>{{survey_name}} Survey DR1.0 Info</p>
+                <p>Download a list of available objects in {{survey_name}} DR1.0.</p>
                 {% if 'GET' in allowed_methods %}
                 <form id="get-form" class="form-inline">
                     <fieldset>
@@ -107,7 +107,7 @@
         {% endwith %}
         <h2 class="headline"><span>Documentation</span></h2>
         <p>
-            <a href="{% url 'under-construction' %}">{{objname}} docs</a><br>
+            <a href="{% url 'under-construction' %}">{{survey_name}} docs</a><br>
             <a href="{% url 'documentation-schema-browser' %}"> Schema Browser</a>
         </p>
     </div>
