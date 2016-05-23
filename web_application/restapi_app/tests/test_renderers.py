@@ -43,8 +43,17 @@ class RendererTests(APITestCase):
 
         # Create a new Query Object using the request
         # instance = Query.objects.create(title="test_query", SQL="SELECT * FROM SAMI LIMIT 1", owner=self.user)
-        self.query = Query.objects.create(title="test_query", SQL="SELECT * FROM SAMI LIMIT 1", owner=self.user,
-                                          queryResults={'index': [0], 'data': [[0, '6821', False]], 'columns': ['index', 'sami_id', 'cube_available']})
+        #self.query = Query.objects.create(title="test_query", SQL="SELECT", owner=self.user,
+         #                                 queryResults={'index': [0], 'data': [[0, '6821', False]], 'columns': ['index', 'sami_id', 'cube_available']})
+
+        queryResults = {'index': [0], 'data': [[0, '6821', False]], 'columns': ['index', 'sami_id', 'cube_available']}
+
+        from rest_framework.parsers import JSONParser
+        from rest_framework.renderers import JSONRenderer
+        print(JSONRenderer().render(queryResults))
+
+        self.query = Query.objects.create(title="test_query", SQL="SELECT", owner=self.user,
+                                          queryResults=queryResults)
         self.query.save()
 
         # Get URL of new resource
@@ -73,8 +82,16 @@ class RendererTests(APITestCase):
         # Render the HTML/json/csv for the chosen representation.
         test_response_retrieve.render()
 
-        print(type(test_response_retrieve.content))
-        print(json.loads(test_response_retrieve.content))
+        # print(type(test_response_retrieve.content))
+        # print(json.loads(test_response_retrieve.content))
+
+        self._require_login()
+        test_response = self.client.get(self.resource_url, format="json")
+
+
+
+        # print((test_response.content))
+        # self.assertEqual(json.loads(test_response.content), {'id': 4, 'username': 'lauren'})
         # print(is_json(str(test_response_retrieve.content)))
         #
         # test_response_retrieve_json = self.client.get(self.resource_url, content_type='application/json')
