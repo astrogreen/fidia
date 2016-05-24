@@ -1,0 +1,2037 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SAMI Galaxy Survey single object viewer</title>
+  <style type="text/css">
+    input:checked + label {
+       background: yellow;
+    }
+/*
+    #chk0 { display: none; }
+    #chk1 { display: none; }
+    #chk2 { display: none; }
+    #chk3 { display: none; }
+    #chk4 { display: none; }
+    #chk5 { display: none; }
+    #chk6 { display: none; }
+    #chk7 { display: none; }
+    #chk8 { display: none; }
+    #chk9 { display: none; }
+    #chk10 { display: none; }
+    #chk11 { display: none; }
+    #chk12 { display: none; }
+    #chk13 { display: none; }
+    #chk14 { display: none; }
+    #chk15 { display: none; }
+    #chk16 { display: none; }
+    #chk17 { display: none; }
+    #chk18 { display: none; }
+*/
+    legend {
+      font-size: 100%; }
+    ul li {
+      padding-left: 20px;
+      text-decoration: none;
+      display: inline; }
+/*
+    #selectpanels {
+      width: 47%;
+      background-color: rgb(200,200,200);
+      cursor: auto;
+      font-size: 125%; }
+*/
+    #selectgalaxies {
+      width: 80%;
+      background-color: rgb(200,200,200);
+      cursor: auto;
+      font-size: 125%; }
+    #joe {
+      font-size: 125%;
+      cursor: auto;
+      background-color: wheat; }
+  </style>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
+ </head>
+ <body>
+ <article>
+ <section>
+ <form action="">
+   <fieldset id="selectgalaxies">
+    <legend><br>First, select a SAMI ID</legend>
+All GAMA sub-sample
+    <select id="allgalaxies" size="7">
+     <option>100162</option>
+     <option>100175</option>
+     <option>100192</option>
+     <option>105962</option>
+     <option>106016</option>
+     <option>106042</option>
+     <option>106047</option>
+     <option>106049</option>
+     <option>106065</option>
+     <option>106331</option>
+     <option>106343</option>
+     <option>106376</option>
+     <option>106389</option>
+     <option>106507</option>
+     <option>106549</option>
+     <option>106616</option>
+     <option>106634</option>
+     <option>106638</option>
+     <option>106717</option>
+     <option>136602</option>
+     <option>136672</option>
+     <option>136842</option>
+     <option>136856</option>
+     <option>136917</option>
+     <option>136980</option>
+     <option>137037</option>
+     <option>137155</option>
+     <option>137789</option>
+     <option>137847</option>
+     <option>138066</option>
+     <option>138094</option>
+     <option>138132</option>
+     <option>143499</option>
+     <option>143736</option>
+     <option>143746</option>
+     <option>143814</option>
+     <option>144239</option>
+     <option>144243</option>
+     <option>144320</option>
+     <option>144402</option>
+     <option>144465</option>
+     <option>144480</option>
+     <option>144498</option>
+     <option>144682</option>
+     <option>15165</option>
+     <option>15218</option>
+     <option>15220</option>
+     <option>15481</option>
+     <option>16294</option>
+     <option>16487</option>
+     <option>16525</option>
+     <option>177326</option>
+     <option>177481</option>
+     <option>177518</option>
+     <option>178481</option>
+     <option>178578</option>
+     <option>184237</option>
+     <option>184281</option>
+     <option>184370</option>
+     <option>184415</option>
+     <option>184648</option>
+     <option>185252</option>
+     <option>185291</option>
+     <option>185376</option>
+     <option>185510</option>
+     <option>185532</option>
+     <option>198343</option>
+     <option>198503</option>
+     <option>198591</option>
+     <option>198631</option>
+     <option>198771</option>
+     <option>203037</option>
+     <option>203114</option>
+     <option>203140</option>
+     <option>203148</option>
+     <option>204799</option>
+     <option>204832</option>
+     <option>204836</option>
+     <option>204868</option>
+     <option>204876</option>
+     <option>204877</option>
+     <option>204906</option>
+     <option>204983</option>
+     <option>205086</option>
+     <option>205089</option>
+     <option>205097</option>
+     <option>205161</option>
+     <option>205168</option>
+     <option>205208</option>
+     <option>209181</option>
+     <option>209319</option>
+     <option>209414</option>
+     <option>209698</option>
+     <option>209701</option>
+     <option>209708</option>
+     <option>209743</option>
+     <option>209807</option>
+     <option>210611</option>
+     <option>210660</option>
+     <option>210781</option>
+     <option>210808</option>
+     <option>210909</option>
+     <option>215053</option>
+     <option>215289</option>
+     <option>215292</option>
+     <option>215335</option>
+     <option>215698</option>
+     <option>216670</option>
+     <option>216843</option>
+     <option>218681</option>
+     <option>218713</option>
+     <option>218717</option>
+     <option>220112</option>
+     <option>220126</option>
+     <option>220170</option>
+     <option>220218</option>
+     <option>220227</option>
+     <option>220275</option>
+     <option>220319</option>
+     <option>220320</option>
+     <option>220326</option>
+     <option>220330</option>
+     <option>220332</option>
+     <option>220355</option>
+     <option>220371</option>
+     <option>220374</option>
+     <option>220375</option>
+     <option>220383</option>
+     <option>220394</option>
+     <option>220439</option>
+     <option>220450</option>
+     <option>220499</option>
+     <option>220515</option>
+     <option>220578</option>
+     <option>220687</option>
+     <option>220750</option>
+     <option>221375</option>
+     <option>22582</option>
+     <option>22595</option>
+     <option>22633</option>
+     <option>227278</option>
+     <option>227290</option>
+     <option>227351</option>
+     <option>227371</option>
+     <option>227407</option>
+     <option>227428</option>
+     <option>227607</option>
+     <option>227617</option>
+     <option>227673</option>
+     <option>227905</option>
+     <option>227961</option>
+     <option>227970</option>
+     <option>228066</option>
+     <option>228086</option>
+     <option>228104</option>
+     <option>228105</option>
+     <option>22839</option>
+     <option>228432</option>
+     <option>22862</option>
+     <option>22887</option>
+     <option>22932</option>
+     <option>230174</option>
+     <option>230560</option>
+     <option>230634</option>
+     <option>23070</option>
+     <option>230714</option>
+     <option>230719</option>
+     <option>230774</option>
+     <option>230776</option>
+     <option>230777</option>
+     <option>230786</option>
+     <option>230787</option>
+     <option>230789</option>
+     <option>230793</option>
+     <option>230797</option>
+     <option>230813</option>
+     <option>230829</option>
+     <option>230837</option>
+     <option>230880</option>
+     <option>230898</option>
+     <option>231024</option>
+     <option>23117</option>
+     <option>23265</option>
+     <option>23337</option>
+     <option>23519</option>
+     <option>23565</option>
+     <option>23578</option>
+     <option>23591</option>
+     <option>23593</option>
+     <option>23619</option>
+     <option>23623</option>
+     <option>23669</option>
+     <option>23737</option>
+     <option>238080</option>
+     <option>238085</option>
+     <option>238125</option>
+     <option>238164</option>
+     <option>238203</option>
+     <option>238204</option>
+     <option>238211</option>
+     <option>238214</option>
+     <option>238216</option>
+     <option>238221</option>
+     <option>238276</option>
+     <option>238282</option>
+     <option>238328</option>
+     <option>238351</option>
+     <option>238358</option>
+     <option>238360</option>
+     <option>238395</option>
+     <option>238496</option>
+     <option>23868</option>
+     <option>239092</option>
+     <option>239109</option>
+     <option>239172</option>
+     <option>239249</option>
+     <option>239292</option>
+     <option>239376</option>
+     <option>24414</option>
+     <option>24433</option>
+     <option>250183</option>
+     <option>250277</option>
+     <option>272190</option>
+     <option>272298</option>
+     <option>272439</option>
+     <option>272443</option>
+     <option>272488</option>
+     <option>272667</option>
+     <option>272748</option>
+     <option>272831</option>
+     <option>272833</option>
+     <option>272995</option>
+     <option>272996</option>
+     <option>273092</option>
+     <option>273296</option>
+     <option>273850</option>
+     <option>273952</option>
+     <option>273966</option>
+     <option>273976</option>
+     <option>273986</option>
+     <option>278548</option>
+     <option>278643</option>
+     <option>278684</option>
+     <option>278702</option>
+     <option>278703</option>
+     <option>278736</option>
+     <option>278741</option>
+     <option>278760</option>
+     <option>278773</option>
+     <option>278787</option>
+     <option>278802</option>
+     <option>278804</option>
+     <option>278812</option>
+     <option>278846</option>
+     <option>278855</option>
+     <option>278909</option>
+     <option>278995</option>
+     <option>279818</option>
+     <option>279878</option>
+     <option>279886</option>
+     <option>279891</option>
+     <option>279917</option>
+     <option>279943</option>
+     <option>288364</option>
+     <option>288424</option>
+     <option>288461</option>
+     <option>28860</option>
+     <option>288756</option>
+     <option>288851</option>
+     <option>288891</option>
+     <option>288903</option>
+     <option>288904</option>
+     <option>288923</option>
+     <option>288992</option>
+     <option>288999</option>
+     <option>289085</option>
+     <option>289089</option>
+     <option>289095</option>
+     <option>289096</option>
+     <option>289097</option>
+     <option>289107</option>
+     <option>289109</option>
+     <option>289112</option>
+     <option>289116</option>
+     <option>289118</option>
+     <option>289170</option>
+     <option>289176</option>
+     <option>289185</option>
+     <option>289194</option>
+     <option>289198</option>
+     <option>289200</option>
+     <option>289217</option>
+     <option>289279</option>
+     <option>289427</option>
+     <option>289429</option>
+     <option>296685</option>
+     <option>296713</option>
+     <option>296798</option>
+     <option>296829</option>
+     <option>296847</option>
+     <option>296848</option>
+     <option>296934</option>
+     <option>297557</option>
+     <option>297633</option>
+     <option>297667</option>
+     <option>297694</option>
+     <option>297705</option>
+     <option>300350</option>
+     <option>300372</option>
+     <option>300411</option>
+     <option>300477</option>
+     <option>301098</option>
+     <option>301191</option>
+     <option>301199</option>
+     <option>301201</option>
+     <option>301346</option>
+     <option>301382</option>
+     <option>301799</option>
+     <option>302846</option>
+     <option>302994</option>
+     <option>303099</option>
+     <option>30377</option>
+     <option>30890</option>
+     <option>30914</option>
+     <option>31452</option>
+     <option>31509</option>
+     <option>31620</option>
+     <option>318936</option>
+     <option>319018</option>
+     <option>319049</option>
+     <option>319057</option>
+     <option>319059</option>
+     <option>319060</option>
+     <option>319067</option>
+     <option>319070</option>
+     <option>319139</option>
+     <option>319150</option>
+     <option>319157</option>
+     <option>319197</option>
+     <option>319272</option>
+     <option>319385</option>
+     <option>319397</option>
+     <option>320068</option>
+     <option>320124</option>
+     <option>322910</option>
+     <option>323504</option>
+     <option>323505</option>
+     <option>323507</option>
+     <option>323575</option>
+     <option>32362</option>
+     <option>323854</option>
+     <option>323855</option>
+     <option>323874</option>
+     <option>323888</option>
+     <option>324323</option>
+     <option>324351</option>
+     <option>325376</option>
+     <option>325378</option>
+     <option>325390</option>
+     <option>325441</option>
+     <option>325467</option>
+     <option>325533</option>
+     <option>325536</option>
+     <option>345646</option>
+     <option>345682</option>
+     <option>345754</option>
+     <option>345767</option>
+     <option>345820</option>
+     <option>345848</option>
+     <option>346046</option>
+     <option>346257</option>
+     <option>346718</option>
+     <option>346793</option>
+     <option>346839</option>
+     <option>346890</option>
+     <option>346892</option>
+     <option>346894</option>
+     <option>347432</option>
+     <option>347470</option>
+     <option>347522</option>
+     <option>347570</option>
+     <option>348115</option>
+     <option>348116</option>
+     <option>348118</option>
+     <option>3634556</option>
+     <option>36894</option>
+     <option>37050</option>
+     <option>37064</option>
+     <option>371633</option>
+     <option>371714</option>
+     <option>371750</option>
+     <option>371789</option>
+     <option>371882</option>
+     <option>371889</option>
+     <option>371959</option>
+     <option>371976</option>
+     <option>373173</option>
+     <option>373202</option>
+     <option>373248</option>
+     <option>373284</option>
+     <option>375402</option>
+     <option>375531</option>
+     <option>375564</option>
+     <option>376001</option>
+     <option>376121</option>
+     <option>376161</option>
+     <option>376163</option>
+     <option>376165</option>
+     <option>376184</option>
+     <option>376185</option>
+     <option>376282</option>
+     <option>376293</option>
+     <option>376340</option>
+     <option>376379</option>
+     <option>376478</option>
+     <option>376802</option>
+     <option>377962</option>
+     <option>378060</option>
+     <option>378104</option>
+     <option>378142</option>
+     <option>380578</option>
+     <option>380682</option>
+     <option>380697</option>
+     <option>380734</option>
+     <option>381156</option>
+     <option>381159</option>
+     <option>381206</option>
+     <option>381207</option>
+     <option>381215</option>
+     <option>381225</option>
+     <option>381229</option>
+     <option>381502</option>
+     <option>382152</option>
+     <option>382158</option>
+     <option>382631</option>
+     <option>382659</option>
+     <option>383147</option>
+     <option>383259</option>
+     <option>383283</option>
+     <option>383318</option>
+     <option>386268</option>
+     <option>386286</option>
+     <option>387675</option>
+     <option>387687</option>
+     <option>387690</option>
+     <option>388451</option>
+     <option>388476</option>
+     <option>388552</option>
+     <option>388603</option>
+     <option>39108</option>
+     <option>397449</option>
+     <option>402934</option>
+     <option>402988</option>
+     <option>40765</option>
+     <option>41075</option>
+     <option>41144</option>
+     <option>41164</option>
+     <option>41173</option>
+     <option>417392</option>
+     <option>417424</option>
+     <option>417433</option>
+     <option>417441</option>
+     <option>417453</option>
+     <option>417486</option>
+     <option>417568</option>
+     <option>417678</option>
+     <option>418693</option>
+     <option>418725</option>
+     <option>418795</option>
+     <option>422292</option>
+     <option>422320</option>
+     <option>422355</option>
+     <option>422366</option>
+     <option>422406</option>
+     <option>422443</option>
+     <option>422464</option>
+     <option>422486</option>
+     <option>422619</option>
+     <option>422639</option>
+     <option>422683</option>
+     <option>422721</option>
+     <option>422761</option>
+     <option>422888</option>
+     <option>422907</option>
+     <option>422921</option>
+     <option>422933</option>
+     <option>460374</option>
+     <option>460378</option>
+     <option>460424</option>
+     <option>463148</option>
+     <option>463264</option>
+     <option>463317</option>
+     <option>47286</option>
+     <option>47342</option>
+     <option>47500</option>
+     <option>47535</option>
+     <option>485504</option>
+     <option>485529</option>
+     <option>485690</option>
+     <option>485885</option>
+     <option>485922</option>
+     <option>485924</option>
+     <option>486782</option>
+     <option>486834</option>
+     <option>486872</option>
+     <option>486957</option>
+     <option>487010</option>
+     <option>487027</option>
+     <option>491508</option>
+     <option>491552</option>
+     <option>491608</option>
+     <option>492384</option>
+     <option>492411</option>
+     <option>492414</option>
+     <option>493621</option>
+     <option>493811</option>
+     <option>493825</option>
+     <option>496966</option>
+     <option>49857</option>
+     <option>504713</option>
+     <option>504882</option>
+     <option>504922</option>
+     <option>505765</option>
+     <option>505788</option>
+     <option>505817</option>
+     <option>505828</option>
+     <option>505979</option>
+     <option>508138</option>
+     <option>508144</option>
+     <option>508180</option>
+     <option>508184</option>
+     <option>508268</option>
+     <option>508312</option>
+     <option>508315</option>
+     <option>508351</option>
+     <option>508414</option>
+     <option>508421</option>
+     <option>508480</option>
+     <option>508481</option>
+     <option>508682</option>
+     <option>509397</option>
+     <option>509444</option>
+     <option>509516</option>
+     <option>509557</option>
+     <option>509576</option>
+     <option>509670</option>
+     <option>509727</option>
+     <option>511789</option>
+     <option>511863</option>
+     <option>511864</option>
+     <option>511867</option>
+     <option>511890</option>
+     <option>511892</option>
+     <option>511921</option>
+     <option>513001</option>
+     <option>513066</option>
+     <option>513108</option>
+     <option>514214</option>
+     <option>514260</option>
+     <option>517070</option>
+     <option>517130</option>
+     <option>517164</option>
+     <option>517167</option>
+     <option>517205</option>
+     <option>517249</option>
+     <option>517256</option>
+     <option>517273</option>
+     <option>517295</option>
+     <option>517302</option>
+     <option>517306</option>
+     <option>517307</option>
+     <option>517310</option>
+     <option>517334</option>
+     <option>517465</option>
+     <option>517594</option>
+     <option>521898</option>
+     <option>522033</option>
+     <option>522127</option>
+     <option>522166</option>
+     <option>534654</option>
+     <option>534655</option>
+     <option>534710</option>
+     <option>534753</option>
+     <option>534759</option>
+     <option>536454</option>
+     <option>536463</option>
+     <option>536625</option>
+     <option>536626</option>
+     <option>537163</option>
+     <option>537171</option>
+     <option>537187</option>
+     <option>537226</option>
+     <option>537361</option>
+     <option>537367</option>
+     <option>537399</option>
+     <option>537417</option>
+     <option>53771</option>
+     <option>53809</option>
+     <option>53977</option>
+     <option>543489</option>
+     <option>543498</option>
+     <option>543499</option>
+     <option>543536</option>
+     <option>543537</option>
+     <option>543552</option>
+     <option>543554</option>
+     <option>543738</option>
+     <option>543752</option>
+     <option>543763</option>
+     <option>543769</option>
+     <option>543812</option>
+     <option>543859</option>
+     <option>551192</option>
+     <option>551202</option>
+     <option>551332</option>
+     <option>551350</option>
+     <option>551368</option>
+     <option>551488</option>
+     <option>551505</option>
+     <option>551507</option>
+     <option>551655</option>
+     <option>551672</option>
+     <option>55537</option>
+     <option>558861</option>
+     <option>558887</option>
+     <option>55905</option>
+     <option>56055</option>
+     <option>56061</option>
+     <option>56064</option>
+     <option>560883</option>
+     <option>560946</option>
+     <option>560982</option>
+     <option>561020</option>
+     <option>561143</option>
+     <option>56140</option>
+     <option>56181</option>
+     <option>56183</option>
+     <option>561856</option>
+     <option>567545</option>
+     <option>567624</option>
+     <option>567676</option>
+     <option>567678</option>
+     <option>567736</option>
+     <option>570206</option>
+     <option>570207</option>
+     <option>570227</option>
+     <option>574200</option>
+     <option>575339</option>
+     <option>575532</option>
+     <option>575579</option>
+     <option>575625</option>
+     <option>575670</option>
+     <option>583443</option>
+     <option>583637</option>
+     <option>583716</option>
+     <option>583744</option>
+     <option>585314</option>
+     <option>585359</option>
+     <option>585386</option>
+     <option>585659</option>
+     <option>585694</option>
+     <option>585755</option>
+     <option>586326</option>
+     <option>586330</option>
+     <option>592835</option>
+     <option>592858</option>
+     <option>592863</option>
+     <option>593645</option>
+     <option>593680</option>
+     <option>594049</option>
+     <option>594053</option>
+     <option>594059</option>
+     <option>594906</option>
+     <option>594946</option>
+     <option>594970</option>
+     <option>594986</option>
+     <option>594990</option>
+     <option>595027</option>
+     <option>595060</option>
+     <option>599582</option>
+     <option>599689</option>
+     <option>599761</option>
+     <option>599838</option>
+     <option>599839</option>
+     <option>599873</option>
+     <option>599877</option>
+     <option>600014</option>
+     <option>600026</option>
+     <option>601210</option>
+     <option>601255</option>
+     <option>601283</option>
+     <option>601323</option>
+     <option>601395</option>
+     <option>609396</option>
+     <option>609433</option>
+     <option>610893</option>
+     <option>610997</option>
+     <option>617945</option>
+     <option>617989</option>
+     <option>618071</option>
+     <option>618100</option>
+     <option>618108</option>
+     <option>618116</option>
+     <option>618142</option>
+     <option>618143</option>
+     <option>618144</option>
+     <option>618151</option>
+     <option>618152</option>
+     <option>618220</option>
+     <option>618906</option>
+     <option>618912</option>
+     <option>618931</option>
+     <option>618935</option>
+     <option>618938</option>
+     <option>618942</option>
+     <option>618952</option>
+     <option>618992</option>
+     <option>618993</option>
+     <option>619046</option>
+     <option>619095</option>
+     <option>619097</option>
+     <option>619098</option>
+     <option>619105</option>
+     <option>619258</option>
+     <option>620034</option>
+     <option>620087</option>
+     <option>620098</option>
+     <option>622394</option>
+     <option>622429</option>
+     <option>622434</option>
+     <option>622534</option>
+     <option>622588</option>
+     <option>622694</option>
+     <option>622744</option>
+     <option>622770</option>
+     <option>623432</option>
+     <option>623620</option>
+     <option>623641</option>
+     <option>623679</option>
+     <option>623712</option>
+     <option>623722</option>
+     <option>623726</option>
+     <option>62412</option>
+     <option>63027</option>
+     <option>64087</option>
+     <option>65278</option>
+     <option>65406</option>
+     <option>65410</option>
+     <option>69620</option>
+     <option>69653</option>
+     <option>69740</option>
+     <option>71352</option>
+     <option>71382</option>
+     <option>760733</option>
+     <option>7715</option>
+     <option>77710</option>
+     <option>77754</option>
+     <option>7841</option>
+     <option>78523</option>
+     <option>78531</option>
+     <option>78667</option>
+     <option>78791</option>
+     <option>78827</option>
+     <option>78921</option>
+     <option>79635</option>
+     <option>79693</option>
+     <option>79710</option>
+     <option>79712</option>
+     <option>79771</option>
+     <option>79850</option>
+     <option>8353</option>
+     <option>8391</option>
+     <option>8404</option>
+     <option>84106</option>
+     <option>84107</option>
+x    <option>84677</option>
+     <option>84680</option>
+     <option>8485</option>
+     <option>8487</option>
+     <option>8490</option>
+     <option>85416</option>
+     <option>85418</option>
+     <option>85423</option>
+     <option>85474</option>
+     <option>85479</option>
+     <option>85481</option>
+     <option>85505</option>
+     <option>85507</option>
+     <option>8562</option>
+     <option>8570</option>
+     <option>91924</option>
+     <option>91926</option>
+     <option>91959</option>
+     <option>91961</option>
+     <option>91963</option>
+     <option>91988</option>
+     <option>91989</option>
+     <option>91996</option>
+     <option>91999</option>
+     <option>92770</option>
+     <option>92773</option>
+     <option>93020</option>
+     <option>93062</option>
+     <option>93167</option>
+     <option>9352</option>
+     <option>98652</option>
+     <option>99259</option>
+     <option>99326</option>
+     <option>99349</option>
+     <option>99393</option>
+     <option>99410</option>
+     <option>99430</option>
+     <option>99511</option>
+   </select>
+    SELECT Gassy
+    <select id="diskgalaxies" size="7">
+     <option>8353</option>
+     <option>8485</option>
+     <option>8570</option>
+     <option>15165</option>
+     <option>15218</option>
+     <option>15220</option>
+     <option>16294</option>
+     <option>16487</option>
+     <option>22633</option>
+     <option>22839</option>
+     <option>22887</option>
+     <option>22932</option>
+     <option>23117</option>
+     <option>23337</option>
+     <option>23565</option>
+     <option>23578</option>
+     <option>23619</option>
+     <option>23623</option>
+     <option>23669</option>
+     <option>23868</option>
+     <option>24414</option>
+     <option>24433</option>
+     <option>28860</option>
+     <option>30890</option>
+     <option>31452</option>
+     <option>31509</option>
+     <option>31620</option>
+     <option>32362</option>
+     <option>36894</option>
+     <option>37050</option>
+     <option>37064</option>
+     <option>40765</option>
+     <option>41075</option>
+     <option>41144</option>
+     <option>41164</option>
+     <option>47286</option>
+     <option>47342</option>
+     <option>47500</option>
+     <option>47535</option>
+     <option>49857</option>
+     <option>53771</option>
+     <option>53809</option>
+     <option>53977</option>
+     <option>55537</option>
+     <option>55905</option>
+     <option>56055</option>
+     <option>56061</option>
+     <option>56064</option>
+     <option>56140</option>
+     <option>56183</option>
+     <option>62412</option>
+     <option>64087</option>
+     <option>65278</option>
+     <option>65406</option>
+     <option>69620</option>
+     <option>69653</option>
+     <option>69740</option>
+     <option>71382</option>
+     <option>77754</option>
+     <option>78667</option>
+     <option>78921</option>
+     <option>79635</option>
+     <option>79693</option>
+     <option>79771</option>
+     <option>79850</option>
+     <option>84107</option>
+     <option>84677</option>
+     <option>85416</option>
+     <option>85474</option>
+     <option>85479</option>
+     <option>85481</option>
+     <option>85505</option>
+     <option>85507</option>
+     <option>91924</option>
+     <option>91926</option>
+     <option>91963</option>
+     <option>92770</option>
+     <option>93062</option>
+     <option>93167</option>
+     <option>99259</option>
+     <option>99349</option>
+     <option>99393</option>
+     <option>99430</option>
+     <option>100162</option>
+     <option>100175</option>
+     <option>100192</option>
+     <option>105962</option>
+     <option>106042</option>
+     <option>106047</option>
+     <option>106049</option>
+     <option>106065</option>
+     <option>106331</option>
+     <option>106376</option>
+     <option>106389</option>
+     <option>106507</option>
+     <option>106616</option>
+     <option>106634</option>
+     <option>106717</option>
+     <option>136917</option>
+     <option>136980</option>
+     <option>137155</option>
+     <option>137789</option>
+     <option>137847</option>
+     <option>138066</option>
+     <option>138094</option>
+     <option>143746</option>
+     <option>143814</option>
+     <option>144239</option>
+     <option>144243</option>
+     <option>144320</option>
+     <option>144402</option>
+     <option>178481</option>
+     <option>178578</option>
+     <option>184237</option>
+     <option>184281</option>
+     <option>184370</option>
+     <option>184415</option>
+     <option>185252</option>
+     <option>185291</option>
+     <option>185510</option>
+     <option>185532</option>
+     <option>198503</option>
+     <option>198591</option>
+     <option>198771</option>
+     <option>203114</option>
+     <option>204799</option>
+     <option>204876</option>
+     <option>204983</option>
+     <option>205097</option>
+     <option>209181</option>
+     <option>209319</option>
+     <option>209414</option>
+     <option>209698</option>
+     <option>209701</option>
+     <option>209743</option>
+     <option>209807</option>
+     <option>210660</option>
+     <option>210781</option>
+     <option>210909</option>
+     <option>215292</option>
+     <option>215335</option>
+     <option>216670</option>
+     <option>216843</option>
+     <option>218681</option>
+     <option>220170</option>
+     <option>220275</option>
+     <option>220319</option>
+     <option>220330</option>
+     <option>220332</option>
+     <option>220371</option>
+     <option>220439</option>
+     <option>220515</option>
+     <option>220578</option>
+     <option>220687</option>
+     <option>220750</option>
+     <option>221375</option>
+     <option>227351</option>
+     <option>227371</option>
+     <option>227428</option>
+     <option>227607</option>
+     <option>227673</option>
+     <option>227961</option>
+     <option>227970</option>
+     <option>228066</option>
+     <option>228086</option>
+     <option>228432</option>
+     <option>230560</option>
+     <option>230714</option>
+     <option>231024</option>
+     <option>238085</option>
+     <option>238125</option>
+     <option>238164</option>
+     <option>238216</option>
+     <option>238221</option>
+     <option>238328</option>
+     <option>238358</option>
+     <option>238360</option>
+     <option>238395</option>
+     <option>238496</option>
+     <option>239092</option>
+     <option>239109</option>
+     <option>239249</option>
+     <option>239292</option>
+     <option>239376</option>
+     <option>272298</option>
+     <option>272443</option>
+     <option>272667</option>
+     <option>272831</option>
+     <option>273092</option>
+     <option>273296</option>
+     <option>273952</option>
+     <option>273966</option>
+     <option>278548</option>
+     <option>278643</option>
+     <option>278703</option>
+     <option>278741</option>
+     <option>278760</option>
+     <option>278804</option>
+     <option>278812</option>
+     <option>278846</option>
+     <option>278909</option>
+     <option>278995</option>
+     <option>279818</option>
+     <option>279917</option>
+     <option>288364</option>
+     <option>288461</option>
+     <option>288851</option>
+     <option>289096</option>
+     <option>289116</option>
+     <option>289217</option>
+     <option>289429</option>
+     <option>296685</option>
+     <option>296829</option>
+     <option>296847</option>
+     <option>296848</option>
+     <option>296934</option>
+     <option>297633</option>
+     <option>297667</option>
+     <option>297705</option>
+     <option>300350</option>
+     <option>300372</option>
+     <option>300477</option>
+     <option>301201</option>
+     <option>301346</option>
+     <option>301382</option>
+     <option>301799</option>
+     <option>302846</option>
+     <option>302994</option>
+     <option>303099</option>
+     <option>318936</option>
+     <option>319018</option>
+     <option>319049</option>
+     <option>319057</option>
+     <option>319139</option>
+     <option>319272</option>
+     <option>320068</option>
+     <option>322910</option>
+     <option>323504</option>
+     <option>323507</option>
+     <option>323854</option>
+     <option>323855</option>
+     <option>323874</option>
+     <option>324323</option>
+     <option>324351</option>
+     <option>325378</option>
+     <option>325533</option>
+     <option>325536</option>
+     <option>345682</option>
+     <option>345754</option>
+     <option>346257</option>
+     <option>346718</option>
+     <option>346793</option>
+     <option>346892</option>
+     <option>347522</option>
+     <option>348116</option>
+     <option>348118</option>
+     <option>371633</option>
+     <option>371714</option>
+     <option>371750</option>
+     <option>371789</option>
+     <option>371959</option>
+     <option>373202</option>
+     <option>373284</option>
+     <option>375402</option>
+     <option>375531</option>
+     <option>376001</option>
+     <option>376121</option>
+     <option>376185</option>
+     <option>376282</option>
+     <option>376293</option>
+     <option>376340</option>
+     <option>376379</option>
+     <option>376478</option>
+     <option>376802</option>
+     <option>378060</option>
+     <option>378142</option>
+     <option>381159</option>
+     <option>381215</option>
+     <option>381225</option>
+     <option>382152</option>
+     <option>382631</option>
+     <option>383259</option>
+     <option>383283</option>
+     <option>383318</option>
+     <option>387675</option>
+     <option>387687</option>
+     <option>388451</option>
+     <option>388476</option>
+     <option>388603</option>
+     <option>397449</option>
+     <option>417392</option>
+     <option>417424</option>
+     <option>417441</option>
+     <option>417453</option>
+     <option>418725</option>
+     <option>418795</option>
+     <option>422320</option>
+     <option>422355</option>
+     <option>422366</option>
+     <option>422619</option>
+     <option>422683</option>
+     <option>422721</option>
+     <option>422761</option>
+     <option>422907</option>
+     <option>422933</option>
+     <option>460374</option>
+     <option>463148</option>
+     <option>463264</option>
+     <option>463317</option>
+     <option>485504</option>
+     <option>485885</option>
+     <option>485924</option>
+     <option>486782</option>
+     <option>486872</option>
+     <option>487010</option>
+     <option>487027</option>
+     <option>491508</option>
+     <option>491552</option>
+     <option>491608</option>
+     <option>492384</option>
+     <option>492414</option>
+     <option>493621</option>
+     <option>493811</option>
+     <option>496966</option>
+     <option>504713</option>
+     <option>504882</option>
+     <option>504922</option>
+     <option>505788</option>
+     <option>505817</option>
+     <option>505979</option>
+     <option>508184</option>
+     <option>508351</option>
+     <option>508414</option>
+     <option>508421</option>
+     <option>508481</option>
+     <option>508682</option>
+     <option>509397</option>
+     <option>509444</option>
+     <option>509516</option>
+     <option>509670</option>
+     <option>509727</option>
+     <option>511789</option>
+     <option>511863</option>
+     <option>511864</option>
+     <option>511867</option>
+     <option>511892</option>
+     <option>511921</option>
+     <option>513001</option>
+     <option>513066</option>
+     <option>513108</option>
+     <option>514260</option>
+     <option>517070</option>
+     <option>517164</option>
+     <option>517167</option>
+     <option>517249</option>
+     <option>517256</option>
+     <option>517306</option>
+     <option>517594</option>
+     <option>521898</option>
+     <option>522166</option>
+     <option>534654</option>
+     <option>534710</option>
+     <option>534753</option>
+     <option>534759</option>
+     <option>536625</option>
+     <option>536626</option>
+     <option>537163</option>
+     <option>537171</option>
+     <option>537187</option>
+     <option>537226</option>
+     <option>537361</option>
+     <option>537367</option>
+     <option>537399</option>
+     <option>537417</option>
+     <option>543498</option>
+     <option>543752</option>
+     <option>543763</option>
+     <option>543769</option>
+     <option>543812</option>
+     <option>543859</option>
+     <option>551202</option>
+     <option>551332</option>
+     <option>551350</option>
+     <option>551488</option>
+     <option>551505</option>
+     <option>551507</option>
+     <option>551655</option>
+     <option>558861</option>
+     <option>558887</option>
+     <option>560883</option>
+     <option>560946</option>
+     <option>561020</option>
+     <option>561143</option>
+     <option>561856</option>
+     <option>567545</option>
+     <option>567624</option>
+     <option>567676</option>
+     <option>567678</option>
+     <option>567736</option>
+     <option>570206</option>
+     <option>570227</option>
+     <option>574200</option>
+     <option>575532</option>
+     <option>575579</option>
+     <option>575625</option>
+     <option>575670</option>
+     <option>583443</option>
+     <option>583637</option>
+     <option>583716</option>
+     <option>583744</option>
+     <option>585314</option>
+     <option>585359</option>
+     <option>585386</option>
+     <option>585659</option>
+     <option>585694</option>
+     <option>585755</option>
+     <option>586326</option>
+     <option>592835</option>
+     <option>592863</option>
+     <option>593645</option>
+     <option>593680</option>
+     <option>594053</option>
+     <option>594059</option>
+     <option>594906</option>
+     <option>594986</option>
+     <option>594990</option>
+     <option>595027</option>
+     <option>595060</option>
+     <option>599582</option>
+     <option>599761</option>
+     <option>599839</option>
+     <option>599873</option>
+     <option>599877</option>
+     <option>600014</option>
+     <option>600026</option>
+     <option>601255</option>
+     <option>601323</option>
+     <option>609396</option>
+     <option>609433</option>
+     <option>610893</option>
+     <option>610997</option>
+     <option>617945</option>
+     <option>618071</option>
+     <option>618108</option>
+     <option>618116</option>
+     <option>618220</option>
+     <option>618906</option>
+     <option>618935</option>
+     <option>618952</option>
+     <option>618992</option>
+     <option>618993</option>
+     <option>619046</option>
+     <option>619095</option>
+     <option>619097</option>
+     <option>619098</option>
+     <option>619105</option>
+     <option>620034</option>
+     <option>620087</option>
+     <option>620098</option>
+     <option>622394</option>
+     <option>622429</option>
+     <option>622434</option>
+     <option>622534</option>
+     <option>622588</option>
+     <option>622694</option>
+     <option>622744</option>
+     <option>622770</option>
+     <option>623432</option>
+     <option>623620</option>
+     <option>623641</option>
+     <option>623679</option>
+     <option>623712</option>
+     <option>623722</option>
+  </select>
+    SELECT Gassy AND barred
+    <select id="barredgalaxies" size="7">
+     <option>8353</option>
+     <option>15220</option>
+     <option>22633</option>
+     <option>22887</option>
+     <option>22932</option>
+     <option>31452</option>
+     <option>37064</option>
+     <option>65406</option>
+     <option>69653</option>
+     <option>69740</option>
+     <option>77754</option>
+     <option>78531</option>
+     <option>93062</option>
+     <option>99349</option>
+     <option>106042</option>
+     <option>106717</option>
+     <option>144239</option>
+     <option>144402</option>
+     <option>204983</option>
+     <option>205097</option>
+     <option>209698</option>
+     <option>209701</option>
+     <option>209807</option>
+     <option>220687</option>
+     <option>228105</option>
+     <option>230174</option>
+     <option>238358</option>
+     <option>272443</option>
+     <option>278548</option>
+     <option>288364</option>
+     <option>301382</option>
+     <option>319018</option>
+     <option>371633</option>
+     <option>371789</option>
+     <option>376121</option>
+     <option>376478</option>
+     <option>383259</option>
+     <option>485885</option>
+     <option>486782</option>
+     <option>487027</option>
+     <option>505788</option>
+     <option>505979</option>
+     <option>599582</option>
+     <option>618993</option>
+     <option>619095</option>
+     <option>622429</option>
+     <option>623620</option>
+    </select>
+   All cluster sub-sample discs
+   <select id="clustereddiscs" size="7">
+     <option>9008500007</option>
+     <option>9008500020</option>
+     <option>9008500024</option>
+     <option>9008500034</option>
+     <option>9008500042</option>
+     <option>9008500062</option>
+     <option>9008500064</option>
+     <option>9008500067</option>
+     <option>9008500068</option>
+     <option>9008500070</option>
+     <option>9008500074</option>
+     <option>9008500077</option>
+     <option>9008500080</option>
+     <option>9008500082</option>
+     <option>9008500089</option>
+     <option>9008500093</option>
+     <option>9008500103</option>
+     <option>9008500107</option>
+     <option>9008500110</option>
+     <option>9008500114</option>
+     <option>9016800393</option>
+     <option>9008500118</option>
+     <option>9016800416</option>
+     <option>9008500122</option>
+     <option>9016800425</option>
+     <option>9008500134</option>
+     <option>9016800559</option>
+     <option>9008500137</option>
+     <option>9044200001</option>
+     <option>9008500139</option>
+     <option>9044200004</option>
+     <option>9008500141</option>
+     <option>9044200007</option>
+     <option>9008500145</option>
+     <option>9044200025</option>
+     <option>9008500158</option>
+     <option>9044200028</option>
+     <option>9008500169</option>
+     <option>9044200032</option>
+     <option>9008500171</option>
+     <option>9239900268</option>
+     <option>9044200042</option>
+     <option>9008500175</option>
+     <option>9239900277</option>
+     <option>9044200047</option>
+     <option>9008500182</option>
+     <option>9239900289</option>
+     <option>9044200057</option>
+     <option>9008500193</option>
+     <option>9239900293</option>
+     <option>9044200061</option>
+     <option>9008500196</option>
+     <option>9239900300</option>
+     <option>9044200062</option>
+     <option>9008500204</option>
+     <option>9239900362</option>
+     <option>9044200079</option>
+     <option>9008500208</option>
+     <option>9239900366</option>
+     <option>9044200090</option>
+     <option>9008500209</option>
+     <option>9239900386</option>
+     <option>9044200091</option>
+     <option>9008500220</option>
+     <option>9239900390</option>
+     <option>9044200104</option>
+     <option>9008500225</option>
+     <option>9239900403</option>
+     <option>9044200107</option>
+     <option>9008500227</option>
+     <option>9239900408</option>
+     <option>9044200130</option>
+     <option>9008500234</option>
+     <option>9239900416</option>
+     <option>9044200140</option>
+     <option>9008500240</option>
+     <option>9239900457</option>
+     <option>9044200147</option>
+     <option>9008500245</option>
+     <option>9239900465</option>
+     <option>9008500302</option>
+     <option>9044200148</option>
+     <option>9239900478</option>
+     <option>9008500303</option>
+     <option>9044200155</option>
+     <option>9008500307</option>
+     <option>9239900492</option>
+     <option>9044200158</option>
+     <option>9008500314</option>
+     <option>9239900540</option>
+     <option>9044200170</option>
+     <option>9008500316</option>
+     <option>9239900555</option>
+     <option>9044200175</option>
+     <option>9008500326</option>
+     <option>9044200204</option>
+     <option>9239900565</option>
+     <option>9008500333</option>
+     <option>9044200205</option>
+     <option>9239900567</option>
+     <option>9008500535</option>
+     <option>9044200217</option>
+     <option>9239900579</option>
+     <option>9008500542</option>
+     <option>9044200248</option>
+     <option>9239900615</option>
+     <option>9008500586</option>
+     <option>9239900630</option>
+     <option>9044200269</option>
+     <option>9008500673</option>
+     <option>9239900641</option>
+     <option>9044200305</option>
+     <option>9008500679</option>
+     <option>9239900645</option>
+     <option>9044200316</option>
+     <option>9008500690</option>
+     <option>9388000001</option>
+     <option>9044200348</option>
+     <option>9008500731</option>
+     <option>9388000004</option>
+     <option>9044200383</option>
+     <option>9011900001</option>
+     <option>9388000006</option>
+     <option>9044200446</option>
+     <option>9011900002</option>
+     <option>9388000027</option>
+     <option>9091700001</option>
+     <option>9011900005</option>
+     <option>9388000033</option>
+     <option>9091700005</option>
+     <option>9011900006</option>
+     <option>9388000041</option>
+     <option>9091700014</option>
+     <option>9011900012</option>
+     <option>9388000046</option>
+     <option>9091700022</option>
+     <option>9011900013</option>
+     <option>9388000048</option>
+     <option>9091700025</option>
+     <option>9388000099</option>
+     <option>9011900024</option>
+     <option>9091700033</option>
+     <option>9388000105</option>
+     <option>9011900030</option>
+     <option>9091700034</option>
+     <option>9388000120</option>
+     <option>9011900044</option>
+     <option>9388000124</option>
+     <option>9091700037</option>
+     <option>9011900045</option>
+     <option>9388000135</option>
+     <option>9091700038</option>
+     <option>9011900048</option>
+     <option>9388000139</option>
+     <option>9091700047</option>
+     <option>9011900049</option>
+     <option>9388000142</option>
+     <option>9091700061</option>
+     <option>9011900051</option>
+     <option>9388000146</option>
+     <option>9091700063</option>
+     <option>9011900057</option>
+     <option>9388000197</option>
+     <option>9091700076</option>
+     <option>9011900060</option>
+     <option>9388000219</option>
+     <option>9091700089</option>
+     <option>9011900068</option>
+     <option>9388000256</option>
+     <option>9091700092</option>
+     <option>9011900072</option>
+     <option>9388000269</option>
+     <option>9091700107</option>
+     <option>9011900073</option>
+     <option>9388000278</option>
+     <option>9091700111</option>
+     <option>9011900074</option>
+     <option>9388000360</option>
+     <option>9091700123</option>
+     <option>9011900082</option>
+     <option>9388000391</option>
+     <option>9091700137</option>
+     <option>9011900084</option>
+     <option>9388000397</option>
+     <option>9091700141</option>
+     <option>9011900087</option>
+     <option>9388000437</option>
+     <option>9091700143</option>
+     <option>9011900091</option>
+     <option>9091700200</option>
+     <option>9403800001</option>
+     <option>9011900096</option>
+     <option>9091700201</option>
+     <option>9403800002</option>
+     <option>9011900100</option>
+     <option>9091700202</option>
+     <option>9403800003</option>
+     <option>9011900101</option>
+     <option>9403800005</option>
+     <option>9091700225</option>
+     <option>9011900123</option>
+     <option>9403800021</option>
+     <option>9091700231</option>
+     <option>9011900125</option>
+     <option>9403800029</option>
+     <option>9091700242</option>
+     <option>9011900127</option>
+     <option>9403800032</option>
+     <option>9091700393</option>
+     <option>9011900137</option>
+     <option>9403800035</option>
+     <option>9091700399</option>
+     <option>9011900138</option>
+     <option>9403800047</option>
+     <option>9091700404</option>
+     <option>9011900144</option>
+     <option>9403800057</option>
+     <option>9091700444</option>
+     <option>9011900147</option>
+     <option>9403800064</option>
+     <option>9091700469</option>
+     <option>9011900150</option>
+     <option>9403800073</option>
+     <option>9239900001</option>
+     <option>9011900156</option>
+     <option>9403800077</option>
+     <option>9239900004</option>
+     <option>9011900163</option>
+     <option>9403800083</option>
+     <option>9239900009</option>
+     <option>9011900166</option>
+     <option>9403800086</option>
+     <option>9239900012</option>
+     <option>9011900168</option>
+     <option>9403800099</option>
+     <option>9239900013</option>
+     <option>9011900170</option>
+     <option>9403800101</option>
+     <option>9239900020</option>
+     <option>9011900175</option>
+     <option>9403800114</option>
+     <option>9239900024</option>
+     <option>9011900183</option>
+     <option>9403800117</option>
+     <option>9239900035</option>
+     <option>9011900186</option>
+     <option>9403800119</option>
+     <option>9239900038</option>
+     <option>9011900189</option>
+     <option>9403800120</option>
+     <option>9239900040</option>
+     <option>9403800121</option>
+     <option>9011900202</option>
+     <option>9239900054</option>
+     <option>9403800123</option>
+     <option>9011900211</option>
+     <option>9239900060</option>
+     <option>9403800131</option>
+     <option>9011900217</option>
+     <option>9239900063</option>
+     <option>9403800148</option>
+     <option>9011900225</option>
+     <option>9239900067</option>
+     <option>9403800149</option>
+     <option>9011900232</option>
+     <option>9239900068</option>
+     <option>9403800156</option>
+     <option>9011900233</option>
+     <option>9239900082</option>
+     <option>9403800159</option>
+     <option>9011900242</option>
+     <option>9239900088</option>
+     <option>9403800161</option>
+     <option>9011900247</option>
+     <option>9239900100</option>
+     <option>9403800168</option>
+     <option>9011900250</option>
+     <option>9239900105</option>
+     <option>9403800169</option>
+     <option>9011900254</option>
+     <option>9239900106</option>
+     <option>9403800184</option>
+     <option>9011900274</option>
+     <option>9239900108</option>
+     <option>9403800215</option>
+     <option>9011900279</option>
+     <option>9239900112</option>
+     <option>9403800250</option>
+     <option>9011900329</option>
+     <option>9239900119</option>
+     <option>9403800272</option>
+     <option>9011900340</option>
+     <option>9239900120</option>
+     <option>9403800283</option>
+     <option>9011900347</option>
+     <option>9239900122</option>
+     <option>9403800349</option>
+     <option>9011900367</option>
+     <option>9239900125</option>
+     <option>9403800352</option>
+     <option>9011900383</option>
+     <option>9239900126</option>
+     <option>9403800371</option>
+     <option>9011900392</option>
+     <option>9239900136</option>
+     <option>9403800390</option>
+     <option>9011900407</option>
+     <option>9239900138</option>
+     <option>9403800397</option>
+     <option>9011900413</option>
+     <option>9239900145</option>
+     <option>9403800507</option>
+     <option>9011900429</option>
+     <option>9403800520</option>
+     <option>9239900146</option>
+     <option>9403800521</option>
+     <option>9011900438</option>
+     <option>9239900147</option>
+     <option>9403800551</option>
+     <option>9011900450</option>
+     <option>9239900150</option>
+     <option>9403800559</option>
+     <option>9011900492</option>
+     <option>9239900152</option>
+     <option>9403800560</option>
+     <option>9239900161</option>
+     <option>9011900498</option>
+     <option>9403800586</option>
+     <option>9239900167</option>
+     <option>9011900538</option>
+     <option>9403800636</option>
+     <option>9239900169</option>
+     <option>9011900547</option>
+     <option>9403800694</option>
+     <option>9239900178</option>
+     <option>9011900554</option>
+     <option>9403800763</option>
+     <option>9239900182</option>
+     <option>9011900557</option>
+     <option>9403800813</option>
+     <option>9239900196</option>
+     <option>9016800008</option>
+     <option>9403800833</option>
+     <option>9239900202</option>
+     <option>9016800039</option>
+     <option>9403800911</option>
+     <option>9239900205</option>
+     <option>9016800071</option>
+     <option>9403800958</option>
+     <option>9239900211</option>
+     <option>9016800093</option>
+     <option>9403801010</option>
+     <option>9239900222</option>
+     <option>9016800110</option>
+     <option>9403801061</option>
+     <option>9016800130</option>
+     <option>9239900237</option>
+     <option>9403801173</option>
+     <option>9016800303</option>
+     <option>9239900248</option>
+     <option>9403801272</option>
+     <option>9016800343</option>
+     <option>9239900256</option>
+     <option>9403801368</option>
+   </select>
+  </fieldset>
+<blockquote>
+Finally, move the mouse into any image to plot the underlying spectrum (averaged over 2x2 arcsec<sup>2</sup> box), so an 11x11 grid.
+<br>
+Drag mouse button down to zoom or pan the part of the spectrum selected. Double-click to revert.
+<br><br>
+Mouse button down on any image toggles in the velocity field.
+<br>
+Note: be sure to 'zoom text only', not images, in your browser option settings.
+Note: avoid the Microsoft Edge browser. It does not support custom cursors.
+</blockquote>
+ </form>
+</section>
+<section>
+  <div id="joe">&nbsp;</div>
+  <div id="spec" style="width:1680px;height:370px;"></div>
+  <div id = "GAMA">
+    <canvas id="myCanvas" width="1042" height="863">
+    Sorry, cannot display because your browser does not support the HTML 5 canvas element</canvas>
+  </div>
+    <script type="text/javascript" > 
+$( function() {
+      var shockv,shockf,vel,point,val,oldpoint,b0,bd,bn,r0,rd,zsh,ix,iy;
+      wave = [3727.09,3729.88,4102.92,4341.692,4364.44,4862.721,5008.239,
+        6302.04,6313.8,6564.614,6585.27,6718.29,6732.68,3934.777,3969.591,
+        3869.81,3963.81,5577.]; // AIR=VAC/(1.0 + 2.735182E-4 + 131.4182/VAC^2 + 2.76249E8/VAC^4)
+      canvas = $('#myCanvas').get(0);
+      context = canvas.getContext('2d');
+      imageObj1 = new Image();
+      use = [true,true,true,true,true,true,true,true,true,true,true,
+        true,true,true,true,true,true,true,true,true,true,true,true,true];
+      var keepc = new Array; // cache to avoid repeated access to online data
+      var keepf = new Array;
+//alert(123456);
+//   $('body').on('mousedown','div', function() {
+//       if ( event.button == 1 ) {
+ //        event.preventDefault();
+  //       return event.returnValue = false;
+   // }});
+
+      imageObj1.onload = function() {
+          context.drawImage(imageObj1,0,0);
+      };
+
+      function makeCursor(psf) {
+        var cursor = document.createElement('canvas'); // create off-screen canvas
+        ctx = cursor.getContext('2d');
+        cursor.width = 2*psf;
+        cursor.height = 2*psf;
+        ctx.save();
+        ctx.globalAlpha = 0.25;
+        ctx.beginPath();
+        ctx.arc(psf, psf, psf-10, 0, Math.PI * 2, false);
+        ctx.fill();
+        ctx.strokeStyle = "#000000"; // set fill color
+        ctx.stroke();
+        ctx.restore();
+        document.body.style.cursor = 'url(' + cursor.toDataURL() + '), auto'; // set image as cursor
+      };
+
+      $('#myCanvas').on('mousemove', function() { process1(current); } );
+      $('#myCanvas').on('mouseup', function() { process1(current); } );
+      $('#myCanvas').on('mousedown', function() {
+      for (var i=0; i < 8; i++ ) {    
+        context.drawImage(imageObj1,0,0,250,250,250*(i%4),250*((i/4) >> 0),250,250);
+      }
+    } );
+      
+      $('#allgalaxies').on('click', function(){ point = 60; current = 'allgalaxies'; process(current); } );
+      $('#diskgalaxies').on('click', function(){ point = 60; current = 'diskgalaxies'; process(current); } );
+      $('#barredgalaxies').on('click', function(){ point = 60; current = 'barredgalaxies'; process(current); } );
+      $('#clustereddiscs').on('click', function(){ point = 60; current = 'clustereddiscs'; process(current); } );
+        var oReq;
+        function process(galtype) {
+          val = document.getElementById(galtype).value;
+          var val1 = 'SGS view of ID '+val;
+          $.prop('title',val1);
+          val1 = 'double/'+val+'.txt';
+          oReq = new XMLHttpRequest();
+          oReq.open("POST",val1,true); // POST allows arb sized inputs, GET can be as small as 2K
+          oReq.onreadystatechange = checkData;
+          oReq.responseType = "arraybuffer";
+          oReq.send(null);
+        };
+        function checkData() {
+         if ( oReq.readyState == 4 ) {
+          if ( oReq.status == 200 ) {
+            var arrayBuffer = oReq.response;
+            if ( arrayBuffer ) {
+               var fArray = new Float32Array(arrayBuffer);
+               keepf = fArray;
+               var byteArray = new Uint8Array(arrayBuffer);
+               keepc = byteArray;
+               process1();
+            }
+          } else {
+              alert(oReq.status);
+            var dum=0;
+          }
+         }
+        };
+        function process1() {
+          var i0 = (80+1968+2048)/4*point;;
+          b0 = keepf[4]; bd = keepf[5]; bn = keepf[6];
+          r0 = keepf[7]; rd = keepf[8]; 
+          fwhm = keepf[10]; zsh = keepf[11];
+          var absG = (keepf[12].toFixed(2)).toString()+ ' M_g'; 
+          var absR = (keepf[13].toFixed(2)).toString()+ ' M_r'; 
+          var absI = (keepf[14].toFixed(2)).toString()+' M_i'; 
+          var absZ = (keepf[15].toFixed(2)).toString()+' M_z'; 
+          var GAMAmetal = (keepf[16].toFixed(2)).toString()+' metal'; 
+          var GAMAage = (keepf[17].toFixed(2)).toString()+' log(yr)'; 
+          if ( isNaN(keepf[i0]) ) {
+             var nada = 0;
+          } else {
+             var fluxbl = keepf[i0+0]/4.; var fluxbh = keepf[i0+1];
+             var fluxrl = keepf[i0+2]/4.; var fluxrh = keepf[i0+3]; // per arcsec^2
+             psf = (fwhm*9).toFixed(0);
+             makeCursor(psf);
+             var bptx = new Array;
+             var bpty = new Array;
+             for ( var i=0; i < 16; i++ ) {
+                 bptx.push(-1.7+2.6*keepc[16+i0*4+i]/50.);
+                 bpty.push(-0.9+2.4*keepc[16+i0*4+i+16]/50.);
+             }
+             var b = new Array;
+             var r = new Array;
+             var dbflux = (fluxbh-fluxbl)/255.;
+             var drflux = (fluxrh-fluxrl)/255.;
+             for ( var i=0; i < 1968+2048; i++ ) {
+                if ( i < bn ) {
+                   b.push(fluxbl+dbflux*keepc[80+i0*4+i]);
+                } else { 
+                   r.push(fluxrl+drflux*keepc[80+i0*4+i]);
+                }
+             }
+             zsh += 1.
+          }
+          var dat1 = {x0: b0, dx: bd, y: b, line: {shape: 'hvh'},
+	   fill: 'tozeroy', type: 'scatter', opacity: 0.1, connectgaps: false, hoverinfo: 'x+y'};
+          var dat2 = {x0: r0, dx: rd, y: r, line: {shape: 'hvh', color: 'rgb(255,77,77)'},
+	   fill: 'tozeroy', type: 'scatter', hoverinfo: 'x+y'};
+          var dat3 = {x0: r0, dx: rd, y: r.slice((6540*zsh-r0)/rd,(6595*zsh-r0)/rd+1),
+            line: {color: 'rgb(150,150,150)', shape: 'hvh'}, xaxis: 'x2', yaxis: 'y2', type: 'scatter', hoverinfo: 'x+y'};
+          var bptdat = {x: bptx, y: bpty, type: 'scatter', mode: 'markers', xaxis: 'x3', yaxis: 'y3'};
+          var bptcurve = {x: [-1.711,-1.2978,-0.8703,-0.5685,-0.4069,-0.2801,-0.1171,-0.0098,0.048,0.1332],
+                        y: [0.9358,0.8769,0.7462,0.5846,0.4483,0.3,-0.0846,-0.5231,-0.8615,-1.1], 
+            type: 'scatter', mode: 'lines', xaxis: 'x3', yaxis: 'y3', hoverinfo: 'none'};
+          var bptcurve1 = {x: [-0.4096,0.1402], y: [0.4253,1.4941], type: 'scatter', mode: 'lines', 
+            xaxis: 'x3', yaxis: 'y3', hoverinfo: 'none'};
+         var fluxmx;
+         if ( fluxrh > fluxbh ) { 
+            fluxmx = fluxrh;
+         } else {
+            fluxmx = fluxbh;
+         }
+         var f1 = [0.,fluxmx];
+         var l0 = {x: [zsh*wave[0],zsh*wave[0]], y:f1, line: {dash: 'dot', color: 'gray'}, opacity: 0.4}; 
+         var l1 = {x: [zsh*wave[1],zsh*wave[1]], y:f1, line: {dash: 'dot', color: 'gray'}, opacity: 0.4}; 
+         var l2 = {x: [zsh*wave[2],zsh*wave[2]], y:f1, line: {dash: 'dot', color: 'red'}, opacity: 0.4}; 
+         var l3 = {x: [zsh*wave[3],zsh*wave[3]], y:f1, line: {dash: 'dot', color: 'red'}, opacity: 0.4}; 
+         var l4 = {x: [zsh*wave[4],zsh*wave[4]], y:f1, line: {dash: 'dot', color: 'green'}, opacity: 0.4}; 
+         var l5 = {x: [zsh*wave[5],zsh*wave[5]], y:f1, line: {dash: 'dot', color: 'red'}, opacity: 0.4}; 
+         var l6 = {x: [zsh*wave[6],zsh*wave[6]], y:f1, line: {dash: 'dot', color: 'green'}, opacity: 0.4}; 
+         var l7 = {x: [zsh*wave[7],zsh*wave[7]], y:f1, line: {dash: 'dot', color: 'Charteuse'}, opacity: 0.4}; 
+         var l8 = {x: [zsh*wave[8],zsh*wave[8]], y:f1, line: {dash: 'dot', color: 'magenta'}, opacity: 0.4}; 
+         var l9 = {x: [zsh*wave[9],zsh*wave[9]], y:f1, line: {dash: 'dot', color: 'red'}, opacity: 0.4}; 
+         var l10 = {x: [zsh*wave[10],zsh*wave[10]], y:f1, line: {dash: 'dot', color: 'brown'}, opacity: 0.4}; 
+         var l11 = {x: [zsh*wave[11],zsh*wave[11]], y:f1, line: {dash: 'dot', color: 'magenta'}, opacity: 0.4}; 
+         var l12 = {x: [zsh*wave[12],zsh*wave[12]], y:f1, line: {dash: 'dot', color: 'magenta'}, opacity: 0.4}; 
+         var l13 = {x: [zsh*wave[13],zsh*wave[13]], y:f1, line: {dash: 'dot', color: 'violet'}, opacity: 0.4}; 
+         var l14 = {x: [zsh*wave[14],zsh*wave[14]], y:f1, line: {dash: 'dot', color: 'violet'}, opacity: 0.4}; 
+         var l15 = {x: [zsh*wave[15],zsh*wave[15]], y:f1, line: {dash: 'dot', color: 'cyan'}, opacity: 0.4}; 
+         var l16 = {x: [zsh*wave[16],zsh*wave[16]], y:f1, line: {dash: 'dot', color: 'cyan'}, opacity: 0.4}; 
+         var note = 7230;
+         var layout = {showlegend: false, plot_bgcolor: 'rgb(255,255,255)',
+           yaxis: {range: [0.,f1], hoverformat: '5.3g'},
+           xaxis: {domain: [0,0.78], range: [3735,7400], hoverformat: 'f'},
+           annotations: [ {x: 5990, y: fluxmx,  text:'ID '+val+' @ z = '+(zsh-1.).toFixed(5),showarrow:false},
+                 {x: note, y: fluxmx*242/255., text: absG,showarrow:false},
+                 {x: note, y: fluxmx*222/255., text: absR, showarrow:false},
+                 {x: note, y: fluxmx*202/255., text: absI, showarrow:false},
+                 {x: note, y: fluxmx*182/255., text: absZ, showarrow:false},
+                 {x: note, y: fluxmx*162/255., text: GAMAmetal, showarrow:false},
+                 {x: note, y: fluxmx*142/255., text: GAMAage, showarrow:false},
+                 {x: 3838, y: fluxmx*250/255., text: "x10<sup>-16</sup> erg", showarrow:false},
+                 {x: 3866, y: fluxmx*235/255., text: "cm<sup>2</sup>arcsec<sup>2</sup>s&Aring;", showarrow:false},
+////             {x: note, y: fluxmx*120/255., text:'@V = '+vel.toFixed(1)+' km/s',showarrow:false},
+////             {x: note, y: fluxmx*100/255., text: dens.toFixed(1)+' log [S II] density',showarrow:false},
+////             {x: note, y: fluxmx*80/255., text: dec.toFixed(1)+' H decrement',showarrow:false},
+////             {x: note, y: fluxmx*60/255., text: shockv.toFixed(0)+' km/s shock',showarrow:false},
+////             {x: note, y: fluxmx*40/255., text: shockf.toFixed(0)+' % shocked',showarrow:false},
+                 {x: note, y: fluxmx*20/255., text: point,showarrow:false}
+               ],
+           font: {size: 16}, margin: {l: 50, r: 15, b: 23, t: 5}, paper_bgcolor: 'rgba(0,0,0,0)',
+  	   plot_bgcolor: 'rgba(0,0,0,0)',
+  	   xaxis2: { hoverformat: '.2f', showgrid: false, showticklabels: false, domain: [0.43,0.54], anchor: 'x2'},
+           yaxis2: { hoverformat: '.2f', showgrid: false, showticklabels: false, domain: [0,0.99], anchor: 'x2'}, 
+  	   xaxis3: { hoverformat: '.2f', zeroline: false, showgrid: false, range: [-1.7,0.9], domain: [0.8,1] },
+           yaxis3: { hoverformat: '.2f', zeroline: false, showgrid: false, range: [-0.9,1.5], domain: [0,0.99], anchor: 'x3'}, 
+         };
+         if ( fluxmx > 0. ) {
+             Plotly.newPlot("spec",[dat1,dat2,dat3,bptdat,bptcurve,bptcurve1,l0,l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16],layout);
+       
+         } else {
+             Plotly.newPlot("spec",[]);
+         }
+         img = document.createElement('img');
+         img.src = val+'_newsummary.png';
+         imageObj1.src = img.src;
+         joe.innerHTML ='<nav><ul><li><a href="files/'+val+
+             '.tar" download>Save all as FITS tar</a></li><li><a href="pdfs/'+
+             val+'_newsummary.pdf" download>Save PDF</a></li><li>'+
+             '<a href="http://www.gama-survey.org/dr2/tools/sov.php" target="_blank">GAMA catalog single object browser</a></li>'+
+             '<li><a href="samiFinal.csv" download>PANDAS csv of all ancillary data</a></li>'+
+             '<li>and <a href="useDB.ipynb" download>an IPython notebook showing its use</a></li></ul></nav>';
+         };
+  
+      function getMousePos(canvas, event) { // image pixel location
+        var rect = canvas.getBoundingClientRect();
+        return {
+         x: Math.round((event.clientX-rect.left-112)/(rect.right-rect.left)*canvas.width),
+         y: Math.round((event.clientY-rect.top-41)/(rect.bottom-rect.top)*canvas.height)
+        };
+      };
+
+      function writeMessage(canvas, message) {
+        context.clearRect(0, 0, 390,35); // canvas.width, canvas.height);
+        context.font = '18pt Calibri';
+        context.fillStyle = 'black';
+        context.fillText(message, 10, 25);
+      };
+
+      canvas.addEventListener('mousemove', function(event) {
+        var mousePos = getMousePos(canvas, event);
+        ix1 = mousePos.x; iy1 = mousePos.y;
+
+        if ( ix1 <= 100 ) {
+           ix = Math.floor((ix1+64)/15.2);
+        } else if ( ix1 <= 400 ) {
+           ix = Math.floor((ix1-186)/15.2);
+        } else if ( ix1 <= 700 ) {
+           ix = Math.floor((ix1-437)/15.2);
+        } else if ( ix1 <= 1000 ) {
+           ix = Math.floor((ix1-687)/15.2);
+        }
+        if ( iy1 <= 148 ) { 
+           iy = Math.floor((iy1+18)/15.2);
+        } else if ( iy1 <= 400 ) {
+           iy = Math.floor((iy1-224)/15.2);
+        }
+//      writeMessage(canvas,ix.toString()+' '+iy.toString());
+        if ( ix >= 0 & ix <= 11 & iy >= 0 & iy <= 11 ) {
+          oldpoint = point;
+          point = (11*ix+iy).toString();
+        };
+        }, false);
+
+} );
+    </script>
+ </section>
+  </article>
+ </body>
+</html>
