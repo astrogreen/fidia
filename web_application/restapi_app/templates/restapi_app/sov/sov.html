@@ -1,0 +1,185 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}{{objname}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/sov/sov.css' %}"/>
+{% endblock %}
+
+{% block content %}
+    <h1 class="headline">
+        <span>obj_name</span>
+    </h1>
+    <div class="row">
+    <div class="col-sm-2">
+        <div id="trait_accordian" class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-heading panel-background-grey">
+                    <span class="panel-title">SAMI
+                        <!--<input type="checkbox">-->
+                    </span>
+                    <a data-toggle="collapse" href="#sami_traits" class="expand_collapse_icon pull-right">
+                        <i class="fa fa-lg fa-angle-up"></i>
+                    </a>
+                </div>
+                <div id="sami_traits" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <img class="img-responsive sami sov-logo"
+                                 src="/static/restapi_app/img/logo/logo-sami.png">
+                        <h5>Line Maps
+                            <a data-toggle="collapse" href="#sami_traits_line_maps" class="expand_collapse_icon pull-right">
+                                <i class="fa fa-lg fa-angle-up"></i></a>
+                        </h5>
+                        <div id="sami_traits_line_maps" class="panel-collapse collapse in">
+                            <div class="checkbox">
+                               <label>
+                                 <input type="checkbox" class="trait-checkbox" data-trait="trait1"> Trait 1
+                               </label>
+                             </div>
+                            <div class="checkbox">
+                               <label>
+                                 <input type="checkbox" class="trait-checkbox" data-trait="trait2"> Trait 2
+                               </label>
+                             </div>
+                            <div class="checkbox">
+                               <label>
+                                 <input type="checkbox" class="trait-checkbox" data-trait="trait3"> Trait 3
+                               </label>
+                             </div>
+                            <div class="checkbox">
+                               <label>
+                                 <input type="checkbox" class="trait-checkbox" data-trait="trait4"> Trait 4
+                               </label>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading panel-background-grey">
+                    <span class="panel-title">GAMA</span>
+                    <a data-toggle="collapse" href="#gama_traits" class="expand_collapse_icon pull-right">
+                        <i class="fa fa-lg fa-angle-down"></i>
+                    </a>
+                </div>
+                <div id="gama_traits" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <img class="img-responsive  gama sov-logo"
+                                 src="/static/restapi_app/img/logo/logo-gama.png">
+                        <p>available checky boxes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <p><strong>Component properties</strong></p>
+                <p>description goes here</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-10">
+        <div class="row">
+            <div class="col-xs-8">
+                <h5 class="text-uppercase"><strong>Source info (line per survey?)</strong></h5>
+                <table class="table table-condensed">
+                    <thead>
+                    <tr>
+                        <th>SAMI ID</th>
+                        <th>RA</th>
+                        <th>DEC (J2000)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><a href="/asvo/data/sami/9352"> 9352</a></td>
+                        <td>185.9772083333334</td>
+                        <td>0.8305277777777778</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="table table-condensed">
+                    <thead>
+                    <tr>
+                        <th>CATAID</th>
+                        <th>RA</th>
+                        <th>DEC (J2000)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-4">
+                <h5>SDSS IMAGE</h5>
+                <img class="img-responsive"
+                     src="http://skyservice.pha.jhu.edu/DR10/ImgCutout/getjpeg.aspx?ra=114.82991&dec=10.91817&width=120&height=120">
+            </div>
+        </div>
+        <div class="row row-no-padding sami-spectrum">
+            <div class="col-xs-12 col-sm-12">
+                <div class="thumbnail"> <img src="https://placebear.com/1200/200">
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-padding sami-maps">
+            <div class="col-xs-12 col-sm-4 column0">
+
+            </div>
+            <div class="col-xs-12 col-sm-4 column1">
+
+            </div>
+            <div class="col-xs-12 col-sm-4 column2">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer-extra %}
+ <script type="text/javascript">
+
+    $(".expand_collapse_icon").click(function() {
+        // Change the accordian caret based on the collapse panel status
+        // get the id of the anchor that will have class .collapse .in from this.attr(href)
+         if ($($(this).attr('href')).hasClass('in')){
+             // angle up
+             $(this).children('i').removeClass('fa-angle-up').addClass('fa-angle-down');
+         } else {
+             // angle down
+             $(this).children('i').removeClass('fa-angle-down').addClass('fa-angle-up');
+         }
+    });
+
+    Array.prototype.min = function() {
+      return Math.min.apply(null, this);
+    };
+    Array.prototype.max = function() {
+      return Math.max.apply(null, this);
+    };
+
+    // When user clicks a trait textbox append div with class == checkbox data-trait attribute
+    $('.trait-checkbox').click(function(){
+        var column_array = [$('.column0').height(),$('.column1').height(),$('.column2').height()];
+        var min_height_index = column_array.indexOf(column_array.min())
+        var data_trait=$(this).attr('data-trait');
+        if (undefined == data_trait){console.log('data_trait is undefined for input checkbox: '+$(this))}
+        if ($(this).is(':checked') == true ){
+            var new_html = '<div class="thumbnail '+data_trait+'"> <img class="img-responsive" src="https://placebear.com/400/'+Math.round(Math.random()*4)+'00"> <div class="caption">  <p><a href="#" class="btn btn-default btn-xs text-uppercase " role="button">Data</a> </p> </div> </div>'
+            $('.column'+min_height_index).append(new_html);
+        } else {
+            $('.'+data_trait).remove();
+        }
+    });
+</script>
+
+{% endblock %}

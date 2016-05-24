@@ -36,56 +36,57 @@ user_detail = views.UserViewSet.as_view({
 })
 
 urlpatterns = [
-                  url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
+            url(r'^sov', TemplateView.as_view(template_name='restapi_app/sov/sov.html'), name='sov-test'),
+            url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
 
-                  url(r'^(?i)documentation/$',
+            url(r'^(?i)documentation/$',
                       TemplateView.as_view(template_name='restapi_app/documentation/sub-menu.html'),
                       name='documentation'),
-                  url(r'^(?i)documentation/data-access/$',
+            url(r'^(?i)documentation/data-access/$',
                       TemplateView.as_view(template_name='restapi_app/documentation/data-access.html'),
                       name='documentation-data-access'),
-                  url(r'^(?i)documentation/query-builder/$',
+            url(r'^(?i)documentation/query-builder/$',
                       TemplateView.as_view(template_name='restapi_app/documentation/query-builder.html'),
                       name='documentation-query-builder'),
 
-                  url(r'^(?i)documentation/query-history/$',
-                      TemplateView.as_view(template_name='restapi_app/documentation/query-history.html'),
-                      name='documentation-query-history'),
+            url(r'^(?i)documentation/query-history/$',
+              TemplateView.as_view(template_name='restapi_app/documentation/query-history.html'),
+              name='documentation-query-history'),
 
-                  url(r'^(?i)documentation/schema-browser/$',
-                      TemplateView.as_view(template_name='restapi_app/documentation/schema-browser.html'),
-                      name='documentation-schema-browser'),
+            url(r'^(?i)documentation/schema-browser/$',
+              TemplateView.as_view(template_name='restapi_app/documentation/schema-browser.html'),
+              name='documentation-schema-browser'),
 
-                  url(r'^(?i)under-construction/$',
-                      TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'),
-                      name='under-construction'),
-                  url(r'^(?i)about/team/$', TemplateView.as_view(template_name='restapi_app/about/team.html'),
-                      name='about-team'),
+            url(r'^(?i)under-construction/$',
+              TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'),
+              name='under-construction'),
+            url(r'^(?i)about/team/$', TemplateView.as_view(template_name='restapi_app/about/team.html'),
+              name='about-team'),
 
-                  url(r'^(?i)support/contact/$', views.ContactForm.as_view(), name='support-contact'),
+            url(r'^(?i)support/contact/$', views.ContactForm.as_view(), name='support-contact'),
 
-                  url(r'^user-testing/feedback/$',
-                      TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'),
-                      name='user-feedback'),
-                  url(r'^user-testing/feature-tracking/$',
-                      TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'),
-                      name='feature-tracking'),
+            url(r'^user-testing/feedback/$',
+              TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'),
+              name='user-feedback'),
+            url(r'^user-testing/feature-tracking/$',
+              TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'),
+              name='feature-tracking'),
 
-                  url(r'^(?i)signed-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'),
-                      name='logout-page'),
+            url(r'^(?i)signed-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'),
+              name='logout-page'),
 
-                  url(r'^(?i)data/', include(router.urls)),
-                  url(r'^(?i)data/', include(object_nested_router.urls)),
-                  url(r'^(?i)data/', include(trait_nested_router.urls)),
-                  url(r'^(?i)data/', include(traitprop_nested_router.urls)),
+            url(r'^(?i)data/', include(router.urls)),
+            url(r'^(?i)data/', include(object_nested_router.urls)),
+            url(r'^(?i)data/', include(trait_nested_router.urls)),
+            url(r'^(?i)data/', include(traitprop_nested_router.urls)),
 
-                  url(r'^(?i)data/catalogues/', views.AvailableTables.as_view(), name='catalogues'),
+            url(r'^(?i)data/catalogues/', views.AvailableTables.as_view(), name='catalogues'),
 
-                  url(r'^users/$', user_list, name='user-list'),
-                  url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
+            url(r'^users/$', user_list, name='user-list'),
+            url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
 
-                  url(r'^register/', views.CreateUserView.as_view(), name='user-register'),
-                  url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+            url(r'^register/', views.CreateUserView.as_view(), name='user-register'),
+            url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

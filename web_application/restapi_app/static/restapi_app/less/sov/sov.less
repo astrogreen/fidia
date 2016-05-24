@@ -55,3 +55,26 @@
 .tabbable.first-tab-active .tab-content {
   border-top-right-radius: 0;
 }
+
+.thumbnail{border-radius:0px;}
+.row .row-no-padding {
+  [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+.thumbnail:after {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    color:#1d2122;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding:3px 5px;
+    background-color:rgba(255,255,255,0.6);
+}
+.sami-spectrum .thumbnail:after{content:"spectrum"}
+.sami-maps .column0 .thumbnail:first-of-type:after{content:"line maps"}
