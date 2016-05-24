@@ -61,6 +61,23 @@ class CreateUserView(generics.ListCreateAPIView):
         queryset = User.objects.none()
         return queryset
 
+
+class QueryHistoryView(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = QuerySerializerList
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [QueryRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+
+    def get_queryset(self):
+        """
+        Query History.
+
+        This view should return a list of all queries
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return Query.objects.filter(owner=user).order_by('-updated')
+
+
 class QueryViewSet(viewsets.ModelViewSet):
     """
     Query the AAO Data Archive
