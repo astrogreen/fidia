@@ -10,8 +10,12 @@ from django.conf.urls.static import static
 
 router = ExtendDefaultRouter()
 
-router.register(r'query', views.QueryViewSet)
+# router.register(r'query', views.QueryViewSet)
 router.register(r'query-history', views.QueryHistoryView, base_name='query')
+router.register(r'query-create', views.QueryCreateView, base_name='query-create')
+router.register(r'query', views.QueryRetrieveUpdateDestroyView, base_name='query')
+
+
 router.register(r'users', views.UserViewSet)
 router.register(r'sov', views.SOVListSurveysViewSet, base_name='sov')
 router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')

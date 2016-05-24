@@ -1,0 +1,113 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Query History{% endblock %}
+{% block head-extra %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/schema-browser/schema-browser.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/query/data-tables.css' %}"/>
+
+<style type="text/css">
+    table{
+        table-layout: fixed;
+    }
+    table tr {
+        height:1em;
+    }
+    td {
+        overflow:hidden;white-space:nowrap;
+    }
+    .nav-pagination{
+        background-color:transparent;
+        float:right;
+    }
+</style>
+{% block head-extra-extra%}{% endblock %}
+{% endblock %}
+
+{% block content %}
+    {% captureas status_code %}{% status_is_success response.status_code %}{% endcaptureas %}
+
+    {% if status_code == 'True' %}
+        <h2 class="headline" id="query-history">
+            <span>Query History</span>
+            <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
+                <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}" title="Re-visit previous queries.">New Query</a>
+            </div>
+        </h2>
+        <p>Re-visit, edit and update previous queries.</p><br>
+        <div class="well">
+            {% for key, value in response.data.items %}
+                {% if key == "results" %}
+                    {% comment %}{{ key }} : {{ value }}<br>{% endcomment %}
+                    <div class="table-responsisve">
+                        <table class="table table-condensed">
+                            <colgroup>
+                                <col span="1" style="width: 25%;">
+                                <col span="1" style="width: 50%;">
+                                <col span="1" style="width: 25%;">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>SQL</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for valueb in value %}
+                            {% comment %}{{ valueb }} <br>{% endcomment %}
+                            <tr>
+                                <td><a href="{{valueb.url}}"> {{ valueb.title }} </a></td>
+                                <td>{{valueb.SQL}}</td>
+                                <td>{{valueb.updated}}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if 'GET' in allowed_methods %}
+                <form id="get-form" class="text-right">
+                    <fieldset>
+                        {% if api_settings.URL_FORMAT_OVERRIDE %}
+                        <div class="btn-group format-selection">
+                            <a class="btn btn-default  btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                               title="Download user {{user}}'s {{ name }} by format type">Download Query List</a>
+                            <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for format in available_formats %}
+                                    {% if format != 'api' %}
+                                    <li>
+                                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                            <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                               title="View user {{user}}'s {{ name }}">GET</a>
+                        {% endif %}
+                    </fieldset>
+                </form>
+            {% endif %}
+        </div>
+        {% if paginator %}
+            <nav class="nav-pagination">
+                {% get_pagination_html paginator %}
+            </nav>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block status_block %}
+    {% include "restapi_app/query/status_block.html" %}
+{% endblock %}

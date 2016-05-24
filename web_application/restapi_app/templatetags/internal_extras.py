@@ -62,6 +62,14 @@ def status_info(request, status_code, user, status_code_detail):
 
 
 @register.simple_tag
+def status_is_success(status_code):
+    if status.is_success(status_code):
+        return True
+    else:
+        return False
+
+
+@register.simple_tag
 def optional_logout(request, user):
     """
     Include a logout snippet if REST framework's logout view is in the URLconf.
