@@ -111,7 +111,7 @@ class Trait(AbstractBaseTrait):
             self.version = trait_key.version
         self.object_id = object_id
         self._parent_trait = parent_trait
-        self._trait_name = trait_key.trait_qualifier
+        self.trait_qualifier = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
 

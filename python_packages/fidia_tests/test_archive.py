@@ -25,7 +25,7 @@ class TestArchive:
 
             @classmethod
             def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-                return [TraitKey('spectral_map', 'mymap', None, object_id=object_id)]
+                return [TraitKey('spectral_map', 'mymap', None)]
 
             def preload(self):
                 # Make an object have typically the same random data.
@@ -60,7 +60,7 @@ class TestArchive:
 
             @classmethod
             def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-                return [TraitKey('spectral_map', 'mymap', None, object_id=object_id)]
+                return [TraitKey('spectral_map', 'mymap', None)]
 
             def preload(self):
                 # Make an object have typically the same random data.
