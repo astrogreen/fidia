@@ -97,11 +97,21 @@ class Trait(AbstractBaseTrait):
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
         self.archive = archive
+        assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
         self.trait_key = trait_key
-        self.version = trait_key.version
+        if trait_key.branch is None and parent_trait is not None:
+            # Inherit branch from parent trait:
+            self.branch = parent_trait.branch
+        else:
+            self.branch = trait_key.branch
+        if trait_key.version is None and parent_trait is not None:
+            # Inherit version from parent trait:
+            self.version = parent_trait.version
+        else:
+            self.version = trait_key.version
         self.object_id = object_id
         self._parent_trait = parent_trait
-        self.trait_qualifier = trait_key.trait_qualifier
+        self._trait_name = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
 
