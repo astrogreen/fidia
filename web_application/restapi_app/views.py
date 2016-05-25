@@ -81,6 +81,17 @@ class QueryHistoryView(mixins.ListModelMixin, viewsets.GenericViewSet):
         return Query.objects.filter(owner=user).order_by('-updated')
 
 
+def run_sql_query(request_string):
+    sample = AsvoSparkArchive().new_sample_from_query(request_string)
+    json_table = sample.tabular_data().reset_index().to_json(orient='split')
+    # Turned off capping data on the back end. The time issue is due to the browser rendering on the front end using dataTables.js.
+    # This view should still pass back *all* the data:
+    # http: // 127.0.0.1:8000/asvo/data/query/32/?format=json
+    # log.debug(json_table)
+    data = json.loads(json_table)
+    return data
+
+
 class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = QuerySerializerCreateUpdate
     permission_classes = [permissions.IsAuthenticated]
@@ -91,35 +102,6 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
         Return the blank form for a POST request
         """
         return Response()
-
-    def run_fidia(self, request_string):
-
-        # SELECT t1.CATAID FROM InputCatA AS t1 WHERE t1.CATAID  BETWEEN 65401 and 65410
-        sample = AsvoSparkArchive().new_sample_from_query(request_string)
-
-        # (json_n_rows, json_n_cols) = sample.tabular_data().shape
-        # json_element_cap = 100000
-        # json_row_cap = 2000
-
-        json_table = sample.tabular_data().reset_index().to_json(orient='split')
-
-        # Turned off capping data on the back end. The time issue is due to the
-        # browser rendering on the front end using dataTables.js.
-        # This view should still pass back *all* the data:
-        # http: // 127.0.0.1:8000/asvo/data/query/32/?format=json
-
-        # if (json_n_rows*json_n_cols < json_element_cap ):
-        #     json_table = sample.tabular_data().reset_index().to_json(orient='split')
-        #     json_flag = 0
-        # else:
-        #     # json_table = sample.tabular_data().reset_index().to_json(orient='split')
-        #     json_table = sample.tabular_data().iloc[:json_row_cap].reset_index().to_json(orient='split')
-        #     json_flag = json_row_cap
-
-        log.debug(json_table)
-        data = json.loads(json_table)
-
-        return data
 
     def create(self, request, *args, **kwargs):
         """
@@ -132,7 +114,9 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
             if not saved_object["SQL"]:
                 raise CustomValidation("SQL Field Blank", 'detail', 400)
             else:
-                saved_object["queryResults"] = self.run_fidia(saved_object["SQL"])
+                print('NEW CREATE')
+                print(saved_object['SQL'])
+                saved_object["queryResults"] = run_sql_query(request_string=saved_object["SQL"])
                 # serializer = self.get_serializer(data=request.data)
                 serializer = self.get_serializer(data=saved_object)
                 serializer.is_valid(raise_exception=True)
@@ -173,8 +157,6 @@ class QueryRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.RetrieveMod
         # id = self.request['pk']
         return Query.objects.filter(owner=user)
         # return Query.objects.filter(owner=user).filter(id=id)
-
-
 
     def get_serializer_class(self):
         # Check the request type - if browser return truncated json
@@ -235,21 +217,19 @@ class QueryRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.RetrieveMod
         # current SQL
         saved_object = instance
         # inbound request
-        incoming_object = self.request.data
+        incoming_request = self.request.data
 
-        # override the incoming queryResults with the saved version
-        incoming_object['queryResults'] = (saved_object.queryResults)
+        # if (incoming_request.data['queryResults'] != saved_object.queryResults):
+        #     raise PermissionDenied(
+        #         detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
 
-        # if new sql (and/or results have been tampered with), re-run fidia and override results
-        # if (incoming_object['SQL'] != saved_object.SQL) or (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
-        if incoming_object['SQL'] != saved_object.SQL:
-            # if (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
-            #     pprint('qR changed')
-            #     raise PermissionDenied(detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
-            incoming_object['queryResults'] = self.run_FIDIA(self.request.data)
-            pprint('update object')
+        # Override the incoming queryResults with the saved version
+        incoming_request['queryResults'] = saved_object.queryResults
 
-        serializer = self.get_serializer(instance, data=incoming_object, partial=partial)
+        # Update the SQL and queryResults
+        if incoming_request['SQL'] != saved_object.SQL:
+            incoming_request['queryResults'] = run_sql_query(request_string=incoming_request['SQL'])
+        serializer = self.get_serializer(instance, data=incoming_request, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
@@ -423,26 +403,29 @@ class QueryViewSet(viewsets.ModelViewSet):
         Update a model instance.
         """
         partial = kwargs.pop('partial', False)
+        kwargs['partial'] = True
         instance = self.get_object()
 
         # current SQL
         saved_object = instance
         # inbound request
-        incoming_object = self.request.data
+        incoming_request = self.request.data
 
-        # override the incoming queryResults with the saved version
-        incoming_object['queryResults']=(saved_object.queryResults)
+        # if (incoming_request.data['queryResults'] != saved_object.queryResults):
+        #     raise PermissionDenied(
+        #         detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
+
+        # Override the incoming queryResults with the saved version
+        incoming_request['queryResults'] = saved_object.queryResults
 
         # if new sql (and/or results have been tampered with), re-run fidia and override results
         # if (incoming_object['SQL'] != saved_object.SQL) or (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
-        if incoming_object['SQL'] != saved_object.SQL:
-            # if (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
-            #     pprint('qR changed')
-            #     raise PermissionDenied(detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
-            incoming_object['queryResults'] = self.run_FIDIA(self.request.data)
-            pprint('update object')
 
-        serializer = self.get_serializer(instance, data=incoming_object, partial=partial)
+        # Update the SQL and queryResults
+        if incoming_request['SQL'] != saved_object.SQL:
+            incoming_request['queryResults'] = self.run_fidia(incoming_request['SQL'])
+
+        serializer = self.get_serializer(instance, data=incoming_request, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
