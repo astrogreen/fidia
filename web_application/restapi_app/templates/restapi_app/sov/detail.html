@@ -31,10 +31,10 @@
                                      src="/static/restapi_app/img/logo/logo-sami.png">
                             <a href="{{response.data.trait_url}}" class=""> Go to all SAMI data for {{objname}} </a>
                             <h5>Maps
-                                <a data-toggle="collapse" href="#sami_traits_line_maps" class="expand_collapse_icon pull-right">
+                                <a data-toggle="collapse" href="#sami_traits_maps" class="expand_collapse_icon pull-right">
                                     <i class="fa fa-lg fa-angle-up"></i></a>
                             </h5>
-                            <div id="sami_traits_line_maps" class="panel-collapse collapse in">
+                            <div id="sami_traits_maps" class="panel-collapse collapse in">
                                 {% for key, value in response.data.items %}
                                     {% if key == 'schema' %}
                                         {% for keyb, valueb in value.items %}
@@ -43,7 +43,7 @@
                                                     {% if keyb == 'line_map' or keyb == 'velocity_map' %}
                                                         <div class="checkbox">
                                                            <label>
-                                                               <input type="checkbox" class="trait-checkbox" data-trait-property-name="{{keyc}}">
+                                                               <input type="checkbox" class="trait-checkbox" data-trait-name="{{keyc}}">
                                                                     {% if keyb == 'line_map' %}
                                                                          {{ keyc | LineOnly }}
                                                                     {% elif keyb == 'velocity_map' %}
@@ -388,42 +388,42 @@
     Array.prototype.max = function() {
       return Math.max.apply(null, this);
     };
-    trait_property_cache_obj={};
+    trait_cache_obj={};
     // When user clicks a trait textbox append div with class == checkbox data-trait attribute
     $('.trait-checkbox').click(function(){
         var column_array = [$('.column0').height(),$('.column1').height(),$('.column2').height()];
         var min_height_index = column_array.indexOf(column_array.min())
-        var trait_property_name=$(this).attr('data-trait-property-name');
-        if (undefined == trait_property_name){console.log('data_trait is undefined for input checkbox: '+$(this))}
+        var trait_name=$(this).attr('data-trait-name');
+        if (undefined == trait_name){console.log('data_trait is undefined for input checkbox: '+$(this))}
         if ($(this).is(':checked') == true ){
-            var new_html = '<div class="thumbnail '+trait_property_name+'"> <div id="'+trait_property_name+'">LOADING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i></div></div>'
+            var new_html = '<div class="thumbnail '+trait_name+'"> <div id="'+trait_name+'">LOADING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i></div></div>'
             $('.column'+min_height_index).append(new_html);
             // Go get the data
             // need the url...
-            var trait_url = "{{response.data.trait_url}}";
-            var trait_property_url = trait_url+trait_property_name+'/value/?format=json';
+            var ao_url = "{{response.data.ao_url}}";
+            var trait_url = ao_url+trait_name+'/value/?format=json';
 
-            if (trait_property_name in trait_property_cache_obj){
+            if (trait_name in trait_cache_obj){
                 // Pull from the 'cache'
-                plot_map(trait_property_name, trait_property_cache_obj[trait_property_name]);
+                plot_map(trait_name, trait_cache_obj[trait_name]);
             } else {
                 // Request trait property data
                 $.ajax({
-                    url: trait_property_url,
+                    url: trait_url,
                     // here, don't let ajax parse as json, NANs are a problem. set type to string and parse with parseMore
                     dataType: 'text',
                     type: 'GET',
                     success: function (data) {
                         // Parse NANs here
-                        var trait_property_data = JSON.parseMore(data);
+                        var trait_data = JSON.parseMore(data);
                         // Run plotly
-                        plot_map(trait_property_name, trait_property_data);
+                        plot_map(trait_name, trait_data);
                         // Add to "cache"
-                        if (trait_property_name in trait_property_cache_obj){
-                            console.log('Error, '+trait_property_name+' already exists in trait_property_cache_obj')
+                        if (trait_name in trait_cache_obj){
+                            console.log('Error, '+trait_name+' already exists in trait_cache_obj')
                             console.log('Unsure what to do with new piece of data - is it a duplicate or trait property name conflict?')
                         } else {
-                            trait_property_cache_obj[trait_property_name] = trait_property_data
+                            trait_cache_obj[trait_name] = trait_data
                         }
                     },
                     error: function (jqXHR, exception) {
@@ -448,7 +448,7 @@
             }
 
         } else {
-            $('.'+trait_property_name).remove();
+            $('.'+trait_name).remove();
         }
     });
     // TODO check the height of each column and move items if one is empty

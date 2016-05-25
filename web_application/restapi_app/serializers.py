@@ -393,13 +393,13 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
 class SOVRetrieveSerializer(serializers.Serializer):
 
     asvo_id = serializers.SerializerMethodField()
-    trait_url = serializers.SerializerMethodField()
+    ao_url = serializers.SerializerMethodField()
     # key_info = serializers.SerializerMethodField()
 
     def get_asvo_id(self,obj):
         return '0000001'
 
-    def get_trait_url(self, instance):
+    def get_ao_url(self, instance):
         url_kwargs = {
             'galaxy_pk': instance._identifier
         }
