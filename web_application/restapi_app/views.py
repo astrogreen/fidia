@@ -19,7 +19,9 @@ from .serializers import (
     SOVListSurveysSerializer,
     SOVRetrieveObjectSerializer
 )
+
 import restapi_app.renderers
+import restapi_app.serializers
 
 from .renderers import (
     FITSRenderer,
@@ -40,7 +42,6 @@ from .renderers_custom.renderer_flat_csv import FlatCSVRenderer
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from rest_framework_csv import renderers as r
 
 from django.conf import settings
 
@@ -502,7 +503,7 @@ sample = ar.get_full_sample()
 class GAMAViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (GAMARenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (GAMARenderer, renderers.JSONRenderer)
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
             sample
@@ -517,7 +518,7 @@ class GAMAViewSet(mixins.ListModelMixin,
 class samiViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (SampleRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SampleRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
@@ -543,8 +544,8 @@ class AstroObjectViewSet(mixins.ListModelMixin,
     # TODO split the SOV html template into per-survey-type
     # TODO THIS SHOULD WORK: renderer_classes = (SOVRenderer, ) + api_settings.DEFAULT_RENDERER_CLASSES
 
-    # renderer_classes = (GalaxySOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
-    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer, r.CSVRenderer)
+
+    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
         # def get_serializer_context(self):
@@ -581,7 +582,7 @@ class AstroObjectViewSet(mixins.ListModelMixin,
 class TraitViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (TraitRenderer, renderers.JSONRenderer, r.CSVRenderer, FITSRenderer)
+    renderer_classes = (TraitRenderer, renderers.JSONRenderer, FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
         log.debug("Format requested is '%s'", format)
@@ -615,7 +616,7 @@ class TraitViewSet(mixins.ListModelMixin,
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
 
-    renderer_classes = (TraitPropertyRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (TraitPropertyRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
@@ -647,7 +648,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
 #  SOV
 class SOVListSurveysViewSet(viewsets.ViewSet):
 
-    renderer_classes = (SOVListRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SOVListRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         """
@@ -673,21 +674,59 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
 # renderer classes can be implemented (and therefore different html templates)
 
 
+# class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
+#                                 viewsets.GenericViewSet):
+#     """
+#     Old SOV brings in all data for AO - too slow.
+#     """
+#     renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer)
+#
+#     def retrieve(self, request, pk=None, sample_pk=None, format=None):
+    #     try:
+    #         astroobject = sample[pk]
+    #     except KeyError:
+    #         return Response(status=status.HTTP_404_NOT_FOUND)
+    #     except ValueError:
+    #         return Response(status=status.HTTP_400_BAD_REQUEST)
+    #     serializer = SOVRetrieveObjectSerializer(
+    #         instance=astroobject, many=False,
+    #         context={'request': request}
+    #     )
+    #     return Response(serializer.data)
+
+
 class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
-                                viewsets.GenericViewSet):
-    renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+                                   viewsets.GenericViewSet):
+    """
+    SOV retrieve single object.
+    Responds with only the schema, the available traits for this AO, and
+     the url of each trait. Will make AJAX calls for trait data.
+
+    """
+    renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer)
 
     def retrieve(self, request, pk=None, sample_pk=None, format=None):
+
         try:
             astroobject = sample[pk]
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        serializer = SOVRetrieveObjectSerializer(
+
+        serializer_class = restapi_app.serializers.SOVRetrieveSerializer
+
+        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+
+        serializer = serializer_class(
             instance=astroobject, many=False,
-            context={'request': request}
+            context={
+                'request': request,
+                'schema': sorted_schema,
+                # 'key_info': key_info
+            }
         )
+
         return Response(serializer.data)
 
 

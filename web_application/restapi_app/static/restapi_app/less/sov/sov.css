@@ -57,11 +57,11 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 3px 5px;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 .sami-spectrum .thumbnail:after {
   content: "spectrum";
 }
 .sami-maps .column0 .thumbnail:first-of-type:after {
-  content: "line maps";
+  content: "maps";
 }

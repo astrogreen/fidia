@@ -9,254 +9,451 @@
 {% endblock %}
 
 {% block content %}
-    <!--{{ request.build_absolute_uri }}{{ object.get_absolute_url }}-->
-    {% comment %}
-        {% for key, value in response.data.items %}
-                {{ key }}: {{value|ValueType}}<br>
-        {% endfor %}
-    {% endcomment %}
     <h1 class="headline">
         <span>{{ objname }}</span>
     </h1>
 
     <div class="row">
-        <div class="col-xs-12">
-            <div class="tabbable" id="SOV">
-                <ul class="nav nav-tabs">
-                    <li > <a name="Profile-tab" href="#Profile-SOV" data-toggle="tab" >Profile</a></li>
-                    <li> <a name="GAMA-tab" href="#GAMA-SOV" data-toggle="tab" aria-expanded="true">GAMA</a> </li>
-                    <li class="active"> <a name="SAMI-tab" href="#SAMI-SOV" data-toggle="tab">SAMI</a> </li>
-                </ul>
-                <div class="well tab-content">
-                    <div class="tab-pane " id="Profile-SOV">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <table class="table">
-                                    <thead>
-                                        <tr><th>ASVOID</th></tr>
-                                    </thead>
-                                    <tr>
-                                        <tr><td>{{response.data.asvo_id}}</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="thumbnail">
-                                  <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.ra}}&dec={{response.data.dec}}&scale=0.2&opt=IGPO&width=512&height=512" alt="..." class="img-responsive">
-                                  <div class="caption">
-                                    <h3>SDSS Image</h3>
-                                    <p>False colour, 512 × 512 pixel, 0.2 arcsec/pixel, 5-band composite from SDSS DR7.</p>
-                                  </div>
-                                </div>
-                            </div>
-                        </div>
+        <div class="col-sm-2">
+            <div id="trait_accordian" class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading panel-background-grey">
+                        <span class="panel-title">SAMI
+                        </span>
+                        <a data-toggle="collapse" href="#sami_traits" class="expand_collapse_icon pull-right">
+                            <i class="fa fa-lg fa-angle-up"></i>
+                        </a>
                     </div>
-                    <div class="tab-pane" id="GAMA-SOV">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="row">
-                                    <div class="col-xs-4">
-                                        {% with 'restapi_app/img/logo/logo-'|add:'gama'|add:'.png' as image_static %}
-                                            <img class="img-responsive pull-left gama sov-logo" src="{% static image_static %}">
-                                        {% endwith %}
-                                    </div>
-                                    <div class="col-xs-8">
-                                        <table class="table table-condensed">
-                                            <thead><tr><th>CATAID</th><th>RA</th><th>DEC (J2000)</th></tr></thead>
-                                            <tbody>
-                                            <tr>
-                                                <td>{{response.data.InputCatA.CATAID}}</td>
-                                                <td>{{response.data.InputCatA.RA}}</td>
-                                                <td>{{response.data.InputCatA.DEC}}</td>
-                                            </tr></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <!--<div class="thumbnail">-->
-                                  <!--<img src="{{ response.data.Spectrum }}" alt="..." class="img-responsive">-->
-                                  <!--<div class="caption">-->
-                                    <!--<h3>G{{response.data.InputCatA.CATAID}}</h3>-->
-                                    <!--<p>SPECID = {{response.data.SpecAll.SPECID}}</p>-->
-                                  <!--</div>-->
-                                <!--</div>-->
-                            </div>
-                            <div class="col-sm-12">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading"><h3 class="panel-title">InputCatA</h3></div>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                {% for k,v in response.data.InputCatA.items %}
-                                                    <th>{{ k }}</th>
-                                                {% endfor %}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr>
-                                                {% for k,v in response.data.InputCatA.items %}
-                                                    <td>{{ v }}</td>
-                                                {% endfor %}
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                    <div id="sami_traits" class="panel-collapse collapse in">
+                        <div class="panel-body">
 
-                            <br>
-                            <div class="col-sm-6">
-                                <div class="panel panel-default">
-                                  <div class="panel-heading">
-                                    <h3 class="panel-title">Catalogues</h3>
-                                  </div>
-                                  <div class="panel-body">
-                                      {% for k in response.data.CatList %}
-                                      <div class="row">
-                                      <div class="col-xs-4">
-                                        <code>{{ k }}</code>
-                                      </div>
-                                      <div class="col-xs-4">
-                                        <p></p>
-                                      </div>
-                                      </div>
-                                      {% endfor %}
-                                  </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="panel panel-default">
-                                  <div class="panel-heading">
-                                    <h3 class="panel-title">TilingCat</h3>
-                                  </div>
-                                  <div class="panel-body">
-                                    <dl class="dl-horizontal">
-                                        {% for k,v in response.data.TilingCat.items %}
-                                        <dt>{{ k }}</dt>
-                                        <dd>{{ v }}</dd>
+                            <img class="img-responsive sami sov-logo"
+                                     src="/static/restapi_app/img/logo/logo-sami.png">
+                            <a href="{{response.data.trait_url}}" class=""> Go to all SAMI data for {{objname}} </a>
+                            <h5>Maps
+                                <a data-toggle="collapse" href="#sami_traits_line_maps" class="expand_collapse_icon pull-right">
+                                    <i class="fa fa-lg fa-angle-up"></i></a>
+                            </h5>
+                            <div id="sami_traits_line_maps" class="panel-collapse collapse in">
+                                {% for key, value in response.data.items %}
+                                    {% if key == 'schema' %}
+                                        {% for keyb, valueb in value.items %}
+                                            {% for keyc, valuec in response.data.items %}
+                                                {% if keyc != 'schema' and keyb in keyc %}
+                                                    {% if keyb == 'line_map' or keyb == 'velocity_map' %}
+                                                        <div class="checkbox">
+                                                           <label>
+                                                               <input type="checkbox" class="trait-checkbox" data-trait-property-name="{{keyc}}">
+                                                                    {% if keyb == 'line_map' %}
+                                                                         {{ keyc | LineOnly }}
+                                                                    {% elif keyb == 'velocity_map' %}
+                                                                        {{ keyc | CapsSentence }}
+                                                                    {% endif %}
+                                                           </label>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endfor %}
-                                    </dl>
-                                  </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane active" id="SAMI-SOV">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="row">
-                                    <div class="col-xs-4">
-                                        {% with 'restapi_app/img/logo/logo-'|add:'sami'|add:'.png' as image_static %}
-                                            <img class="img-responsive pull-left sami sov-logo" src="{% static image_static %}">
-                                        {% endwith %}
-                                    </div>
-                                    <div class="col-xs-8">
-                                        <table class="table table-condensed">
-                                            <thead><tr><th>SAMI ID</th><th>RA</th><th>DEC (J2000)</th><th>Redshift</th></tr></thead>
-                                            <tbody>
-                                            <tr>
-                                                <td><a href="{% url "sami-list" %}{{response.data.samiID}}"> {{response.data.samiID}}</a></td>
-                                                <td>{{response.data.ra}}</td>
-                                                <td>{{response.data.dec}}</td>
-                                            </tr></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    {% for key, value in response.data.items %}
-                                        {% if key == "velocity_map" %}
-                                        <div class="col-xs-12 col-sm-4">
-                                            <h4>
-                                                <a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>
-                                                <button role="button" class="btn btn-xs btn-default show-hide-button">
-                                                    Hide
-                                                </button>
-                                            </h4>
-                                            <div id="{{ key }}">test</div>
-                                        </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% for key, value in response.data.items %}
-                                        {% if "line_map" in key %}
-                                        <div class="col-xs-12 col-sm-4 col-md-4">
-                                            <h4>
-                                                <a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>
-                                                <button role="button" class="btn btn-xs btn-default show-hide-button">
-                                                    Hide
-                                                </button>
-                                            </h4>
-                                            <div id="{{ key }}">test</div>
-                                        </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <hr>
-                                </div>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading panel-background-grey">
+                        <span class="panel-title">GAMA</span>
+                        <a data-toggle="collapse" href="#gama_traits" class="expand_collapse_icon pull-right">
+                            <i class="fa fa-lg fa-angle-down"></i>
+                        </a>
+                    </div>
+                    <div id="gama_traits" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <img class="img-responsive  gama sov-logo"
+                                     src="/static/restapi_app/img/logo/logo-gama.png">
+                            <p>available checky boxes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default ">
+                <div class="panel-body">
+                    <p><strong>Component properties</strong></p>
+                    <p>description goes here</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <div class="row">
+                <div class="col-xs-8">
+                    <h5 class="text-uppercase"><strong>Source info (line per survey?)</strong></h5>
+                    <table class="table table-condensed">
+                        <thead>
+                        <tr>
+                            <th>SAMI ID</th>
+                            <th>RA</th>
+                            <th>DEC (J2000)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><a href="/asvo/data/sami/9352"> 9352</a></td>
+                            <td>185.9772083333334</td>
+                            <td>0.8305277777777778</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-condensed">
+                        <thead>
+                        <tr>
+                            <th>CATAID</th>
+                            <th>RA</th>
+                            <th>DEC (J2000)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-xs-4">
+                    <h5>SDSS IMAGE</h5>
+                    <img class="img-responsive"
+                         src="http://skyservice.pha.jhu.edu/DR10/ImgCutout/getjpeg.aspx?ra=114.82991&dec=10.91817&width=120&height=120">
+                </div>
+            </div>
+            <div class="row row-no-padding sami-spectrum">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="thumbnail"> <img src="{% static 'restapi_app/img/sov_test/test_spectra.png' %}">
+                    </div>
+                </div>
+            </div>
+            <div class="row row-no-padding sami-maps">
+                <div class="col-xs-12 col-sm-4 column0">
+
+                </div>
+                <div class="col-xs-12 col-sm-4 column1">
+
+                </div>
+                <div class="col-xs-12 col-sm-4 column2">
+
+                </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-offset-8 col-sm-4">
-            {% if 'GET' in allowed_methods %}
-                <form id="get-form" >
-                    <fieldset>
-                        {% if api_settings.URL_FORMAT_OVERRIDE %}
-                        <div class="btn-group  btn-block format-selection">
-                            <!--<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
-                               <!--title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>-->
-                            <button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">
-                                Download Data for {{objname}}  <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                {% for format in available_formats %}
-                                <li>
-                                    <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                       rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% else %}
-                            <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
-                               title="View user {{user}}'s {{ name }}">GET</a>
-                        {% endif %}
-                    </fieldset>
-                </form>
-            {% endif %}
-        </div>
+
+
+<!--OLD SOV-->
+    <div>
+    <!--<div class="row">-->
+        <!--<div class="col-xs-12">-->
+            <!--<div class="tabbable" id="SOV">-->
+                <!--<ul class="nav nav-tabs">-->
+                    <!--<li > <a name="Profile-tab" href="#Profile-SOV" data-toggle="tab" >Profile</a></li>-->
+                    <!--<li> <a name="GAMA-tab" href="#GAMA-SOV" data-toggle="tab" aria-expanded="true">GAMA</a> </li>-->
+                    <!--<li class="active"> <a name="SAMI-tab" href="#SAMI-SOV" data-toggle="tab">SAMI</a> </li>-->
+                <!--</ul>-->
+                <!--<div class="well tab-content">-->
+                    <!--<div class="tab-pane " id="Profile-SOV">-->
+                        <!--<div class="row">-->
+                            <!--<div class="col-sm-6">-->
+                                <!--<table class="table">-->
+                                    <!--<thead>-->
+                                        <!--<tr><th>ASVOID</th></tr>-->
+                                    <!--</thead>-->
+                                    <!--<tr>-->
+                                        <!--<tr><td>{{response.data.asvo_id}}</td></tr>-->
+                                    <!--</tbody>-->
+                                <!--</table>-->
+                            <!--</div>-->
+                            <!--<div class="col-sm-6">-->
+                                <!--<div class="thumbnail">-->
+                                  <!--<img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.ra}}&dec={{response.data.dec}}&scale=0.2&opt=IGPO&width=512&height=512" alt="..." class="img-responsive">-->
+                                  <!--<div class="caption">-->
+                                    <!--<h3>SDSS Image</h3>-->
+                                    <!--<p>False colour, 512 × 512 pixel, 0.2 arcsec/pixel, 5-band composite from SDSS DR7.</p>-->
+                                  <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="tab-pane" id="GAMA-SOV">-->
+                        <!--<div class="row">-->
+                            <!--<div class="col-sm-12">-->
+                                <!--<div class="row">-->
+                                    <!--<div class="col-xs-4">-->
+                                        <!--{% with 'restapi_app/img/logo/logo-'|add:'gama'|add:'.png' as image_static %}-->
+                                            <!--<img class="img-responsive pull-left gama sov-logo" src="{% static image_static %}">-->
+                                        <!--{% endwith %}-->
+                                    <!--</div>-->
+                                    <!--<div class="col-xs-8">-->
+                                        <!--<table class="table table-condensed">-->
+                                            <!--<thead><tr><th>CATAID</th><th>RA</th><th>DEC (J2000)</th></tr></thead>-->
+                                            <!--<tbody>-->
+                                            <!--<tr>-->
+                                                <!--<td>{{response.data.InputCatA.CATAID}}</td>-->
+                                                <!--<td>{{response.data.InputCatA.RA}}</td>-->
+                                                <!--<td>{{response.data.InputCatA.DEC}}</td>-->
+                                            <!--</tr></tbody>-->
+                                        <!--</table>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--&lt;!&ndash;<div class="thumbnail">&ndash;&gt;-->
+                                  <!--&lt;!&ndash;<img src="{{ response.data.Spectrum }}" alt="..." class="img-responsive">&ndash;&gt;-->
+                                  <!--&lt;!&ndash;<div class="caption">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<h3>G{{response.data.InputCatA.CATAID}}</h3>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<p>SPECID = {{response.data.SpecAll.SPECID}}</p>&ndash;&gt;-->
+                                  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--</div>-->
+                            <!--<div class="col-sm-12">-->
+                                <!--<div class="panel panel-default">-->
+                                    <!--<div class="panel-heading"><h3 class="panel-title">InputCatA</h3></div>-->
+                                    <!--<div class="table-responsive">-->
+                                        <!--<table class="table table-bordered">-->
+                                            <!--<thead>-->
+                                                <!--<tr>-->
+                                                <!--{% for k,v in response.data.InputCatA.items %}-->
+                                                    <!--<th>{{ k }}</th>-->
+                                                <!--{% endfor %}-->
+                                                <!--</tr>-->
+                                            <!--</thead>-->
+                                            <!--<tbody>-->
+                                            <!--<tr>-->
+                                                <!--{% for k,v in response.data.InputCatA.items %}-->
+                                                    <!--<td>{{ v }}</td>-->
+                                                <!--{% endfor %}-->
+                                            <!--</tr>-->
+                                            <!--</tbody>-->
+                                        <!--</table>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+
+                            <!--<br>-->
+                            <!--<div class="col-sm-6">-->
+                                <!--<div class="panel panel-default">-->
+                                  <!--<div class="panel-heading">-->
+                                    <!--<h3 class="panel-title">Catalogues</h3>-->
+                                  <!--</div>-->
+                                  <!--<div class="panel-body">-->
+                                      <!--{% for k in response.data.CatList %}-->
+                                      <!--<div class="row">-->
+                                      <!--<div class="col-xs-4">-->
+                                        <!--<code>{{ k }}</code>-->
+                                      <!--</div>-->
+                                      <!--<div class="col-xs-4">-->
+                                        <!--<p></p>-->
+                                      <!--</div>-->
+                                      <!--</div>-->
+                                      <!--{% endfor %}-->
+                                  <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="col-sm-6">-->
+                                <!--<div class="panel panel-default">-->
+                                  <!--<div class="panel-heading">-->
+                                    <!--<h3 class="panel-title">TilingCat</h3>-->
+                                  <!--</div>-->
+                                  <!--<div class="panel-body">-->
+                                    <!--<dl class="dl-horizontal">-->
+                                        <!--{% for k,v in response.data.TilingCat.items %}-->
+                                        <!--<dt>{{ k }}</dt>-->
+                                        <!--<dd>{{ v }}</dd>-->
+                                        <!--{% endfor %}-->
+                                    <!--</dl>-->
+                                  <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="tab-pane active" id="SAMI-SOV">-->
+                        <!--<div class="row">-->
+                            <!--<div class="col-sm-12">-->
+                                <!--<div class="row">-->
+                                    <!--<div class="col-xs-4">-->
+                                        <!--{% with 'restapi_app/img/logo/logo-'|add:'sami'|add:'.png' as image_static %}-->
+                                            <!--<img class="img-responsive pull-left sami sov-logo" src="{% static image_static %}">-->
+                                        <!--{% endwith %}-->
+                                    <!--</div>-->
+                                    <!--<div class="col-xs-8">-->
+                                        <!--<table class="table table-condensed">-->
+                                            <!--<thead><tr><th>SAMI ID</th><th>RA</th><th>DEC (J2000)</th><th>Redshift</th></tr></thead>-->
+                                            <!--<tbody>-->
+                                            <!--<tr>-->
+                                                <!--<td><a href="{% url "sami-list" %}{{response.data.samiID}}"> {{response.data.samiID}}</a></td>-->
+                                                <!--<td>{{response.data.ra}}</td>-->
+                                                <!--<td>{{response.data.dec}}</td>-->
+                                            <!--</tr></tbody>-->
+                                        <!--</table>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                    <!--{% for key, value in response.data.items %}-->
+                                        <!--{% if key == "velocity_map" %}-->
+                                        <!--<div class="col-xs-12 col-sm-4">-->
+                                            <!--<h4>-->
+                                                <!--<a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>-->
+                                                <!--<button role="button" class="btn btn-xs btn-default show-hide-button">-->
+                                                    <!--Hide-->
+                                                <!--</button>-->
+                                            <!--</h4>-->
+                                            <!--<div id="{{ key }}">test</div>-->
+                                        <!--</div>-->
+                                        <!--{% endif %}-->
+                                    <!--{% endfor %}-->
+                                    <!--{% for key, value in response.data.items %}-->
+                                        <!--{% if "line_map" in key %}-->
+                                        <!--<div class="col-xs-12 col-sm-4 col-md-4">-->
+                                            <!--<h4>-->
+                                                <!--<a href="{% url "sami-list" %}{{objname}}/{{key}}"> {{ key | CapsSentence }}</a>-->
+                                                <!--<button role="button" class="btn btn-xs btn-default show-hide-button">-->
+                                                    <!--Hide-->
+                                                <!--</button>-->
+                                            <!--</h4>-->
+                                            <!--<div id="{{ key }}">test</div>-->
+                                        <!--</div>-->
+                                        <!--{% endif %}-->
+                                    <!--{% endfor %}-->
+                                    <!--<hr>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="row">-->
+        <!--<div class="col-sm-offset-8 col-sm-4">-->
+            <!--{% if 'GET' in allowed_methods %}-->
+                <!--<form id="get-form" >-->
+                    <!--<fieldset>-->
+                        <!--{% if api_settings.URL_FORMAT_OVERRIDE %}-->
+                        <!--<div class="btn-group  btn-block format-selection">-->
+                            <!--&lt;!&ndash;<a class="btn btn-default btn-block btn-md js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"&ndash;&gt;-->
+                               <!--&lt;!&ndash;title="Download user {{user}}'s {{ name }} by format type">Download list of {{objname}} objects</a>&ndash;&gt;-->
+                            <!--<button class="btn btn-default btn-block btn-md dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the request">-->
+                                <!--Download Data for {{objname}}  <span class="caret"></span>-->
+                            <!--</button>-->
+                            <!--<ul class="dropdown-menu">-->
+                                <!--{% for format in available_formats %}-->
+                                <!--<li>-->
+                                    <!--<a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"-->
+                                       <!--rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>-->
+                                <!--</li>-->
+                                <!--{% endfor %}-->
+                            <!--</ul>-->
+                        <!--</div>-->
+                        <!--{% else %}-->
+                            <!--<a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"-->
+                               <!--title="View user {{user}}'s {{ name }}">GET</a>-->
+                        <!--{% endif %}-->
+                    <!--</fieldset>-->
+                <!--</form>-->
+            <!--{% endif %}-->
+        <!--</div>-->
+    <!--</div>-->
     </div>
 
 {% endblock %}
 
 
 {% block footer-extra %}
-<script>
-    $(".show-hide-button").click(function () {
-//  $( "p" ).toggle( flip++ % 2 === 0 );
-        console.log();
-        var elemID = $(this).parent('h4').siblings('.js-plotly-plot').attr('id');
-
-        $("#" + elemID).toggle();
-
-        if ($("#" + elemID).is(":visible")) {
-            $(this).html('Hide')
-        } else {
-            $(this).html('Show')
-        }
-    });
-
-</script>
 <script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
 <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script src="{% static 'restapi_app/js/sov/plot_maps.js' %}"></script>
+<script type="text/javascript">
 
- <script type="text/javascript"> 
-        //make astroobject available as json
-        var AstroObjectJson = JSON.parseMore("{{ content|escapejs }}");
+    $(".expand_collapse_icon").click(function() {
+        // Change the accordian caret based on the collapse panel status
+        // get the id of the anchor that will have class .collapse .in from this.attr(href)
+         if ($($(this).attr('href')).hasClass('in')){
+             // angle up
+             $(this).children('i').removeClass('fa-angle-up').addClass('fa-angle-down');
+         } else {
+             // angle down
+             $(this).children('i').removeClass('fa-angle-down').addClass('fa-angle-up');
+         }
+    });
 
-        console.log(AstroObjectJson.velocity_map.value)
-    </script>
-<script src="{% static 'restapi_app/js/sov/2DHistogram.js' %}"></script>
+    Array.prototype.min = function() {
+      return Math.min.apply(null, this);
+    };
+    Array.prototype.max = function() {
+      return Math.max.apply(null, this);
+    };
+    trait_property_cache_obj={};
+    // When user clicks a trait textbox append div with class == checkbox data-trait attribute
+    $('.trait-checkbox').click(function(){
+        var column_array = [$('.column0').height(),$('.column1').height(),$('.column2').height()];
+        var min_height_index = column_array.indexOf(column_array.min())
+        var trait_property_name=$(this).attr('data-trait-property-name');
+        if (undefined == trait_property_name){console.log('data_trait is undefined for input checkbox: '+$(this))}
+        if ($(this).is(':checked') == true ){
+            var new_html = '<div class="thumbnail '+trait_property_name+'"> <div id="'+trait_property_name+'">LOADING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i></div></div>'
+            $('.column'+min_height_index).append(new_html);
+            // Go get the data
+            // need the url...
+            var trait_url = "{{response.data.trait_url}}";
+            var trait_property_url = trait_url+trait_property_name+'/value/?format=json';
+
+            if (trait_property_name in trait_property_cache_obj){
+                // Pull from the 'cache'
+                plot_map(trait_property_name, trait_property_cache_obj[trait_property_name]);
+            } else {
+                // Request trait property data
+                $.ajax({
+                    url: trait_property_url,
+                    // here, don't let ajax parse as json, NANs are a problem. set type to string and parse with parseMore
+                    dataType: 'text',
+                    type: 'GET',
+                    success: function (data) {
+                        // Parse NANs here
+                        var trait_property_data = JSON.parseMore(data);
+                        // Run plotly
+                        plot_map(trait_property_name, trait_property_data);
+                        // Add to "cache"
+                        if (trait_property_name in trait_property_cache_obj){
+                            console.log('Error, '+trait_property_name+' already exists in trait_property_cache_obj')
+                            console.log('Unsure what to do with new piece of data - is it a duplicate or trait property name conflict?')
+                        } else {
+                            trait_property_cache_obj[trait_property_name] = trait_property_data
+                        }
+                    },
+                    error: function (jqXHR, exception) {
+                        alert("Error");
+                        if (jqXHR.status === 0) {
+                            console.log('Not connect.\n Verify Network.');
+                        } else if (jqXHR.status == 404) {
+                            console.log('Requested page not found. [404]');
+                        } else if (jqXHR.status == 500) {
+                            console.log('Internal Server Error [500].');
+                        } else if (exception === 'parsererror') {
+                            console.log('Requested JSON parse failed.');
+                        } else if (exception === 'timeout') {
+                            console.log('Time out error.');
+                        } else if (exception === 'abort') {
+                            console.log('Ajax request aborted.');
+                        } else {
+                            console.log('Uncaught Error.\n' + jqXHR.responseText);
+                        }
+                    }
+                });
+            }
+
+        } else {
+            $('.'+trait_property_name).remove();
+        }
+    });
+    // TODO check the height of each column and move items if one is empty
+    // TODO implement cache layer - save previous requests and check first
+</script>
+
+
 {% endblock %}

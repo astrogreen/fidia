@@ -43,6 +43,7 @@
 <script>
     if (location.pathname != '/asvo/under-construction/') {
         $('a[href="' + location.pathname + '"]').parents('li,ul').addClass('active');
-    }
-    ;
+    };
+    // Call MathJax after the content has been loaded...
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 </script>

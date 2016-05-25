@@ -152,6 +152,14 @@ def optional_login(request):
     return mark_safe(snippet)
 
 
+@register.filter
+def of_key(value, arg):
+    if value:
+        return value.get(arg)
+    else:
+        return ""
+
+
 def remove_newlines(text):
     """
     Removes all newline characters from a block of text.

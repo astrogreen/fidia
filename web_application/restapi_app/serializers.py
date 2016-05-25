@@ -388,3 +388,55 @@ class SOVRetrieveObjectSerializer(serializers.Serializer):
     samiID = serializers.SerializerMethodField()
     ra = serializers.SerializerMethodField()
     dec = serializers.SerializerMethodField()
+
+
+class SOVRetrieveSerializer(serializers.Serializer):
+
+    asvo_id = serializers.SerializerMethodField()
+    trait_url = serializers.SerializerMethodField()
+    # key_info = serializers.SerializerMethodField()
+
+    def get_asvo_id(self,obj):
+        return '0000001'
+
+    def get_trait_url(self, instance):
+        url_kwargs = {
+            'galaxy_pk': instance._identifier
+        }
+        view_name = 'galaxy-list'
+        return reverse(view_name, kwargs=url_kwargs)
+
+    def __init__(self, *args, **kwargs):
+        depth_limit = get_and_update_depth_limit(kwargs)
+        super().__init__(*args, **kwargs)
+
+        astro_object = self.instance
+        assert isinstance(astro_object, fidia.AstronomicalObject)
+
+
+        def get_key_info(self, astro_object):
+            pass
+
+        for trait in astro_object:
+            depth_limit = 0
+            trait_key = trait
+
+            url_kwargs = {
+                'galaxy_pk': astro_object._identifier,
+                'trait_pk': str(trait_key)
+            }
+
+            url = reverse("trait-list", kwargs=url_kwargs)
+            if depth_limit == 0:
+                self.fields[str(trait_key)] = AbsoluteURLField(url=url, required=False)
+                # No details to be displayed below this level
+            else:
+                # Recurse displaying details at lower level
+                self.fields[str(trait_key)] = \
+                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
+
+    def get_schema(self, obj):
+        return self.context['schema']
+
+    schema = serializers.SerializerMethodField()
+    # object = serializers.CharField(max_length=100, required=False, source="*")
