@@ -203,16 +203,16 @@ class SOVDetailRenderer(ExtendBrowsableAPIRenderer):
     template = 'restapi_app/sov/detail.html'
 
 
-class RegisterRenderer(ExtendBrowsableAPIRenderer):
-    """
-    BrowseSurveysViewSet
-    """
-    template = 'restapi_app/register/register.html'
-
-
 class APIRootRenderer(ExtendBrowsableAPIRenderer):
     """
     APIROOT Template
     """
     template = 'restapi_app/api-root/list.html'
 
+
+# - - USERS - -
+class CreateUserRenderer(ExtendBrowsableAPIRenderer):
+    """
+    BrowseSurveysViewSet
+    """
+    template = 'restapi_app/register/register.html'

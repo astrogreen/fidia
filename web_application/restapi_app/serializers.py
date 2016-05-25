@@ -36,7 +36,7 @@ instead of primary key relationships.
 log = logging.getLogger(__name__)
 
 
-# QUERYING
+# - - - - QUERY - - - -
 class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
     """
     Create/Update and return a new/existing object instance, given the validated data
@@ -112,6 +112,7 @@ class QuerySerializerRetrieve(serializers.HyperlinkedModelSerializer):
         }
 
 
+# - - - - USERS - - - -
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -156,7 +157,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     """
-
     NOTE: many=True flag allows serialization of queryset instead of model instance.
     'query' is a reverse relationship on the User model, and will not be included by
     default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
@@ -169,6 +169,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ContactFormSerializer(serializers.Serializer):
+    """
+    Contact Form Serializer.
+    """
     name = serializers.CharField(
         max_length=100,
         style={'placeholder':'Name'}
@@ -189,7 +192,7 @@ class ContactFormSerializer(serializers.Serializer):
                   fail_silently=False)
 
 
-# ASVO SAMI DR - - - - - - - -    - - -  -   -   -   -   -   -   -   -   -
+# - - - - DATA BROWSER - - - -
 
 def get_and_update_depth_limit(kwargs):
     depth_limit = kwargs.pop('depth_limit', -1)
@@ -359,34 +362,34 @@ class SOVListSurveysSerializer(serializers.Serializer):
     url = serializers.SerializerMethodField()
 
 
-class SOVRetrieveObjectSerializer(serializers.Serializer):
-    """
-    return object name & velocity map only
-
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        astro_object = self.instance
-        assert isinstance(astro_object, fidia.AstronomicalObject)
-        for trait in astro_object:
-            trait_key = trait
-            if str(trait_key) == "velocity_map" or 'line_map' in str(trait_key):
-                self.fields[str(trait_key)] = \
-                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=2)
-
-    def get_samiID(self, obj):
-        return obj._identifier
-
-    def get_ra(self, obj):
-        return obj['spectral_cube-red'].ra()
-
-    def get_dec(self, obj):
-        return obj['spectral_cube-red'].dec()
-
-    samiID = serializers.SerializerMethodField()
-    ra = serializers.SerializerMethodField()
-    dec = serializers.SerializerMethodField()
+# class SOVRetrieveObjectSerializer(serializers.Serializer):
+#     """
+#     return object name & velocity map only
+#
+#     """
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         astro_object = self.instance
+#         assert isinstance(astro_object, fidia.AstronomicalObject)
+#         for trait in astro_object:
+#             trait_key = trait
+#             if str(trait_key) == "velocity_map" or 'line_map' in str(trait_key):
+#                 self.fields[str(trait_key)] = \
+#                     AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=2)
+#
+#     def get_samiID(self, obj):
+#         return obj._identifier
+#
+#     def get_ra(self, obj):
+#         return obj['spectral_cube-red'].ra()
+#
+#     def get_dec(self, obj):
+#         return obj['spectral_cube-red'].dec()
+#
+#     samiID = serializers.SerializerMethodField()
+#     ra = serializers.SerializerMethodField()
+#     dec = serializers.SerializerMethodField()
 
 
 class SOVRetrieveSerializer(serializers.Serializer):

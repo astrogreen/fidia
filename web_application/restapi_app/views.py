@@ -17,7 +17,6 @@ from .serializers import (
     AstroObjectTraitSerializer,
     AstroObjectTraitPropertySerializer,
     SOVListSurveysSerializer,
-    SOVRetrieveObjectSerializer
 )
 
 import restapi_app.renderers
@@ -32,7 +31,6 @@ from .renderers import (
     GAMARenderer,
     # SAMIRenderer,
     SampleRenderer,
-    RegisterRenderer,
     TraitRenderer,
     TraitPropertyRenderer
 )
@@ -58,11 +56,20 @@ class CreateUserView(generics.ListCreateAPIView):
     model = User
     permission_classes = [IsNotAuthenticated]
     serializer_class = CreateUserSerializer
-    renderer_classes = [restapi_app.renderers.QueryCreateRenderer, renderers.JSONRenderer]
+    renderer_classes = [restapi_app.renderers.CreateUserRenderer, renderers.JSONRenderer]
 
     def get_queryset(self):
         queryset = User.objects.none()
         return queryset
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `detail` actions.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
 class QueryHistoryView(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -250,15 +257,6 @@ class QueryRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.RetrieveMod
         instance.delete()
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-
 # from fidia.archive.example_archive import ExampleArchive
 # ar = ExampleArchive()
 # sample = ar.get_full_sample()
@@ -287,6 +285,8 @@ sample = ar.get_full_sample()
 # >>> sample['Gal1']['redshift'].value
 # 3.14159
 #
+
+
 class GAMAViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
