@@ -212,27 +212,12 @@ function fAstroMap(k,v){
 };
 
 function plot_map(k,v){
-    // k == trait property name
-    // v == trait property value
-    // value == trait property name
+    // k == trait name
+    // v == trait data
+    // value == trait property name (AO/k/v.value/)
     $('#'+k).html('');
     fAstroMap(k,v);
 }
-// $.each(AstroObjectJson, function(k,v){
-//     // k == trait name
-//     // v == trait value
-//     // value == trait property name
-//
-//     // If element exists (defined in django template sov.html)
-//     if ( k == "velocity_map" || k.substr(0,8) == 'line_map'){
-//         if ($('#'+k).length){
-//             // Drop current content (<p>value(arr)</p>
-//             $('#'+k).html('');
-//             fAstroMap(k,v);
-//         };
-//     }
-// });
-
 
 
 // UPDATES # TODO refactor as bindings - necessary for interactive plots
