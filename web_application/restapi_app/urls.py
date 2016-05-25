@@ -42,7 +42,7 @@ user_detail = views.UserViewSet.as_view({
 
 urlpatterns = [
             url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
-            url(r'^sov', TemplateView.as_view(template_name='restapi_app/sov/sov.html'), name='sov-test'),
+
             url(r'^(?i)documentation/$',
                       TemplateView.as_view(template_name='restapi_app/documentation/sub-menu.html'),
                       name='documentation'),

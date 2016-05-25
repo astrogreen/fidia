@@ -129,10 +129,8 @@ function fGetTraitPropertyValue(data){
 function fAstroMap(k,v){
     var map_name = k;
     var map_val = fGetTraitPropertyValue(v);
-    console.log(map_val);
     var map_title = ftoTitleCase(map_name.split("_").join(" "));
 
-    console.log(map_title)
 
     // Get number of pixels
     var row_pixel_count = map_val.length;

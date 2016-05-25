@@ -467,7 +467,7 @@ nav.navbar .navbar .dropdown-menu li a:hover {
   background: url("../img/background/panel-background2.png") repeat-x;
 }
 .panel {
-  border-radius: 0px;
+  border-radius: 0 !important;
 }
 .horizontal-checkbox label {
   padding-top: 0;

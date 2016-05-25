@@ -315,7 +315,6 @@ class SampleSerializer(serializers.Serializer):
                 }
             url = reverse("galaxy-list", kwargs=url_kwargs)
 
-
             if depth_limit == 0:
                 # No details to be displayed below this level
                 # self.fields[astro_object] = serializers.CharField()
