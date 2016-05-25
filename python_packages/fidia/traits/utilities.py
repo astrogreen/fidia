@@ -18,11 +18,11 @@ class TraitKey(tuple):
 
     __slots__ = ()
 
-    _fields = ('trait_type', 'trait_name', 'version', 'object_id')
+    _fields = ('trait_type', 'trait_qualifier', 'version', 'branch')
 
-    def __new__(_cls, trait_type, trait_name=None, version=None, object_id=None):
-        """Create new instance of TraitKey(trait_type, trait_name, version, object_id)"""
-        return tuple.__new__(_cls, (trait_type, trait_name, version, object_id))
+    def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
+        """Create new instance of TraitKey(trait_type, trait_qualifier, version, branch)"""
+        return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
 
     @classmethod
     def _make(cls, iterable, new=tuple.__new__, len=len):
@@ -34,7 +34,7 @@ class TraitKey(tuple):
 
     def __repr__(self):
         """Return a nicely formatted representation string"""
-        return 'TraitKey(trait_type=%r, trait_name=%r, version=%r, object_id=%r)' % self
+        return 'TraitKey(trait_type=%r, trait_qualifier=%r, branch=%r, version=%r)' % self
 
     def _asdict(self):
         """Return a new OrderedDict which maps field names to their values"""
@@ -42,7 +42,7 @@ class TraitKey(tuple):
 
     def replace(_self, **kwds):
         """Return a new TraitKey object replacing specified fields with new values"""
-        result = _self._make(map(kwds.pop, ('trait_type', 'trait_name', 'version', 'object_id'), _self))
+        result = _self._make(map(kwds.pop, ('trait_type', 'trait_qualifier', 'branch', 'version'), _self))
         if kwds:
             raise ValueError('Got unexpected field names: %r' % kwds.keys())
         return result
@@ -59,17 +59,21 @@ class TraitKey(tuple):
 
     def __str__(self):
         trait_string = self.trait_type
-        if self.trait_name:
-            trait_string += "-" + self.trait_name
+        if self.trait_qualifier:
+            trait_string += "-" + self.trait_qualifier
+        if self.branch:
+            trait_string += ":" + self.branch
+        if self.version:
+            trait_string += "-" + self.version
         return trait_string
 
-    trait_type = property(_itemgetter(0), doc='Alias for field number 0')
+    trait_type = property(_itemgetter(0), doc='Trait type')
 
-    trait_name = property(_itemgetter(1), doc='Alias for field number 1')
+    trait_qualifier = property(_itemgetter(1), doc='Trait qualifier')
 
-    version = property(_itemgetter(2), doc='Alias for field number 2')
+    branch = property(_itemgetter(2), doc='Branch')
 
-    object_id = property(_itemgetter(3), doc='Alias for field number 3')
+    version = property(_itemgetter(3), doc='Version')
 
 def parse_trait_key(key):
     """Return a fully fledged TraitKey for the key given.
@@ -81,9 +85,9 @@ def parse_trait_key(key):
         return TraitKey(*key)
     if isinstance(key, str):
         if "-" in key:
-            # We have both a trait_type and a trait_name:
-            (trait_type, trait_name) = key.split("-")
-            return TraitKey(trait_type, trait_name)
+            # We have both a trait_type and a trait_qualifier:
+            (trait_type, trait_qualifier) = key.split("-")
+            return TraitKey(trait_type, trait_qualifier)
         else:
             return TraitKey(key)
     raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
@@ -108,31 +112,31 @@ class TraitMapping(collections.MutableMapping):
             return self._mapping[key]
 
         # CASES: Wild-card on one element
-        elif key.replace(object_id=None) in known_keys:
+        elif key.replace(branch=None) in known_keys:
             # Wildcard on object_id
-            return self._mapping[key.replace(object_id=None)]
+            return self._mapping[key.replace(branch=None)]
         elif key.replace(version=None) in known_keys:
             # Wildcard on version
             return self._mapping[key.replace(version=None)]
-        elif key.replace(trait_name=None) in known_keys:
-            # Wildcard on trait_name
-            return self._mapping[key.replace(trait_name=None)]
+        elif key.replace(trait_qualifier=None) in known_keys:
+            # Wildcard on trait_qualifier
+            return self._mapping[key.replace(trait_qualifier=None)]
 
         # CASES: Wild-card on two elements
-        elif key.replace(trait_name=None, object_id=None) in known_keys:
-            # Wildcard on both object_id and trait_name
-            return self._mapping[key.replace(trait_name=None, object_id=None)]
-        elif key.replace(object_id=None, version=None) in known_keys:
-            # Wildcard on both object_id and version
-            return self._mapping[key.replace(object_id=None, version=None)]
-        elif key.replace(trait_name=None, version=None) in known_keys:
-            # Wildcard on both trait_name and version
-            return self._mapping[key.replace(trait_name=None, version=None)]
+        elif key.replace(trait_qualifier=None, branch=None) in known_keys:
+            # Wildcard on both branch and trait_qualifier
+            return self._mapping[key.replace(trait_qualifier=None, branch=None)]
+        elif key.replace(branch=None, version=None) in known_keys:
+            # Wildcard on both branch and version
+            return self._mapping[key.replace(branch=None, version=None)]
+        elif key.replace(trait_qualifier=None, version=None) in known_keys:
+            # Wildcard on both trait_qualifier and version
+            return self._mapping[key.replace(trait_qualifier=None, version=None)]
 
         # CASE: Wild-card on three elements
-        elif key.replace(trait_name=None, version=None, object_id=None) in known_keys:
-            # Wildcard on trait_name, and version, and object_id
-            return self._mapping[key.replace(trait_name=None, version=None, object_id=None)]
+        elif key.replace(trait_qualifier=None, version=None, branch=None) in known_keys:
+            # Wildcard on trait_qualifier, and version, and branch
+            return self._mapping[key.replace(trait_qualifier=None, version=None, branch=None)]
 
         else:
             # No suitable data loader found

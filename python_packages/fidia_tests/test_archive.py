@@ -20,7 +20,7 @@ class TestArchive:
             trait_type = 'spectral_map'
 
             def init(self):
-                if self.trait_name != 'mymap':
+                if self.trait_qualifier != 'mymap':
                     raise DataNotAvailable("ExampleSpectraMap only has 'mymap' data.")
 
             @classmethod

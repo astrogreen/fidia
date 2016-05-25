@@ -97,13 +97,11 @@ class Trait(AbstractBaseTrait):
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
         self.archive = archive
-        if object_id is not None:
-            trait_key = trait_key.replace(object_id=object_id)
         self.trait_key = trait_key
         self.version = trait_key.version
-        self.object_id = trait_key.object_id
+        self.object_id = object_id
         self._parent_trait = parent_trait
-        self._trait_name = trait_key.trait_name
+        self.trait_qualifier = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
 
@@ -158,9 +156,9 @@ class Trait(AbstractBaseTrait):
 
         return self._trait_cache[trait_key]
 
-    @property
-    def trait_name(self):
-        return self._trait_name
+    # @property
+    # def trait_name(self):
+    #     return self.trait_qualifier
 
 
     def init(self):

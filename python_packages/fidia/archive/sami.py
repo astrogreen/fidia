@@ -208,7 +208,7 @@ class SAMIRowStackedSpectra(SpectralMap):
                         break
                     else:
                         index += 1
-                        known_keys.add(TraitKey(cls.trait_type, run_id + ":" + rss_filename, object_id=object_id))
+                        known_keys.add(TraitKey(cls.trait_type, run_id + ":" + rss_filename))
             # Break out of the loop early for debuging purposes:
             if len(known_keys) > 50:
                 break
@@ -217,9 +217,9 @@ class SAMIRowStackedSpectra(SpectralMap):
 
     def init(self):
 
-        # Break apart and store the parts of the trait_name
-        self._run_id = self.trait_name.split(":")[0]
-        self._rss_filename = self.trait_name.split(":")[1]
+        # Break apart and store the parts of the trait_qualifier
+        self._run_id = self.trait_qualifier.split(":")[0]
+        self._rss_filename = self.trait_qualifier.split(":")[1]
 
 
         # Logic to construct full RSS filename
@@ -319,8 +319,8 @@ class SAMISpectralCube(SpectralMap):
 
     def init(self):
 
-        # Get necessary parameters from the trait_name, filling in defaults if necessary
-        self._color = self.trait_name
+        # Get necessary parameters from the trait_qualifier, filling in defaults if necessary
+        self._color = self.trait_qualifier
         self._binning = "05"
 
         # Get necessary parameters from the trait_version, filling in defaults if necessary
@@ -507,7 +507,7 @@ class LZIFULineMap(Image):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         known_keys = []
         for line in cls.line_name_map:
-            known_keys.append(TraitKey(cls.trait_type, line, None, object_id))
+            known_keys.append(TraitKey(cls.trait_type, line, None))
         return known_keys
 
     def preload(self):
@@ -528,13 +528,13 @@ class LZIFULineMap(Image):
 
     @trait_property('float.array')
     def value(self):
-        value = self._hdu[self.line_name_map[self._trait_name]].data[1, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def variance(self):
-        variance = self._hdu[self.line_name_map[self._trait_name] + '_ERR'].data[1, :, :]
+        variance = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
         log.debug("Returning type: %s", type(variance))
         return variance
 
@@ -548,7 +548,7 @@ class LZIFUContinuum(SpectralMap):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         known_keys = []
         for color in ('red', 'blue'):
-            known_keys.append(TraitKey(cls.trait_type, color, None, object_id))
+            known_keys.append(TraitKey(cls.trait_type, color, None))
         return known_keys
 
     def preload(self):
@@ -567,9 +567,9 @@ class LZIFUContinuum(SpectralMap):
     @trait_property('float.array')
     def value(self):
         # Determine which colour:
-        if self._trait_name == "blue":
+        if self.trait_qualifier == "blue":
             color = "B"
-        elif self._trait_name == "red":
+        elif self.trait_qualifier == "red":
             color = "R"
         else:
             raise ValueError("unknown trait name")
@@ -588,7 +588,7 @@ class LZIFULineSpectrum(SpectralMap):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         known_keys = []
         for color in ('red', 'blue'):
-            known_keys.append(TraitKey(cls.trait_type, color, None, object_id))
+            known_keys.append(TraitKey(cls.trait_type, color, None))
         return known_keys
 
     def preload(self):
@@ -607,9 +607,9 @@ class LZIFULineSpectrum(SpectralMap):
     @trait_property('float.array')
     def value(self):
         # Determine which colour:
-        if self._trait_name == "blue":
+        if self.trait_qualifier == "blue":
             color = "B"
-        elif self._trait_name == "red":
+        elif self.trait_qualifier == "red":
             color = "R"
         else:
             raise ValueError("unknown trait name")

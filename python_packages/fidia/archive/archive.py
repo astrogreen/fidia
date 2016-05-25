@@ -63,9 +63,6 @@ class Archive(BaseArchive):
         if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
             trait_key = TraitKey(*trait_key)
 
-        if object_id is not None:
-            trait_key = trait_key.replace(object_id=object_id)
-
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if (trait_key, parent_trait) not in self._trait_cache:
 
