@@ -11,6 +11,9 @@ def get_object_name(url, request=None):
     name = ''
     if request.parser_context['kwargs']:
         if 'pk' in request.parser_context['kwargs']:
+            print(name_space)
+            if name_space == 'query-list':
+                name = 'Query History'
             if name_space == 'query-detail':
                 pk = request.parser_context['kwargs']['pk']
                 name = pk

@@ -12,7 +12,7 @@
 
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
-{% block contentt %}
+{% block content %}
 
 <h1 class="headline">
     <span>Data</span>
@@ -20,37 +20,41 @@
 
 <div class="row">
     {% for key, value in response.data.items %}
-    {{key}}<br>
-    {{value}}<br>
-    <div class="col-sm-3">
-        <a href="{{value}}" class="a-hover">
-        <div class="panel panel-default">
-            <div class="panel-body text-center">
-                <div class="circle {{key}}"></div>
-                <h3 class="text-uppercase">{{key }}</h3>
-                {% if key == "query" %}
-                <p class="lead">Submit SQL queries to the database</p>
-                <p>Browser-based access to the AAT-node database. An add-on SQL Query-Builder provides quick
-                    data access.
-                </p>
-                {% elif key == "query-history" %}
-                <p class="lead">Revisit previous Queries</p>
-                <p>Re-visit, edit and download your query history.
-                </p>
-                {% elif key == "sov" %}
-                <p class="lead">Single Object Viewer</p>
-                <p>View a particular object's key data products as determined by the Survey teams.  </p>
-                {% elif key == "gama" %}
-                <p class="lead">Galaxy And Mass Assembly Survey</p>
-                <p>Browse objects in the Galaxy and Mass Assembly Survey. </p>
-                {% elif key == "sami" %}
-                <p class="lead">SAMI Survey</p>
-                <p>Browse objects in the SAMI survey. View and download available data per source. </p>
-                {% endif %}
+        {% if forloop.counter|divisibleby:"3" %}
+            <div class="row">
+        {% endif %}
+        <div class="col-sm-4">
+            <a href="{{value}}" class="a-hover">
+            <div class="panel panel-default">
+                <div class="panel-body text-center">
+                    <div class="circle {{key}}"></div>
+                    <h3 class="text-uppercase">{{key }}</h3>
+                    {% if key == "query" %}
+                    <p class="lead">Query the database</p>
+                    <p>Browser-based SQL query access to the AAT-node database. An add-on SQL Query Builder provides quick
+                        data access.
+                    </p>
+                    {% elif key == "query-history" %}
+                    <p class="lead">Revisit previous Queries</p>
+                    <p>Re-visit, edit and download your query history.
+                    </p>
+                    {% elif key == "sov" %}
+                    <p class="lead">Single Object Viewer</p>
+                    <p>View a particular object's key data products as determined by the Survey teams.  </p>
+                    {% elif key == "gama" %}
+                    <p class="lead">Galaxy And Mass Assembly Survey</p>
+                    <p>Browse objects in the Galaxy and Mass Assembly Survey. </p>
+                    {% elif key == "sami" %}
+                    <p class="lead">SAMI Survey</p>
+                    <p>Browse objects in the SAMI survey. View and download available data per source. </p>
+                    {% endif %}
+                </div>
             </div>
+            </a>
         </div>
-        </a>
-    </div>
+        {% if forloop.counter|divisibleby:"3" %}
+            </div>
+        {% endif %}
     {% endfor %}
 </div>
 

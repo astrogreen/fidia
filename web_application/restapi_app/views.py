@@ -132,10 +132,41 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
         serializer.save(owner=self.request.user)
 
 
-class QueryListView(mixins.ListModelMixin, viewsets.GenericViewSet):
+# class QueryListView(viewsets.GenericViewSet):
+#     serializer_class = QuerySerializerList
+#     permission_classes = [permissions.IsAuthenticated]
+#     renderer_classes = [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer]
+#
+#     def get_queryset(self):
+#         """
+#         Query History.
+#
+#         This view should return a list of all queries for the currently authenticated user.
+#         """
+#         user = self.request.user
+#         return Query.objects.filter(owner=user).order_by('-updated')
+
+
+class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListModelMixin,
+                                         mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
     serializer_class = QuerySerializerList
     permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer]
+
+    # descriptor decorator
+    @property
+    # renderer_classes = property(renderer_classes)
+    def renderer_classes(self):
+        if self.action == 'list':
+            return [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+        if self.action == 'retrieve':
+            return [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+
+    # @renderer_classes.setter
+    # def renderer_classes(self, value):
+    #     if value is "SANE":
+    #         pass
+    #     else:
+    #         raise Exception()
 
     def get_queryset(self):
         """
@@ -145,22 +176,6 @@ class QueryListView(mixins.ListModelMixin, viewsets.GenericViewSet):
         """
         user = self.request.user
         return Query.objects.filter(owner=user).order_by('-updated')
-
-
-class QueryRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                                     mixins.DestroyModelMixin):
-    serializer_class = QuerySerializerList
-    permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
-
-    def get_queryset(self):
-        """
-        Query Retrieve.
-
-        This view should return a single query of id = pk for the currently authenticated user.
-        """
-        user = self.request.user
-        return Query.objects.filter(owner=user)
 
     def get_serializer_class(self):
         # Check the request type - if browser return truncated json

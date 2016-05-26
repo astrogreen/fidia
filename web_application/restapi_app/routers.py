@@ -29,14 +29,15 @@ class ExtendDefaultRouter(SimpleRouter):
         """
         api_root_dict = OrderedDict()
         list_name = self.routes[0].name
-        print(list_name)
         for prefix, viewset, basename in self.registry:
             # DRF registers all views on the router as list even if they don't have a list action...
             # Here, exclude the query-detail view to prevent it showing in the api-root (prefix list incorrectly appended and incorrect url resolved)
             # /asvo/<var>data/query-history/	restapi_app.views.QueryListView	query-list      <-- this is the list action
             # /asvo/<var>data/query/<pk>/	restapi_app.views.QueryRetrieveUpdateDestroyView	query-detail <-- this retrieve action isn't needed (or handled properly) by the router
 
-            if prefix != 'query':
+            if prefix == 'query' and basename == 'query':
+                pass
+            else:
                 api_root_dict[prefix] = list_name.format(basename=basename)
 
         class DATA(views.APIView):

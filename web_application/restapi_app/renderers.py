@@ -167,18 +167,18 @@ class QueryRenderer(ExtendBrowsableAPIRenderer):
     template = 'restapi_app/query/query.html'
 
 
-class QueryListRenderer(ExtendBrowsableAPIRenderer):
-    """
-    Read-only Query History
-    """
-    template = 'restapi_app/query/query-list.html'
-
-
 class QueryCreateRenderer(ExtendBrowsableAPIRenderer):
     """
     Read-only Query History
     """
     template = 'restapi_app/query/query-create.html'
+
+
+class QueryListRenderer(ExtendBrowsableAPIRenderer):
+    """
+    Read-only Query History
+    """
+    template = 'restapi_app/query/query-list.html'
 
 
 class QueryRetrieveUpdateDestroyRenderer(ExtendBrowsableAPIRenderer):
