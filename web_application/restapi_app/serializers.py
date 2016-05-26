@@ -201,6 +201,10 @@ def get_and_update_depth_limit(kwargs):
             depth_limit -= 1
         else:
             depth_limit = 0
+
+    trait_pk = kwargs.pop('trait_pk', -1)
+    if trait_pk == 'spectral_cube':
+        depth_limit = 0
     return depth_limit
 
 
@@ -283,9 +287,6 @@ class AstroObjectTraitPropertySerializer(serializers.Serializer):
         elif trait_property.type == 'string':
             data_serializer = serializers.CharField(required=False)
 
-        # Decide whether data will be included:
-        # Turn this back to always on once visualizers have been sorted out. Currently
-        # visualization is handled on a per-case basis in the JS via AJAX
         if data_display == 'include':
             self.fields['value'] = data_serializer
 
@@ -299,10 +300,21 @@ class AstroObjectTraitSerializer(serializers.Serializer):
 
         trait = self.instance
         assert isinstance(trait, Trait)
+        print(trait.trait_name)
+        print(trait.trait_key)
+        print(trait.trait_properties())
 
         for trait_property in trait.trait_properties():
             # define serializer type by instance type
             traitproperty_type = trait_property.type
+
+            # Decide whether data will be included:
+            # Turn this back to always on once visualizers have been sorted out. Currently
+            # visualization is handled on a per-case basis in the JS via AJAX
+
+            depth_limit = 0
+            # Depth limit needs to be a bit more dynamic. It should tunnel down if not spectral cube :)
+            # Need some mapping here.
 
             if depth_limit > 0:
                 # Recurse into trait properties
