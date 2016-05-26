@@ -27,8 +27,13 @@ object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.AstroObjectViewSet
 trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<galaxy_pk>[^/.]+)', lookup='galaxy')
 trait_nested_router.register(r'(?P<trait_pk>[^/.]+)', views.TraitViewSet, base_name='trait')
 
-traitprop_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/.]+)', lookup='trait')
-traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', views.TraitPropertyViewSet, base_name='traitproperty')
+# traitprop_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/.]+)', lookup='trait')
+# traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', views.TraitPropertyViewSet, base_name='traitproperty')
+
+test_dynamic_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/.]+)', lookup='trait')
+test_dynamic_nested_router .register(r'(?P<dynamicproperty_pk>[^/.]+)', views.DynamicPropertyViewSet, base_name='traitproperty')
+
+
 
 # keep users out of the api-root router.register
 user_list = views.UserViewSet.as_view({
@@ -79,7 +84,8 @@ urlpatterns = [
             url(r'^(?i)data/', include(router.urls)),
             url(r'^(?i)data/', include(object_nested_router.urls)),
             url(r'^(?i)data/', include(trait_nested_router.urls)),
-            url(r'^(?i)data/', include(traitprop_nested_router.urls)),
+            # url(r'^(?i)data/', include(traitprop_nested_router.urls)),
+            url(r'^(?i)data/', include(test_dynamic_nested_router.urls)),
 
             url(r'^(?i)data/catalogues/', views.AvailableTables.as_view(), name='catalogues'),
 

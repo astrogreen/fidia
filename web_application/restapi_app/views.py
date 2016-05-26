@@ -132,21 +132,6 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
         serializer.save(owner=self.request.user)
 
 
-# class QueryListView(viewsets.GenericViewSet):
-#     serializer_class = QuerySerializerList
-#     permission_classes = [permissions.IsAuthenticated]
-#     renderer_classes = [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer]
-#
-#     def get_queryset(self):
-#         """
-#         Query History.
-#
-#         This view should return a list of all queries for the currently authenticated user.
-#         """
-#         user = self.request.user
-#         return Query.objects.filter(owner=user).order_by('-updated')
-
-
 class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListModelMixin,
                                          mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
     serializer_class = QuerySerializerList
@@ -415,6 +400,7 @@ class TraitViewSet(mixins.ListModelMixin,
             response['content-disposition'] = "attachment; filename=%s" % filename
         return response
 
+
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
 
@@ -447,12 +433,42 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
         return response
 
 
-class TraitPropertyOrSubTrait(mixins.ListModelMixin,
+class DynamicPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
     """
-    Differentiate between Trait and Sub-trait
+    Differentiate between Trait and Sub-trait.
+    Allows for n levels of nesting - parses str
     """
+    @property
+    def rendererclasses(self, level):
+        if level == "sub_trait":
+            return [restapi_app.renderers.SubTraitRenderer, renderers.JSONRenderer]
+        elif level == "trait_property":
+            return [restapi_app.renderers.TraitPropertyRenderer, renderers.JSONRenderer]
 
+    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+
+        # HERE FUNCTION TO DETERMINE TRAIT OR SUB-TRAIT
+
+        try:
+            trait_property = getattr(sample[galaxy_pk][trait_pk], dynamic_pk)
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except AttributeError:
+            raise NoPropertyFound("No property %s" % dynamic_pk)
+
+        @property
+        def serializer_class(self, level, type):
+            # some logic here to pick a serializer based on the level (trait/subtrait) and perhaps the type
+            # (needs mapping)
+            return AstroObjectTraitPropertySerializer
+
+        serializer = serializer_class(
+            instance=trait_property, many=False,
+            context={'request': request}
+        )
 
 
 #  SOV

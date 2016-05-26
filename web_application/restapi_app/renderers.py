@@ -126,16 +126,9 @@ class SampleRenderer(ExtendBrowsableAPIRenderer):
     """
     SampleViewSet (list only)
     """
-    template = 'restapi_app/sample/list-sample.html'
+    template = 'restapi_app/sample/sample-list.html'
 
 
-# class SAMIRenderer(ExtendBrowsableAPIRenderer):
-#     """
-#     SampleViewSet (list only)
-#     """
-#     template = 'restapi_app/sample/list-sample.html'
-#
-#
 class GAMARenderer(ExtendBrowsableAPIRenderer):
     """
     SampleViewSet (list only)
@@ -147,15 +140,19 @@ class AstroObjectRenderer(ExtendBrowsableAPIRenderer):
     """
     AstroObjectViewSet (list only)
     """
-    template = 'restapi_app/sample/list-astroobject.html'
+    template = 'restapi_app/astroobject/astroobject-list.html'
 
 
 class TraitRenderer(ExtendBrowsableAPIRenderer):
-    template = 'restapi_app/sample/list-trait.html'
+    template = 'restapi_app/trait/trait-list.html'
 
 
 class TraitPropertyRenderer(ExtendBrowsableAPIRenderer):
-    template = 'restapi_app/sample/list-traitproperty.html'
+    template = 'restapi_app/trait_property/traitproperty-list.html'
+
+
+class SubTraitRenderer(ExtendBrowsableAPIRenderer):
+    template = 'restapi_app/sub_trait/sub_trait-list.html'
 
 
 class QueryRenderer(ExtendBrowsableAPIRenderer):
