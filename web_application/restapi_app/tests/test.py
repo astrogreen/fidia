@@ -4,6 +4,9 @@ from rest_framework import status, response
 from rest_framework.reverse import reverse
 
 
+# response.data = unrendered response (still python dict)
+# response.content = rendered response
+
 class GeneralAPITests(APITestCase):
     def test_url_root(self):
         url = reverse('index')

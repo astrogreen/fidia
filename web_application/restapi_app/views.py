@@ -143,8 +143,11 @@ class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListMod
     def renderer_classes(self):
         if self.action == 'list':
             return [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer, FlatCSVRenderer]
-        if self.action == 'retrieve':
+        elif self.action == 'retrieve':
             return [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+        else:
+            return [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+
 
     # @renderer_classes.setter
     # def renderer_classes(self, value):

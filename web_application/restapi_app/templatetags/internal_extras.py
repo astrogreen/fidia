@@ -51,10 +51,11 @@ def status_info(request, status_code, user, status_code_detail):
                     </div>
                     <div class="text-center splitter">
                     <br>
-                        {optional_login}
-                    </div>
-                </div>
             """
+        if user == 'AnonymousUser':
+            snippet += "{optional_login}"
+        snippet += "</div></div>"
+
         snippet = format_html(snippet, status_code=status_code, request=request, user=user,
                               status_code_detail=status_code_detail, optional_login=optional_login(request))
 
