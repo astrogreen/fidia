@@ -10,10 +10,9 @@ from django.conf.urls.static import static
 
 router = ExtendDefaultRouter()
 
-# router.register(r'query', views.QueryViewSet)
-router.register(r'query-history', views.QueryHistoryView, base_name='query')
-router.register(r'query-create', views.QueryCreateView, base_name='query-create')
+router.register(r'query-history', views.QueryListView, base_name='query')
 router.register(r'query', views.QueryRetrieveUpdateDestroyView, base_name='query')
+router.register(r'new-query', views.QueryCreateView, base_name='query-create')
 
 router.register(r'sov', views.SOVListSurveysViewSet, base_name='sov')
 router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')
@@ -50,11 +49,9 @@ urlpatterns = [
             url(r'^(?i)documentation/query-builder/$',
                       TemplateView.as_view(template_name='restapi_app/documentation/query-builder.html'),
                       name='documentation-query-builder'),
-
             url(r'^(?i)documentation/query-history/$',
               TemplateView.as_view(template_name='restapi_app/documentation/query-history.html'),
               name='documentation-query-history'),
-
             url(r'^(?i)documentation/schema-browser/$',
               TemplateView.as_view(template_name='restapi_app/documentation/schema-browser.html'),
               name='documentation-schema-browser'),
@@ -62,6 +59,7 @@ urlpatterns = [
             url(r'^(?i)under-construction/$',
               TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'),
               name='under-construction'),
+
             url(r'^(?i)about/team/$', TemplateView.as_view(template_name='restapi_app/about/team.html'),
               name='about-team'),
 

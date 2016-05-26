@@ -12,16 +12,16 @@
 
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
-{% block content-test %}
+{% block contentt %}
 
 <h1 class="headline">
     <span>Data</span>
 </h1>
 
 <div class="row">
-
-
     {% for key, value in response.data.items %}
+    {{key}}<br>
+    {{value}}<br>
     <div class="col-sm-3">
         <a href="{{value}}" class="a-hover">
         <div class="panel panel-default">
@@ -31,7 +31,11 @@
                 {% if key == "query" %}
                 <p class="lead">Submit SQL queries to the database</p>
                 <p>Browser-based access to the AAT-node database. An add-on SQL Query-Builder provides quick
-                    data access. Re-visit, edit and download your query history.
+                    data access.
+                </p>
+                {% elif key == "query-history" %}
+                <p class="lead">Revisit previous Queries</p>
+                <p>Re-visit, edit and download your query history.
                 </p>
                 {% elif key == "sov" %}
                 <p class="lead">Single Object Viewer</p>

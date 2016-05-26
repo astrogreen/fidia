@@ -72,26 +72,11 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
 
-class QueryHistoryView(mixins.ListModelMixin, viewsets.GenericViewSet):
-    serializer_class = QuerySerializerList
-    permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer]
-
-    def get_queryset(self):
-        """
-        Query History.
-
-        This view should return a list of all queries
-        for the currently authenticated user.
-        """
-        user = self.request.user
-        return Query.objects.filter(owner=user).order_by('-updated')
-
-
 def run_sql_query(request_string):
     sample = AsvoSparkArchive().new_sample_from_query(request_string)
     json_table = sample.tabular_data().reset_index().to_json(orient='split')
-    # Turned off capping data on the back end. The time issue is due to the browser rendering on the front end using dataTables.js.
+    # Turned off capping data on the back end.
+    # The time issue is due to the browser rendering on the front end using dataTables.js.
     # This view should still pass back *all* the data:
     # http: // 127.0.0.1:8000/asvo/data/query/32/?format=json
     # log.debug(json_table)
@@ -147,6 +132,21 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
         serializer.save(owner=self.request.user)
 
 
+class QueryListView(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = QuerySerializerList
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer]
+
+    def get_queryset(self):
+        """
+        Query History.
+
+        This view should return a list of all queries for the currently authenticated user.
+        """
+        user = self.request.user
+        return Query.objects.filter(owner=user).order_by('-updated')
+
+
 class QueryRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                                      mixins.DestroyModelMixin):
     serializer_class = QuerySerializerList
@@ -157,13 +157,10 @@ class QueryRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.RetrieveMod
         """
         Query Retrieve.
 
-        This view should return a single query of id = pk
-        for the currently authenticated user.
+        This view should return a single query of id = pk for the currently authenticated user.
         """
         user = self.request.user
-        # id = self.request['pk']
         return Query.objects.filter(owner=user)
-        # return Query.objects.filter(owner=user).filter(id=id)
 
     def get_serializer_class(self):
         # Check the request type - if browser return truncated json
