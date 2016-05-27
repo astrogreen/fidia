@@ -7,7 +7,7 @@ from astropy.io import fits
 from .abstract_base_traits import *
 from ..exceptions import DataNotAvailable
 from .utilities import TraitProperty, TraitMapping, TraitKey
-
+from ..utilities import SchemaDictionary
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
@@ -54,23 +54,16 @@ class Trait(AbstractBaseTrait):
         """
 
 
-        schema = dict()
+        schema = SchemaDictionary()
         for trait_property in cls._trait_properties():
                 schema[trait_property.name] = trait_property.type
 
         if include_subtraits:
             for trait_type in cls._sub_traits.get_trait_types():
                 # Create empty this sub-trait type:
-                schema[trait_type] = dict()
+                schema[trait_type] = SchemaDictionary()
                 # Populate the dict with schema from each sub-type:
                 for trait_class in cls.sub_traits(trait_type_filter=trait_type):
-                    # FIXME: This will break if different sub-traits have different schemas (I think).
-                    #
-                    #   The update needs to be done recursively, not just on the top
-                    #   level of the sub-trait dictionary. Otherwise, the schema
-                    #   produced will be incomplete. This can best be fixed by
-                    #   implementing a special sub-class of dict expressly for this
-                    #   purpose, which knows how to do such a recurisve update.
                     schema[trait_type].update(trait_class.schema())
 
         return schema

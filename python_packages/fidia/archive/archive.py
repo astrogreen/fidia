@@ -14,6 +14,7 @@ from ..traits import Trait, TraitKey, TraitProperty
 from ..traits.utilities import TraitMapping
 from .base_archive import BaseArchive
 from ..cache import MemoryCache
+from ..utilities import SchemaDictionary
 
 class Archive(BaseArchive):
     def __init__(self):
@@ -129,9 +130,9 @@ class Archive(BaseArchive):
 
         if self._schema:
             return self._schema
-        result = dict()
+        result = SchemaDictionary()
         for trait_type in self.available_traits.get_trait_types():
-            result[trait_type] = dict()
+            result[trait_type] = SchemaDictionary()
             for trait in self.available_traits.get_traits_for_type(trait_type):
                 result[trait_type].update(trait.schema())
         self._schema = result

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 
 def none_at_indices(tup, indices):
     result = tuple()
@@ -15,7 +17,7 @@ class WildcardDictionary(dict):
         wildcard_indices = set()
         for i in range(wildkey.count(None)):
             index = wildkey.index(None, start)
-            wildcard_indicies.add(index)
+            wildcard_indices.add(index)
             start = index + 1
 
         result = dict()
@@ -25,3 +27,22 @@ class WildcardDictionary(dict):
 
         return result
 
+class SchemaDictionary(dict):
+    """A dictionary class that can update with nested dicts."""
+    def update(self, other_dict):
+        if not hasattr(other_dict, 'keys'):
+            raise TypeError("A SchemaDictionary can only be updated with a dict-like object.")
+        for key in other_dict.keys():
+            if key not in self:
+                # New material. Add (a copy of) it.
+                self[key] = deepcopy(other_dict[key])
+            elif key in self and not isinstance(self[key], dict):
+                # Key already exists and is not a dictionary, so check that the value has not changed.
+                if self[key] != other_dict[key]:
+                    raise ValueError("Invalid attempt to change value at key '%s' in update" % key)
+            elif key in self and isinstance(self[key], dict) and isinstance(other_dict[key], dict):
+                # Key already exists and is a dictionary, so recurse the update.
+                self[key].update(other_dict[key])
+            else:
+                # Something's wrong, probably a type mis-match.
+                raise Exception("The SchemaDictionary %s can not be updated with %s" % (self, other_dict[key]))
