@@ -5,6 +5,7 @@ log.setLevel(slogging.DEBUG)
 
 from abc import ABCMeta
 import collections
+import re
 
 #TraitKey = collections.namedtuple('TraitKey', ['trait_type', 'trait_name', 'object_id'], verbose=True)
 
@@ -12,6 +13,15 @@ import collections
 from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
+
+TRAIT_KEY_PART_RE = r'[a-zA-Z][a-zA-Z0-9_]*'
+
+TRAIT_KEY_RE = re.compile(
+    r"(?P<trait_type>" + TRAIT_KEY_PART_RE + r")" +
+    r"(?:-(?P<trait_qualifier>[a-zA-Z0-9_]+))?" +
+    r"(?::(?P<branch>" + TRAIT_KEY_PART_RE + r"))?" +
+    r"(?:\((?P<version>[a-zA-Z0-9_]+)\))?"
+)
 
 class TraitKey(tuple):
     """TraitKey(trait_type, trait_name, version, object_id)"""
@@ -21,7 +31,7 @@ class TraitKey(tuple):
     _fields = ('trait_type', 'trait_qualifier', 'version', 'branch')
 
     def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
-        """Create new instance of TraitKey(trait_type, trait_qualifier, version, branch)"""
+        """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
         return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
 
     @classmethod
@@ -31,6 +41,27 @@ class TraitKey(tuple):
         if len(result) not in (1, 2, 3, 4):
             raise TypeError('Expected 1-4 arguments, got %d' % len(result))
         return result
+
+    @classmethod
+    def as_traitkey(cls, key):
+        """Return a TraitKey for the given input.
+
+        Effectively this is just a smart "cast" from string or tuple.
+
+        """
+        if isinstance(key, TraitKey):
+            return key
+        if isinstance(key, tuple):
+            return cls(*key)
+        if isinstance(key, str):
+            match = TRAIT_KEY_RE.fullmatch(key)
+            if match:
+                return cls(trait_type=match.group('trait_type'),
+                    trait_qualifier=match.group('trait_qualifier'),
+                    branch=match.group('branch'),
+                    version=match.group('version'))
+        raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
+
 
     def __repr__(self):
         """Return a nicely formatted representation string"""
@@ -79,18 +110,7 @@ def parse_trait_key(key):
     """Return a fully fledged TraitKey for the key given.
 
     Effectively this is just a smart "cast" from string or tuple."""
-    if isinstance(key, TraitKey):
-        return key
-    if isinstance(key, tuple):
-        return TraitKey(*key)
-    if isinstance(key, str):
-        if "-" in key:
-            # We have both a trait_type and a trait_qualifier:
-            (trait_type, trait_qualifier) = key.split("-")
-            return TraitKey(trait_type, trait_qualifier)
-        else:
-            return TraitKey(key)
-    raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
+    return TraitKey.as_traitkey(key)
 
 
 class TraitMapping(collections.MutableMapping):
