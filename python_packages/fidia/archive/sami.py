@@ -319,8 +319,12 @@ class SAMISpectralCube(SpectralMap):
 
     def init(self):
 
+        log.debug("TraitKey: %s", self.trait_key)
         # Get necessary parameters from the trait_qualifier, filling in defaults if necessary
-        self._color = self.trait_qualifier
+        if self.trait_qualifier in ('blue', 'red'):
+            self._color = self.trait_qualifier
+        else:
+            raise DataNotAvailable("SAMISpectralCube data not available for colour %s" % self.trait_qualifier)
         self._binning = "05"
 
         # Get necessary parameters from the trait_version, filling in defaults if necessary
