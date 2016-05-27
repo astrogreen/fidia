@@ -86,7 +86,7 @@ class TestTraits:
 
     def test_get_trait_properties(self):
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'))
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
         for prop in test_trait._trait_properties():
             assert isinstance(prop, TraitProperty)
@@ -96,7 +96,7 @@ class TestTraits:
 
     def test_trait_schema(self):
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'))
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
         schema = test_trait.schema()
 
@@ -109,7 +109,7 @@ class TestTraits:
 
     def test_trait_schema_with_subtraits(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'))
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
         schema = test_trait.schema()
 

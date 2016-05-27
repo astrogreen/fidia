@@ -64,7 +64,7 @@ class Archive(BaseArchive):
             trait_key = TraitKey(*trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
-        if (trait_key, parent_trait) not in self._trait_cache:
+        if (object_id, trait_key, parent_trait) not in self._trait_cache:
 
             # Check the size of the cache, and remove item if necessary
             # This should probably be more clever.
@@ -77,11 +77,11 @@ class Archive(BaseArchive):
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
-            trait = trait_class(self, trait_key, parent_trait=parent_trait)
+            trait = trait_class(self, trait_key, object_id=object_id, parent_trait=parent_trait)
 
-            self._trait_cache[(trait_key, parent_trait)] = trait
+            self._trait_cache[(object_id, trait_key, parent_trait)] = trait
 
-        return self._trait_cache[(trait_key, parent_trait)]
+        return self._trait_cache[(object_id, trait_key, parent_trait)]
 
     def can_provide(self, trait_key):
         return trait_key in self.available_traits

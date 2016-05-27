@@ -109,6 +109,8 @@ class Trait(AbstractBaseTrait):
             self.version = parent_trait.version
         else:
             self.version = trait_key.version
+        if object_id is None:
+            raise KeyError("object_id must be supplied")
         self.object_id = object_id
         self._parent_trait = parent_trait
         self.trait_qualifier = trait_key.trait_qualifier
