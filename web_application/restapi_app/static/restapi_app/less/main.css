@@ -96,6 +96,9 @@ select {
   width: 100%;
   min-height: 1px;
 }
+.fa-slim-line {
+  -webkit-text-stroke: 1px #ffffff;
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ HEADER
@@ -116,7 +119,7 @@ header .container {
 }
 header .container .logo {
   display: inline-block;
-  padding: 5px 0px;
+  padding: 5px 0;
 }
 header .container .logo a {
   display: inline-block;
@@ -124,12 +127,13 @@ header .container .logo a {
 header .container .logo a span {
   display: none;
 }
-header .container .logo a.asvo {
-  margin-right: 10px;
-}
 header .container .logo a > img {
   height: 40px;
   width: 90px;
+}
+header .container .logo a.asvo {
+  margin-right: 10px;
+  margin-left: 20px;
 }
 header .container .navbar-nav > .user {
   display: inline-block;
@@ -249,7 +253,7 @@ nav.navbar .nav ul li {
 }
 nav.navbar .nav li,
 nav.navbar .nav li a {
-  color: white;
+  color: #ffffff;
 }
 nav.navbar .nav-list > .active > a,
 nav.navbar .nav-list > .active > a:hover {
@@ -468,6 +472,14 @@ nav.navbar .navbar .dropdown-menu li a:hover {
 }
 .panel {
   border-radius: 0 !important;
+}
+.panel.warning,
+.panel-body.warning {
+  border-left: 3px solid #f1cb76;
+}
+.panel.error,
+.panel-body.error {
+  border-left: 3px solid #d9534f;
 }
 .horizontal-checkbox label {
   padding-top: 0;

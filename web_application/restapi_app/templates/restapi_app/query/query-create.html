@@ -37,6 +37,14 @@
 
 </style>
 {% block head-extra-extra%}{% endblock %}
+{% if response.status_code == 201 and response.data.title and response.data.created and response.data.url %}
+<script>
+    // REDIRECT ON SUCCESS
+    console.log('SUCCESS');
+    console.log("{{response.data.url}}");
+    window.location.href="{{response.data.url}}"
+</script>
+{% endif %}
 {% endblock %}
 
 {% block bodyclass %}{% endblock %}
@@ -88,9 +96,10 @@
                                 </div>
                                 <div class="panel-body">
                                     <p>Query {{response.data.title}} submitted on {{response.data.created}} has completed.</p>
+                                    <p>If you are not redirected to your query, please click the link below. </p>
                                     <p>
                                     <div class="half-br"></div>
-                                    <a type="button" class=" text-uppercase" href="{{response.data.url}}">Go to Result</a>
+                                    <a type="button" class=" text-uppercase pull-right" href="{{response.data.url}}">Go to Result</a>
                                     </p>
 
                                 </div>
@@ -108,14 +117,20 @@
                                 {% if post_form %}
                                 <ul class="nav nav-tabs form-switcher">
                                     <li>
-                                        <a name='html-tab' href="#post-object-form" data-toggle="tab">SQL Form</a>
+                                        <a name='raw-tab' href="#query-builder-form" data-toggle="tab">Query Builder</a>
                                     </li>
                                     <li>
-                                        <a name='raw-tab' href="#query-builder-form" data-toggle="tab">Query Builder</a>
+                                        <a name='html-tab' href="#post-object-form" data-toggle="tab">SQL</a>
                                     </li>
                                 </ul>
                                 {% endif %}
                                 <div class="well tab-content">
+                                    <div id="query-builder-form" class="tab-pane">
+                                        {% block query-builder %}
+                                            {% include "restapi_app/query/query-builder-module.html" %}
+                                        {% endblock %}
+                                    </div>
+
                                     {% if post_form %}
                                     <div class="tab-pane" id="post-object-form">
                                         {% with form=post_form %}
@@ -131,12 +146,6 @@
                                         {% endwith %}
                                     </div>
                                     {% endif %}
-
-                                    <div id="query-builder-form" class="tab-pane">
-                                        {% block query-builder %}
-                                            {% include "restapi_app/query/query-builder-module.html" %}
-                                        {% endblock %}
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -242,5 +251,6 @@
     });
 
 </script>
+
 {% endblock %}
 

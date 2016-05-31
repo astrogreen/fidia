@@ -88,6 +88,12 @@ input, select {
   border-radius: 0 !important;
 }
 .half-br{margin-bottom:10px;width:100%;min-height:1px}
+
+// SLIM DOWN THE FA ICONS (webkit only, firefox support coming soon...)
+
+.fa-slim-line {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 1);
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ HEADER
@@ -106,7 +112,7 @@ header {
 
     .logo {
       display: inline-block;
-      padding: 5px 0px;
+      padding: 5px 0;
 
       a {
         display: inline-block;
@@ -115,13 +121,16 @@ header {
           display: none;
         }
       }
-      a.asvo {
-        margin-right: 10px;
-      }
       a > img {
         height: 40px;
         width: 90px;
       }
+      a.asvo {
+        margin-right: 10px;margin-left:20px;
+      }
+      a.aao {
+      }
+
     }
 
     .navbar-nav > .user {
@@ -225,6 +234,7 @@ header {
 
 nav.navbar {
   background-color: #5aa8d8;
+  //background-color: #292f31;
   width: 100%;
   left: 0;
   top: 0;
@@ -258,7 +268,7 @@ nav.navbar {
   }
 
   .nav li, .nav li a {
-    color: white;
+    color: #ffffff;
   }
 
   .nav-list > .active > a, .nav-list > .active > a:hover {
@@ -515,6 +525,14 @@ nav.navbar {
 
 .panel {
   border-radius: 0 !important;
+}
+
+.panel.warning, .panel-body.warning {
+  border-left: 3px solid #f1cb76;
+}
+
+.panel.error, .panel-body.error {
+  border-left: 3px solid #d9534f;
 }
 
 .horizontal-checkbox label {

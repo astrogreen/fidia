@@ -436,42 +436,83 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
         return response
 
 
-class DynamicPropertyViewSet(mixins.ListModelMixin,
-                            viewsets.GenericViewSet):
-    """
-    Differentiate between Trait and Sub-trait.
-    Allows for n levels of nesting - parses str
-    """
-    @property
-    def rendererclasses(self, level):
-        if level == "sub_trait":
-            return [restapi_app.renderers.SubTraitRenderer, renderers.JSONRenderer]
-        elif level == "trait_property":
-            return [restapi_app.renderers.TraitPropertyRenderer, renderers.JSONRenderer]
+class TestingViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+    def list(self, request, pk=None, dynamic_pk=None, dynamic_pk0=None, format=None):
+        # @property
+        # def dynamic_property_first_of_type(self, dynamic_pk):
+            # split on /
+        print(dynamic_pk.split('/'))
+        dynamic_components = dynamic_pk.split('/')
+        # first component distinction: ST/TP
+        print(dynamic_components)
+        print(type(dynamic_components))
+        print(dynamic_components[:-1])
 
-        # HERE FUNCTION TO DETERMINE TRAIT OR SUB-TRAIT
+            # return 'test'
 
-        try:
-            trait_property = getattr(sample[galaxy_pk][trait_pk], dynamic_pk)
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        except AttributeError:
-            raise NoPropertyFound("No property %s" % dynamic_pk)
+        return Response({'dynamic_pk': dynamic_pk, 'dy1=n1': dynamic_pk0})
 
-        @property
-        def serializer_class(self, level, type):
-            # some logic here to pick a serializer based on the level (trait/subtrait) and perhaps the type
-            # (needs mapping)
-            return AstroObjectTraitPropertySerializer
 
-        serializer = serializer_class(
-            instance=trait_property, many=False,
-            context={'request': request}
-        )
+
+# class DynamicPropertyViewSet(mixins.ListModelMixin,
+#                             viewsets.GenericViewSet):
+#     """
+#     Differentiate between Trait and Sub-trait.
+#     Allows for n levels of nesting - parses str
+#     """
+#     # @property
+#     # def rendererclasses(self, level):
+#     #     if level == "sub_trait":
+#     #         return [restapi_app.renderers.SubTraitRenderer, renderers.JSONRenderer]
+#     #     elif level == "trait_property":
+#     #         return [restapi_app.renderers.TraitPropertyRenderer, renderers.JSONRenderer]
+#     queryset = Qu
+#
+#     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+#         # HERE FUNCTION TO DETERMINE TRAIT OR SUB-TRAIT
+#         @property
+#         def dynamic_property_first_of_type(self, dynamic_pk):
+#             # split on /
+#             print(dynamic_pk.split('/'))
+#             dynamic_components = dynamic_pk.split('/')
+#             # first component distinction: ST/TP
+#             print(dynamic_components)
+#             print(type(dynamic_components))
+#             print(dynamic_components[:-1])
+#
+#             return 'test'
+#
+#         return Response()
+    #
+    #     try:
+    #         dynamic_property = getattr(sample[galaxy_pk][trait_pk], dynamic_pk)
+    #     except KeyError:
+    #         return Response(status=status.HTTP_404_NOT_FOUND)
+    #     except ValueError:
+    #         return Response(status=status.HTTP_400_BAD_REQUEST)
+    #     except AttributeError:
+    #         raise NoPropertyFound("No property %s" % dynamic_pk)
+    #
+    #     @property
+    #     def serializer_class(self, level, type):
+    #         # some logic here to pick a serializer based on the level (trait/subtrait) and perhaps the type
+    #         # (needs mapping)
+    #         return AstroObjectTraitPropertySerializer
+    #
+    #     serializer = serializer_class(
+    #         instance=dynamic_property, many=False,
+    #         context={'request': request}
+    #     )
+    #     return Response(serializer.data)
+    #
+    # def finalize_response(self, request, response, *args, **kwargs):
+    #     # TODO this needs changing based on ST/TP
+    #     response = super().finalize_response(request, response, *args, **kwargs)
+    #     if response.accepted_renderer.format == 'fits':
+    #         filename = "{galaxy_pk}-{trait_pk}-{traitproperty_pk}.fits".format(**kwargs)
+    #         response['content-disposition'] = "attachment; filename=%s" % filename
+    #     return response
 
 
 #  SOV

@@ -38,4 +38,5 @@ gulp.task('default', function(){
 // Watch
 gulp.task('watch', function(){
    gulp.watch('restapi_app/static/restapi_app/less/**/*.less', ['styles']);
+   gulp.watch('restapi_app/static/restapi_app/less/*.less', ['styles']);
 });

@@ -94,6 +94,9 @@ form.query-form {
   padding-bottom: 15px;
   .false-row {
     margin-bottom: 5px;
+    .col-xs-12{
+      padding-right:0px;
+    }
   }
   .row.header {
     margin-bottom: -1px;
@@ -108,14 +111,16 @@ form.query-form {
     border: solid 1px #dddddd;
     padding: 10px 0px
   }
+  h3{margin-top:0px;}
   h4 {
-    margin-top: 8px;
-    margin-bottom: 8px;
     font-weight: normal;
 
     font-size: 14px;
     text-transform: uppercase;
     font-family: 'Roboto', sans-serif;
+  }
+  .btn-cat-remove, .btn-join-remove, .btn-where-remove {
+    padding-right: 0px
   }
   .querynot {
     float: left;
@@ -135,21 +140,10 @@ form.query-form {
   }
 
   #query-form-errors {
-    margin-bottom: 10px;
+    //margin-bottom: 10px;
     .panel-heading {
       padding: 1px 15px;
       border-radius:0;
-    }
-    .warning {
-      background: #F1CB76;
-    }
-
-    .no-error {
-      background: #5aa8d8;
-    }
-
-    .error {
-      background: #d9534f;
     }
   }
   .not-selected-warning {

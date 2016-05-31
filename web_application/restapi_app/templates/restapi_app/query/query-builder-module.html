@@ -1,27 +1,7 @@
-{% comment %}{% extends 'restapi_app/query/query.html' %}{% endcomment %}
 {% load staticfiles %}
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-{% comment %}
-{% block head-extra-extra %}
-    <!--<script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>-->
-    <!--<script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>-->
-    <!--<script type="text/javascript">-->
-        <!--//get url for available catalogues-->
-        <!--urlCataloguesGlobal = "{% url "catalogues" %}"-->
-    <!--</script>-->
-    <!--<script src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>-->
-    <!--<script src="{% static 'restapi_app/js/query-builder/CtrlQueryBuilder.js' %}"></script>-->
-    <!--<script src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>-->
-    <!--<script type="text/javascript" src="{% static 'restapi_app/js/query-builder/isteven-multi-select.js' %}"></script>-->
-
-<!--<link rel="stylesheet" href="{% static 'restapi_app/less/query/isteven-multi-select.css' %}" type="text/css"/>-->
-<!--<link rel="stylesheet" href="{% static 'restapi_app/less/query/query-builder.css' %}" type="text/css"/>-->
-{% endblock %}
-{% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
-{% endcomment %}
-
 
 {% block query-builder %}
     {% verbatim %}
@@ -32,11 +12,11 @@
                 <div class="panel panel-default ">
                     <div class="panel-heading panel-background-grey">
                         <!--<h3 class="panel-title">SELECT</h3>-->
-                        <h4 class="panel-title">
+                        <h3 class="panel-title">
                              <span>SELECT</span>
                              <a class=" black pull-right" href="" ng-click="fAddCatalogue()">
-                                    <i class="fa fa-plus"></i></a>
-                         </h4>
+                                    <i class="fa fa-plus fa-slim-line"></i></a>
+                         </h3>
                     </div>
                     <div class="panel-body">
                         <div ng-repeat="nodecat in inputCatalogues track by $index" class="clearfix false-row">
@@ -52,7 +32,7 @@
                                     id="outputColumn{{$index}}" max-labels="5">
                                 </div>
                                 <button class="btn outline red pull-right btn-cat-remove" data-value="{{$index}}" href="" ng-click="fRemoveCatalogue($index)">
-                                    <i class="fa fa-times"></i>
+                                    <i class="fa fa-times fa-slim-line"></i>
                                 </button>
                                 <hr>
                             </div>
@@ -61,11 +41,11 @@
                 </div>
                 <div class="panel panel-default" ng-show="inputJoins.length>0">
                     <div class="panel-heading panel-background-grey">
-                        <h4 class="panel-title">
+                        <h3 class="panel-title">
                              <span>JOIN</span>
                              <a class=" black pull-right" href="" ng-click="fAddJoin()">
-                                    <i class="fa fa-plus"></i></a>
-                         </h4>
+                                    <i class="fa fa-plus fa-slim-line"></i></a>
+                         </h3>
                     </div>
                     <div class="panel-body">
                         <div ng-repeat="join in inputJoins track by $index" class="clearfix false-row">
@@ -86,7 +66,7 @@
                                      on-item-click="fJoinBClick(data)" id="outputJoinsB{{$index}}">
                                 </div>
                                 <button class="btn outline red pull-right btn-join-remove" href="" data-value="{{$index}}" ng-click="fRemoveJoin($index)">
-                                    <i class="fa fa-times"></i>
+                                    <i class="fa fa-times fa-slim-line"></i>
                                 </button>
                                 <hr>
                             </div>
@@ -95,9 +75,9 @@
                 </div>
                 <div class="panel panel-default">
                     <div class="panel-heading panel-background-grey">
-                        <h4 class="panel-title"><span>WHERE</span>
+                        <h3 class="panel-title"><span>WHERE</span>
                              <a class=" black pull-right" href="" ng-click="fAddWhere()">
-                                    <i class="fa fa-plus"></i></a></h4>
+                                    <i class="fa fa-plus fa-slim-line"></i></a></h3>
                     </div>
                     <div class="panel-body" ng-show="inputWheres.length>0">
                         <div ng-repeat="nodewhere in inputWheres track by $index" class="clearfix false-row">
@@ -121,7 +101,7 @@
                                        id="whereValue{{$index}}" ng-model="outputWhereValue[$index]" placeholder="value"
                                        on-item-click="fWhereValue()">
                                 <button class="btn outline red pull-right btn-where-remove" href="" data-value="{{$index}}" ng-click="fRemoveWhere($index)">
-                                    <i class="fa fa-times"></i>
+                                    <i class="fa fa-times fa-slim-line"></i>
                                 </button>
                                 <hr>
                             </div>
@@ -130,73 +110,47 @@
                 </div>
                 <div class="panel panel-default ">
                     <div class="panel-heading panel-background-grey">
-                        <!--<h3 class="panel-title">SELECT</h3>-->
-                        <h4 class="panel-title">
-                             <span>OUTPUT</span>
-                         </h4>
+                        <h3 class="panel-title">
+                             <span>OUTPUT SQL</span>
+                         </h3>
                     </div>
-                    <div class="panel-body" ng-show="outputSQL.length>0">
-                        <p><span ng-bind-html="outputSQL" id="outputSQL">{{ outputSQL }} &nbsp;</span></p>
-                    </div>
-                </div>
-
-                <div id="query-form-errors">
-                    <div class="panel panel-default" ng-show="error.errorFlag == true">
-                        <div class="panel-heading error">
-                            <h4>
-                                 <span>ERROR</span>
-                                 <a class="outline white pull-right" href="" ng-click="fResetErrors()">
+                    <div id="query-form-errors">
+                        <div class="panel-body error" ng-show="error.errorFlag == true">
+                            <span>ERROR</span>
+                                 <a class="outline pull-right" href="" ng-click="fResetErrors()">
                                         <i class="fa fa-times-circle"></i></a>
-                            </h4>
-                        </div>
-                        <div class="panel-body">
-                            <div  ng-repeat="(key, value) in error" ng-if="key!='errorFlag'">
+                            <div ng-repeat="(key, value) in error" ng-if="key!='errorFlag'">
                                     <p><strong>{{ key }}:</strong> {{value}}</p>
                             </div>
                         </div>
-                    </div>
-                    <div class="panel panel-default" ng-show="warning.warningFlag == true">
-                        <div class="panel-heading warning">
-                            <h4>
-                                 <span>WARNING</span>
-                                 <a class="outline white pull-right" href="" ng-click="fResetWarnings()">
+                        <div class="panel-body warning" ng-show="warning.warningFlag == true">
+                            <span>WARNING</span>
+                                 <a class="outline pull-right" href="" ng-click="fResetWarnings()">
                                         <i class="fa fa-times-circle"></i></a>
-                            </h4>
-                        </div>
-                        <div class="panel-body">
+                            <br>
                             <div  ng-repeat="(key, value) in warning" ng-if="key!='warningFlag'">
                                     <p><strong>{{ key }}:</strong> {{value}}</p>
                             </div>
                         </div>
-                    </div>
-                    <div class="panel panel-default" ng-show="warning.warningFlag != true && error.errorFlag != true">
-                        <div class="panel-heading no-error">
-                            <h4>
-                                 <span>VALID INPUT</span>
-                                                 <i class="outline white fa fa-check-circle pull-right"></i>
-                            </h4>
+                         <div class="panel-body" ng-show="warning.warningFlag != true && error.errorFlag != true && outputSQL.length>0">
+                            <p><span ng-bind-html="outputSQL" id="outputSQL">{{ outputSQL }} &nbsp;</span></p>
                         </div>
+
                     </div>
                 </div>
+
+
                  <div class="row">
                      <div  class="col-sm-12">
                          <button class="btn btn-sm btn-primary pull-right text-uppercase" type="button"
                                  ng-click=""
-                                 id="query-builder-submit" disabled>Send to Form
+                                 id="query-builder-submit" disabled>VIEW SQL
                          </button>
                          <button type="button"
                                  class="btn btn-sm btn-default text-uppercase pull-right pulsing-button"
                                  ng-click="fValidate()" style="margin-right:5px;"
-                                 title="Check form is correctly populated" id="check-button"><i
-                                 class="fa fa-code"></i> Update
+                                 title="Check form is correctly populated" id="check-button">VALIDATE
                          </button>
-
-                         <!--<button class="btn btn-sm btn-default pull-right text-uppercase" type="button"-->
-                                 <!--ng-click="fBuildSQL()"-->
-                                 <!--title="Display SQL" style="margin-bottom:5px" id="sql-button"><i-->
-                                 <!--class="fa fa-code"></i> View SQL-->
-                         <!--</button>-->
-
                          <button class="btn btn-sm btn-default pull-left text-uppercase" type="button"
                                  ng-click="fReset()"
                                  id="query-builder-reset">Reset

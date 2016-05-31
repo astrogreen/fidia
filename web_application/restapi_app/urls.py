@@ -20,6 +20,10 @@ router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')
 router.register(r'gama', views.GAMAViewSet, base_name='gama')
 router.register(r'sami', views.samiViewSet, base_name='sami')
 
+router.register(r'testing/(?P<dynamic_pk>.+)', views.TestingViewSet, base_name='testing')
+
+# TODO figure out how to pass unlimited pk or sring with slashes as one pk here
+
 # Nested routes for sample (SAMI)
 object_nested_router = NestedExtendDefaultRouter(router, r'sami', lookup='sami')
 object_nested_router.register(r'(?P<galaxy_pk>[^/.]+)', views.AstroObjectViewSet, base_name='galaxy')
@@ -94,6 +98,8 @@ urlpatterns = [
 
             url(r'^register/', views.CreateUserView.as_view(), name='user-register'),
             url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+            # url(r'^testing/(?P<dynamic_pk>[^/.]+)', views.TestingViewSet, name='testing')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

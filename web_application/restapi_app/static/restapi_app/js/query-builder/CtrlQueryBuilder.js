@@ -684,6 +684,7 @@ app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeou
             return warning;
         };
 
+        console.log($scope.outputSQL);
 
         $scope.fBuildSQL=function(warning){
             // $scope.fResetErrors();
@@ -691,7 +692,8 @@ app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeou
 
             // If the validation throws errors, add an error message on 'submit'
             if (warning == true ){
-                //$scope.outputSQL = '';
+                $scope.outputSQL = undefined;
+
                 $('#query-builder-submit').attr('disabled', true);
             } else {
                 $('#query-builder-submit').attr('disabled', false);
