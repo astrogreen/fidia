@@ -5,8 +5,11 @@
 {% load internal_extras %}
 {% block title %}Query{% endblock %}
 {% block head-extra %}
- <script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
+<script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
 <script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
+<script src="{% static 'restapi_app/js/ace-min-noconflict/ace.js' %}"></script>
+<script src="{% static 'restapi_app/js/angular/ui-ace.js' %}"></script>
+
 <script type="text/javascript">
     //get url for available catalogues
     urlCataloguesGlobal = "{% url "catalogues" %}"
@@ -73,13 +76,16 @@
                     </h1>
                     <div class="row">
                         <div class="col-sm-12">
-                            <p>Submit an <a onclick="fTabSwitch('post-object-form')" title="Query the ASVO-AAT Node database.">SQL</a>
-                                (Structured Query Language) query to the ASVO-AAT Node database via the form below.</p>
-                            <p>The <a onclick="fTabSwitch('query-builder-form')" title="Create simple SQL queries with ease.">Query Builder</a> allows you to construct long and complicated
+                            <p>Submit an <a onclick="fTabSwitch('post-object-form')"
+                                            title="Query the ASVO-AAT Node database.">SQL</a>
+                                (Structured Query Language) query or use the <a
+                                        onclick="fTabSwitch('query-builder-form')"
+                                        title="Create simple SQL queries with ease.">Query Builder</a> to
+                                construct long and complicated
                                 SQL queries without prior knowledge of the syntax.
                             </p>
                             <p>Re-visit and manage
-                                your past queries in <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a>. </p>
+                                your past queries in <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a>. Check the <a href="{% url 'documentation-query-builder' %}">Documentation</a> for help and examples. </p>
                         </div>
                     </div>
                     {% if response.status_code == 201 %}
@@ -175,8 +181,6 @@
 ------ ACE EDITOR FOR ANY SQL BOXES ------
 {% endcomment %}
 {% block footer-extra %}
-<script src="{% static "restapi_app/js/ace-min-noconflict/ace.js" %}"></script>
-
 <script type="text/javascript">
         $(document).ready(function() {
             $('form').ajaxForm();
@@ -187,29 +191,29 @@
                 //back-end will drop this if tampered with
                 $('input[name="queryResults"]').parents('.form-group').hide();
 
-                // SQL
-                $('textarea[name=SQL]').each(function () {
-                    $('form').find('textarea[name=SQL]').attr('id','textarea-code');
+                // NEW ACE EDITOR INSTANCE NEAR SQL BOX
 
-                    // clear out parent container
-                    $('#textarea-code').parent().not(':first').remove();
-                    $('#textarea-code').parent().append('<div id="SQL-ace-editor" class="ace-editor-class" style="height: auto;min-height:100px"></div>');
-                    var textarea = $('#textarea-code').css('display', 'none');
+                $('form').find('textarea[name=SQL]').attr('id','textarea-sql');
+                $('#textarea-sql').parent().not(':first').remove();
+                $('#textarea-sql').parent().append('<div id="ace-editor-sql" class="ace-editor-class" style="height: auto;min-height:100px"></div>');
+                $('#textarea-sql').css('display', 'none');
 
-                    var SQLAceEditor = ace.edit("SQL-ace-editor");
-                    SQLAceEditor.$blockScrolling = Infinity;
-                    SQLAceEditor.setTheme("ace/theme/crimson_editor");
-                    SQLAceEditor.setOption("maxLines", 20);
-                    SQLAceEditor.setOption("minLines", 10);
-                    SQLAceEditor.getSession().setMode("ace/mode/sql");
-                    SQLAceEditor.getSession().setValue(textarea.val());
-                    SQLAceEditor.getSession().on('change', function(){
-                        textarea.val(SQLAceEditor.getSession().getValue());
-                        SQLAceEditor.resize(true);
-                    });
+
+                var ace_editor_sql = ace.edit("ace-editor-sql");
+
+                ace_editor_sql.$blockScrolling = Infinity;
+                ace_editor_sql.setTheme("ace/theme/crimson_editor");
+                ace_editor_sql.setOption("maxLines", 20);
+                ace_editor_sql.setOption("minLines", 10);
+                ace_editor_sql.getSession().setMode("ace/mode/sql");
+                ace_editor_sql.getSession().on('change', function(){
+                    ace_editor_sql.resize(true);
                 });
+
             });
             $('#button-sql-submit').click(function(){
+                var ace_editor_sql = ace.edit("ace-editor-sql");
+                $('#textarea-sql').val(ace_editor_sql.getSession().getValue());
                 $(this).attr('disabled','disabled');
                 $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
                 $('#post-object-form form').submit();

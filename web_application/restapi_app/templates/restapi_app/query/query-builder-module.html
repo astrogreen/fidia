@@ -117,23 +117,29 @@
                     <div id="query-form-errors">
                         <div class="panel-body error" ng-show="error.errorFlag == true">
                             <span>ERROR</span>
-                                 <a class="outline pull-right" href="" ng-click="fResetErrors()">
-                                        <i class="fa fa-times-circle"></i></a>
+                                 <a class="text-error pull-right" href="" ng-click="fResetErrors()">
+                                        <i class="fa fa-times"></i></a>
                             <div ng-repeat="(key, value) in error" ng-if="key!='errorFlag'">
                                     <p><strong>{{ key }}:</strong> {{value}}</p>
                             </div>
                         </div>
                         <div class="panel-body warning" ng-show="warning.warningFlag == true">
                             <span>WARNING</span>
-                                 <a class="outline pull-right" href="" ng-click="fResetWarnings()">
-                                        <i class="fa fa-times-circle"></i></a>
+                                 <a class="text-warning pull-right" href="" ng-click="fResetWarnings()">
+                                        <i class="fa fa-times"></i></a>
                             <br>
                             <div  ng-repeat="(key, value) in warning" ng-if="key!='warningFlag'">
                                     <p><strong>{{ key }}:</strong> {{value}}</p>
                             </div>
                         </div>
-                         <div class="panel-body" ng-show="warning.warningFlag != true && error.errorFlag != true && outputSQL.length>0">
-                            <p><span ng-bind-html="outputSQL" id="outputSQL">{{ outputSQL }} &nbsp;</span></p>
+                         <div class="panel-body success" ng-show="warning.warningFlag != true && error.errorFlag != true && outputSQL.length>0">
+                         <!--<div class="panel-body success">-->
+                             <span>VALID</span>
+                             <i class="text-success pull-right fa fa-check"></i>
+                             <br>
+                             <h5 class="headline"><span><a role="button" class="btn btn-xs btn-default text-uppercase" onclick="$('#output-SQL').toggle(250);">Generate SQL</a></span></h5>
+                                 <div ng-bind-html="outputSQL" id="output-SQL"  style="display:none;">{{ outputSQL }}</div>
+                             <!--<div ui-ace="{mode:'sql', onLoad:aceLoaded, theme:'crimson_editor'}" id="ace-editor-read-only-query-builder" style="height:200px; border:solid 1px red;" ng-bind-html="outputSQL">{{ outputSQL }}</div>-->
                         </div>
 
                     </div>
@@ -144,7 +150,7 @@
                      <div  class="col-sm-12">
                          <button class="btn btn-sm btn-primary pull-right text-uppercase" type="button"
                                  ng-click=""
-                                 id="query-builder-submit" disabled>VIEW SQL
+                                 id="query-builder-submit" disabled>SUBMIT
                          </button>
                          <button type="button"
                                  class="btn btn-sm btn-default text-uppercase pull-right pulsing-button"
@@ -162,17 +168,17 @@
     {% endverbatim %}
 <script>
     $('#query-builder-submit').click(function(){
-        //shouldnt need this, editor and textareacode are already bound
-        //$('#textarea-code').val('');
-        //$('#textarea-code').val($('#outputSQL').text());
 
-        var SQLAceEditor = ace.edit("SQL-ace-editor");
-        SQLAceEditor.setValue($('#outputSQL').text(), -1);
+        // SEND SQL TO FORM TEXT AREA
 
-        $('#query-builder-form').removeClass('active');
-        $('a[href="#query-builder-form"]').parent('li').removeClass('active');
-        $('#post-object-form').addClass('active');
-        $('a[href="#post-object-form"]').parent('li').addClass('active');
+
+//        var SQLAceEditor = ace.edit("SQL-ace-editor");
+//        SQLAceEditor.setValue($('#outputSQL').text(), -1);
+
+//        $('#query-builder-form').removeClass('active');
+//        $('a[href="#query-builder-form"]').parent('li').removeClass('active');
+//        $('#post-object-form').addClass('active');
+//        $('a[href="#post-object-form"]').parent('li').addClass('active');
     });
 
     $('#check-button').click(function(){

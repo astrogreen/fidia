@@ -1,4 +1,4 @@
-var app = angular.module("myApp", [ "isteven-multi-select", 'ngSanitize' ]);
+var app = angular.module("myApp", [ "isteven-multi-select", 'ngSanitize', 'ui.ace' ]);
 
 // (function() {
 //     var app = angular.module('queryBuilder', [ "isteven-multi-select", 'ngSanitize' ]);

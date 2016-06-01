@@ -12,6 +12,8 @@ import json
 # request = factory.post('/data/query/', data, format='json')
 # request = factory.put('/data/query/1/', {'title': 'my_test_SQL', 'SQL': 'SELECT * from InputCatA'}, format='json')
 
+# python3 manage.py test restapi_app.tests.test_query
+
 spark_on = True
 
 

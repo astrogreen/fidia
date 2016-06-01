@@ -240,7 +240,7 @@
         query_data_col_length = query_data.columns.length;
 
         if (data.flag != "") {
-            $('#TableResultsWarning').append('<div class="row"><div class="col-sm-12"><div class="panel panel-default information"><div class="panel-body"><strong class="text-uppercase">Warning</strong><p>Displaying '+data.flag.new_query_results_rows+' out of '+data.flag.query_results_rows+' rows. Please download the CSV file to explore the full set of results.</p></div></div></div></div>');
+            $('#TableResultsWarning').append('<div class="row"><div class="col-sm-12"><div class="panel panel-default warning"><div class="panel-body"><strong class="text-uppercase">Warning</strong><p>Displaying '+data.flag.new_query_results_rows+' out of '+data.flag.query_results_rows+' rows. Please download the CSV file to explore the full set of results.</p></div></div></div></div>');
             render_limit = data.flag.render_limit;
         }
 
