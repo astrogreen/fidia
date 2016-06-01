@@ -2,8 +2,8 @@ import random, collections, logging
 import json
 from pprint import pprint
 from .permissions import IsNotAuthenticated
-from .exceptions import NoPropertyFound, CustomValidation
-
+import restapi_app.exceptions
+import sys
 from .models import (
     Query,
 )
@@ -73,7 +73,15 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 def run_sql_query(request_string):
-    sample = AsvoSparkArchive().new_sample_from_query(request_string)
+    try:
+        sample = AsvoSparkArchive().new_sample_from_query(request_string)
+    except KeyError:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except:
+        # Catch java exception using system module which shows type, instance and traceback.
+        instance = sys.exc_info()[1]
+        raise restapi_app.exceptions.BadSQL("SQL Error: %s" % str(instance))
+
     json_table = sample.tabular_data().reset_index().to_json(orient='split')
     # Turned off capping data on the back end.
     # The time issue is due to the browser rendering on the front end using dataTables.js.
@@ -104,10 +112,8 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
         # Raise error if SQL field is empty
         if "SQL" in saved_object:
             if not saved_object["SQL"]:
-                raise CustomValidation("SQL Field Blank", 'detail', 400)
+                raise restapi_app.exceptions.CustomValidation("SQL Field Blank", 'detail', 400)
             else:
-                print('NEW CREATE')
-                print(saved_object['SQL'])
                 saved_object["queryResults"] = run_sql_query(request_string=saved_object["SQL"])
                 # serializer = self.get_serializer(data=request.data)
                 serializer = self.get_serializer(data=saved_object)
@@ -123,7 +129,7 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
 
                 return Response(location_only, status=status.HTTP_201_CREATED, headers=headers)
         else:
-            raise CustomValidation("SQL Field Blank", 'detail', 400)
+            raise restapi_app.exceptions.CustomValidation("Incomplete request - SQL field missing", 'detail', 400)
 
     def perform_create(self, serializer):
         """
@@ -418,7 +424,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         except AttributeError:
-            raise NoPropertyFound("No property %s" % traitproperty_pk)
+            raise restapi_app.exceptions.NoPropertyFound("No property %s" % traitproperty_pk)
             # return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer_class = AstroObjectTraitPropertySerializer
@@ -542,28 +548,6 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
 
 # Necessary to split the list and detail views so different
 # renderer classes can be implemented (and therefore different html templates)
-
-
-# class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
-#                                 viewsets.GenericViewSet):
-#     """
-#     Old SOV brings in all data for AO - too slow.
-#     """
-#     renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer)
-#
-#     def retrieve(self, request, pk=None, sample_pk=None, format=None):
-    #     try:
-    #         astroobject = sample[pk]
-    #     except KeyError:
-    #         return Response(status=status.HTTP_404_NOT_FOUND)
-    #     except ValueError:
-    #         return Response(status=status.HTTP_400_BAD_REQUEST)
-    #     serializer = SOVRetrieveObjectSerializer(
-    #         instance=astroobject, many=False,
-    #         context={'request': request}
-    #     )
-    #     return Response(serializer.data)
-
 
 class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
                                    viewsets.GenericViewSet):
