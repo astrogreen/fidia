@@ -137,9 +137,8 @@
                              <span>VALID</span>
                              <i class="text-success pull-right fa fa-check"></i>
                              <br>
-                             <h5 class="headline"><span><a role="button" class="btn btn-xs btn-default text-uppercase" onclick="$('#output-SQL').toggle(250);">Generate SQL</a></span></h5>
-                                 <div ng-bind-html="outputSQL" id="output-SQL"  style="display:none;">{{ outputSQL }}</div>
-                             <!--<div ui-ace="{mode:'sql', onLoad:aceLoaded, theme:'crimson_editor'}" id="ace-editor-read-only-query-builder" style="height:200px; border:solid 1px red;" ng-bind-html="outputSQL">{{ outputSQL }}</div>-->
+                             <h5 class="headline"><span><a role="button" class="btn btn-xs btn-default text-uppercase" id="show-hide-sql">Show SQL</a></span></h5>
+                                 <div ng-bind-html="outputSQL" id="output-SQL" style="display:none;" data-sql="{{outputSQL}}">{{ outputSQL }}</div>
                         </div>
 
                     </div>
@@ -164,21 +163,44 @@
                      </div>
                 </div>
              </form>
-        </div>
+         </div>
     {% endverbatim %}
 <script>
+    $('#show-hide-sql').click(function(){
+        $('#output-SQL').toggle(250, function(){
+            if ($(this).is(":visible")){
+                $('#show-hide-sql').html('Hide SQL');
+            } else {
+                $('#show-hide-sql').html('Show SQL');
+            };
+        });
+    });
+
+    $(".expand_collapse_icon").click(function() {
+        // Change the accordian caret based on the collapse panel status
+        // get the id of the anchor that will have class .collapse .in from this.attr(href)
+         if ($($(this).attr('href')).hasClass('in')){
+             // angle up
+             $(this).children('i').removeClass('fa-angle-up').addClass('fa-angle-down');
+         } else {
+             // angle down
+             $(this).children('i').removeClass('fa-angle-down').addClass('fa-angle-up');
+         }
+    });
+
     $('#query-builder-submit').click(function(){
 
         // SEND SQL TO FORM TEXT AREA
+        $(this).attr('disabled','disabled');
+        $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
 
+        // Use browsers parser to strip html tags etc.
+        // jQuery .text()
+        var valid_sql = $('#output-SQL').text();
+        
+        $('#textarea-sql').val(valid_sql);
 
-//        var SQLAceEditor = ace.edit("SQL-ace-editor");
-//        SQLAceEditor.setValue($('#outputSQL').text(), -1);
-
-//        $('#query-builder-form').removeClass('active');
-//        $('a[href="#query-builder-form"]').parent('li').removeClass('active');
-//        $('#post-object-form').addClass('active');
-//        $('a[href="#post-object-form"]').parent('li').addClass('active');
+        $('#post-object-form form').submit();
     });
 
     $('#check-button').click(function(){
