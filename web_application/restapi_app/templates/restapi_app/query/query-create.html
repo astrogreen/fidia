@@ -74,16 +74,17 @@
                     </h1>
                     <div class="row">
                         <div class="col-sm-12">
-                            <p>Submit an <a onclick="fTabSwitch('post-object-form')"
-                                            title="Query the ASVO-AAT Node database.">SQL</a>
-                                (Structured Query Language) query or use the <a
-                                        onclick="fTabSwitch('query-builder-form')"
-                                        title="Create simple SQL queries with ease.">Query Builder</a> to
-                                construct long and complicated
-                                SQL queries without prior knowledge of the syntax.
-                            </p>
-                            <p>Re-visit and manage
-                                your past queries in <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a>. Check the <a href="{% url 'documentation-query-builder' %}">Documentation</a> for help and examples. </p>
+                            <p>Construct a sample of objects using the <a
+                                    onclick="fTabSwitch('query-builder-form')"
+                                    title="Create simple SQL queries with ease.">Query Builder</a>. Use the Schema
+                                Browser to view available properties and further information from the survey teams.
+                                Complicated queries can be constructed using the <a
+                                        onclick="fTabSwitch('post-object-form')"
+                                        title="Query the ASVO-AAT Node database.">SQL</a> form. Re-visit and manage
+                                your past queries in <a href="{% url 'query-list' %}"
+                                                        title="Re-visit previous queries.">Query History</a>. Check the
+                                <a href="{% url 'documentation-query-builder' %}">Documentation</a> for help and
+                                examples. </p>
                         </div>
                     </div>
                     {% if response.status_code == 201 %}
@@ -117,7 +118,7 @@
                              <h2 class="headline" id="new-query">
                                 <span>New Query</span>
                             </h2>
-                            <div class="tabbable">
+                            <div class="tabbable" id="query-options">
                                 {% if post_form %}
                                 <ul class="nav nav-tabs form-switcher">
                                     <li>
@@ -152,6 +153,10 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            <div class="panel panel-default" style="display:none" id="progress-indicator">
+                                <div class="panel-body success"></div>
+                            </div>
+
                         </div>
                         <div class="col-sm-4">
                              <h2 class="headline">
@@ -215,6 +220,7 @@
                 $(this).attr('disabled','disabled');
                 $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
                 $('#post-object-form form').submit();
+                fHideQueryOptions();
             });
         });
 </script>
@@ -251,6 +257,17 @@
         }, 500);
 
     });
+
+
+    function fHideQueryOptions(){
+        // Hide query options on successful submit
+        setTimeout(function(){
+            $('#progress-indicator').show();
+            $('#query-options').hide(500);
+            $('#progress-indicator .panel-body').html('<strong>QUERY SUBMITTED </strong> on '+new Date().toLocaleString()+'<br>')
+                .append('<em><p class="loading">Processing <span>.</span><span>.</span><span>.</span></p></em><p> Please do not close this page, you will be automatically redirected to the result.</p>')
+        }, 1000)
+    };
 
 </script>
 

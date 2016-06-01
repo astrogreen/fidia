@@ -2,23 +2,6 @@ app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeou
 
         /* -- INITIALIZATION -- */
 
-        // EDITOR
-         $scope.aceLoaded = function(_editor){
-            // Editor part
-            var _session = _editor.getSession();
-            var _renderer = _editor.renderer;
-
-            // Options
-            // _editor.setReadOnly(true);
-
-            // _renderer.setShowGutter(false);
-             console.log(_session.getMode())
-            // Events
-            // _editor.on("changeSession", function(){ ... });
-            // _session.on("change", function(){ ... });
-        };
-
-
         // ERRORS
         $scope.error={errorFlag: false};
         $scope.warning={warningFlag: false};

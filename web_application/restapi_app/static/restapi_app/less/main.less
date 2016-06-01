@@ -806,3 +806,35 @@ ol.linenums li {
 
 @media (max-width: 991px) {
 }
+
+
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ ANIMATIONS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+// ANIMATE LOADING DOTS
+@keyframes blink {
+  0% {
+    opacity: .2;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .2;
+  }
+}
+
+.loading span {
+  animation: blink 1.2s infinite;
+  animation-fill-mode: both;
+}
+
+.loading span:nth-child(2) {
+  animation-delay: .2s;
+}
+
+.loading span:nth-child(3) {
+  animation-delay: .4s;
+}

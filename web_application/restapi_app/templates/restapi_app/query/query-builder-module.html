@@ -140,10 +140,8 @@
                              <h5 class="headline"><span><a role="button" class="btn btn-xs btn-default text-uppercase" id="show-hide-sql">Show SQL</a></span></h5>
                                  <div ng-bind-html="outputSQL" id="output-SQL" style="display:none;" data-sql="{{outputSQL}}">{{ outputSQL }}</div>
                         </div>
-
                     </div>
                 </div>
-
 
                  <div class="row">
                      <div  class="col-sm-12">
@@ -197,10 +195,11 @@
         // Use browsers parser to strip html tags etc.
         // jQuery .text()
         var valid_sql = $('#output-SQL').text();
-        
+
         $('#textarea-sql').val(valid_sql);
 
         $('#post-object-form form').submit();
+        fHideQueryOptions();
     });
 
     $('#check-button').click(function(){
