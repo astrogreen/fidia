@@ -5,7 +5,7 @@ from fidia.traits.base_traits import Trait
 
 from py4j.java_gateway import JavaGateway, GatewayParameters
 from py4j.java_collections import MapConverter, ListConverter
-from numpy import ndarray
+import numpy as np
 
 import traceback
 
@@ -57,7 +57,7 @@ def ingestData(sample, schema):
                     else:
                         trait_property_type = trait_property_schema[trait_property_name]
                     try:
-                        trait_property_data = getattr(trait, trait_property_name)
+                        trait_property_data = getattr(trait, trait_property_name).value
                     except:
                         # Unable to retrieve the trait property for some reason. Skip for now.
                         # TODO: Provide a warning
@@ -68,11 +68,14 @@ def ingestData(sample, schema):
                     if 'array' in trait_property_type:
                         # This is an array trait, so it will have to be flattened, and have it's shape stored.
                         shape = trait_property_data.shape
-                        flat_list = trait_property_data.flatten().tolist()
-                        # Create a java list for this python list:
-                        java_list = ListConverter().convert(flat_list, gateway._gateway_client)
+                        # flat_list = trait_property_data.flatten().tolist()
+                        # # Create a java list for this python list:
+                        # java_list = ListConverter().convert(flat_list, gateway._gateway_client)
+
+                        java_list = convert_ndarray_to_java_list(trait_property_data.flatten(), gateway)
                         # Convert the shape to a java list as well: Not required.
                         # java_shape = ListConverter().convert(shape, gateway._gateway_client)
+
 
                         # Here we need to get another record for the property.
                         # This property's avro type is a union. We need to get all the avro types of this union.
@@ -81,7 +84,7 @@ def ingestData(sample, schema):
                         array_schema = union_types_list.get(1)
                         array_datum = gateway.entry_point.getDatum(array_schema)
                         array_datum.put('shape', str(shape))
-                        array_datum.put('data', java_list)
+                        array_datum.put('dataValues', java_list)
                         datum.put(trait_property_name, array_datum)
                         # traits_found_for_this_object = True
                     else: # Not an array type
@@ -152,13 +155,68 @@ def doSubtraits(value, sch, sub_trait=True):
                 type = '''{\"type\": \"record\",
                             \"name\": \"''' + k + '''NDArray\",
                             \"fields\": [{\"name\": \"shape\", \"type\": \"string\"},
-                                         {\"name\": \"data\", \"type\": ''' + t + '}]}'
+                                         {\"name\": \"dataValues\", \"type\": ''' + t + '}]}'
             elif(len(vals) == 1):
                 type = '\"' + vals[0] + '\"'
             sch += '{\"name\": \"' + k + '''\",
                     \"type\": [\"null\", ''' + type + ']},'     #if null allowed, put union here ["null", type]
     sch = sch[:-1] + ']'
     return sch
+
+
+def convert_ndarray_to_java_list(ndarray, gateway):
+
+    assert isinstance(ndarray, np.ndarray)
+
+    max_transfer_block_size = 1024**2
+
+    def byte_array_split(byte_array, max_transfer_block_size):
+        """An iterator which returns the byte array in chunks no larger than max_transfer_block_size."""
+        for offset_block_index in range(len(byte_array) // max_transfer_block_size):
+            offset_block_end_index = min(offset_block_index + max_transfer_block_size, len(byte_array))
+            yield byte_array[offset_block_index:offset_block_end_index]
+
+
+    if ndarray.dtype.type not in (np.float64, np.int32, np.int64, np.float32):
+        # Type conversion will be necessary before handing to Java.
+        raise NotImplementedError()
+
+    if not ndarray.flags.c_contiguous:
+        print("Warning, ndarray is not C-contigous and will have to be copied")
+    ndarray_bytes = ndarray.tobytes('C')
+
+    endianness = get_endianness(ndarray)
+
+    #
+    # Pass the byte array into Java and convert to a Java list according to type
+    #
+    data_type_to_java_converter_map = {
+        np.float64: gateway.entry_point.doubleListFromSplitByteArray,
+        np.int32: gateway.entry_point.integerListFromSplitByteArray,
+        np.int64: gateway.entry_point.longListFromSplitByteArray,
+        np.float32: gateway.entry_point.floatListFromSplitByteArray
+    }
+
+    java_list = data_type_to_java_converter_map[ndarray.dtype.type](
+        ListConverter().convert(byte_array_split(ndarray_bytes, max_transfer_block_size), gateway._gateway_client),
+        len(ndarray_bytes),
+        max_transfer_block_size,
+        endianness)
+
+    return java_list
+
+def get_endianness(ndarray):
+    """Return a single character string which encodes the endianness of the ndarray for java."""
+    if ndarray.dtype.byteorder == '=':
+        if sys.byteorder == 'little':
+            byteorder = '<'
+        else:
+            byteorder = '>'
+    elif ndarray.dtype.byteorder == '|':
+        byteorder = '>'
+    else:
+        byteorder = ndarray.dtype.byteorder
+    return byteorder
 
 
 if __name__ == '__main__':
