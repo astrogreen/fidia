@@ -12,13 +12,14 @@
     //get url for available catalogues
     urlCataloguesGlobal = "{% url "catalogues" %}"
 </script>
-<script src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>
-<script src="{% static 'restapi_app/js/query-builder/CtrlQueryBuilder.js' %}"></script>
-<script src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/query-builder/isteven-multi-select.js' %}"></script>
-<link rel="stylesheet" href="{% static 'restapi_app/less/query/isteven-multi-select.css' %}" type="text/css"/>
-<link rel="stylesheet" href="{% static 'restapi_app/less/query/query-builder.css' %}" type="text/css"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/schema-browser/schema-browser.css' %}"/>
+<script type="text/javascript" src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/query-builder/CtrlQueryBuilder.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/isteven-multi-select/isteven-multi-select.js' %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/isteven-multi-select/isteven-multi-select.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/query-builder/query-builder.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/schema-browser/schema-browser.min.css' %}"/>
 
 <style type="text/css">
     table{
@@ -190,6 +191,10 @@
 
             // CODE EDITOR
             $(function () {
+
+                if ($('form').find('textarea[name=SQL]').length > 0 ){
+
+                }
                 //Hide the results form group to prevent users trying to patch results
                 //back-end will drop this if tampered with
                 $('input[name="queryResults"]').parents('.form-group').hide();
@@ -219,8 +224,14 @@
                 $('#textarea-sql').val(ace_editor_sql.getSession().getValue());
                 $(this).attr('disabled','disabled');
                 $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
-                $('#post-object-form form').submit();
                 fHideQueryOptions();
+                setTimeout(function(){
+                    // Timeout is needed here for safari compatibility
+                    // .submit event loop doesn't allow for repaint, so animate first, then submit.
+                    $('#post-object-form form').submit();
+                }, 1000);
+
+
             });
         });
 </script>
@@ -260,13 +271,15 @@
 
 
     function fHideQueryOptions(){
+        console.log('fHideQueryOptions');
         // Hide query options on successful submit
         setTimeout(function(){
+            console.log('shrink...');
             $('#progress-indicator').show();
             $('#query-options').hide(500);
             $('#progress-indicator .panel-body').html('<strong>QUERY SUBMITTED </strong> on '+new Date().toLocaleString()+'<br>')
                 .append('<em><p class="loading">Processing <span>.</span><span>.</span><span>.</span></p></em><p> Please do not close this page, you will be automatically redirected to the result.</p>')
-        }, 1000)
+        }, 500)
     };
 
 </script>

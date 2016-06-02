@@ -198,8 +198,10 @@
 
         $('#textarea-sql').val(valid_sql);
 
-        $('#post-object-form form').submit();
         fHideQueryOptions();
+        setTimeout(function(){
+            $('#post-object-form form').submit();
+        }, 1000);
     });
 
     $('#check-button').click(function(){
