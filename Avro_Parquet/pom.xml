@@ -89,7 +89,7 @@
                 <archive>
                     <manifest>
                         <addClasspath>true</addClasspath>
-                        <mainClass>py4j.examples.RecordEntryPoint</mainClass>
+                        <mainClass>au.gov.aao.asvo.RecordEntryPoint</mainClass>
                     </manifest>
                 </archive>
             </configuration>
@@ -99,7 +99,7 @@
       <configuration>
         <archive>
           <manifest>
-            <mainClass>py4j.examples.RecordEntryPoint</mainClass>
+            <mainClass>au.gov.aao.asvo.RecordEntryPoint</mainClass>
           </manifest>
         </archive>
         <descriptorRefs>
