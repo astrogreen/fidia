@@ -127,11 +127,9 @@ section.welcome .container .white-tooltip + .tooltip > .tooltip-arrow {
     margin-bottom: 20px;
     text-align: center;
   }
-
   section.welcome .container .content .key-message .left p {
     text-align: center;
   }
-
   section.welcome .container .content .key-message .right p {
     text-align: center;
   }
@@ -140,11 +138,9 @@ section.welcome .container .white-tooltip + .tooltip > .tooltip-arrow {
   section.welcome .container .content .infographic .col {
     margin-bottom: 20px;
   }
-
   section.welcome .container .content .infographic .col:last-child {
     margin-bottom: 0px;
   }
-
   section.welcome .container .content .infographic .circle .line {
     display: none;
   }

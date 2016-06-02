@@ -473,16 +473,16 @@ nav.navbar .navbar .dropdown-menu li a:hover {
   float: right;
 }
 .panel-background-grey {
-  background: url("../img/background/panel-background.png") repeat-x;
+  background: url("../../img/background/panel-background.png") repeat-x;
 }
 .panel-background-team {
-  background: url("../img/background/panel-background-team.png") repeat-x;
+  background: url("../../img/background/panel-background-team.png") repeat-x;
 }
 .panel-background-check {
-  background: url("../img/background/grey.png") repeat-x;
+  background: url("../../img/background/grey.png") repeat-x;
 }
 .panel-background-1 {
-  background: url("../img/background/panel-background2.png") repeat-x;
+  background: url("../../img/background/panel-background2.png") repeat-x;
 }
 .panel {
   border-radius: 0 !important;

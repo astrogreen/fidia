@@ -9,7 +9,9 @@ var gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'),
     cssnano = require('gulp-cssnano'),
     imagemin = require('gulp-imagemin'),
-    rename = require("gulp-rename");
+    rename = require("gulp-rename"),
+    path = require('path'),
+    notify = require('gulp-notify');
 
 // Images
 // gulp.task('images', function() {
@@ -20,23 +22,44 @@ var gulp = require('gulp'),
 // });
 
 // Styles
-gulp.task('styles', function() {
-  return gulp.src('restapi_app/static/restapi_app/less/main.css')
-    .pipe(autoprefixer('last 2 version'))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(cssnano())
-    .pipe(gulp.dest('restapi_app/static/restapi_app/css'))
-    // .pipe(notify({ message: 'Styles task complete' }));
-});
+// gulp.task('styles', function() {
+//     // minify less/ css files and copy to css/filename/filename.min.css
+//   return gulp.src('restapi_app/static/restapi_app/less/main.css')
+//     .pipe(autoprefixer('last 2 version'))
+//     .pipe(rename(function(file){
+//         // join the base name (e.g., main) to the file path, effectively forcing gulp to create the folder if it doesn't
+//         // exist already
+//         file.dirname = path.join(file.dirname, file.basename)
+//     }))
+//     .pipe(rename({suffix: '.min'}))
+//     .pipe(cssnano())
+//     .pipe(gulp.dest('restapi_app/static/restapi_app/css/'))
+//     // .pipe(notify({ message: 'Styles task complete' }));
+// });
 
 
 // Default task
 gulp.task('default', function(){
-    gulp.start('styles');
+    gulp.start('styles'); 
 });
 
 // Watch
 gulp.task('watch', function(){
-   gulp.watch('restapi_app/static/restapi_app/less/**/*.less', ['styles']);
-   gulp.watch('restapi_app/static/restapi_app/less/*.less', ['styles']);
+    // watch the css files in the less directory (transpiler will update if less is altered)
+    // minify and move to css/folder/
+    gulp.watch(['restapi_app/static/restapi_app/less/*.css', 'restapi_app/static/restapi_app/less/**/*.css'], function(file){
+    })
+        .on("change", function(file){
+            return gulp.src(file.path)
+                .pipe(autoprefixer('last 2 version'))
+                .pipe(rename(function(file){
+                    // join the base name (e.g., main) to the file path, effectively forcing gulp to create the folder if it doesn't
+                    // exist already
+                    file.dirname = path.join(file.dirname, file.basename)
+                }))
+                .pipe(rename({suffix: '.min'}))
+                .pipe(cssnano())
+                .pipe(gulp.dest('restapi_app/static/restapi_app/css/'))
+                .pipe(notify({ message: 'Styles task complete' }));
+        })
 });
