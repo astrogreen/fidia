@@ -111,9 +111,9 @@ class QueryTests(APITestCase):
         print(test_response.data)
         self.assertEqual(test_response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Query.objects.count(), 0)
-        self.assertEqual(test_response.data, {'detail': 'SQL Field Blank'})
+        self.assertEqual(test_response.data, {'detail': 'Incomplete request - SQL field missing'})
         # Check user can see this
-        self.assertContains(test_response, text="SQL Field Blank", status_code=400)
+        self.assertContains(test_response, text="Incomplete request - SQL field missing", status_code=400)
 
     #  -- Unauthenticated
     def test_create_new_resource_unauthenticated(self):
