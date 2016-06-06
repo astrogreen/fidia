@@ -1,10 +1,11 @@
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
-# log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.DEBUG)
 
 from abc import ABCMeta
 import collections
+import re
 
 #TraitKey = collections.namedtuple('TraitKey', ['trait_type', 'trait_name', 'object_id'], verbose=True)
 
@@ -13,16 +14,25 @@ from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
 
+TRAIT_KEY_PART_RE = r'[a-zA-Z][a-zA-Z0-9_]*'
+
+TRAIT_KEY_RE = re.compile(
+    r"(?P<trait_type>" + TRAIT_KEY_PART_RE + r")" +
+    r"(?:-(?P<trait_qualifier>[a-zA-Z0-9_]+))?" +
+    r"(?::(?P<branch>" + TRAIT_KEY_PART_RE + r"))?" +
+    r"(?:\((?P<version>[a-zA-Z0-9_]+)\))?"
+)
+
 class TraitKey(tuple):
     """TraitKey(trait_type, trait_name, version, object_id)"""
 
     __slots__ = ()
 
-    _fields = ('trait_type', 'trait_name', 'version', 'object_id')
+    _fields = ('trait_type', 'trait_qualifier', 'version', 'branch')
 
-    def __new__(_cls, trait_type, trait_name=None, version=None, object_id=None):
-        """Create new instance of TraitKey(trait_type, trait_name, version, object_id)"""
-        return tuple.__new__(_cls, (trait_type, trait_name, version, object_id))
+    def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
+        """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
+        return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
 
     @classmethod
     def _make(cls, iterable, new=tuple.__new__, len=len):
@@ -32,9 +42,30 @@ class TraitKey(tuple):
             raise TypeError('Expected 1-4 arguments, got %d' % len(result))
         return result
 
+    @classmethod
+    def as_traitkey(cls, key):
+        """Return a TraitKey for the given input.
+
+        Effectively this is just a smart "cast" from string or tuple.
+
+        """
+        if isinstance(key, TraitKey):
+            return key
+        if isinstance(key, tuple):
+            return cls(*key)
+        if isinstance(key, str):
+            match = TRAIT_KEY_RE.fullmatch(key)
+            if match:
+                return cls(trait_type=match.group('trait_type'),
+                    trait_qualifier=match.group('trait_qualifier'),
+                    branch=match.group('branch'),
+                    version=match.group('version'))
+        raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
+
+
     def __repr__(self):
         """Return a nicely formatted representation string"""
-        return 'TraitKey(trait_type=%r, trait_name=%r, version=%r, object_id=%r)' % self
+        return 'TraitKey(trait_type=%r, trait_qualifier=%r, branch=%r, version=%r)' % self
 
     def _asdict(self):
         """Return a new OrderedDict which maps field names to their values"""
@@ -42,7 +73,7 @@ class TraitKey(tuple):
 
     def replace(_self, **kwds):
         """Return a new TraitKey object replacing specified fields with new values"""
-        result = _self._make(map(kwds.pop, ('trait_type', 'trait_name', 'version', 'object_id'), _self))
+        result = _self._make(map(kwds.pop, ('trait_type', 'trait_qualifier', 'branch', 'version'), _self))
         if kwds:
             raise ValueError('Got unexpected field names: %r' % kwds.keys())
         return result
@@ -59,34 +90,27 @@ class TraitKey(tuple):
 
     def __str__(self):
         trait_string = self.trait_type
-        if self.trait_name:
-            trait_string += "-" + self.trait_name
+        if self.trait_qualifier:
+            trait_string += "-" + self.trait_qualifier
+        if self.branch:
+            trait_string += ":" + self.branch
+        if self.version:
+            trait_string += "-" + self.version
         return trait_string
 
-    trait_type = property(_itemgetter(0), doc='Alias for field number 0')
+    trait_type = property(_itemgetter(0), doc='Trait type')
 
-    trait_name = property(_itemgetter(1), doc='Alias for field number 1')
+    trait_qualifier = property(_itemgetter(1), doc='Trait qualifier')
 
-    version = property(_itemgetter(2), doc='Alias for field number 2')
+    branch = property(_itemgetter(2), doc='Branch')
 
-    object_id = property(_itemgetter(3), doc='Alias for field number 3')
+    version = property(_itemgetter(3), doc='Version')
 
 def parse_trait_key(key):
     """Return a fully fledged TraitKey for the key given.
 
     Effectively this is just a smart "cast" from string or tuple."""
-    if isinstance(key, TraitKey):
-        return key
-    if isinstance(key, tuple):
-        return TraitKey(*key)
-    if isinstance(key, str):
-        if "-" in key:
-            # We have both a trait_type and a trait_name:
-            (trait_type, trait_name) = key.split("-")
-            return TraitKey(trait_type, trait_name)
-        else:
-            return TraitKey(key)
-    raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
+    return TraitKey.as_traitkey(key)
 
 
 class TraitMapping(collections.MutableMapping):
@@ -108,31 +132,31 @@ class TraitMapping(collections.MutableMapping):
             return self._mapping[key]
 
         # CASES: Wild-card on one element
-        elif key.replace(object_id=None) in known_keys:
+        elif key.replace(branch=None) in known_keys:
             # Wildcard on object_id
-            return self._mapping[key.replace(object_id=None)]
+            return self._mapping[key.replace(branch=None)]
         elif key.replace(version=None) in known_keys:
             # Wildcard on version
             return self._mapping[key.replace(version=None)]
-        elif key.replace(trait_name=None) in known_keys:
-            # Wildcard on trait_name
-            return self._mapping[key.replace(trait_name=None)]
+        elif key.replace(trait_qualifier=None) in known_keys:
+            # Wildcard on trait_qualifier
+            return self._mapping[key.replace(trait_qualifier=None)]
 
         # CASES: Wild-card on two elements
-        elif key.replace(trait_name=None, object_id=None) in known_keys:
-            # Wildcard on both object_id and trait_name
-            return self._mapping[key.replace(trait_name=None, object_id=None)]
-        elif key.replace(object_id=None, version=None) in known_keys:
-            # Wildcard on both object_id and version
-            return self._mapping[key.replace(object_id=None, version=None)]
-        elif key.replace(trait_name=None, version=None) in known_keys:
-            # Wildcard on both trait_name and version
-            return self._mapping[key.replace(trait_name=None, version=None)]
+        elif key.replace(trait_qualifier=None, branch=None) in known_keys:
+            # Wildcard on both branch and trait_qualifier
+            return self._mapping[key.replace(trait_qualifier=None, branch=None)]
+        elif key.replace(branch=None, version=None) in known_keys:
+            # Wildcard on both branch and version
+            return self._mapping[key.replace(branch=None, version=None)]
+        elif key.replace(trait_qualifier=None, version=None) in known_keys:
+            # Wildcard on both trait_qualifier and version
+            return self._mapping[key.replace(trait_qualifier=None, version=None)]
 
         # CASE: Wild-card on three elements
-        elif key.replace(trait_name=None, version=None, object_id=None) in known_keys:
-            # Wildcard on trait_name, and version, and object_id
-            return self._mapping[key.replace(trait_name=None, version=None, object_id=None)]
+        elif key.replace(trait_qualifier=None, version=None, branch=None) in known_keys:
+            # Wildcard on trait_qualifier, and version, and branch
+            return self._mapping[key.replace(trait_qualifier=None, version=None, branch=None)]
 
         else:
             # No suitable data loader found
@@ -208,6 +232,7 @@ def trait_property(func_or_type):
         # Have not been given a data type. Build the property directly:
         return TraitProperty(func_or_type)
     raise Exception("trait_property decorator used incorrectly. Check documentation.")
+
 
 class TraitProperty(metaclass=ABCMeta):
 
@@ -293,35 +318,15 @@ class BoundTraitProperty:
 
     @property
     def value(self):
-        # Check if obj has a trait_dict cache:
-        try:
-            log.debug("Checking for trait_dict cache...")
-            trait_cache = self._trait._trait_dict
-        except KeyError:
-            # No trait cache: simply get value and return
-            # @TODO: This case should really not be needed: all traits should eventually have a cache.
-            log.debug("Object '%s' has no trait cache...using user provided loader.", self._trait)
-            return self.uncached_value
-        else:
-            # Trait cache present, load value and store.
-            if self.name not in trait_cache:
-                log.debug("Object '%s' has not cached a value for '%s'.", self._trait, self.name)
-                # Data not yet cached
-                if self._trait._loading != 'verylazy':
-                    self._trait._realise()
-                else:
-                    trait_cache[self.name] = self.uncached_value
-                # Now confirm that the cache update has actually been done:
-                try:
-                    trait_cache[self.name]
-                except:
-                    # Real problem! Just attempt to return the value using the loader!
-                    log.error("Trait property cache not being updated correctly for trait property '%s.%s'",
-                              self._trait.trait_key, self.name)
-                    return self.uncached_value
-            else:
-                log.debug("Using cached a value for '%s' from object '%s'.", self.name, self._trait)
-            return trait_cache[self.name]
+        """The value of this TraitProperty, retrieved using cache requests.
+
+        The value is retrieved from the cache stack of the archive to which this
+        TraitProperty (and therefore Trait) belong to. At the bottom of the
+        cache stack (i.e. if no cache has the necessary data), the request is
+        passed back to the `uncached_value` property of this TraitProperty.
+        """
+
+        return self._trait.archive.cache.cache_request(self._trait, self.name)
 
     @property
     def uncached_value(self):
@@ -347,7 +352,7 @@ class BoundTraitProperty:
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
             # Cleanup the Trait if necessary.
-            self._trait._load_incr()
+            self._trait._load_decr()
 
         return value
 

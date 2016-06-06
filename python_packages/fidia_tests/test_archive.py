@@ -5,8 +5,10 @@ import numpy as np
 from fidia.archive import MemoryArchive, BaseArchive
 from fidia.archive.archive import Archive
 from fidia.traits.utilities import TraitKey, TraitMapping, trait_property
+from fidia.traits import Trait, TraitProperty
 from fidia.traits.base_traits import SpectralMap
 from fidia.exceptions import DataNotAvailable
+from fidia.archive.example_archive import ExampleArchive
 
 from fidia.archive.example_archive import ExampleSpectralMap
 
@@ -20,12 +22,12 @@ class TestArchive:
             trait_type = 'spectral_map'
 
             def init(self):
-                if self.trait_name != 'mymap':
+                if self.trait_qualifier != 'mymap':
                     raise DataNotAvailable("ExampleSpectraMap only has 'mymap' data.")
 
             @classmethod
             def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-                return [TraitKey('spectral_map', 'mymap', None, object_id=object_id)]
+                return [TraitKey('spectral_map', 'mymap', None)]
 
             def preload(self):
                 # Make an object have typically the same random data.
@@ -60,7 +62,7 @@ class TestArchive:
 
             @classmethod
             def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-                return [TraitKey('spectral_map', 'mymap', None, object_id=object_id)]
+                return [TraitKey('spectral_map', 'mymap', None)]
 
             def preload(self):
                 # Make an object have typically the same random data.
@@ -97,6 +99,10 @@ class TestArchive:
             def extra_value(self):
                 return np.random.random()
         return ExampleSpectralMap2
+
+    @pytest.fixture
+    def example_archive(self):
+        return ExampleArchive()
 
     @pytest.fixture
     def simple_archive(self, example_spectral_map, example_spectral_map_with_extra):
@@ -195,3 +201,13 @@ class TestArchive:
         for trait_property, expected in zip(trait._trait_properties(), ('value', 'variance')):
             assert trait_property.name == expected
 
+    #
+    # Schema related Tests
+    #
+
+    def test_get_type_for_trait_path(self, example_archive):
+        assert isinstance(example_archive, Archive)
+        assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait',)), Trait)
+        assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait', 'value')), TraitProperty)
+        assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait', 'sub_trait')), Trait)
+        assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait', 'sub_trait', 'extra')), TraitProperty)

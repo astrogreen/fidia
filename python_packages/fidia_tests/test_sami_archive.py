@@ -25,7 +25,7 @@ class TestSAMIArchive:
         return sami_archive.get_full_sample()
 
     def test_confirm_id_data_type(self, sami_archive, sami_sample):
-        assert isinstance(sami_archive.contents[0], str)
+        assert isinstance(next(iter(sami_archive.contents)), str)
         assert isinstance(next(iter(sami_sample.ids)), str)
 
     # def test_get_cube_data(self, sami_archive):
