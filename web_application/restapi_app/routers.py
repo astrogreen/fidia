@@ -85,7 +85,8 @@ class ExtendDefaultRouter(SimpleRouter):
         return urls
 
 
-class NestedExtendDefaultRouter(ExtendDefaultRouter):
+# class NestedExtendDefaultRouter(ExtendDefaultRouter):
+class NestedExtendDefaultRouter(SimpleRouter):
     def __init__(self, parent_router, parent_prefix, *args, **kwargs):
         """ Create a NestedSimpleRouter nested within `parent_router`
         Args:

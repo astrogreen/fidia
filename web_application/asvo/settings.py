@@ -48,7 +48,7 @@ INSTALLED_APPS = (
     'astrospark',
     'bootstrap3',
     # 'captcha',
-    # 'data-browser',
+    'data_browser',
     'django_extensions',
     'mathfilters',
     'query',

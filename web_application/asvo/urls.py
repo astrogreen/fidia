@@ -18,11 +18,11 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 
 urlpatterns = [
-    # url(r'^asvo/', include('aatnode.urls', namespace='aatnode')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^asvo/', include('restapi_app.urls')),
+
+    url(r'^asvo/', include('data_browser.urls')),
     url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('sov.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
-    #url(r'^/', include('aatnode.urls', namespace='aatnode')),
 ]

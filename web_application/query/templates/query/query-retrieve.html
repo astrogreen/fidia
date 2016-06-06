@@ -44,7 +44,7 @@
 {% block content-header %}{% endblock %}
 
 {% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
-{% block contents %}
+{% block content %}
     {% captureas status_code %}{% status_is_success response.status_code %}{% endcaptureas %}
 
     {% if status_code == 'True' %}

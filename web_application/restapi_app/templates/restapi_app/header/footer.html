@@ -3,16 +3,16 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3 col-sm-3 col-xs-4">
-                <h3>Explore <span>data</span></h3>
-                <a href="{% url 'data' %}">Data</a>
-                <a href="{% url 'query-list' %}">Query Builder</a>
-                    <a class="disabled">Data Explorer</a>
+                <h3>Browse <span>data</span></h3>
+                <a href="{% url 'sami-list' %}">SAMI Survey</a>
+                <a href="{% url 'query-create-list' %}">Query </a>
+                    <!--<a class="disabled">Explore</a>-->
             </div>
             <div class="col-md-3 col-sm-3 col-xs-4">
               <h3>Help <span>& Support</span></h3>
                       <a href="mailto:asvo@aao.gov.au">Contact us</a>
-                      <a class="disabled">About</a>
-                      <a class="disabled">Schema Browser</a>
+                      <a class="{% url 'about-team' %}">About</a>
+                      <a class="{% url 'documentation-schema-browser' %}">Schema Browser</a>
             </div>
             <div class="col-md-6 col-sm-6 col-xs-4 img-wrapper">
               <div class='img-inner'>

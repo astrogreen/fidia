@@ -6,7 +6,7 @@
 {% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
@@ -102,7 +102,7 @@
     </div>
     <div class="col-sm-9">
         <h2 class="headline"><span>About</span></h2>
-        {% with "restapi_app/survey/"|add:objname|add:"/about.html" as template %}
+        {% with "data_browser/survey/"|add:objname|add:"/about.html" as template %}
         {% include template %}
         {% endwith %}
         <h2 class="headline"><span>Documentation</span></h2>

@@ -1,12 +1,14 @@
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
+import rest_framework.routers
 
 from restapi_app.routers import ExtendDefaultRouter
 
 import sov.views
 
-router = ExtendDefaultRouter()
+# router = ExtendDefaultRouter()
+router = rest_framework.routers.SimpleRouter()
 
 router.register(r'sov', sov.views.SOVListSurveysViewSet, base_name='sov')
 router.register(r'sov', sov.views.SOVRetrieveObjectViewSet, base_name='sov')
