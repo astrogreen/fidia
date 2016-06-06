@@ -1,28 +1,29 @@
 import random, collections, logging
 import json
 from pprint import pprint
-
 from .permissions import IsNotAuthenticated
-from .exceptions import NoPropertyFound
-
+import restapi_app.exceptions
+import sys
 from .models import (
     Query,
 )
 from .serializers import (
     CreateUserSerializer,
     UserSerializer,
-    QuerySerializerCreateUpdate, QuerySerializerList,
+    ContactFormSerializer,
+    QuerySerializerCreateUpdate, QuerySerializerList, QuerySerializerRetrieve,
     SampleSerializer,
     AstroObjectSerializer,
     AstroObjectTraitSerializer,
     AstroObjectTraitPropertySerializer,
     SOVListSurveysSerializer,
-    SOVRetrieveObjectSerializer
 )
+
+import restapi_app.renderers
+import restapi_app.serializers
 
 from .renderers import (
     FITSRenderer,
-
     SOVListRenderer,
     SOVDetailRenderer,
     QueryRenderer,
@@ -30,15 +31,15 @@ from .renderers import (
     GAMARenderer,
     # SAMIRenderer,
     SampleRenderer,
-    RegisterRenderer,
     TraitRenderer,
     TraitPropertyRenderer
 )
 
-from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins
+from .renderers_custom.renderer_flat_csv import FlatCSVRenderer
+
+from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from rest_framework_csv import renderers as r
 
 from django.conf import settings
 
@@ -55,87 +56,169 @@ class CreateUserView(generics.ListCreateAPIView):
     model = User
     permission_classes = [IsNotAuthenticated]
     serializer_class = CreateUserSerializer
-    renderer_classes = [RegisterRenderer]
+    renderer_classes = [restapi_app.renderers.CreateUserRenderer, renderers.JSONRenderer]
 
     def get_queryset(self):
         queryset = User.objects.none()
         return queryset
 
 
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `detail` actions.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]
 
-class QueryViewSet(viewsets.ModelViewSet):
-    """
-    Query the AAO Data Archive
-    """
-    serializer_class = QuerySerializerList
+
+def run_sql_query(request_string):
+    try:
+        sample = AsvoSparkArchive().new_sample_from_query(request_string)
+    except KeyError:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except:
+        # Catch java exception using system module which shows type, instance and traceback.
+        instance = sys.exc_info()[1]
+        raise restapi_app.exceptions.BadSQL("SQL Error: %s" % str(instance))
+
+    json_table = sample.tabular_data().reset_index().to_json(orient='split')
+    # Turned off capping data on the back end.
+    # The time issue is due to the browser rendering on the front end using dataTables.js.
+    # This view should still pass back *all* the data:
+    # http: // 127.0.0.1:8000/asvo/data/query/32/?format=json
+    # log.debug(json_table)
+    data = json.loads(json_table)
+    return data
+
+
+class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    serializer_class = QuerySerializerCreateUpdate
     permission_classes = [permissions.IsAuthenticated]
-    # permission_classes = [permissions.AllowAny]
-    #  permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-    #                       IsOwnerOrReadOnly,)
-    queryset = Query.objects.all()
-    renderer_classes = [QueryRenderer, renderers.JSONRenderer, r.CSVRenderer]
+    renderer_classes = [restapi_app.renderers.QueryCreateRenderer, renderers.JSONRenderer, FlatCSVRenderer]
 
-  # base_name = 'query'
-
-    def get_serializer_class(self):
-        serializer_class = QuerySerializerList
-
-        if self.request.method == 'GET':
-            serializer_class = QuerySerializerList
-        elif (self.request.method == 'POST') or (self.request.method == 'PUT'):
-            serializer_class = QuerySerializerCreateUpdate
-
-        return serializer_class
-
-    def get_queryset(self):
+    def get(self, request, format=None):
         """
-        This view should return a list of all thqueriests
-        for the currently authenticated user.
+        Return the blank form for a POST request
         """
-        user = self.request.user
-        return Query.objects.filter(owner=user).order_by('-updated')
-
-    def run_FIDIA(self, request, *args, **kwargs):
-
-        # SELECT t1.CATAID FROM InputCatA AS t1 WHERE t1.CATAID  BETWEEN 65401 and 65410
-        sample = AsvoSparkArchive().new_sample_from_query(request['SQL'])
-
-        (json_n_rows, json_n_cols) = sample.tabular_data().shape
-        json_element_cap = 100000
-        json_row_cap = 2000
-
-        if (json_n_rows*json_n_cols < json_element_cap ):
-            json_table = sample.tabular_data().reset_index().to_json(orient='split')
-            json_flag = 0
-        else:
-            # json_table = sample.tabular_data().reset_index().to_json(orient='split')
-            json_table = sample.tabular_data().iloc[:json_row_cap].reset_index().to_json(orient='split')
-            json_flag = json_row_cap
-
-        log.debug(json_table)
-        data = json.loads(json_table)
-
-        return data
+        return Response()
 
     def create(self, request, *args, **kwargs):
         """
         Create a model instance. Override CreateModelMixin create to catch the POST data for processing before save
+        Return only the location of the new resource in data['url'] as per HTTP spec.
         """
-        # Overwrite the post request data (don't forget to set mutable!!)
-        saved_object = request.POST
-        saved_object._mutable = True
-        saved_object['queryResults'] = self.run_FIDIA(request.data)
-        serializer = self.get_serializer(data=saved_object)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        saved_object = request.data
+        # Raise error if SQL field is empty
+        if "SQL" in saved_object:
+            if not saved_object["SQL"]:
+                raise restapi_app.exceptions.CustomValidation("SQL Field Blank", 'detail', 400)
+            else:
+                saved_object["queryResults"] = run_sql_query(request_string=saved_object["SQL"])
+                # serializer = self.get_serializer(data=request.data)
+                serializer = self.get_serializer(data=saved_object)
+                serializer.is_valid(raise_exception=True)
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                location_only = serializer.data
+                location_only.clear()
+                location_only['url'] = serializer.data['url']
+                location_only['title'] = serializer.data['title']
+                location_only['created'] = serializer.data['created']
+
+                return Response(location_only, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            raise restapi_app.exceptions.CustomValidation("Incomplete request - SQL field missing", 'detail', 400)
 
     def perform_create(self, serializer):
         """
         Override CreateModelMixin perform_create to save object instance with ownership
         """
         serializer.save(owner=self.request.user)
+
+
+class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListModelMixin,
+                                         mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+    serializer_class = QuerySerializerList
+    permission_classes = [permissions.IsAuthenticated]
+
+    # descriptor decorator
+    @property
+    # renderer_classes = property(renderer_classes)
+    def renderer_classes(self):
+        if self.action == 'list':
+            return [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+        elif self.action == 'retrieve':
+            return [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+        else:
+            return [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
+
+
+    # @renderer_classes.setter
+    # def renderer_classes(self, value):
+    #     if value is "SANE":
+    #         pass
+    #     else:
+    #         raise Exception()
+
+    def get_queryset(self):
+        """
+        Query History.
+
+        This view should return a list of all queries for the currently authenticated user.
+        """
+        user = self.request.user
+        return Query.objects.filter(owner=user).order_by('-updated')
+
+    def get_serializer_class(self):
+        # Check the request type - if browser return truncated json
+        # If CSV/JSON return full payload.
+        serializer_class = QuerySerializerList
+        if self.action == 'list':
+            serializer_class = QuerySerializerList
+        if self.action == 'retrieve':
+            serializer_class = QuerySerializerRetrieve
+        if self.action == 'create' or self.action == 'update':
+            serializer_class = QuerySerializerCreateUpdate
+
+        return serializer_class
+
+    def truncated_api_response_data(self, accepted_media_type, serialized_valid_data):
+        """
+        If the response is text/html (browsable api) then truncate to render limit and send flag info
+
+        """
+        # Make a copy of the data (already know is_valid() in create method)
+        new_serializer_data = serialized_valid_data
+
+        if accepted_media_type == 'text/html':
+            # Truncate response to browser but leave json and csv
+            query_results_rows = len(serialized_valid_data['queryResults']['index'])
+            query_results_cols = len(serialized_valid_data['queryResults']['columns'])
+            render_limit = 10000
+            # render_limit = 10
+
+            if query_results_cols * query_results_rows >= render_limit:
+                # Get new row limit
+                new_query_results_rows = int(render_limit / query_results_cols)
+                # Truncate results
+                new_data = serialized_valid_data['queryResults']['data'][0:new_query_results_rows]
+                new_index = serialized_valid_data['queryResults']['index'][0:new_query_results_rows]
+                new_serializer_data['queryResults']['data'] = new_data
+                new_serializer_data['queryResults']['index'] = new_index
+                new_serializer_data['flag'] = {'query_results_rows': query_results_rows, 'render_limit': render_limit,
+                                               'new_query_results_rows': new_query_results_rows}
+
+        return new_serializer_data
+
+    def retrieve(self, request, *args, **kwargs):
+        """ Retrieve a model instance. """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(self.truncated_api_response_data(accepted_media_type=request.accepted_media_type,
+                                                         serialized_valid_data=serializer.data))
 
     def update(self, request, *args, **kwargs):
         """
@@ -144,35 +227,22 @@ class QueryViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
-        #current SQL
+        # current SQL
         saved_object = instance
-        #inbound request
-        incoming_object = self.request.data
-        # pprint('- - - - NEW PUT - - - -')
-        # print(json.loads(incoming_object['queryResults']))
-        # pprint('- - - - end PUT - - - -')
-        # testQueryResultsTamper=self.get_serializer(instance, data=incoming_object, partial=True)
-        # testQueryResultsTamper.is_valid(raise_exception=True)
-        #
-        # pprint(testQueryResultsTamper.data['queryResults'])
-        # pprint(saved_object.queryResults)
+        # inbound request
+        incoming_request = self.request.data
 
-        #override the incoming queryResults with the saved version
-        incoming_object['queryResults']=(saved_object.queryResults)
+        # if (incoming_request.data['queryResults'] != saved_object.queryResults):
+        #     raise PermissionDenied(
+        #         detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
 
-        # if new sql (and/or results have been tampered with), re-run fidia and override results
-        # if (incoming_object['SQL'] != saved_object.SQL) or (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
-        if incoming_object['SQL'] != saved_object.SQL:
-            pprint('sql or qR changed')
+        # Override the incoming queryResults with the saved version
+        incoming_request['queryResults'] = saved_object.queryResults
 
-            # if (testQueryResultsTamper.data['queryResults'] != saved_object.queryResults):
-            #     pprint('qR changed')
-            #     raise PermissionDenied(detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
-
-            incoming_object['queryResults'] = self.run_FIDIA(self.request.data)
-            pprint('update object')
-
-        serializer = self.get_serializer(instance, data=incoming_object, partial=partial)
+        # Update the SQL and queryResults
+        if incoming_request['SQL'] != saved_object.SQL:
+            incoming_request['queryResults'] = run_sql_query(request_string=incoming_request['SQL'])
+        serializer = self.get_serializer(instance, data=incoming_request, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
@@ -191,15 +261,6 @@ class QueryViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance.delete()
-
-
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
 
 
 # from fidia.archive.example_archive import ExampleArchive
@@ -230,10 +291,12 @@ sample = ar.get_full_sample()
 # >>> sample['Gal1']['redshift'].value
 # 3.14159
 #
+
+
 class GAMAViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (GAMARenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (GAMARenderer, renderers.JSONRenderer)
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
             sample
@@ -245,10 +308,10 @@ class GAMAViewSet(mixins.ListModelMixin,
         return Response({'nodata': True})
 
 
-class SAMIViewSet(mixins.ListModelMixin,
+class samiViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
 
-    renderer_classes = (SampleRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SampleRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
@@ -274,8 +337,8 @@ class AstroObjectViewSet(mixins.ListModelMixin,
     # TODO split the SOV html template into per-survey-type
     # TODO THIS SHOULD WORK: renderer_classes = (SOVRenderer, ) + api_settings.DEFAULT_RENDERER_CLASSES
 
-    # renderer_classes = (GalaxySOVRenderer, renderers.JSONRenderer, r.CSVRenderer)
-    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer, r.CSVRenderer)
+
+    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
         # def get_serializer_context(self):
@@ -311,8 +374,11 @@ class AstroObjectViewSet(mixins.ListModelMixin,
 
 class TraitViewSet(mixins.ListModelMixin,
                     viewsets.GenericViewSet):
+    """
+    The Trait View
+    """
 
-    renderer_classes = (TraitRenderer, renderers.JSONRenderer, r.CSVRenderer, FITSRenderer)
+    renderer_classes = (TraitRenderer, renderers.JSONRenderer, FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
         log.debug("Format requested is '%s'", format)
@@ -343,10 +409,11 @@ class TraitViewSet(mixins.ListModelMixin,
             response['content-disposition'] = "attachment; filename=%s" % filename
         return response
 
+
 class TraitPropertyViewSet(mixins.ListModelMixin,
                             viewsets.GenericViewSet):
 
-    renderer_classes = (TraitPropertyRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (TraitPropertyRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
@@ -357,7 +424,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         except AttributeError:
-            raise NoPropertyFound("No property %s" % traitproperty_pk)
+            raise restapi_app.exceptions.NoPropertyFound("No property %s" % traitproperty_pk)
             # return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer_class = AstroObjectTraitPropertySerializer
@@ -375,10 +442,89 @@ class TraitPropertyViewSet(mixins.ListModelMixin,
         return response
 
 
+class TestingViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+    def list(self, request, pk=None, dynamic_pk=None, dynamic_pk0=None, format=None):
+        # @property
+        # def dynamic_property_first_of_type(self, dynamic_pk):
+            # split on /
+        print(dynamic_pk.split('/'))
+        dynamic_components = dynamic_pk.split('/')
+        # first component distinction: ST/TP
+        print(dynamic_components)
+        print(type(dynamic_components))
+        print(dynamic_components[:-1])
+
+            # return 'test'
+
+        return Response({'dynamic_pk': dynamic_pk, 'dy1=n1': dynamic_pk0})
+
+
+
+# class DynamicPropertyViewSet(mixins.ListModelMixin,
+#                             viewsets.GenericViewSet):
+#     """
+#     Differentiate between Trait and Sub-trait.
+#     Allows for n levels of nesting - parses str
+#     """
+#     # @property
+#     # def rendererclasses(self, level):
+#     #     if level == "sub_trait":
+#     #         return [restapi_app.renderers.SubTraitRenderer, renderers.JSONRenderer]
+#     #     elif level == "trait_property":
+#     #         return [restapi_app.renderers.TraitPropertyRenderer, renderers.JSONRenderer]
+#     queryset = Qu
+#
+#     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+#         # HERE FUNCTION TO DETERMINE TRAIT OR SUB-TRAIT
+#         @property
+#         def dynamic_property_first_of_type(self, dynamic_pk):
+#             # split on /
+#             print(dynamic_pk.split('/'))
+#             dynamic_components = dynamic_pk.split('/')
+#             # first component distinction: ST/TP
+#             print(dynamic_components)
+#             print(type(dynamic_components))
+#             print(dynamic_components[:-1])
+#
+#             return 'test'
+#
+#         return Response()
+    #
+    #     try:
+    #         dynamic_property = getattr(sample[galaxy_pk][trait_pk], dynamic_pk)
+    #     except KeyError:
+    #         return Response(status=status.HTTP_404_NOT_FOUND)
+    #     except ValueError:
+    #         return Response(status=status.HTTP_400_BAD_REQUEST)
+    #     except AttributeError:
+    #         raise NoPropertyFound("No property %s" % dynamic_pk)
+    #
+    #     @property
+    #     def serializer_class(self, level, type):
+    #         # some logic here to pick a serializer based on the level (trait/subtrait) and perhaps the type
+    #         # (needs mapping)
+    #         return AstroObjectTraitPropertySerializer
+    #
+    #     serializer = serializer_class(
+    #         instance=dynamic_property, many=False,
+    #         context={'request': request}
+    #     )
+    #     return Response(serializer.data)
+    #
+    # def finalize_response(self, request, response, *args, **kwargs):
+    #     # TODO this needs changing based on ST/TP
+    #     response = super().finalize_response(request, response, *args, **kwargs)
+    #     if response.accepted_renderer.format == 'fits':
+    #         filename = "{galaxy_pk}-{trait_pk}-{traitproperty_pk}.fits".format(**kwargs)
+    #         response['content-disposition'] = "attachment; filename=%s" % filename
+    #     return response
+
+
 #  SOV
 class SOVListSurveysViewSet(viewsets.ViewSet):
 
-    renderer_classes = (SOVListRenderer, renderers.JSONRenderer, r.CSVRenderer)
+    renderer_classes = (SOVListRenderer, renderers.JSONRenderer)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         """
@@ -403,22 +549,38 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
 # Necessary to split the list and detail views so different
 # renderer classes can be implemented (and therefore different html templates)
 
-
 class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
-                                viewsets.GenericViewSet):
-    renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer, r.CSVRenderer)
+                                   viewsets.GenericViewSet):
+    """
+    SOV retrieve single object.
+    Responds with only the schema, the available traits for this AO, and
+     the url of each trait. Will make AJAX calls for trait data.
+
+    """
+    renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer)
 
     def retrieve(self, request, pk=None, sample_pk=None, format=None):
+
         try:
             astroobject = sample[pk]
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        serializer = SOVRetrieveObjectSerializer(
+
+        serializer_class = restapi_app.serializers.SOVRetrieveSerializer
+
+        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+
+        serializer = serializer_class(
             instance=astroobject, many=False,
-            context={'request': request}
+            context={
+                'request': request,
+                'schema': sorted_schema,
+                # 'key_info': key_info
+            }
         )
+
         return Response(serializer.data)
 
 
@@ -433,4 +595,28 @@ class AvailableTables(views.APIView):
         return Response(json_data)
 
 
+class ContactForm(views.APIView):
+    """
+    Contact Form
+    """
 
+    permission_classes = (permissions.AllowAny,)
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'restapi_app/support/contact.html'
+
+    def get(self, request):
+
+        serializer = ContactFormSerializer
+
+        return Response({'serializer': serializer})
+
+    def post(self, request, format=None):
+
+        serializer = ContactFormSerializer(data=request.data)
+        serializer.is_valid()
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

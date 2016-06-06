@@ -48,7 +48,7 @@ INSTALLED_APPS = (
     'astrospark',
     'bootstrap3',
     # 'captcha',
-    'clever_selects',
+    # 'clever_selects',
     'django_extensions',
     'mathfilters',
     'restapi_app',
@@ -245,11 +245,15 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-        'rest_framework_csv.renderers.CSVRenderer',
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'TEST_REQUEST_RENDERER_CLASSES': (
+        'rest_framework.renderers.MultiPartRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.TemplateHTMLRenderer',
+        # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
+    )
 }
-

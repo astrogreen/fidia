@@ -15,7 +15,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.text import normalize_newlines
 from django.conf.urls import patterns, url, include
 from django.contrib.staticfiles.templatetags.staticfiles import static
-
+from rest_framework import status
 from rest_framework.utils.urls import replace_query_param
 
 register = template.Library()
@@ -25,38 +25,49 @@ register = template.Library()
 #     {% endblock status-info %}
 
 @register.simple_tag
-def status_info(request, status_code, user):
-    """
-    Include a login snippet if REST framework's login view is in the URLconf.
-    # HTTP_400_BAD_REQUEST
-    # HTTP_403_FORBIDDEN
-    # HTTP_404_NOT_FOUND
-    # HTTP_405_METHOD_NOT_ALLOWED
-    """
-    snippet = """
-            <div class="text-center">
-            <h1 style="margin: 0 0 20px;">Oops! </h1>
-            <h2>{status_code} {message}</h2>
-            <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">
-            Contact Support </a>
-            </p>
-            </div>
-    """
-
-    if status_code == 403:
-        message = 'Access Forbidden'
-    elif status_code == 404:
-        message = 'Not Found'
-    elif status_code == 400:
-        message = 'Bad Request'
-    elif status_code == 405:
-        message = 'Method not allowed'
+def status_is_success(status_code):
+    if status.is_success(status_code):
+        return True
     else:
-        message = ''
+        return False
+    
 
-    snippet = format_html(snippet, status_code=status_code, message=message, request=request, user=user)
+@register.simple_tag
+def status_info(request, status_code, user, status_code_detail):
+    """
+    Display status info if not success (HTTP_2xx)
+    """
+    if status.is_success(status_code):
+        snippet = ""
+    else:
+        snippet = """
+                <div class=" col-md-12" style="margin-top: 30px">
+                    <div class="row-fluid text-center">
+                        <h1>Oops!</h1>
+                        <h2>{status_code_detail}</h2>
+                        <h4>Status Code: {status_code}</h4>
+                        <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a>
+                        </p>
+                    </div>
+                    <div class="text-center splitter">
+                    <br>
+            """
+        if user == 'AnonymousUser':
+            snippet += "{optional_login}"
+        snippet += "</div></div>"
+
+        snippet = format_html(snippet, status_code=status_code, request=request, user=user,
+                              status_code_detail=status_code_detail, optional_login=optional_login(request))
 
     return mark_safe(snippet)
+
+
+@register.simple_tag
+def status_is_success(status_code):
+    if status.is_success(status_code):
+        return True
+    else:
+        return False
 
 
 @register.simple_tag
@@ -77,7 +88,6 @@ def optional_logout(request, user):
         logout_page = reverse('logout-page')
     except NoReverseMatch:
         return ''
-
 
     snippet = """<li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -108,16 +118,15 @@ def optional_login(request):
     except NoReverseMatch:
         return ''
 
-
     # On successful sign-in, prevent user being directed back to logout, register or login
-    next=(request.path)
+    next_page = request.path
     next_url = escape(resolve(request.path_info).url_name)
 
     if request.user != 'AnonymousUser':
         if next_url == 'logout-page' or next_url == 'user-register' or next_url == 'login':
-            next = ''
+            next_page = ''
 
-    # If this page is the registration form, drop that button
+    # If this page is the registration form, drop register button
     if next_url == 'user-register':
         snippet = """<div class="user">
                     <a href='{login}?next={next}' class="signin">
@@ -125,22 +134,31 @@ def optional_login(request):
                         <i class="fa fa-lock"></i>
                     </a>
                 </div>"""
-    else:
-        snippet = """<div class="user">
-                    <a href='{login}?next={next}' class="signin">
-                        <span>Sign In</span>
-                        <i class="fa fa-lock"></i>
-                    </a>
-                    <span>OR</span>
-                    <a href="{register}" class="register">
-                        <span>Register</span>
-                        <i class="fa fa-pencil-square-o"></i>
-                    </a>
-                </div>"""
-    snippet = format_html(snippet, login=login_url, register=register_url, next=next)
-
+    # If logged in, drop both buttons
+    # elif request.user != 'AnonymousUser':
+    #     snippet = ""
+    # else:
+    snippet = """<div class="user">
+                <a href='{login}?next={next}' class="signin">
+                    <span>Sign In</span>
+                    <i class="fa fa-lock"></i>
+                </a>
+                <span>OR</span>
+                <a href="{register}" class="register">
+                    <span>Register</span>
+                    <i class="fa fa-pencil-square-o"></i>
+                </a>
+            </div>"""
+    snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
     return mark_safe(snippet)
 
+
+@register.filter
+def of_key(value, arg):
+    if value:
+        return value.get(arg)
+    else:
+        return ""
 
 
 def remove_newlines(text):
@@ -297,3 +315,14 @@ def surveylogoimglink(survey):
 
     snippet = format_html(snippet, surveylink=surveylink, surveyclass=surveyclass, imgpath=imgpath)
     return mark_safe(snippet)
+
+
+@register.simple_tag
+def fstrip_trailing_slash(url):
+    """
+    Snippet for stripping the trailing slash on a url
+    Necessary for pages with anchor at the end
+
+    """
+    new_url = url.rstrip('/')
+    return new_url

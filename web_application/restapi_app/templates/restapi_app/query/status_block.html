@@ -1,0 +1,16 @@
+{% comment %}
+------ DISPLAY 404 AND SUGGESTIONS ------
+{% endcomment %}
+{% block status_override %}
+    {% if response.status_code == 404 %}
+        <a href="{% url "query-list" %}" class="btn btn-primary btn-md"><i class="fa fa-angle-left"></i> Back to Query List</a>
+        <a href="{% url "index" %}" class="btn btn-primary btn-md">Home</a>
+    {% else %}
+        {% if user.is_authenticated %}
+          {% load internal_extras %}
+          {% optional_logout request user %}
+        {% else %}
+          {% optional_login request %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

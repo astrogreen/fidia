@@ -10,14 +10,13 @@
 {% endblock %}
 {% block style %}
     <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/bootstrap/bootstrap.min.css' %}"/>
-
-    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/restapi_app.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/style.css' %}"/>
-
-    <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}"/>
-    <link href='https://fonts.googleapis.com/css?family=Raleway:400,200,800,600|Roboto:400,300,300italic,400italic,500,500italic&subset=latin,greek,latin-ext' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/main/main.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/font-awesome/font-awesome.min.css' %}"/>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic&subset=latin,greek,latin-ext'
+      rel='stylesheet' type='text/css'>
 {% endblock %}
-{% block formValidation %}{% endblock %}
+<script type="text/javascript" src="{% static 'restapi_app/js/MathJax/MathJax.js'%}?config=TeX-MML-AM_CHTML"></script>
+<!--<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"> </script>-->
 {% block multiselect %}{% endblock %}
 {% block datatables %}{% endblock %}
 {% block sign-in %}{% endblock %}
@@ -27,4 +26,4 @@
   <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
-<script src="/static/js/jqueryv1_11_3.min.js"></script>
+<script src="{% static 'restapi_app/js/jquery/jquery-2.2.3.min.js' %}"></script>

@@ -7,7 +7,7 @@ from astropy.io import fits
 from .abstract_base_traits import *
 from ..exceptions import DataNotAvailable
 from .utilities import TraitProperty, TraitMapping, TraitKey
-
+from ..utilities import SchemaDictionary
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
@@ -36,6 +36,9 @@ class Trait(AbstractBaseTrait):
 
     _sub_traits = TraitMapping()
 
+    default_version = None
+    available_versions = None
+
     @classmethod
     def schema(cls, include_subtraits=True):
         """Provide the schema of data in this trait as a dictionary.
@@ -54,23 +57,16 @@ class Trait(AbstractBaseTrait):
         """
 
 
-        schema = dict()
+        schema = SchemaDictionary()
         for trait_property in cls._trait_properties():
                 schema[trait_property.name] = trait_property.type
 
         if include_subtraits:
             for trait_type in cls._sub_traits.get_trait_types():
                 # Create empty this sub-trait type:
-                schema[trait_type] = dict()
+                schema[trait_type] = SchemaDictionary()
                 # Populate the dict with schema from each sub-type:
                 for trait_class in cls.sub_traits(trait_type_filter=trait_type):
-                    # FIXME: This will break if different sub-traits have different schemas (I think).
-                    #
-                    #   The update needs to be done recursively, not just on the top
-                    #   level of the sub-trait dictionary. Otherwise, the schema
-                    #   produced will be incomplete. This can best be fixed by
-                    #   implementing a special sub-class of dict expressly for this
-                    #   purpose, which knows how to do such a recurisve update.
                     schema[trait_type].update(trait_class.schema())
 
         return schema
@@ -97,15 +93,45 @@ class Trait(AbstractBaseTrait):
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
         self.archive = archive
-        if object_id is not None:
-            trait_key = trait_key.replace(object_id=object_id)
+        assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
         self.trait_key = trait_key
-        self.version = trait_key.version
-        self.object_id = trait_key.object_id
+        if trait_key.branch is None and parent_trait is not None:
+            # Inherit branch from parent trait:
+            self.branch = parent_trait.branch
+        else:
+            self.branch = trait_key.branch
+
+        # Trait Version handling:
+        #
+        #   The goal of this is to set the trait version if at all possible. The
+        #   following are tried:
+        #   - If version explicitly provided in this initialisation, that is the version.
+        #   - If this is a sub trait, check the parent trait for it's version.
+        #   - If the version is still none, try to set it to the default for this trait.
+        #
+        if trait_key.version is None and parent_trait is not None:
+            # Inherit version from parent trait, if permitted
+            if self.available_versions is not None and parent_trait.version in self.available_versions:
+                self.version = parent_trait.version
+            else:
+                self.version = None
+        else:
+            self.version = trait_key.version
+        if self.version is None:
+            self.version = self.default_version
+
+        if object_id is None:
+            raise KeyError("object_id must be supplied")
+        self.object_id = object_id
         self._parent_trait = parent_trait
-        self._trait_name = trait_key.trait_name
+        self.trait_qualifier = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
+
+        if parent_trait is not None:
+            self.trait_path = parent_trait.trait_path + tuple(self.trait_key)
+        else:
+            self.trait_path = tuple(self.trait_key)
 
 
         # The preload count is used to track how many accesses there are to this
@@ -153,9 +179,9 @@ class Trait(AbstractBaseTrait):
 
         return self._trait_cache[trait_key]
 
-    @property
-    def trait_name(self):
-        return self._trait_name
+    # @property
+    # def trait_name(self):
+    #     return self.trait_qualifier
 
 
     def init(self):
@@ -227,9 +253,10 @@ class Trait(AbstractBaseTrait):
     #             log.debug("Found trait property '{}'".format(key))
     #             yield obj
 
-    def trait_property_dir(self):
+    @classmethod
+    def trait_property_dir(cls):
         """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
-        for tp in self._trait_properties():
+        for tp in cls._trait_properties():
             yield tp.name
 
     def trait_properties(self, trait_property_types=None):
@@ -283,7 +310,7 @@ class Trait(AbstractBaseTrait):
 
         """
         for tp in self._trait_properties(trait_type):
-            yield getattr(self, tp.name)
+            yield getattr(self, tp.name).value
 
     def _load_incr(self):
         """Internal function to handle preloading. Prevents a Trait being loaded multiple times.

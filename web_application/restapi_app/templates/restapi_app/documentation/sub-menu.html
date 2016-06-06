@@ -1,0 +1,206 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Documentation{% endblock %}
+
+{% block head-extra %}
+{% endblock %}
+
+
+<div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+    <div class="container">
+        {% block breadcrumbs-outer %}
+        {% block breadcrumbs %}
+        <ul class="breadcrumb ">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li class="active"><a href="{% url 'documentation' %}">Documentation</a></li>
+        </ul>
+        {% endblock %}
+        {% endblock %}
+    </div>
+</div>
+
+{% block content %}
+<h1 class="headline">
+    <span>Documentation</span>
+</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-2 col-sm-offset-2 col-xs-6">
+            <a href="{% url 'documentation-schema-browser'%}">
+                <div class="panel panel-default text-center">
+                    <div class="panel-body">
+                        <h2><i class="fa fa-sitemap fa-rotate-270"></i></h2>
+                    </div>
+                    <div class="panel-footer panel-background-1">
+                        <h4 class="panel-title">
+                            Schema Browser
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-2 col-xs-6">
+            <a href="{% url 'documentation-query-builder'%}">
+                <div class="panel panel-default text-center">
+
+                    <div class="panel-body">
+                        <h2><i class="fa fa-server"></i></h2>
+                    </div>
+                    <div class="panel-footer panel-background-check">
+                        <h4 class="panel-title">
+                            Query Builder
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-2 col-xs-6">
+            <a href="{% url 'under-construction'%}">
+                <div class="panel panel-default text-center">
+
+                    <div class="panel-body">
+                        <h2><i class="fa fa-book"></i></h2>
+                    </div>
+                    <div class="panel-footer panel-background-grey">
+                        <h4 class="panel-title">
+                            Data Browser
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-2 col-xs-6">
+            <a href="{% url 'under-construction'%}">
+                <div class="panel panel-default text-center">
+
+                    <div class="panel-body">
+                        <h2><i class="fa fa-binoculars"></i></h2>
+                    </div>
+                    <div class="panel-footer panel-background-team">
+                        <h4 class="panel-title">
+                            SOV
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2 col-sm-offset-2 col-xs-6">
+            <a href="{% url 'under-construction'%}">
+                <div class="panel panel-default text-center">
+                    <div class="panel-body">
+                        <h2>
+                            <span class="">
+                                <i class="fa fa-file-o"></i>
+                                <i class="fa fa-stack-1x fa-text-inner">SQL</i>
+                            </span>
+                        </h2>
+                    </div>
+                    <div class="panel-footer panel-background-check">
+                        <h4 class="panel-title">
+                            SQL
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-2 col-xs-6">
+            <a href="{% url 'under-construction'%}">
+                <div class="panel panel-default text-center">
+
+                    <div class="panel-body">
+                        <h2><i class="fa fa-user"></i>
+                        </h2>
+                    </div>
+                    <div class="panel-footer panel-background-check">
+                        <h4 class="panel-title">
+                            My Account
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-2 col-xs-6">
+            <a href="{% url 'under-construction'%}">
+                <div class="panel panel-default text-center">
+
+                    <div class="panel-body">
+                        <h2></h2>
+                    </div>
+                    <div class="panel-footer panel-background-grey">
+                        <h4 class="panel-title">
+
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-2 col-xs-6">
+            <a href="{% url 'under-construction'%}">
+                <div class="panel panel-default text-center">
+
+                    <div class="panel-body">
+                        <h2></h2>
+                    </div>
+                    <div class="panel-footer panel-background-team">
+                        <h4 class="panel-title">
+
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="headline"><span>Search</span></h2>
+        </div>
+        <div class="col-sm-4 col-xs-12">
+            <form class="inline-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search for...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button"><i class="fa fa-search fa-fw"></i></button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-8 col-xs-12">
+            <div class="panel panel-default ">
+                <div class="panel-body fixed-panel">
+                    <div class="search-result">
+                        <ul>
+                            <li>
+                                <h4><a href="#">Result 1</a></h4>
+                                <a href="">aao.gov.au/asvo/result1</a>
+                                <p><em>relevant search info</em></p>
+                            </li>
+                            <li>
+                                <h4><a href="#">Result 2</a></h4>
+                                <a href="">aao.gov.au/asvo/result2</a>
+                                <p><em>relevant search info</em></p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="headline"><span>FAQ</span></h2>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}
