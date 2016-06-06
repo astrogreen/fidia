@@ -1,2 +1,2 @@
-from .cache import Cache, MemoryCache
+from .cache import Cache, MemoryCache, DummyCache
 
