@@ -1,10 +1,11 @@
+{% load staticfiles %}
 <footer class="footer" id="footer">
     <div class="container">
         <div class="row">
             <div class="col-md-3 col-sm-3 col-xs-4">
                 <h3>Explore <span>data</span></h3>
-                    <a href="{% url "data" %}">Data</a>
-                    <a href="{% url "query-list" %}">Query Builder</a>
+                <a href="{% url 'data' %}">Data</a>
+                <a href="{% url 'query-list' %}">Query Builder</a>
                     <a class="disabled">Data Explorer</a>
             </div>
             <div class="col-md-3 col-sm-3 col-xs-4">
@@ -15,10 +16,12 @@
             </div>
             <div class="col-md-6 col-sm-6 col-xs-4 img-wrapper">
               <div class='img-inner'>
-                <img class='img-responsive screen-logo pull-left' src='/static/img/logos/asvo_logo_white_big.png'>
-                <img class='img-responsive screen-logo pull-right' src='/static/img/logos/DIIS_AAO_logo_inline_inverted.png'>
-                <img class='img-responsive mobile-logo' src='/static/img/logos/asvo_logo_white.png'>
-                <img class='img-responsive mobile-logo' src='/static/img/logos/aao_logo_white.png'>
+                  <img class='img-responsive screen-logo pull-left'
+                       src="{% static 'restapi_app/img/logo/asvo_logo_white_big.png' %}">
+                  <img class='img-responsive screen-logo pull-right'
+                       src="{% static 'restapi_app/img/logo/DIIS_AAO_logo_inline_inverted.png' %}">
+                  <img class='img-responsive mobile-logo' src="{% static 'restapi_app/img/logo/asvo_logo_white.png' %}">
+                  <img class='img-responsive mobile-logo' src="{% static 'restapi_app/img/logo/aao_logo_white.png' %}">
               </div>
             </div>
 
@@ -27,7 +30,7 @@
 
     <div class="footer-bottom">
       <div class="container">
-          <div class="pull-left"> <small>Copyright © 2016 All-Sky Virtual Observatory.</small></div>
+          <div class="pull-left"> <small>Copyright © 2016 Australian Astronomical Observatory.</small></div>
           <div class="pull-right">
               <a href='http://www.asvo.org.au/' target='_blank'>ASVO </a> &nbsp;&nbsp;
               <a href="https://tao.asvo.org.au/tao/">TAO</a> |
@@ -37,3 +40,10 @@
       </div>
     </div> <!--/.footer-bottom-->
 </footer>
+<script>
+    if (location.pathname != '/asvo/under-construction/') {
+        $('a[href="' + location.pathname + '"]').parents('li,ul').addClass('active');
+    };
+    // Call MathJax after the content has been loaded...
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+</script>

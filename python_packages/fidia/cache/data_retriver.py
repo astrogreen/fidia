@@ -8,6 +8,7 @@ class DataRetriver():
     def __init__(self):
         self.conn = connect('asvotest2.aao.gov.au', 21050, 'sami_test')
         self.cursor = self.conn.cursor()
+        self.table_name = 'astro_sample_9' #'sami_test2_5_parquet'
 
 
     def getTraitPropertyByObjectId(self, object_id, trait_key, trait_property_name, trait_property_type=''):
@@ -23,13 +24,12 @@ class DataRetriver():
 
         # parameterized queries don't work here.
 
-        table_name = 'sami_test2_5_parquet'
 
         if 'array' in trait_property_type:
-            query = 'Select ' + trait_property_name + '.shape, item from ' + table_name + ',' + table_name + '.' + trait_key + ',' \
-                          + table_name + '.' + trait_key + '.' + trait_property_name + '.datavalues where object_id="' + object_id + '"'
+            query = 'Select value.' + trait_property_name + '.shape, item from ' + self.table_name + ',' + self.table_name + '.' + trait_key + ',' \
+                          + self.table_name + '.' + trait_key + '.value.' + trait_property_name + '.datavalues where object_id="' + object_id + '"'
         else:
-            query = 'Select ' + trait_property_name + ' from ' + table_name + ',' + table_name + '.' + trait_key + ' where object_id="' + object_id + '"'
+            query = 'Select ' + trait_property_name + ' from ' + self.table_name + ',' + self.table_name + '.' + trait_key + ' where object_id="' + object_id + '"'
 
 
         self.cursor.execute(query)

@@ -34,11 +34,11 @@ class ExampleSpectralMap(SpectralMap):
     def value(self):
         """TheSpectralMapDocumentation"""
         assert not self._clean
-        return np.random.random((3, 5, 10))
+        return np.random.random((20, 20, 50))
     @trait_property('float.array')
     def variance(self):
         assert not self._clean
-        return np.random.random((3, 5, 10))
+        return np.random.random((20, 20, 50))
 
 
 class ExampleSpectralMapExtra(SpectralMap):
@@ -64,11 +64,11 @@ class ExampleSpectralMapExtra(SpectralMap):
     @trait_property('float.array')
     def value(self):
         assert not self._clean
-        return np.random.random((3, 5, 10))
+        return np.random.random((20, 20, 50))
     @trait_property('float.array')
     def variance(self):
         assert not self._clean
-        return np.random.random((3, 5, 10))
+        return np.random.random((20, 20, 50))
     @trait_property('float')
     def extra_value(self):
         assert not self._clean
@@ -98,11 +98,11 @@ class VelocityMap(Image):
     def value(self):
         # return np.random.random((5, 5))
         # return (np.random.uniform(-50, 50, [8, 10])).tolist()
-        return np.random.random((5, 5))
+        return np.random.random((20, 20))
 
     @trait_property('float.array')
     def variance(self):
-        return np.random.random((5, 5))
+        return np.random.random((20, 20))
 
 class LineMap(Image):
 
@@ -121,11 +121,11 @@ class LineMap(Image):
 
     @trait_property('float.array')
     def value(self):
-        return np.random.random((2, 2, 2))
+        return np.random.random((20, 20))
 
     @trait_property('float.array')
     def variance(self):
-        return np.random.random((5, 5))
+        return np.random.random((20, 20))
 
 class Redshift(Measurement):
 
@@ -156,10 +156,10 @@ class TestMissingProperty(SpectralMap):
 
     @trait_property('float.array')
     def value(self):
-        return np.random.random((3, 5, 10))
+        return np.random.random((20, 20, 50))
     @trait_property('float.array')
     def variance(self):
-        return np.random.random((3, 5, 10))
+        return np.random.random((20, 20, 50))
 
     @trait_property('string')
     def galaxy_name(self):

@@ -1,0 +1,180 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Team{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/about.min.css' %}"/>
+{% endblock %}
+
+
+<div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+    <div class="container">
+        {% block breadcrumbs-outer %}
+        {% block breadcrumbs %}
+        <ul class="breadcrumb ">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li class="active"><a href="{% url 'under-construction' %}">Team</a></li>
+        </ul>
+        {% endblock %}
+        {% endblock %}
+    </div>
+</div>
+
+{% block content %}
+<h1 class="headline">
+    <span>Team</span>
+</h1>
+<div class="container">
+    <div class="row">
+        <p>All-Sky Virtual Observatory (ASVO) Anglo-Australian Telescope (AAT) Node is developing an archive
+            infrastructure and interface that is extensible and scalable, designed to meet the current and future needs
+            of the Australian astronomical community. This will be demonstrated by the deployment of two exemplar
+            datasets (SAMI and GAMA survey data) that span the range of capabilities to be provided. The extensibility
+            requirement ensures that, at the conclusion of the Project, the AAO is capable of ingestion and deployment
+            of all AAT surveys of major national significance through the AAT Node. The node includes the requirement to
+            be interoperable with the other ASVO nodes and compliant with IVOA protocols.</p><br>
+        <p>
+
+            The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth Department of
+            Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has coordinated with the
+            Australian Astronomical Observatory (AAO), as the owners and operators of the AAT, to develop this ASVO
+            Node. This is a 2 year project with completion expected by June 2017. </p><br>
+    </div>
+    <div class="row">
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/ahopkins.jpg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Professor Andrew Hopkins </h3>
+                    <em>Project Director</em>
+                </div>
+                <div class="panel-body">
+                    <p>Andrew successfully won funding for the project from AAL. He determines the project deliverables
+                        and monitors the milestones.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/ksealey.jpeg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale "
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Katrina Sealey </h3>
+                    <em>Project Manager</em>
+                </div>
+                <div class="panel-body">
+                    <p>Katrina handles the AAL progress reports, manages the budget, runs the sprints and meetings, and
+                        ensures the
+                        team meets the milestones!</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/simonotoole.jpeg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Simon O'Toole </h3>
+                    <em>Project Scientist</em>
+                </div>
+                <div class="panel-body">
+                    <p>Simon coordinates the project technical design, from the Data Model to the User Authentication
+                        layer. He manages the server and the data, and solves the tricky technical issues that the node
+                        faces!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/lloyd.jpeg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Mr Lloyd Harischandra</h3>
+                    <em>Database Software Engineer</em>
+                </div>
+                <div class="panel-body">
+                    <p>Lloyd designs the backend database architecture determining the solutions for ingesting and
+                        querying data. He configures and manages the database cluster (we call it the data lake!) and
+                        does benchmarking on the node configuration against current popular database technologies as
+                        required. He also writes backend software code to ingest and query data in and out of the data
+                        lake.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/andy.jpeg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale "
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Andy Green </h3>
+                    <em>Astrophysicist/Software Engineer</em>
+                </div>
+                <div class="panel-body">
+                    <p>Andy connects the project to the astronomers and their research needs. He develops the data
+                        access layer that provides the underlying data to the API
+                        in a scientifically meaningful way.
+                        Andy also provides advice and support as necessary in the development of the data storage and
+                        user interface layers.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/lmannering.jpg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Dr Elizabeth Mannering</h3>
+                    <em>Web Developer</em>
+                </div>
+                <div class="panel-body">
+                    <p>Liz deals with the web front-end, from designing and developing the user interface
+                        to building the RESTful API that communicates with the underlying data access layer. She is
+                        developing new web tools to accelerate the pace at which scientists can make key discoveries
+                        with
+                        their data.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4 text-center">
+            <img src="{% static 'restapi_app/img/about/team/minh.jpeg' %}"
+                 class="img-responsive img-circle center-block team-image greyscale"
+                 alt="..."><br>
+            <div class="panel panel-default ">
+                <div class="panel-heading panel-background-team">
+                    <h3 class="panel-title">Mr Minh Vuong </h3>
+                    <em>Software Engineer</em>
+                </div>
+                <div class="panel-body">
+                    <p>Minh works on IVOA services development and integration with Apache Spark (ADQL query on Spark
+                        SQL). </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <!--<h3>Contact Us</h3>-->
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

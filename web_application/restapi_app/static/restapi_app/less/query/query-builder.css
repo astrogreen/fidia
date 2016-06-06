@@ -1,0 +1,223 @@
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ QUERY BUILDER
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+.text-red {
+  color: #a30000;
+}
+.text-blue {
+  color: #5aa8d8;
+}
+.btn.outline {
+  transition: all 0.1s ease;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: none;
+}
+form select,
+form input,
+form textarea {
+  width: auto;
+}
+.blue {
+  color: #fff;
+  background-color: #5aa8d8 !important;
+}
+.black {
+  color: #292F31;
+}
+.black:hover {
+  color: #aaa;
+}
+.btn.red:hover,
+.btn.red:focus,
+.btn.red.focus {
+  color: #d9534f;
+  text-decoration: none;
+}
+.btn.white:hover,
+.btn.white:focus,
+.btn.white.focus {
+  color: #f9f9f9;
+  text-decoration: none;
+}
+.btn.blue:hover,
+.btn.blue:focus,
+.btn.blue.focus {
+  color: #5aa8d8;
+  border-color: #5aa8d8;
+  background-color: #fff !important;
+  text-decoration: none;
+}
+.btn.green:hover,
+.btn.green:focus,
+.btn.green.focus {
+  color: #5cb85c;
+  text-decoration: none;
+}
+.btn.yellow:hover,
+.btn.yellow:focus,
+.btn.yellow.focus {
+  color: #f0ad4e;
+  text-decoration: none;
+}
+.white {
+  color: #ffffff;
+}
+.white:hover {
+  color: #F9F9F9;
+}
+i.fa.fa-plus.fa-stack-1x {
+  margin-top: 1px;
+}
+.btn.blue {
+  background-color: #5aa8d8;
+  border-radius: 5px;
+}
+.nav-tabs {
+  border-bottom: 0;
+}
+.on-this-page-btn-group {
+  border-left: solid 15px #fff;
+  margin-top: 5px;
+}
+/*QUERY FORM*/
+form.query-form {
+  /*padding: 0px 15px;*/
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+form.query-form .false-row {
+  margin-bottom: 5px;
+}
+form.query-form .false-row .col-xs-12 {
+  padding-right: 0px;
+}
+form.query-form .row.header {
+  margin-bottom: -1px;
+  color: #333;
+  border: solid 1px #dddddd;
+  background: #F5F5F5;
+}
+form.query-form .row.header .blue {
+  background: #5aa8d8;
+}
+form.query-form .row.content {
+  border: solid 1px #dddddd;
+  padding: 10px 0px;
+}
+form.query-form h3 {
+  margin-top: 0px;
+}
+form.query-form h4 {
+  font-weight: normal;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-family: 'Roboto', sans-serif;
+}
+form.query-form .btn-cat-remove,
+form.query-form .btn-join-remove,
+form.query-form .btn-where-remove {
+  padding-right: 0px;
+}
+form.query-form .querynot {
+  float: left;
+  margin: 10px;
+}
+form.query-form .querynot span {
+  padding: 5px;
+}
+form.query-form .input-box {
+  height: 38px;
+  margin-right: 10px;
+}
+form.query-form .floating-select {
+  position: relative;
+  float: left;
+  margin-right: 10px;
+}
+form.query-form #query-form-errors .panel-heading {
+  padding: 1px 15px;
+  border-radius: 0;
+}
+form.query-form .not-selected-warning {
+  border: 1px solid #F1CB76 !important;
+}
+form.query-form .not-selected-error {
+  border: 1px solid #d9534f !important;
+}
+form.query-form #outputCatalogue0:before,
+form.query-form .selectCatalogues:before {
+  font: normal normal normal 18px/1 FontAwesome;
+  position: absolute;
+  font-weight: 300;
+  left: -14px;
+  top: 30%;
+}
+form.query-form .selectCatalogues:before {
+  content: "\f176";
+}
+form.query-form #outputCatalogue0:before {
+  content: "\f148";
+  transform: rotate(-270deg) scaleX(-1);
+}
+.nav-tabs > li {
+  float: left;
+}
+.btn-group-head {
+  margin-top: 30px;
+  margin-bottom: 5px;
+}
+.btn-group-head > form,
+.btn-group-head > .btn {
+  position: relative;
+  float: right;
+  margin-left: -1px;
+  margin-top: -1px;
+}
+.custom-inline {
+  display: inline;
+}
+.custom-inline-block {
+  display: inline-block;
+}
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ QUERY RESULTS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+@keyframes border-pulsate {
+  0% {
+    border-color: #5aa8d8;
+  }
+  50% {
+    border-color: #eee;
+  }
+  100% {
+    border-color: #5aa8d8;
+  }
+}
+.pulsing-button {
+  animation: border-pulsate 1.5s infinite;
+}
+/* Media Queries */
+@media (max-width: 767px) {
+  .btn-group-head {
+    margin-top: 0;
+  }
+}
+@media (max-width: 550px) {
+  .floating-select {
+    max-width: 45%;
+  }
+  #download-list {
+    display: none;
+  }
+  .form-inline .input-group > .form-control {
+    width: 100%;
+  }
+  div.dataTables_filter input {
+    width: 100%;
+  }
+}
