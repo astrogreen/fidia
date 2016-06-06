@@ -13,7 +13,7 @@ from ..sample import Sample
 from ..traits import Trait, TraitKey, TraitProperty
 from ..traits.utilities import TraitMapping
 from .base_archive import BaseArchive
-from ..cache import MemoryCache
+from ..cache import DummyCache
 from ..utilities import SchemaDictionary
 
 class Archive(BaseArchive):
@@ -23,7 +23,7 @@ class Archive(BaseArchive):
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
-        self.cache = MemoryCache()
+        self.cache = DummyCache()
 
         self._schema = None
 

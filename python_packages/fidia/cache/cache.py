@@ -150,7 +150,7 @@ class Cache(metaclass=ABCMeta):
         # Check if this cache can respond to the request:
         if self.check_trait_property_available(trait.object_id, trait_path, trait_property_name):
             try:
-                result = self.get_cached_trait_property(trait.object_id, trait_path, trait_property_name)
+                result = self.get_cached_trait_property(trait.object_id, trait_path, trait, trait_property_name)
             except DataNotAvailable:
                 pass
             except:
@@ -197,3 +197,27 @@ class MemoryCache(Cache):
 
     def check_trait_property_available(self, object_id, trait_key_path, trait_property_name):
         return (object_id, trait_key_path) in self._cache
+
+
+class DummyCache(Cache):
+
+    def __init__(self, **kwargs):
+        self.read_only = True
+        super(DummyCache, self).__init__(**kwargs)
+
+    # def update_cached_trait(self, object_id, trait_key_path, trait_dict):
+    #     self._cache[(object_id, trait_key_path)] = trait_dict
+
+    # def update_cached_trait_property(self, object_id, trait_key_path, trait_property_name, value):
+    #     if (object_id, trait_key_path) not in self._cache:
+    #         self._cache[(object_id, trait_key_path)] = dict()
+    #     self._cache[(object_id, trait_key_path)][trait_property_name] = value
+
+    def get_cached_trait_property(self, object_id, trait_key_path, trait, trait_property_name):
+        raise DataNotAvailable
+
+    # def get_cached_trait(self, object_id, trait_key_path, trait_class):
+    #     return self._cache[(object_id, trait_key_path)]
+
+    def check_trait_property_available(self, object_id, trait_key_path, trait_property_name):
+        return False
