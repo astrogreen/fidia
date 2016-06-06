@@ -4,7 +4,7 @@ from rest_framework.reverse import reverse
 import fidia
 
 from restapi_app.fields import AbsoluteURLField
-from restapi_app.serializers import AstroObjectTraitSerializer
+from data_browser.serializers import AstroObjectTraitSerializer
 
 
 def get_and_update_depth_limit(kwargs):

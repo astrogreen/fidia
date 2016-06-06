@@ -10,14 +10,6 @@ import restapi_app.views
 
 router = rest_framework.routers.SimpleRouter()
 
-# keep users out of the api-root router.register
-user_list = restapi_app.views.UserViewSet.as_view({
-    'get': 'list'
-})
-user_detail = restapi_app.views.UserViewSet.as_view({
-    'get': 'retrieve'
-})
-
 urlpatterns = [
             url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
 
@@ -53,16 +45,8 @@ urlpatterns = [
               TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'),
               name='feature-tracking'),
 
-            url(r'^(?i)signed-out/$', TemplateView.as_view(template_name='restapi_app/user/logout.html'),
-              name='logout-page'),
-
             url(r'^(?i)data/catalogues/', restapi_app.views.AvailableTables.as_view(), name='catalogues'),
 
-            url(r'^users/$', user_list, name='user-list'),
-            url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
-
-            url(r'^register/', restapi_app.views.CreateUserView.as_view(), name='user-register'),
-            url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

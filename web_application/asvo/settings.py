@@ -52,10 +52,12 @@ INSTALLED_APPS = (
     'django_extensions',
     'mathfilters',
     'query',
+    'user',
     'restapi_app',
     'rest_framework',
     'rest_framework.authtoken',
     'sov',
+
     # 'rest_framework_swagger',
 )
 
