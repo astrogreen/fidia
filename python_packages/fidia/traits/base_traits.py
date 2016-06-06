@@ -36,6 +36,9 @@ class Trait(AbstractBaseTrait):
 
     _sub_traits = TraitMapping()
 
+    default_version = None
+    available_versions = None
+
     @classmethod
     def schema(cls, include_subtraits=True):
         """Provide the schema of data in this trait as a dictionary.
@@ -97,11 +100,26 @@ class Trait(AbstractBaseTrait):
             self.branch = parent_trait.branch
         else:
             self.branch = trait_key.branch
+
+        # Trait Version handling:
+        #
+        #   The goal of this is to set the trait version if at all possible. The
+        #   following are tried:
+        #   - If version explicitly provided in this initialisation, that is the version.
+        #   - If this is a sub trait, check the parent trait for it's version.
+        #   - If the version is still none, try to set it to the default for this trait.
+        #
         if trait_key.version is None and parent_trait is not None:
-            # Inherit version from parent trait:
-            self.version = parent_trait.version
+            # Inherit version from parent trait, if permitted
+            if self.available_versions is not None and parent_trait.version in self.available_versions:
+                self.version = parent_trait.version
+            else:
+                self.version = None
         else:
             self.version = trait_key.version
+        if self.version is None:
+            self.version = self.default_version
+
         if object_id is None:
             raise KeyError("object_id must be supplied")
         self.object_id = object_id

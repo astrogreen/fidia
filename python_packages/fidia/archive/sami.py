@@ -23,7 +23,7 @@ from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityM
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.INFO)
 log.enable_console_logging()
 
 
@@ -453,6 +453,9 @@ class LZIFUVelocityMap(VelocityMap):
 
     trait_type = "velocity_map"
 
+    default_version = "0.9b"
+    available_versions = {"0.9b"}
+
     @classmethod
     def all_keys_for_id(cls, archive, object_id, parent_trait=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
@@ -461,8 +464,8 @@ class LZIFUVelocityMap(VelocityMap):
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev0.9/1_comp/" +
-                           self.object_id + "_1_comp.fits.gz")
+                           "/lzifu_releasev0.9b/recom_comp/" +
+                           self.object_id + "_recom_comp.fits.gz")
         try:
             self._hdu = fits.open(lzifu_fits_file)
         except:
@@ -488,9 +491,12 @@ class LZIFUVelocityMap(VelocityMap):
         return self._hdu['V_ERR'].data[1, :, :]
 
 
-class LZIFULineMap(Image):
+class LZIFUOneComponentLineMap(Image):
 
     trait_type = 'line_map'
+
+    default_version = "0.9b"
+    available_versions = {"0.9b", "0.9"}
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -516,7 +522,7 @@ class LZIFULineMap(Image):
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev0.9/1_comp/" +
+                           "/lzifu_releasev" + self.version + "/1_comp/" +
                            self.object_id + "_1_comp.fits.gz")
         self._hdu = fits.open(lzifu_fits_file)
 
@@ -538,9 +544,74 @@ class LZIFULineMap(Image):
 
     @trait_property('float.array')
     def variance(self):
-        variance = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
         log.debug("Returning type: %s", type(variance))
+        variance = sigma**2
         return variance
+
+class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
+
+    available_versions = {"0.9b"}
+
+    def preload(self):
+        lzifu_fits_file = (self.archive._base_directory_path +
+                           "/lzifu_releasev" + self.version + "/recom_comp/" +
+                           self.object_id + "_recom_comp.fits.gz")
+        self._hdu = fits.open(lzifu_fits_file)
+
+    @trait_property('float.array')
+    def value(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+
+    @trait_property('float.array')
+    def variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
+        log.debug("Returning type: %s", type(variance))
+        variance = sigma**2
+        return variance
+
+    # 1-component
+    @trait_property('float.array')
+    def comp_1_flux(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+
+    @trait_property('float.array')
+    def comp_1_variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
+        log.debug("Returning type: %s", type(variance))
+        variance = sigma**2
+        return variance
+
+    @trait_property('float.array')
+    def comp_2_flux(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[2, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+
+    @trait_property('float.array')
+    def comp_2_variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
+        log.debug("Returning type: %s", type(variance))
+        variance = sigma**2
+        return variance
+
+    @trait_property('float.array')
+    def comp_3_flux(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[3, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+
+    @trait_property('float.array')
+    def comp_3_variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
+        log.debug("Returning type: %s", type(variance))
+        variance = sigma**2
+        return variance
+
 
 
 class LZIFUContinuum(SpectralMap):
@@ -720,9 +791,13 @@ class SAMITeamArchive(Archive):
         # LZIFU Items
 
         self.available_traits[TraitKey('velocity_map', None, None, None)] = LZIFUVelocityMap
-        self.available_traits[TraitKey('line_map', None, None, None)] = LZIFULineMap
-        self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
-        self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
+
+        self.available_traits[TraitKey('line_map', None, "1_comp", None)] = LZIFUOneComponentLineMap
+        # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
+        self.available_traits[TraitKey('line_map', None, None, None)] = LZIFURecommendedMultiComponentLineMap
+
+        # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
+        # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")
