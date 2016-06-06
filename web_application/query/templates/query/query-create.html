@@ -5,21 +5,22 @@
 {% load internal_extras %}
 {% block title %}Query{% endblock %}
 {% block head-extra %}
-<script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
-<script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
-<script src="{% static 'restapi_app/js/ace-min-noconflict/ace.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/ace-min-noconflict/ace.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/isteven-multi-select/isteven-multi-select.js' %}"></script>
 <script type="text/javascript">
     //get url for available catalogues
     urlCataloguesGlobal = "{% url "catalogues" %}"
 </script>
-<script type="text/javascript" src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/query-builder/CtrlQueryBuilder.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/isteven-multi-select/isteven-multi-select.js' %}"></script>
+<script type="text/javascript" src="{% static 'query/js/app.js' %}"></script>
+<script type="text/javascript" src="{% static 'query/js/query-builder/CtrlQueryBuilder.js' %}"></script>
+<script type="text/javascript" src="{% static 'query/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
+
 
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/isteven-multi-select/isteven-multi-select.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/query-builder/query-builder.min.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/schema-browser/schema-browser.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'query/css/query-builder/query-builder.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'query/css/schema-browser/schema-browser.min.css' %}"/>
 
 <style type="text/css">
     table{
@@ -133,7 +134,7 @@
                                 <div class="well tab-content">
                                     <div id="query-builder-form" class="tab-pane">
                                         {% block query-builder %}
-                                            {% include "restapi_app/query/query-builder-module.html" %}
+                                            {% include "query/query-builder-module.html" %}
                                         {% endblock %}
                                     </div>
 
@@ -164,7 +165,7 @@
                                 <span>Schema</span>
                             </h2>
                             {% block schema-browser %}
-                                {% include "restapi_app/query/schema-browser-module.html" %}
+                                {% include "query/schema-browser-module.html" %}
                             {% endblock %}
                         </div>
                     </div>
@@ -178,7 +179,7 @@
 {% endblock %}
 
 {% block status_block %}
-    {% include "restapi_app/query/status_block.html" %}
+    {% include "query/status_block.html" %}
 {% endblock %}
 
 {% comment %}

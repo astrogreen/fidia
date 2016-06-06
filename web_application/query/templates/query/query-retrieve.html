@@ -10,11 +10,11 @@
     //get url for available catalogues
     urlCataloguesGlobal = "{% url "catalogues" %}"
 </script>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/schema-browser/schema-browser.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/ace/ace.css' %}"/>
 
-<link rel="stylesheet" href="{% static 'restapi_app/css/query-builder/query-builder.min.css' %}" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="{% static 'query/css/schema-browser/schema-browser.min.css' %}"/>
+<link rel="stylesheet" href="{% static 'query/css/query-builder/query-builder.min.css' %}" type="text/css"/>
 
 
 <style type="text/css">
@@ -44,7 +44,7 @@
 {% block content-header %}{% endblock %}
 
 {% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
-{% block content %}
+{% block contents %}
     {% captureas status_code %}{% status_is_success response.status_code %}{% endcaptureas %}
 
     {% if status_code == 'True' %}
@@ -224,7 +224,6 @@
 ------ TURN ON DATATABLES ------
 {% endcomment %}
 <script src="{% static 'restapi_app/js/data-tables/dataTables.js' %}"></script>
-<!--<script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.10/datatables.min.js"></script>-->
 
 {% autoescape off %}
  <script type="text/javascript">

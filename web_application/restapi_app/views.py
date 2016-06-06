@@ -3,15 +3,11 @@ import json
 from pprint import pprint
 from .permissions import IsNotAuthenticated
 import restapi_app.exceptions
-import sys
-from .models import (
-    Query,
-)
+
 from .serializers import (
     CreateUserSerializer,
     UserSerializer,
     ContactFormSerializer,
-    QuerySerializerCreateUpdate, QuerySerializerList, QuerySerializerRetrieve,
     SampleSerializer,
     AstroObjectSerializer,
     AstroObjectTraitSerializer,
@@ -26,16 +22,12 @@ from .renderers import (
     FITSRenderer,
     SOVListRenderer,
     SOVDetailRenderer,
-    QueryRenderer,
     AstroObjectRenderer,
     GAMARenderer,
-    # SAMIRenderer,
     SampleRenderer,
     TraitRenderer,
     TraitPropertyRenderer
 )
-
-from .renderers_custom.renderer_flat_csv import FlatCSVRenderer
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
@@ -70,197 +62,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
-
-
-def run_sql_query(request_string):
-    try:
-        sample = AsvoSparkArchive().new_sample_from_query(request_string)
-    except KeyError:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    except:
-        # Catch java exception using system module which shows type, instance and traceback.
-        instance = sys.exc_info()[1]
-        raise restapi_app.exceptions.BadSQL("SQL Error: %s" % str(instance))
-
-    json_table = sample.tabular_data().reset_index().to_json(orient='split')
-    # Turned off capping data on the back end.
-    # The time issue is due to the browser rendering on the front end using dataTables.js.
-    # This view should still pass back *all* the data:
-    # http: // 127.0.0.1:8000/asvo/data/query/32/?format=json
-    # log.debug(json_table)
-    data = json.loads(json_table)
-    return data
-
-
-class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
-    serializer_class = QuerySerializerCreateUpdate
-    permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = [restapi_app.renderers.QueryCreateRenderer, renderers.JSONRenderer, FlatCSVRenderer]
-
-    def get(self, request, format=None):
-        """
-        Return the blank form for a POST request
-        """
-        return Response()
-
-    def create(self, request, *args, **kwargs):
-        """
-        Create a model instance. Override CreateModelMixin create to catch the POST data for processing before save
-        Return only the location of the new resource in data['url'] as per HTTP spec.
-        """
-        saved_object = request.data
-        # Raise error if SQL field is empty
-        if "SQL" in saved_object:
-            if not saved_object["SQL"]:
-                raise restapi_app.exceptions.CustomValidation("SQL Field Blank", 'detail', 400)
-            else:
-                saved_object["queryResults"] = run_sql_query(request_string=saved_object["SQL"])
-                # serializer = self.get_serializer(data=request.data)
-                serializer = self.get_serializer(data=saved_object)
-                serializer.is_valid(raise_exception=True)
-                self.perform_create(serializer)
-                headers = self.get_success_headers(serializer.data)
-                # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-                location_only = serializer.data
-                location_only.clear()
-                location_only['url'] = serializer.data['url']
-                location_only['title'] = serializer.data['title']
-                location_only['created'] = serializer.data['created']
-
-                return Response(location_only, status=status.HTTP_201_CREATED, headers=headers)
-        else:
-            raise restapi_app.exceptions.CustomValidation("Incomplete request - SQL field missing", 'detail', 400)
-
-    def perform_create(self, serializer):
-        """
-        Override CreateModelMixin perform_create to save object instance with ownership
-        """
-        serializer.save(owner=self.request.user)
-
-
-class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListModelMixin,
-                                         mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
-    serializer_class = QuerySerializerList
-    permission_classes = [permissions.IsAuthenticated]
-
-    # descriptor decorator
-    @property
-    # renderer_classes = property(renderer_classes)
-    def renderer_classes(self):
-        if self.action == 'list':
-            return [restapi_app.renderers.QueryListRenderer, renderers.JSONRenderer, FlatCSVRenderer]
-        elif self.action == 'retrieve':
-            return [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
-        else:
-            return [restapi_app.renderers.QueryRetrieveUpdateDestroyRenderer, renderers.JSONRenderer, FlatCSVRenderer]
-
-
-    # @renderer_classes.setter
-    # def renderer_classes(self, value):
-    #     if value is "SANE":
-    #         pass
-    #     else:
-    #         raise Exception()
-
-    def get_queryset(self):
-        """
-        Query History.
-
-        This view should return a list of all queries for the currently authenticated user.
-        """
-        user = self.request.user
-        return Query.objects.filter(owner=user).order_by('-updated')
-
-    def get_serializer_class(self):
-        # Check the request type - if browser return truncated json
-        # If CSV/JSON return full payload.
-        serializer_class = QuerySerializerList
-        if self.action == 'list':
-            serializer_class = QuerySerializerList
-        if self.action == 'retrieve':
-            serializer_class = QuerySerializerRetrieve
-        if self.action == 'create' or self.action == 'update':
-            serializer_class = QuerySerializerCreateUpdate
-
-        return serializer_class
-
-    def truncated_api_response_data(self, accepted_media_type, serialized_valid_data):
-        """
-        If the response is text/html (browsable api) then truncate to render limit and send flag info
-
-        """
-        # Make a copy of the data (already know is_valid() in create method)
-        new_serializer_data = serialized_valid_data
-
-        if accepted_media_type == 'text/html':
-            # Truncate response to browser but leave json and csv
-            query_results_rows = len(serialized_valid_data['queryResults']['index'])
-            query_results_cols = len(serialized_valid_data['queryResults']['columns'])
-            render_limit = 10000
-            # render_limit = 10
-
-            if query_results_cols * query_results_rows >= render_limit:
-                # Get new row limit
-                new_query_results_rows = int(render_limit / query_results_cols)
-                # Truncate results
-                new_data = serialized_valid_data['queryResults']['data'][0:new_query_results_rows]
-                new_index = serialized_valid_data['queryResults']['index'][0:new_query_results_rows]
-                new_serializer_data['queryResults']['data'] = new_data
-                new_serializer_data['queryResults']['index'] = new_index
-                new_serializer_data['flag'] = {'query_results_rows': query_results_rows, 'render_limit': render_limit,
-                                               'new_query_results_rows': new_query_results_rows}
-
-        return new_serializer_data
-
-    def retrieve(self, request, *args, **kwargs):
-        """ Retrieve a model instance. """
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-
-        return Response(self.truncated_api_response_data(accepted_media_type=request.accepted_media_type,
-                                                         serialized_valid_data=serializer.data))
-
-    def update(self, request, *args, **kwargs):
-        """
-        Update a model instance.
-        """
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-
-        # current SQL
-        saved_object = instance
-        # inbound request
-        incoming_request = self.request.data
-
-        # if (incoming_request.data['queryResults'] != saved_object.queryResults):
-        #     raise PermissionDenied(
-        #         detail="WARNING - editing the query result is forbidden. Editable fields: title, SQL.")
-
-        # Override the incoming queryResults with the saved version
-        incoming_request['queryResults'] = saved_object.queryResults
-
-        # Update the SQL and queryResults
-        if incoming_request['SQL'] != saved_object.SQL:
-            incoming_request['queryResults'] = run_sql_query(request_string=incoming_request['SQL'])
-        serializer = self.get_serializer(instance, data=incoming_request, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
-
-    def perform_update(self, serializer):
-        serializer.save()
-
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def perform_destroy(self, instance):
-        instance.delete()
 
 
 # from fidia.archive.example_archive import ExampleArchive

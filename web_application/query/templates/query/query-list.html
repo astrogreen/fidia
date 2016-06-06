@@ -6,8 +6,9 @@
 {% block title %}Query History{% endblock %}
 {% block head-extra %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/schema-browser/schema-browser.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'query/css/schema-browser/schema-browser.min.css' %}"/>
+
 
 <style type="text/css">
     table{
@@ -109,5 +110,5 @@
 {% endblock %}
 
 {% block status_block %}
-    {% include "restapi_app/query/status_block.html" %}
+    {% include "query/status_block.html" %}
 {% endblock %}
