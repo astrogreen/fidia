@@ -323,66 +323,66 @@ class TestingViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 #  SOV
-class SOVListSurveysViewSet(viewsets.ViewSet):
-
-    renderer_classes = (SOVListRenderer, renderers.JSONRenderer)
-
-    def list(self, request, pk=None, sample_pk=None, format=None):
-        """
-        List all available objects in fidia
-         - this will have autocomplete form
-        """
-        try:
-            sample
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        serializer_class = SOVListSurveysSerializer
-        serializer = serializer_class(
-            instance=sample, many=True,
-            context={'request': request},
-        )
-        return Response(serializer.data)
-
-
-# Necessary to split the list and detail views so different
-# renderer classes can be implemented (and therefore different html templates)
-
-class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
-                                   viewsets.GenericViewSet):
-    """
-    SOV retrieve single object.
-    Responds with only the schema, the available traits for this AO, and
-     the url of each trait. Will make AJAX calls for trait data.
-
-    """
-    renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer)
-
-    def retrieve(self, request, pk=None, sample_pk=None, format=None):
-
-        try:
-            astroobject = sample[pk]
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        serializer_class = restapi_app.serializers.SOVRetrieveSerializer
-
-        sorted_schema = dict(collections.OrderedDict(ar.schema()))
-
-        serializer = serializer_class(
-            instance=astroobject, many=False,
-            context={
-                'request': request,
-                'schema': sorted_schema,
-                # 'key_info': key_info
-            }
-        )
-
-        return Response(serializer.data)
+# class SOVListSurveysViewSet(viewsets.ViewSet):
+#
+#     renderer_classes = (SOVListRenderer, renderers.JSONRenderer)
+#
+#     def list(self, request, pk=None, sample_pk=None, format=None):
+#         """
+#         List all available objects in fidia
+#          - this will have autocomplete form
+#         """
+#         try:
+#             sample
+#         except KeyError:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         except ValueError:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
+#
+#         serializer_class = SOVListSurveysSerializer
+#         serializer = serializer_class(
+#             instance=sample, many=True,
+#             context={'request': request},
+#         )
+#         return Response(serializer.data)
+#
+#
+# # Necessary to split the list and detail views so different
+# # renderer classes can be implemented (and therefore different html templates)
+#
+# class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
+#                                    viewsets.GenericViewSet):
+#     """
+#     SOV retrieve single object.
+#     Responds with only the schema, the available traits for this AO, and
+#      the url of each trait. Will make AJAX calls for trait data.
+#
+#     """
+#     renderer_classes = (SOVDetailRenderer, renderers.JSONRenderer)
+#
+#     def retrieve(self, request, pk=None, sample_pk=None, format=None):
+#
+#         try:
+#             astroobject = sample[pk]
+#         except KeyError:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         except ValueError:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
+#
+#         serializer_class = restapi_app.serializers.SOVRetrieveSerializer
+#
+#         sorted_schema = dict(collections.OrderedDict(ar.schema()))
+#
+#         serializer = serializer_class(
+#             instance=astroobject, many=False,
+#             context={
+#                 'request': request,
+#                 'schema': sorted_schema,
+#                 # 'key_info': key_info
+#             }
+#         )
+#
+#         return Response(serializer.data)
 
 
 class AvailableTables(views.APIView):

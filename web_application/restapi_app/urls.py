@@ -13,8 +13,8 @@ router = ExtendDefaultRouter()
 # router.register(r'query-history', views.QueryListRetrieveUpdateDestroyView, base_name='query')
 # router.register(r'query', views.QueryCreateView, base_name='query-create')
 
-router.register(r'sov', views.SOVListSurveysViewSet, base_name='sov')
-router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')
+# router.register(r'sov', views.SOVListSurveysViewSet, base_name='sov')
+# router.register(r'sov', views.SOVRetrieveObjectViewSet, base_name='sov')
 router.register(r'gama', views.GAMAViewSet, base_name='gama')
 router.register(r'sami', views.samiViewSet, base_name='sami')
 

@@ -48,13 +48,14 @@ INSTALLED_APPS = (
     'astrospark',
     'bootstrap3',
     # 'captcha',
-    # 'clever_selects',
+    # 'data-browser',
     'django_extensions',
     'mathfilters',
     'query',
     'restapi_app',
     'rest_framework',
     'rest_framework.authtoken',
+    'sov',
     # 'rest_framework_swagger',
 )
 

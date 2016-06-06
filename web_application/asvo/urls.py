@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^asvo/', include('restapi_app.urls')),
     url(r'^asvo/', include('query.urls')),
+    url(r'^asvo/', include('sov.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
     #url(r'^/', include('aatnode.urls', namespace='aatnode')),
 ]
