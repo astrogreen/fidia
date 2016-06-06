@@ -84,6 +84,37 @@ class TestTraits:
     #
 
 
+    def test_trait_keys(self):
+
+
+
+
+        tk = TraitKey('my_trait', 'qual', 'branch', 'ver')
+
+        assert TraitKey.as_traitkey(str(tk)) == tk
+
+        # Check a selection of TraitKeys are valid (i.e. they don't raise an error)
+        TraitKey('my_trait', 'qual', 'branch', 'ver')
+        TraitKey('my_trait', 'qual', 'branch', 'v0.3')
+        TraitKey('my_trait', 'qual', 'branch', '0.5')
+        TraitKey('my_trait', 'qual', 'branch', '135134')
+        TraitKey('my_trait', 'I', 'branch', 'ver')
+        TraitKey('my_trait', 'r', 'branch', 'ver')
+        TraitKey('my_trait', 'OII3727', 'branch', 'ver')
+        TraitKey('my_trait', '2', 'branch', 'ver')
+        TraitKey('my_trait', '2_', 'branch', 'ver')
+        TraitKey('my_trait', '65632.81', 'branch', 'ver')
+
+        # Check that invalid TraitKeys raise an error on construction
+        invalid_trait_types = ("3band", "my-trait")
+        for t in invalid_trait_types:
+            with pytest.raises(ValueError):
+                print(t)
+                TraitKey(t, "v0.3")
+
+        # Check that TraitKeys can be constructed from their strings
+        TraitKey.as_traitkey("image-I:gama(v0.3)")
+
     def test_get_trait_properties(self):
 
         test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')

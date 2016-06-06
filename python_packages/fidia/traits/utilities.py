@@ -1,7 +1,7 @@
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.INFO)
 
 from abc import ABCMeta
 import collections
@@ -14,13 +14,17 @@ from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
 
-TRAIT_KEY_PART_RE = r'[a-zA-Z][a-zA-Z0-9_]*'
+TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
+TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
 
 TRAIT_KEY_RE = re.compile(
-    r"(?P<trait_type>" + TRAIT_KEY_PART_RE + r")" +
-    r"(?:-(?P<trait_qualifier>[a-zA-Z0-9_]+))?" +
-    r"(?::(?P<branch>" + TRAIT_KEY_PART_RE + r"))?" +
-    r"(?:\((?P<version>[a-zA-Z0-9_]+)\))?"
+    r"""(?P<trait_type>{TRAIT_TYPE_RE})
+        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?
+        (?::(?P<branch>{TRAIT_TYPE_RE}))?
+        (?:\((?P<version>{TRAIT_PART_RE})\))?""".format(
+            TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
+            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+    re.VERBOSE
 )
 
 class TraitKey(tuple):
@@ -32,6 +36,13 @@ class TraitKey(tuple):
 
     def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
         """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
+        if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
+            raise ValueError("Trait type %s doesn't match the required format %s"
+                             % (trait_type, TRAIT_TYPE_RE.pattern))
+        for item in (trait_qualifier, branch, version):
+            if item is not None and TRAIT_PART_RE.fullmatch(item) is None:
+                raise ValueError("Trait part %s doesn't match the required format %s"
+                                 % (item, TRAIT_PART_RE.pattern))
         return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
 
     @classmethod
@@ -95,7 +106,7 @@ class TraitKey(tuple):
         if self.branch:
             trait_string += ":" + self.branch
         if self.version:
-            trait_string += "-" + self.version
+            trait_string += "(" + self.version + ")"
         return trait_string
 
     trait_type = property(_itemgetter(0), doc='Trait type')
@@ -129,33 +140,34 @@ class TraitMapping(collections.MutableMapping):
 
         # CASE: Key fully defined
         if key in known_keys:
+            log.debug("TraitKey fully defined")
             return self._mapping[key]
 
         # CASES: Wild-card on one element
         elif key.replace(branch=None) in known_keys:
-            # Wildcard on object_id
+            log.debug("Wildcard on object_id")
             return self._mapping[key.replace(branch=None)]
         elif key.replace(version=None) in known_keys:
-            # Wildcard on version
+            log.debug("Wildcard on version")
             return self._mapping[key.replace(version=None)]
         elif key.replace(trait_qualifier=None) in known_keys:
-            # Wildcard on trait_qualifier
+            log.debug("Wildcard on trait_qualifier")
             return self._mapping[key.replace(trait_qualifier=None)]
 
         # CASES: Wild-card on two elements
         elif key.replace(trait_qualifier=None, branch=None) in known_keys:
-            # Wildcard on both branch and trait_qualifier
+            log.debug("Wildcard on both branch and trait_qualifier")
             return self._mapping[key.replace(trait_qualifier=None, branch=None)]
         elif key.replace(branch=None, version=None) in known_keys:
-            # Wildcard on both branch and version
+            log.debug("Wildcard on both branch and version")
             return self._mapping[key.replace(branch=None, version=None)]
         elif key.replace(trait_qualifier=None, version=None) in known_keys:
-            # Wildcard on both trait_qualifier and version
+            log.debug("Wildcard on both trait_qualifier and version")
             return self._mapping[key.replace(trait_qualifier=None, version=None)]
 
         # CASE: Wild-card on three elements
         elif key.replace(trait_qualifier=None, version=None, branch=None) in known_keys:
-            # Wildcard on trait_qualifier, and version, and branch
+            log.debug("Wildcard on trait_qualifier, and version, and branch")
             return self._mapping[key.replace(trait_qualifier=None, version=None, branch=None)]
 
         else:
