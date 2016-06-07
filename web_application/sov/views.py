@@ -46,8 +46,7 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
-                                   viewsets.GenericViewSet):
+class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     SOV retrieve single object.
     Responds with only the schema, the available traits for this AO, and
@@ -69,7 +68,7 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin,
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = restapi_app.serializers.SOVRetrieveSerializer
+        serializer_class = sov.serializers.SOVRetrieveSerializer
 
         sorted_schema = dict(collections.OrderedDict(ar.schema()))
 

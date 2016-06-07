@@ -272,10 +272,8 @@
 
 
     function fHideQueryOptions(){
-        console.log('fHideQueryOptions');
         // Hide query options on successful submit
         setTimeout(function(){
-            console.log('shrink...');
             $('#progress-indicator').show();
             $('#query-options').hide(500);
             $('#progress-indicator .panel-body').html('<strong>QUERY SUBMITTED </strong> on '+new Date().toLocaleString()+'<br>')

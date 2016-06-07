@@ -118,9 +118,6 @@ class AstroObjectTraitSerializer(serializers.Serializer):
 
         trait = self.instance
         assert isinstance(trait, Trait)
-        print(trait.trait_name)
-        print(trait.trait_key)
-        print(trait.trait_properties())
 
         for trait_property in trait.trait_properties():
             # define serializer type by instance type
