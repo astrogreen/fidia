@@ -143,23 +143,12 @@ class AstroObjectTraitSerializer(serializers.Serializer):
 
 class AstroObjectSerializer(serializers.Serializer):
 
-    # asvo_id = serializers.SerializerMethodField()
-    #
-    # def get_asvo_id(self,obj):
-    #     return '0000001'
-
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
         astro_object = self.instance
         assert isinstance(astro_object, fidia.AstronomicalObject)
-
-        # def get_url(self, view_name, astro_object):
-        #     url_kwargs = {
-        #         'galaxy_pk': astro_object
-        #     }
-        #     return reverse(view_name, kwargs=url_kwargs)
 
         for trait in astro_object:
             depth_limit = 0

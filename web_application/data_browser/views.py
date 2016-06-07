@@ -1,9 +1,11 @@
-import random, collections, logging
+import random, collections, logging, importlib
 from django.contrib.auth.models import User
 from django.conf import settings
+import django.core.exceptions
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 
 import restapi_app.permissions
 import restapi_app.exceptions
@@ -91,12 +93,25 @@ class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     # TODO ensure proper http status code is returned (page not found) on non-identifiable traits
-    # TODO THIS SHOULD WORK: renderer_classes = (SOVRenderer, ) + api_settings.DEFAULT_RENDERER_CLASSES
 
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/astroobject/astroobject-list.html'
 
-    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer)
+    # renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer)
+    renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    # try:
+    #     default_renderer_classes_list = settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']
+    #     print(api_settings.DEFAULT_RENDERER_CLASSES)
+    #     default_renderer_classes_instances = (AstroObjectRenderer,)
+    #     for this in default_renderer_classes_list:
+    #         package, module, class_name = this.split('.')
+    #         somemodule = importlib.import_module(package + "." + module)
+    #         default_renderer_classes_instances = default_renderer_classes_instances + (getattr(somemodule, class_name),)
+    # except:
+    #     raise django.core.exceptions.ImproperlyConfigured('Default renderer classes must be set in settings.py')
+    #
+    # renderer_classes = default_renderer_classes_instances
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
         # def get_serializer_context(self):
