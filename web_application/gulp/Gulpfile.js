@@ -47,10 +47,10 @@ var gulp = require('gulp'),
 gulp.task('watch', function(){
     // watch the css files in the less directory (transpiler will update if less is altered)
     // minify and move to css/folder/
-    gulp.watch(['../**/static/**/less/*.css', '../**/static/**/less/**/*.css'], function(file){
+    gulp.watch(['../**/static/**/less/**/*.css'], function(file){
     })
         .on("change", function(file){
-            console.log(file);
+            // console.log(file);
 
             var full_path= file.path;
             var static_path = full_path.split("less/")[0];
@@ -69,8 +69,8 @@ gulp.task('watch', function(){
                 component_name: component_name,
                 new_dest: new_dest
             };
-            console.log(paths);
-            console.log('----');
+            // console.log(paths);
+            // console.log('----');
             return gulp.src(paths.full_path)
                 .pipe(autoprefixer('last 2 version'))
                 .pipe(rename({suffix: '.min'}))
