@@ -8,11 +8,6 @@ class NoPropertyFound(APIException):
     default_detail = 'No Property found'
 
 
-class BadSQL(APIException):
-    status_code = 400
-    default_detail = 'Bad Request'
-
-
 class Conflict(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = 'Already Exists.'

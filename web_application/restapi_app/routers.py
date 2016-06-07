@@ -9,13 +9,14 @@ from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework_extensions.routers import NestedRouterMixin
 from rest_framework.renderers import TemplateHTMLRenderer, BrowsableAPIRenderer, JSONRenderer
-from .renderers import APIRootRenderer
+
+from restapi_app.renderers import APIRootRenderer
+
 
 class ExtendDefaultRouter(SimpleRouter):
     """
-    The default router extends the SimpleRouter and overrides the Default router (adds in a default
+    The default router extends the SimpleRouter and overrides the SIMPLE router (does not add in a default
     API root view, and adds format suffix patterns to the URLs).
 
     """

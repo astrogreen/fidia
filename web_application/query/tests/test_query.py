@@ -1,11 +1,12 @@
+import json
 from django.test import TestCase
+from django.contrib.auth.models import User
+
 from rest_framework.test import APIRequestFactory, APITestCase, APIClient, force_authenticate
 from rest_framework import status, response
 from rest_framework.reverse import reverse
-from django.contrib.auth.models import User
-from query.models import Query
 
-import json
+from query.models import Query
 
 # factory = APIRequestFactory()
 # data = {'title': 'my_test_SQL', 'SQL': 'SELECT * from InputCatA'}

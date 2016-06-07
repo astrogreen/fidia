@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
@@ -38,12 +38,12 @@ urlpatterns = [
 
             url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
 
-            url(r'^user-testing/feedback/$',
-              TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'),
-              name='user-feedback'),
-            url(r'^user-testing/feature-tracking/$',
-              TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'),
-              name='feature-tracking'),
+            # url(r'^user-testing/feedback/$',
+            #   TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'),
+            #   name='user-feedback'),
+            # url(r'^user-testing/feature-tracking/$',
+            #   TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'),
+            #   name='feature-tracking'),
 
             url(r'^(?i)data/catalogues/', restapi_app.views.AvailableTables.as_view(), name='catalogues'),
 
