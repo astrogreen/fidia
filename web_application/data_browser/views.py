@@ -201,19 +201,17 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return response
 
 
-class TestingViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    def list(self, request, pk=None, dynamic_pk=None, dynamic_pk0=None, format=None):
+    def list(self, request, pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
         # @property
         # def dynamic_property_first_of_type(self, dynamic_pk):
             # split on /
-        print(dynamic_pk.split('/'))
+
+        # Return a list of components
         dynamic_components = dynamic_pk.split('/')
         # first component distinction: ST/TP
-        print(dynamic_components)
-        print(type(dynamic_components))
-        print(dynamic_components[:-1])
-        return Response({'dynamic_pk': dynamic_pk, 'dy1=n1': dynamic_pk0})
+        return Response({'dynamic_pk': dynamic_components})
 
 
 
