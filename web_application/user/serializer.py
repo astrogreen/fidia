@@ -5,6 +5,7 @@ from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
 
 from restapi_app.exceptions import Conflict, CustomValidation
+import user.models
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -59,5 +60,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'query')
+        fields = ('url', 'username', 'query', 'first_name', 'last_name', 'email',)
+
+
+class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    NOTE: many=True flag allows serialization of queryset instead of model instance.
+    'query' is a reverse relationship on the User model, and will not be included by
+    default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
+    """
+
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'first_name', 'last_name', 'email',)
 

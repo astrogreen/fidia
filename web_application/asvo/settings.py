@@ -44,20 +44,18 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'aatnode',
     'astrospark',
     'bootstrap3',
-    # 'captcha',
     'data_browser',
     'django_extensions',
+    # 'djoser',
     'mathfilters',
     'query',
     'user',
     'restapi_app',
     'rest_framework',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
     'sov',
-
     # 'rest_framework_swagger',
 )
 
@@ -251,9 +249,9 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES':[],
     'TEST_REQUEST_RENDERER_CLASSES': (
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',

@@ -75,6 +75,7 @@ def optional_logout(request, user):
     """
     Include a logout snippet if REST framework's logout view is in the URLconf.
     """
+
     try:
         logout_url = reverse('rest_framework:logout')
     except NoReverseMatch:
@@ -82,6 +83,11 @@ def optional_logout(request, user):
         return mark_safe(snippet)
     try:
         querylist_url = reverse('query-list')
+    except NoReverseMatch:
+        return ''
+    try:
+        user = request.user
+        profile = reverse('user-list', kwargs={'username': user})
     except NoReverseMatch:
         return ''
     try:
@@ -95,11 +101,12 @@ def optional_logout(request, user):
             <b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
+            <li><a href="{profile}">User Profile</a></li>
             <li><a href="{requests}">Query History</a></li>
             <li><a href='{href}?next={logout_page}'>Sign out <i class="fa fa-sign-out"></i></a></li>
         </ul>
     </li>"""
-    snippet = format_html(snippet, user=escape(user), href=logout_url, requests=querylist_url, logout_page=logout_page)
+    snippet = format_html(snippet, user=escape(user), href=logout_url, profile=profile, requests=querylist_url, logout_page=logout_page)
 
     return mark_safe(snippet)
 

@@ -81,6 +81,9 @@ p {
 form {
   margin-bottom: 0;
 }
+.form-switcher {
+  border-bottom: 0;
+}
 hr {
   margin-top: 20px;
   margin-bottom: 20px;

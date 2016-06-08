@@ -8,6 +8,7 @@ import restapi_app.renderers
 import restapi_app.permissions
 
 import user.serializer
+import user.models
 
 
 class CreateUserView(generics.ListCreateAPIView):
@@ -30,8 +31,31 @@ class CreateUserView(generics.ListCreateAPIView):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    This viewset automatically provides `list` and `detail` actions.
+    If Admin, view all users at this route
+    If not, view only
     """
     queryset = User.objects.all()
+    # serializer_class = user.serializer.UserSerializer
+    # permission_classes = [permissions.IsAdminUser]
     serializer_class = user.serializer.UserSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve/Update/Destroy a user instance (must be authenticated and username=user)
+    """
+    serializer_class = user.serializer.UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'username'
+
+    def get_queryset(self):
+        """
+        Return User info for currently authenticated user
+        """
+        user = self.request.user
+        print(user)
+        return User.objects.filter(username=user)
+
+
+
