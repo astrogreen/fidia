@@ -266,7 +266,11 @@
   <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
   <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
   <script src="{% static 'rest_framework/js/default.js' %}"></script>
-
+  <script>
+      $(document).ready(function() {
+          $('form').ajaxForm();
+      });
+  </script>
   {% block footer-extra %}{% endblock %}
 
   {% if filter_form %}

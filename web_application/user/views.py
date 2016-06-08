@@ -2,6 +2,7 @@ import random, collections, logging
 from django.contrib.auth.models import User
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
+from rest_framework.response import Response
 
 import restapi_app.exceptions
 import restapi_app.renderers
@@ -44,8 +45,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve/Update/Destroy a user instance (must be authenticated and username=user)
+    Users cannot change their username
     """
-    serializer_class = user.serializer.UserSerializer
+    serializer_class = user.serializer.UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'username'
 
@@ -54,7 +56,6 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         Return User info for currently authenticated user
         """
         user = self.request.user
-        print(user)
         return User.objects.filter(username=user)
 
 

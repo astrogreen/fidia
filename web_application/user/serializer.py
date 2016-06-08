@@ -69,8 +69,9 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     'query' is a reverse relationship on the User model, and will not be included by
     default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
     """
+    username = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'first_name', 'last_name', 'email',)
+        fields = ('username', 'first_name', 'last_name', 'email',)
 
