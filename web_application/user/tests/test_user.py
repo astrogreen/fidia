@@ -1,5 +1,4 @@
 import json
-from django.test import TestCase
 from django.contrib.auth.models import User
 
 from rest_framework.test import APIRequestFactory, APITestCase, APIClient, force_authenticate
@@ -24,15 +23,9 @@ def is_json(myjson):
     return True
 
 
-class AdminUserTests(APITestCase):
-    url_list = reverse('user-list')
-    url_detail = reverse('user-detail')
-    pass
-
-
 class UserTests(APITestCase):
-    url_list = reverse('user-list')
-    url_create = reverse('query-create-list')
+
+    url_create = reverse('user-register')
 
     def setUp(self):
         # Request Factor returns a request
@@ -43,14 +36,69 @@ class UserTests(APITestCase):
         self.user = User.objects.create_user(first_name='test_first_name', last_name='test_last_name',
                                              username='test_user', email='test_user@test.com', password='test_password')
         self.user.save()
+        self.url_detail = reverse('user-profile-detail', kwargs={'username': 'test_user'})
+
+        self.user_dict = {
+            'first_name': "another user",
+            'last_name': "test",
+            'email': "test@hotmail.com",
+            'username': "test_user_2",
+            'password': 'test',
+            'confirm_password': 'test',
+        }
 
     def _require_login(self):
         self.client.login(first_name='test_first_name', last_name='test_last_name',
                           username='test_user', email='test_user@test.com', password='test_password')
 
-    # LIST
-    def test_list_resource_unauthenticated(self):
-        """List view is forbidden (403) if unauthenticated, HTTP_200_OK if authenticated"""
-        # TODO this should be 401 UNAUTHORIZED
-        test_response = self.client.get(self.url_list)
+    # CREATE
+    def test_create_resource_unauthenticated(self):
+        """
+        unauthenticated users should be able to create a user
+        """
+        test_response = self.client.post(self.url_create, self.user_dict, format='json')
+        self.assertTrue(status.is_success(test_response.status_code))
+
+    def test_create_resource_authenticated(self):
+        self._require_login()
+        test_response = self.client.post(self.url_create, self.user_dict, format='json')
         self.assertTrue(status.is_client_error(test_response.status_code))
+
+    def test_retrieve_resource_unauthenticated(self):
+        """
+        Unauthenticated users shouldn't see username's details
+        """
+        test_response = self.client.get(self.url_detail)
+        self.assertEqual(test_response.status_code, 403)
+        self.assertTrue(status.is_client_error(test_response.status_code))
+
+    def test_retrieve_resource_authenticated(self):
+        """
+        Unauthenticated users shouldn't see username's details
+        """
+        self._require_login()
+        test_response = self.client.get(self.url_detail)
+        self.assertEqual(test_response.data,
+                         {'first_name': 'test_first_name', 'username': 'test_user', 'last_name': 'test_last_name',
+                          'email': 'test_user@test.com'})
+        self.assertTrue(status.is_success(test_response.status_code))
+
+    def test_login_unauthenticated(self):
+        login_url = reverse('rest_framework:login')
+        test_response = self.client.get(login_url)
+        self.assertTrue(status.is_success(test_response.status_code))
+
+
+    def test_login_redirect(self):
+        self._require_login()
+        login_url = reverse('rest_framework:login')
+        test_response = self.client.get(login_url)
+        print(vars(test_response))
+        # self.assertTrue(status.is_success(test_response.status_code))
+
+        pass
+
+# class AdminUserTests(APITestCase):
+#     url_list = reverse('user-list')
+#     url_detail = reverse('user-detail')
+#     pass

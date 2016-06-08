@@ -90,10 +90,6 @@ def optional_logout(request, user):
         profile = reverse('user-profile-detail', kwargs={'username': user})
     except NoReverseMatch:
         return ''
-    try:
-        logout_page = reverse('logout-page')
-    except NoReverseMatch:
-        return ''
 
     snippet = """<li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -103,10 +99,10 @@ def optional_logout(request, user):
         <ul class="dropdown-menu">
             <li><a href="{profile}">User Profile</a></li>
             <li><a href="{requests}">Query History</a></li>
-            <li><a href='{href}?next={logout_page}'>Sign out <i class="fa fa-sign-out"></i></a></li>
+            <li><a href='{logout_url}'>Sign out <i class="fa fa-sign-out"></i></a></li>
         </ul>
     </li>"""
-    snippet = format_html(snippet, user=escape(user), href=logout_url, profile=profile, requests=querylist_url, logout_page=logout_page)
+    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, )
 
     return mark_safe(snippet)
 
@@ -130,28 +126,16 @@ def optional_login(request):
     next_url = escape(resolve(request.path_info).url_name)
 
     if request.user != 'AnonymousUser':
-        if next_url == 'logout-page' or next_url == 'user-register' or next_url == 'login':
+        if next_url == 'logout-url' or next_url == 'user-register' or next_url == 'login' or next_url == 'logout':
             next_page = ''
 
-    # If this page is the registration form, drop register button
-    if next_url == 'user-register':
-        snippet = """<div class="user">
-                    <a href='{login}?next={next}' class="signin">
-                        <span>Sign In</span>
-                        <i class="fa fa-lock"></i>
-                    </a>
-                </div>"""
-    # If logged in, drop both buttons
-    # elif request.user != 'AnonymousUser':
-    #     snippet = ""
-    # else:
     snippet = """<div class="user">
                 <a href='{login}?next={next}' class="signin">
                     <span>Sign In</span>
                     <i class="fa fa-lock"></i>
                 </a>
                 <span>OR</span>
-                <a href="{register}" class="register">
+                <a href="{register}" class="btn btn-primary text-uppercase">
                     <span>Register</span>
                     <i class="fa fa-pencil-square-o"></i>
                 </a>

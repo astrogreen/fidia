@@ -19,8 +19,7 @@ from django.conf import settings
 from fidia.archive.asvo_spark import AsvoSparkArchive
 
 log = logging.getLogger(__name__)
-# log.setLevel(logging.DEBUG)
-
+log.setLevel(logging.DEBUG)
 
 
 def run_sql_query(request_string):

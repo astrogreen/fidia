@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 import rest_framework.routers
 
 import user.views
+import user.auth_urls
 
 
 router = rest_framework.routers.SimpleRouter()
@@ -24,8 +25,9 @@ urlpatterns = [
             # url(r'^users/(?P<username>.+)/$', user_detail, name='user-detail'),
 
             url(r'^register/', user.views.CreateUserView.as_view(), name='user-register'),
-            url(r'^sign-out/$', TemplateView.as_view(template_name='user/logout/logout.html'), name='logout-page'),
-            url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+            # url(r'^sign-out-page/$', TemplateView.as_view(template_name='user/logout/logout.html'), name='logout-page'),
+            # url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+            url(r'', include('user.auth_urls', namespace='rest_framework')),
 
             # USER PROFILE
             url(r'^profile/(?P<username>.+)/$', user.views.UserProfileView.as_view(), name='user-profile-detail')
