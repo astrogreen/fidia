@@ -200,3 +200,11 @@ class SampleSerializer(serializers.Serializer):
             else:
                 # Recurse displaying details at lower level
                 self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
+
+
+class DataCheckoutSerializer(serializers.Serializer):
+
+    urls = serializers.CharField(max_length=10000000, required=False)
+
+    def create(self, validated_data):
+        pass

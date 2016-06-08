@@ -25,3 +25,7 @@ class FITSRenderer(renderers.BaseRenderer):
         trait.as_fits(byte_file)
 
         return byte_file.getvalue()
+
+
+class ZipAORenderer(renderers.BaseRenderer):
+    pass

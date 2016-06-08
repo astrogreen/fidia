@@ -1,6 +1,7 @@
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 import rest_framework.routers
 
@@ -31,13 +32,13 @@ sub_traitprop_nested_router.register(r'(?P<dynamic_pk>.+)', data_browser.views.S
 
 
 urlpatterns = [
-
-            url(r'^(?i)', include(router.urls)),
-            url(r'^(?i)', include(object_nested_router.urls)),
-            url(r'^(?i)', include(trait_nested_router.urls)),
-            # url(r'^(?i)', include(traitprop_nested_router.urls)),
-            url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
-
+    url(r'^(?i)', include(router.urls)),
+    url(r'^(?i)', include(object_nested_router.urls)),
+    url(r'^(?i)', include(trait_nested_router.urls)),
+    # url(r'^(?i)', include(traitprop_nested_router.urls)),
+    url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
+    url(r'^(?i)checkout/', data_browser.views.Checkout.as_view(), name='checkout'),
+    url(r'^sandbox/$', TemplateView.as_view(template_name='data_browser/sandbox/sandbox.html'), name='sandbox'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
