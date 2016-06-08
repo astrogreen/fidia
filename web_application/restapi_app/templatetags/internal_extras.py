@@ -87,7 +87,7 @@ def optional_logout(request, user):
         return ''
     try:
         user = request.user
-        profile = reverse('user-list', kwargs={'username': user})
+        profile = reverse('user-profile-detail', kwargs={'username': user})
     except NoReverseMatch:
         return ''
     try:

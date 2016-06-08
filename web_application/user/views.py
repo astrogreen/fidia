@@ -33,13 +33,11 @@ class CreateUserView(generics.ListCreateAPIView):
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     If Admin, view all users at this route
-    If not, view only
+    If not, view only user detail
     """
     queryset = User.objects.all()
-    # serializer_class = user.serializer.UserSerializer
-    # permission_classes = [permissions.IsAdminUser]
     serializer_class = user.serializer.UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):

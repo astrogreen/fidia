@@ -5,7 +5,6 @@ from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
 
 from restapi_app.exceptions import Conflict, CustomValidation
-import user.models
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
