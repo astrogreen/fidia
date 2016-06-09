@@ -3,7 +3,7 @@ from impala.util import as_pandas
 
 
 
-class DataRetriver():
+class DataRetriever():
 
     def __init__(self):
         self.conn = connect('asvotest2.aao.gov.au', 21050, 'sami_test')
@@ -12,7 +12,7 @@ class DataRetriver():
 
 
     def getTraitPropertyByObjectId(self, object_id, trait_key, trait_property_name, trait_property_type=''):
-        '''
+        """
         Search trait property by object id
         :param object_id:
         :param trait_key: Name of the trait, e.g redshift
@@ -20,7 +20,7 @@ class DataRetriver():
         :param trait_property_type: If it's an array, put array. Otherwise use the default which is
         an empty string.
         :return: A pandas dataframe containing the result set.
-        '''
+        """
 
         # parameterized queries don't work here.
 
@@ -38,6 +38,17 @@ class DataRetriver():
         return df
 
 
+    def sql(self, query):
+        """
+        Execute a sql query and return the results list
+        :param query: sql string
+        :return: a list of tuples
+        """
+        self.cursor.execute(query)
+        assert isinstance(self.cursor, object)
+        results = self.cursor.fetchall()
+        self.cursor.close()
+        return results
 
 
 

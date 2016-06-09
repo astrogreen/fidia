@@ -9,15 +9,28 @@ from avro.io import DatumWriter
 from avro import schema
 from avro import io
 
+import time
+
+from fidia.cache.data_retriver import DataRetriever
+
+import argparse
+
 from avro.schema import RECORD
 
 #ar = example_archive.ExampleArchive()
 
-ar = SAMITeamArchive(
-        '/Users/lharischandra/AAO/AAT_ASVO/Data/SAMI/Django/sami_test_release',
-       '/Users/lharischandra/AAO/AAT_ASVO/Data/SAMI/Django/sami_test_release/sami_small_test_cat.fits')
+# ar = SAMITeamArchive(
+#         '/Users/lharischandra/AAO/AAT_ASVO/Data/SAMI/Django/sami_test_release',
+#        '/Users/lharischandra/AAO/AAT_ASVO/Data/SAMI/Django/sami_test_release/sami_small_test_cat.fits')
 
-def main():
+# ar = SAMITeamArchive(
+#         '/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/',
+#         '/net/aaolxz/iscsi/data/SAMI/catalogues/sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits')
+
+def main(args):
+
+    ar = SAMITeamArchive(args.input_dir, args.catalogue)
+
     trait_schema = ar.schema()
 
     # Now we need to build the schema.
@@ -26,12 +39,14 @@ def main():
 
     field_map = schema_object.field_map
 
-    # TODO: parameterize the file path
-    writer = DataFileWriter(open("astro_test6.avro", "wb"), DatumWriter(), schema_object)
+    writer = DataFileWriter(open(args.output_file, "wb"), DatumWriter(), schema_object)
     astro_record = dict()
     sample = ar.get_full_sample()
+
+    remaining_ids = removeIngestedObjects(sample, args.table)
+
     try:
-        for object_id in sample:
+        for object_id in remaining_ids:
             astro_record['object_id'] = object_id
 
             for trait_key in sample[object_id]:
@@ -82,20 +97,31 @@ def main():
                     trait_map[version] = trait_record
                     astro_record[trait_key.trait_type] = trait_map
 
+            appendTimeStart = time.clock()
             writer.append(astro_record)
             writer.flush()
+            appendTimeEnd = time.clock()
+            print('append time : ' + str(appendTimeEnd - appendTimeStart))
         writer.close()
     except:
         tb = traceback.format_exc()
         print(tb)
 
 
-    # writer = DataFileWriter(open("users.avro", "wb"), DatumWriter(), schema)
-    # writer.append({"name": "Alyssa", "favorite_number": 256})
-    # writer.append({"name": "Ben", "favorite_number": 7, "favorite_color": "red"})
-    # writer.close()
-    #
-    # array_sch = schema.ArraySchema()
+def removeIngestedObjects(sample, table):
+    """
+    Remove already ingested objects ids from the sample and return the
+    list of remaining item ids
+    """
+
+    # get a list of already ingested object ids from impala
+    obj_ids = DataRetriever().sql("Select object_id from " + table)
+    obj_id_list = list()
+    for obj in obj_ids:
+        obj_id_list.append(obj[0])
+
+    remaining_ids = set(sample.keys()).difference(set(obj_id_list))
+    return remaining_ids
 
 
 def createSchema(schema):
@@ -158,4 +184,11 @@ def doSubtraits(value, sch, sub_trait=True):
     return sch
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Ingest astronomical objects')
+    parser.add_argument('-t', '--table', required=True, help='the impala table of the already ingested data')
+    parser.add_argument('input_dir', help='input data directory')
+    parser.add_argument('catalogue', help='data catalogue')
+    parser.add_argument('output_file', help='the path of the avro file to write data to')
+    args = parser.parse_args()
+
+    main(args)
