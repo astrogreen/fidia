@@ -82,12 +82,12 @@
     function offer_feedback(field1, field2) {
         if (is_match(field1, field2) == false) {
             $.each([field1, field2], function (key, value) {
-                $('input[name="' + value + '"]').siblings('span.form-control-feedback').removeClass('text-success glyphicon-ok').addClass('text-error glyphicon-remove');
+                $('input[name="' + value + '"]').css({border:'solid 1px #a94442'}).siblings('span.form-control-feedback').removeClass('text-success glyphicon-ok').addClass('text-error glyphicon-remove');
                 $('.help-block').html('Passwords do not match.')
             });
         } else if (is_match(field1, field2) == true) {
             $.each([field1, field2], function (key, value) {
-                $('input[name="' + value + '"]').siblings('span.form-control-feedback').addClass('text-success glyphicon-ok').removeClass('text-error glyphicon-remove');
+                $('input[name="' + value + '"]').css({border:'1px solid #ccc'}).siblings('span.form-control-feedback').addClass('text-success glyphicon-ok').removeClass('text-error glyphicon-remove');
                 $('.help-block').html('');
             });
         }
