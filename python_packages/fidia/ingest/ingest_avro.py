@@ -121,6 +121,7 @@ def removeIngestedObjects(sample, table):
         obj_id_list.append(obj[0])
 
     remaining_ids = set(sample.keys()).difference(set(obj_id_list))
+    print('Remaining ids:\n' + str(remaining_ids))
     return remaining_ids
 
 
