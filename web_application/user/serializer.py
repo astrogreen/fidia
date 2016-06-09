@@ -31,7 +31,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """
         Checks to be sure that the received password and confirm_password
-        fields are exactly the same
+        fields are exactly the same (but confirm_password isn't saved anywhere)
         """
         if User.objects.filter(username=data['username']).exists():
             raise Conflict('User %s already exists' % data['username'])
@@ -80,7 +80,14 @@ class UserPasswordChangeSerializer(serializers.Serializer):
         allow_blank=False, required=True
     )
     username = serializers.CharField(required=True, allow_blank=False)
-    new_password = serializers.CharField(
+    password = serializers.CharField(
         write_only=True, required=True, allow_blank=False,
         style={'input_type': 'password'}
     )
+
+    class Meta:
+        fields = ('username', 'password', 'email',)
+
+    def update(self, instance, validated_data):
+        instance.password = validated_data.get('password', instance.password)
+        return instance
