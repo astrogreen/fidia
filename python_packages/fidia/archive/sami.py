@@ -23,7 +23,7 @@ from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityM
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.INFO)
 log.enable_console_logging()
 
 
@@ -208,7 +208,7 @@ class SAMIRowStackedSpectra(SpectralMap):
                         break
                     else:
                         index += 1
-                        known_keys.add(TraitKey(cls.trait_type, run_id + ":" + rss_filename, object_id=object_id))
+                        known_keys.add(TraitKey(cls.trait_type, run_id + ":" + rss_filename))
             # Break out of the loop early for debuging purposes:
             if len(known_keys) > 50:
                 break
@@ -217,9 +217,9 @@ class SAMIRowStackedSpectra(SpectralMap):
 
     def init(self):
 
-        # Break apart and store the parts of the trait_name
-        self._run_id = self.trait_name.split(":")[0]
-        self._rss_filename = self.trait_name.split(":")[1]
+        # Break apart and store the parts of the trait_qualifier
+        self._run_id = self.trait_qualifier.split(":")[0]
+        self._rss_filename = self.trait_qualifier.split(":")[1]
 
 
         # Logic to construct full RSS filename
@@ -319,8 +319,12 @@ class SAMISpectralCube(SpectralMap):
 
     def init(self):
 
-        # Get necessary parameters from the trait_name, filling in defaults if necessary
-        self._color = self.trait_name
+        log.debug("TraitKey: %s", self.trait_key)
+        # Get necessary parameters from the trait_qualifier, filling in defaults if necessary
+        if self.trait_qualifier in ('blue', 'red'):
+            self._color = self.trait_qualifier
+        else:
+            raise DataNotAvailable("SAMISpectralCube data not available for colour %s" % self.trait_qualifier)
         self._binning = "05"
 
         # Get necessary parameters from the trait_version, filling in defaults if necessary
@@ -449,6 +453,9 @@ class LZIFUVelocityMap(VelocityMap):
 
     trait_type = "velocity_map"
 
+    default_version = "0.9b"
+    available_versions = {"0.9b"}
+
     @classmethod
     def all_keys_for_id(cls, archive, object_id, parent_trait=None):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
@@ -457,8 +464,8 @@ class LZIFUVelocityMap(VelocityMap):
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev0.9/1_comp/" +
-                           self.object_id + "_1_comp.fits.gz")
+                           "/lzifu_releasev0.9b/recom_comp/" +
+                           self.object_id + "_recom_comp.fits.gz")
         try:
             self._hdu = fits.open(lzifu_fits_file)
         except:
@@ -484,9 +491,12 @@ class LZIFUVelocityMap(VelocityMap):
         return self._hdu['V_ERR'].data[1, :, :]
 
 
-class LZIFULineMap(Image):
+class LZIFUOneComponentLineMap(Image):
 
     trait_type = 'line_map'
+
+    default_version = "0.9b"
+    available_versions = {"0.9b", "0.9"}
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -507,12 +517,12 @@ class LZIFULineMap(Image):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         known_keys = []
         for line in cls.line_name_map:
-            known_keys.append(TraitKey(cls.trait_type, line, None, object_id))
+            known_keys.append(TraitKey(cls.trait_type, line, None))
         return known_keys
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev0.9/1_comp/" +
+                           "/lzifu_releasev" + self.version + "/1_comp/" +
                            self.object_id + "_1_comp.fits.gz")
         self._hdu = fits.open(lzifu_fits_file)
 
@@ -528,15 +538,73 @@ class LZIFULineMap(Image):
 
     @trait_property('float.array')
     def value(self):
-        value = self._hdu[self.line_name_map[self._trait_name]].data[1, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def variance(self):
-        variance = self._hdu[self.line_name_map[self._trait_name] + '_ERR'].data[1, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
         log.debug("Returning type: %s", type(variance))
+        variance = sigma**2
         return variance
+
+class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
+
+    available_versions = {"0.9b"}
+
+    def preload(self):
+        lzifu_fits_file = (self.archive._base_directory_path +
+                           "/lzifu_releasev" + self.version + "/recom_comp/" +
+                           self.object_id + "_recom_comp.fits.gz")
+        self._hdu = fits.open(lzifu_fits_file)
+
+    @trait_property('float.array')
+    def value(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+
+    @trait_property('float.array')
+    def variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
+        variance = sigma**2
+        return variance
+
+    # 1-component
+    @trait_property('float.array')
+    def comp_1_flux(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
+        return value
+
+    @trait_property('float.array')
+    def comp_1_variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
+        variance = sigma**2
+        return variance
+
+    @trait_property('float.array')
+    def comp_2_flux(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[2, :, :]
+        return value
+
+    @trait_property('float.array')
+    def comp_2_variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
+        variance = sigma**2
+        return variance
+
+    @trait_property('float.array')
+    def comp_3_flux(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[3, :, :]
+        return value
+
+    @trait_property('float.array')
+    def comp_3_variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
+        variance = sigma**2
+        return variance
+
 
 
 class LZIFUContinuum(SpectralMap):
@@ -548,7 +616,7 @@ class LZIFUContinuum(SpectralMap):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         known_keys = []
         for color in ('red', 'blue'):
-            known_keys.append(TraitKey(cls.trait_type, color, None, object_id))
+            known_keys.append(TraitKey(cls.trait_type, color, None))
         return known_keys
 
     def preload(self):
@@ -567,9 +635,9 @@ class LZIFUContinuum(SpectralMap):
     @trait_property('float.array')
     def value(self):
         # Determine which colour:
-        if self._trait_name == "blue":
+        if self.trait_qualifier == "blue":
             color = "B"
-        elif self._trait_name == "red":
+        elif self.trait_qualifier == "red":
             color = "R"
         else:
             raise ValueError("unknown trait name")
@@ -588,7 +656,7 @@ class LZIFULineSpectrum(SpectralMap):
         """Return a list of unique identifiers which can be used to retrieve actual data."""
         known_keys = []
         for color in ('red', 'blue'):
-            known_keys.append(TraitKey(cls.trait_type, color, None, object_id))
+            known_keys.append(TraitKey(cls.trait_type, color, None))
         return known_keys
 
     def preload(self):
@@ -607,9 +675,9 @@ class LZIFULineSpectrum(SpectralMap):
     @trait_property('float.array')
     def value(self):
         # Determine which colour:
-        if self._trait_name == "blue":
+        if self.trait_qualifier == "blue":
             color = "B"
-        elif self._trait_name == "red":
+        elif self.trait_qualifier == "red":
             color = "R"
         else:
             raise ValueError("unknown trait name")
@@ -716,9 +784,13 @@ class SAMITeamArchive(Archive):
         # LZIFU Items
 
         self.available_traits[TraitKey('velocity_map', None, None, None)] = LZIFUVelocityMap
-        self.available_traits[TraitKey('line_map', None, None, None)] = LZIFULineMap
-        self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
-        self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
+
+        self.available_traits[TraitKey('line_map', None, "1_comp", None)] = LZIFUOneComponentLineMap
+        # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
+        self.available_traits[TraitKey('line_map', None, None, None)] = LZIFURecommendedMultiComponentLineMap
+
+        # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
+        # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")

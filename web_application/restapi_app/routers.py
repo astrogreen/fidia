@@ -15,8 +15,9 @@ from .renderers import APIRootRenderer
 
 class ExtendDefaultRouter(SimpleRouter):
     """
-    The default router extends the SimpleRouter, but also adds in a default
-    API root view, and adds format suffix patterns to the URLs.
+    The default router extends the SimpleRouter and overrides the Default router (adds in a default
+    API root view, and adds format suffix patterns to the URLs).
+
     """
     include_root_view = True
     include_format_suffixes = True
@@ -29,11 +30,20 @@ class ExtendDefaultRouter(SimpleRouter):
         api_root_dict = OrderedDict()
         list_name = self.routes[0].name
         for prefix, viewset, basename in self.registry:
-            api_root_dict[prefix] = list_name.format(basename=basename)
+            # DRF registers all views on the router as list even if they don't have a list action...
+            # Here, exclude the query-detail view to prevent it showing in the api-root (prefix list incorrectly appended and incorrect url resolved)
+            # /asvo/<var>data/query-history/	restapi_app.views.QueryListView	query-list      <-- this is the list action
+            # /asvo/<var>data/query/<pk>/	restapi_app.views.QueryRetrieveUpdateDestroyView	query-detail <-- this retrieve action isn't needed (or handled properly) by the router
+
+            if prefix == 'query' and basename == 'query':
+                pass
+            else:
+                api_root_dict[prefix] = list_name.format(basename=basename)
 
         class DATA(views.APIView):
             # _ignore_model_permissions = True
             renderer_classes = [APIRootRenderer, JSONRenderer]
+
             def get(self, request, *args, **kwargs):
                 ret = OrderedDict()
                 namespace = request.resolver_match.namespace
@@ -73,7 +83,6 @@ class ExtendDefaultRouter(SimpleRouter):
             urls = format_suffix_patterns(urls)
 
         return urls
-
 
 
 class NestedExtendDefaultRouter(ExtendDefaultRouter):

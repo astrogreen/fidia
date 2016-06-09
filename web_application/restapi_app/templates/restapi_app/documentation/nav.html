@@ -1,0 +1,50 @@
+<ul class="nav nav-list" id="documentation-sidebar">
+    <li><label class="nav-header text-uppercase">Query</label>
+        <ul class="nav nav-list">
+            <!--<li><a href="#">Link</a></li>-->
+            <li><label class="nav-header">Query Builder</label>
+                <ul class="nav nav-list ">
+                    <li><a href="{% url 'documentation-query-builder' %}#query-builder-select">Selecting Catalogues</a>
+                    </li>
+                    <li><a href="{% url 'documentation-query-builder' %}#query-builder-join">Joining Catalogues</a></li>
+                    <li><a href="{% url 'documentation-query-builder' %}#query-builder-where">Adding Filters</a></li>
+                    <li><a href="{% url 'documentation-query-builder' %}#query-builder-schema">Schema Browser</a></li>
+                    <li><a href="{% url 'documentation-query-builder' %}#query-builder-faq">FAQ</a></li>
+                    <li><a href="{% url 'documentation-query-builder' %}#query-builder-examples">Examples</a></li>
+                </ul>
+            </li>
+            <li><label class="nav-header">SQL</label>
+                <ul class="nav nav-list ">
+                    <li><a href="{% url 'under-construction' %}">Docs</a></li>
+                    <li><a href="{% url 'under-construction' %}">Examples</a></li>
+                </ul>
+            </li>
+            <li><label class="nav-header">Query History</label>
+                <ul class="nav nav-list ">
+                    <li><a href="{% url 'documentation-query-history' %}">Docs</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li><label class="nav-header text-uppercase">Schema Browser</label>
+        <ul class="nav nav-list">
+            <li><a href="{% url 'documentation-schema-browser' %}">View</a></li>
+            <!--<li><label class="nav-header">Tables</label>-->
+            <!--<ul class="nav nav-list ">-->
+            <!--<li><a href="#">Docs</a></li>-->
+            <!--<li><a href="#">Examples</a></li>-->
+            <!--</ul>-->
+            <!--</li>-->
+        </ul>
+    </li>
+</ul>
+<script>
+    $(document).ready(function () {
+        // on load, hide all
+//        $('#documentation-sidebar .nav-header').parent().children('ul.nav-list').hide();
+
+        $('#documentation-sidebar .nav-header').click(function () {
+            $(this).parent().children('ul.nav-list').toggle(300);
+        });
+    });
+</script>

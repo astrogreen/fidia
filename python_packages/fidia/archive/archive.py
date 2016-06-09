@@ -10,8 +10,11 @@ from collections import OrderedDict
 import pandas as pd
 
 from ..sample import Sample
-from ..traits.utilities import TraitKey, TraitMapping
+from ..traits import Trait, TraitKey, TraitProperty
+from ..traits.utilities import TraitMapping
 from .base_archive import BaseArchive
+from ..cache import DummyCache
+from ..utilities import SchemaDictionary
 
 class Archive(BaseArchive):
     def __init__(self):
@@ -19,6 +22,10 @@ class Archive(BaseArchive):
         self.available_traits = TraitMapping()
         self.define_available_traits()
         self._trait_cache = OrderedDict()
+
+        self.cache = DummyCache()
+
+        self._schema = None
 
         super(BaseArchive, self).__init__()
 
@@ -60,11 +67,8 @@ class Archive(BaseArchive):
         if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
             trait_key = TraitKey(*trait_key)
 
-        if object_id is not None:
-            trait_key = trait_key.replace(object_id=object_id)
-
         # Check if we have already loaded this trait, otherwise load and cache it here.
-        if (trait_key, parent_trait) not in self._trait_cache:
+        if (object_id, trait_key, parent_trait) not in self._trait_cache:
 
             # Check the size of the cache, and remove item if necessary
             # This should probably be more clever.
@@ -77,22 +81,61 @@ class Archive(BaseArchive):
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
-            trait = trait_class(self, trait_key, parent_trait=parent_trait)
+            trait = trait_class(self, trait_key, object_id=object_id, parent_trait=parent_trait)
 
-            self._trait_cache[(trait_key, parent_trait)] = trait
+            self._trait_cache[(object_id, trait_key, parent_trait)] = trait
 
-        return self._trait_cache[(trait_key, parent_trait)]
+        return self._trait_cache[(object_id, trait_key, parent_trait)]
+
+    def type_for_trait_path(self, path):
+        """Return the type for the provided Trait path.
+
+        :param path:
+            A sequence object containing the pieces of the "path" addressing the
+            object of interest.
+
+        This function is a shortcut to determine what kind of object one should
+        expect if requesting a particular Trait or trait property as defined by
+        the path provided. This is a shortcut, i.e., the Traits are not actually
+        constructed. It shouldn't be considered absolutely authoritative, but
+        should be close.
+
+        Currently, this can only differentiate between a Trait and a Trait Property.
+        This could be made more specific in one of several ways:
+
+        - Have the schema include type information when it is constructed.
+        - Find the appropriate class by querying the TraitMapping object
+          at each level.
+
+        """
+
+        # Drill down the schema:
+        schema = self.schema()
+        current_schema_item = schema
+        for path_element in path:
+            trait_key = TraitKey.as_traitkey(path_element)
+            current_schema_item = current_schema_item[trait_key.trait_type]
+
+        # Decide whether the item in the schema corresponds to a Trait or TraitProperty
+        if isinstance(current_schema_item, dict):
+            return Trait
+        else:
+            return TraitProperty
 
     def can_provide(self, trait_key):
         return trait_key in self.available_traits
 
     def schema(self):
         """Provide a list of trait_keys and classes this archive generally supports."""
-        result = dict()
+
+        if self._schema:
+            return self._schema
+        result = SchemaDictionary()
         for trait_type in self.available_traits.get_trait_types():
-            result[trait_type] = dict()
+            result[trait_type] = SchemaDictionary()
             for trait in self.available_traits.get_traits_for_type(trait_type):
                 result[trait_type].update(trait.schema())
+        self._schema = result
         return result
 
     def define_available_traits(self):

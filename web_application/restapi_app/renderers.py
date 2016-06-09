@@ -55,8 +55,6 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
         # except Exception:
         #     pass
         # else:
-        print(request)
-        print(request.path)
         return get_object_name(request.path, request)
 
     def get_breadcrumbs(self, request):
@@ -128,16 +126,9 @@ class SampleRenderer(ExtendBrowsableAPIRenderer):
     """
     SampleViewSet (list only)
     """
-    template = 'restapi_app/sample/list-sample.html'
+    template = 'restapi_app/sample/sample-list.html'
 
 
-# class SAMIRenderer(ExtendBrowsableAPIRenderer):
-#     """
-#     SampleViewSet (list only)
-#     """
-#     template = 'restapi_app/sample/list-sample.html'
-#
-#
 class GAMARenderer(ExtendBrowsableAPIRenderer):
     """
     SampleViewSet (list only)
@@ -149,31 +140,55 @@ class AstroObjectRenderer(ExtendBrowsableAPIRenderer):
     """
     AstroObjectViewSet (list only)
     """
-    template = 'restapi_app/sample/list-astroobject.html'
+    template = 'restapi_app/astroobject/astroobject-list.html'
 
 
 class TraitRenderer(ExtendBrowsableAPIRenderer):
-    template = 'restapi_app/sample/list-trait.html'
+    template = 'restapi_app/trait/trait-list.html'
 
 
 class TraitPropertyRenderer(ExtendBrowsableAPIRenderer):
-    template = 'restapi_app/sample/list-traitproperty.html'
+    template = 'restapi_app/trait_property/traitproperty-list.html'
+
+
+class SubTraitRenderer(ExtendBrowsableAPIRenderer):
+    template = 'restapi_app/sub_trait/sub_trait-list.html'
 
 
 class QueryRenderer(ExtendBrowsableAPIRenderer):
     """
     BrowseSurveysViewSet
     """
-    # note this template extends restapi_app/query/query.html
+    # note this template extends restapi_app/query/query-builder.html
     # where most of the html structure resides
-    template = 'restapi_app/query/query-builder-module.html'
+    template = 'restapi_app/query/query.html'
+
+
+class QueryCreateRenderer(ExtendBrowsableAPIRenderer):
+    """
+    Read-only Query History
+    """
+    template = 'restapi_app/query/query-create.html'
+
+
+class QueryListRenderer(ExtendBrowsableAPIRenderer):
+    """
+    Read-only Query History
+    """
+    template = 'restapi_app/query/query-list.html'
+
+
+class QueryRetrieveUpdateDestroyRenderer(ExtendBrowsableAPIRenderer):
+    """
+    Retrieve query instance
+    """
+    template = 'restapi_app/query/query-retrieve.html'
 
 
 class SOVListRenderer(ExtendBrowsableAPIRenderer):
     """
     BrowseSurveysViewSet
     """
-
     template = 'restapi_app/sov/list.html'
 
 
@@ -185,15 +200,16 @@ class SOVDetailRenderer(ExtendBrowsableAPIRenderer):
     template = 'restapi_app/sov/detail.html'
 
 
-class RegisterRenderer(ExtendBrowsableAPIRenderer):
-    """
-    BrowseSurveysViewSet
-    """
-    template = 'restapi_app/register/register.html'
-
-
 class APIRootRenderer(ExtendBrowsableAPIRenderer):
     """
     APIROOT Template
     """
     template = 'restapi_app/api-root/list.html'
+
+
+# - - USERS - -
+class CreateUserRenderer(ExtendBrowsableAPIRenderer):
+    """
+    BrowseSurveysViewSet
+    """
+    template = 'restapi_app/register/register.html'

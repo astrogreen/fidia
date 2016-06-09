@@ -1,13 +1,20 @@
 {% extends 'rest_framework/api.html' %}
-
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
 {% block title %} Home {% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/home/home.min.css' %}"/>
+{% endblock %}
 
 {% block bodyclass %}galaxy-dark{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
 {% block breadcrumbs-outer %}
-  <ul class="breadcrumb ">
+<ul class="breadcrumb ">
     <li class="active"><a href="{% url 'index' %}">Home</a></li>
-  </ul>
+</ul>
 {% endblock %}
 
 {% block content %}
@@ -16,7 +23,8 @@
         <div class="content">
 
             <div class="logo row">
-                <img src="/static/img/logos/asvo-small-white.png" class="" alt="ASVO - All-Sky Virtual Observatory">
+                <img src="{% static 'restapi_app/img/logo/asvo-small-white.png' %}" class=""
+                     alt="ASVO - All-Sky Virtual Observatory">
                 <span>ASVO - All-Sky Virtual Observatory</span>
             </div>
 
@@ -25,7 +33,8 @@
                     <p>Australian<br>Astronomical<br>Observatory</p>
                 </div>
                 <div class="right col col-md-6">
-                    <p style="margin-top:25px"><strong>Query the Australian Astronomical Observatory archive</strong> and retrieve data from current and
+                    <p style="margin-top:25px"><strong>Query the Australian Astronomical Observatory archive</strong>
+                        and retrieve data from current and
                         legacy surveys. Bring your code to the data.</p>
 
                 </div>
@@ -59,24 +68,29 @@
                     </a>
                     <p>Explore</p>
                 </div>
-                 <a href="{% url 'under-construction' %}" >
+                <a href="{% url 'under-construction' %}">
                     <div class="col col-md-3 col-sm-3">
                         <div class="circle">
                             <i class="fa fa-code"></i>
                         </div>
                         <p>Code</p>
                     </div>
-                 </a>
+                </a>
             </div>
 
             <div class="cta row">
-                <a href="{% url "sov-list" %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>
-                <a type="button" title="View your previous queries." href="{% url "under-construction" %}" class="white-tooltip">My Account</a>
-                <a type="button" title="Browse current release documenation." href="{% url "documentation" %}" class="white-tooltip">Documentation</a>
+                <a href="{% url 'sov-list' %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>
+                <a type="button" title="View your previous queries." href="{% url 'under-construction' %}"
+                class="white-tooltip">My Account</a>
+                <a type="button" title="Browse current release documenation." href="{% url 'documentation' %}"
+                   class="white-tooltip">Documentation</a>
             </div>
 
             <div class="note row">
-                <p>* The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth Department of Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has coordinated with the Australian Astronomical Observatory (AAO), as the owners and operators of the AAT, to develop this ASVO Node. This is a 2 year project with completion expected by June 2017.</p>
+                <p>* The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth Department
+                    of Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has
+                    coordinated with the Australian Astronomical Observatory (AAO), as the owners and operators of the
+                    AAT, to develop this ASVO Node. This is a 2 year project with completion expected by June 2017.</p>
             </div>
 
         </div>
