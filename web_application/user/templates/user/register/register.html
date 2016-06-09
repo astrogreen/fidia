@@ -64,59 +64,7 @@
 
 <script src="{% static 'user/js/match_passwords.js'%}"></script>
 <script>
-    function set_match_fields(field1, field2) {
-        $.each([field1, field2], function (key, value) {
-            $('<span class="form-control-feedback glyphicon" aria-hidden="true"></span>').appendTo($('input[name="' + value + '"]').parent());
-            $('input[name="' + value + '"]').closest('.form-group').addClass('has-feedback');
-        });
-        $('<span class="help-block" style="color:#a94442"></span>')
-            .appendTo($('input[name='+field2+']').parent());
-    };
-
-    function is_match(field1, field2){
-        if ($('input[name='+field1+']').val() != $('input[name='+field2+']').val()) {
-            return false
-        } else {return true}
-    };
-
-    function offer_feedback(field1, field2) {
-        if (is_match(field1, field2) == false) {
-            $.each([field1, field2], function (key, value) {
-                $('input[name="' + value + '"]').css({border:'solid 1px #a94442'}).siblings('span.form-control-feedback').removeClass('text-success glyphicon-ok').addClass('text-error glyphicon-remove');
-                $('.help-block').html('Passwords do not match.')
-            });
-        } else if (is_match(field1, field2) == true) {
-            $.each([field1, field2], function (key, value) {
-                $('input[name="' + value + '"]').css({border:'1px solid #ccc'}).siblings('span.form-control-feedback').addClass('text-success glyphicon-ok').removeClass('text-error glyphicon-remove');
-                $('.help-block').html('');
-            });
-        }
-    }
-
-    function watch_fields(field1, field2){
-        $('input[name="'+field1+'"]').bind('input propertychange', function() {
-           offer_feedback(field1, field2);
-        });
-        $('input[name="'+field2+'"]').bind('input propertychange', function() {
-           offer_feedback(field1, field2);
-        });
-    };
-
-    set_match_fields('password', 'confirm_password');
-    watch_fields('password', 'confirm_password');
-    $('#registration-form').on('submit',function(e){
-            e.preventDefault();
-        if (is_match('password', 'confirm_password') == false) {
-            offer_feedback('password', 'confirm_password');
-            $('input[name="confirm_password"]').addClass('shake');
-            setTimeout(function () {
-                $(this).removeClass('shake')
-            }, 2000);
-        } else {
-            //submit
-        };
-});
-
+    match_passwords('password', 'confirm_password', '#registration-form');
 </script>
 {% endif %}
 {% endblock %}
