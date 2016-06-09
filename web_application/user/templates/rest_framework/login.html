@@ -80,6 +80,13 @@
                             <input type="submit" name="submit" value="SIGN IN" class="btn btn-primary form-control text-uppercase"
                                    id="submit-id-submit">
                         </div>
+                        <br>
+                        <h5>Forgotten your Password?
+                            <a href="{% url 'user-change-password' %}" >
+                                    <span>Reset</span>
+                                <i class="fa fa-refresh"></i>
+                            </a>
+                        </h5>
                     </form>
                 {% endif %}
             </div>

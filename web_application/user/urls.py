@@ -24,9 +24,13 @@ urlpatterns = [
             url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
             # url(r'^users/(?P<username>.+)/$', user_detail, name='user-detail'),
 
+            # USER ACTIONS
             url(r'^register/', user.views.CreateUserView.as_view(), name='user-register'),
+            url(r'^change-password/', user.views.ChangePasswordView.as_view(), name='user-change-password'),
+
             # url(r'^sign-out-page/$', TemplateView.as_view(template_name='user/logout/logout.html'), name='logout-page'),
             # url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+
             url(r'', include('user.auth_urls', namespace='rest_framework')),
 
             # USER PROFILE

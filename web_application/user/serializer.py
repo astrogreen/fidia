@@ -74,3 +74,13 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email',)
 
+
+class UserPasswordChangeSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        allow_blank=False, required=True
+    )
+    username = serializers.CharField(required=True, allow_blank=False)
+    new_password = serializers.CharField(
+        write_only=True, required=True, allow_blank=False,
+        style={'input_type': 'password'}
+    )

@@ -57,4 +57,19 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         return User.objects.filter(username=user)
 
 
+class ChangePasswordView(views.APIView):
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'user/password/password_change.html'
 
+    def get(self, request):
+        unbound_user_instance = User()
+        serializer = user.serializer.UserPasswordChangeSerializer(unbound_user_instance)
+        return Response({'serializer': serializer, 'new_user': unbound_user_instance})
+
+    # def post(self, request, pk):
+    #     profile = get_object_or_404(Profile, pk=pk)
+    #     serializer = ProfileSerializer(profile, data=request.data)
+    #     if not serializer.is_valid():
+    #         return Response({'serializer': serializer, 'profile': profile})
+    #     serializer.save()
+    #     return redirect('profile-list')

@@ -17,7 +17,7 @@ import data_browser.renderers
 
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
 
 # from fidia.archive.example_archive import ExampleArchive
 # ar = ExampleArchive()

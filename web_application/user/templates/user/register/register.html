@@ -38,10 +38,11 @@
                                 <div class="form-actions">
                                     <div class="col-xs-6">
                                         <h5>Already have an Account?
-                <a href="{% url 'rest_framework:login' %}" class="signin">
-                        <span>Sign In</span>
-                        <i class="fa fa-lock"></i>
-                </a></h5>
+                                            <a href="{% url 'rest_framework:login' %}" class="signin">
+                                                    <span>Sign In</span>
+                                                    <i class="fa fa-lock"></i>
+                                            </a>
+                                        </h5>
                                     </div>
                                     <div class="col-xs-6">
                                     <button class="btn btn-primary pull-right" title="Create New User">REGISTER </button>
@@ -61,16 +62,59 @@
     </div>
 </div>
 
+<script src="{% static 'user/js/match_passwords.js'%}"></script>
 <script>
-$('#registration-form').on('submit',function(){
-   if($('input[name="password"]').val()!=$('input[name="confirm_password"]').val()){
-       $('input[name="password"], input[name="confirm_password"]').css({border:'solid 1px #a94442'});
-       $('<span class="help-block" style="color:#a94442">Passwords do not match.</span>').appendTo($('input[name="confirm_password"]').parent());
-       return false;
-   } else{
-       $('input[name="password"], input[name="confirm_password"]').css({border:'0px'});
-   }
-   return true;
+    function set_match_fields(field1, field2) {
+        $.each([field1, field2], function (key, value) {
+            $('<span class="form-control-feedback glyphicon" aria-hidden="true"></span>').appendTo($('input[name="' + value + '"]').parent());
+            $('input[name="' + value + '"]').closest('.form-group').addClass('has-feedback');
+        });
+        $('<span class="help-block" style="color:#a94442"></span>')
+            .appendTo($('input[name='+field2+']').parent());
+    };
+
+    function is_match(field1, field2){
+        if ($('input[name='+field1+']').val() != $('input[name='+field2+']').val()) {
+            return false
+        } else {return true}
+    };
+
+    function offer_feedback(field1, field2) {
+        if (is_match(field1, field2) == false) {
+            $.each([field1, field2], function (key, value) {
+                $('input[name="' + value + '"]').siblings('span.form-control-feedback').removeClass('text-success glyphicon-ok').addClass('text-error glyphicon-remove');
+                $('.help-block').html('Passwords do not match.')
+            });
+        } else if (is_match(field1, field2) == true) {
+            $.each([field1, field2], function (key, value) {
+                $('input[name="' + value + '"]').siblings('span.form-control-feedback').addClass('text-success glyphicon-ok').removeClass('text-error glyphicon-remove');
+                $('.help-block').html('');
+            });
+        }
+    }
+
+    function watch_fields(field1, field2){
+        $('input[name="'+field1+'"]').bind('input propertychange', function() {
+           offer_feedback(field1, field2);
+        });
+        $('input[name="'+field2+'"]').bind('input propertychange', function() {
+           offer_feedback(field1, field2);
+        });
+    };
+
+    set_match_fields('password', 'confirm_password');
+    watch_fields('password', 'confirm_password');
+    $('#registration-form').on('submit',function(e){
+            e.preventDefault();
+        if (is_match('password', 'confirm_password') == false) {
+            offer_feedback('password', 'confirm_password');
+            $('input[name="confirm_password"]').addClass('shake');
+            setTimeout(function () {
+                $(this).removeClass('shake')
+            }, 2000);
+        } else {
+            //submit
+        };
 });
 
 </script>

@@ -3,6 +3,9 @@ log = slogging.getLogger(__name__)
 log.enable_console_logging()
 log.setLevel(slogging.DEBUG)
 
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.WARNING)
+
 from abc import ABCMeta
 import collections
 import re
