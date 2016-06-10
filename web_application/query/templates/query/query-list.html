@@ -32,12 +32,12 @@
     {% captureas status_code %}{% status_is_success response.status_code %}{% endcaptureas %}
 
     {% if status_code == 'True' %}
-        <h2 class="headline" id="query-history">
+        <h1 class="headline" id="query-history">
             <span>Query History</span>
             <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
                 <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}" title="Re-visit previous queries.">New Query</a>
             </div>
-        </h2>
+        </h1>
         <p>Re-visit, edit and update previous queries.</p><br>
 
         <div class="panel panel-default">

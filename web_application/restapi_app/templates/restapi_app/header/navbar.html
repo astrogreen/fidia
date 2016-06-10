@@ -87,7 +87,11 @@
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li class="disabled"><a href="{% url 'under-construction' %}">Profile</a></li>
+                  {% if user.is_authenticated %}
+                    <li><a href="{% url 'user-profile-detail' user %}">Profile</a></li>
+                  {% else %}
+                    <li class="disabled"><a href="{% url 'under-construction' %}">Profile</a></li>
+                  {% endif %}
                   <li role="separator" class="divider"></li>
                   <li><a href="{% url 'query-list' %}">Query History</a></li>
               </ul>

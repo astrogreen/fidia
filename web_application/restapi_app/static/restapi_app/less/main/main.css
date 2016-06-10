@@ -558,6 +558,10 @@ form textarea {
 .input-sm {
   border-radius: 0px;
 }
+.btn,
+li {
+  border-radius: 0 !important;
+}
 form select[multiple] {
   height: 150px;
 }

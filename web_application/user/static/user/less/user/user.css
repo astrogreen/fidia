@@ -17,6 +17,9 @@
   animation: shake 0.82s cubic-bezier(0.4, 0.1, 0.2, 0.9) both;
   transform: translate3d(0, 0, 0);
 }
+.panel-body h2 {
+  margin-top: 10px;
+}
 @keyframes shake {
   10%,
   90% {
