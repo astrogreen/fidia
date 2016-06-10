@@ -39,3 +39,11 @@
     transform: translate3d(2px, 0, 0);
   }
 }
+.user-profile-detail {
+  background: #fff;
+  z-index: 10;
+}
+.user-profile-update {
+  background: #fff;
+  z-index: 0;
+}
