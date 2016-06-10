@@ -127,7 +127,7 @@ def optional_login(request):
 
     if request.user != 'AnonymousUser':
         if next_url == 'logout-url' or next_url == 'user-register' or next_url == 'login' or next_url == 'logout':
-            next_page = ''
+            next_page = reverse('index')
 
     snippet = """<div class="user">
                 <a href='{login}?next={next}' class="signin">

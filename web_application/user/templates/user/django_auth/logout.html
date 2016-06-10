@@ -32,7 +32,15 @@
                 <i class="fa fa-sign-out pull-right" style="margin-top:3px"></i>
             </div>
             <div class="panel-body">
-                {% optional_login request %}
+                <h5><a href="{% url 'rest_framework:login' %}" class="text-uppercase">Sign In <i class="fa fa-lock"></i>
+                </a>
+                or
+                    <a href="" class="text-success text-uppercase">
+                    <span>Register</span>
+                    <i class="fa fa-pencil-square-o"></i>
+                </a>
+                </h5>
+
             </div>
         </div>
     </div>

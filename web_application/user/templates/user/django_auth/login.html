@@ -33,7 +33,12 @@
             </div>
             <div class="panel-body">
                 {% if user.is_authenticated %}
-                    {% include 'user/logout/logout_html.html' %}
+                    <h5>Signed in as <a href="{% url 'user-profile-detail' user %}">{{user}}</a>
+                        <strong>
+                    <a href="{% url 'rest_framework:logout' %}" class="pull-right text-uppercase"> Sign Out
+                    <i class="fa fa-sign-out" style="margin-top:3px"></i></a></strong>
+                    </h5>
+
                 {% else %}
                     <form action="{% url 'rest_framework:login' %}" role="form" method="post">
                         {% csrf_token %}
@@ -83,7 +88,7 @@
                         <br>
                         <h5>Forgotten your Password?
                             <a href="{% url 'password_reset' %}" >
-                                    <span>Reset</span>
+                                    <span>RESET</span>
                                 <i class="fa fa-refresh"></i>
                             </a>
                         </h5>
