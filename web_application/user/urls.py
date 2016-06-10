@@ -27,13 +27,13 @@ urlpatterns = [
 
             # USER ACTIONS
             url(r'^register/', user.views.CreateUserView.as_view(), name='user-register'),
-            url(r'^change-password/', user.views.ChangePasswordView.as_view(), name='user-change-password'),
+            # url(r'^change-password/', user.views.ChangePasswordView.as_view(), name='user-change-password'),
 
             # REST_FRAMEWORK USER AUTH
             url(r'', include('user.auth_urls', namespace='rest_framework')),
 
             # USER PROFILE (restful instance allowing user to update details)
-            url(r'^profile/(?P<username>.+)/$', user.views.UserProfileView.as_view(), name='user-profile-detail'),
+            url(r'^accounts/(?P<username>.+)/$', user.views.UserProfileView.as_view(), name='user-profile-detail'),
             # url(r'^change-password/(?P<username>.+)/$', user.views.UserUpdatePasswordView.as_view(), name='user-change-password-detail'),
 
 

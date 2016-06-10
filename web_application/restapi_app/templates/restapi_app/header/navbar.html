@@ -54,8 +54,6 @@
                   {% url 'query-create-list' as the_url %}
                   <li class="li-query"><a href="{{the_url}}#query-builder-form">Query Builder</a></li>
                   <li class="li-query"><a href="{{the_url}}#post-object-form">SQL</a></li>
-                  <li role="separator" class="divider"></li>
-                  <li><a href="{% url 'query-list' %}">Query History</a></li>
               </ul>
             </li>
             <li class="dropdown">
@@ -86,11 +84,12 @@
                 <li class="disabled"><a href="{% url 'under-construction' %}">Surveys</a></li>
               </ul>
             </li>
-            <li class="disabled" class="dropdown">
+            <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li class="disabled"><a href="{% url 'under-construction' %}">Profile</a></li>
-                <li class="disabled"><a href="{% url 'under-construction' %}">Dashboard</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="{% url 'query-list' %}">Query History</a></li>
               </ul>
             </li>
             <li class="dropdown">

@@ -15,6 +15,7 @@ import restapi_app.permissions
 import user.serializer
 import user.exceptions
 import user.models
+import user.renderers
 
 
 class CreateUserView(generics.ListCreateAPIView):
@@ -56,6 +57,8 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = user.serializer.UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'username'
+    renderer_classes = [user.renderers.UserProfileBrowsableAPIRenderer, renderers.JSONRenderer]
+    template_name = 'user/profile/profile.html'
 
     def get_queryset(self):
         """
@@ -67,92 +70,87 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
 
 
 
-
-
-
-
-
-class ChangePasswordView(views.APIView):
-    """
-    Changing password can only be done in browser
-    """
-    renderer_classes = [renderers.TemplateHTMLRenderer]
-    template_name = 'user/password/password_change.html'
-    queryset = User.objects.none()
-    serializer_class = user.serializer.UserPasswordChangeSerializer
-    throttle_classes = [throttling.AnonRateThrottle]
-
-    def get_success_headers(self, data):
-        try:
-            return {'Location': data[api_settings.URL_FIELD_NAME]}
-        except (TypeError, KeyError):
-            return {}
-
-    def get(self, request):
-        unbound_user_instance = User()
-        serializer = user.serializer.UserPasswordChangeSerializer(unbound_user_instance)
-        headers = self.get_success_headers(serializer.data)
-        response = Response(
-            {'data': serializer.data, 'serializer': serializer}, headers=headers, status=status.HTTP_200_OK)
-        return response
-
-    def patch(self, request):
-        # check username and email in request data (assign to data as request.data is immutable)
-        data = request.data.copy()
-        try:
-            username = data['username']
-            email = data['email']
-            password = data['password']
-        except KeyError:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        try:
-            user_instance = User.objects.get(username=username)
-        except ValueError:
-            return Response({'detail': "No User"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Get associated user instance
-        if User.objects.filter(username=username).exists():
-            # user_instance = User.objects.filter(username=username, email=email)
-            user_instance = User.objects.get(username=username)
-            # Make sure the email submitted is the same as in db
-            # TODO THIS ISNT RETURNING USEFUL THINGS
-            print('user info')
-            print(user_instance.email, email)
-            print(user_instance.username, username)
-
-            if user_instance.email == email:
-                # pop off the confirm_password field, raise exception if not equal
-                confirm_password = data.pop('confirm_password')[0]
-
-                if password != confirm_password:
-                    return Response({'detail': "Passwords do not match"}, status=status.HTTP_404_NOT_FOUND)
-
-                print('match')
-                # Only pass the new password to the serializer (no danger of overriding username/email combo)
-                serializer = user.serializer.UserPasswordChangeSerializer(user_instance, data=data, partial=True)
-                serializer.is_valid(raise_exception=True)
-
-                if not serializer.is_valid():
-                    print('return not valid')
-                    # if not valid, return form bound with submitted data
-                    # return Response({'serializer': serializer, 'user': user})
-                    return Response({'detail': "Data format incorrect, please check your username and email inputs"},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                # Valid - go ahead and update
-                self.perform_update(serializer)
-                print(serializer)
-                print('redirect...')
-                return Response(serializer.data, template_name = 'user/password/password_change.html')
-                # login_url = reverse('rest_framework:login')
-                # return redirect(login_url)
-            else:
-                raise restapi_app.exceptions.Conflict('Email %s is not associated with User %s' % (username, email))
-        else:
-            raise exceptions.NotFound(detail="Username not found")
-            # raise restapi_app.exceptions.CustomValidation("Username not found", 'detail', 404)
-
-    def perform_update(self, serializer):
-        serializer.save()
+# class ChangePasswordView(views.APIView):
+#     """
+#     Changing password can only be done in browser
+#     """
+#     renderer_classes = [renderers.TemplateHTMLRenderer]
+#     template_name = 'user/password/password_change.html'
+#     queryset = User.objects.none()
+#     serializer_class = user.serializer.UserPasswordChangeSerializer
+#     throttle_classes = [throttling.AnonRateThrottle]
+#
+#     def get_success_headers(self, data):
+#         try:
+#             return {'Location': data[api_settings.URL_FIELD_NAME]}
+#         except (TypeError, KeyError):
+#             return {}
+#
+#     def get(self, request):
+#         unbound_user_instance = User()
+#         serializer = user.serializer.UserPasswordChangeSerializer(unbound_user_instance)
+#         headers = self.get_success_headers(serializer.data)
+#         response = Response(
+#             {'data': serializer.data, 'serializer': serializer}, headers=headers, status=status.HTTP_200_OK)
+#         return response
+#
+#     def patch(self, request):
+#         # check username and email in request data (assign to data as request.data is immutable)
+#         data = request.data.copy()
+#         try:
+#             username = data['username']
+#             email = data['email']
+#             password = data['password']
+#         except KeyError:
+#                 return Response(status=status.HTTP_404_NOT_FOUND)
+#         except ValueError:
+#                 return Response(status=status.HTTP_400_BAD_REQUEST)
+#         try:
+#             user_instance = User.objects.get(username=username)
+#         except ValueError:
+#             return Response({'detail': "No User"}, status=status.HTTP_400_BAD_REQUEST)
+#
+#         # Get associated user instance
+#         if User.objects.filter(username=username).exists():
+#             # user_instance = User.objects.filter(username=username, email=email)
+#             user_instance = User.objects.get(username=username)
+#             # Make sure the email submitted is the same as in db
+#             # TODO THIS ISNT RETURNING USEFUL THINGS
+#             print('user info')
+#             print(user_instance.email, email)
+#             print(user_instance.username, username)
+#
+#             if user_instance.email == email:
+#                 # pop off the confirm_password field, raise exception if not equal
+#                 confirm_password = data.pop('confirm_password')[0]
+#
+#                 if password != confirm_password:
+#                     return Response({'detail': "Passwords do not match"}, status=status.HTTP_404_NOT_FOUND)
+#
+#                 print('match')
+#                 # Only pass the new password to the serializer (no danger of overriding username/email combo)
+#                 serializer = user.serializer.UserPasswordChangeSerializer(user_instance, data=data, partial=True)
+#                 serializer.is_valid(raise_exception=True)
+#
+#                 if not serializer.is_valid():
+#                     print('return not valid')
+#                     # if not valid, return form bound with submitted data
+#                     # return Response({'serializer': serializer, 'user': user})
+#                     return Response({'detail': "Data format incorrect, please check your username and email inputs"},
+#                                     status=status.HTTP_400_BAD_REQUEST)
+#                 # Valid - go ahead and update
+#                 self.perform_update(serializer)
+#                 print(serializer)
+#                 print('redirect...')
+#                 return Response(serializer.data, template_name = 'user/password/password_change.html')
+#                 # login_url = reverse('rest_framework:login')
+#                 # return redirect(login_url)
+#             else:
+#                 raise restapi_app.exceptions.Conflict('Email %s is not associated with User %s' % (username, email))
+#         else:
+#             raise exceptions.NotFound(detail="Username not found")
+#             # raise restapi_app.exceptions.CustomValidation("Username not found", 'detail', 404)
+#
+#     def perform_update(self, serializer):
+#         serializer.save()
 

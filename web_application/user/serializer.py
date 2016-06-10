@@ -12,8 +12,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('first_name', 'last_name', 'email', 'username', 'password', 'confirm_password')
 
-    first_name = serializers.CharField(required=True)
-    last_name = serializers.CharField(required=True)
+    first_name = serializers.CharField(required=True, allow_blank=False)
+    last_name = serializers.CharField(required=True, allow_blank=False)
 
     email = serializers.EmailField(
         allow_blank=False, required=True
@@ -69,45 +69,46 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
     """
     username = serializers.CharField(read_only=True)
+    query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True)
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email',)
+        fields = ('username', 'first_name', 'last_name', 'email', 'query')
 
 
-class UserPasswordSerializer(serializers.HyperlinkedModelSerializer):
-    """
-    NOTE: many=True flag allows serialization of queryset instead of model instance.
-    'query' is a reverse relationship on the User model, and will not be included by
-    default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
-    """
-    username = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'password')
-
-
-class UserPasswordChangeSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        allow_blank=False, required=True
-    )
-    username = serializers.CharField(required=True, allow_blank=False)
-    password = serializers.CharField(
-        write_only=True, required=True, allow_blank=False,
-        style={'input_type': 'password'}
-    )
-
-    class Meta:
-        fields = ('username', 'password', 'email',)
-
-    def update(self, instance, validated_data):
-        instance.password = validated_data.get('password', instance.password)
-        return instance
+# class UserPasswordSerializer(serializers.HyperlinkedModelSerializer):
+#     """
+#     NOTE: many=True flag allows serialization of queryset instead of model instance.
+#     'query' is a reverse relationship on the User model, and will not be included by
+#     default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
+#     """
+#     username = serializers.CharField(read_only=True)
+#
+#     class Meta:
+#         model = User
+#         fields = ('username', 'password')
 
 
-class ChangePasswordSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        field = ('username', 'email')
+# class UserPasswordChangeSerializer(serializers.Serializer):
+#     email = serializers.EmailField(
+#         allow_blank=False, required=True
+#     )
+#     username = serializers.CharField(required=True, allow_blank=False)
+#     password = serializers.CharField(
+#         write_only=True, required=True, allow_blank=False,
+#         style={'input_type': 'password'}
+#     )
+#
+#     class Meta:
+#         fields = ('username', 'password', 'email',)
+#
+#     def update(self, instance, validated_data):
+#         instance.password = validated_data.get('password', instance.password)
+#         return instance
+#
+#
+# class ChangePasswordSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = User
+#         field = ('username', 'email')

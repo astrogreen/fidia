@@ -97,7 +97,7 @@ def optional_logout(request, user):
             <b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
-            <li><a href="{profile}">User Profile</a></li>
+            <li><a href="{profile}">Profile</a></li>
             <li><a href="{requests}">Query History</a></li>
             <li><a href='{logout_url}'>Sign out </a></li>
         </ul>

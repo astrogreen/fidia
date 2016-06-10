@@ -140,7 +140,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
-        log.debug("Format requested is '%s'", format)
+        # log.debug("Format requested is '%s'", format)
 
         try:
             trait = sample[galaxy_pk][trait_pk]
