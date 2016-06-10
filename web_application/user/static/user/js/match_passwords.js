@@ -43,6 +43,8 @@ function match_passwords(field1, field2, formid) {
     watch_fields(field1, field2);
 
     $(formid).on('submit', function (e) {
+
+        // TODO PASSWORD FIELDS BOTH BLANK?
         if (is_match(field1, field2) == false) {
             e.preventDefault();
             offer_feedback(field1, field2);

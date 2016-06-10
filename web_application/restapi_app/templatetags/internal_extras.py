@@ -99,7 +99,7 @@ def optional_logout(request, user):
         <ul class="dropdown-menu">
             <li><a href="{profile}">User Profile</a></li>
             <li><a href="{requests}">Query History</a></li>
-            <li><a href='{logout_url}'>Sign out <i class="fa fa-sign-out"></i></a></li>
+            <li><a href='{logout_url}'>Sign out </a></li>
         </ul>
     </li>"""
     snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, )

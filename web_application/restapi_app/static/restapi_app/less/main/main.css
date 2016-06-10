@@ -280,12 +280,19 @@ nav.navbar .dropdown-menu > .active > a {
   background-color: #eeeeee;
 }
 nav.navbar .dropdown-menu li a,
-nav.navbar .dropdown-menu li {
+nav.navbar .dropdown-menu li,
+nav.navbar .dropdown-menu > li > a {
   color: #333;
 }
 nav.navbar .navbar .dropdown-menu li a:hover {
   background: #EEEEEE;
   color: #C20000;
+}
+.dropdown-menu {
+  border-radius: 0;
+}
+.dropdown-menu > li > a {
+  color: #333;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

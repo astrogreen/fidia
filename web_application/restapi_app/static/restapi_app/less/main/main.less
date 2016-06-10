@@ -300,7 +300,7 @@ nav.navbar {
   .dropdown-menu > .active > a {
     background-color: #eeeeee;
   }
-  .dropdown-menu li a, .dropdown-menu li {
+  .dropdown-menu li a, .dropdown-menu li, .dropdown-menu>li>a {
     color: #333;
   }
 
@@ -308,7 +308,13 @@ nav.navbar {
     background: #EEEEEE;
     color: #C20000;
   }
+}
 
+.dropdown-menu {
+  border-radius: 0;
+  > li > a {
+    color: #333;
+  }
 }
 
 /*

@@ -32,6 +32,8 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# TODO TURN THIS OFF IN PRODUCTION! DUMPS EMAILS IN CONSOLE
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ALLOWED_HOSTS = ['*']
 
@@ -256,5 +258,10 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.TemplateHTMLRenderer',
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
-    )
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '3/day',
+    },
 }
+
+

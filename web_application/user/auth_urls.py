@@ -17,10 +17,8 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 from django.contrib.auth import views
 
-template_name = {'template_name': 'rest_framework/login.html'}
-
 app_name = 'rest_framework'
 urlpatterns = [
-    url(r'^sign-in/$', views.login, {'template_name': 'rest_framework/login.html'}, name='login'),
-    url(r'^sign-out/$', views.logout, {'template_name': 'user/logout/logout.html'}, name='logout'),
+    url(r'^sign-in/$', views.login, {'template_name': 'user/django_auth/login.html'}, name='login'),
+    url(r'^sign-out/$', views.logout, {'template_name': 'user/django_auth/logout.html'}, name='logout'),
 ]
