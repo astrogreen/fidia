@@ -12,8 +12,6 @@ import restapi_app.exceptions
 import restapi_app.renderers
 import restapi_app.permissions
 
-from restapi_app.exceptions import Conflict, CustomValidation
-
 import user.serializer
 import user.exceptions
 import user.models
@@ -47,7 +45,11 @@ class CreateUserView(views.APIView):
     template_name = 'user/register/register.html'
     queryset = User.objects.none()
     serializer_class = user.serializer.CreateUserSerializer
+    # permission_classes = [restapi_app.permissions.IsNotAuthenticated]
     # throttle_classes = [throttling.AnonRateThrottle]
+
+    def get_queryset(self):
+        return User.objects.none()
 
     def get_success_headers(self, data):
         try:
@@ -56,6 +58,9 @@ class CreateUserView(views.APIView):
             return {}
 
     def get(self, request):
+        if request.user.is_authenticated():
+            return Response({'data': 'Forbidden', 'status_code': status.HTTP_403_FORBIDDEN})
+
         unbound_user_instance = User()
         serializer = user.serializer.CreateUserSerializer(unbound_user_instance)
         headers = self.get_success_headers(serializer.data)
@@ -67,22 +72,14 @@ class CreateUserView(views.APIView):
         """
         Create a model instance.
         """
+        if request.user.is_authenticated():
+            return Response({'data': 'Forbidden', 'status_code': status.HTTP_403_FORBIDDEN})
         return self.create(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
 
         if User.objects.filter(username=request.data['username']).exists():
             message = 'User %s already exists' % request.data['username']
-            response = Response({'detail': message}, status=status.HTTP_409_CONFLICT)
-            print(response)
-            print(vars(response))
-            print('---')
-            print(request)
-            print(response.status_code)
-            print(user)
-            print(response.data['detail'])
-            print('=')
-            # {% status_info request response.status_code user response.data.detail %}
             return Response({'data': message, 'status_code': status.HTTP_409_CONFLICT})
 
         serializer = user.serializer.CreateUserSerializer(data=request.data)
