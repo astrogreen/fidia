@@ -48,7 +48,11 @@ urlpatterns = [
             url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', auth_views.password_reset_confirm, name='password_reset_confirm'),
             url(r'^reset/done/', auth_views.password_reset_complete, name='password_reset_complete'),
 
+            url(r'^templates/password-change/', TemplateView.as_view(template_name='user/django_auth/password-change.html'),
+                      name='template-password-change'),
 
+
+            url(r'^test/password-change/', auth_views.password_change, {'template_name': 'user/django_auth/password-change.html'}, name='password_change'),
             #     REST API NAMESPACED
             # ^login/$ [name='login']
             # ^logout/$ [name='logout']
