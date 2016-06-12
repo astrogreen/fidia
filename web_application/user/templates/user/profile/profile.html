@@ -20,94 +20,98 @@
 
 
 {% block content %}
-<br>
-<div class="row">
-    <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
-        <div style="width:100%; height:350px; position:relative;">
-            <div id="card">
-                <div class="front">
-                    <div class="panel panel-default user-profile-card user-profile-detail animated">
-                        <div class="panel-heading">
-                            <strong> PROFILE </strong>
-                            <button class="btn btn-xs btn-default pull-right" id="profile-button" type="button">EDIT</button>
-                            <!--<i class="fa fa-user pull-right" style="margin-top:3px"></i>-->
-                        </div>
-                        <div class="panel-body">
-                            <h2>{{response.data.first_name | CapsSentence}}<br>
-                                {{response.data.last_name | CapsSentence}}</h2>
-                            <h4>{{user}}
-                                <small><i class="fa fa-circle text-success"></i></small><br>
-                                <small><em>{{response.data.email}}</em></small>
-                            </h4>
-                            <ul class="list-group">
-                                <li class="list-group-item">
-                                    <!--<span class="badge"><i class="fa fa-history"></i></span>-->
-                                    <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query
-                                        History</a>
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="badge">{{response.data.query|length }}</span>
-                                    Total Queries
-                                </li>
-                            </ul>
+{% captureas status_code_status %}{% status_is_success response.status_code %}{% endcaptureas %}
+
+{% if status_code_status == 'True' %}
+    {% if display_edit_forms %}
+    <br>
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+            <div style="width:100%; height:350px; position:relative;">
+                <div id="card">
+                    <div class="front">
+                        <div class="panel panel-default user-profile-card user-profile-detail animated">
+                            <div class="panel-heading">
+                                <strong> PROFILE </strong>
+                                <button class="btn btn-xs btn-default pull-right" id="profile-button" type="button">EDIT</button>
+                                <!--<i class="fa fa-user pull-right" style="margin-top:3px"></i>-->
+                            </div>
+                            <div class="panel-body">
+                                <h2>{{response.data.first_name | CapsSentence}}<br>
+                                    {{response.data.last_name | CapsSentence}}</h2>
+                                <h4>{{user}}
+                                    <small><i class="fa fa-circle text-success"></i></small><br>
+                                    <small><em>{{response.data.email}}</em></small>
+                                </h4>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <!--<span class="badge"><i class="fa fa-history"></i></span>-->
+                                        <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query
+                                            History</a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">{{response.data.query|length }}</span>
+                                        Total Queries
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="back">
-                    <div class="panel panel-default user-profile-card user-profile-update animated ">
-                        <div class="panel-heading">
-                            <strong> UPDATE DETAILS </strong>
-                            <i class="fa fa-pencil-square-o pull-right" style="margin-top:3px"></i>
-                        </div>
-                        <div class="panel-body">
-                            {% if put_form %}
-                            <div class="" id="put-object-form">
-                                <form action="{{ request.get_full_path }}" data-method="PUT"
-                                      enctype="multipart/form-data"
-                                      class="form-horizontal" novalidate>
-
-                                    {{ put_form }}
-                                    <div class="row">
-                                        <div class="col-xs-12">
-                                            <h5><a href="{% url 'password_change' %}"
-                                                   class=" text-uppercase pull-left">
-                                                <span>change password</span>
-                                                <i class="fa fa-lock"></i>
-                                            </a></h5>
-
-                                            <button class="btn btn-primary btn-xs js-tooltip pull-right"
-                                                    title="Overwrite Query {{objname}}" id="button-sql-update">
-                                                UPDATE
-                                            </button>
-                                            <button class="btn btn-xs btn-default pull-right" id="update-profile-button">CANCEL</button>
-                                        </div>
-                                    </div>
-
-                                </form>
+                    <div class="back">
+                        <div class="panel panel-default user-profile-card user-profile-update animated ">
+                            <div class="panel-heading">
+                                <strong> UPDATE DETAILS </strong>
+                                <i class="fa fa-pencil-square-o pull-right" style="margin-top:3px"></i>
                             </div>
-                            {% endif %}
+                            <div class="panel-body">
+                                {% if put_form %}
+                                <div class="" id="put-object-form">
+                                    <form action="{{ request.get_full_path }}" data-method="PUT"
+                                          enctype="multipart/form-data"
+                                          class="form-horizontal" novalidate>
+
+                                        {{ put_form }}
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <h5><a href="{% url 'password_change' %}"
+                                                       class=" text-uppercase pull-left">
+                                                    <span>change password</span>
+                                                    <i class="fa fa-lock"></i>
+                                                </a></h5>
+
+                                                <button class="btn btn-primary btn-xs js-tooltip pull-right"
+                                                        title="Overwrite Query {{objname}}" id="button-sql-update">
+                                                    UPDATE
+                                                </button>
+                                                <button class="btn btn-xs btn-default pull-right" id="update-profile-button">CANCEL</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<script>
+    <script>
 
-    $("#card").flip({
-      trigger: 'manual'
-    });
-    $('.back').attr('style','z-index:0');
-    $('#profile-button').click(function(){
-        $("#card").flip(true);
-        return false;
-    });
-    $('#update-profile-button').click(function(){
-        $("#card").flip(false);
-        return false;
-    });
-
-
-</script>
+        $("#card").flip({
+          trigger: 'manual'
+        });
+        $('.back').attr('style','z-index:0');
+        $('#profile-button').click(function(){
+            $("#card").flip(true);
+            return false;
+        });
+        $('#update-profile-button').click(function(){
+            $("#card").flip(false);
+            return false;
+        });
+    </script>
+    {% endif %}
+{% endif %}
 {% endblock %}
