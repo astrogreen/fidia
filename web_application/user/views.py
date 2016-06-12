@@ -18,78 +18,82 @@ import user.models
 import user.renderers
 
 
-# class CreateUserView(generics.ListCreateAPIView):
-#     """
-#     User View to allow registration
-#     Throttle by IP to twice a day?
-#     """
-#     model = User
-#     permission_classes = [restapi_app.permissions.IsNotAuthenticated]
-#     serializer_class = user.serializer.CreateUserSerializer
-#     # throttle_classes = [throttling.AnonRateThrottle]
-#
-#     class CreateUserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-#         template = 'user/register/register.html'
-#
-#     renderer_classes = [CreateUserRenderer]
-#
-#     def get_queryset(self):
-#         queryset = User.objects.none()
-#         return queryset
-
-class CreateUserView(views.APIView):
+class CreateUserView(generics.ListCreateAPIView):
     """
-    Creating user in browser only.
+    User View to allow registration
+    Throttle by IP to twice a day?
     """
-    renderer_classes = [renderers.TemplateHTMLRenderer]
-    template_name = 'user/register/register.html'
-    queryset = User.objects.none()
+    model = User
+    permission_classes = [restapi_app.permissions.IsNotAuthenticated]
     serializer_class = user.serializer.CreateUserSerializer
-    # permission_classes = [restapi_app.permissions.IsNotAuthenticated]
     # throttle_classes = [throttling.AnonRateThrottle]
 
+    class CreateUserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'user/register/register.html'
+
+    renderer_classes = [CreateUserRenderer]
+
     def get_queryset(self):
-        return User.objects.none()
+        queryset = User.objects.none()
+        return queryset
 
-    def get_success_headers(self, data):
-        try:
-            return {'Location': data[api_settings.URL_FIELD_NAME]}
-        except (TypeError, KeyError):
-            return {}
-
-    def get(self, request):
-        if request.user.is_authenticated():
-            return Response({'data': 'Forbidden', 'status_code': status.HTTP_403_FORBIDDEN})
-
-        unbound_user_instance = User()
-        serializer = user.serializer.CreateUserSerializer(unbound_user_instance)
-        headers = self.get_success_headers(serializer.data)
-        response = Response(
-            {'data': serializer.data, 'serializer': serializer, 'status_code': status.HTTP_200_OK}, headers=headers)
-        return response
-
-    def post(self, request, *args, **kwargs):
-        """
-        Create a model instance.
-        """
-        if request.user.is_authenticated():
-            return Response({'data': 'Forbidden', 'status_code': status.HTTP_403_FORBIDDEN})
-        return self.create(request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-
-        if User.objects.filter(username=request.data['username']).exists():
-            message = 'User %s already exists' % request.data['username']
-            return Response({'data': message, 'status_code': status.HTTP_409_CONFLICT})
-
-        serializer = user.serializer.CreateUserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    def perform_create(self, serializer):
-        serializer.save()
+# class CreateUserView(views.APIView):
+# class CreateUserView(generics.ListCreateAPIView):
+#     """
+#     Creating user in browser only.
+#     """
+#     renderer_classes = [renderers.TemplateHTMLRenderer]
+#     renderer_classes = [renderers.BrowsableAPIRenderer]
+#     template_name = 'user/register/register.html'
+#     queryset = User.objects.none()
+#     serializer_class = user.serializer.CreateUserSerializer
+#
+#     permission_classes = [restapi_app.permissions.IsNotAuthenticated]
+#
+#     # throttle_classes = [throttling.AnonRateThrottle]
+#
+#     def get_queryset(self):
+#         return User.objects.none()
+#
+#     def get_success_headers(self, data):
+#         try:
+#             return {'Location': data[api_settings.URL_FIELD_NAME]}
+#         except (TypeError, KeyError):
+#             return {}
+#
+#     def get(self, request):
+#         # if request.user.is_authenticated():
+#         #     return Response({'data': 'Forbidden', 'status_code': status.HTTP_403_FORBIDDEN})
+#
+#         unbound_user_instance = User()
+#         serializer = user.serializer.CreateUserSerializer(unbound_user_instance)
+#         headers = self.get_success_headers(serializer.data)
+#         response = Response(
+#             {'data': serializer.data, 'serializer': serializer, 'status_code': status.HTTP_200_OK}, headers=headers)
+#         return response
+#
+#     def post(self, request, *args, **kwargs):
+#         """
+#         Create a model instance.
+#         """
+#         if request.user.is_authenticated():
+#             return Response({'data': 'Forbidden', 'status_code': status.HTTP_403_FORBIDDEN})
+#         return self.create(request, *args, **kwargs)
+#
+#     def create(self, request, *args, **kwargs):
+#
+#         if User.objects.filter(username=request.data['username']).exists():
+#             message = 'User %s already exists' % request.data['username']
+#             return Response({'data': message, 'status_code': status.HTTP_409_CONFLICT})
+#
+#         serializer = user.serializer.CreateUserSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_create(serializer)
+#         headers = self.get_success_headers(serializer.data)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+#
+#     def perform_create(self, serializer):
+#         serializer.save()
 
 
 
