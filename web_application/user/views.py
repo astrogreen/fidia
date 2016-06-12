@@ -96,8 +96,6 @@ class CreateUserView(generics.ListCreateAPIView):
 #         serializer.save()
 
 
-
-
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     If Admin, view all users at this route

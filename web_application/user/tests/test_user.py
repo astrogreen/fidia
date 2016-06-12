@@ -74,20 +74,19 @@ class UserTests(APITestCase):
 
     def test_retrieve_resource_authenticated(self):
         """
-        Unauthenticated users shouldn't see username's details
+        Authenticated users get profile details
         """
         self._require_login()
         test_response = self.client.get(self.url_detail)
         self.assertEqual(test_response.data,
-                         {'first_name': 'test_first_name', 'username': 'test_user', 'last_name': 'test_last_name',
-                          'email': 'test_user@test.com'})
+                         {'last_name': 'test_last_name', 'username': 'test_user', 'first_name': 'test_first_name',
+                          'query': [], 'email': 'test_user@test.com'})
         self.assertTrue(status.is_success(test_response.status_code))
 
     def test_login_unauthenticated(self):
         login_url = reverse('rest_framework:login')
         test_response = self.client.get(login_url)
         self.assertTrue(status.is_success(test_response.status_code))
-
 
     def test_login_redirect(self):
         self._require_login()
