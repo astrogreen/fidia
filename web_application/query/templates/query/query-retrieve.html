@@ -44,130 +44,126 @@
 {% block content-header %}{% endblock %}
 
 {% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
-{% block content %}
-    {% captureas status_code %}{% status_is_success response.status_code %}{% endcaptureas %}
+{% block content_render %}
 
-    {% if status_code == 'True' %}
-
-        {% comment %}
-        ------DATATABLES ------
-        {% endcomment %}
-        {% if response.data.queryResults %}
-            <div class="row">
-                <div class="col-sm-6">
-                    <h1 class="headline">
-                        <span>{% if response.data.title %}{{response.data.title |truncatechars:30}}{% else %} Query # {{objname}} {% endif %}</span>
-                    </h1>
-                </div>
-                <div class="col-sm-6">
-                    <div class="btn-group btn-group-head pull-right" role="group" aria-label="">
-                        {% block content-download %}
-                            {% if 'GET' in allowed_methods %}
-                                <form id="download-list" class="custom-inline">
-                                    {% if api_settings.URL_FORMAT_OVERRIDE %}
-                                    <div class="btn-group format-selection">
-                                        <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
-                                            DOWNLOAD <i class="fa fa-caret-down"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            {% for format in available_formats %}
-                                            {% if format != "api" %}
-                                                <li>
-                                                    <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                                       rel="nofollow" target="_blank"  title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
-                                                </li>
-                                            {% endif %}
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                    {% else %}
-                                        <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
-                                           title="Download {{user}}'s query # {{objname}}">PERMANENT LINK</a>
-                                    {% endif %}
-                                </form>
-                            {% endif %}
-                        {% endblock %}
-                        <!--<a type="button" class="btn btn-default btn-sm text-uppercase" href="{{ response.data.url }}">Permanent Link</a>-->
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}"><i
-                            class="fa fa-caret-left"></i> Back to Query History</a>
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}">New Query</a>
-                        {% block content-delete %}
-                            {% if delete_form %}
-                            <form class="custom-inline" action="{{ request.get_full_path }}"
-                                  data-method="DELETE">
-                                <button type="button" class="btn btn-sm btn-default js-tooltip"
-                                        title="DELETE this query" id="DELETE_RESOURCE"
-                                        data-toggle="modal"><i class="fa fa-trash-o text-red"></i> DELETE
-                                </button>
-                            </form>
-                            <!-- Confirmation modal -->
-                            <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
-                                <div class="modal-dialog modal-sm">
-                                    <div class="modal-content">
-                                        <div class="modal-body">
-                                            <h5>Are you sure?</h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete
-                                            </button>
-                                            <button type="button" data-dismiss="modal" class="btn">Cancel</button>
-                                        </div>
-                                    </div>
+    {% comment %}
+    ------DATATABLES ------
+    {% endcomment %}
+    {% if response.data.queryResults %}
+        <div class="row">
+            <div class="col-sm-6">
+                <h1 class="headline">
+                    <span>{% if response.data.title %}{{response.data.title |truncatechars:30}}{% else %} Query # {{objname}} {% endif %}</span>
+                </h1>
+            </div>
+            <div class="col-sm-6">
+                <div class="btn-group btn-group-head pull-right" role="group" aria-label="">
+                    {% block content-download %}
+                        {% if 'GET' in allowed_methods %}
+                            <form id="download-list" class="custom-inline">
+                                {% if api_settings.URL_FORMAT_OVERRIDE %}
+                                <div class="btn-group format-selection">
+                                    <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
+                                        DOWNLOAD <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% for format in available_formats %}
+                                        {% if format != "api" %}
+                                            <li>
+                                                <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                                   rel="nofollow" target="_blank"  title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
+                                            </li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
                                 </div>
-                            </div>
-                            {% endif %}
-                        {% endblock %}
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12"><div id="TableResultsWarning"></div></div>
-            </div>
-            <div class="data-table-container" id="data-table-container">
-            </div>
-            {% if display_edit_forms %}
-            <!--UPDATE EXISTING REQUEST INSTANCE-->
-                {% if put_form or raw_data_put_form or raw_data_patch_form %}
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <h2 class="headline"><span>Update</span> </h2>
-                        </div>
-                        <div class="col-sm-8">
-                            <div class="well">
-                                {% if put_form %}
-                                <div class="" id="put-object-form">
-                                    <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
-                                          class="form-horizontal" novalidate>
-
-                                            {{ put_form }}
-                                            <div class="row">
-                                                <div class="col-xs-12">
-                                                <button class="btn btn-primary btn-sm js-tooltip pull-right"
-                                                        title="Overwrite Query {{objname}}" id="button-sql-update">UPDATE
-                                                </button>
-                                                    </div>
-                                            </div>
-
-                                    </form>
-                                </div>
+                                {% else %}
+                                    <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
+                                       title="Download {{user}}'s query # {{objname}}">PERMANENT LINK</a>
                                 {% endif %}
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="panel panel-default warning">
-                                <div class="panel-body">
-                                    <strong class="text-uppercase">Warning</strong>
-                                    <p>Submitting this form will override
-                                        the previous query and results.
-                                        Alternatively, you can create a
-                                        <a type="button" class=""
-                                           href="{% url 'query-create-list' %}">New Query</a>.
-                                    </p>
+                            </form>
+                        {% endif %}
+                    {% endblock %}
+                    <!--<a type="button" class="btn btn-default btn-sm text-uppercase" href="{{ response.data.url }}">Permanent Link</a>-->
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}"><i
+                        class="fa fa-caret-left"></i> Back to Query History</a>
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}">New Query</a>
+                    {% block content-delete %}
+                        {% if delete_form %}
+                        <form class="custom-inline" action="{{ request.get_full_path }}"
+                              data-method="DELETE">
+                            <button type="button" class="btn btn-sm btn-default js-tooltip"
+                                    title="DELETE this query" id="DELETE_RESOURCE"
+                                    data-toggle="modal"><i class="fa fa-trash-o text-red"></i> DELETE
+                            </button>
+                        </form>
+                        <!-- Confirmation modal -->
+                        <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h5>Are you sure?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete
+                                        </button>
+                                        <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12"><div id="TableResultsWarning"></div></div>
+        </div>
+        <div class="data-table-container" id="data-table-container">
+        </div>
+        {% if display_edit_forms %}
+        <!--UPDATE EXISTING REQUEST INSTANCE-->
+            {% if put_form or raw_data_put_form or raw_data_patch_form %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h2 class="headline"><span>Update</span> </h2>
                     </div>
-                {% endif %}
+                    <div class="col-sm-8">
+                        <div class="well">
+                            {% if put_form %}
+                            <div class="" id="put-object-form">
+                                <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
+                                      class="form-horizontal" novalidate>
+
+                                        {{ put_form }}
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                            <button class="btn btn-primary btn-sm js-tooltip pull-right"
+                                                    title="Overwrite Query {{objname}}" id="button-sql-update">UPDATE
+                                            </button>
+                                                </div>
+                                        </div>
+
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="panel panel-default warning">
+                            <div class="panel-body">
+                                <strong class="text-uppercase">Warning</strong>
+                                <p>Submitting this form will override
+                                    the previous query and results.
+                                    Alternatively, you can create a
+                                    <a type="button" class=""
+                                       href="{% url 'query-create-list' %}">New Query</a>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
         {% endif %}
     {% endif %}

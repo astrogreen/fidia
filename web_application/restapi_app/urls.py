@@ -11,30 +11,28 @@ import restapi_app.views
 router = rest_framework.routers.SimpleRouter()
 
 urlpatterns = [
-            url(r'^$', TemplateView.as_view(template_name='restapi_app/home/index.html'), name='index'),
+            url(r'^$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/home/index.html'), name='index'),
 
             url(r'^(?i)documentation/$',
-                      TemplateView.as_view(template_name='restapi_app/documentation/sub-menu.html'),
-                      name='documentation'),
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/sub-menu.html'),
+                name='documentation'),
             url(r'^(?i)documentation/data-access/$',
-                      TemplateView.as_view(template_name='restapi_app/documentation/data-access.html'),
-                      name='documentation-data-access'),
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/data-access.html'),
+                name='documentation-data-access'),
             url(r'^(?i)documentation/query-builder/$',
-                      TemplateView.as_view(template_name='restapi_app/documentation/query-builder.html'),
-                      name='documentation-query-builder'),
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-builder.html'),
+                name='documentation-query-builder'),
             url(r'^(?i)documentation/query-history/$',
-              TemplateView.as_view(template_name='restapi_app/documentation/query-history.html'),
-              name='documentation-query-history'),
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-history.html'),
+                name='documentation-query-history'),
             url(r'^(?i)documentation/schema-browser/$',
-              TemplateView.as_view(template_name='restapi_app/documentation/schema-browser.html'),
-              name='documentation-schema-browser'),
-
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/schema-browser.html'),
+                name='documentation-schema-browser'),
             url(r'^(?i)under-construction/$',
-              TemplateView.as_view(template_name='restapi_app/documentation/underconstruction.html'),
-              name='under-construction'),
-
-            url(r'^(?i)about/team/$', TemplateView.as_view(template_name='restapi_app/about/team.html'),
-              name='about-team'),
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/underconstruction.html'),
+                name='under-construction'),
+            url(r'^(?i)about/team/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/about/team.html'),
+                name='about-team'),
 
             url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
 

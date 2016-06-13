@@ -1,7 +1,6 @@
 {% extends 'rest_framework/api.html' %}
 {% load staticfiles %}
 {% load rest_framework %}
-{% load i18n %}
 {% load internal_extras %}
 {% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
@@ -19,7 +18,7 @@
 <h1>{{ objname }}</h1>
 {% endblock %}
 
-{% block content %}
+{% block content_render %}
 
 {% for key, value in response.data.items %}
 {% endfor %}

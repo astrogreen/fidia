@@ -16,7 +16,7 @@
 
 {% block content-page-header %}
 {% endblock %}
-{% block content %}
+{% block content_render %}
 <h1 class="headline">
     <span>{% filter uppercase %}{% get_pks request.path -4 %}{% endfilter %} {% get_pks request.path -3 %}: {{objname}}</span>
     {% captureas survey %}{% get_pks request.path -4 %}{% endcaptureas %}

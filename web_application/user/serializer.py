@@ -37,7 +37,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
             raise Conflict('User %s already exists' % data['username'])
 
         if data['password'] != data.pop('confirm_password'):
-            raise serializers.ValidationError("Passwords do not match")
+            # raise serializers.ValidationError("Passwords do not match")
+            raise Conflict('Passwords do not match')
+
+        if len(data['username']) > 50:
+            raise Conflict('User %s too long. Please limit to 50 characters' % data['username'])
 
         return data
 

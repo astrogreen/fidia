@@ -1,7 +1,6 @@
 {% extends 'rest_framework/api.html' %}
 {% load staticfiles %}
 {% load rest_framework %}
-{% load i18n %}
 {% load internal_extras %}
 {% block title %}Team{% endblock %}
 
@@ -23,7 +22,7 @@
     </div>
 </div>
 
-{% block content %}
+{% block content_render %}
 <h1 class="headline">
     <span>Team</span>
 </h1>
@@ -138,7 +137,7 @@
                  alt="..."><br>
             <div class="panel panel-default ">
                 <div class="panel-heading panel-background-team">
-                    <h3 class="panel-title">Dr Elizabeth Mannering</h3>
+                    <h3 class="panel-title">Dr Liz Mannering</h3>
                     <em>Web Developer</em>
                 </div>
                 <div class="panel-body">

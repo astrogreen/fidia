@@ -1,7 +1,6 @@
 {% extends "rest_framework/api.html" %}
 {% load staticfiles %}
 {% load rest_framework %}
-{% load i18n %}
 {% load internal_extras %}
 {% block title %}Sign In{% endblock %}
 
@@ -22,7 +21,8 @@
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
 
-{% block content %}
+{% block content_render %}
+
 <br>
 <div class="row">
     <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
@@ -33,10 +33,10 @@
             </div>
             <div class="panel-body">
                 {% if user.is_authenticated %}
+                    <h5 class="text-success text-uppercase"><strong>Success </strong></h5>
                     <h5>Signed in as <a href="{% url 'user-profile-detail' user %}">{{user}}</a>
-                        <strong>
-                    <a href="{% url 'rest_framework:logout' %}" class="pull-right text-uppercase"> Sign Out
-                    <i class="fa fa-sign-out" style="margin-top:3px"></i></a></strong>
+                        <a href="{% url 'rest_framework:logout' %}" class="pull-right text-uppercase"> Sign Out
+                    <i class="fa fa-sign-out" style="margin-top:3px"></i></a>
                     </h5>
 
                 {% else %}

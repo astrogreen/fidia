@@ -17,10 +17,8 @@
 </ul>
 {% endblock %}
 
-{% block content %}
-{% captureas status_code_status %}{% status_is_success response.status_code %}{% endcaptureas %}
+{% block content_render %}
 
-{% if status_code_status == 'True' %}
     {% if display_edit_forms %}
     <br>
     <div class="row">
@@ -54,11 +52,13 @@
                             {% endwith %}
                         </div>
                     {% else %}
-                        <h5 class="text-success"><strong>Success </strong></h5>
-                        <a href="{% url 'rest_framework:login' %}" class="signin">
-                            <span>Sign In</span>
-                            <i class="fa fa-lock"></i>
-                        </a>
+                        <h5 class="text-success text-uppercase"><strong>Success </strong></h5>
+                        <h5>New user registered.
+                            <a href="{% url 'rest_framework:login' %}" class="text-uppercase pull-right">
+                                <span>Sign In</span>
+                                <i class="fa fa-lock"></i>
+                            </a>
+                        </h5>
                     {% endif %}
 
                 </div>
@@ -72,9 +72,10 @@
         // HACK inject bootstrap classes to change form layout (DRF restricts to horizontal)
         $('form .form-group').each(function(){
             $(this).children('label.col-sm-2').removeClass('col-sm-2');
-            $(this).children('.col-sm-10').removeClass('col-sm-10');
+            if ($(this).children('.col-sm-10').length){
+                $(this).children('.col-sm-10').replaceWith(function() { return $(this).contents(); });
+            }
         });
 
     </script>
-{% endif %}
 {% endblock %}

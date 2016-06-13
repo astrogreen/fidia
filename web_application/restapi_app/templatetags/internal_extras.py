@@ -41,8 +41,8 @@ def status_info(request, status_code, user, status_code_detail):
         snippet = ""
     else:
         snippet = """
-                <div class=" col-md-12" style="margin-top: 30px">
-                    <div class="row-fluid text-center">
+                <div class="col-md-12" style="margin-top: 30px">
+                    <div class="row-fluid text-center https-status-message">
                         <h1>Oops!</h1>
                         <h2>{status_code_detail}</h2>
                         <h4>Status Code: {status_code}</h4>

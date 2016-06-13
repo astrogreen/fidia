@@ -1,4 +1,5 @@
 import json
+from django.views.generic import TemplateView
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
@@ -7,6 +8,17 @@ import restapi_app.exceptions
 import restapi_app.serializers
 import restapi_app.renderers
 import restapi_app.permissions
+
+
+class TemplateViewWithStatusCode(TemplateView):
+    """
+    Adds a status code to the mix. api.html (which all templates extend)
+    looks for a status code to determine content or status rendering
+    (albeit lazily, if one isn't found it sets to HTTP_200_OK).
+    """
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context, status=status.HTTP_200_OK)
 
 
 class AvailableTables(views.APIView):

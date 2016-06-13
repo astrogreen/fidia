@@ -1,7 +1,6 @@
 {% extends "rest_framework/api.html" %}
 {% load staticfiles %}
 {% load rest_framework %}
-{% load i18n %}
 {% load internal_extras %}
 {% block title %}My Account{% endblock %}
 
@@ -19,10 +18,8 @@
 {% endblock %}
 
 
-{% block content %}
-{% captureas status_code_status %}{% status_is_success response.status_code %}{% endcaptureas %}
+{% block content_render %}
 
-{% if status_code_status == 'True' %}
     {% if display_edit_forms %}
     <br>
     <div class="row">
@@ -113,5 +110,5 @@
         });
     </script>
     {% endif %}
-{% endif %}
+
 {% endblock %}

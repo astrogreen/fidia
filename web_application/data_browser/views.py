@@ -15,6 +15,8 @@ import restapi_app.renderers
 import data_browser.serializers
 import data_browser.renderers
 
+import fidia.exceptions
+
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 
 # log = logging.getLogger(__name__)
@@ -24,6 +26,7 @@ import data_browser.renderers
 # sample = ar.get_full_sample()
 
 from fidia.archive.sami import SAMITeamArchive
+
 # ar = SAMITeamArchive(
 #     "/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
 #     "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
@@ -112,10 +115,13 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         try:
             astroobject = sample[galaxy_pk]
+        except fidia.exceptions.NotInSample:
+            message = 'Object ' + galaxy_pk + ' Not Found'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(data={}, status=status.HTTP_404_NOT_FOUND)
         except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer_class = data_browser.serializers.AstroObjectSerializer
 
@@ -128,7 +134,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'schema': sorted_schema
                 }
         )
-
         return Response(serializer.data)
 
 
@@ -140,10 +145,14 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
-        # log.debug("Format requested is '%s'", format)
-
         try:
             trait = sample[galaxy_pk][trait_pk]
+        except fidia.exceptions.NotInSample:
+            message = 'Object ' + galaxy_pk + ' Not Found'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+        except fidia.exceptions.UnknownTrait:
+            message = 'Not found: Object ' + galaxy_pk + ' does not have property ' + trait_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:

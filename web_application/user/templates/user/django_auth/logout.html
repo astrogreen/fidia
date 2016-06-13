@@ -1,7 +1,6 @@
 {% extends "rest_framework/api.html" %}
 {% load staticfiles %}
 {% load rest_framework %}
-{% load i18n %}
 {% load internal_extras %}
 {% block title %}Sign Out{% endblock %}
 
@@ -22,7 +21,7 @@
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
 
-{% block content %}
+{% block content_render %}
 <br>
 <div class="row">
     <div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
@@ -32,13 +31,16 @@
                 <i class="fa fa-sign-out pull-right" style="margin-top:3px"></i>
             </div>
             <div class="panel-body">
-                <h5><a href="{% url 'rest_framework:login' %}" class="text-uppercase">Sign In <i class="fa fa-lock"></i>
-                </a>
-                or
-                    <a href="{% url 'user-register' %}" class="text-success text-uppercase">
-                    <span>Register</span>
-                    <i class="fa fa-pencil-square-o"></i>
-                </a>
+                <h5 class="text-success text-uppercase"><strong>Success </strong></h5>
+                <h5>Signed out.
+                    <span class="pull-right">
+                        <a href="{% url 'rest_framework:login' %}" class="text-uppercase ">Sign In <i class="fa fa-lock"></i> </a>
+                        or
+                        <a href="{% url 'user-register' %}" class="text-success text-uppercase ">
+                            <span>Register</span>
+                            <i class="fa fa-pencil-square-o"></i>
+                        </a>
+                    </span>
                 </h5>
 
             </div>
