@@ -4,7 +4,9 @@ from django.contrib.auth.models import User
 
 
 class EmailValidationPasswordResetForm(auth_views.PasswordResetForm):
-
+    """
+    Override django auth_view reset and inform user if email isn't associated with user
+    """
     def clean_email(self):
         email = self.cleaned_data['email']
         if not User.objects.filter(email__exact=email, is_active=True).exists():

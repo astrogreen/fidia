@@ -40,18 +40,25 @@ urlpatterns = [
             # DJANGO AUTH
             # url('^', include('django.contrib.auth.urls')),
 
-            # url(r'^cp/', auth_views.password_change, {'template_name': 'user/django_auth/change-password.html'} )
             url(r'^password-change/$', auth_views.password_change,
                 {'template_name': 'user/django_auth/password-change.html'}, name='password_change'),
             url(r'^password-change/success/$', auth_views.password_change_done,
                 {'template_name': 'user/django_auth/password-change-done.html'}, name='password_change_done'),
 
-            url(r'^password-reset/$', auth_views.password_reset, {'password_reset_form': user.forms.EmailValidationPasswordResetForm}, name='password_reset'),
-            url(r'^password-reset/success/', auth_views.password_reset_done, name='password_reset_done'),
-            url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', auth_views.password_reset_confirm, name='password_reset_confirm'),
+            url(r'^password-reset/$', auth_views.password_reset,
+                {'password_reset_form': user.forms.EmailValidationPasswordResetForm,
+                    'template_name': 'user/django_auth/password-reset.html'}, name='password_reset'),
+            url(r'^password-reset/success/$', auth_views.password_reset_done,
+                {'template_name': 'user/django_auth/password-reset-done.html'}, name='password_reset_done'),
+
+            url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+                auth_views.password_reset_confirm, {'template_name': 'user/django_auth/password-reset-confirm.html'},
+                    name='password_reset_confirm'),
+
             url(r'^reset/done/', auth_views.password_reset_complete, name='password_reset_complete'),
 
-            url(r'^templates/test/', TemplateView.as_view(template_name='user/django_auth/password-change-done.html'), name='template-password-change-done'),
+            # url(r'^templates/test/', TemplateView.as_view(template_name='user/django_auth/password-reset.html'), name='template-test'),
+            # url(r'^templates/test/',  auth_views.password_reset,{'template_name': 'user/django_auth/password-reset.html'}, name='password_reset'),
 
                   #     REST API NAMESPACED
             # ^login/$ [name='login']
