@@ -55,7 +55,9 @@ urlpatterns = [
                 auth_views.password_reset_confirm, {'template_name': 'user/django_auth/password-reset-confirm.html'},
                     name='password_reset_confirm'),
 
-            url(r'^reset/done/', auth_views.password_reset_complete, name='password_reset_complete'),
+            url(r'^reset/success/', auth_views.password_reset_complete,
+                {'template_name': 'user/django_auth/password-reset-complete.html'},
+                    name='password_reset_complete'),
 
             # url(r'^templates/test/', TemplateView.as_view(template_name='user/django_auth/password-reset.html'), name='template-test'),
             # url(r'^templates/test/',  auth_views.password_reset,{'template_name': 'user/django_auth/password-reset.html'}, name='password_reset'),
