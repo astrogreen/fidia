@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
 
-from restapi_app.exceptions import Conflict, CustomValidation
+import restapi_app.exceptions
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -34,15 +34,16 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields are exactly the same (but confirm_password isn't saved anywhere)
         """
         if User.objects.filter(username=data['username']).exists():
-            raise Conflict('User %s already exists' % data['username'])
+            raise restapi_app.exceptions.Conflict('User %s already exists' % data['username'])
 
         if data['password'] != data.pop('confirm_password'):
             # raise serializers.ValidationError("Passwords do not match")
-            raise Conflict('Passwords do not match')
+            raise restapi_app.exceptions.CustomValidation(detail='Passwords do not match', field='detail', status_code=status.HTTP_400_BAD_REQUEST)
 
         if len(data['username']) > 50:
-            raise Conflict('User %s too long. Please limit to 50 characters' % data['username'])
-
+            message = 'User %s too long. Please limit to 50 characters' % data['username']
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_400_BAD_REQUEST)
         return data
 
     def create(self, validated_data):
@@ -64,13 +65,16 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'username', 'query', 'first_name', 'last_name', 'email',)
+        extra_kwargs = {
+            "username": {
+                "read_only": True,
+            },
+        }
 
 
 class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     """
-    NOTE: many=True flag allows serialization of queryset instead of model instance.
-    'query' is a reverse relationship on the User model, and will not be included by
-    default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
+    User Profile serializer allows only first/last name & email to be updated
     """
     username = serializers.CharField(read_only=True)
     query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True)
@@ -78,6 +82,20 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'query')
+        extra_kwargs = {
+            "username": {
+                "read_only": True,
+            },
+        }
+
+    def validate(self, data):
+        """
+        Checks username isn't being overwritten
+        """
+        if 'username' in data:
+            # raise Conflict('Usernames cannot be changed')
+            raise restapi_app.exceptions.CustomValidation
+        return data
 
 
 # class UserPasswordSerializer(serializers.HyperlinkedModelSerializer):

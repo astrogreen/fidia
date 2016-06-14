@@ -58,7 +58,6 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'username'
     renderer_classes = [user.renderers.UserProfileBrowsableAPIRenderer, renderers.JSONRenderer]
-    template_name = 'user/profile/profile.html'
 
     def get_queryset(self):
         """
