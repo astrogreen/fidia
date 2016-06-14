@@ -1,6 +1,6 @@
 import logging
 from django.contrib.auth.models import User
-
+from django.utils.html import format_html
 from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
 
@@ -36,6 +36,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
         if User.objects.filter(username=data['username']).exists():
             raise restapi_app.exceptions.Conflict('User %s already exists' % data['username'])
 
+        if User.objects.filter(email=data['email']).exists():
+            message = 'Email %s already registered.' % data['email']
+            raise restapi_app.exceptions.Conflict(message)
+
         if data['password'] != data.pop('confirm_password'):
             # raise serializers.ValidationError("Passwords do not match")
             raise restapi_app.exceptions.CustomValidation(detail='Passwords do not match', field='detail', status_code=status.HTTP_400_BAD_REQUEST)
@@ -50,6 +54,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user = super(CreateUserSerializer, self).create(validated_data)
         if 'password' in validated_data:
             user.set_password(validated_data['password'])
+            user.is_staff = False
             user.save()
         return user
 

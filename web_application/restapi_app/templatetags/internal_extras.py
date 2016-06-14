@@ -49,15 +49,15 @@ def status_info(request, status_code, user, status_code_detail):
                         <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a>
                         </p>
                     </div>
-                    <div class="text-center splitter">
-                    <br>
+                    <div class="row-fluid text-center https-status-message">
+
             """
-        if user == 'AnonymousUser':
+        if str(user) == 'AnonymousUser':
             snippet += "{optional_login}"
         snippet += "</div></div>"
-
+        optional_login_html = optional_login(request)
         snippet = format_html(snippet, status_code=status_code, request=request, user=user,
-                              status_code_detail=status_code_detail, optional_login=optional_login(request))
+                              status_code_detail=status_code_detail, optional_login=optional_login_html)
 
     return mark_safe(snippet)
 

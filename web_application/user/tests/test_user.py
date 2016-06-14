@@ -23,6 +23,13 @@ spark_on = True
 # json.loads Deserialize ``s`` (a ``str`` instance containing a JSON document) to a Python object.
 
 
+def pp(test_response):
+    print('')
+    print('-- Response --')
+    print('Response Data ' + str(test_response.data))
+    print('Status Code ' + str(test_response.status_code))
+    print('-------------- ')
+
 def is_json(myjson):
     try:
         json_object = json.loads(myjson)
@@ -87,6 +94,19 @@ class CreateUserTests(TestSetUp, APITestCase):
         self.assertTrue(status.is_success(test_response.status_code))
         self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_admin_resource_unauthenticated(self):
+        """ Admin users cannot be created via this endpoint, create regular user: 201 CREATED """
+        admin_dict = self.user_dict
+        admin_dict['username'] = 'register_admin_user'
+        admin_dict['is_staff'] = True
+        test_response = self.client.post(self.url_create, admin_dict, format='json')
+
+        self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+
+        attempted_admin_user = User.objects.get(username='register_admin_user')
+        self.assertFalse(attempted_admin_user.is_staff)
+
     def test_create_resource_authenticated(self):
         """ Authenticated users shouldn't be able to register: 403 FORBIDDEN"""
         self._require_login()
@@ -107,11 +127,22 @@ class CreateUserTests(TestSetUp, APITestCase):
     def test_create_resource_username_exists(self):
         """ Send incorrect data: 409 CONFLICT """
         self.test_create_resource_unauthenticated()
-        # Attempt to create a second (identical)
+        # Attempt to create a second (identical username)
         test_response = self.client.post(self.url_create, self.user_dict, format='json')
         self.assertTrue(status.is_client_error(test_response.status_code))
         self.assertEqual(test_response.status_code, status.HTTP_409_CONFLICT)
         self.assertIn("User test_user_1 already exists", json.dumps(test_response.data))
+
+    def test_create_resource_email_exists(self):
+        """ Send incorrect data: 409 CONFLICT """
+        self.test_create_resource_unauthenticated()
+        # Attempt to create a second (different username, identical email)
+        same_email = self.user_dict
+        same_email['username'] = 'this_user_has_already_registered_that_email'
+        test_response = self.client.post(self.url_create, same_email, format='json')
+        self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_409_CONFLICT)
+        self.assertIn("already registered.", json.dumps(test_response.data))
 
     def test_create_resource_mismatched_passwords(self):
         """ Send incorrect data: 400 BAD REQUEST """
@@ -144,6 +175,32 @@ class CreateUserTests(TestSetUp, APITestCase):
         self.assertEqual(test_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertIn(json.dumps('Method "PATCH" not allowed.'), json.dumps(test_response.data))
 
+    def test_delete_user_authenticated(self):
+        """
+        Authenticated user can delete their own account (this isn't shown on the API)
+        """
+        # Create user
+        test_response = self.client.post(self.url_create, self.user_dict, format='json')
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+
+        # Login as user
+        self.client.login(username=self.user_dict['username'], password=self.user_dict['password'])
+        self.client.login(username='test_user_1', password='test')
+
+        # Check user profile exists
+        url_detail = reverse('user-profile-detail', kwargs={'username': self.user_dict['username']})
+        print(url_detail)
+        test_response = self.client.get(url_detail)
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+        pp(test_response)
+
+        # Delete account
+        test_response = self.client.delete(url_detail, format='json')
+        pp(test_response)
+
+        # test_response = self.client.get(url_detail)
+        # pp(test_response)
+        # TODO should this redirect?!
 
 class ThrottleTest(TestSetUp, APITestCase):
     """
@@ -170,15 +227,18 @@ class ThrottleTest(TestSetUp, APITestCase):
         if 'anon' in settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']:
             throttle_rate = settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['anon']
             integer_throttle_rate = throttle_rate.split('/day')[0]
-
+            print(integer_throttle_rate)
             for i in range(int(integer_throttle_rate)+1):
                 user_info = self.user_dict
+                # these both need to be unique
                 user_info['username'] = 'test_user_'+str(i)
+                user_info['email'] = 'test'+str(i)+'@hotmail.com'
                 test_response = self.client.post(self.url_create, user_info, format='json')
 
                 if i < int(integer_throttle_rate):
                     self.assertTrue(status.is_success(test_response.status_code))
                     self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+
                 else:
                     self.assertTrue(status.is_client_error(test_response.status_code))
                     self.assertEqual(test_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -289,6 +349,30 @@ class UserProfileTests(TestSetUp, APITestCase):
         self.assertEqual(test_response.status_code, status.HTTP_404_NOT_FOUND)
 
 
+class AdminUserTests(TestSetUp, APITestCase):
+
+    def test_get_user_admin(self):
+        """
+        Admin user can see all users: 200 OK
+        """
+        url_list = reverse('user-list')
+
+        admin_user = User.objects.create_user(first_name='test_first_name', last_name='test_last_name',
+                                              username='test_admin_user_0', email='test_user@test.com',
+                                              password='test_password')
+        admin_user.is_staff = True
+        admin_user.save()
+        self.client.login(username='test_admin_user_0', password='test_password')
+
+        test_response = self.client.get(url_list)
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+        print(test_response.data)
+        print(test_response.status_code)
+
+    def test_get_user_not_admin(self):
+        pass
+
+
 class UserChangePasswordTest(TestSetUp, APITestCase):
 
     def test_authentication(self):
@@ -300,7 +384,19 @@ class UserChangePasswordTest(TestSetUp, APITestCase):
     def test_email(self):
         pass
 
-            #
+
+class UserAuthBrowsableAPI(TestSetUp, APITestCase):
+    """
+    Check templates, redirects,
+    """
+
+    def test_login(self):
+
+        pass
+
+# TODO redirect and login on registration
+
+#
     # def test_login_unauthenticated(self):
     #     login_url = reverse('rest_framework:login')
     #     test_response = self.client.get(login_url)
@@ -363,8 +459,7 @@ class UserChangePasswordTest(TestSetUp, APITestCase):
     #     self.assertTemplateUsed('user/django_auth/logout')
 
 
-# class AdminUserTests(APITestCase):
-#     url_list = reverse('user-list')
-#     url_detail = reverse('user-detail')
-#     pass
+
+
+
 

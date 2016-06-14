@@ -38,16 +38,6 @@ class CreateUserView(generics.ListCreateAPIView):
         return queryset
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    If Admin, view all users at this route
-    If not, view only user detail
-    """
-    queryset = User.objects.all()
-    serializer_class = user.serializer.UserSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     """
     USER PROFILE (restful instance allowing user to update details)
@@ -67,7 +57,14 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         return User.objects.filter(username=user)
 
 
-
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    If Admin, view all users at this route
+    If not, view only user detail
+    """
+    queryset = User.objects.all()
+    serializer_class = user.serializer.UserSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
 
