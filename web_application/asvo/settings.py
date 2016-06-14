@@ -260,7 +260,7 @@ REST_FRAMEWORK = {
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '3/day',
+        'anon': '5/day',
     },
 }
 

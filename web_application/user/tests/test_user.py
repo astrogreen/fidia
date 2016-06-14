@@ -1,5 +1,8 @@
-import json
+import json, string, random
+from django.conf import settings
+
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from rest_framework.test import APIRequestFactory, APITestCase, APIClient, force_authenticate
 from rest_framework import status, response
@@ -29,94 +32,194 @@ def is_json(myjson):
 
 
 class TestSetUp(APITestCase):
-    """ Mixin to add setup functionality """
+    """
+    Mixin to add setup functionality
+     Set up test_user_0 in db, user_dict is test_user_1 (though this can be overriden on the create_resource
+     test with user_id, so that the throttling test can be run).
+    """
     def setUp(self):
-        # Request Factor returns a request
+        # Clear the cache so no throttles will be active
+        cache.clear()
+
+        # Request Factor returns a request (useful for testing components that require request param)
         self.factory = APIRequestFactory()
+
         # Client returns a response (complete request-response cycle)
         self.client = APIClient()
-        # Set up one user
-        self.user = User.objects.create_user(first_name='test_first_name', last_name='test_last_name',
-                                             username='test_user', email='test_user@test.com', password='test_password')
-        self.user.save()
-        self.url_detail = reverse('user-profile-detail', kwargs={'username': 'test_user'})
 
+        # Set up one user
+        self.username = 'test_user_0'
+        self.user = User.objects.create_user(first_name='test_first_name', last_name='test_last_name',
+                                             username=self.username, email='test_user@test.com', password='test_password')
+        self.user.save()
+        self.url_detail = reverse('user-profile-detail', kwargs={'username': self.username})
+
+        # Prepare new user dict
         self.user_dict = {
             'first_name': "another user",
             'last_name': "test",
             'email': "test@hotmail.com",
-            'username': "test_user_2",
+            'username': "test_user_1",
             'password': 'test',
             'confirm_password': 'test',
         }
 
     def _require_login(self):
         self.client.login(first_name='test_first_name', last_name='test_last_name',
-                          username='test_user', email='test_user@test.com', password='test_password')
+                          username=self.username, email='test_user@test.com', password='test_password')
 
 
-class UserRegistrationTests(TestSetUp, APITestCase):
+class CreateUserTests(TestSetUp, APITestCase):
 
     url_create = reverse('user-register')
 
     # CREATE (REGISTER)
     def test_create_resource_check_template(self):
-        """ Check template used at /register/ """
+        """ Check template used at /register/: 200 OK """
         test_response = self.client.get(self.url_create)
         self.assertTrue(status.is_success(test_response.status_code))
         self.assertTemplateUsed('user/register/register.html')
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
 
     def test_create_resource_unauthenticated(self):
-        """ Unauthenticated users should be able to create a user """
+        """ Unauthenticated users should be able to create a user: 201 CREATED """
         test_response = self.client.post(self.url_create, self.user_dict, format='json')
         self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
 
     def test_create_resource_authenticated(self):
-        """ Unauthenticated users shouldn't be able to register """
+        """ Authenticated users shouldn't be able to register: 403 FORBIDDEN"""
         self._require_login()
         test_response = self.client.post(self.url_create, self.user_dict, format='json')
         self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("You do not have permission to perform this action.", json.dumps(test_response.data))
 
     def test_create_resource_username_too_long(self):
-        pass
+        """ Send incorrect data: 400 BAD REQUEST """
+        username_too_long = self.user_dict
+        username_too_long['username'] = ''.join(random.choice(string.ascii_lowercase) for x in range(51))
+        test_response = self.client.post(self.url_create, username_too_long, format='json')
+        self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Please limit to 50 characters", json.dumps(test_response.data))
 
     def test_create_resource_username_exists(self):
-        pass
+        """ Send incorrect data: 409 CONFLICT """
+        self.test_create_resource_unauthenticated()
+        # Attempt to create a second (identical)
+        test_response = self.client.post(self.url_create, self.user_dict, format='json')
+        self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_409_CONFLICT)
+        self.assertIn("User test_user_1 already exists", json.dumps(test_response.data))
+
+    def test_create_resource_mismatched_passwords(self):
+        """ Send incorrect data: 400 BAD REQUEST """
+        password_mismatch_dict = self.user_dict
+        password_mismatch_dict['password'] = "this_doesnt_match"
+        test_response = self.client.post(self.url_create, password_mismatch_dict, format='json')
+        self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Passwords do not match", json.dumps(test_response.data))
+
+    def test_create_resource_malformed_data(self):
+        """ Send malformed data: 400 BAD REQUEST """
+        malformed_data = '{"malformed":"json"}'
+        test_response = self.client.post(self.url_create, malformed_data,
+                                         content_type="application/json")
+        self.assertEqual(test_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("This field is required.", json.dumps(test_response.data))
+
+    def test_create_resource_bad_method(self):
+        """ Request put and patch methods on creating new resource: 405 METHOD NOT ALLOWED """
+        test_response = self.client.put(self.url_create, self.user_dict, format='json')
+        self.assertTrue(status.is_client_error(test_response.status_code))
+        # here, we also have to pass the string as valid json to compare (else " aren't properly escaped)
+        self.assertIn(json.dumps('Method "PUT" not allowed.'), json.dumps(test_response.data))
+        self.assertEqual(test_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        patch_data = self.user_dict.pop('last_name')
+        test_response = self.client.patch(self.url_create, patch_data, format='json')
+        self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertIn(json.dumps('Method "PATCH" not allowed.'), json.dumps(test_response.data))
+
+
+class ThrottleTest(TestSetUp, APITestCase):
+    """
+    Check throttling works, if it's activate on the particular view associate with the named url
+    """
+    url_create = reverse('user-register')
+
+    def setUp(self):
+        # note: don't clear the cache here - else can't test throttling!
+        self.client = APIClient()
+        self.user_dict = {
+            'first_name': "another user",
+            'last_name': "test",
+            'email': "test@hotmail.com",
+            'username': "test_user_1",
+            'password': 'test',
+            'confirm_password': 'test',
+        }
+
+    def test_create_resource_throttle(self):
+        """
+        Unauthenticated. Trigger throttled response
+        """
+        if 'anon' in settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']:
+            throttle_rate = settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['anon']
+            integer_throttle_rate = throttle_rate.split('/day')[0]
+
+            for i in range(int(integer_throttle_rate)+1):
+                user_info = self.user_dict
+                user_info['username'] = 'test_user_'+str(i)
+                test_response = self.client.post(self.url_create, user_info, format='json')
+
+                if i < int(integer_throttle_rate):
+                    self.assertTrue(status.is_success(test_response.status_code))
+                    self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+                else:
+                    self.assertTrue(status.is_client_error(test_response.status_code))
+                    self.assertEqual(test_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+                    self.assertIn("Request was throttled. Expected available in 86400 seconds.", json.dumps(test_response.data))
 
 
 class UserProfileTests(TestSetUp, APITestCase):
-    url_detail = reverse('user-profile-detail', kwargs={'username': 'test_user'})
+    """
+    /accounts/username profile. Can patch/put last/first name and email address
+    """
 
     # RETRIEVE (ACCOUNTS/USERNAME)
     def test_retrieve_resource_check_template(self):
-        """ Check template used at /accounts/ """
+        """ Check template used at /accounts/ 200 OK """
         self._require_login()
         test_response = self.client.get(self.url_detail)
         self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
         self.assertTemplateUsed('user/profile/profile.html')
 
     def test_retrieve_resource_unauthenticated(self):
-        """ Unauthenticated users shouldn't see username's details
-        /accounts/username/
-        """
+        """ Unauthenticated users shouldn't see username's details: 403 FORBIDDEN """
         test_response = self.client.get(self.url_detail)
-        self.assertEqual(test_response.status_code, 403)
         self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("Authentication credentials were not provided.", json.dumps(test_response.data))
 
     def test_retrieve_resource_authenticated(self):
         """
-        Authenticated users get profile details
-        /accounts/username/
+        Authenticated users get profile details /accounts/username/: 200 OK
         """
         self._require_login()
         test_response = self.client.get(self.url_detail)
         self.assertEqual(test_response.data,
-                         {'last_name': 'test_last_name', 'username': 'test_user', 'first_name': 'test_first_name',
+                         {'last_name': 'test_last_name', 'username': self.username, 'first_name': 'test_first_name',
                           'query': [], 'email': 'test_user@test.com'})
         self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
 
     def test_retrieve_resource_incorrect_method(self):
-        """Authenticated user post to /accounts/username"""
+        """Authenticated user post to /accounts/username: 405 METHOD NOT ALLOWED"""
         self._require_login()
         test_response = self.client.post(self.url_detail, self.user_dict, format='json')
         self.assertTrue(status.is_client_error(test_response.status_code))
@@ -124,37 +227,77 @@ class UserProfileTests(TestSetUp, APITestCase):
         self.assertEqual(test_response.data, {'detail': 'Method "POST" not allowed.'})
 
     def test_retrieve_resource_patch_authenticated(self):
-        """Patch field, then try and patch a protected field (username)"""
+        """Patch field, then try and patch a protected field (username): 400 BAD REQUEST"""
         self.test_retrieve_resource_authenticated()
 
         test_response = self.client.patch(self.url_detail, {'first_name': 'terrific new name'}, format='json')
         self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
         # serialize response.data (dict) to json str so can check if contains string
         self.assertIn('"first_name": "terrific new name"', json.dumps(test_response.data))
 
+    def test_retrieve_resource_bad_request_authenticated(self):
+        """Patch a protected field (username): 400 BAD REQUEST"""
+        # TODO These status codes aren't correct - both are returning 200 instead of 400
+        self._require_login()
         # Attempt to patch protected field, and non-existant field
         test_response_2 = self.client.patch(self.url_detail, data={'username': 'cantchangethis'}, format='json')
         self.assertNotIn('"username": "cantchangethis"', json.dumps(test_response_2.data))
-        test_response_3 = self.client.patch(self.url_detail, data={'usernamedoesntexist': 'new_username'}, format='json')
-        self.assertNotIn('"usernamedoesntexist": "new_username"', json.dumps(test_response_3.data))
-        # TODO These status codes aren't correct - both are returning 200 instead of 400
 
-
-
-
-
-
-
-        # field = 'username'
-        # patch_data = 'new_username'
-        # test_response = self.client.patch(self.url_detail, {field: patch_data}, format='json')
-        # print(test_response.data)
-        # print(test_response.status_code)
-        # # self.assertTrue(status.is_success(test_response.status_code))
-        # # # serialize response.data (dict) to json str so can check if contains string
-        # # self.assertIn(patch_data, json.dumps(test_response.data))
+        # test_response_3 = self.client.patch(self.url_detail, data={'usernamedoesntexist': 'new_username'}, format='json')
+        # self.assertNotIn('"usernamedoesntexist": "new_username"', json.dumps(test_response_3.data))
 
     def test_retrieve_resource_put(self):
+        """Put request: 200 OK"""
+        self.test_retrieve_resource_authenticated()
+        test_response = self.client.patch(self.url_detail, self.user_dict, format='json')
+        self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+        self.assertIn('"first_name": "another user"', json.dumps(test_response.data))
+
+    def test_profile_query_history(self):
+        url_query_create = reverse('query-create-list')
+        self._require_login()
+        data = {
+            "title": "test_title",
+            "SQL": "SELECT * FROM SAMI LIMIT 1",
+        }
+        test_response_query = self.client.post(url_query_create, data, format='json')
+        self.assertEqual(test_response_query.status_code, status.HTTP_201_CREATED)
+
+        test_response = self.client.get(self.url_detail)
+        query_count = len(test_response.data['query'])
+        self.assertEqual(query_count, 1)
+        self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+
+    def test_access_query_history_another_user(self):
+        """ Attempt to access query history of another user: 404 NOT FOUND"""
+        # Create secondary user (test_user_1)
+        url_create = reverse('user-register')
+        test_response = self.client.post(url_create, self.user_dict, format='json')
+        self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+
+        # Login as test_user_1
+        url_query_history = reverse('query-list') + '1/'
+        self.client.login(username=self.user_dict['username'], password=self.user_dict['password'])
+
+        # Attempt to view query-history/1/ made by test_user_0 in previous test
+        test_response = self.client.get(url_query_history)
+        self.assertTrue(status.is_client_error(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class UserChangePasswordTest(TestSetUp, APITestCase):
+
+    def test_authentication(self):
+        pass
+
+    def test_tempalate(self):
+        pass
+
+    def test_email(self):
         pass
 
             #

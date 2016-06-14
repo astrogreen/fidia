@@ -26,7 +26,7 @@ class CreateUserView(generics.ListCreateAPIView):
     model = User
     permission_classes = [restapi_app.permissions.IsNotAuthenticated]
     serializer_class = user.serializer.CreateUserSerializer
-    # throttle_classes = [throttling.AnonRateThrottle]
+    throttle_classes = [throttling.AnonRateThrottle]
 
     class CreateUserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'user/register/register.html'
