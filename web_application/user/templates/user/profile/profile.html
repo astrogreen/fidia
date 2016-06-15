@@ -13,13 +13,12 @@
 {% block breadcrumbs-outer %}
 <ul class="breadcrumb ">
     <li class="active"><a href="{% url 'index' %}">Home</a></li>
-    <li><a href="{% url 'user-profile-detail' user %}">My Account</a></li>
+    <li><a href="{% url 'user-profile-detail' user %}">Profile</a></li>
 </ul>
 {% endblock %}
 
 
 {% block content_render %}
-
     {% if display_edit_forms %}
     <br>
     <div class="row">

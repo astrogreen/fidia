@@ -20,54 +20,9 @@ from rest_framework.utils.urls import replace_query_param
 
 register = template.Library()
 
-# {% block status-info %}
-#       {{ response.status_code }} {{ response.status_text }}
-#     {% endblock status-info %}
-
-@register.simple_tag
-def status_is_success(status_code):
-    if status.is_success(status_code):
-        return True
-    else:
-        return False
-    
-
-@register.simple_tag
-def status_info(request, status_code, user, status_code_detail):
-    """
-    Display status info if not success (HTTP_2xx)
-    """
-    if status.is_success(status_code):
-        snippet = ""
-    else:
-        snippet = """
-                <div class="col-md-12" style="margin-top: 30px">
-                    <div class="row-fluid text-center https-status-message">
-                        <h1>Oops!</h1>
-                        <h2>{status_code_detail}</h2>
-                        <h4>Status Code: {status_code}</h4>
-                        <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a>
-                        </p>
-                    </div>
-                    <div class="row-fluid text-center https-status-message">
-
-            """
-        if str(user) == 'AnonymousUser':
-            snippet += "{optional_login}"
-        snippet += "</div></div>"
-        optional_login_html = optional_login(request)
-        snippet = format_html(snippet, status_code=status_code, request=request, user=user,
-                              status_code_detail=status_code_detail, optional_login=optional_login_html)
-
-    return mark_safe(snippet)
 
 
-@register.simple_tag
-def status_is_success(status_code):
-    if status.is_success(status_code):
-        return True
-    else:
-        return False
+
 
 
 @register.simple_tag
