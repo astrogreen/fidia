@@ -16,6 +16,9 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         #returns true false
 
 
+SAFE_METHODS = ['POST']
+
+
 class IsNotAuthenticated(permissions.BasePermission):
     """
     Custom permission to only allow only unauthenticated users (registration page)
@@ -24,4 +27,9 @@ class IsNotAuthenticated(permissions.BasePermission):
         return False
 
     def has_permission(self, request, view):
+        # return false if user is authenticated and get request (allow authentication in post)
+        # value = not (request.user and request.user.is_authenticated())
+        # if request.method == 'POST':
+        #     value = True
+        # return value
         return not (request.user and request.user.is_authenticated())

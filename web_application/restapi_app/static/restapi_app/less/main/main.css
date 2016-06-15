@@ -107,6 +107,9 @@ select {
 ++ SUCCESS FAILURE CLASSES
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.text-normal {
+  color: #515151;
+}
 .text-success {
   color: #5aa8d8;
 }
@@ -476,6 +479,11 @@ nav.navbar .navbar .dropdown-menu li a:hover {
   color: #fff;
   border: 1px solid #5aa8d8;
 }
+.btn-error {
+  background-color: #a94442;
+  color: #fff;
+  border: 1px solid #a94442;
+}
 .panel-default > .panel-heading {
   background-color: #f2f2f2;
 }
@@ -495,6 +503,14 @@ nav.navbar .navbar .dropdown-menu li a:hover {
 }
 #dataTables_paginate {
   float: right;
+}
+.panel,
+.panel-heading,
+.panel-body {
+  border-radius: 0;
+}
+.panel .panel-heading a {
+  color: #576469;
 }
 .panel-background-grey {
   background: url("../../img/background/panel-background.png") repeat-x;
@@ -522,6 +538,10 @@ nav.navbar .navbar .dropdown-menu li a:hover {
 .panel.success,
 .panel-body.success {
   border-left: 3px solid #5aa8d8;
+}
+.modal,
+.modal-content {
+  border-radius: 0;
 }
 .horizontal-checkbox label {
   padding-top: 0;

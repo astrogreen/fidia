@@ -6,7 +6,7 @@
 
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'user/css/user/user.min.css' %}"/>
-<script src="https://cdn.rawgit.com/nnattawat/flip/master/dist/jquery.flip.min.js"></script>
+
 {% endblock %}
 {% block bodyclass %}aat_outer{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
@@ -24,89 +24,142 @@
     <br>
     <div class="row">
         <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
-            <div style="width:100%; height:350px; position:relative;">
-                <div id="card">
-                    <div class="front">
-                        <div class="panel panel-default user-profile-card user-profile-detail animated">
-                            <div class="panel-heading">
-                                <strong> PROFILE </strong>
-                                <button class="btn btn-xs btn-default pull-right" id="profile-button" type="button">EDIT</button>
-                                <!--<i class="fa fa-user pull-right" style="margin-top:3px"></i>-->
-                            </div>
-                            <div class="panel-body">
-                                <h2>{{response.data.first_name | CapsSentence}}<br>
-                                    {{response.data.last_name | CapsSentence}}</h2>
-                                <h4>{{user}}
-                                    <small><i class="fa fa-circle text-success"></i></small><br>
-                                    <small><em>{{response.data.email}}</em></small>
-                                </h4>
-                                <ul class="list-group">
-                                    <li class="list-group-item">
-                                        <!--<span class="badge"><i class="fa fa-history"></i></span>-->
-                                        <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query
-                                            History</a>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="badge">{{response.data.query|length }}</span>
-                                        Total Queries
-                                    </li>
-                                </ul>
-                            </div>
+
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <a role="button" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <strong> PROFILE </strong>
+                            <i class="fa fa-user pull-right" style="margin-top:3px"></i>
+                        </a>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <h2>{{response.data.first_name | CapsSentence}}<br>
+                                {{response.data.last_name | CapsSentence}}</h2>
+                            <h4>{{user}}
+                                <small><i class="fa fa-circle text-success"></i></small>
+                                <br>
+                                <small><em>{{response.data.email}}</em></small>
+                            </h4>
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <!--<span class="badge"><i class="fa fa-history"></i></span>-->
+                                    <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query
+                                        History</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="badge">{{response.data.query|length }}</span>
+                                    Total Queries
+                                </li>
+                            </ul>
                         </div>
                     </div>
-                    <div class="back">
-                        <div class="panel panel-default user-profile-card user-profile-update animated ">
-                            <div class="panel-heading">
-                                <strong> UPDATE DETAILS </strong>
-                                <i class="fa fa-pencil-square-o pull-right" style="margin-top:3px"></i>
-                            </div>
-                            <div class="panel-body">
-                                {% if put_form %}
-                                <div class="" id="put-object-form">
-                                    <form action="{{ request.get_full_path }}" data-method="PUT"
-                                          enctype="multipart/form-data"
-                                          class="form-horizontal" novalidate>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <strong> UPDATE DETAILS </strong>
+                            <i class="fa fa-pencil-square-o pull-right" style="margin-top:3px"></i>
+                        </a>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+                            {% if put_form %}
+                            <div class="" id="put-object-form">
+                                <form action="{{ request.get_full_path }}" data-method="PUT"
+                                      enctype="multipart/form-data"
+                                      class="form-horizontal" novalidate>
 
-                                        {{ put_form }}
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <h5><a href="{% url 'password_change' %}"
-                                                       class=" text-uppercase pull-left">
-                                                    <span>change password</span>
-                                                    <i class="fa fa-lock"></i>
-                                                </a></h5>
-
-                                                <button class="btn btn-primary btn-xs js-tooltip pull-right"
-                                                        title="Overwrite Query {{objname}}" id="button-sql-update">
-                                                    UPDATE
-                                                </button>
-                                                <button class="btn btn-xs btn-default pull-right" id="update-profile-button">CANCEL</button>
-                                            </div>
+                                    {{ put_form }}
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <h5><a href="{% url 'password_change' %}"
+                                                   class=" text-uppercase pull-left">
+                                                <span>change password</span>
+                                                <i class="fa fa-lock"></i>
+                                            </a></h5>
                                         </div>
+                                        <div class="col-xs-6">
+                                            <button class="btn btn-primary btn-sm js-tooltip pull-right"
+                                                    title="Overwrite Query {{objname}}" id="button-sql-update">
+                                                UPDATE
+                                            </button>
+                                            <a role="button" data-toggle="collapse" data-parent="#accordion"
+                                               href="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                                               class="btn btn-sm btn-default pull-right">CANCEL
+                                            </a>
+                                        </div>
+                                    </div>
 
-                                    </form>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingThree">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            <strong> DELETE ACCOUNT </strong>
+                            <i class="fa fa-trash-o pull-right" style="margin-top:3px"></i>
+                        </a>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingThree">
+                        <div class="panel-body">
+                            <p><span class="text-error">WARNING</span> Deleting your account is irreversible. Please be
+                                sure
+                                you wish to proceed.</p>
+                            <form class="form-inline pull-right" action="{% url 'user-profile-detail' user %}" data-method="DELETE">
+
+                                <a role="button" data-toggle="collapse" data-parent="#accordion"
+                                   href="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                                   class="btn btn-sm btn-default ">CANCEL
+                                </a>
+                                <button type="button" class="btn btn-sm btn-default btn-error js-tooltip" title=""
+                                        id="DELETE_RESOURCE" data-toggle="modal" data-original-title="DELETE {{user}}">
+                                    DELETE
+                                </button>
+                            </form>
+                            <!-- Confirmation modal -->
+                            <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <strong> ARE YOU SURE? </strong>
+                                            <p>Deleting account {{user}} is irreversible. All data will be lost. </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">CANCEL</button>
+                                            <button type="button" data-dismiss="modal" class="btn btn-sm btn-error" id="delete">DELETE
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
+    {% comment %}
+    ------ CONFIRM RESOURCE DELETE ------
+    {% endcomment %}
     <script>
-
-        $("#card").flip({
-          trigger: 'manual'
-        });
-        $('.back').attr('style','z-index:0');
-        $('#profile-button').click(function(){
-            $("#card").flip(true);
-            return false;
-        });
-        $('#update-profile-button').click(function(){
-            $("#card").flip(false);
-            return false;
+        $('#DELETE_RESOURCE').on('click', function(e){
+            var $form=$(this).closest('form');
+            e.preventDefault();
+            $('#delete-modal-sm').modal({ backdrop: 'static', keyboard: false })
+            .one('click', '#delete', function (e) {
+                $form.trigger('submit');
+            });
         });
     </script>
     {% endif %}

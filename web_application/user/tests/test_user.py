@@ -189,27 +189,29 @@ class CreateUserTests(TestSetUp, APITestCase):
 
         # Check user profile exists
         url_detail = reverse('user-profile-detail', kwargs={'username': self.user_dict['username']})
-        print(url_detail)
+        # print(url_detail)
         test_response = self.client.get(url_detail)
         self.assertEqual(test_response.status_code, status.HTTP_200_OK)
-        pp(test_response)
+        # pp(test_response)
 
         # Delete account
         test_response = self.client.delete(url_detail, format='json')
-        pp(test_response)
+        # pp(test_response)
 
         # test_response = self.client.get(url_detail)
         # pp(test_response)
         # TODO should this redirect?!
 
-class ThrottleTest(TestSetUp, APITestCase):
+
+class ThrottleTest(APITestCase):
     """
     Check throttling works, if it's activate on the particular view associate with the named url
     """
     url_create = reverse('user-register')
 
     def setUp(self):
-        # note: don't clear the cache here - else can't test throttling!
+        cache.clear()
+        # Clear the cache from previous tests (if any)
         self.client = APIClient()
         self.user_dict = {
             'first_name': "another user",
@@ -227,15 +229,16 @@ class ThrottleTest(TestSetUp, APITestCase):
         if 'anon' in settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']:
             throttle_rate = settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['anon']
             integer_throttle_rate = throttle_rate.split('/day')[0]
-            print(integer_throttle_rate)
-            for i in range(int(integer_throttle_rate)+1):
+
+            for i in range(int(integer_throttle_rate) + 2):
+
                 user_info = self.user_dict
                 # these both need to be unique
                 user_info['username'] = 'test_user_'+str(i)
                 user_info['email'] = 'test'+str(i)+'@hotmail.com'
                 test_response = self.client.post(self.url_create, user_info, format='json')
 
-                if i < int(integer_throttle_rate):
+                if i < (int(integer_throttle_rate)):
                     self.assertTrue(status.is_success(test_response.status_code))
                     self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
 
@@ -243,6 +246,8 @@ class ThrottleTest(TestSetUp, APITestCase):
                     self.assertTrue(status.is_client_error(test_response.status_code))
                     self.assertEqual(test_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
                     self.assertIn("Request was throttled. Expected available in 86400 seconds.", json.dumps(test_response.data))
+
+
 
 
 class UserProfileTests(TestSetUp, APITestCase):
@@ -366,8 +371,6 @@ class AdminUserTests(TestSetUp, APITestCase):
 
         test_response = self.client.get(url_list)
         self.assertEqual(test_response.status_code, status.HTTP_200_OK)
-        print(test_response.data)
-        print(test_response.status_code)
 
     def test_get_user_not_admin(self):
         pass
@@ -457,8 +460,6 @@ class UserAuthBrowsableAPI(TestSetUp, APITestCase):
     #     self._require_login()
     #     test_response = self.client.get(reverse('rest_framework:logout'))
     #     self.assertTemplateUsed('user/django_auth/logout')
-
-
 
 
 

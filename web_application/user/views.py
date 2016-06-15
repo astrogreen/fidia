@@ -1,7 +1,7 @@
 import random, collections, logging
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404, redirect
-
+from django.http.response import HttpResponseRedirect
+from django.contrib.auth import authenticate, login
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions, throttling
 from rest_framework.response import Response
@@ -36,6 +36,19 @@ class CreateUserView(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = User.objects.none()
         return queryset
+    #
+    # def perform_create(self, serializer):
+    #     """
+    #     Redirect if browsable api to logged-in view of profile
+    #     """
+    #     serializer.save()
+    #     # LOGIN if browsable API
+    #     if self.request.accepted_media_type == 'text/html':
+    #         new_user = authenticate(username=serializer.validated_data['username'], password=serializer.validated_data['password'])
+    #         if user is not None:
+    #             login(self.request, new_user)
+    #             redirect_url = reverse('user-profile-detail', kwargs=({'username': serializer.validated_data['username']}))
+    #             return HttpResponseRedirect(redirect_url)
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
