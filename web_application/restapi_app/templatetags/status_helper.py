@@ -21,6 +21,7 @@ def is_informational(status_code):
 
 @register.simple_tag
 def is_success(status_code):
+    status_code=int(status_code)
     if status.is_success(status_code):
         return True
     else:

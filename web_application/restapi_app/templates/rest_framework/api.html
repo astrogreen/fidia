@@ -63,7 +63,8 @@
           {% endblock %}
 
           {% block content %}
-            {% if http_status_code == "200" %}
+            {% captureas http_status_is_success %}{% is_success http_status_code %}{% endcaptureas %}
+            {% if  http_status_is_success == "True" %}
               {% block content_render %}
 
                 <!-- Content to Render -->

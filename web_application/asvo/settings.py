@@ -50,15 +50,13 @@ INSTALLED_APPS = (
     'bootstrap3',
     'data_browser',
     'django_extensions',
-    # 'djoser',
     'mathfilters',
     'query',
     'user',
     'restapi_app',
     'rest_framework',
-    # 'rest_framework.authtoken',
-    'sov',
     # 'rest_framework_swagger',
+    'sov',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -247,21 +245,22 @@ NOCAPTCHA = True
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/day',
+    },
     'TEST_REQUEST_RENDERER_CLASSES': (
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.TemplateHTMLRenderer',
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
     ),
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/day',
-    },
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
 

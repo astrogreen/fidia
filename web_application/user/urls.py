@@ -62,7 +62,8 @@ urlpatterns = [
             # url(r'^templates/test/', TemplateView.as_view(template_name='user/django_auth/password-reset.html'), name='template-test'),
             # url(r'^templates/test/',  auth_views.password_reset,{'template_name': 'user/django_auth/password-reset.html'}, name='password_reset'),
 
-                  #     REST API NAMESPACED
+
+            #     REST API NAMESPACED
             # ^login/$ [name='login']
             # ^logout/$ [name='logout']
             #     MANAGED BY DJANGO (not restful endpoints)

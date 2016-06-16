@@ -30,12 +30,34 @@ def pp(test_response):
     print('Status Code ' + str(test_response.status_code))
     print('-------------- ')
 
+
 def is_json(myjson):
     try:
         json_object = json.loads(myjson)
     except ValueError:
         return False
     return True
+
+
+def helper_new_user():
+    """return new user dict"""
+
+    def rand_string(length):
+        """return random string"""
+        return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
+    email = rand_string(5)+'@'+rand_string(5)+'.com'
+
+    user_dict = {
+        'first_name': rand_string(10),
+        'last_name': rand_string(10),
+        'email': email,
+        'username': rand_string(10),
+        'password': 'test',
+        'confirm_password': 'test',
+    }
+
+    return user_dict
 
 
 class TestSetUp(APITestCase):
@@ -175,32 +197,7 @@ class CreateUserTests(TestSetUp, APITestCase):
         self.assertEqual(test_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertIn(json.dumps('Method "PATCH" not allowed.'), json.dumps(test_response.data))
 
-    def test_delete_user_authenticated(self):
-        """
-        Authenticated user can delete their own account (this isn't shown on the API)
-        """
-        # Create user
-        test_response = self.client.post(self.url_create, self.user_dict, format='json')
-        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
 
-        # Login as user
-        self.client.login(username=self.user_dict['username'], password=self.user_dict['password'])
-        self.client.login(username='test_user_1', password='test')
-
-        # Check user profile exists
-        url_detail = reverse('user-profile-detail', kwargs={'username': self.user_dict['username']})
-        # print(url_detail)
-        test_response = self.client.get(url_detail)
-        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
-        # pp(test_response)
-
-        # Delete account
-        test_response = self.client.delete(url_detail, format='json')
-        # pp(test_response)
-
-        # test_response = self.client.get(url_detail)
-        # pp(test_response)
-        # TODO should this redirect?!
 
 
 class ThrottleTest(APITestCase):
@@ -252,7 +249,8 @@ class ThrottleTest(APITestCase):
 
 class UserProfileTests(TestSetUp, APITestCase):
     """
-    /accounts/username profile. Can patch/put last/first name and email address
+    /accounts/username profile.
+    Retrieve:Get Update:Put/Patch Destroy:Delete
     """
 
     # RETRIEVE (ACCOUNTS/USERNAME)
@@ -291,35 +289,6 @@ class UserProfileTests(TestSetUp, APITestCase):
         self.assertEqual(test_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertEqual(test_response.data, {'detail': 'Method "POST" not allowed.'})
 
-    def test_retrieve_resource_patch_authenticated(self):
-        """Patch field, then try and patch a protected field (username): 400 BAD REQUEST"""
-        self.test_retrieve_resource_authenticated()
-
-        test_response = self.client.patch(self.url_detail, {'first_name': 'terrific new name'}, format='json')
-        self.assertTrue(status.is_success(test_response.status_code))
-        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
-        # serialize response.data (dict) to json str so can check if contains string
-        self.assertIn('"first_name": "terrific new name"', json.dumps(test_response.data))
-
-    def test_retrieve_resource_bad_request_authenticated(self):
-        """Patch a protected field (username): 400 BAD REQUEST"""
-        # TODO These status codes aren't correct - both are returning 200 instead of 400
-        self._require_login()
-        # Attempt to patch protected field, and non-existant field
-        test_response_2 = self.client.patch(self.url_detail, data={'username': 'cantchangethis'}, format='json')
-        self.assertNotIn('"username": "cantchangethis"', json.dumps(test_response_2.data))
-
-        # test_response_3 = self.client.patch(self.url_detail, data={'usernamedoesntexist': 'new_username'}, format='json')
-        # self.assertNotIn('"usernamedoesntexist": "new_username"', json.dumps(test_response_3.data))
-
-    def test_retrieve_resource_put(self):
-        """Put request: 200 OK"""
-        self.test_retrieve_resource_authenticated()
-        test_response = self.client.patch(self.url_detail, self.user_dict, format='json')
-        self.assertTrue(status.is_success(test_response.status_code))
-        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
-        self.assertIn('"first_name": "another user"', json.dumps(test_response.data))
-
     def test_profile_query_history(self):
         url_query_create = reverse('query-create-list')
         self._require_login()
@@ -352,6 +321,89 @@ class UserProfileTests(TestSetUp, APITestCase):
         test_response = self.client.get(url_query_history)
         self.assertTrue(status.is_client_error(test_response.status_code))
         self.assertEqual(test_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    # UPDATE
+    def test_put_resource(self):
+        """Put request: 200 OK"""
+        self.test_retrieve_resource_authenticated()
+        test_response = self.client.patch(self.url_detail, self.user_dict, format='json')
+        self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+        self.assertIn('"first_name": "another user"', json.dumps(test_response.data))
+
+    def test_patch_authenticated(self):
+        """Patch field, then try and patch a protected field (username): 400 BAD REQUEST"""
+        self.test_retrieve_resource_authenticated()
+
+        test_response = self.client.patch(self.url_detail, {'first_name': 'terrific new name'}, format='json')
+        self.assertTrue(status.is_success(test_response.status_code))
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+        # serialize response.data (dict) to json str so can check if contains string
+        self.assertIn('"first_name": "terrific new name"', json.dumps(test_response.data))
+
+    def test_patch_bad_request_authenticated(self):
+        """Patch a protected field (username): 400 BAD REQUEST"""
+        # TODO These status codes aren't correct - both are returning 200 instead of 400
+        self._require_login()
+        # Attempt to patch protected field, and non-existant field
+        test_response_2 = self.client.patch(self.url_detail, data={'username': 'cantchangethis'}, format='json')
+        self.assertNotIn('"username": "cantchangethis"', json.dumps(test_response_2.data))
+
+        # test_response_3 = self.client.patch(self.url_detail, data={'usernamedoesntexist': 'new_username'}, format='json')
+        # self.assertNotIn('"usernamedoesntexist": "new_username"', json.dumps(test_response_3.data))
+
+    # DESTROY
+    def test_delete_user_authenticated(self):
+        """
+        Authenticated user can delete their own account
+        Vary the ACCEPT header (application/json, text/html)
+        """
+        # APPLICATION/JSON
+
+        # Create user
+        url_create = CreateUserTests.url_create
+        new_user_dict = helper_new_user()
+        test_response = self.client.post(url_create, new_user_dict, format='json')
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+
+        # Login as user
+        self.client.login(username=new_user_dict['username'], password=new_user_dict['password'])
+
+        # Check user profile exists
+        url_detail = reverse('user-profile-detail', kwargs={'username': new_user_dict['username']})
+        test_response = self.client.get(url_detail)
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+
+        # Delete account
+        # This is coerced to 200 when returning html content else page won't display in browser...
+        # https://github.com/tomchristie/django-rest-framework/issues/3935
+        # Force the accept header to json (by passing browser restrictions)
+
+        test_response = self.client.delete(url_detail, HTTP_ACCEPT='application/json')
+        self.assertEqual(test_response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # User can no longer access this profile
+        test_response = self.client.get(url_detail)
+        self.assertEqual(test_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('"detail": "Authentication credentials were not provided."', json.dumps(test_response.data))
+
+        # TEXT/HTML
+        # Test for template tag injection of detailed message if ACCEPT = html
+        new_user_dict = helper_new_user()
+        test_response = self.client.post(url_create, new_user_dict, format='json')
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+        self.client.login(username=new_user_dict['username'], password=new_user_dict['password'])
+        url_detail = reverse('user-profile-detail', kwargs={'username': new_user_dict['username']})
+        test_response = self.client.delete(url_detail, HTTP_ACCEPT='text/html')
+
+        # status code here is 200 (else browser wouldn't display, request.data is empty) but our template tag
+        # handling the status info injects a message for No Content.
+        self.assertIn("No Content", str(test_response.content))
+
+        # User can no longer access this profile
+        test_response = self.client.get(url_detail)
+        self.assertEqual(test_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('"detail": "Authentication credentials were not provided."', json.dumps(test_response.data))
 
 
 class AdminUserTests(TestSetUp, APITestCase):

@@ -66,8 +66,8 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         """
         Return User info for currently authenticated user
         """
-        user = self.request.user
-        return User.objects.filter(username=user)
+        username = self.request.user
+        return User.objects.filter(username=username)
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
