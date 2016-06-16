@@ -198,8 +198,6 @@ class CreateUserTests(TestSetUp, APITestCase):
         self.assertIn(json.dumps('Method "PATCH" not allowed.'), json.dumps(test_response.data))
 
 
-
-
 class ThrottleTest(APITestCase):
     """
     Check throttling works, if it's activate on the particular view associate with the named url
@@ -245,13 +243,21 @@ class ThrottleTest(APITestCase):
                     self.assertIn("Request was throttled. Expected available in 86400 seconds.", json.dumps(test_response.data))
 
 
-
-
 class UserProfileTests(TestSetUp, APITestCase):
     """
     /accounts/username profile.
     Retrieve:Get Update:Put/Patch Destroy:Delete
     """
+
+    def create_random_new_user(self):
+        """
+        Create a random new user, return dict of user details.
+        """
+        url_create = CreateUserTests.url_create
+        new_user_dict = helper_new_user()
+        test_response = self.client.post(url_create, new_user_dict, format='json')
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+        return new_user_dict
 
     # RETRIEVE (ACCOUNTS/USERNAME)
     def test_retrieve_resource_check_template(self):
@@ -325,32 +331,69 @@ class UserProfileTests(TestSetUp, APITestCase):
     # UPDATE
     def test_put_resource(self):
         """Put request: 200 OK"""
-        self.test_retrieve_resource_authenticated()
-        test_response = self.client.patch(self.url_detail, self.user_dict, format='json')
+        # Create new resource
+        new_user_dict = self.create_random_new_user()
+        url_detail = reverse('user-profile-detail', kwargs={'username': new_user_dict['username']})
+        self.client.login(username=new_user_dict['username'], password=new_user_dict['password'])
+
+        updated_user_dict = helper_new_user()
+        for i in ('username', 'password', 'confirm_password'):
+            updated_user_dict.pop(i)
+
+        test_response = self.client.put(url_detail, updated_user_dict, format='json')
         self.assertTrue(status.is_success(test_response.status_code))
         self.assertEqual(test_response.status_code, status.HTTP_200_OK)
-        self.assertIn('"first_name": "another user"', json.dumps(test_response.data))
+        self.assertIn('"first_name": "'+updated_user_dict['first_name']+'"', json.dumps(test_response.data))
 
     def test_patch_authenticated(self):
         """Patch field, then try and patch a protected field (username): 400 BAD REQUEST"""
-        self.test_retrieve_resource_authenticated()
+        new_user_dict = self.create_random_new_user()
+        url_detail = reverse('user-profile-detail', kwargs={'username': new_user_dict['username']})
+        self.client.login(username=new_user_dict['username'], password=new_user_dict['password'])
 
-        test_response = self.client.patch(self.url_detail, {'first_name': 'terrific new name'}, format='json')
+        test_response = self.client.patch(url_detail, {'first_name': 'terrific new name'}, format='json')
         self.assertTrue(status.is_success(test_response.status_code))
         self.assertEqual(test_response.status_code, status.HTTP_200_OK)
         # serialize response.data (dict) to json str so can check if contains string
         self.assertIn('"first_name": "terrific new name"', json.dumps(test_response.data))
 
     def test_patch_bad_request_authenticated(self):
-        """Patch a protected field (username): 400 BAD REQUEST"""
-        # TODO These status codes aren't correct - both are returning 200 instead of 400
-        self._require_login()
-        # Attempt to patch protected field, and non-existant field
-        test_response_2 = self.client.patch(self.url_detail, data={'username': 'cantchangethis'}, format='json')
-        self.assertNotIn('"username": "cantchangethis"', json.dumps(test_response_2.data))
+        """Patch a non-existent then protected field (username): 400 BAD REQUEST"""
+        # Bad request data return 400
+        # Incorrect fields are silently ignored and 200 returned
 
-        # test_response_3 = self.client.patch(self.url_detail, data={'usernamedoesntexist': 'new_username'}, format='json')
-        # self.assertNotIn('"usernamedoesntexist": "new_username"', json.dumps(test_response_3.data))
+        # Here, if content_type and HTTP_ACCEPT are html, status codes are coerced into 200 else browser won't display!
+        # Note: See expected status codes when using content_type='application/json', HTTP_ACCEPT="application/json"
+        # (or use format keyword and supply a dict rather than property formatted json)
+        self._require_login()
+
+        # PATCH MALFORMED DATA (400)
+        # HTTP_ACCEPT="application/json"
+        test_response = self.client.patch(self.url_detail, data='{"usernamedoesntexist: "new_username"}',
+                                          content_type='application/json', HTTP_ACCEPT="application/json")
+        self.assertNotIn('usernamedoesntexist', json.dumps(test_response.data))
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, test_response.status_code)
+
+        # HTTP_ACCEPT="text/html"
+        test_response = self.client.patch(self.url_detail, data='{"usernamedoesntexist: "new_username"}',
+                                          content_type='application/json', HTTP_ACCEPT="text/html")
+        self.assertNotIn('usernamedoesntexist', json.dumps(test_response.data))
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, test_response.status_code)
+
+        # PATCH NONEXISTENT FIELD (200, silently trashes data)
+        # HTTP_ACCEPT="text/html"
+        test_response = self.client.patch(self.url_detail, data={'usernamedoesntexist': 'new_username'},
+                                            format='json', HTTP_ACCEPT="text/html")
+        self.assertNotIn('"usernamedoesntexist": "new_username"', json.dumps(test_response.data))
+        self.assertEqual(status.HTTP_200_OK, test_response.status_code)
+
+        # PATCH PROTECTED FIELD
+        # HTTP_ACCEPT="application/json"
+        test_response = self.client.patch(self.url_detail, data='{"username": "cantchangethis"}',
+                                            content_type='application/json', HTTP_ACCEPT="application/json")
+        self.assertNotIn('"username": "cantchangethis"', json.dumps(test_response.data))
+        self.assertEqual(status.HTTP_200_OK, test_response.status_code)
+
 
     # DESTROY
     def test_delete_user_authenticated(self):
