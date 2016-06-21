@@ -568,7 +568,6 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     @trait_property('float.array')
     def variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
@@ -576,39 +575,33 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     @trait_property('float.array')
     def comp_1_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
-        log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def comp_1_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
     @trait_property('float.array')
     def comp_2_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[2, :, :]
-        log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def comp_2_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
     @trait_property('float.array')
     def comp_3_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[3, :, :]
-        log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def comp_3_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
