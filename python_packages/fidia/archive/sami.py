@@ -19,7 +19,9 @@ from .archive import Archive
 
 from ..utilities import WildcardDictionary
 
-from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
+#from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
+from fidia.traits import *
+from fidia.traits.utilities import TraitMapping
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -434,19 +436,36 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
-    @trait_property('string')
-    def wcs_string(self):
-        h = self.hdu[0].header.copy()
-        # The PLATEID header keyword confuses the WCS package,
-        # so it must be removed from the header before creating
-        # the WCS object
-        del h['PLATEID']
-        w = wcs.WCS(h)
-        return w.to_header_string()
+    # @trait_property('string')
+    # def wcs_string(self):
+    #     h = self.hdu[0].header.copy()
+    #     # The PLATEID header keyword confuses the WCS package,
+    #     # so it must be removed from the header before creating
+    #     # the WCS object
+    #     del h['PLATEID']
+    #     w = wcs.WCS(h)
+    #     return w.to_header_string()
 
-    @cached_property
-    def wcs(self):
-        return wcs.WCS(self.wcs_string)
+    # @cached_property
+    # def wcs(self):
+    #     return wcs.WCS(self.wcs_string)
+
+    # @subtrait
+    class WCS(WorldCoordinateSystem):
+
+        @trait_property('string')
+        def _wcs_string(self):
+            h = self.hdu[0].header.copy()
+            # The PLATEID header keyword confuses the WCS package,
+            # so it must be removed from the header before creating
+            # the WCS object
+            del h['PLATEID']
+            w = wcs.WCS(h)
+            return w.to_header_string()
+
+
+    _sub_traits = TraitMapping()
+    _sub_traits[TraitKey('wcs')] = WCS
 
 
 class LZIFUVelocityMap(VelocityMap):
@@ -687,6 +706,19 @@ class LZIFULineSpectrum(SpectralMap):
     def variance(self):
         return None
 
+
+class SAMICatalogPosition(SkyCoordinate):
+
+    @trait_property
+    def _ra(self):
+        pass
+
+    @trait_property
+    def _dec(self):
+        pass
+
+
+
 class SAMITeamArchive(Archive):
 
     def __init__(self, base_directory_path, master_catalog_path):
@@ -696,6 +728,13 @@ class SAMITeamArchive(Archive):
         log.debug("master_catalog_path: %s", self._master_catalog_path)
 
         self._cubes_directory = self._get_cube_info()
+
+        with fits.open(self._master_catalog_path) as m:
+            fits_table = m[1].data
+            self.tabular_data = pd.DataFrame.from_records(
+                fits_table.tolist(),
+                columns=map(lambda x: x.name, fits_table.columns))
+        self.tabular_data.set_index('CATID')
 
         self._contents = set(self._cubes_directory.index.get_level_values('sami_id'))
 
