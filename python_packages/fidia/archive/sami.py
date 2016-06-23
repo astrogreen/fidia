@@ -436,36 +436,37 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
-    # @trait_property('string')
-    # def wcs_string(self):
-    #     h = self.hdu[0].header.copy()
-    #     # The PLATEID header keyword confuses the WCS package,
-    #     # so it must be removed from the header before creating
-    #     # the WCS object
-    #     del h['PLATEID']
-    #     w = wcs.WCS(h)
-    #     return w.to_header_string()
+    class CatCoordinate(SkyCoordinate):
 
-    # @cached_property
-    # def wcs(self):
-    #     return wcs.WCS(self.wcs_string)
+        @trait_property('float')
+        def _ra(self):
+            return self.parent_trait.ra()
 
-    # @subtrait
+        @trait_property('float')
+        def _dec(self):
+            return self.parent_trait.dec()
+
+
+    @trait_property('string')
+    def _wcs_string(self):
+        h = self.hdu[0].header.copy()
+        # The PLATEID header keyword confuses the WCS package,
+        # so it must be removed from the header before creating
+        # the WCS object
+        del h['PLATEID']
+        w = wcs.WCS(h)
+        return w.to_header_string()
+
+
     class WCS(WorldCoordinateSystem):
 
         @trait_property('string')
         def _wcs_string(self):
-            h = self.hdu[0].header.copy()
-            # The PLATEID header keyword confuses the WCS package,
-            # so it must be removed from the header before creating
-            # the WCS object
-            del h['PLATEID']
-            w = wcs.WCS(h)
-            return w.to_header_string()
-
+            return self.parent_trait._wcs_string()
 
     _sub_traits = TraitMapping()
     _sub_traits[TraitKey('wcs')] = WCS
+    _sub_traits[TraitKey('catalog_coordinate')] = CatCoordinate
 
 
 class LZIFUVelocityMap(VelocityMap):
@@ -624,7 +625,19 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         variance = sigma**2
         return variance
 
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[0].header
+        return _wcs_string
 
+
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self.parent_trait._wcs_string.value
+
+    _sub_traits = TraitMapping()
+    _sub_traits[TraitKey('wcs')] = LZIFUWCS
 
 class LZIFUContinuum(SpectralMap):
 
@@ -705,18 +718,6 @@ class LZIFULineSpectrum(SpectralMap):
     @trait_property('float.array')
     def variance(self):
         return None
-
-
-class SAMICatalogPosition(SkyCoordinate):
-
-    @trait_property
-    def _ra(self):
-        pass
-
-    @trait_property
-    def _dec(self):
-        pass
-
 
 
 class SAMITeamArchive(Archive):

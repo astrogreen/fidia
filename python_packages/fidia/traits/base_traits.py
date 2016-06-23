@@ -126,7 +126,7 @@ class Trait(AbstractBaseTrait):
         if object_id is None:
             raise KeyError("object_id must be supplied")
         self.object_id = object_id
-        self._parent_trait = parent_trait
+        self.parent_trait = parent_trait
         self.trait_qualifier = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
@@ -462,7 +462,7 @@ class Map(Trait, AbstractBaseArrayTrait):
     
     # The centre, starting point, or other canonical position information
     @property
-    def     nominal_position(self):
+    def nominal_position(self):
         return self._nominal_position
     
 
@@ -473,7 +473,12 @@ class SkyCoordinate(astropy.coordinates.SkyCoord, SmartTrait):
 
     def __init__(self, *args, **kwargs):
         SmartTrait.__init__(self, *args, **kwargs)
-        astropy.coordinates.SkyCoord.__init__(self, self._ra(), self._dec(), unit='deg')
+        astropy.coordinates.SkyCoord.__init__(self, self._ra(), self._dec(), unit='deg', frame=self._ref_frame)
+
+    # @FIXME: explain why value is required here but not for WorldCoordinateSystem below.
+    @property
+    def value(self):
+        return None
 
     @abstractproperty
     def _ra(self):
@@ -485,7 +490,7 @@ class SkyCoordinate(astropy.coordinates.SkyCoord, SmartTrait):
 
     @property
     def _ref_frame(self):
-        return 'ICRS'
+        return 'icrs'
 
 
 class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
@@ -511,16 +516,13 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
     #         SmartTrait.__init__(self, *args, **kwargs)
     #         astropy.wcs.WCS.__init__(self, header=self._wcs_string)
     #
-    # However, there are a few issues with this approach:
-
-
-
-    # def __new__(cls, *args, **kwargs):
-    #     #
+    # However, there are a few issues with this approach... (???)
 
     def __init__(self, *args, **kwargs):
         SmartTrait.__init__(self, *args, **kwargs)
-        astropy.wcs.WCS.__init__(self, header=self._wcs_string)
+        header_string = self._wcs_string.value
+        log.debug("Initialising WCS object with %s containing %s", type(header_string), header_string)
+        astropy.wcs.WCS.__init__(self, header=header_string)
 
     @abstractproperty
     def _wcs_string(self):

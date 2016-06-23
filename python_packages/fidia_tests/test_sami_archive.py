@@ -18,11 +18,18 @@ class TestSAMIArchive:
         ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
                                   "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
                                   "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
+        # ar = sami.SAMITeamArchive("/home/agreen/sami_test_release/",
+        #                           "/home/agreen/sami_test_release/" +
+        #                           "sami_small_test_cat.fits")
         return ar
 
     @pytest.fixture
     def sami_sample(self, sami_archive):
         return sami_archive.get_full_sample()
+
+    @pytest.fixture
+    def a_sami_galaxy(self, sami_sample):
+        return sami_sample['9352']
 
     def test_confirm_id_data_type(self, sami_archive, sami_sample):
         assert isinstance(next(iter(sami_archive.contents)), str)
@@ -122,3 +129,18 @@ class TestSAMIArchive:
     #             continue
     #         else:
     #             assert isinstance(trait, AbstractBaseTrait)
+
+
+    def test_cube_wcs(self, a_sami_galaxy):
+
+        import astropy.wcs
+
+        wcs = a_sami_galaxy['spectral_cube', 'blue'].get_sub_trait(TraitKey('wcs'))
+        assert isinstance(wcs, astropy.wcs.WCS)
+
+
+    def test_cube_coord(self, a_sami_galaxy):
+        import astropy.coordinates
+
+        coord = a_sami_galaxy['spectral_cube', 'blue'].get_sub_trait(TraitKey('catalog_coordinate'))
+        assert isinstance(coord, astropy.coordinates.SkyCoord)
