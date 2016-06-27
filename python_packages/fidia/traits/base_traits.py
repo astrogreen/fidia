@@ -487,10 +487,82 @@ class Map(Trait, AbstractBaseArrayTrait):
         return self._nominal_position
     
 
+class MetadataTrait(Trait):
+    def __init__(self, *args, **kwargs):
+        super(MetadataTrait, self).__init__(*args, **kwargs)
+
+
+
+
+class DetectorCharacteristics(MetadataTrait):
+    """
+
+    Trait Properties:
+
+        detector_id
+
+        detector_size
+
+        gain
+
+        read_noise
+
+
+    """
+
+    required_trait_properties = {
+        'detector_id': 'string',
+        'detector_size': 'string',
+        'gain': 'float',
+        'read_noise': 'float'
+    }
+
+class SpectrographCharacteristics(Trait):
+    """
+
+    Trait Properties:
+
+        instrument_name
+
+        arm
+
+        disperser_id
+
+        disperser_configuration
+
+        control_software
+
+    """
+
+    pass
+
+class OpticalTelescopeCharacteristics(Trait):
+    """
+
+    Trait Properties:
+
+        observatory_name
+
+        latitude
+
+        longitude
+
+        altitude
+
+        focus_configuration
+
+
+
+    """
+    pass
+
+
 class SmartTrait(Trait):
     pass
 
 class SkyCoordinate(astropy.coordinates.SkyCoord, SmartTrait):
+
+    trait_type = 'sky_coordinate'
 
     def __init__(self, *args, **kwargs):
         SmartTrait.__init__(self, *args, **kwargs)
@@ -538,6 +610,8 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
     #         astropy.wcs.WCS.__init__(self, header=self._wcs_string)
     #
     # However, there are a few issues with this approach... (???)
+
+    trait_type = 'wcs'
 
     def __init__(self, *args, **kwargs):
         SmartTrait.__init__(self, *args, **kwargs)

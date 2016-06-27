@@ -38,7 +38,7 @@ class AbstractBaseTrait(metaclass=ABCMeta):
     def schema(cls):
         raise NotImplementedError
 
-    @abstractproperty
+    # @abstractproperty
     def value(self):
         raise NotImplementedError
 

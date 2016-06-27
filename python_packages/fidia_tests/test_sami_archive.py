@@ -100,18 +100,18 @@ class TestSAMIArchive:
     #             # Values should be valid data-types
     #             # @TODO: Not implemented
 
-    # def test_sami_archive_has_correct_schema_structure(self, sami_archive):
-    #     schema = sami_archive.schema()
-    #
-    #     # Schema should be dictionary-like:
-    #     assert isinstance(schema, dict)
-    #     for trait_type in schema:
-    #
-    #         # Top level of schema should be a valid trait_type:
-    #         assert trait_type in map(lambda tk: tk.trait_type, sami_archive.available_traits)
-    #
-    #         # Each element should be dictionary-like
-    #         assert isinstance(schema[trait_type], dict)
+    def test_sami_archive_has_correct_schema_structure(self, sami_archive):
+        schema = sami_archive.schema()
+
+        # Schema should be dictionary-like:
+        assert isinstance(schema, dict)
+        for trait_type in schema:
+
+            # Top level of schema should be a valid trait_type:
+            assert trait_type in map(lambda tk: tk.trait_type, sami_archive.available_traits)
+
+            # Each element should be dictionary-like
+            assert isinstance(schema[trait_type], dict)
 
     # def test_get_trait_keys_for_rss(self, sami_archive):
     #     rss_keys = sami_archive.available_traits[('rss_map')].known_keys(sami_archive)
@@ -144,3 +144,35 @@ class TestSAMIArchive:
 
         coord = a_sami_galaxy['spectral_cube', 'blue'].get_sub_trait(TraitKey('catalog_coordinate'))
         assert isinstance(coord, astropy.coordinates.SkyCoord)
+
+    def test_cube_wcs_in_schema(self, sami_archive):
+        schema = sami_archive.schema()
+
+        schema['spectral_cube']['wcs']
+
+    def test_telescope_metadata(self, a_sami_galaxy):
+        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).telescope() == 'Anglo-Australian Telescope'
+        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).latitude() == -31.27704
+        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).longitude() == 149.0661
+        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).altitude() == 1164
+
+
+    def test_instrument_metadata(self, a_sami_galaxy):
+        sub_trait = a_sami_galaxy['spectral_cube-blue'].get_sub_trait(TraitKey('instrument_metadata'))
+
+        assert isinstance(sub_trait, sami.SAMISpectralCube.SAMICharacteristics)
+
+        assert sub_trait.disperser_id() == '580V'
+        assert sub_trait.disperser_tilt() == 0.7
+        assert sub_trait.instrument_software_date() == '17-Oct-2014'
+        assert sub_trait.instrument_id() == 'AAOMEGA-SAMI'
+        assert sub_trait.spectrograph_arm() == 'BL'
+
+
+    def test_detector_metadata(self, a_sami_galaxy):
+        sub_trait = a_sami_galaxy['spectral_cube-blue'].get_sub_trait(TraitKey('detector_metadata'))
+
+        assert isinstance(sub_trait, sami.SAMISpectralCube.AAOmegaDetector)
+
+        assert sub_trait.detector_control_software_version() == 'r3_110_2_3'
+        assert sub_trait.detector_id() == 'E2V2A'

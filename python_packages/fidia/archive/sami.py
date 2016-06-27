@@ -436,6 +436,14 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
+
+    #
+    # Sub Traits
+    #
+
+    _sub_traits = TraitMapping()
+
+
     class CatCoordinate(SkyCoordinate):
 
         @trait_property('float')
@@ -446,27 +454,196 @@ class SAMISpectralCube(SpectralMap):
         def _dec(self):
             return self.parent_trait.dec()
 
-
-    @trait_property('string')
-    def _wcs_string(self):
-        h = self.hdu[0].header.copy()
-        # The PLATEID header keyword confuses the WCS package,
-        # so it must be removed from the header before creating
-        # the WCS object
-        del h['PLATEID']
-        w = wcs.WCS(h)
-        return w.to_header_string()
-
+    _sub_traits[TraitKey('catalog_coordinate')] = CatCoordinate
 
     class WCS(WorldCoordinateSystem):
 
         @trait_property('string')
         def _wcs_string(self):
-            return self.parent_trait._wcs_string()
+            with self.parent_trait.preloaded_context() as pt:
+                h = pt.hdu[0].header.copy()
+                # The PLATEID header keyword confuses the WCS package,
+                # so it must be removed from the header before creating
+                # the WCS object
+                del h['PLATEID']
+                w = wcs.WCS(h)
+                return w.to_header_string()
 
-    _sub_traits = TraitMapping()
     _sub_traits[TraitKey('wcs')] = WCS
-    _sub_traits[TraitKey('catalog_coordinate')] = CatCoordinate
+
+
+    class AAT(OpticalTelescopeCharacteristics):
+        """AAT Telescope characteristics defined by FITS header
+
+        Relevant section from the header:
+
+            ORIGIN  = 'AAO     '           / Originating Institution
+            TELESCOP= 'Anglo-Australian Telescope' / Telescope Name
+            ALT_OBS =                 1164 / Altitude of observatory in metres
+            LAT_OBS =            -31.27704 / Observatory latitude in degrees
+            LONG_OBS=             149.0661 / Observatory longitude in degrees
+        """
+
+        trait_type = 'telescope_metadata'
+
+        # trait_properties = [
+        #     TraitPropertyFromFitsHeader(name='telescope', header_name='TELESCOP'),
+        #     TraitPropertyFromFitsHeader(name='altitude', header_name='ALT_OBS'),
+        #     TraitPropertyFromFitsHeader(name='latitude', header_name='LAT_OBS'),
+        #     TraitPropertyFromFitsHeader(name='longitude', header_name='LONG_OBS'),
+        # ]
+
+        @trait_property('string')
+        def telescope(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['TELESCOP']
+
+        @trait_property('string')
+        def altitude(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['ALT_OBS']
+
+        @trait_property('string')
+        def latitude(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['LAT_OBS']
+
+        @trait_property('string')
+        def longitude(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['LONG_OBS']
+
+    _sub_traits[TraitKey('telescope_metadata')] = AAT
+
+    class AAOmegaDetector(DetectorCharacteristics):
+        """AAOmega Detector characteristics defined by FITS header
+
+        Relevant section from the header:
+            DCT_DATE= 'Sep 12 2014'        / DCT release date
+            DCT_VER = 'r3_110_2_3'         / DCT version number
+            DETECXE =                 2048 / Last column of detector
+            DETECXS =                    1 / First column of detector
+            DETECYE =                 4102 / Last row of detector
+            DETECYS =                    1 / First row of detector
+            DETECTOR= 'E2V2A   '           / Detector name
+            XPIXSIZE=                  15. / X Pixel size in microns
+            YPIXSIZE=                  15. / Y Pixel size in microns
+            METHOD  = 'CCD Charge shuffling technique' / Observing method
+            SPEED   = 'NORMAL  '           / Readout speed
+            READAMP = 'RIGHT   '           / Readout amplifier
+            RO_GAIN =                 1.88 / Readout amplifier (inverse) gain (e-/ADU)
+            RO_NOISE=                 3.61 / Readout noise (electrons)
+
+        """
+
+        trait_type = 'detector_metadata'
+
+        @trait_property('string')
+        def detector_id(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['DETECTOR']
+
+        @trait_property('string')
+        def gain(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['RO_GAIN']
+
+        @trait_property('string')
+        def read_noise(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['RO_NOISE']
+
+        @trait_property('string')
+        def read_speed(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['SPEED']
+
+        @trait_property('string')
+        def detector_control_software_date(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['DCT_DATE']
+
+        @trait_property('string')
+        def detector_control_software_version(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['DCT_VER']
+
+        @trait_property('string')
+        def read_amplifier(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['READAMP']
+
+    _sub_traits[TraitKey('detector_metadata')] = AAOmegaDetector
+
+    class SAMICharacteristics(SpectrographCharacteristics):
+        """Characteristics of the SAMI Instrument
+
+        Relevant Header Sections:
+
+            RCT_VER = 'r3_71HB '           / Run Control Task version number
+            RCT_DATE= '19-Oct-2013'        / Run Control Task version date
+            RADECSYS= 'FK5     '           / FK5 reference system
+            INSTRUME= 'AAOMEGA-SAMI'       / Instrument in use
+            SPECTID = 'BL      '           / Spectrograph ID
+            GRATID  = '580V    '           / Disperser ID
+            GRATTILT=                  0.7 / Grating tilt to be symmetric (degree)
+            GRATLPMM=                582.0 / Disperser ruling (lines/mm)
+            ORDER   =                    1 / Spectrum order
+            TDFCTVER= 'r11_33A '           / 2dF Control Task Version
+            TDFCTDAT= '17-Oct-2014'        / 2dF Control Task Version Date
+            DICHROIC= 'X5700   '           / Dichroic name
+            OBSTYPE = 'OBJECT  '           / Observation type
+            TOPEND  = 'PF      '           / Telescope top-end
+            AXIS    = 'REF     '           / Current optical axis
+            AXIS_X  =                   0. / Optical axis x (mm)
+            AXIS_Y  =                   0. / Optical axis y (mm)
+            TRACKING= 'TRACKING'           / Telescope is tracking.
+            TDFDRVER= '1.34    '           / 2dfdr version
+            PLATEID = 'Y14SAR3_P005_12T056_15T080' / Plate ID (from config file)
+            LABEL   = 'Y14SAR3_P005_12T056 - Run 16 galaxy plate 5 - field 1' / Configuratio
+
+        """
+
+        trait_type = 'instrument_metadata'
+
+        @trait_property('string')
+        def instrument_id(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['INSTRUME']
+
+        @trait_property('string')
+        def spectrograph_arm(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['SPECTID']
+
+        @trait_property('string')
+        def disperser_id(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['GRATID']
+
+        @trait_property('string')
+        def disperser_tilt(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['GRATTILT']
+
+        @trait_property('string')
+        def instrument_software_version(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['TDFCTVER']
+
+        @trait_property('string')
+        def instrument_software_date(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['TDFCTDAT']
+
+        @trait_property('string')
+        def dichroic_id(self):
+            with self.parent_trait.preloaded_context() as pt:
+                return pt.hdu[0].header['DICHROIC']
+
+
+
+    _sub_traits[TraitKey('instrument_metadata')] = SAMICharacteristics
 
 
 class LZIFUVelocityMap(VelocityMap):
