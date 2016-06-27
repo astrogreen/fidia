@@ -2,6 +2,8 @@ import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
 
+from contextlib import contextmanager
+
 from astropy.io import fits
 
 import astropy.coordinates
@@ -320,6 +322,19 @@ class Trait(AbstractBaseTrait):
         """
         for tp in self._trait_properties(trait_type):
             yield getattr(self, tp.name).value
+
+    @contextmanager
+    def preloaded_context(self):
+        """Returns a context manager reference to the preloaded trait, and cleans up afterwards."""
+        try:
+            # Preload the Trait if necessary.
+            self._load_incr()
+            log.debug("Context manager version of Trait %s created", self.trait_key)
+            yield self
+        finally:
+            # Cleanup the Trait if necessary.
+            self._load_decr()
+            log.debug("Context manager version of Trait %s cleaned up", self.trait_key)
 
     def _load_incr(self):
         """Internal function to handle preloading. Prevents a Trait being loaded multiple times.

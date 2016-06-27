@@ -361,7 +361,10 @@ class BoundTraitProperty:
         except DataNotAvailable:
             raise
         except Exception as e:
-            log.exception("An exception occurred trying to retrieve the requested data: %s", e)
+            log.exception("An exception occurred trying to retrieve the TraitProperty %s of Trait %s",
+                          self._trait_property.name,
+                          self._trait.trait_key
+                          )
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
             # Cleanup the Trait if necessary.
