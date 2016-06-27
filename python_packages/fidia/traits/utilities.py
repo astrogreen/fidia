@@ -360,7 +360,8 @@ class BoundTraitProperty:
             value = self._trait_property.fload(self._trait)
         except DataNotAvailable:
             raise
-        except:
+        except Exception as e:
+            log.exception("An exception occurred trying to retrieve the requested data: %s", e)
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
             # Cleanup the Trait if necessary.

@@ -166,7 +166,11 @@ class TestMissingProperty(SpectralMap):
         return self.object_id
 
 class SimpleTrait(Trait):
+    """Description for SimpleTrait.
 
+    Extended documentation for SimpleTrait.
+
+    """
     # NOTE: Tests rely on this class, so changing it will require updating the tests!
 
     trait_type = "simple_trait"

@@ -11,6 +11,8 @@ from .abstract_base_traits import *
 from ..exceptions import DataNotAvailable
 from .utilities import TraitProperty, TraitMapping, TraitKey
 from ..utilities import SchemaDictionary
+from ..descriptions import PrettyName, Description, Documentation
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
@@ -41,6 +43,10 @@ class Trait(AbstractBaseTrait):
 
     default_version = None
     available_versions = None
+
+    pretty_name = PrettyName()
+    description = Description()
+    documentation = Documentation()
 
     @classmethod
     def schema(cls, include_subtraits=True):

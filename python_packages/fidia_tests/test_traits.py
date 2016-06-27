@@ -155,3 +155,20 @@ class TestTraits:
         assert 'sub_trait' in schema
         assert isinstance(schema['sub_trait'], dict)
         assert 'value' in schema['sub_trait']
+
+
+    def test_trait_descriptions(self):
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+
+        assert hasattr(test_trait, 'pretty_name')
+        assert hasattr(test_trait, 'documentation')
+        assert hasattr(test_trait, 'description')
+
+        assert test_trait.description == "Description for SimpleTrait."
+
+        print(type(test_trait.documentation))
+        print(test_trait.documentation)
+        assert "Extended documentation" in test_trait.documentation
+        assert "Description for SimpleTrait" in test_trait.documentation
+
+
