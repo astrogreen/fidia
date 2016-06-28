@@ -9,27 +9,28 @@ from fidia.traits.utilities import TraitKey
 from fidia.traits.abstract_base_traits import AbstractBaseTrait
 from fidia.exceptions import DataNotAvailable
 
+
+
+
+@pytest.fixture(scope='module')
+def sami_archive():
+    ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
+                              "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
+                              "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
+    # ar = sami.SAMITeamArchive("/home/agreen/sami_test_release/",
+    #                           "/home/agreen/sami_test_release/" +
+    #                           "sami_small_test_cat.fits")
+    return ar
+
+@pytest.fixture(scope='module')
+def sami_sample(sami_archive):
+    return sami_archive.get_full_sample()
+
+@pytest.fixture(scope='module')
+def a_sami_galaxy(sami_sample):
+    return sami_sample['9352']
+
 class TestSAMIArchive:
-
-
-
-    @pytest.fixture
-    def sami_archive(self):
-        ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
-                                  "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
-                                  "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
-        # ar = sami.SAMITeamArchive("/home/agreen/sami_test_release/",
-        #                           "/home/agreen/sami_test_release/" +
-        #                           "sami_small_test_cat.fits")
-        return ar
-
-    @pytest.fixture
-    def sami_sample(self, sami_archive):
-        return sami_archive.get_full_sample()
-
-    @pytest.fixture
-    def a_sami_galaxy(self, sami_sample):
-        return sami_sample['9352']
 
     def test_confirm_id_data_type(self, sami_archive, sami_sample):
         assert isinstance(next(iter(sami_archive.contents)), str)
@@ -149,6 +150,8 @@ class TestSAMIArchive:
         schema = sami_archive.schema()
 
         schema['spectral_cube']['wcs']
+
+class TestSAMIArchiveMetadata:
 
     def test_telescope_metadata(self, a_sami_galaxy):
         assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).telescope() == 'Anglo-Australian Telescope'
