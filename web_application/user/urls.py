@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 
 import rest_framework.routers
 
@@ -40,9 +41,9 @@ urlpatterns = [
             # DJANGO AUTH
             # url('^', include('django.contrib.auth.urls')),
 
-            url(r'^password-change/$', auth_views.password_change,
+            url(r'^password-change/$', login_required(auth_views.password_change),
                 {'template_name': 'user/django_auth/password-change.html'}, name='password_change'),
-            url(r'^password-change/success/$', auth_views.password_change_done,
+            url(r'^password-change/success/$', login_required(auth_views.password_change_done),
                 {'template_name': 'user/django_auth/password-change-done.html'}, name='password_change_done'),
 
             url(r'^password-reset/$', auth_views.password_reset,

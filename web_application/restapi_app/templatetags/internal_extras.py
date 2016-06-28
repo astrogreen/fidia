@@ -21,10 +21,6 @@ from rest_framework.utils.urls import replace_query_param
 register = template.Library()
 
 
-
-
-
-
 @register.simple_tag
 def optional_logout(request, user):
     """
@@ -79,9 +75,10 @@ def optional_login(request):
     # On successful sign-in, prevent user being directed back to logout, register or login
     next_page = request.path
     next_url = escape(resolve(request.path_info).url_name)
+    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout', 'rest_framework:logout', ]
 
     if request.user != 'AnonymousUser':
-        if next_url == 'logout-url' or next_url == 'user-register' or next_url == 'login' or next_url == 'logout':
+        if next_url in urls_to_avoid:
             next_page = reverse('index')
 
     snippet = """<div class="user">

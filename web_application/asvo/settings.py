@@ -48,6 +48,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'astrospark',
     'bootstrap3',
+    'cart',
+    'carton',
     'data_browser',
     'django_extensions',
     'mathfilters',
@@ -90,6 +92,7 @@ TEMPLATES = [
 ]
 
 LOGIN_REDIRECT_URL = 'index'
+LOGIN_URL = 'rest_framework:login'
 
 WSGI_APPLICATION = 'asvo.wsgi.application'
 

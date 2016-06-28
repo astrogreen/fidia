@@ -78,8 +78,9 @@ class TestSetUp(APITestCase):
 
         # Set up one user
         self.username = 'test_user_0'
+        self.password = 'test_password'
         self.user = User.objects.create_user(first_name='test_first_name', last_name='test_last_name',
-                                             username=self.username, email='test_user@test.com', password='test_password')
+                                             username=self.username, email='test_user@test.com', password=self.password)
         self.user.save()
         self.url_detail = reverse('user-profile-detail', kwargs={'username': self.username})
 
@@ -95,7 +96,7 @@ class TestSetUp(APITestCase):
 
     def _require_login(self):
         self.client.login(first_name='test_first_name', last_name='test_last_name',
-                          username=self.username, email='test_user@test.com', password='test_password')
+                          username=self.username, email='test_user@test.com', password=self.password)
 
 
 class CreateUserTests(TestSetUp, APITestCase):
@@ -471,34 +472,104 @@ class AdminUserTests(TestSetUp, APITestCase):
         pass
 
 
-class UserChangePasswordTest(TestSetUp, APITestCase):
+class UserChangePasswordTests(TestSetUp, APITestCase):
 
     def test_authentication(self):
-        pass
+        """ Password change only available to authenticated users. Redirect to login page, no matter the ACCEPT header.
+        """
+        # API
+        url_password_change = reverse('password_change')
+        test_response = self.client.get(url_password_change, HTTP_ACCEPT='application/json')
+        self.assertEqual(test_response.status_code, status.HTTP_302_FOUND)
+        self.assertIn(reverse(settings.LOGIN_URL), str(test_response._headers['location']))
 
-    def test_tempalate(self):
-        pass
+        # HTML BROWSABLE API
+        url_password_change = reverse('password_change')
+        test_response = self.client.get(url_password_change, HTTP_ACCEPT='text/html')
+        self.assertEqual(test_response.status_code, status.HTTP_302_FOUND)
+        self.assertIn(reverse(settings.LOGIN_URL), str(test_response._headers['location']))
+        # decode the bytes object to produce a string, check empty
+        self.assertEqual(test_response.content.decode("utf-8"), '')
+
+    def test_template(self):
+        self._require_login()
+        test_response = self.client.get(reverse('password_change'))
+        self.assertTemplateUsed(test_response, 'user/django_auth/password-change.html')
+        test_response = self.client.get(reverse('password_change_done'))
+        self.assertTemplateUsed(test_response, 'user/django_auth/password-change-done.html')
 
     def test_email(self):
         pass
 
 
-class UserAuthBrowsableAPI(TestSetUp, APITestCase):
+class UserAuthTests(TestSetUp, APITestCase):
     """
     Check templates, redirects,
     """
+    url_login = reverse('rest_framework:login')
+    url_logout = reverse('rest_framework:logout')
+
+    def test_template(self):
+        test_response = self.client.get(self.url_login)
+        self.assertTemplateUsed(test_response, 'user/django_auth/login.html')
+        self._require_login()
+        test_response = self.client.get(self.url_logout)
+        self.assertTemplateUsed(test_response, 'user/django_auth/logout.html')
 
     def test_login(self):
+        test_response = self.client.get(self.url_login)
+        self.assertEqual(test_response.status_code, status.HTTP_200_OK)
+        data = json.dumps({"username": "test_user_0", "password": "test_password"})
+        test_response = self.client.post(self.url_login, data, content_type='application/json', HTTP_ACCEPT="text/html")
+        print(test_response.context['user'])
+        print(test_response.request)
+        # print(self.assertIn('_auth_user_id', self.client.session))
 
-        pass
+        self._require_login()
+        url_detail = reverse('user-profile-detail', kwargs={'username': self.username})
+        test_response = self.client.get(url_detail)
+        print(test_response.context['user'])
+        print(test_response.data)
+        print(self.assertIn('_auth_user_id', self.client.session))
 
-# TODO redirect and login on registration
+        # self.assertNotIn('This field is required.', str(test_response.content))
+        # # self.assertIn('Success', str(test_response.content))
+        # self.client.login(first_name='test_first_name', last_name='test_last_name',
+        #                   username=self.username, email='test_user@test.com', password='test_password')
+
+        # test_response = self.client.post(self.url_login, self.user_dict, format='json', HTTP_ACCEPT='application/json')
+        # print(test_response)
+        # print(test_response.content)
+#         check what is returned when app/json only is supplied - should be buzz off, this is browsable api only
+#         where does redirect go? what if signout- was next?
+
+
+    # TODO redirect and login on registration
+
 
 #
-    # def test_login_unauthenticated(self):
-    #     login_url = reverse('rest_framework:login')
-    #     test_response = self.client.get(login_url)
-    #     self.assertTrue(status.is_success(test_response.status_code))
+    def test_login_authenticated(self):
+        """ Authenticated user should see 'success' and not form """
+        self.client.login(first_name='test_first_name', last_name='test_last_name',
+                          username=self.username, email='test_user@test.com', password='test_password')
+        test_response = self.client.get(self.url_login)
+        self.assertTrue(status.is_success(test_response.status_code))
+        self.assertIn('Success', str(test_response.content))
+
+        # POST to route still success! (try another user...)
+        url_create = CreateUserTests.url_create
+        new_user_dict = helper_new_user()
+        test_response = self.client.post(url_create, new_user_dict, format='json')
+        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+
+        data = json.dumps({"username":new_user_dict['username'], "password": new_user_dict['password']})
+        test_response = self.client.post(self.url_login, data, content_type='application/json', HTTP_ACCEPT="text/html")
+        print(test_response.content)
+        print(test_response.status_code)
+
+        print(test_response.context['user'])
+
+
     #
     # def test_login_redirect(self):
     #     self._require_login()
