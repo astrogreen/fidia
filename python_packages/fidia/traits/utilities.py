@@ -404,3 +404,12 @@ class BoundTraitProperty:
 # `isinstance(value, TraitProperty)` work as expected for `TraitProperty`s that have
 # been bound to their `Trait`.
 TraitProperty.register(BoundTraitProperty)
+
+def trait_property_from_fits_header(header_card_name, type, name):
+
+    tp = TraitProperty(type=type, name=name)
+
+    tp.fload = lambda self: self._header[header_card_name]
+    tp.short_name = header_card_name
+
+    return tp

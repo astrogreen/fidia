@@ -21,7 +21,7 @@ from ..utilities import WildcardDictionary
 
 #from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 from fidia.traits import *
-from fidia.traits.utilities import TraitMapping
+from fidia.traits.utilities import TraitMapping, trait_property_from_fits_header
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -486,6 +486,13 @@ class SAMISpectralCube(SpectralMap):
 
         trait_type = 'telescope_metadata'
 
+        def preload(self):
+            with self.parent_trait.preloaded_context() as pt:
+                self._header = pt.hdu[0].header.copy()
+
+        def cleanup(self):
+            del self._header
+
         # trait_properties = [
         #     TraitPropertyFromFitsHeader(name='telescope', header_name='TELESCOP'),
         #     TraitPropertyFromFitsHeader(name='altitude', header_name='ALT_OBS'),
@@ -493,25 +500,13 @@ class SAMISpectralCube(SpectralMap):
         #     TraitPropertyFromFitsHeader(name='longitude', header_name='LONG_OBS'),
         # ]
 
-        @trait_property('string')
-        def telescope(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['TELESCOP']
+        telescope = trait_property_from_fits_header('TELESCOP', 'string', 'telescope')
 
-        @trait_property('string')
-        def altitude(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['ALT_OBS']
+        altitude = trait_property_from_fits_header('ALT_OBS', 'string', 'altitude')
 
-        @trait_property('string')
-        def latitude(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['LAT_OBS']
+        latitude = trait_property_from_fits_header('LAT_OBS', 'string', 'latitude')
 
-        @trait_property('string')
-        def longitude(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['LONG_OBS']
+        longitude = trait_property_from_fits_header('LONG_OBS', 'string', 'longitude')
 
     _sub_traits[TraitKey('telescope_metadata')] = AAT
 
@@ -538,46 +533,32 @@ class SAMISpectralCube(SpectralMap):
 
         trait_type = 'detector_metadata'
 
-        @trait_property('string')
-        def detector_id(self):
+        def preload(self):
             with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['DETECTOR']
+                self._header = pt.hdu[0].header.copy()
+
+        def cleanup(self):
+            del self._header
+
+        detector_id = trait_property_from_fits_header('DETECTOR', 'string', 'detector_id')
         detector_id.short_name = "DETECTOR"
 
-        @trait_property('string')
-        def gain(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['RO_GAIN']
+        gain = trait_property_from_fits_header('RO_GAIN', 'string', 'gain')
         gain.short_name = "RO_GAIN"
 
-        @trait_property('string')
-        def read_noise(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['RO_NOISE']
+        read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
         read_noise.short_name = 'RO_NOISE'
 
-        @trait_property('string')
-        def read_speed(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['SPEED']
+        read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
         read_speed.short_name = 'SPEED'
 
-        @trait_property('string')
-        def detector_control_software_date(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['DCT_DATE']
+        detector_control_software_date = trait_property_from_fits_header('DCT_DATE', 'string', 'detector_control_software_date')
         detector_control_software_date.short_name = 'DCT_DATE'
 
-        @trait_property('string')
-        def detector_control_software_version(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['DCT_VER']
+        detector_control_software_version = trait_property_from_fits_header('DCT_VER', 'string', 'detector_control_software_version')
         detector_control_software_version.short_name = 'DCT_VER'
 
-        @trait_property('string')
-        def read_amplifier(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['READAMP']
+        read_amplifier = trait_property_from_fits_header('READAMP', 'string', 'read_amplifier')
         read_amplifier.short_name = 'READAMP'
 
     _sub_traits[TraitKey('detector_metadata')] = AAOmegaDetector
@@ -613,40 +594,31 @@ class SAMISpectralCube(SpectralMap):
 
         trait_type = 'instrument_metadata'
 
-        @trait_property('string')
-        def instrument_id(self):
+        def preload(self):
             with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['INSTRUME']
+                self._header = pt.hdu[0].header.copy()
 
-        @trait_property('string')
-        def spectrograph_arm(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['SPECTID']
+        def cleanup(self):
+            del self._header
 
-        @trait_property('string')
-        def disperser_id(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['GRATID']
+        # @trait_property('string')
+        # def instrument_id(self):
+        #     with self.parent_trait.preloaded_context() as pt:
+        #         return pt.hdu[0].header['INSTRUME']
 
-        @trait_property('string')
-        def disperser_tilt(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['GRATTILT']
+        instrument_id = trait_property_from_fits_header('INSTRUME', 'string', 'instrument_id')
 
-        @trait_property('string')
-        def instrument_software_version(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['TDFCTVER']
+        spectrograph_arm = trait_property_from_fits_header('SPECTID', 'string', 'spectrograph_arm')
 
-        @trait_property('string')
-        def instrument_software_date(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['TDFCTDAT']
+        disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
 
-        @trait_property('string')
-        def dichroic_id(self):
-            with self.parent_trait.preloaded_context() as pt:
-                return pt.hdu[0].header['DICHROIC']
+        disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
+
+        instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
+
+        instrument_software_date = trait_property_from_fits_header('TDFCTDAT', 'string', 'instrument_software_date')
+
+        dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
 
 
 
