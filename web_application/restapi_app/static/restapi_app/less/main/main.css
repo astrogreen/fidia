@@ -135,178 +135,100 @@ select {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 header {
-  background-color: #ffffff;
   font-family: 'Roboto', sans-serif;
 }
-header .aat {
-  background: #000000 url('../img/aat.jpg') no-repeat fixed top center;
-}
-header .container {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  /* ++ USER: Login ++ */
-  /* ++ USER: Register ++ */
-}
-header .container .logo {
-  display: inline-block;
-  padding: 5px 0;
-}
-header .container .logo a {
-  display: inline-block;
-}
-header .container .logo a span {
-  display: none;
-}
-header .container .logo a > img {
-  height: 40px;
-  width: 90px;
-}
-header .container .logo a.asvo {
-  margin-right: 10px;
-  margin-left: 20px;
-}
-header .container .navbar-nav > .user {
-  display: inline-block;
-  float: right;
-  padding: 6px 0px 0px 0px;
-}
-header .container .navbar-nav {
-  margin-top: 5px;
-}
-header .container .user a {
-  display: inline-block;
-  padding: 0px 10px;
-}
-header .container .user a span {
-  height: 28px;
-  line-height: 28px;
-  font-weight: 600;
+header .navbar-default .navbar-nav > li > a {
+  color: #fff;
   text-transform: uppercase;
 }
-header .container .user > span {
-  height: 28px;
-  line-height: 28px;
+header .navbar-toggle {
+  border-radius: 0;
 }
-header .container .user a.login {
-  position: relative;
-  margin-right: 5px;
+header .navbar-default .navbar-toggle .icon-bar {
+  background-color: #ffffff;
 }
-header .container .user a.login span,
-header .container .user a.login i {
-  color: #5aa8d8;
+header .navbar-default .navbar-toggle:hover,
+header .navbar-default .navbar-toggle:focus {
+  background-color: rgba(0, 0, 0, 0.2);
 }
-header .container .user a.register {
-  background-color: #5aa8d8;
-  margin-left: 10px;
+header .navbar {
+  border-radius: 0;
+  margin-bottom: 0;
+  background: #5aa8d8;
+  border: 0;
 }
-header .container .user a.register span {
-  margin-left: 4px;
+header .navbar .container-fluid {
+  background: #ffffff;
+  min-height: 60px;
+  padding: 0;
 }
-header .container .user a.register span,
-header .container .user a.register i {
-  color: #ffffff;
+header .navbar .container-fluid ul.navbar-nav > li,
+header .navbar .container-fluid .navbar-header {
+  min-height: 60px;
 }
-/*OUT OF THE HEADER*/
-.nav > li > a {
-  position: relative;
-  display: block;
-  padding: 10px 15px;
+header .navbar .container-fluid ul.navbar-nav > li > a,
+header .navbar .container-fluid .navbar-header > a {
+  padding: 20px;
 }
-.user a {
+header .navbar .container-fluid .container.logos {
+  position: absolute;
+  top: 0px;
+  right: 0;
+  left: 0;
+  min-height: 60px;
+}
+header .navbar .container-fluid .navbar-right {
+  float: right !important;
+  margin-right: -15px;
+}
+header .navbar .container-fluid .navbar-nav {
+  float: left;
+  margin: 0;
+}
+header .navbar .container-fluid .navbar-nav > li {
+  float: left;
+}
+header .navbar .container-fluid .asvo-logo {
   display: inline-block;
-  padding: 0px 10px;
 }
-.user a span {
-  height: 28px;
-  line-height: 28px;
-  font-weight: 600;
-  text-transform: uppercase;
+header .navbar .container-fluid a.navbar-brand {
+  padding: 10px;
+  height: 60px;
 }
-.user a.register span {
-  margin-left: 4px;
+header .navbar .container-fluid a.navbar-brand img {
+  max-height: 40px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
-.user > span {
-  height: 28px;
-  line-height: 28px;
+header .navbar .container-fluid .cart-icon {
+  padding-bottom: 15px !important;
+  position: relative;
 }
-.user a.login span,
-.user a.login i {
+header .navbar .container-fluid .cart-icon .badge {
+  position: absolute;
+  right: 3px;
+  top: 5px;
+}
+header .navbar .container-fluid .btn-primary {
+  border: 0;
+}
+header .navbar .container-fluid > ul > li.dropdown > a {
+  text-align: center;
+}
+header .navbar .container-fluid .dropdown {
+  min-width: 160px;
+}
+header .navbar .container-fluid .dropdown > a {
   color: #5aa8d8;
 }
-.user a {
-  margin-left: 10px;
-}
-.user a.register span,
-.user a.register i {
-  color: #ffffff;
-}
-.user .splitter {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: solid 1px #eee;
+header .navbar > .container {
+  background: #5aa8d8;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ NAV
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-nav.navbar {
-  background-color: #5aa8d8;
-  width: 100%;
-  left: 0;
-  top: 0;
-  z-index: 3;
-  min-height: 40px;
-  text-transform: uppercase;
-  font-family: 'Roboto', sans-serif;
-  margin-bottom: 0;
-  border-width: 0;
-}
-nav.navbar .container {
-  position: relative;
-  text-align: center;
-}
-nav.navbar .nav > li > a {
-  position: relative;
-  display: block;
-  padding: 10px 15px;
-}
-nav.navbar .fixed {
-  top: 0;
-  z-index: 100;
-  position: fixed;
-  width: 100%;
-}
-nav.navbar .nav ul li {
-  text-transform: none;
-}
-nav.navbar .nav li,
-nav.navbar .nav li a {
-  color: #ffffff;
-}
-nav.navbar .nav-list > .active > a,
-nav.navbar .nav-list > .active > a:hover {
-  background: #EEEEEE;
-  color: #C20000;
-}
-nav.navbar .dropdown-menu > .active > a {
-  background-color: #eeeeee;
-}
-nav.navbar .dropdown-menu li a,
-nav.navbar .dropdown-menu li,
-nav.navbar .dropdown-menu > li > a {
-  color: #333;
-}
-nav.navbar .navbar .dropdown-menu li a:hover {
-  background: #EEEEEE;
-  color: #C20000;
-}
-.dropdown-menu {
-  border-radius: 0;
-}
-.dropdown-menu > li > a {
-  color: #333;
-}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ BREADCRUMB
@@ -684,72 +606,6 @@ ol.linenums li {
   height: 300px;
 }
 /* Media Queries */
-@media (max-width: 550px) {
-  .footer-bottom .pull-left,
-  .footer-bottom .pull-right {
-    float: none !important;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-  }
-  .footer-bottom {
-    margin-top: 20px;
-    padding: 0px;
-  }
-}
-@media (max-width: 767px) {
-  header .container .col {
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  header .container .user {
-    float: none;
-  }
-  .breadcrumb,
-  .breadcrumb-container {
-    padding-left: 0px;
-  }
-  ul.nav.navbar-nav.navbar-user li.dropdown ul li,
-  ul.nav.navbar-nav.navbar-user li.dropdown a {
-    text-align: right;
-    min-width: 100px;
-  }
-  ul.nav.navbar-nav {
-    padding-right: 15px;
-  }
-  .control-label {
-    text-align: left;
-  }
-  /*.navbar-default .navbar-nav .open .dropdown-menu>li>a {*/
-  /*color: #e7e7e7;*/
-  /*border-color: #eee;*/
-  /*}*/
-  /*.navbar-toggle{color:#fff;}*/
-  .navbar-default .navbar-toggle .icon-bar {
-    background-color: #ffffff;
-  }
-  .navbar-default .navbar-toggle:hover,
-  .navbar-default .navbar-toggle:focus {
-    background-color: rgba(0, 0, 0, 0.2);
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #eee;
-  }
-  .footer .img-inner {
-    float: right;
-  }
-  .footer .img-inner img:nth-of-type(3n) {
-    margin-top: -5px;
-  }
-  .footer .img-inner img.mobile-logo {
-    display: block;
-    width: auto;
-    max-height: 60px;
-  }
-  .footer .img-inner img.screen-logo {
-    display: none;
-  }
-}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ ANIMATIONS

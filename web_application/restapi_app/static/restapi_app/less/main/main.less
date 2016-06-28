@@ -133,200 +133,295 @@ input, select {
 ++ HEADER
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-
-header {
-  background-color: #ffffff;
+header{
   font-family: 'Roboto', sans-serif;
-  .aat {
-    background: #000000 url('../img/aat.jpg') no-repeat fixed top center;
+  .navbar-default .navbar-nav > li > a {
+    color: #fff;
+    text-transform: uppercase;
   }
-  .container {
-    padding-top: 10px;
-    padding-bottom: 10px;
+  .navbar-toggle{border-radius:0;}
+  .navbar-default .navbar-toggle .icon-bar {
+    background-color: #ffffff;
+  }
 
-    .logo {
-      display: inline-block;
-      padding: 5px 0;
+  .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  .navbar {
+    border-radius:0;
+    margin-bottom:0;
+    background: #5aa8d8;
+    border:0;
 
-      a {
-        display: inline-block;
-
-        span {
-          display: none;
+      //TOP ROW
+      .container-fluid{
+        background:#ffffff;
+        min-height:60px;
+        padding:0;
+        ul.navbar-nav > li, .navbar-header {
+          min-height: 60px;
+          > a {
+            padding:20px
+          }
         }
-      }
-      a > img {
-        height: 40px;
-        width: 90px;
-      }
-      a.asvo {
-        margin-right: 10px;margin-left:20px;
-      }
-      a.aao {
-      }
+        .container.logos {
+          position: absolute;
+          top: 0px;
+          right: 0;
+          left: 0;
+          min-height: 60px;
+        }
+        // Prevent bootstrap from collapsing the user dropdown on mobile
+        .navbar-right {
+          float: right !important;
+          margin-right: -15px;
+        }
 
-    }
+        .navbar-nav {
+          float: left;
+          margin: 0;
+        }
+        .navbar-nav > li {
+          float: left;
+        }
+        //
 
-    .navbar-nav > .user {
-      display: inline-block;
-      float: right;
-      padding: 6px 0px 0px 0px;
-    }
-    .navbar-nav {
-      margin-top: 5px;
-    }
+        .asvo-logo {
+          display: inline-block;
+        }
+        a.navbar-brand {
+          padding: 10px;
+          height:60px;
+          img {
+            max-height: 40px;
+            padding-right:10px;
+            padding-left:10px;
+          }
+        }
+        .cart-icon {
+          padding-bottom: 15px !important;
+          position:relative;
+          .badge {
+            position: absolute;
+            right: 3px;
+            top: 5px;
+          }
+        }
+        .btn-primary {border:0}
+        > ul > li.dropdown > a{text-align:center}
+        .dropdown {
+          min-width:160px;
+          > a {
+            color: #5aa8d8;
+          }
+        }
 
-    .user a {
-      display: inline-block;
-      padding: 0px 10px;
-      span {
-        height: 28px;
-        line-height: 28px;
-        font-weight: 600;
-        text-transform: uppercase;
       }
-    }
-    .user > span {
-      height: 28px;
-      line-height: 28px;
-    }
-    /* ++ USER: Login ++ */
-    .user a.login {
-      position: relative;
-      margin-right: 5px;
-    }
-    .user a.login span,
-    .user a.login i {
-      color: #5aa8d8;
-    }
-    /* ++ USER: Register ++ */
-    .user a.register {
-      background-color: #5aa8d8;
-      margin-left: 10px;
-    }
-    .user a.register span {
-      margin-left: 4px;
-    }
-    .user a.register span,
-    .user a.register i {
-      color: #ffffff;
-    }
+      //SECONDARY ROW
+      > .container{
+        background: #5aa8d8;
+      }
 
   }
 }
 
-/*OUT OF THE HEADER*/
-.nav > li > a {
-  position: relative;
-  display: block;
-  padding: 10px 15px;
-}
-.user {
-  a {
-    display: inline-block;
-    padding: 0px 10px;
-    span {
-      height: 28px;
-      line-height: 28px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-  }
-  a.register span {
-    margin-left: 4px;
-  }
-
-  > span {
-    height: 28px;
-    line-height: 28px;
-  }
-
-  a.login span, a.login i {
-    color: #5aa8d8;
-  }
-
-  a {
-    margin-left: 10px;
-  }
-
-  a.register span, a.register i {
-    color: #ffffff
-  }
-  .splitter {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: solid 1px #eee
-  }
-}
+//
+//header {
+//  background-color: #ffffff;
+//  font-family: 'Roboto', sans-serif;
+//  .aat {
+//    background: #000000 url('../img/aat.jpg') no-repeat fixed top center;
+//  }
+//  .container {
+//    padding-top: 10px;
+//    padding-bottom: 10px;
+//
+//    .logo {
+//      display: inline-block;
+//      padding: 5px 0;
+//
+//      a {
+//        display: inline-block;
+//
+//        span {
+//          display: none;
+//        }
+//      }
+//      a > img {
+//        height: 40px;
+//        width: 90px;
+//      }
+//      a.asvo {
+//        margin-right: 10px;margin-left:20px;
+//      }
+//      a.aao {
+//      }
+//
+//    }
+//    .navbar-nav {
+//      //border: solid 1px red;
+//    }
+//    .navbar-nav>li {
+//      float: left;
+//  }
+//
+//    .navbar-nav > .user {
+//      display: inline-block;
+//      float: right;
+//      padding: 6px 0px 0px 0px;
+//    }
+//
+//    .user a {
+//      display: inline-block;
+//      padding: 0px 10px;
+//      span {
+//        height: 28px;
+//        line-height: 28px;
+//        font-weight: 600;
+//        text-transform: uppercase;
+//      }
+//    }
+//    .user > span {
+//      height: 28px;
+//      line-height: 28px;
+//    }
+//    /* ++ USER: Login ++ */
+//    .user a.login {
+//      position: relative;
+//      margin-right: 5px;
+//    }
+//    .user a.login span,
+//    .user a.login i {
+//      color: #5aa8d8;
+//    }
+//    /* ++ USER: Register ++ */
+//    .user a.register {
+//      background-color: #5aa8d8;
+//      margin-left: 10px;
+//    }
+//    .user a.register span {
+//      margin-left: 4px;
+//    }
+//    .user a.register span,
+//    .user a.register i {
+//      color: #ffffff;
+//    }
+//
+//  }
+//}
+//
+///*OUT OF THE HEADER*/
+//.nav > li > a {
+//  position: relative;
+//  display: block;
+//  padding: 10px 15px;
+//}
+//.user {
+//  a {
+//    display: inline-block;
+//    padding: 0px 10px;
+//    span {
+//      height: 28px;
+//      line-height: 28px;
+//      font-weight: 600;
+//      text-transform: uppercase;
+//    }
+//  }
+//  a.register span {
+//    margin-left: 4px;
+//  }
+//
+//  > span {
+//    height: 28px;
+//    line-height: 28px;
+//  }
+//
+//  a.login span, a.login i {
+//    color: #5aa8d8;
+//  }
+//
+//  a {
+//    margin-left: 10px;
+//  }
+//
+//  a.register span, a.register i {
+//    color: #ffffff
+//  }
+//  .splitter {
+//    margin-top: 20px;
+//    padding-top: 20px;
+//    border-top: solid 1px #eee
+//  }
+//}
 
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ NAV
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-
-nav.navbar {
-  background-color: #5aa8d8;
-  //background-color: #292f31;
-  width: 100%;
-  left: 0;
-  top: 0;
-  z-index: 3;
-  min-height: 40px;
-  text-transform: uppercase;
-  font-family: 'Roboto', sans-serif;
-  margin-bottom: 0;
-  border-width: 0;
-
-  .container {
-    position: relative;
-    text-align: center;
-  }
-
-  .nav > li > a {
-    position: relative;
-    display: block;
-    padding: 10px 15px;
-  }
-
-  .fixed {
-    top: 0;
-    z-index: 100;
-    position: fixed;
-    width: 100%;
-  }
-
-  .nav ul li {
-    text-transform: none;
-  }
-
-  .nav li, .nav li a {
-    color: #ffffff;
-  }
-
-  .nav-list > .active > a, .nav-list > .active > a:hover {
-    background: #EEEEEE;
-    color: #C20000;
-  }
-  .dropdown-menu > .active > a {
-    background-color: #eeeeee;
-  }
-  .dropdown-menu li a, .dropdown-menu li, .dropdown-menu>li>a {
-    color: #333;
-  }
-
-  .navbar .dropdown-menu li a:hover {
-    background: #EEEEEE;
-    color: #C20000;
-  }
-}
-
-.dropdown-menu {
-  border-radius: 0;
-  > li > a {
-    color: #333;
-  }
-}
+//
+//nav.navbar {
+//  background-color: #5aa8d8;
+//  //background-color: #292f31;
+//  width: 100%;
+//  left: 0;
+//  top: 0;
+//  z-index: 3;
+//  min-height: 40px;
+//  text-transform: uppercase;
+//  font-family: 'Roboto', sans-serif;
+//  margin-bottom: 0;
+//  border-width: 0;
+//
+//  .container {
+//    position: relative;
+//    text-align: center;
+//  }
+//
+//  .nav > li > a {
+//    position: relative;
+//    display: block;
+//    padding: 10px 15px;
+//  }
+//
+//  .fixed {
+//    top: 0;
+//    z-index: 100;
+//    position: fixed;
+//    width: 100%;
+//  }
+//
+//  .nav ul li {
+//    text-transform: none;
+//  }
+//
+//  .nav li, .nav li a {
+//    color: #ffffff;
+//  }
+//
+//  .nav-list > .active > a, .nav-list > .active > a:hover {
+//    background: #EEEEEE;
+//    color: #C20000;
+//  }
+//  .dropdown-menu > .active > a {
+//    background-color: #eeeeee;
+//  }
+//  .dropdown-menu li a, .dropdown-menu li, .dropdown-menu>li>a {
+//    color: #333;
+//  }
+//
+//  .navbar .dropdown-menu li a:hover {
+//    background: #EEEEEE;
+//    color: #C20000;
+//  }
+//}
+//
+//.dropdown-menu {
+//  border-radius: 0;
+//  > li > a {
+//    color: #333;
+//  }
+//}
 
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -761,88 +856,100 @@ ol.linenums li {
 //MEDIA
 
 /* Media Queries */
-@media (max-width: 550px) {
-  .footer-bottom .pull-left,
-  .footer-bottom .pull-right {
-    float: none !important;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-  }
 
-  .footer-bottom {
-    margin-top: 20px;
-    padding: 0px;
-  }
-}
 
-@media (max-width: 767px) {
-  header .container .col {
-    margin-bottom: 10px;
-    text-align: center;
-  }
 
-  header .container .user {
-    float: none;
-  }
-
-  .breadcrumb, .breadcrumb-container {
-    padding-left: 0px
-  }
-
-  ul.nav.navbar-nav.navbar-user li.dropdown ul li,
-  ul.nav.navbar-nav.navbar-user li.dropdown a {
-    text-align: right;
-    min-width: 100px;
-  }
-
-  ul.nav.navbar-nav {
-    padding-right: 15px;
-  }
-
-  .control-label {
-    text-align: left;
-  }
-
-  /*.navbar-default .navbar-nav .open .dropdown-menu>li>a {*/
-  /*color: #e7e7e7;*/
-  /*border-color: #eee;*/
-  /*}*/
-  /*.navbar-toggle{color:#fff;}*/
-  .navbar-default .navbar-toggle .icon-bar {
-    background-color: #ffffff;
-  }
-
-  .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
-    background-color: rgba(0, 0, 0, 0.2);
-  }
-
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #eee;
-  }
-
-  .footer .img-inner {
-    float: right;
-  }
-
-  .footer .img-inner img:nth-of-type(3n) {
-    margin-top: -5px;
-  }
-
-  .footer .img-inner img.mobile-logo {
-    display: block;
-    width: auto;
-    max-height: 60px;
-  }
-
-  .footer .img-inner img.screen-logo {
-    display: none;
-  }
-}
-
-@media (max-width: 991px) {
-
-}
+//
+//@media (max-width: 550px) {
+//  .footer-bottom .pull-left,
+//  .footer-bottom .pull-right {
+//    float: none !important;
+//    width: 100%;
+//    padding: 10px;
+//    text-align: center;
+//  }
+//
+//  .footer-bottom {
+//    margin-top: 20px;
+//    padding: 0px;
+//  }
+//}
+//
+//@media (max-width: 767px) {
+//  header .container .col {
+//    margin-bottom: 10px;
+//    text-align: center;
+//  }
+//
+//  header .container .user {
+//    float: none;
+//  }
+//
+//  .breadcrumb, .breadcrumb-container {
+//    padding-left: 0px
+//  }
+//
+//  ul.nav.navbar-nav.navbar-user li.dropdown ul li,
+//  ul.nav.navbar-nav.navbar-user li.dropdown a {
+//    text-align: right;
+//    min-width: 100px;
+//  }
+//
+//  ul.nav.navbar-nav {
+//    padding-right: 15px;
+//  }
+//
+//  .control-label {
+//    text-align: left;
+//  }
+//
+//  /*.navbar-default .navbar-nav .open .dropdown-menu>li>a {*/
+//  /*color: #e7e7e7;*/
+//  /*border-color: #eee;*/
+//  /*}*/
+//  /*.navbar-toggle{color:#fff;}*/
+//  .navbar-default .navbar-toggle .icon-bar {
+//    background-color: #ffffff;
+//  }
+//
+//  .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+//    background-color: rgba(0, 0, 0, 0.2);
+//  }
+//
+//  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+//    color: #eee;
+//  }
+//
+//  .footer .img-inner {
+//    float: right;
+//  }
+//
+//  .footer .img-inner img:nth-of-type(3n) {
+//    margin-top: -5px;
+//  }
+//
+//  .footer .img-inner img.mobile-logo {
+//    display: block;
+//    width: auto;
+//    max-height: 60px;
+//  }
+//
+//  .footer .img-inner img.screen-logo {
+//    display: none;
+//  }
+//  .navbar-right {
+//    float: right !important;
+//    margin-right: -15px;
+//  }
+//  .navbar-header {
+//    float: left;
+//  }
+//  .asvo-logo{display:none}
+//}
+//
+//@media (max-width: 991px) {
+//
+//}
 
 
 /*

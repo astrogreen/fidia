@@ -81,12 +81,12 @@ def optional_login(request):
         if next_url in urls_to_avoid:
             next_page = reverse('index')
 
-    snippet = """<div class="user">
-                <a href='{login}?next={next}' class="signin">
-                    <span>Sign In</span>
-                    <i class="fa fa-lock"></i>
+    snippet = """<div class='user'>
+                <a href='{login}?next={next}' class="text-error text-uppercase">
+                    <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
+
                 </a>
-                <span>OR</span>
+                &nbsp;<strong> OR </strong>&nbsp;
                 <a href="{register}" class="btn btn-primary text-uppercase">
                     <span>Register</span>
                     <i class="fa fa-pencil-square-o"></i>
@@ -95,6 +95,43 @@ def optional_login(request):
     snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
     return mark_safe(snippet)
 
+
+@register.simple_tag
+def optional_login_header(request):
+    """
+    Include a login snippet if REST framework's login view is in the URLconf.
+    """
+    try:
+        login_url = reverse('rest_framework:login')
+    except NoReverseMatch:
+        return ''
+    try:
+        register_url = reverse('user-register')
+    except NoReverseMatch:
+        return ''
+
+    # On successful sign-in, prevent user being directed back to logout, register or login
+    next_page = request.path
+    next_url = escape(resolve(request.path_info).url_name)
+    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout', 'rest_framework:logout', ]
+
+    if request.user != 'AnonymousUser':
+        if next_url in urls_to_avoid:
+            next_page = reverse('index')
+
+    snippet = """<li>
+                <a href='{login}?next={next}' class="text-error text-uppercase">
+                    <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
+
+                </a>
+                </li><li>
+                <a href="{register}" class="btn btn-primary text-uppercase">
+                    <span>Register</span>
+                    <i class="fa fa-pencil-square-o"></i>
+                </a>
+            </li>"""
+    snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
+    return mark_safe(snippet)
 
 @register.filter
 def of_key(value, arg):
