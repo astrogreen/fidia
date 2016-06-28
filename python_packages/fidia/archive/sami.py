@@ -542,36 +542,43 @@ class SAMISpectralCube(SpectralMap):
         def detector_id(self):
             with self.parent_trait.preloaded_context() as pt:
                 return pt.hdu[0].header['DETECTOR']
+        detector_id.short_name = "DETECTOR"
 
         @trait_property('string')
         def gain(self):
             with self.parent_trait.preloaded_context() as pt:
                 return pt.hdu[0].header['RO_GAIN']
+        gain.short_name = "RO_GAIN"
 
         @trait_property('string')
         def read_noise(self):
             with self.parent_trait.preloaded_context() as pt:
                 return pt.hdu[0].header['RO_NOISE']
+        read_noise.short_name = 'RO_NOISE'
 
         @trait_property('string')
         def read_speed(self):
             with self.parent_trait.preloaded_context() as pt:
                 return pt.hdu[0].header['SPEED']
+        read_speed.short_name = 'SPEED'
 
         @trait_property('string')
         def detector_control_software_date(self):
             with self.parent_trait.preloaded_context() as pt:
                 return pt.hdu[0].header['DCT_DATE']
+        detector_control_software_date.short_name = 'DCT_DATE'
 
         @trait_property('string')
         def detector_control_software_version(self):
             with self.parent_trait.preloaded_context() as pt:
                 return pt.hdu[0].header['DCT_VER']
+        detector_control_software_version.short_name = 'DCT_VER'
 
         @trait_property('string')
         def read_amplifier(self):
             with self.parent_trait.preloaded_context() as pt:
                 return pt.hdu[0].header['READAMP']
+        read_amplifier.short_name = 'READAMP'
 
     _sub_traits[TraitKey('detector_metadata')] = AAOmegaDetector
 
