@@ -14,6 +14,8 @@ from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
 
+from ..descriptions import Description, Documentation, PrettyName
+
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
 TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
 
@@ -257,6 +259,15 @@ class TraitProperty(metaclass=ABCMeta):
         'int.array'
     ]
 
+    # pretty_name = PrettyName()
+    # description = Description()
+    # documentation = Documentation()
+
+    pretty_name = None
+    description = None
+    documentation = None
+    short_name = None
+
     def __init__(self, fload=None, fset=None, fdel=None, doc=None, type=None, name=None):
         self.fload = fload
         self.fset = fset
@@ -312,6 +323,7 @@ class BoundTraitProperty:
         self._trait = trait
         self._trait_property = trait_property
 
+
     @property
     def name(self):
         return self._trait_property.name
@@ -323,6 +335,22 @@ class BoundTraitProperty:
     @property
     def doc(self):
         return self._trait_property.doc
+
+    @property
+    def short_name(self):
+        return self._trait_property.short_name
+
+    @property
+    def description(self):
+        return self._trait_property.description
+
+    @property
+    def documentation(self):
+        return self._trait_property.documentation
+
+    @property
+    def pretty_name(self):
+        return self._trait_property.pretty_name
 
     def __call__(self):
         """Retrieve the value of this TraitProperty"""

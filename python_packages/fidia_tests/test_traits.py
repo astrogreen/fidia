@@ -172,3 +172,8 @@ class TestTraits:
         assert "Description for SimpleTrait" in test_trait.documentation
 
 
+    def test_trait_property_description(self):
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+
+        assert test_trait.value.description == "TheValue"
+        assert test_trait.extra.description == "ExtraInformation"
