@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 import rest_framework.routers
 
+import restapi_app.views
 import cart.views
 
 router = rest_framework.routers.SimpleRouter()
@@ -12,7 +13,10 @@ router = rest_framework.routers.SimpleRouter()
 
 urlpatterns = [
     url(r'', include(router.urls)),
-    url(r'download/', cart.views.CartView.as_view(), name='cart-list')
+    url(r'download/', cart.views.CartView.as_view(), name='cart-list'),
+    url(r'cart/$',
+        restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/cart.html'),
+        name='cart'),
 ]
 
 
