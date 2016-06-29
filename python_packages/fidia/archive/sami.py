@@ -489,6 +489,7 @@ class SAMISpectralCube(SpectralMap):
         def preload(self):
             with self.parent_trait.preloaded_context() as pt:
                 self._header = pt.hdu[0].header.copy()
+                self._header.providence = {"file": pt.hdu.filename, "extension": 0}
 
         def cleanup(self):
             del self._header
