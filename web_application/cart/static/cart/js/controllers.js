@@ -5,7 +5,7 @@ console.log('controllers.js');
 
     var app = angular.module('CartApp');
 
-
+    // Create 'fixtures'
     app.controller('DummyData', function($scope, $http){
        $http.get('/static/js/cart/dummy-data.json').then(function(response){
            $scope.data = response.data;

@@ -104,11 +104,21 @@ console.log('services.js');
                 // Initialize total counter
                 var total = 0;
                 // Loop through items and increment the total - also count by survey and unique objects
-                angular.forEach(items, function(item){
-                    // total += parseInt(item.quantity)
-                    total += 1;
-                })
-                console.log('getItemCount ', total)
+                // angular.forEach(items, function(item){
+                //     // total += parseInt(item.quantity)
+                //     total += 1;
+                // })
+                // console.log('getItemCount ', total)
+
+
+                // NO! Best to use the updated cookie here - so the directive can use this method (directive doesn't have access to controller scope)
+                if (undefined != $cookieStore){
+                    console.log('Check the cookie: ', $cookieStore.get('items'));
+                    angular.forEach($cookieStore.get('items'), function(item){
+                        // total += parseInt(item.quantity)
+                        total += 1;
+                    })
+                }
                 return total;
             },
 

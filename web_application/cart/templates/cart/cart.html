@@ -3,7 +3,7 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-{% block title %}Shopping Cart{% endblock %}
+{% block title %}Swag Bag{% endblock %}
 
 {% block angular-ng-app-class %}ng-app="CartApp"{% endblock %}
 
@@ -126,25 +126,13 @@
             </div>
             <div class="col-xs-12">
                 show cookie contents
-
-                <div class="col-md-3" ng-repeat="item in items">
-                    <h2 ng-bind="item.ao"></h2>
-                    <h4 ng-bind="item.title"></h4>
-                    <div class="row">
-                        <p ng-bind="item.url"></p>
-                    </div>
-                    <add-cart-button item="item"></add-cart-button>
-                </div>
+                to do...
             </div>
         </div>
     </div>
  {% endverbatim %}
 
 <script>
-//var app = angular.module('ShoppingCartApp', []);
-//    app.controller('myCtrl', function($scope, $location){
-//        console.log($location.absUrl());
-//        console.log('here');
-//    })
+
 </script>
 {% endblock %}

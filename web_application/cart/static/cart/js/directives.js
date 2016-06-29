@@ -14,10 +14,10 @@ console.log('directives.js');
             replace: true,
             templateUrl: '/static/templates/cart/mini-cart.html',
             link: function(scope, elem, attr){
-                    scope.getItemCount = function(){
-                        // Returns the item count from the Cart Service
-                        return CartService.getItemCount();
-                    }
+                scope.getItemCount = function(){
+                    // Returns the item count from the Cart Service
+                    return CartService.getItemCount();
+                }
             }
         };
     });
