@@ -10,13 +10,13 @@ console.log('directives.js');
             // Create in an isolated scope
             scope:{
             },
-            restrict: 'E',
+            restrict: 'A',
             replace: true,
             templateUrl: '/static/templates/cart/mini-cart.html',
             link: function(scope, elem, attr){
                     scope.getItemCount = function(){
                         // Returns the item count from the Cart Service
-                        CartService.getItemCount();
+                        return CartService.getItemCount();
                     }
             }
         };
@@ -43,6 +43,7 @@ console.log('directives.js');
                 scope.addItem = function(item){
                     // Pass the item into the addItem method of CartService
                     CartService.addItem(item);
+                    CartService.getItemCount();
                 }
             }
         }

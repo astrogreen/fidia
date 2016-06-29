@@ -20,7 +20,7 @@ console.log('controllers.js');
         $scope.items = {};
 
         $scope.items = CartService.getItems();
-        
+
         $scope.addItem = function(item){
             // Pass the item into the addItem method of the CartService
             CartService.addItem(item);

@@ -28,8 +28,9 @@
             <!--</div>-->
 
             <ul class="nav navbar-nav navbar-right">
+                <mini-cart></mini-cart>
                 <li class="cart-li">
-                    <a href="" class="cart-icon">
+                    <a href="{% url 'cart' %}" class="cart-icon">
                         <svg version="1.1" class="icon" xmlns="http://www.w3.org/2000/svg"
                              xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px"
                              viewBox="0 0 30 30">
@@ -45,7 +46,7 @@
                         c0.264,0.898,3.569,12.146,3.821,12.999c0.087,0.188,0.611,1.197,1.688,1.197h10.611c0.451,0,0.818,0.368,0.818,0.818
                         C25.395,21.21,25.027,21.575,24.576,21.575L24.576,21.575z"></path>
                         </svg>
-                        <div class="badge">20</div>
+                        <div class="badge" mini-cart></div>
                     </a>
                 </li>
                 {% block userlinks %}

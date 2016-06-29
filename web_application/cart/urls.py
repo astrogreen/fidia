@@ -14,15 +14,15 @@ router = rest_framework.routers.SimpleRouter()
 urlpatterns = [
     url(r'', include(router.urls)),
     url(r'download/', cart.views.CartView.as_view(), name='cart-list'),
-    # url(r'cart/$',
-    #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/cart.html'),
-    #     name='cart'),
+    url(r'cart/$',
+        restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/cart.html'),
+        name='cart'),
     url(r'cart/dummy-item/$',
         restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/dummy_item.html'),
         name='dummy-item'),
-    url(r'dummy-cart/$',
-        restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/dummy_item.html'),
-        name='dummy-cart'),
+    # url(r'dummy-cart/$',
+    #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/dummy_item.html'),
+    #     name='dummy-cart'),
 ]
 
 
