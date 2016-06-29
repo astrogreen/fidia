@@ -5,21 +5,19 @@
 {% load internal_extras %}
 {% block title %}Dummy Item{% endblock %}
 
-{% block bodyclass %}{% endblock %}
-{% block breadcrumbclass %}{% endblock %}
-
-{% block content-options %}{% endblock %}
-{% block content-delete %}{% endblock %}
-{% block content-filter-form %}{% endblock %}
-
-{% block content-page-header %}{% endblock %}
-
+{% block angular-ng-app-class %}ng-app="CartApp"{% endblock %}
 
 {% block head-extra %}
 <script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
 <script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
 
 <link rel="stylesheet" type="text/css" href="{% static 'cart/css/cart/cart.min.css' %}"/>
+
+<script type="text/javascript" src="{% static 'cart/js/app.js' %}"></script>
+<script type="text/javascript" src="{% static 'cart/js/services.js' %}"></script>
+<script type="text/javascript" src="{% static 'cart/js/controllers.js' %}"></script>
+<script type="text/javascript" src="{% static 'cart/js/directives.js' %}"></script>
+
 {% endblock %}
 
 {% block breadcrumbs-outer %}
@@ -35,12 +33,33 @@
         <div class="col-xs-12">
             <h1 class="headline"><span>Dummy Items</span></h1>
         </div>
-        <div class="col-sm-8">
-            test
-        </div>
-        <div class="col-sm-4">
-
+        <div ng-controller="DummyData">
+            <div class="col-md-3" ng-repeat="item in data">
+                <h4 ng-bind="item.title"></h4>
+                <div class="row">
+                    <p ng-bind="item.url"></p>
+                </div>
+                <add-cart-button item="item"></add-cart-button>
+            </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-8">
+            cart
+            <hr>
+
+            <!--<mini-cart></mini-cart>-->
+
+        </div>
+        <div class="col-sm-4">
+            add to cart button
+            <hr>
+            <!--<add-cart-button item="dummyobj"></add-cart-button>-->
+        </div>
+    </div>
+
 </div>
+<script>
+
+</script>
 {% endblock %}
