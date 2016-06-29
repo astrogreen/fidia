@@ -17,6 +17,9 @@ urlpatterns = [
     url(r'cart/$',
         restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/cart.html'),
         name='cart'),
+    url(r'cart/dummy-item/$',
+        restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/dummy_item.html'),
+        name='dummy-item'),
 ]
 
 

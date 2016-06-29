@@ -200,11 +200,14 @@ header .navbar .container-fluid a.navbar-brand img {
   padding-right: 10px;
   padding-left: 10px;
 }
-header .navbar .container-fluid .cart-icon {
+header .navbar .container-fluid .cart-li {
+  background: #e7e7e7;
+}
+header .navbar .container-fluid .cart-li .cart-icon {
   padding-bottom: 15px !important;
   position: relative;
 }
-header .navbar .container-fluid .cart-icon .badge {
+header .navbar .container-fluid .cart-li .cart-icon .badge {
   position: absolute;
   right: 3px;
   top: 5px;

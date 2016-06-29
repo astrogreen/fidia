@@ -5,17 +5,12 @@
 {% load internal_extras %}
 {% block title %}Shopping Cart{% endblock %}
 
-{% block bodyclass %}{% endblock %}
-{% block breadcrumbclass %}{% endblock %}
-
-{% block content-options %}{% endblock %}
-{% block content-delete %}{% endblock %}
-{% block content-filter-form %}{% endblock %}
-
-{% block content-page-header %}{% endblock %}
-
+{% block angular-ng-app-class %}ng-app="ShoppingCartApp"{% endblock %}
 
 {% block head-extra %}
+<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
+
 <link rel="stylesheet" type="text/css" href="{% static 'cart/css/cart/cart.min.css' %}"/>
 {% endblock %}
 
@@ -33,7 +28,7 @@
             <h1 class="headline"><span>Cart</span></h1>
         </div>
         <div class="col-sm-8">
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="box-shadow: 1px 1px 2px rgba(0,0,0,0.05);">
                 <div class="panel-heading text-uppercase">
                     <strong> Cart </strong>
                     <svg version="1.1" class="icon pull-right" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="15px" height="15px" viewbox="0 0 30 30">
@@ -93,6 +88,7 @@
 
                 </div>
             </div>
+            <a href="{% url 'dummy-item' %}" class="btn btn-default">Add Items</a>
         </div>
         <div class="col-sm-4">
             <div class="panel panel-default warning">

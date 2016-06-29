@@ -1,0 +1,46 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Dummy Item{% endblock %}
+
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block content-options %}{% endblock %}
+{% block content-delete %}{% endblock %}
+{% block content-filter-form %}{% endblock %}
+
+{% block content-page-header %}{% endblock %}
+
+
+{% block head-extra %}
+<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
+<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'cart/css/cart/cart.min.css' %}"/>
+{% endblock %}
+
+{% block breadcrumbs-outer %}
+<ul class="breadcrumb ">
+    <li class="active"><a href="{% url 'index' %}">Home</a></li>
+    <li>Item</li>
+</ul>
+{% endblock %}
+
+{% block content_render %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="headline"><span>Dummy Items</span></h1>
+        </div>
+        <div class="col-sm-8">
+            test
+        </div>
+        <div class="col-sm-4">
+
+        </div>
+    </div>
+</div>
+{% endblock %}
