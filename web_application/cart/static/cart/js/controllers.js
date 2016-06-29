@@ -5,13 +5,22 @@ console.log('controllers.js');
 
     var app = angular.module('CartApp');
 
+
+    app.controller('DummyData', function($scope, $http){
+       $http.get('/static/js/cart/dummy-data.json').then(function(response){
+           $scope.data = response.data;
+           console.log('success - dummy data in $scope.data')
+       })
+    });
+
     // Inject in the CartService
     app.controller('CartController', function($scope, CartService){
+        console.log('-------CartController------');
         // Set the items on the scope to the items in the CartService using the getItems method
         $scope.items = {};
 
         $scope.items = CartService.getItems();
-
+        
         $scope.addItem = function(item){
             // Pass the item into the addItem method of the CartService
             CartService.addItem(item);

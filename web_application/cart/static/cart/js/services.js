@@ -1,5 +1,5 @@
 console.log('services.js');
-
+// IIFE: Immediately invoked function expression: (function(){})() (where window == global scope)
 // Create a cart service
 (function(angular){
    // Force variable declarations
@@ -8,39 +8,73 @@ console.log('services.js');
     var app = angular.module('CartApp');
 
     // Inject in $cookieStore
-    app.factory('CartService', function(){
+    app.factory('CartService', function($cookieStore){
 
         // Private items object
         var items = {};
 
+        function checkCookie(){
+            if (undefined != $cookieStore){
+                    console.log('Check the cookie: ', $cookieStore.get('items'));
+            } else {
+                console.log('Cookie Empty!')
+            }
+        }
+
         // Update cookies
-        function updateItemsCookie(){}
+        function updateItemsCookie(){
+            console.log('updateItemsCookie: ', items);
+            // Initialize an object that will be saved as a cookie
+            var itemsCookie = {};
+            // Loop through the items in the cart
+            angular.forEach(items, function(item, key){
+                // Add each item to the items cookie,
+                // using the id as the identifier
+                itemsCookie[key] = item;
+            });
+            // Use the $cookieStore service to persist the itemsCookie object to the cookie named 'items'
+            $cookieStore.put('items', itemsCookie);
+
+            checkCookie();
+            console.log('updateItemsCookie: - - - END');
+        }
 
         // Angular factories return service objects
         return {
 
-            getItems: function(){
-                // Initialize itemsCookie variable
+            getItems: function() {
+                console.log('- - - getItems - - -')
+
+                // Initialize the itemsCookie variable
                 var itemsCookie;
 
-                // Check if items object has been populated
-                if (!items.length){
-                    // Populate items object from cookie
+                checkCookie();
 
-                    // Check if cookie exists
-                    if(itemsCookie){
-                        // Loop through each cookie and get the item by its ID
-                        // Add each item ot the items object
+                // Check if cart is empty, if not - populate the current service with the cookie items
+                if(!items.length) {
+                    // Get the items cookie
+                    itemsCookie = $cookieStore.get('items');
+                    // Check if the item cookie exists
+                    if(itemsCookie) {
+                        // Loop through the items in the cookie
+                        angular.forEach(itemsCookie, function(item, key) {
+                            console.log('item ',item)
+                            console.log('key ',key)
+                            // Get the product details from the ProductService using the guid
+                            items[item.id] = item;
+                        });
                     }
                 }
-                // Return the items object
+                // Returns items object
                 return items;
             },
 
             addItem: function(item){
+                console.log('addItem: ', item);
                 // Check if item already exists
                 // If exists - don't add
                 // Else, push the item onto the items array, at the relevant astronomical object key
+
                 if (!items[item.id]){
                     items[item.id] = item;
                 } else {
@@ -61,6 +95,9 @@ console.log('services.js');
                 // Re-initialize items object to an empty object
                 items = {};
                 // Remove items cookie using $cookieStore
+                $cookieStore.remove('items');
+
+                checkCookie();
             },
 
             getItemCount: function(){
@@ -71,6 +108,7 @@ console.log('services.js');
                     // total += parseInt(item.quantity)
                     total += 1;
                 })
+                console.log('getItemCount ', total)
                 return total;
             },
 
