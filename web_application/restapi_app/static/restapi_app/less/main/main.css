@@ -214,7 +214,7 @@ header .navbar .container-fluid .cart-li .cart-icon {
 }
 header .navbar .container-fluid .cart-li .cart-icon .badge {
   position: absolute;
-  right: 3px;
+  right: 5px;
   top: 5px;
 }
 header .navbar .container-fluid .btn-primary {
@@ -423,10 +423,12 @@ li {
 .open > .dropdown-toggle.btn-primary:focus,
 .btn-primary:active.focus,
 .btn-primary.active.focus,
-.open > .dropdown-toggle.btn-primary.focus {
+.open > .dropdown-toggle.btn-primary.focus,
+.btn-primary:focus,
+.btn-primary.focus {
   color: #fff;
   background-color: #459dd3;
-  border-color: #2c83ba;
+  border-color: #3092cf;
 }
 .btn-error {
   background-color: #a94442;
@@ -434,7 +436,7 @@ li {
   border: 1px solid #a94442;
 }
 /***********************
-  RAISED BUTTONS
+  RAISED BUTTON
 ************************/
 .btn-primary.raised {
   box-shadow: 0 3px 0 0 #2c83ba;
@@ -442,11 +444,12 @@ li {
   border-radius: 3px !important;
 }
 .btn-primary.raised:active,
-.btn-primary.raised.active {
+.btn-primary.raised.focus {
   background: #5aa8d8;
   box-shadow: none;
   margin-bottom: -3px;
   margin-top: 3px;
+  border: solid 1px #5aa8d8;
 }
 .panel-default > .panel-heading {
   background-color: #f2f2f2;
@@ -502,6 +505,9 @@ li {
 .panel.success,
 .panel-body.success {
   border-left: 3px solid #5aa8d8;
+}
+.panel-footer {
+  border-top: solid 1px #ddd;
 }
 .modal,
 .modal-content {

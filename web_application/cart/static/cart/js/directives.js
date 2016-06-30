@@ -10,7 +10,7 @@ console.log('directives.js');
             // Create in an isolated scope
             scope:{
             },
-            restrict: 'A',
+            restrict: 'AE',
             replace: true,
             templateUrl: '/static/templates/cart/mini-cart.html',
             link: function(scope, elem, attr){
@@ -18,6 +18,7 @@ console.log('directives.js');
                     // Returns the item count from the Cart Service
                     return CartService.getItemCount();
                 }
+
             }
         };
     });
@@ -48,7 +49,13 @@ console.log('directives.js');
                 elem.bind('click', function(e){
                     // e.currentTarget is element that event is hooked on (target is the one that received the click)
                     angular.element(e.currentTarget).addClass('btn-added-to-cart')
-                        .html('<i class="fa fa-check"></i> Added');
+                        .html('<i class="fa fa-check"></i> <small>added to cart</small>').removeClass('btn-primary')
+                        .addClass('btn-default').attr('disabled', true);
+
+                        $('#mini-cart').addClass('bounce')
+                            .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                                $('#mini-cart').removeClass('bounce');
+                            });
                 })
             }
         }

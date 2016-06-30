@@ -34,10 +34,8 @@ console.log('services.js');
             });
             // Use the $cookieStore service to persist the itemsCookie object to the cookie named 'items'
             $cookieStore.put('items', itemsCookie);
-
             checkCookie();
-            console.log('updateItemsCookie: - - - END');
-        }
+        };
 
         // Angular factories return service objects
         return {
@@ -56,8 +54,6 @@ console.log('services.js');
                     if(itemsCookie) {
                         // Loop through the items in the cookie
                         angular.forEach(itemsCookie, function(item, key) {
-                            console.log('item ',item)
-                            console.log('key ',key)
                             // Get the product details from the ProductService using the guid
                             items[item.id] = item;
                         });

@@ -208,7 +208,7 @@ header{
             position:relative;
             .badge {
               position: absolute;
-              right: 3px;
+              right: 5px;
               top: 5px;
             }
           }
@@ -630,10 +630,12 @@ header{
   border:1px solid #5aa8d8;
 }
 
-.btn-primary:active:hover, .btn-primary.active:hover, .open > .dropdown-toggle.btn-primary:hover, .btn-primary:active:focus, .btn-primary.active:focus, .open > .dropdown-toggle.btn-primary:focus, .btn-primary:active.focus, .btn-primary.active.focus, .open > .dropdown-toggle.btn-primary.focus {
+.btn-primary:active:hover, .btn-primary.active:hover, .open > .dropdown-toggle.btn-primary:hover, .btn-primary:active:focus,
+.btn-primary.active:focus, .open > .dropdown-toggle.btn-primary:focus, .btn-primary:active.focus, .btn-primary.active.focus,
+.open > .dropdown-toggle.btn-primary.focus, .btn-primary:focus, .btn-primary.focus{
   color: #fff;
   background-color: #459dd3;
-  border-color: #2c83ba;
+  border-color: #3092cf;
 }
 
 .btn-error {
@@ -642,24 +644,22 @@ header{
   border:1px solid #a94442;
 }
 
-//.btn-added-to-cart{
-//  border:solid 1px #5aa8d8;
-//  span{display:none}
-//}
 /***********************
-  RAISED BUTTONS
+  RAISED BUTTON
 ************************/
 .btn-primary.raised {
   box-shadow: 0 3px 0 0 #2c83ba;
   text-transform: uppercase;
   border-radius:3px !important;
+
 }
 
-.btn-primary.raised:active, .btn-primary.raised.active {
+.btn-primary.raised:active, .btn-primary.raised.focus {
 	background: #5aa8d8;
 	box-shadow: none;
 	margin-bottom: -3px;
 	margin-top: 3px;
+    border:solid 1px #5aa8d8;
 
 }
 
@@ -720,6 +720,9 @@ header{
   border-left: 3px solid #5aa8d8;
 }
 
+.panel-footer {
+  border-top: solid 1px #ddd;
+}
 .modal, .modal-content {
   border-radius: 0;
 }

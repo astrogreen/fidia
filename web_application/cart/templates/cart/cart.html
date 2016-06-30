@@ -46,57 +46,34 @@
                         C25.395,21.21,25.027,21.575,24.576,21.575L24.576,21.575z"></path>
                         </svg>
                 </div>
-                <div class="panel-body">
-                    <div class="table-responsisve">
-                        <table class="table table-condensed table-striped">
-                            <colgroup>
-                                <col span="1" style="width: 35%;">
-                                <col span="1" style="width: 40%;">
-                                <col span="1" style="width: 15%;">
-                                <col span="1" style="width: 10%;">
-                            </colgroup>
-                            <thead>
-                            <tr>
-                                <th>Object</th>
-                                <th>Data</th>
-                                <th>URL</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="item in ctrl3.items track by $index">
-                                <td>Gal {{item.id}}</td>
-                                <td>{{item.url}}</td>
-                                <td><a ng-href="{{item.url}}" class="text-uppercase">view</a></td>
-                                <td><a role="button" class="text-normal pull-right"><i
-                                        class="fa fa-times remove-cross" ng-click="removeItem(item.id)"></i></a></td>
-                            </tr>
-
-                            </tbody>
-                        </table>
-                    </div>
-                    <button class="btn btn-default text-error btn-sm js-tooltip pull-left text-uppercase"
-                                title="Delete all items in the cart" id="checkout-button" ng-click="ctrl3.emptyCart()">Empty
-                            Cart
-                    </button>
-
-                    <button class="btn btn-primary btn-sm js-tooltip pull-right" title="Download data in the cart"
-                            id="checkout-button">DOWNLOAD
-                    </button>
-                    <br>
-                    <hr>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="panel panel-default warning" ng-if="ctrl3.items | isEmpty">
-                <div class="panel-body">
+                <div class="panel-body warning" ng-if="ctrl3.items | isEmpty">
                     <strong class="text-uppercase">Cart Empty</strong>
                     <p>Visit the <a type="button" class="" href="{% url 'sami-list' %}">Data Browser</a> or make a <a
                             type="button" class="" href="{% url 'query-list' %}">Query</a> to add data!
                     </p>
                 </div>
+                <ul class="list-group">
+                    <span ng-repeat="item in ctrl3.items track by $index">
+                        <li class="list-group-item"><strong>Gal {{item.id}}</strong> </li>
+                        <li class="list-group-item list-group-sub-item">
+                            <a ng-href="{{item.url}}" class="text-normal">Velocity Map</a>
+                            <a role="button" class="text-normal pull-right"><i
+                                class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(item.id)"></i></a>
+                        </li>
+                    </span>
+                </ul>
+                <div class="panel-footer">
+                    <button class="btn btn-default text-error btn-sm js-tooltip  text-uppercase"
+                                title="Delete all items in the cart" id="checkout-button" ng-click="ctrl3.emptyCart()">EMPTY
+                    </button>
+
+                    <button class="btn btn-primary btn-sm js-tooltip pull-right" title="Download data in the cart"
+                            id="checkout-button">DOWNLOAD
+                    </button>
+                </div>
             </div>
+        </div>
+        <div class="col-sm-4">
             <div class="panel panel-default">
                 <div class="panel-body">
                     <strong class="text-uppercase">Summary</strong>
@@ -105,13 +82,13 @@
                 <!-- List group -->
                 <ul class="list-group">
                     <li class="list-group-item"><strong>Total</strong></li>
-                    <li class="list-group-item list-group-sub-item">Data <span ng-bind="ctrl3.getItemCount()"></span>
+                    <li class="list-group-item list-group-sub-item">Data <span class="badge" ng-bind="ctrl3.getItemCount()"></span>
                     </li>
-                    <li class="list-group-item list-group-sub-item">Objects<span class="badge">2</span>
+                    <li class="list-group-item list-group-sub-item">Objects<span class="badge">-</span>
                     </li>
                     <li class="list-group-item"><strong>Per Survey</strong></li>
-                    <li class="list-group-item list-group-sub-item">SAMI <span class="badge">2</span></li>
-                    <li class="list-group-item list-group-sub-item">GAMA <span class="badge">3</span></li>
+                    <li class="list-group-item list-group-sub-item">SAMI <span class="badge">-</span></li>
+                    <li class="list-group-item list-group-sub-item">GAMA <span class="badge">-</span></li>
                 </ul>
             </div>
         </div>

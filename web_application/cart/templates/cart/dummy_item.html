@@ -30,28 +30,11 @@
         </div>
         <div ng-controller="DummyData">
             <div class="col-md-3" ng-repeat="item in data">
-
                 <h6 ng-bind="item.url"></h6>
-
                 <add-cart-button item="item"></add-cart-button>
             </div>
         </div>
     </div>
-    <div class="row" ng-controller="CartController">
-
-        <div class="col-xs-12">
-            <h1 class="headline"><span>Dummy Mini-Cart</span></h1>
-        </div>
-        <div class="col-sm-8">
-
-            <button class="btn btn-default text-error btn-sm js-tooltip pull-left text-uppercase" title="Delete all items in the cart" id="checkout-button" ng-click="emptyCart()">Empty Cart
-                                                </button>
-            <hr>
-
-
-        </div>
-    </div>
-
 </div>
 <script>
 
