@@ -43,8 +43,6 @@ console.log('services.js');
         return {
 
             getItems: function() {
-                console.log('- - - getItems - - -')
-
                 // Initialize the itemsCookie variable
                 var itemsCookie;
 
@@ -70,7 +68,6 @@ console.log('services.js');
             },
 
             addItem: function(item){
-                console.log('addItem: ', item);
                 // Check if item already exists
                 // If exists - don't add
                 // Else, push the item onto the items array, at the relevant astronomical object key
@@ -92,12 +89,18 @@ console.log('services.js');
             },
 
             emptyCart: function(){
-                // Re-initialize items object to an empty object
-                items = {};
+                // items = {};
+                // Can't re-initialize items object to an empty object, else break the reference and ng-repeat won't update
+                // Instead, loop and clear the items object
+
+                for (var prop in items){
+                    delete items[prop]
+                }
                 // Remove items cookie using $cookieStore
                 $cookieStore.remove('items');
 
-                checkCookie();
+                // updateItemsCookie();
+                // checkCookie();
             },
 
             getItemCount: function(){

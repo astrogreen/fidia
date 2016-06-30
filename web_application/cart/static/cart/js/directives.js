@@ -44,7 +44,12 @@ console.log('directives.js');
                     // Pass the item into the addItem method of CartService
                     CartService.addItem(item);
                     CartService.getItemCount();
-                }
+                },
+                elem.bind('click', function(e){
+                    // e.currentTarget is element that event is hooked on (target is the one that received the click)
+                    angular.element(e.currentTarget).addClass('btn-added-to-cart')
+                        .html('<i class="fa fa-check"></i> Added');
+                })
             }
         }
     });

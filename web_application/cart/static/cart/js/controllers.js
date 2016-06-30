@@ -15,42 +15,52 @@ console.log('controllers.js');
 
     // Inject in the CartService
     app.controller('CartController', function($scope, CartService){
+        var ctrl3 = this; // create alias to this to avoid closure issues
+        // Here, we've registered properties on $scope.ctrl rather than on $scope (all modules have global access
+        // to $scope - which may result in unwanted cross-talk
+
         console.log('-------CartController------');
         // Set the items on the scope to the items in the CartService using the getItems method
-        $scope.items = {};
+        ctrl3.items = {};
 
-        $scope.items = CartService.getItems();
+        ctrl3.items = CartService.getItems();
 
-        $scope.addItem = function(item){
+        ctrl3.addItem = function(item){
             // Pass the item into the addItem method of the CartService
             CartService.addItem(item);
         };
 
-        $scope.getItemCount = function(){
+        ctrl3.getItemCount = function(){
             // Return the item count from the CartService
             CartService.getItemCount();
         };
 
-        $scope.getAstronomicalObjectsCount = function(){
+        ctrl3.getAstronomicalObjectsCount = function(){
             CartService.getAstronomicalObjectsCount()
         }
 
-        $scope.getItemPerSurvey = function (){
+        ctrl3.getItemPerSurvey = function (){
             CartService.getItemPerSurvey()
         };
 
-        $scope.removeItem = function(id){
+        ctrl3.removeItem = function(id){
             // Pass item id into the removeItem method of CartService
             CartService.removeItem(id);
         }
         
-        $scope.emptyCart = function(){
-            CartService.emptyCart();
+        ctrl3.emptyCart = function(items){
+            CartService.emptyCart($scope.items);
         }
         
-        $scope.download = function(){
+        ctrl3.download = function(){
             // Invoke the download method of the CartService
             CartService.download();
         };
     });
+
+    app.filter('isEmpty', [function(){
+        return function(object){
+            return angular.equals({}, object);
+        }
+    }])
 })(window.angular);
