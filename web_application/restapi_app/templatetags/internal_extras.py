@@ -42,7 +42,7 @@ def optional_logout(request, user):
     except NoReverseMatch:
         return ''
 
-    snippet = """<li class="dropdown">
+    snippet = """<li class="dropdown user">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             {user}
             <b class="caret"></b>

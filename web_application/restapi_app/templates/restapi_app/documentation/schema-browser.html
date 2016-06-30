@@ -6,17 +6,13 @@
 {% block title %}Documentation{% endblock %}
 
 {% block head-extra %}
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/isteven-multi-select/isteven-multi-select.js' %}"></script>
+
 <script type="text/javascript">
     //get url for available catalogues
     urlCataloguesGlobal = "{% url "catalogues" %}"
 </script>
-<script type="text/javascript" src="{% static 'query/js/app.js' %}"></script>
-<script type="text/javascript" src="{% static 'query/js/query-builder/CtrlQueryBuilder.js' %}"></script>
-<script type="text/javascript" src="{% static 'query/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
 
+<script type="text/javascript" src="{% static 'query/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
 
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/isteven-multi-select/isteven-multi-select.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation/documentation.min.css' %}"/>
@@ -29,10 +25,7 @@
     urlCataloguesGlobal = "{% url 'catalogues' %}"
 </script>
 
-
 {% endblock %}
-{% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
-
 
 <div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
     <div class="container">

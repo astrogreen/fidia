@@ -3,11 +3,11 @@ console.log('controllers.js');
 (function(angular){
     "use strict";
 
-    var app = angular.module('CartApp');
+    var app = angular.module('DCApp');
 
     // Create 'fixtures'
     app.controller('DummyData', function($scope, $http){
-       $http.get('/static/js/cart/dummy-data.json').then(function(response){
+       $http.get('/static/js/angular/cart/dummy-data.json').then(function(response){
            $scope.data = response.data;
            console.log('success - dummy data in $scope.data')
        })

@@ -180,9 +180,12 @@ header{
         .navbar-nav {
           float: left;
           margin: 0;
-        }
-        .navbar-nav > li {
+          > li {
           float: left;
+          }
+          li.dropdown.user.active > a,
+          li.dropdown.user.active > a:hover,
+          li.dropdown.user.active > a:focus {border-left:solid 1px rgba(217,217,217,.5)}
         }
         //
 
@@ -199,7 +202,7 @@ header{
           }
         }
         .cart-li{
-          background:#e7e7e7;
+          background:#f2f2f2;
           .cart-icon {
             padding-bottom: 15px !important;
             position:relative;

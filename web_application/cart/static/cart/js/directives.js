@@ -2,7 +2,7 @@ console.log('directives.js');
 (function(angular){
     "use strict"
 
-    var app = angular.module('CartApp');
+    var app = angular.module('DCApp');
 
     // CartDirective
     app.directive('miniCart', function(CartService){

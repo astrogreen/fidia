@@ -5,19 +5,13 @@
 {% load internal_extras %}
 {% block title %}Dummy Item{% endblock %}
 
-{% block angular-ng-app-class %}ng-app="CartApp"{% endblock %}
+{% block angular-ng-app-class %}ng-app="DCApp"{% endblock %}
 
 {% block head-extra %}
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.cookies.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
 
 <link rel="stylesheet" type="text/css" href="{% static 'cart/css/cart/cart.min.css' %}"/>
 
-<script type="text/javascript" src="{% static 'cart/js/app.js' %}"></script>
-<script type="text/javascript" src="{% static 'cart/js/services.js' %}"></script>
 <script type="text/javascript" src="{% static 'cart/js/controllers.js' %}"></script>
-<script type="text/javascript" src="{% static 'cart/js/directives.js' %}"></script>
 
 {% endblock %}
 
@@ -36,8 +30,7 @@
         </div>
         <div ng-controller="DummyData">
             <div class="col-md-3" ng-repeat="item in data">
-                <h2 ng-bind="item.ao"></h2>
-                <h4 ng-bind="item.title"></h4>
+
                 <h6 ng-bind="item.url"></h6>
 
                 <add-cart-button item="item"></add-cart-button>

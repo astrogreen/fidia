@@ -188,6 +188,11 @@ header .navbar .container-fluid .navbar-nav {
 header .navbar .container-fluid .navbar-nav > li {
   float: left;
 }
+header .navbar .container-fluid .navbar-nav li.dropdown.user.active > a,
+header .navbar .container-fluid .navbar-nav li.dropdown.user.active > a:hover,
+header .navbar .container-fluid .navbar-nav li.dropdown.user.active > a:focus {
+  border-left: solid 1px rgba(217, 217, 217, 0.5);
+}
 header .navbar .container-fluid .asvo-logo {
   display: inline-block;
 }
@@ -201,7 +206,7 @@ header .navbar .container-fluid a.navbar-brand img {
   padding-left: 10px;
 }
 header .navbar .container-fluid .cart-li {
-  background: #e7e7e7;
+  background: #f2f2f2;
 }
 header .navbar .container-fluid .cart-li .cart-icon {
   padding-bottom: 15px !important;

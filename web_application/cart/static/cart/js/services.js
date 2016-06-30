@@ -5,7 +5,7 @@ console.log('services.js');
    // Force variable declarations
     "use strict"
 
-    var app = angular.module('CartApp');
+    var app = angular.module('DCApp');
 
     // Inject in $cookieStore
     app.factory('CartService', function($cookieStore){
@@ -110,10 +110,8 @@ console.log('services.js');
                 // })
                 // console.log('getItemCount ', total)
 
-
                 // NO! Best to use the updated cookie here - so the directive can use this method (directive doesn't have access to controller scope)
                 if (undefined != $cookieStore){
-                    console.log('Check the cookie: ', $cookieStore.get('items'));
                     angular.forEach($cookieStore.get('items'), function(item){
                         // total += parseInt(item.quantity)
                         total += 1;

@@ -5,18 +5,9 @@
 {% load internal_extras %}
 {% block title %}Swag Bag{% endblock %}
 
-{% block angular-ng-app-class %}ng-app="CartApp"{% endblock %}
-
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'cart/css/cart/cart.min.css' %}"/>
-
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.cookies.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'cart/js/app.js' %}"></script>
-<script type="text/javascript" src="{% static 'cart/js/services.js' %}"></script>
 <script type="text/javascript" src="{% static 'cart/js/controllers.js' %}"></script>
-<script type="text/javascript" src="{% static 'cart/js/directives.js' %}"></script>
 
 {% endblock %}
 
