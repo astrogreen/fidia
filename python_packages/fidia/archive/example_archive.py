@@ -2,7 +2,7 @@
 import numpy as np
 
 from .archive import Archive
-from ..traits.utilities import TraitKey, TraitMapping, trait_property
+from ..traits import TraitKey, TraitRegistry, trait_property
 from ..traits.base_traits import SpectralMap, Image, Measurement, Trait
 from ..exceptions import DataNotAvailable
 
@@ -14,9 +14,7 @@ class ExampleSpectralMap(SpectralMap):
 
     trait_type = "spectral_map"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
+    available_branches = {None, 'other'}
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -45,9 +43,7 @@ class ExampleSpectralMapExtra(SpectralMap):
 
     trait_type = "spectral_map"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
+    available_branches = {'extra'}
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -74,18 +70,14 @@ class ExampleSpectralMapExtra(SpectralMap):
         assert not self._clean
         return np.random.random()
 
-    @trait_property('string')
-    def galaxy_name(self):
-        assert not self._clean
-        return self.object_id
+    # @trait_property('string')
+    # def galaxy_name(self):
+    #     assert not self._clean
+    #     return self.object_id
 
 class VelocityMap(Image):
 
     trait_type = "velocity_map"
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
 
     @property
     def shape(self):
@@ -108,10 +100,6 @@ class LineMap(Image):
 
     trait_type = "line_map"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
-
     @property
     def shape(self):
         return self.value.shape
@@ -131,10 +119,6 @@ class Redshift(Measurement):
 
     trait_type = "redshift"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
-
     @trait_property('float')
     def value(self):
         return 3.14159
@@ -145,10 +129,6 @@ class Redshift(Measurement):
 class TestMissingProperty(SpectralMap):
 
     trait_type = "spectral_map"
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
 
     @property
     def shape(self):
@@ -175,10 +155,6 @@ class SimpleTrait(Trait):
 
     trait_type = "simple_trait"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
-
     @trait_property('float')
     def value(self):
         return 5.5
@@ -195,12 +171,11 @@ class SimpleTraitWithSubtraits(Trait):
 
     trait_type = "simple_heir_trait"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier=None, version=None)]
+    sub_traits = TraitRegistry()
 
-    _sub_traits = TraitMapping()
-    _sub_traits[TraitKey('sub_trait')] = SimpleTrait
+    @sub_traits.register
+    class SubTrait(SimpleTrait):
+        trait_type = 'sub_trait'
 
     @trait_property('float')
     def value(self):
@@ -212,6 +187,8 @@ class SimpleTraitWithSubtraits(Trait):
 
 
 class ExampleArchive(Archive):
+
+    available_traits = TraitRegistry()
 
     def __init__(self):
         # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
@@ -230,16 +207,17 @@ class ExampleArchive(Archive):
     def name(self):
         return 'ExampleArchive'
 
+
     def define_available_traits(self):
-        self.available_traits[TraitKey('spectral_map', None, None, None)] = ExampleSpectralMap
-        self.available_traits[TraitKey('spectral_map', 'extra', None, None)] = ExampleSpectralMapExtra
-        self.available_traits[TraitKey('spectral_map', 'extra', None, 'Gal2')] = TestMissingProperty
-        self.available_traits[TraitKey('line_map', None, None, None)] = LineMap
-        self.available_traits[TraitKey('velocity_map', None, None, None)] = VelocityMap
-        self.available_traits[TraitKey('redshift', None, None, None)] = Redshift
+        self.available_traits.register(ExampleSpectralMap)
+        self.available_traits.register(ExampleSpectralMapExtra)
+        # self.available_traits[TraitKey('spectral_map', 'extra', None, 'Gal2')] = TestMissingProperty
+        self.available_traits.register(LineMap)
+        self.available_traits.register(VelocityMap)
+        self.available_traits.register(Redshift)
 
         # NOTE: Tests rely on this, so changing it will require updating the tests!
-        self.available_traits[TraitKey('simple_trait', None, None, None)] = SimpleTrait
-        self.available_traits[TraitKey('simple_heir_trait', None, None, None)] = SimpleTraitWithSubtraits
+        self.available_traits.register(SimpleTrait)
+        self.available_traits.register(SimpleTraitWithSubtraits)
 
 

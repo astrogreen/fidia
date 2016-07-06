@@ -75,6 +75,27 @@ class TraitKey(tuple):
                     version=match.group('version'))
         raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
 
+    @classmethod
+    def as_trait_name(self, *args):
+        if len(args) == 2:
+            return self._make_trait_name(*args)
+        # if len(args) == 0:
+        #     if isinstance(self, object):
+        #         return self._make_trait_name(self.trait_key, self.trait_qualifier)
+        # TODO: Implement solutions for other cases.
+
+
+    @staticmethod
+    def _make_trait_name(trait_type, trait_qualifier):
+        if trait_qualifier is None or trait_qualifier == '':
+            return trait_type
+        else:
+            return "{trait_type}-{trait_qualifier}".format(
+                trait_qualifier=trait_qualifier, trait_type=trait_type)
+
+    @property
+    def trait_name(self):
+        return self._make_trait_name(self.trait_type, self.trait_qualifier)
 
     def __repr__(self):
         """Return a nicely formatted representation string"""
@@ -126,94 +147,6 @@ def parse_trait_key(key):
     return TraitKey.as_traitkey(key)
 
 
-class TraitMapping(collections.MutableMapping):
-
-    # Functions to create dictionary like behaviour
-
-    def __init__(self):
-        self._mapping = dict()
-
-    def __getitem__(self, key):
-        """Function called on dict type read access"""
-        if not isinstance(key, TraitKey):
-            key = TraitKey(key)
-
-        known_keys = self._mapping.keys()
-
-        # CASE: Key fully defined
-        if key in known_keys:
-            log.debug("TraitKey fully defined")
-            return self._mapping[key]
-
-        # CASES: Wild-card on one element
-        elif key.replace(branch=None) in known_keys:
-            log.debug("Wildcard on object_id")
-            return self._mapping[key.replace(branch=None)]
-        elif key.replace(version=None) in known_keys:
-            log.debug("Wildcard on version")
-            return self._mapping[key.replace(version=None)]
-        elif key.replace(trait_qualifier=None) in known_keys:
-            log.debug("Wildcard on trait_qualifier")
-            return self._mapping[key.replace(trait_qualifier=None)]
-
-        # CASES: Wild-card on two elements
-        elif key.replace(trait_qualifier=None, branch=None) in known_keys:
-            log.debug("Wildcard on both branch and trait_qualifier")
-            return self._mapping[key.replace(trait_qualifier=None, branch=None)]
-        elif key.replace(branch=None, version=None) in known_keys:
-            log.debug("Wildcard on both branch and version")
-            return self._mapping[key.replace(branch=None, version=None)]
-        elif key.replace(trait_qualifier=None, version=None) in known_keys:
-            log.debug("Wildcard on both trait_qualifier and version")
-            return self._mapping[key.replace(trait_qualifier=None, version=None)]
-
-        # CASE: Wild-card on three elements
-        elif key.replace(trait_qualifier=None, version=None, branch=None) in known_keys:
-            log.debug("Wildcard on trait_qualifier, and version, and branch")
-            return self._mapping[key.replace(trait_qualifier=None, version=None, branch=None)]
-
-        else:
-            # No suitable data loader found
-            raise UnknownTrait("No known way to load trait for key {}".format(key))
-
-    def __contains__(self, item):
-        try:
-            self.__getitem__(item)
-        except UnknownTrait:
-            return False
-        else:
-            return True
-
-    def __setitem__(self, key, value):
-        if not isinstance(key, TraitKey):
-            key = TraitKey(key)
-        self._mapping[key] = value
-
-    def __delitem__(self, key):
-        if not isinstance(key, TraitKey):
-            key = TraitKey(key)
-        del self._mapping[key]
-
-    def __len__(self):
-        return len(self._mapping)
-
-    def __iter__(self):
-        return iter(self._mapping)
-
-    def get_traits_for_type(self, trait_type):
-        """Return a list of all Trait classes mapped to a particular trait_type"""
-        result = []
-        for key in self._mapping:
-            if key.trait_type == trait_type:
-                result.append(self._mapping[key])
-        return result
-
-        # The same code written as a list comprehension
-        #return [self._mapping[key] for key in self._mapping if key.trait_type == trait_type]
-
-    def get_trait_types(self):
-        """A list of the unique trait types in this TraitMapping."""
-        return set([key.trait_type for key in self._mapping])
 
 def trait_property(func_or_type):
     """Decorate a function which provides an individual property of a trait.
