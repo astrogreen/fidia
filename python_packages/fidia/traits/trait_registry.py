@@ -95,9 +95,6 @@ class TraitRegistry:
         """A list of all known trait keys in the registry."""
         return self._trait_lookup.keys()
 
-    def get_traitkeys_for_type(self):
-        raise NotImplemented()
-
     def get_trait_names(self):
         """A list of the unique trait types in this TraitRegistry."""
         return self._all_trait_names

@@ -75,13 +75,7 @@ class AstronomicalObject(collections.MutableMapping):
         """Provide a list of (presumed) valid TraitKeys for this object"""
         keys = set()
         for ar in self.sample.archives:
-            archive_id = self.sample.get_archive_id(ar, self.identifier)
-            # for trait_type in ar.schema():
-            #     keys.update(ar.available_traits[trait_type].known_keys(ar, object_id=archive_id))
-
-            for trait_type in ar.available_traits.get_trait_names():
-                for trait in ar.available_traits.get_traits_for_type(trait_type):
-                    keys.update(trait.all_keys_for_id(ar, archive_id))
+            keys.update(ar.available_traits.get_all_traitkeys())
 
 
         return keys

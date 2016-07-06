@@ -22,10 +22,6 @@ def test_incomplete_trait_fails():
 
     class ValidTestTrait(AbstractBaseTrait):
 
-        @classmethod
-        def all_keys_for_id(cls):
-            return []
-
         def schema(cls):
             return []
 

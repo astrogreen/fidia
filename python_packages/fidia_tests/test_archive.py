@@ -114,6 +114,15 @@ class TestArchive:
         schema = ar.schema()
         assert schema == {'spectral_map': {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}
 
+    def test_all_object_traits_in_schema(self, simple_archive):
+        ar = simple_archive()
+        schema = ar.schema()
+        sample = ar.get_full_sample()
+        for astro_object in sample:
+            trait_key_list = sample[astro_object].keys()
+            for tk in trait_key_list:
+                assert tk.trait_name in schema
+
     # Other tests.
 
     def test_create_inmemory_archive(self):
