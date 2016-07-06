@@ -8,7 +8,8 @@ from astropy.io import fits
 
 from .abstract_base_traits import *
 from ..exceptions import DataNotAvailable
-from .utilities import TraitProperty, TraitMapping, TraitKey
+from .utilities import TraitProperty, TraitKey
+from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary
 from ..descriptions import PrettyName, Description, Documentation
 
@@ -38,14 +39,16 @@ log.enable_console_logging()
 
 class Trait(AbstractBaseTrait):
 
-    _sub_traits = TraitMapping()
+    sub_traits = TraitRegistry()
 
-    default_version = None
-    available_versions = None
+    default_version = {None}
+    available_versions = {None}
 
     pretty_name = PrettyName()
     description = Description()
     documentation = Documentation()
+
+    qualifier_required = False
 
     @classmethod
     def schema(cls, include_subtraits=True):
@@ -70,33 +73,33 @@ class Trait(AbstractBaseTrait):
                 schema[trait_property.name] = trait_property.type
 
         if include_subtraits:
-            for trait_type in cls._sub_traits.get_trait_types():
+            for trait_type in cls.sub_traits.get_trait_names():
                 # Create empty this sub-trait type:
                 schema[trait_type] = SchemaDictionary()
                 # Populate the dict with schema from each sub-type:
-                for trait_class in cls.sub_traits(trait_type_filter=trait_type):
+                for trait_class in cls.sub_traits.get_traits(trait_type_filter=trait_type):
                     schema[trait_type].update(trait_class.schema())
 
         return schema
 
-    @classmethod
-    def sub_traits(cls, trait_type_filter=None):
-        """Generate list of sub_traits.
-
-        :parameter trait_type_filter:
-            The list of trait_types that should be included in the results, or None for all Traits.
-
-        :returns:
-            The sub-trait classes (not instances!).
-
-        """
-
-        if trait_type_filter is None:
-            # Include all sub-traits
-            trait_type_filter = cls._sub_traits.get_trait_types()
-
-        for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
-            yield trait_class
+    # @classmethod
+    # def sub_traits(cls, trait_type_filter=None):
+    #     """Generate list of sub_traits.
+    #
+    #     :parameter trait_type_filter:
+    #         The list of trait_types that should be included in the results, or None for all Traits.
+    #
+    #     :returns:
+    #         The sub-trait classes (not instances!).
+    #
+    #     """
+    #
+    #     if trait_type_filter is None:
+    #         # Include all sub-traits
+    #         trait_type_filter = cls._sub_traits.get_trait_names()
+    #
+    #     for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
+    #         yield trait_class
 
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
@@ -160,6 +163,10 @@ class Trait(AbstractBaseTrait):
         if self._loading == 'eager':
             self._realise()
 
+    @property
+    def trait_name(self):
+        self.trait_key.trait_name
+
     def get_sub_trait(self, trait_key):
 
         if trait_key is None:
@@ -177,7 +184,7 @@ class Trait(AbstractBaseTrait):
 
             # Determine which class responds to the requested trait.
             # Potential for far more complex logic here in future.
-            trait_class = self._sub_traits[trait_key]
+            trait_class = self.sub_traits[trait_key]
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
