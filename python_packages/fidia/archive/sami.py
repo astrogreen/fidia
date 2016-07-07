@@ -21,7 +21,7 @@ from ..utilities import WildcardDictionary
 
 #from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 from fidia.traits import *
-from fidia.traits.utilities import TraitMapping, trait_property_from_fits_header
+from fidia.traits.utilities import trait_property_from_fits_header
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -172,50 +172,9 @@ class SAMIRowStackedSpectra(SpectralMap):
 
     """
 
+    sub_traits = TraitRegistry()
+
     trait_type = 'rss_map'
-
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, "")]
-
-    @classmethod
-    def known_keys(cls, archive, object_id=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        # Need to know the directory of the archive
-        known_keys = set()
-        # Get RSS filenames from headers of cubes. Only need to sample one binning scheme, so we use "1sec"
-        if object_id is None:
-            # Search for all available data regardless of ID:
-            cube_files = glob(archive._base_directory_path + "*/cubed/*/*_1sec.fits*")
-        else:
-            # Only return data for particular object_id provided
-            cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*_1sec.fits*")
-        for f in cube_files:
-            # Trim the base directory off the path and split into directories:
-            dir_parts = f[len(archive._base_directory_path):].split("/")
-            # RunId is first element:
-            run_id = dir_parts[0]
-            # Object ID is second to last element:
-            object_id = dir_parts[-2]
-            if object_id not in archive.contents:
-                continue
-            # Open file to get list of RSS files from header
-            with fits.open(f) as hdu:
-                index = 1
-                while True:
-                    try:
-                        rss_filename = hdu[0].header['RSS_FILE ' + str(index)]
-                    except KeyError:
-                        break
-                    else:
-                        index += 1
-                        known_keys.add(TraitKey(cls.trait_type, run_id + ":" + rss_filename))
-            # Break out of the loop early for debuging purposes:
-            if len(known_keys) > 50:
-                break
-        return known_keys
-
 
     def init(self):
 
@@ -288,31 +247,12 @@ class SAMISpectralCube(SpectralMap):
         The plate_id is optional, if ommitted, then a default will be chosen.
     """
 
+    sub_traits = TraitRegistry()
+
     trait_type = 'spectral_cube'
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        # Currently only knows about "red" and "blue" (because a default plate ID is chosen).
-        return [TraitKey(cls.trait_type, 'red'), TraitKey(cls.trait_type, 'blue')]
-
-    # @classmethod
-    # def known_keys(cls, archive, object_id=None):
-    #     """Return a list of unique identifiers which can be used to retrieve actual data."""
-    #
-    #     # @TODO: This still uses old code to determine the available keys instead of the cube_directory.
-    #
-    #     if object_id is None:
-    #         # Return a list for all possible data
-    #         cube_files = []
-    #         for id in archive.contents:
-    #              cube_files.extend(glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*"))
-    #     else:
-    #         # Only asked for data for a particular object_id
-    #         cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*.fits*")
-    #
-    #     # cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
-    #     known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
-    #     return known_keys
+    qualifier_required = True
+    qualifiers = {'red', 'blue'}
 
     @classmethod
     def _traitkey_from_cube_path(cls, path):
@@ -441,10 +381,11 @@ class SAMISpectralCube(SpectralMap):
     # Sub Traits
     #
 
-    _sub_traits = TraitMapping()
 
-
+    @sub_traits.register
     class CatCoordinate(SkyCoordinate):
+
+        trait_type = 'catalog_coordinate'
 
         @trait_property('float')
         def _ra(self):
@@ -454,9 +395,10 @@ class SAMISpectralCube(SpectralMap):
         def _dec(self):
             return self.parent_trait.dec()
 
-    _sub_traits[TraitKey('catalog_coordinate')] = CatCoordinate
-
+    @sub_traits.register
     class WCS(WorldCoordinateSystem):
+
+        trait_type = 'wcs'
 
         @trait_property('string')
         def _wcs_string(self):
@@ -469,9 +411,7 @@ class SAMISpectralCube(SpectralMap):
                 w = wcs.WCS(h)
                 return w.to_header_string()
 
-    _sub_traits[TraitKey('wcs')] = WCS
-
-
+    @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
         """AAT Telescope characteristics defined by FITS header
 
@@ -509,8 +449,8 @@ class SAMISpectralCube(SpectralMap):
 
         longitude = trait_property_from_fits_header('LONG_OBS', 'string', 'longitude')
 
-    _sub_traits[TraitKey('telescope_metadata')] = AAT
 
+    @sub_traits.register
     class AAOmegaDetector(DetectorCharacteristics):
         """AAOmega Detector characteristics defined by FITS header
 
@@ -562,8 +502,8 @@ class SAMISpectralCube(SpectralMap):
         read_amplifier = trait_property_from_fits_header('READAMP', 'string', 'read_amplifier')
         read_amplifier.short_name = 'READAMP'
 
-    _sub_traits[TraitKey('detector_metadata')] = AAOmegaDetector
 
+    @sub_traits.register
     class SAMICharacteristics(SpectrographCharacteristics):
         """Characteristics of the SAMI Instrument
 
@@ -623,21 +563,12 @@ class SAMISpectralCube(SpectralMap):
 
 
 
-    _sub_traits[TraitKey('instrument_metadata')] = SAMICharacteristics
-
-
 class LZIFUVelocityMap(VelocityMap):
 
     trait_type = "velocity_map"
 
     default_version = "0.9b"
     available_versions = {"0.9b"}
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        known_keys = [TraitKey(cls.trait_type, None, None, None)]
-        return known_keys
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -672,8 +603,10 @@ class LZIFUOneComponentLineMap(Image):
 
     trait_type = 'line_map'
 
-    default_version = "0.9b"
     available_versions = {"0.9b", "0.9"}
+    default_version = "0.9b"
+
+    available_branches = {"1_comp"}
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -689,13 +622,7 @@ class LZIFUOneComponentLineMap(Image):
         'SII6731': 'SII6731'
     }
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        known_keys = []
-        for line in cls.line_name_map:
-            known_keys.append(TraitKey(cls.trait_type, line, None))
-        return known_keys
+    qualifiers = line_name_map.keys()
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -729,6 +656,8 @@ class LZIFUOneComponentLineMap(Image):
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
     available_versions = {"0.9b"}
+
+    available_branches ={'recom_comp'}
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -793,20 +722,14 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         def _wcs_string(self):
             return self.parent_trait._wcs_string.value
 
-    _sub_traits = TraitMapping()
-    _sub_traits[TraitKey('wcs')] = LZIFUWCS
+    sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUContinuum(SpectralMap):
 
     trait_type = 'spectral_continuum_cube'
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        known_keys = []
-        for color in ('red', 'blue'):
-            known_keys.append(TraitKey(cls.trait_type, color, None))
-        return known_keys
+    qualifiers = {'red', 'blue'}
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -974,17 +897,17 @@ class SAMITeamArchive(Archive):
     def define_available_traits(self):
 
         # Trait 'spectral_cube'
-        self.available_traits[TraitKey(SAMISpectralCube.trait_type, None, None, None)] = SAMISpectralCube
+        self.available_traits.register(SAMISpectralCube)
         # Trait 'rss_map' (now a sub-trait of spectral_cube above.)
         # self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
 
         # LZIFU Items
 
-        self.available_traits[TraitKey('velocity_map', None, None, None)] = LZIFUVelocityMap
+        self.available_traits.register(LZIFUVelocityMap)
 
-        self.available_traits[TraitKey('line_map', None, "1_comp", None)] = LZIFUOneComponentLineMap
+        self.available_traits.register(LZIFUOneComponentLineMap)
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
-        self.available_traits[TraitKey('line_map', None, None, None)] = LZIFURecommendedMultiComponentLineMap
+        self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
 
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum

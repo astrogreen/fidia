@@ -1,5 +1,6 @@
 import pytest
 
+import fidia
 from fidia import Sample, AstronomicalObject
 from fidia.archive import MemoryArchive
 from fidia.archive.example_archive import ExampleArchive
@@ -41,8 +42,11 @@ class TestSample:
         for key in example_archive_sample.keys():
             assert isinstance(key, str)
 
+    def test_attempt_retrieve_data_not_available(self, example_archive_sample):
+        with pytest.raises(fidia.DataNotAvailable):
+            example_archive_sample['Gal2']['spectral_map']
 
-    # Tests for a writeable Sample
+                    # Tests for a writeable Sample
     #   Commented out as writeable samples are not currently required.
 
     # def test_add_items_via_dictionary(self, writeable_sample):
