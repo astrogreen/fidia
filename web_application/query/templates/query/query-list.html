@@ -9,20 +9,23 @@
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'query/css/schema-browser/schema-browser.min.css' %}"/>
 
-
 <style type="text/css">
-    table{
+    table {
         table-layout: fixed;
     }
+
     table tr {
-        height:1em;
+        height: 1em;
     }
+
     td {
-        overflow:hidden;white-space:nowrap;
+        overflow: hidden;
+        white-space: nowrap;
     }
-    .nav-pagination{
-        background-color:transparent;
-        float:right;
+
+    .nav-pagination {
+        background-color: transparent;
+        float: right;
     }
 </style>
 {% block head-extra-extra%}{% endblock %}
@@ -30,62 +33,77 @@
 
 {% block content_render %}
 
-    <h1 class="headline" id="query-history">
-        <span>Query History</span>
-        <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
-            <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}" title="Re-visit previous queries.">New Query</a>
-        </div>
-    </h1>
-    <p>Re-visit, edit and update previous queries.</p><br>
+<div class="row">
+    <div class="col-sm-12">
+        <h1 class="headline">
+            <span>Query History</span>
+            <span class="pull-right btn-group headline-nav-stack hidden-xs">
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation' %}" title="Query Documentation">Documentation</a>
+                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}">New Query</a>
+            </span>
+        </h1>
 
-    <div class="panel panel-default">
-        <div class="panel-heading text-uppercase">
-            <strong> Query History </strong>
-            <i class="fa fa-history pull-right" style="margin-top:3px"></i>
-        </div>
-        <div class="panel-body">
-            {% include 'query/query-history-table.html' %}
+    </div>
+</div>
 
-            {% if 'GET' in allowed_methods %}
+<div class="row">
+    <div class="col-xs-12">
+        <p>Re-visit, edit and update previous queries.</p><br>
+        <div class="panel panel-default">
+            <div class="panel-heading text-uppercase">
+                <strong> Query History </strong>
+                <i class="fa fa-history pull-right" style="margin-top:3px"></i>
+            </div>
+            <div class="panel-body">
+                {% include 'query/query-history-table.html' %}
+
+                {% if 'GET' in allowed_methods %}
                 <form id="get-form" class="text-right">
                     <fieldset>
                         {% if api_settings.URL_FORMAT_OVERRIDE %}
                         <div class="btn-group format-selection">
-                            <a class="btn btn-default  btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                            <a class="btn btn-default  btn-sm js-tooltip" href="{{ request.get_full_path }}"
+                               rel="nofollow"
                                title="Download user {{user}}'s {{ name }} by format type">Download Query List</a>
-                            <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
+                            <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown"
+                                    title="Specify a format for data download">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
                                 {% for format in available_formats %}
-                                    {% if format != 'api' %}
-                                    <li>
-                                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                           rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{ format }}</a>
-                                    </li>
-                                    {% endif %}
+                                {% if format != 'api' %}
+                                <li>
+                                    <a class="js-tooltip format-option"
+                                       href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                       rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{
+                                        format }}</a>
+                                </li>
+                                {% endif %}
                                 {% endfor %}
                             </ul>
                         </div>
                         {% else %}
-                            <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
-                               title="View user {{user}}'s {{ name }}">GET</a>
+                        <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
+                           title="View user {{user}}'s {{ name }}">GET</a>
                         {% endif %}
                     </fieldset>
                 </form>
-            {% endif %}
+                {% endif %}
 
+            </div>
         </div>
-    </div>
 
-    {% if paginator %}
+        {% if paginator %}
         <nav class="nav-pagination">
             {% get_pagination_html paginator %}
         </nav>
-    {% endif %}
+        {% endif %}
+    </div>
+</div>
+
 
 {% endblock %}
 
 {% block status_block %}
-    {% include "query/status_block.html" %}
+{% include "query/status_block.html" %}
 {% endblock %}

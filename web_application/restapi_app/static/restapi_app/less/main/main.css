@@ -359,6 +359,9 @@ header .navbar li.dropdown.user.active > a:focus {
   left: 100%;
   margin-left: .5em;
 }
+.headline .headline-nav-stack {
+  margin-top: 5px;
+}
 .well {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;

@@ -60,13 +60,20 @@
     {% if display_edit_forms %}
         {% if post_form or raw_data_post_form %}
             {% if not response.data.queryResults %}
-                <h1 class="headline">
-                    <span>Query</span>
-                    <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation-query-builder' %}" title="Query Documentation">Documentation</a>
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h1 class="headline">
+                            <span>Query </span>
+                            <span class="pull-right btn-group headline-nav-stack hidden-xs">
+                                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation' %}" title="Query Documentation">Documentation</a>
+                                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a>
+                            </span>
+                        </h1>
+
                     </div>
-                </h1>
+                </div>
+
                 <div class="row">
                     <div class="col-sm-12">
                         <p>Construct a sample of objects using the <a

@@ -48,46 +48,20 @@
     {% comment %}
     ------DATATABLES ------
     {% endcomment %}
-    <div class="container-fluid">
+
     {% if response.data.queryResults %}
+
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-12">
                 <h1 class="headline">
                     <span>{% if response.data.title %}{{response.data.title |truncatechars:30}}{% else %} Query # {{objname}} {% endif %}</span>
+                    <span class="pull-right btn-group headline-nav-stack hidden-xs">
+                            <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation' %}" title="Query Documentation">Documentation</a>
+                            <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}">Query History</a>
+                            <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}">New Query</a>
+                    </span>
                 </h1>
-            </div>
-            <div class="col-sm-6">
-                <div class="btn-group btn-group-head pull-right hidden-xs" role="group" aria-label="">
-                    {% block content-download %}
-                        {% if 'GET' in allowed_methods %}
-                            <form id="download-list" class="custom-inline">
-                                {% if api_settings.URL_FORMAT_OVERRIDE %}
-                                <div class="btn-group format-selection">
-                                    <button class="btn btn-default btn-primary btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
-                                        DOWNLOAD <i class="fa fa-caret-down"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        {% for format in available_formats %}
-                                        {% if format != "api" %}
-                                            <li>
-                                                <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                                   rel="nofollow" target="_blank"  title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
-                                            </li>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                                {% else %}
-                                    <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
-                                       title="Download {{user}}'s query # {{objname}}">PERMANENT LINK</a>
-                                {% endif %}
-                            </form>
-                        {% endif %}
-                    {% endblock %}
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation' %}" title="Query Documentation">Documentation</a>
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}">Query History</a>
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}">New Query</a>
-                </div>
+
             </div>
         </div>
 
@@ -100,6 +74,42 @@
             </div>
 
         </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 class="headline"><span>Download</span> </h2>
+                {% block content-download %}
+                            {% if 'GET' in allowed_methods %}
+                                <form id="download-list" class="custom-inline">
+                                    {% if api_settings.URL_FORMAT_OVERRIDE %}
+                                    <div class="btn-group format-selection">
+                                        <button class="btn btn-default btn-primary btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for data download">
+                                            DOWNLOAD <i class="fa fa-caret-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% for format in available_formats %}
+                                            {% if format != "api" %}
+                                                <li>
+                                                    <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                                       rel="nofollow" target="_blank"  title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
+                                                </li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% else %}
+                                        <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
+                                           title="Download {{user}}'s query # {{objname}}">PERMANENT LINK</a>
+                                    {% endif %}
+                                </form>
+                            {% endif %}
+                        {% endblock %}
+            </div>
+        </div>
+
+        {% block data-download %}
+            {% include "query/data-download.html" %}
+        {% endblock %}
 
         {% if display_edit_forms %}
         <!--UPDATE EXISTING REQUEST INSTANCE-->
@@ -198,7 +208,7 @@
 
         {% endblock %}
     {% endif %}
-    </div>
+
 {% endblock %}
 
 
@@ -255,6 +265,9 @@
 
 {% autoescape off %}
  <script type="text/javascript">
+    var SAMI_URL = "{% url 'sami-list' %}";
+    var GAMA_URL = "{% url 'gama-list' %}";
+
     data = JSON.parse("{{ content|escapejs }}");
 
     if (typeof data.queryResults !== 'undefined'){
@@ -293,6 +306,24 @@
                         "title":k,
                         "render": function(data, type, row) {
                             var temp_string = '<a href="'+data+'" target="_blank">'+data+'</a>';
+                            return temp_string;
+                        }
+                    }
+                }
+                if (k.indexOf("sami_id") > -1){
+                    b = {
+                        "title":k,
+                        "render": function(data, type, row) {
+                            var temp_string = '<a href="'+SAMI_URL+data+'">'+data+'</a>';
+                            return temp_string;
+                        }
+                    }
+                }
+                if (k.indexOf("CATAID") > -1){
+                    b = {
+                        "title":k,
+                        "render": function(data, type, row) {
+                            var temp_string = '<a href="'+GAMA_URL+data+'">'+data+'</a>';
                             return temp_string;
                         }
                     }

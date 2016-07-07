@@ -5,7 +5,7 @@
     "use strict"
 
     // turn off for dev:
-    console.log = function() {};
+    // console.log = function() {};
 
     console.log('services.js');
 
