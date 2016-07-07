@@ -2,12 +2,20 @@ import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
 
+from contextlib import contextmanager
+
 from astropy.io import fits
+
+import astropy.coordinates
+import astropy.wcs
 
 from .abstract_base_traits import *
 from ..exceptions import DataNotAvailable
-from .utilities import TraitProperty, TraitMapping, TraitKey
+from .utilities import TraitProperty, TraitKey
+from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary
+from ..descriptions import PrettyName, Description, Documentation
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
@@ -34,10 +42,16 @@ log.enable_console_logging()
 
 class Trait(AbstractBaseTrait):
 
-    _sub_traits = TraitMapping()
+    sub_traits = TraitRegistry()
 
-    default_version = None
-    available_versions = None
+    default_version = {None}
+    available_versions = {None}
+
+    pretty_name = PrettyName()
+    description = Description()
+    documentation = Documentation()
+
+    qualifier_required = False
 
     @classmethod
     def schema(cls, include_subtraits=True):
@@ -62,33 +76,33 @@ class Trait(AbstractBaseTrait):
                 schema[trait_property.name] = trait_property.type
 
         if include_subtraits:
-            for trait_type in cls._sub_traits.get_trait_types():
+            for trait_type in cls.sub_traits.get_trait_names():
                 # Create empty this sub-trait type:
                 schema[trait_type] = SchemaDictionary()
                 # Populate the dict with schema from each sub-type:
-                for trait_class in cls.sub_traits(trait_type_filter=trait_type):
+                for trait_class in cls.sub_traits.get_traits(trait_type_filter=trait_type):
                     schema[trait_type].update(trait_class.schema())
 
         return schema
 
-    @classmethod
-    def sub_traits(cls, trait_type_filter=None):
-        """Generate list of sub_traits.
-
-        :parameter trait_type_filter:
-            The list of trait_types that should be included in the results, or None for all Traits.
-
-        :returns:
-            The sub-trait classes (not instances!).
-
-        """
-
-        if trait_type_filter is None:
-            # Include all sub-traits
-            trait_type_filter = cls._sub_traits.get_trait_types()
-
-        for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
-            yield trait_class
+    # @classmethod
+    # def sub_traits(cls, trait_type_filter=None):
+    #     """Generate list of sub_traits.
+    #
+    #     :parameter trait_type_filter:
+    #         The list of trait_types that should be included in the results, or None for all Traits.
+    #
+    #     :returns:
+    #         The sub-trait classes (not instances!).
+    #
+    #     """
+    #
+    #     if trait_type_filter is None:
+    #         # Include all sub-traits
+    #         trait_type_filter = cls._sub_traits.get_trait_names()
+    #
+    #     for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
+    #         yield trait_class
 
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
@@ -123,7 +137,7 @@ class Trait(AbstractBaseTrait):
         if object_id is None:
             raise KeyError("object_id must be supplied")
         self.object_id = object_id
-        self._parent_trait = parent_trait
+        self.parent_trait = parent_trait
         self.trait_qualifier = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
@@ -152,12 +166,21 @@ class Trait(AbstractBaseTrait):
         if self._loading == 'eager':
             self._realise()
 
-    def get_sub_trait(self, trait_key):
+    @property
+    def trait_name(self):
+        return self.trait_key.trait_name
 
+    def get_sub_trait(self, trait_key):
+        """Retrieve a subtrait for the TraitKey.
+
+        trait_key can be a TraitKey, or anything that can be interpreted as a TraitKey
+        (using `TraitKey.as_traitkey`)
+
+        """
         if trait_key is None:
             raise ValueError("The TraitKey must be provided.")
-        if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
-            trait_key = TraitKey(*trait_key)
+        if not isinstance(trait_key, TraitKey):
+            trait_key = TraitKey.as_traitkey(trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if trait_key not in self._trait_cache:
@@ -169,7 +192,7 @@ class Trait(AbstractBaseTrait):
 
             # Determine which class responds to the requested trait.
             # Potential for far more complex logic here in future.
-            trait_class = self._sub_traits[trait_key]
+            trait_class = self.sub_traits.retrieve_with_key(trait_key)
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
@@ -312,6 +335,19 @@ class Trait(AbstractBaseTrait):
         for tp in self._trait_properties(trait_type):
             yield getattr(self, tp.name).value
 
+    @contextmanager
+    def preloaded_context(self):
+        """Returns a context manager reference to the preloaded trait, and cleans up afterwards."""
+        try:
+            # Preload the Trait if necessary.
+            self._load_incr()
+            log.debug("Context manager version of Trait %s created", self.trait_key)
+            yield self
+        finally:
+            # Cleanup the Trait if necessary.
+            self._load_decr()
+            log.debug("Context manager version of Trait %s cleaned up", self.trait_key)
+
     def _load_incr(self):
         """Internal function to handle preloading. Prevents a Trait being loaded multiple times.
 
@@ -438,6 +474,10 @@ class Trait(AbstractBaseTrait):
         # If necessary, close the open file handle.
         file_cleanup()
 
+    def __getitem__(self, key):
+        """Provide dictionary-like retrieve of sub-traits"""
+        return self.get_sub_trait(key)
+
 class Measurement(Trait, AbstractMeasurement): pass
 
 class Velocity(Measurement): pass
@@ -462,6 +502,148 @@ class Map(Trait, AbstractBaseArrayTrait):
     def nominal_position(self):
         return self._nominal_position
     
+
+class MetadataTrait(Trait):
+    def __init__(self, *args, **kwargs):
+        super(MetadataTrait, self).__init__(*args, **kwargs)
+
+
+
+
+class DetectorCharacteristics(MetadataTrait):
+    """
+
+    Trait Properties:
+
+        detector_id
+
+        detector_size
+
+        gain
+
+        read_noise
+
+
+    """
+
+    required_trait_properties = {
+        'detector_id': 'string',
+        'detector_size': 'string',
+        'gain': 'float',
+        'read_noise': 'float'
+    }
+
+class SpectrographCharacteristics(Trait):
+    """
+
+    Trait Properties:
+
+        instrument_name
+
+        arm
+
+        disperser_id
+
+        disperser_configuration
+
+        control_software
+
+    """
+
+    pass
+
+class OpticalTelescopeCharacteristics(Trait):
+    """
+
+    Trait Properties:
+
+        observatory_name
+
+        latitude
+
+        longitude
+
+        altitude
+
+        focus_configuration
+
+
+
+    """
+    pass
+
+
+class SmartTrait(Trait):
+    pass
+
+class SkyCoordinate(astropy.coordinates.SkyCoord, SmartTrait):
+
+    trait_type = 'sky_coordinate'
+
+    def __init__(self, *args, **kwargs):
+        SmartTrait.__init__(self, *args, **kwargs)
+        astropy.coordinates.SkyCoord.__init__(self, self._ra(), self._dec(), unit='deg', frame=self._ref_frame)
+
+    # @FIXME: explain why value is required here but not for WorldCoordinateSystem below.
+    @property
+    def value(self):
+        return None
+
+    @abstractproperty
+    def _ra(self):
+        return NotImplementedError
+
+    @abstractproperty
+    def _dec(self):
+        return NotImplementedError
+
+    @property
+    def _ref_frame(self):
+        return 'icrs'
+
+
+class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
+
+    # This could be implemented in one of two ways (I think):
+    #
+    # Way 1:
+    #
+    #     Override `__new__` and use it to return an object which is not of the
+    #     type of this class, i.e. a WCS object instead of this Trait. In a
+    #     similar vein, __new__ could be used to fiddle with the initialisation
+    #     order as I suggest below in Way 2.
+    #
+    # Way 2
+    #
+    #     Override `__init__`, and instead of calling super().__init__(), call the
+    #     superclass initialisations explicitly and separately, making it
+    #     possible to get the Trait part of the object set up first, and then
+    #     use that setup to initialize the WCS object.
+
+    # The second method is probably fairly easy to implement:
+    #     def __init__(self, *args, **kwargs):
+    #         SmartTrait.__init__(self, *args, **kwargs)
+    #         astropy.wcs.WCS.__init__(self, header=self._wcs_string)
+    #
+    # However, there are a few issues with this approach... (???)
+
+    trait_type = 'wcs'
+
+    def __init__(self, *args, **kwargs):
+        SmartTrait.__init__(self, *args, **kwargs)
+        header_string = self._wcs_string.value
+        log.debug("Initialising WCS object with %s containing %s", type(header_string), header_string)
+        astropy.wcs.WCS.__init__(self, header=header_string)
+
+    @abstractproperty
+    def _wcs_string(self):
+        return NotImplementedError
+
+    def as_fits(self, file):
+        # Not possible to create a FITS file for a WCS trait.
+        # TODO: See if this method can be hidden or deleted.
+        # TODO: Perhaps handle this by moving as_fits() off of the top level Trait class.
+        return None
 
 class Spectrum(Measurement, AbstractBaseArrayTrait): pass
 

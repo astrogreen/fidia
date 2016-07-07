@@ -12,19 +12,19 @@ import pandas as pd
 
 from ..sample import Sample
 from ..traits import Trait, TraitKey, TraitProperty
-from ..traits.utilities import TraitMapping
+from ..traits import TraitRegistry
 from .base_archive import BaseArchive
-from ..cache import MemoryCache
+from ..cache import DummyCache
 from ..utilities import SchemaDictionary
 
 class Archive(BaseArchive):
     def __init__(self):
         # Traits (or properties)
-        self.available_traits = TraitMapping()
+        self.available_traits = TraitRegistry()
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
-        self.cache = MemoryCache()
+        self.cache = DummyCache()
 
         self._schema = None
 
@@ -78,7 +78,7 @@ class Archive(BaseArchive):
 
             # Determine which class responds to the requested trait.
             # Potential for far more complex logic here in future.
-            trait_class = self.available_traits[trait_key]
+            trait_class = self.available_traits.retrieve_with_key(trait_key)
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
@@ -124,7 +124,7 @@ class Archive(BaseArchive):
             return TraitProperty
 
     def can_provide(self, trait_key):
-        return trait_key in self.available_traits
+        return trait_key in self.available_traits.get_all_traitkeys()
 
     def schema(self):
         """Provide a list of trait_keys and classes this archive generally supports."""
@@ -132,9 +132,9 @@ class Archive(BaseArchive):
         if self._schema:
             return self._schema
         result = SchemaDictionary()
-        for trait_type in self.available_traits.get_trait_types():
+        for trait_type in self.available_traits.get_trait_names():
             result[trait_type] = SchemaDictionary()
-            for trait in self.available_traits.get_traits_for_type(trait_type):
+            for trait in self.available_traits.get_traits(trait_type_filter=trait_type):
                 result[trait_type].update(trait.schema())
         self._schema = result
         return result

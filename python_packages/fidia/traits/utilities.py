@@ -1,7 +1,7 @@
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.INFO)
 
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
@@ -17,13 +17,19 @@ from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
 
-TRAIT_KEY_PART_RE = r'[a-zA-Z][a-zA-Z0-9_]*'
+from ..descriptions import Description, Documentation, PrettyName
+
+TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
+TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
 
 TRAIT_KEY_RE = re.compile(
-    r"(?P<trait_type>" + TRAIT_KEY_PART_RE + r")" +
-    r"(?:-(?P<trait_qualifier>[a-zA-Z0-9_]+))?" +
-    r"(?::(?P<branch>" + TRAIT_KEY_PART_RE + r"))?" +
-    r"(?:\((?P<version>[a-zA-Z0-9_]+)\))?"
+    r"""(?P<trait_type>{TRAIT_TYPE_RE})
+        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?
+        (?::(?P<branch>{TRAIT_TYPE_RE}))?
+        (?:\((?P<version>{TRAIT_PART_RE})\))?""".format(
+            TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
+            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+    re.VERBOSE
 )
 
 class TraitKey(tuple):
@@ -35,6 +41,13 @@ class TraitKey(tuple):
 
     def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
         """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
+        if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
+            raise ValueError("Trait type %s doesn't match the required format %s"
+                             % (trait_type, TRAIT_TYPE_RE.pattern))
+        for item in (trait_qualifier, branch, version):
+            if item is not None and TRAIT_PART_RE.fullmatch(item) is None:
+                raise ValueError("Trait part %s doesn't match the required format %s"
+                                 % (item, TRAIT_PART_RE.pattern))
         return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
 
     @classmethod
@@ -65,6 +78,27 @@ class TraitKey(tuple):
                     version=match.group('version'))
         raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
 
+    @classmethod
+    def as_trait_name(self, *args):
+        if len(args) == 2:
+            return self._make_trait_name(*args)
+        # if len(args) == 0:
+        #     if isinstance(self, object):
+        #         return self._make_trait_name(self.trait_key, self.trait_qualifier)
+        # TODO: Implement solutions for other cases.
+
+
+    @staticmethod
+    def _make_trait_name(trait_type, trait_qualifier):
+        if trait_qualifier is None or trait_qualifier == '':
+            return trait_type
+        else:
+            return "{trait_type}-{trait_qualifier}".format(
+                trait_qualifier=trait_qualifier, trait_type=trait_type)
+
+    @property
+    def trait_name(self):
+        return self._make_trait_name(self.trait_type, self.trait_qualifier)
 
     def __repr__(self):
         """Return a nicely formatted representation string"""
@@ -98,7 +132,7 @@ class TraitKey(tuple):
         if self.branch:
             trait_string += ":" + self.branch
         if self.version:
-            trait_string += "-" + self.version
+            trait_string += "(" + self.version + ")"
         return trait_string
 
     trait_type = property(_itemgetter(0), doc='Trait type')
@@ -116,93 +150,6 @@ def parse_trait_key(key):
     return TraitKey.as_traitkey(key)
 
 
-class TraitMapping(collections.MutableMapping):
-
-    # Functions to create dictionary like behaviour
-
-    def __init__(self):
-        self._mapping = dict()
-
-    def __getitem__(self, key):
-        """Function called on dict type read access"""
-        if not isinstance(key, TraitKey):
-            key = TraitKey(key)
-
-        known_keys = self._mapping.keys()
-
-        # CASE: Key fully defined
-        if key in known_keys:
-            return self._mapping[key]
-
-        # CASES: Wild-card on one element
-        elif key.replace(branch=None) in known_keys:
-            # Wildcard on object_id
-            return self._mapping[key.replace(branch=None)]
-        elif key.replace(version=None) in known_keys:
-            # Wildcard on version
-            return self._mapping[key.replace(version=None)]
-        elif key.replace(trait_qualifier=None) in known_keys:
-            # Wildcard on trait_qualifier
-            return self._mapping[key.replace(trait_qualifier=None)]
-
-        # CASES: Wild-card on two elements
-        elif key.replace(trait_qualifier=None, branch=None) in known_keys:
-            # Wildcard on both branch and trait_qualifier
-            return self._mapping[key.replace(trait_qualifier=None, branch=None)]
-        elif key.replace(branch=None, version=None) in known_keys:
-            # Wildcard on both branch and version
-            return self._mapping[key.replace(branch=None, version=None)]
-        elif key.replace(trait_qualifier=None, version=None) in known_keys:
-            # Wildcard on both trait_qualifier and version
-            return self._mapping[key.replace(trait_qualifier=None, version=None)]
-
-        # CASE: Wild-card on three elements
-        elif key.replace(trait_qualifier=None, version=None, branch=None) in known_keys:
-            # Wildcard on trait_qualifier, and version, and branch
-            return self._mapping[key.replace(trait_qualifier=None, version=None, branch=None)]
-
-        else:
-            # No suitable data loader found
-            raise UnknownTrait("No known way to load trait for key {}".format(key))
-
-    def __contains__(self, item):
-        try:
-            self.__getitem__(item)
-        except UnknownTrait:
-            return False
-        else:
-            return True
-
-    def __setitem__(self, key, value):
-        if not isinstance(key, TraitKey):
-            key = TraitKey(key)
-        self._mapping[key] = value
-
-    def __delitem__(self, key):
-        if not isinstance(key, TraitKey):
-            key = TraitKey(key)
-        del self._mapping[key]
-
-    def __len__(self):
-        return len(self._mapping)
-
-    def __iter__(self):
-        return iter(self._mapping)
-
-    def get_traits_for_type(self, trait_type):
-        """Return a list of all Trait classes mapped to a particular trait_type"""
-        result = []
-        for key in self._mapping:
-            if key.trait_type == trait_type:
-                result.append(self._mapping[key])
-        return result
-
-        # The same code written as a list comprehension
-        #return [self._mapping[key] for key in self._mapping if key.trait_type == trait_type]
-
-    def get_trait_types(self):
-        """A list of the unique trait types in this TraitMapping."""
-        return set([key.trait_type for key in self._mapping])
 
 def trait_property(func_or_type):
     """Decorate a function which provides an individual property of a trait.
@@ -247,6 +194,15 @@ class TraitProperty(metaclass=ABCMeta):
         'float.array',
         'int.array'
     ]
+
+    # pretty_name = PrettyName()
+    # description = Description()
+    # documentation = Documentation()
+
+    pretty_name = None
+    description = None
+    documentation = None
+    short_name = None
 
     def __init__(self, fload=None, fset=None, fdel=None, doc=None, type=None, name=None):
         self.fload = fload
@@ -303,6 +259,7 @@ class BoundTraitProperty:
         self._trait = trait
         self._trait_property = trait_property
 
+
     @property
     def name(self):
         return self._trait_property.name
@@ -314,6 +271,22 @@ class BoundTraitProperty:
     @property
     def doc(self):
         return self._trait_property.doc
+
+    @property
+    def short_name(self):
+        return self._trait_property.short_name
+
+    @property
+    def description(self):
+        return self._trait_property.description
+
+    @property
+    def documentation(self):
+        return self._trait_property.documentation
+
+    @property
+    def pretty_name(self):
+        return self._trait_property.pretty_name
 
     def __call__(self):
         """Retrieve the value of this TraitProperty"""
@@ -351,7 +324,11 @@ class BoundTraitProperty:
             value = self._trait_property.fload(self._trait)
         except DataNotAvailable:
             raise
-        except:
+        except Exception as e:
+            log.exception("An exception occurred trying to retrieve the TraitProperty %s of Trait %s",
+                          self._trait_property.name,
+                          self._trait.trait_key
+                          )
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
             # Cleanup the Trait if necessary.
@@ -363,3 +340,17 @@ class BoundTraitProperty:
 # `isinstance(value, TraitProperty)` work as expected for `TraitProperty`s that have
 # been bound to their `Trait`.
 TraitProperty.register(BoundTraitProperty)
+
+def trait_property_from_fits_header(header_card_name, type, name):
+
+    tp = TraitProperty(type=type, name=name)
+
+    tp.fload = lambda self: self._header[header_card_name]
+    tp.short_name = header_card_name
+
+    # # @TODO: Providence information can't get filename currently...
+    # tp.providence = "!: FITS-Header {{file: '{filename}' extension: '{extension}' header: '{card_name}'}}".format(
+    #     card_name=header_card_name, extension=extension, filename='UNDEFINED'
+    # )
+
+    return tp

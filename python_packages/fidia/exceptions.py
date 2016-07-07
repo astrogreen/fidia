@@ -10,3 +10,6 @@ class UnknownTrait(BaseException): pass
 class MultipleResults(BaseException): pass
 
 class ReadOnly(BaseException): pass
+
+class InvalidTraitKey(BaseException): pass
+
