@@ -168,14 +168,19 @@ class Trait(AbstractBaseTrait):
 
     @property
     def trait_name(self):
-        self.trait_key.trait_name
+        return self.trait_key.trait_name
 
     def get_sub_trait(self, trait_key):
+        """Retrieve a subtrait for the TraitKey.
 
+        trait_key can be a TraitKey, or anything that can be interpreted as a TraitKey
+        (using `TraitKey.as_traitkey`)
+
+        """
         if trait_key is None:
             raise ValueError("The TraitKey must be provided.")
-        if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
-            trait_key = TraitKey(*trait_key)
+        if not isinstance(trait_key, TraitKey):
+            trait_key = TraitKey.as_traitkey(trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if trait_key not in self._trait_cache:
@@ -187,7 +192,7 @@ class Trait(AbstractBaseTrait):
 
             # Determine which class responds to the requested trait.
             # Potential for far more complex logic here in future.
-            trait_class = self.sub_traits[trait_key]
+            trait_class = self.sub_traits.retrieve_with_key(trait_key)
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
@@ -468,6 +473,10 @@ class Trait(AbstractBaseTrait):
 
         # If necessary, close the open file handle.
         file_cleanup()
+
+    def __getitem__(self, key):
+        """Provide dictionary-like retrieve of sub-traits"""
+        return self.get_sub_trait(key)
 
 class Measurement(Trait, AbstractMeasurement): pass
 

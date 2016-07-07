@@ -60,6 +60,7 @@ class TraitRegistry:
             trait_name = TraitKey.as_trait_name(trait.trait_type, qualifier)
             self._all_trait_names.add(trait_name)
 
+        return trait
 
     def retrieve_with_key(self, trait_key):
         tk = TraitKey.as_traitkey(trait_key)

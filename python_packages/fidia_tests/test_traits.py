@@ -123,6 +123,12 @@ class TestTraits:
         assert isinstance(schema['sub_trait'], dict)
         assert 'value' in schema['sub_trait']
 
+    def test_retrieve_sub_trait_by_dictionary(self):
+
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'),
+                                                                  object_id='1')
+
+        assert isinstance(test_trait['sub_trait'], Trait)
 
     def test_trait_descriptions(self):
         test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
@@ -232,6 +238,10 @@ class TestTraitRegistry:
                 @trait_property('string')
                 def value(self):
                     return 'inline_sub_trait'
+
+        # Check that the class remains after the registration.
+        assert MyTrait.MySubTrait is not None
+        assert issubclass(MyTrait.MySubTrait, Trait)
 
     def test_trait_creation_with_external_trait(self):
 
