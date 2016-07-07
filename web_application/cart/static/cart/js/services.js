@@ -1,9 +1,13 @@
-console.log('services.js');
 // IIFE: Immediately invoked function expression: (function(){})() (where window == global scope)
 // Create a cart service
 (function(angular){
    // Force variable declarations
     "use strict"
+
+    // turn off for dev:
+    console.log = function() {};
+
+    console.log('services.js');
 
     var app = angular.module('DCApp');
 
@@ -14,16 +18,21 @@ console.log('services.js');
         var items = {};
 
         function checkCookie(){
+            console.log('- - CHECK - - - - ');
+            if(items.length) {
+                console.log('- - Items: ', items)
+            }
             if (undefined != $cookieStore){
-                    console.log('Check the cookie: ', $cookieStore.get('items'));
+                    console.log('- - Cookie: ', $cookieStore.get('items'));
             } else {
-                console.log('Cookie Empty!')
+                console.log('- - Cookie Empty!')
             }
         }
 
         // Update cookies
         function updateItemsCookie(){
             console.log('updateItemsCookie: ', items);
+            checkCookie();
             // Initialize an object that will be saved as a cookie
             var itemsCookie = {};
             // Loop through the items in the cart
@@ -63,11 +72,22 @@ console.log('services.js');
                 return items;
             },
 
+            checkItemInCookie: function(){
+                // share data between directives
+                if (undefined != $cookieStore){
+                    var saved_items = [];
+                    angular.forEach($cookieStore.get('items'), function(cookieitem){
+                        saved_items.push(cookieitem.url);
+                    });
+                    return saved_items;
+                }
+            },
+
             addItem: function(item){
                 // Check if item already exists
                 // If exists - don't add
                 // Else, push the item onto the items array, at the relevant astronomical object key
-
+                checkCookie();
                 if (!items[item.id]){
                     items[item.id] = item;
                 } else {

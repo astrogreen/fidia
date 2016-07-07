@@ -63,12 +63,12 @@
                     </span>
                 </ul>
                 <div class="panel-footer">
-                    <button class="btn btn-default text-error btn-sm js-tooltip  text-uppercase"
-                                title="Delete all items in the cart" id="checkout-button" ng-click="ctrl3.emptyCart()">EMPTY
+                    <button class="btn btn-default btn-error text-error btn-sm js-tooltip  text-uppercase"
+                                title="Delete all items in the cart" id="checkout-empty" ng-click="ctrl3.emptyCart()">EMPTY
                     </button>
 
                     <button class="btn btn-primary btn-sm js-tooltip pull-right" title="Download data in the cart"
-                            id="checkout-button">DOWNLOAD
+                            id="checkout-download">DOWNLOAD
                     </button>
                 </div>
             </div>
@@ -104,4 +104,9 @@
     </div>
 </div>
 {% endverbatim %}
+<script>
+    $("#checkout-empty").mouseup(function() {
+        $(this).addClass('animated rubberBand')
+});
+</script>
 {% endblock %}

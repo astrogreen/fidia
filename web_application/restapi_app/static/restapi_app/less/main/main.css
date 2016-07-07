@@ -16,6 +16,7 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ RESETS
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 html {
   position: relative;
@@ -23,7 +24,6 @@ html {
 }
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 215px;
   background-color: #ffffff;
 }
 body a {
@@ -137,6 +137,12 @@ select {
 header {
   font-family: 'Roboto', sans-serif;
 }
+header .navbar-default .navbar-nav > .active > a,
+header .navbar-default .navbar-nav > .active > a:hover,
+header .navbar-default .navbar-nav > .active > a:focus {
+  color: #fff;
+  background-color: #459dd3;
+}
 header .navbar-default .navbar-nav > li > a {
   color: #fff;
   text-transform: uppercase;
@@ -152,91 +158,79 @@ header .navbar-default .navbar-toggle:focus {
   background-color: rgba(0, 0, 0, 0.2);
 }
 header .navbar {
+  box-shadow: inset 15px 0 0 0 #fff, inset -15px 0 0 0 #fff;
   border-radius: 0;
   margin-bottom: 0;
   background: #5aa8d8;
   border: 0;
 }
-header .navbar .container-fluid {
-  background: #ffffff;
-  min-height: 60px;
-  padding: 0;
+header .navbar .background-white {
+  background: #fff;
 }
-header .navbar .container-fluid ul.navbar-nav > li,
-header .navbar .container-fluid .navbar-header {
+header .navbar .background-white .btn-primary {
+  border: 0;
+}
+header .navbar .dropdown-menu {
+  border-radius: 0;
+}
+header .navbar .navbar-right {
+  position: absolute;
+  right: 0;
+  margin-right: 0;
+}
+header .navbar ul.navbar-nav > li,
+header .navbar .navbar-header {
   min-height: 60px;
 }
-header .navbar .container-fluid ul.navbar-nav > li > a,
-header .navbar .container-fluid .navbar-header > a {
+header .navbar ul.navbar-nav > li > a,
+header .navbar .navbar-header > a {
   padding: 20px;
 }
-header .navbar .container-fluid .container.logos {
-  position: absolute;
-  top: 0px;
-  right: 0;
-  left: 0;
-  min-height: 60px;
+header .navbar .navbar-header {
+  background: #ffffff;
 }
-header .navbar .container-fluid .navbar-right {
-  float: right !important;
-  margin-right: -15px;
-}
-header .navbar .container-fluid .navbar-nav {
-  float: left;
-  margin: 0;
-}
-header .navbar .container-fluid .navbar-nav > li {
+header .navbar a.brand {
+  padding: 10px 15px 10px 0;
   float: left;
 }
-header .navbar .container-fluid .navbar-nav li.dropdown.user.active > a,
-header .navbar .container-fluid .navbar-nav li.dropdown.user.active > a:hover,
-header .navbar .container-fluid .navbar-nav li.dropdown.user.active > a:focus {
-  border-left: solid 1px rgba(217, 217, 217, 0.5);
-}
-header .navbar .container-fluid .asvo-logo {
-  display: inline-block;
-}
-header .navbar .container-fluid a.navbar-brand {
-  padding: 10px;
-  height: 60px;
-}
-header .navbar .container-fluid a.navbar-brand img {
+header .navbar a.brand img {
+  height: 40px;
   max-height: 40px;
-  padding-right: 10px;
-  padding-left: 10px;
 }
-header .navbar .container-fluid .cart-li {
+header .navbar a.asvo_logo {
+  padding: 10px 15px 10px 0 !important;
+}
+header .navbar a.aao_logo {
+  padding: 12px 15px 8px 0 !important;
+}
+header .navbar .cart-li {
   background: #f2f2f2;
 }
-header .navbar .container-fluid .cart-li .cart-icon {
+header .navbar .cart-li .cart-icon {
   padding-bottom: 15px !important;
   position: relative;
 }
-header .navbar .container-fluid .cart-li .cart-icon .badge {
+header .navbar .cart-li .cart-icon .badge {
   position: absolute;
   right: 5px;
   top: 5px;
 }
-header .navbar .container-fluid .btn-primary {
-  border: 0;
-}
-header .navbar .container-fluid > ul > li.dropdown > a {
-  text-align: center;
-}
-header .navbar .container-fluid .dropdown {
+header .navbar li.user,
+header .navbar user a {
+  background: #fff;
+  background-color: #fdfdfd;
   min-width: 160px;
 }
-header .navbar .container-fluid .dropdown > a {
-  color: #5aa8d8;
+header .navbar li.user > a,
+header .navbar user a > a {
+  color: #555;
+  text-align: right;
 }
-header .navbar > .container {
-  background: #5aa8d8;
+header .navbar li.dropdown.user.active > a,
+header .navbar li.dropdown.user.active > a:hover,
+header .navbar li.dropdown.user.active > a:focus {
+  border-left: solid 1px rgba(217, 217, 217, 0.5);
 }
-/*
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-++ NAV
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-*/
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ BREADCRUMB
@@ -244,7 +238,11 @@ header .navbar > .container {
 */
 .breadcrumb-container {
   background-color: #F4F5F6;
+  background-color: #f4f5f6;
+  background-color: #f1f3f3;
+  color: #333;
   border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+  border-top: 1px solid rgba(0, 0, 0, 0.075);
   min-height: 36px;
 }
 .breadcrumb {
@@ -252,8 +250,14 @@ header .navbar > .container {
   font-family: 'Roboto', sans-serif;
   background: transparent;
 }
+.breadcrumb li a {
+  color: #333;
+}
 .breadcrumb li.active a {
-  color: #777;
+  color: #111;
+}
+.breadcrumb li + li:before {
+  color: #333;
 }
 .breadcrumb-container.transparent {
   background-color: transparent;
@@ -262,6 +266,7 @@ header .navbar > .container {
 .breadcrumb-container.inverted {
   background: rgba(0, 0, 0, 0.2);
   color: #fff;
+  border-bottom: 0;
 }
 .breadcrumb-container.inverted li.active a {
   color: #fff;
@@ -294,17 +299,19 @@ header .navbar > .container {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 .wrapper {
-  padding-bottom: 30px;
+  padding: 15px;
+  position: relative;
 }
 .footer {
   background-color: #292F31;
-  padding: 35px 0 0 0;
+  padding: 45px 15px 15px 15px;
   bottom: 0;
   width: 100%;
-  /* Set the fixed height of the footer = footer height +margin */
-  height: 215px;
+  min-height: 300px;
   font-family: 'Roboto', sans-serif;
-  position: absolute;
+}
+.footer hr {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 .footer a {
   color: #DDD;
@@ -314,53 +321,22 @@ header .navbar > .container {
 .footer a:active {
   color: #FFF;
 }
-.footer > .container a {
-  text-decoration: none;
-  display: block;
-  padding: 4px 0;
-  font-size: 13px;
+.footer img {
+  max-height: 50px;
+  margin-bottom: 15px;
 }
-.footer > .container > .row {
-  display: table;
-  width: 100%;
-}
-.footer > .container > .row [class*='col-'] {
-  float: none;
-  display: table-cell;
-  vertical-align: top;
-}
-.footer div h3 {
+.footer h3 {
   font-size: 16px;
   color: #FFF;
-  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
   text-transform: uppercase;
-  margin: 0 0 .5em 0;
+  margin: 0 0 1.5em 0;
+  border-bottom: solid 2px rgba(255, 255, 255, 0.6);
+  padding-bottom: 15px;
 }
-.footer div h3 span {
-  font-weight: 300;
-  text-transform: capitalize;
-}
-.footer .img-wrapper {
-  position: relative;
-  padding: 0;
-}
-.footer .img-wrapper .img-inner img.screen-logo {
-  width: 49%;
-  display: inline-block;
-}
-.footer .img-wrapper .img-inner img.mobile-logo {
-  display: none;
-}
-.footer .footer-bottom {
-  background-color: #1D2122;
-  padding: 15px 0;
-  color: #DDD;
-  font-size: 13px;
-  margin-top: 30px;
-}
-.footer .footer-bottom a {
-  display: inline-block;
-  padding: 0 4px;
+.footer .footer-block {
+  margin-bottom: 15px;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -429,6 +405,11 @@ li {
   color: #fff;
   background-color: #459dd3;
   border-color: #3092cf;
+}
+.btn-default-disabled {
+  box-shadow: 0 3px 0 0 #2c83ba;
+  text-transform: uppercase;
+  border-radius: 3px !important;
 }
 .btn-error {
   background-color: #a94442;
@@ -649,7 +630,50 @@ ol.linenums li {
 #ace-editor {
   height: 300px;
 }
-/* Media Queries */
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ MEDIA QUERIES
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+/*==========  Non-Mobile First Method  ==========*/
+.media-query-box {
+  height: 50px;
+  width: 50px;
+  border: solid 1px black;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+/* Large Devices, Wide Screens */
+@media only screen and (max-width: 1200px) {
+  .media-query-box {
+    border: solid 1px red;
+  }
+}
+/* Medium Devices, Desktops */
+@media only screen and (max-width: 992px) {
+  .media-query-box {
+    border: solid 1px yello;
+  }
+}
+/* Small Devices, Tablets */
+@media only screen and (max-width: 768px) {
+  .media-query-box {
+    border: solid 1px blue;
+  }
+}
+/* Extra Small Devices, Phones */
+@media only screen and (max-width: 480px) {
+  .media-query-box {
+    border: solid 1px green;
+  }
+}
+/* Custom, iPhone Retina */
+@media only screen and (max-width: 320px) {
+  .media-query-box {
+    border: solid 1px orange;
+  }
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ ANIMATIONS

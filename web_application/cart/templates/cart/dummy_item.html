@@ -31,6 +31,7 @@
         <div ng-controller="DummyData">
             <div class="col-md-3" ng-repeat="item in data">
                 <h6 ng-bind="item.url"></h6>
+                <p>Gal <span ng-bind="item.id"></span></p>
                 <add-cart-button item="item"></add-cart-button>
             </div>
         </div>

@@ -13,7 +13,7 @@ router = rest_framework.routers.SimpleRouter()
 
 urlpatterns = [
     url(r'', include(router.urls)),
-    url(r'download/', cart.views.CartView.as_view(), name='cart-list'),
+    # url(r'download/', cart.views.CartView.as_view(), name='cart-list'),
     url(r'cart/$',
         restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='cart/cart.html'),
         name='cart'),

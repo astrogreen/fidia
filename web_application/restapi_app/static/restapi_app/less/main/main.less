@@ -17,6 +17,7 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ RESETS
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 html {
   position: relative;
@@ -25,8 +26,10 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 215px;
+  //margin-bottom: 300px;
   background-color: #ffffff;
+  //background:url("../../img/background/background.png") top repeat-x;
+
   a {
     color: #A30000;
   }
@@ -135,6 +138,10 @@ input, select {
 */
 header{
   font-family: 'Roboto', sans-serif;
+  .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default .navbar-nav>.active>a:focus {
+    color: #fff;
+    background-color: #459dd3;
+  }
   .navbar-default .navbar-nav > li > a {
     color: #fff;
     text-transform: uppercase;
@@ -147,288 +154,80 @@ header{
   .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
     background-color: rgba(0, 0, 0, 0.2);
   }
-  .navbar {
+  .navbar{
+    box-shadow:inset 15px 0 0 0 #fff, inset -15px 0 0 0 #fff;
     border-radius:0;
     margin-bottom:0;
     background: #5aa8d8;
     border:0;
+    .background-white {
+      background: #fff;
+      .btn-primary {
+        border: 0
+      }
+    }
+    .dropdown-menu{border-radius:0;}
+     //Prevent bootstrap from collapsing the user dropdown on mobile
+    .navbar-right {
+      //margin-right: -15px;
+      position: absolute;
+      right: 0;
+      margin-right: 0;
+    }
 
-      //TOP ROW
-      .container-fluid{
-        background:#ffffff;
-        min-height:60px;
-        padding:0;
-        ul.navbar-nav > li, .navbar-header {
-          min-height: 60px;
-          > a {
-            padding:20px
-          }
+    ul.navbar-nav > li, .navbar-header {
+      min-height: 60px;
+      > a {
+        padding:20px
+      }
+    }
+    .navbar-header{
+      background:#ffffff;
+    }
+
+    a.brand {
+      padding:10px 15px 10px 0;
+
+      float:left;
+        img {
+          height:40px;
+          max-height: 40px;
+          //min-width:80px;
         }
-        .container.logos {
+    }
+    a.asvo_logo{padding:10px 15px 10px 0 !important;}
+    a.aao_logo{padding:12px 15px 8px 0 !important;}
+
+    .cart-li{
+      background:#f2f2f2;
+      .cart-icon {
+        padding-bottom: 15px !important;
+        position:relative;
+        .badge {
           position: absolute;
-          top: 0px;
-          right: 0;
-          left: 0;
-          min-height: 60px;
+          right: 5px;
+          top: 5px;
         }
-        // Prevent bootstrap from collapsing the user dropdown on mobile
-        .navbar-right {
-          float: right !important;
-          margin-right: -15px;
-        }
-
-        .navbar-nav {
-          float: left;
-          margin: 0;
-          > li {
-          float: left;
-          }
-          li.dropdown.user.active > a,
-          li.dropdown.user.active > a:hover,
-          li.dropdown.user.active > a:focus {border-left:solid 1px rgba(217,217,217,.5)}
-        }
-        //
-
-        .asvo-logo {
-          display: inline-block;
-        }
-        a.navbar-brand {
-          padding: 10px;
-          height:60px;
-          img {
-            max-height: 40px;
-            padding-right:10px;
-            padding-left:10px;
-          }
-        }
-        .cart-li{
-          background:#f2f2f2;
-          .cart-icon {
-            padding-bottom: 15px !important;
-            position:relative;
-            .badge {
-              position: absolute;
-              right: 5px;
-              top: 5px;
-            }
-          }
-        }
-
-        .btn-primary {border:0}
-        > ul > li.dropdown > a{text-align:center}
-        .dropdown {
-          min-width:160px;
-          > a {
-            color: #5aa8d8;
-          }
-        }
-
       }
-      //SECONDARY ROW
-      > .container{
-        background: #5aa8d8;
+    }
+    li.user, user a {
+      background:#fff;
+      background-color: #fdfdfd;
+      min-width:160px;
+      > a {
+        color:#555;
+        text-align:right;
       }
+
+    }
+
+      li.dropdown.user.active > a,
+      li.dropdown.user.active > a:hover,
+      li.dropdown.user.active > a:focus {border-left:solid 1px rgba(217,217,217,.5)}
 
   }
 }
 
-//
-//header {
-//  background-color: #ffffff;
-//  font-family: 'Roboto', sans-serif;
-//  .aat {
-//    background: #000000 url('../img/aat.jpg') no-repeat fixed top center;
-//  }
-//  .container {
-//    padding-top: 10px;
-//    padding-bottom: 10px;
-//
-//    .logo {
-//      display: inline-block;
-//      padding: 5px 0;
-//
-//      a {
-//        display: inline-block;
-//
-//        span {
-//          display: none;
-//        }
-//      }
-//      a > img {
-//        height: 40px;
-//        width: 90px;
-//      }
-//      a.asvo {
-//        margin-right: 10px;margin-left:20px;
-//      }
-//      a.aao {
-//      }
-//
-//    }
-//    .navbar-nav {
-//      //border: solid 1px red;
-//    }
-//    .navbar-nav>li {
-//      float: left;
-//  }
-//
-//    .navbar-nav > .user {
-//      display: inline-block;
-//      float: right;
-//      padding: 6px 0px 0px 0px;
-//    }
-//
-//    .user a {
-//      display: inline-block;
-//      padding: 0px 10px;
-//      span {
-//        height: 28px;
-//        line-height: 28px;
-//        font-weight: 600;
-//        text-transform: uppercase;
-//      }
-//    }
-//    .user > span {
-//      height: 28px;
-//      line-height: 28px;
-//    }
-//    /* ++ USER: Login ++ */
-//    .user a.login {
-//      position: relative;
-//      margin-right: 5px;
-//    }
-//    .user a.login span,
-//    .user a.login i {
-//      color: #5aa8d8;
-//    }
-//    /* ++ USER: Register ++ */
-//    .user a.register {
-//      background-color: #5aa8d8;
-//      margin-left: 10px;
-//    }
-//    .user a.register span {
-//      margin-left: 4px;
-//    }
-//    .user a.register span,
-//    .user a.register i {
-//      color: #ffffff;
-//    }
-//
-//  }
-//}
-//
-///*OUT OF THE HEADER*/
-//.nav > li > a {
-//  position: relative;
-//  display: block;
-//  padding: 10px 15px;
-//}
-//.user {
-//  a {
-//    display: inline-block;
-//    padding: 0px 10px;
-//    span {
-//      height: 28px;
-//      line-height: 28px;
-//      font-weight: 600;
-//      text-transform: uppercase;
-//    }
-//  }
-//  a.register span {
-//    margin-left: 4px;
-//  }
-//
-//  > span {
-//    height: 28px;
-//    line-height: 28px;
-//  }
-//
-//  a.login span, a.login i {
-//    color: #5aa8d8;
-//  }
-//
-//  a {
-//    margin-left: 10px;
-//  }
-//
-//  a.register span, a.register i {
-//    color: #ffffff
-//  }
-//  .splitter {
-//    margin-top: 20px;
-//    padding-top: 20px;
-//    border-top: solid 1px #eee
-//  }
-//}
-
-/*
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-++ NAV
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-*/
-//
-//nav.navbar {
-//  background-color: #5aa8d8;
-//  //background-color: #292f31;
-//  width: 100%;
-//  left: 0;
-//  top: 0;
-//  z-index: 3;
-//  min-height: 40px;
-//  text-transform: uppercase;
-//  font-family: 'Roboto', sans-serif;
-//  margin-bottom: 0;
-//  border-width: 0;
-//
-//  .container {
-//    position: relative;
-//    text-align: center;
-//  }
-//
-//  .nav > li > a {
-//    position: relative;
-//    display: block;
-//    padding: 10px 15px;
-//  }
-//
-//  .fixed {
-//    top: 0;
-//    z-index: 100;
-//    position: fixed;
-//    width: 100%;
-//  }
-//
-//  .nav ul li {
-//    text-transform: none;
-//  }
-//
-//  .nav li, .nav li a {
-//    color: #ffffff;
-//  }
-//
-//  .nav-list > .active > a, .nav-list > .active > a:hover {
-//    background: #EEEEEE;
-//    color: #C20000;
-//  }
-//  .dropdown-menu > .active > a {
-//    background-color: #eeeeee;
-//  }
-//  .dropdown-menu li a, .dropdown-menu li, .dropdown-menu>li>a {
-//    color: #333;
-//  }
-//
-//  .navbar .dropdown-menu li a:hover {
-//    background: #EEEEEE;
-//    color: #C20000;
-//  }
-//}
-//
-//.dropdown-menu {
-//  border-radius: 0;
-//  > li > a {
-//    color: #333;
-//  }
-//}
 
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -436,19 +235,28 @@ header{
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
+
 .breadcrumb-container {
   background-color: #F4F5F6;
+  background-color: rgba(244, 245, 246,1);
+  background-color:#f1f3f3;
+  color:#333;
   border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+  border-top: 1px solid rgba(0, 0, 0, 0.075);
   min-height: 36px;
 }
 
 .breadcrumb {
   margin-bottom: 0;
   font-family: 'Roboto', sans-serif;
-
+  li a{color:#333;}
   background: transparent;
   li.active a {
-    color: #777;
+    color: #111;
+  }
+  li+li:before {
+    color:#333;
+
   }
 }
 
@@ -460,6 +268,7 @@ header{
 .breadcrumb-container.inverted {
   background: rgba(0, 0, 0, 0.20);
   color: #fff;
+  border-bottom:0;
   li.active a {
     color: #fff;
   }
@@ -501,18 +310,24 @@ header{
 */
 
 .wrapper {
-  padding-bottom: 30px;
+  padding:15px;
+  position:relative;
+  //padding-bottom: 150px;
+  //background:url("../../img/background/footer.png") bottom repeat-x;
 }
 
 .footer {
+  hr {border-top: 1px solid rgba(255,255,255,0.1);}
   background-color: #292F31;
-  padding: 35px 0 0 0;
+  padding: 45px 15px 15px 15px;
   bottom: 0;
   width: 100%;
-  /* Set the fixed height of the footer = footer height +margin */
-  height: 215px;
+  ///* Set the fixed height (in body class) of the footer = footer height +margin */
+  ////height: 215px;
+  //height:300px;
+  min-height:300px;
   font-family: 'Roboto', sans-serif;
-  position: absolute;
+  //position: absolute;
   a {
     color: #DDD;
   }
@@ -521,58 +336,23 @@ header{
   a:active {
     color: #FFF;
   }
+  img{max-height:50px;margin-bottom:15px;}
 
-  > .container a {
-    text-decoration: none;
-    display: block;
-    padding: 4px 0;
-    font-size: 13px;
-  }
-
-  > .container > .row {
-    display: table;
-    width: 100%;
-  }
-  > .container > .row [class*='col-'] {
-    float: none;
-    display: table-cell;
-    vertical-align: top;
-  }
-
-  div h3 {
+  h3 {
     font-size: 16px;
     color: #FFF;
-    font-weight: 300;
+    color: rgba(255,255,255,0.9);
+    font-weight: 400;
     text-transform: uppercase;
-    margin: 0 0 .5em 0;
-    span {
-      font-weight: 300;
-      text-transform: capitalize;
-    }
+    margin: 0 0 1.5em 0;
+    border-bottom:solid 2px rgba(255,255,255,0.6);
+    padding-bottom:15px;
   }
 
-  .img-wrapper {
-    position: relative;
-    padding: 0;
-    .img-inner img.screen-logo {
-      width: 49%;
-      display: inline-block;
-    }
-    .img-inner img.mobile-logo {
-      display: none;
-    }
-  }
-
-  .footer-bottom {
-    background-color: #1D2122;
-    padding: 15px 0;
-    color: #DDD;
-    font-size: 13px;
-    margin-top: 30px;
-    a {
-      display: inline-block;
-      padding: 0 4px;
-    }
+  .footer-block {
+    //border-bottom: solid 1px rgba(106, 119, 124,0.6);
+    //min-height: 200px;
+    margin-bottom:15px;
   }
 }
 
@@ -636,6 +416,11 @@ header{
   color: #fff;
   background-color: #459dd3;
   border-color: #3092cf;
+}
+.btn-default-disabled{
+  box-shadow: 0 3px 0 0 #2c83ba;
+  text-transform: uppercase;
+  border-radius:3px !important;
 }
 
 .btn-error {
@@ -883,109 +668,45 @@ ol.linenums li {
   height: 300px;
 }
 
-// DITCH
-//#generic-content-form textarea {
-//    font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-//    font-size: 80%;
-//}
 
-//MEDIA
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ MEDIA QUERIES
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+/*==========  Non-Mobile First Method  ==========*/
+.media-query-box {
+  height: 50px;
+  width: 50px;
+  border: solid 1px black;
+  position: absolute;
+  top: 0;
+  left: 0
+}
+    /* Large Devices, Wide Screens */
+    @media only screen and (max-width : 1200px) {
+      .media-query-box{border:solid 1px red;}
+    }
 
-/* Media Queries */
+    /* Medium Devices, Desktops */
+    @media only screen and (max-width : 992px) {
+      .media-query-box{border:solid 1px yello;}
+    }
 
+    /* Small Devices, Tablets */
+    @media only screen and (max-width : 768px) {
+      .media-query-box{border:solid 1px blue;}
+    }
 
+    /* Extra Small Devices, Phones */
+    @media only screen and (max-width : 480px) {
+      .media-query-box{border:solid 1px green;}
+    }
 
-//
-//@media (max-width: 550px) {
-//  .footer-bottom .pull-left,
-//  .footer-bottom .pull-right {
-//    float: none !important;
-//    width: 100%;
-//    padding: 10px;
-//    text-align: center;
-//  }
-//
-//  .footer-bottom {
-//    margin-top: 20px;
-//    padding: 0px;
-//  }
-//}
-//
-//@media (max-width: 767px) {
-//  header .container .col {
-//    margin-bottom: 10px;
-//    text-align: center;
-//  }
-//
-//  header .container .user {
-//    float: none;
-//  }
-//
-//  .breadcrumb, .breadcrumb-container {
-//    padding-left: 0px
-//  }
-//
-//  ul.nav.navbar-nav.navbar-user li.dropdown ul li,
-//  ul.nav.navbar-nav.navbar-user li.dropdown a {
-//    text-align: right;
-//    min-width: 100px;
-//  }
-//
-//  ul.nav.navbar-nav {
-//    padding-right: 15px;
-//  }
-//
-//  .control-label {
-//    text-align: left;
-//  }
-//
-//  /*.navbar-default .navbar-nav .open .dropdown-menu>li>a {*/
-//  /*color: #e7e7e7;*/
-//  /*border-color: #eee;*/
-//  /*}*/
-//  /*.navbar-toggle{color:#fff;}*/
-//  .navbar-default .navbar-toggle .icon-bar {
-//    background-color: #ffffff;
-//  }
-//
-//  .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
-//    background-color: rgba(0, 0, 0, 0.2);
-//  }
-//
-//  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-//    color: #eee;
-//  }
-//
-//  .footer .img-inner {
-//    float: right;
-//  }
-//
-//  .footer .img-inner img:nth-of-type(3n) {
-//    margin-top: -5px;
-//  }
-//
-//  .footer .img-inner img.mobile-logo {
-//    display: block;
-//    width: auto;
-//    max-height: 60px;
-//  }
-//
-//  .footer .img-inner img.screen-logo {
-//    display: none;
-//  }
-//  .navbar-right {
-//    float: right !important;
-//    margin-right: -15px;
-//  }
-//  .navbar-header {
-//    float: left;
-//  }
-//  .asvo-logo{display:none}
-//}
-//
-//@media (max-width: 991px) {
-//
-//}
+    /* Custom, iPhone Retina */
+    @media only screen and (max-width : 320px) {
+      .media-query-box{border:solid 1px orange;}
+    }
 
 
 /*

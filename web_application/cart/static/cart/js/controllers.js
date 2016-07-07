@@ -4,10 +4,11 @@ console.log('controllers.js');
     "use strict";
 
     var app = angular.module('DCApp');
-
+    
     // Create 'fixtures'
+    var dummy_data_url = "/static/cart/js/dummy-data.json";
     app.controller('DummyData', function($scope, $http){
-       $http.get('/static/js/angular/cart/dummy-data.json').then(function(response){
+       $http.get(dummy_data_url).then(function(response){
            $scope.data = response.data;
            console.log('success - dummy data in $scope.data')
        })

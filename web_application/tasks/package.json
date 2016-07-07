@@ -1,0 +1,36 @@
+{
+  "name": "asvo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "browserify": "^13.0.1",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "bootstrap": "^3.3.6",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-imagemin": "^3.0.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-rename": "^1.2.2",
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-firefox-launcher": "^1.0.0",
+    "karma-chrome-launcher": "^1.0.1",
+    "karma-jasmine": "^1.0.2",
+    "karma-safari-launcher": "^1.0.0",
+    "less": "^2.6.1",
+    "react": "^15.2.0",
+    "react-dom": "^15.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://lmannering@aaosoft.aao.gov.au//var/lib/gforge/chroot/scmrepos/git/asvo/asvo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

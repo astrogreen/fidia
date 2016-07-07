@@ -119,12 +119,13 @@ def optional_login_header(request):
         if next_url in urls_to_avoid:
             next_page = reverse('index')
 
-    snippet = """<li>
+    snippet = """<li class="background-white">
                 <a href='{login}?next={next}' class="text-error text-uppercase">
                     <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
 
                 </a>
-                </li><li>
+                </li>
+                <li class="background-white">
                 <a href="{register}" class="btn btn-primary text-uppercase">
                     <span>Register</span>
                     <i class="fa fa-pencil-square-o"></i>

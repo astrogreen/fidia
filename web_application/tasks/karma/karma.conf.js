@@ -14,11 +14,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      '../restapi_app/static/restapi_app/js/angular/angular.1.5.0.js',
-      '../restapi_app/static/restapi_app/js/angular/angular-sanitize.1.5.0.min.js',
-      '../restapi_app/static/restapi_app/js/query-builder/app.js',
-      '../restapi_app/static/restapi_app/js/query-builder/CtrlQueryBuilder.js',
-      '../restapi_app/static/restapi_app/js/query-builder/query_builder_tests.js'
+      '../../restapi_app/static/restapi_app/js/angular/angular.1.5.0.js',
+      '../../restapi_app/static/restapi_app/js/angular/angular-sanitize.1.5.0.min.js',
+      '../../restapi_app/static/restapi_app/js/query-builder/app.js',
+      '../../restapi_app/static/restapi_app/js/query-builder/CtrlQueryBuilder.js',
+      '../../restapi_app/static/restapi_app/js/query-builder/query_builder_tests.js'
     ],
 
 

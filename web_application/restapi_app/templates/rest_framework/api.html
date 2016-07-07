@@ -6,7 +6,9 @@
 <!DOCTYPE html>
 <html {% block angular-ng-app-class %}ng-app="DCApp"{% endblock %}>
 <head>
-  {% include "restapi_app/header/header.html" %}
+  {% block overwrite_include %}
+    {% include "restapi_app/header/header.html" %}
+  {% endblock %}
   <title>ASVO-AAT | {% block title %}Home{% endblock %}</title>
   {% block head-extra %}
   {% endblock %}
@@ -14,13 +16,12 @@
 
 {% block body %}
 <body class="{% block bodyclass %}{% endblock %}">
-  <div class="wrapper">
+
     {% block navbar %}
       {% include "restapi_app/header/navbar.html" %}
     {% endblock %}
 
-    <div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
-      <div class="container">
+    <div class="breadcrumb-container container-fluid {% block breadcrumbclass %}{% endblock %}">
         {% block breadcrumbs-outer %}
         {% if breadcrumblist %}
         {% block breadcrumbs %}
@@ -37,9 +38,8 @@
         {% endblock %}
       {% endif %}
         {% endblock %}
-      </div>
     </div>
-
+  <div class="wrapper">
     <div class="container" id="page-content">
       {% block content_and_status %}
         {% with "200" as http_status_code %}
