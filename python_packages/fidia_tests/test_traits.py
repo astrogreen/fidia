@@ -227,6 +227,10 @@ class TestTraitRegistry:
                 def value(self):
                     return 'inline_sub_trait'
 
+        # Check that the class remains after the registration.
+        assert MyTrait.MySubTrait is not None
+        assert issubclass(MyTrait.MySubTrait, Trait)
+
     def test_trait_creation_with_external_trait(self):
 
         class SubTraitClass(Trait):

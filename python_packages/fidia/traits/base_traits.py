@@ -184,7 +184,7 @@ class Trait(AbstractBaseTrait):
 
             # Determine which class responds to the requested trait.
             # Potential for far more complex logic here in future.
-            trait_class = self.sub_traits[trait_key]
+            trait_class = self.sub_traits.retrieve_with_key(trait_key)
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))

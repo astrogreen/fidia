@@ -8,9 +8,9 @@ from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
 
-    # def init(self):
-    #     if self.trait_qualifier != 'mymap':
-    #         raise DataNotAvailable("ExampleSpectraMap only has trait_qualifier='mymap' data.")
+    def init(self):
+        if self.object_id == 'Gal2':
+            raise DataNotAvailable("Gal2 has no 'spectral_map'")
 
     trait_type = "spectral_map"
 

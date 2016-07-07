@@ -131,10 +131,10 @@ class Archive(BaseArchive):
         if self._schema:
             return self._schema
         result = SchemaDictionary()
-        for trait_type in self.available_traits.get_trait_names():
-            result[trait_type] = SchemaDictionary()
-            for trait in self.available_traits.get_traits(trait_type_filter=trait_type):
-                result[trait_type].update(trait.schema())
+        for trait_name in self.available_traits.get_trait_names():
+            result[trait_name] = SchemaDictionary()
+            for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
+                result[trait_name].update(trait.schema())
         self._schema = result
         return result
 
