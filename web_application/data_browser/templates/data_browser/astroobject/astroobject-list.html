@@ -16,7 +16,7 @@
 
 {% block content-page-header %}{% endblock %}
 
-{% block content_render %}
+{% block content_renders %}
     <h1 class="headline">
         <span>{{ objname }}</span>
         {% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}

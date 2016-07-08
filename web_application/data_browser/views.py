@@ -16,6 +16,7 @@ import data_browser.serializers
 import data_browser.renderers
 
 import fidia.exceptions
+from fidia.traits import Trait, TraitProperty
 
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 
@@ -218,6 +219,35 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # @property
         # def dynamic_property_first_of_type(self, dynamic_pk):
             # split on /
+
+        # Determine what we're looking at.
+        path = list(dynamic_pk.split('/'))
+        print(path)
+        path.insert(0, trait_pk)
+        # return Response({"data": str(ar.type_for_trait_path(path))})
+        if issubclass(ar.type_for_trait_path(path), Trait):
+            trait_pointer = sample[galaxy_pk]
+            for elem in path:
+                trait_pointer = trait_pointer[elem]
+            serializer = data_browser.serializers.AstroObjectTraitSerializer(
+                instance=trait_pointer, many=False,
+                context={'request': request}
+            )
+
+        elif issubclass(ar.type_for_trait_path(path), TraitProperty):
+            trait_pointer = sample[galaxy_pk]
+            for elem in path[:-1]:
+                trait_pointer = trait_pointer[elem]
+            trait_property = getattr(trait_pointer, path[-1])
+            serializer = data_browser.serializers.AstroObjectTraitPropertySerializer(
+                instance=trait_property, many=False,
+                context={'request': request}
+            )
+        else:
+            raise Exception("programming error")
+
+        return Response(serializer.data)
+
 
         # Return a list of components
         dynamic_components = dynamic_pk.split('/')

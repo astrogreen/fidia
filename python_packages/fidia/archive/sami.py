@@ -622,6 +622,7 @@ class LZIFUOneComponentLineMap(Image):
         'SII6731': 'SII6731'
     }
 
+    qualifier_required = True
     qualifiers = line_name_map.keys()
 
     def preload(self):
@@ -658,6 +659,10 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     available_versions = {"0.9b"}
 
     available_branches ={'recom_comp'}
+
+    qualifier_required = True
+    qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
+
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
