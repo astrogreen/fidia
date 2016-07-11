@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from astropy.io import fits
 
 from .abstract_base_traits import *
-from ..exceptions import DataNotAvailable
+from ..exceptions import *
 from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary
@@ -18,6 +18,10 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
+
+def is_list_or_set(obj):
+    """Return true if the object is a list or a set."""
+    return isinstance(obj, list) or isinstance(obj, set)
 
 # class DictTrait(Mapping):
 #     """A "mix-in class which provides dict-like access for Traits
@@ -76,12 +80,21 @@ class Trait(AbstractBaseTrait):
                 schema[trait_property.name] = trait_property.type
 
         if include_subtraits:
-            for trait_type in cls.sub_traits.get_trait_names():
+            for trait_name in cls.sub_traits.get_trait_names():
                 # Create empty this sub-trait type:
-                schema[trait_type] = SchemaDictionary()
+                schema[trait_name] = SchemaDictionary()
                 # Populate the dict with schema from each sub-type:
-                for trait_class in cls.sub_traits.get_traits(trait_type_filter=trait_type):
-                    schema[trait_type].update(trait_class.schema())
+                for trait_class in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                    subtrait_schema = trait_class.schema()
+                    try:
+                        schema[trait_name].update(subtrait_schema)
+                    except ValueError:
+                        log.error("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+                                  "to schema for '%s' containing: '%s'",
+                                  trait_class, trait_name, schema[trait_name])
+                        raise SchemaError("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+                                  "to schema for '%s' containing: '%s'",
+                                  trait_class, trait_name, schema[trait_name])
 
         return schema
 
@@ -132,6 +145,8 @@ class Trait(AbstractBaseTrait):
     @classmethod
     def _validate_trait_class(cls):
         assert cls.trait_type is not None
+
+        assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
         # assert cls.available_versions is not None
 
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):

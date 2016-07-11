@@ -35,6 +35,14 @@ TRAIT_KEY_RE = re.compile(
     re.VERBOSE
 )
 
+def validate_trait_name(trait_name):
+    if TRAIT_NAME_RE.fullmatch(trait_name) is None:
+        raise ValueError("'%s' is not a valid trait_name" % trait_name)
+
+def validate_trait_type(trait_type):
+    if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
+        raise ValueError("'%s' is not a valid trait_type" % trait_type)
+
 class TraitKey(tuple):
     """TraitKey(trait_type, trait_name, version, object_id)"""
 

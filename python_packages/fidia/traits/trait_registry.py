@@ -1,5 +1,5 @@
 from itertools import product
-from .utilities import TraitKey
+from .utilities import TraitKey, validate_trait_name, validate_trait_type
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -80,6 +80,7 @@ class TraitRegistry:
             log.error("Trait Registry %s asked to filter both on trait_type and trait_name (not possible.)", self)
             raise ValueError("Only one of trait_type_filter and trait_name_filter can be defined.")
         if trait_type_filter is not None:
+            validate_trait_type(trait_type_filter)
             log.debug("Filtering for traits with trait_type '%s'", trait_type_filter)
             result = []
             for trait in self._registry:
@@ -87,6 +88,7 @@ class TraitRegistry:
                     result.append(trait)
             return result
         elif trait_name_filter is not None:
+            validate_trait_name(trait_name_filter)
             log.debug("Filtering for traits with trait_name '%s'", trait_name_filter)
             result = []
             for trait in self._registry:
