@@ -18,8 +18,9 @@ class TraitRegistry:
 
         # Confirm that the supplied Trait has all required attributes
         assert hasattr(trait, 'trait_type'), "Trait must have 'trait_type' attribute."
-        if trait.qualifier_required:
+        if trait.qualifiers is not None:
             assert hasattr(trait, 'qualifiers'), "Trait must have 'qualifiers' attribute."
+        trait._validate_trait_class()
 
         # Add the trait to the set of known trait classes in this registry.
         self._registry.add(trait)
@@ -31,13 +32,13 @@ class TraitRegistry:
             branches = {None}
 
         # Determine available versions:
-        if hasattr(trait, 'available_versions'):
+        if trait.available_versions is not None:
             versions = trait.available_versions
         else:
             versions = {None}
 
         # Determine available qualifiers:
-        if trait.qualifier_required:
+        if trait.qualifiers is not None:
             qualifiers = trait.qualifiers
         else:
             qualifiers = {None}
@@ -76,21 +77,28 @@ class TraitRegistry:
         """Return a list of all Trait classes, optionally filtering for a particular trait_type."""
 
         if trait_type_filter is not None and trait_name_filter is not None:
+            log.error("Trait Registry %s asked to filter both on trait_type and trait_name (not possible.)", self)
             raise ValueError("Only one of trait_type_filter and trait_name_filter can be defined.")
-        if trait_type_filter is None:
-            return self._registry
-        elif trait_type_filter is not None:
+        if trait_type_filter is not None:
+            log.debug("Filtering for traits with trait_type '%s'", trait_type_filter)
             result = []
             for trait in self._registry:
                 if trait.trait_type == trait_type_filter:
                     result.append(trait)
             return result
         elif trait_name_filter is not None:
+            log.debug("Filtering for traits with trait_name '%s'", trait_name_filter)
             result = []
             for trait in self._registry:
-                if trait.trait_name == trait_name_filter:
+                log.debug("    Considering trait with name '%s'", trait.trait_name)
+                # if trait.trait_name == trait_name_filter:
+                if trait.answers_to_trait_name(trait_name_filter):
                     result.append(trait)
             return result
+        else:
+            # No filter applied. Return all classes.
+            log.debug("Returning all traits of this TraitRegistry (no filter applied).")
+            return self._registry
 
     def get_all_traitkeys(self):
         """A list of all known trait keys in the registry."""

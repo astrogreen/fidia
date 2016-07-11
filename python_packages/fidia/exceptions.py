@@ -13,3 +13,4 @@ class ReadOnly(BaseException): pass
 
 class InvalidTraitKey(BaseException): pass
 
+class SchemaError(BaseException): pass
