@@ -111,16 +111,20 @@ class Trait(AbstractBaseTrait):
     def answers_to_trait_name(cls, trait_name):
         match = TRAIT_NAME_RE.fullmatch(trait_name)
         if match is not None:
+            log.debug("Checking if trait '%s' responds to trait_name '%s'", cls, trait_name)
             log.debug("TraitName match results: %s", match.groupdict())
-            # Confirm that the qualifier has been used correctly:
-            if match.group('trait_qualifier') is not None and cls.qualifiers is None:
-                raise ValueError("Trait type '%s' does not allow a qualifier.")
-            if match.group('trait_qualifier') is None and cls.qualifiers is not None:
-                raise ValueError("Trait type '%s' does requires a qualifier.")
 
-            # Check the trait name against all possible trait_names supported by this Trait.
+            # Check the trait_name against all possible trait_names supported by this Trait.
             if match.group('trait_type') != cls.trait_type:
                 return False
+
+            # Confirm that the qualifier has been used correctly:
+            if match.group('trait_qualifier') is not None and cls.qualifiers is None:
+                raise ValueError("Trait type '%s' does not allow a qualifier." % cls.trait_type)
+            if match.group('trait_qualifier') is None and cls.qualifiers is not None:
+                raise ValueError("Trait type '%s' requires a qualifier." % cls.trait_type)
+
+            # Check trait_name against all known qualifiers provided by this Trait.
             if cls.qualifiers is not None \
                     and match.group('trait_qualifier') not in cls.qualifiers:
                 return False
