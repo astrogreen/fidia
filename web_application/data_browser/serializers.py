@@ -171,8 +171,11 @@ class AstroObjectSerializer(serializers.Serializer):
     def get_schema(self, obj):
         return self.context['schema']
 
+    def get_trait_list(self, obj):
+        return self.context['trait_list']
+
     schema = serializers.SerializerMethodField()
-    # object = serializers.CharField(max_length=100, required=False, source="*")
+    trait_list = serializers.SerializerMethodField()
 
 
 class SampleSerializer(serializers.Serializer):
