@@ -15,6 +15,7 @@ from ..traits import TraitRegistry
 from .base_archive import BaseArchive
 from ..cache import DummyCache
 from ..utilities import SchemaDictionary
+from ..exceptions import *
 
 class Archive(BaseArchive):
     def __init__(self):
@@ -114,7 +115,7 @@ class Archive(BaseArchive):
         current_schema_item = schema
         for path_element in path:
             trait_key = TraitKey.as_traitkey(path_element)
-            current_schema_item = current_schema_item[trait_key.trait_type]
+            current_schema_item = current_schema_item[trait_key.trait_name]
 
         # Decide whether the item in the schema corresponds to a Trait or TraitProperty
         if isinstance(current_schema_item, dict):
@@ -131,10 +132,19 @@ class Archive(BaseArchive):
         if self._schema:
             return self._schema
         result = SchemaDictionary()
-        for trait_type in self.available_traits.get_trait_names():
-            result[trait_type] = SchemaDictionary()
-            for trait in self.available_traits.get_traits(trait_type_filter=trait_type):
-                result[trait_type].update(trait.schema())
+        log.debug("Building a schema for archive '%s'", self)
+        for trait_name in self.available_traits.get_trait_names():
+            log.debug("    Processing traits with trait_name '%s'", trait_name)
+            result[trait_name] = SchemaDictionary()
+            for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
+                log.debug("        Attempting to add Trait class '%s'", trait)
+                try:
+                    result[trait_name].update(trait.schema())
+                except ValueError:
+                    log.error("Schema mis-match in traits: trait '%s' cannot be added " +
+                              "to schema for '%s' containing: '%s'",
+                              trait, trait_name, result[trait_name])
+                    raise SchemaError("Schema mis-match in traits")
         self._schema = result
         return result
 

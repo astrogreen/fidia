@@ -8,7 +8,7 @@ from astropy.io import fits
 
 from .abstract_base_traits import *
 from ..exceptions import DataNotAvailable
-from .utilities import TraitProperty, TraitKey
+from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary
 from ..descriptions import PrettyName, Description, Documentation
@@ -41,14 +41,17 @@ class Trait(AbstractBaseTrait):
 
     sub_traits = TraitRegistry()
 
-    default_version = {None}
-    available_versions = {None}
 
     pretty_name = PrettyName()
     description = Description()
     documentation = Documentation()
 
-    qualifier_required = False
+    # The following are a required part of the Trait interface.
+    # They must be set in sub-classes to avoid an error trying create a Trait.
+    trait_type = None
+    qualifiers = None
+    available_versions = None
+
 
     @classmethod
     def schema(cls, include_subtraits=True):
@@ -101,8 +104,37 @@ class Trait(AbstractBaseTrait):
     #     for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
     #         yield trait_class
 
+    @classmethod
+    def answers_to_trait_name(cls, trait_name):
+        match = TRAIT_NAME_RE.fullmatch(trait_name)
+        if match is not None:
+            log.debug("TraitName match results: %s", match.groupdict())
+            # Confirm that the qualifier has been used correctly:
+            if match.group('trait_qualifier') is not None and cls.qualifiers is None:
+                raise ValueError("Trait type '%s' does not allow a qualifier.")
+            if match.group('trait_qualifier') is None and cls.qualifiers is not None:
+                raise ValueError("Trait type '%s' does requires a qualifier.")
+
+            # Check the trait name against all possible trait_names supported by this Trait.
+            if match.group('trait_type') != cls.trait_type:
+                return False
+            if cls.qualifiers is not None \
+                    and match.group('trait_qualifier') not in cls.qualifiers:
+                return False
+            return True
+        else:
+            return False
+
+    @classmethod
+    def _validate_trait_class(cls):
+        assert cls.trait_type is not None
+        # assert cls.available_versions is not None
+
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
+
+        self._validate_trait_class()
+
         self.archive = archive
         assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
         self.trait_key = trait_key
@@ -128,8 +160,8 @@ class Trait(AbstractBaseTrait):
                 self.version = None
         else:
             self.version = trait_key.version
-        if self.version is None:
-            self.version = self.default_version
+        # if self.version is None:
+        #     self.version = self.default_version
 
         if object_id is None:
             raise KeyError("object_id must be supplied")

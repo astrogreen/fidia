@@ -17,6 +17,14 @@ from ..exceptions import *
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
 TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
 
+TRAIT_NAME_RE = re.compile(
+    r"""(?P<trait_type>{TRAIT_TYPE_RE})
+        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?""".format(
+            TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
+            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+    re.VERBOSE
+)
+
 TRAIT_KEY_RE = re.compile(
     r"""(?P<trait_type>{TRAIT_TYPE_RE})
         (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?
