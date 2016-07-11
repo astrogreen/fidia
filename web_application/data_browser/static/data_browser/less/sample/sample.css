@@ -42,3 +42,6 @@ h6 {
   margin-right: 7px;
   display: inline;
 }
+.panel-group .panel + .panel {
+  margin-top: -1px;
+}

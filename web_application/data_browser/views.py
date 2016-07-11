@@ -233,7 +233,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         # Determine what we're looking at.
         path = list(dynamic_pk.split('/'))
-        print(path)
+
         path.insert(0, trait_pk)
         # return Response({"data": str(ar.type_for_trait_path(path))})
         if issubclass(ar.type_for_trait_path(path), Trait):

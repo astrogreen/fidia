@@ -44,33 +44,41 @@ console.log('directives.js');
                 // @ == string
                 // & == one-way binding
                 // = == two-way binding
-                item: "="
+                // item: "@"
             },
             replace: true,
             templateUrl: '/static/cart/js/templates/add-cart-button.html',
             link: function(scope, elem, attr){
+
+                // Construct the item object (on the local scope) from the element attributes
+                scope.item = {};
+                if (typeof attr.url !== 'undefined') {
+                    scope.item['id'] = attr.url;
+                    if (typeof attr.options !== 'undefined') {
+                        scope.item['options'] = attr.options;
+                    }
+                } else {
+                    scope.item['id'] = 'Error. Cannot find id (url) has been set for this add-to-cart-directive. Please contact the site administrator. '
+                }
+
                 angular.element(document).ready(function() {
                     var saved_items = CartService.checkItemInCookie();
 
                     // CHECK for this in cookie already and disable the button.
                     if (undefined != saved_items){
                         for (var i = 0; i < saved_items.length; i++) {
-                            if (saved_items[i] == scope.item.url){
+                            if (saved_items[i] == scope.item['id']){
                                 disableAddCartButton(elem);
                             }
                         }
-                        // angular.forEach(cookie, function(cookieitem){
-                        //     if (scope.item.url == cookieitem.url){
-                        //         disableAddCartButton(elem);
-                        //     }
-                        // })
                     }
                 });
-                scope.addItem = function(item){
+
+                scope.addItem = function(){
                     // Pass the item into the addItem method of CartService
                     // populate the items obj for this particular view before start writing in to the cookie
                     CartService.getItems();
-                    CartService.addItem(item);
+                    CartService.addItem(scope.item);
                     CartService.getItemCount();
                 },
                 elem.bind('click', function(e){

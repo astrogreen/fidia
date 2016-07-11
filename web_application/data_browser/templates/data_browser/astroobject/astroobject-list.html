@@ -3,9 +3,11 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
+{% load data_browser_tag %}
 {% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<!--<script type="text/javascript" src="{% static 'cart/js/controllers.js' %}"></script>-->
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
@@ -43,42 +45,59 @@
 
     {% for trait_type in response.data.trait_list %}
          {% if forloop.first %} <div class="row"> {% endif %}
-            <div class="col-md-3 col-sm-3 col-xs-6">
-                <h3 class="headline"><span>{{trait_type | CapsSentence}}</span></h3>
-                <!--Accordion-->
-                <div class="panel-group" id="accordion_{{trait_type}}" role="tablist" aria-multiselectable="true">
-                    {% for trait_name, value in response.data.schema.items %}
-                        {% if trait_type in trait_name %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading panel-background-grey" role="tab" id="heading_{{trait_name}}">
-                                    <a role="button" data-toggle="collapse" data-parent="#accordion_{{trait_type}}"
-                                       href="#collapse_{{trait_name}}"
-                                       aria-expanded="false" aria-controls="collapse_{{trait_name}}" style="font-weight: 300; font-size: 16px;">
-                                        <span>{{trait_name | CapsSentence}}</span>
-                                    </a>
-                                    <a href="{{ trait_name }}" class="pull-right" style="color: #a30000;">
-                                        view
-                                    </a>
 
-                                </div>
-                                <div id="collapse_{{trait_name}}" class="panel-collapse collapse" role="tabpanel"
+
+            <div class="col-md-3 col-sm-3 col-xs-6">
+
+                <div class="panel panel-default">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading panel-background-grey">
+                        <h3 class="panel-title">{{trait_type | CapsSentence}}s</h3>
+                    </div>
+                    <!--List group-->
+                    <div class="list-group list-group-collapse">
+                        {% for trait_name, value in response.data.schema.items %}
+                        {% if trait_type in trait_name %}
+                            <div class="list-group-item ">
+
+                                <h4 class="list-group-item-text">
+                                    <a style="color:#333" href="{{trait_name}}">{{trait_name | CapsSentence | QualifierOnly}}</a>
+                                </h4>
+
+                                <label class="radio-inline">
+                                    <input type="radio" name="radio_{{trait_name}}" id="" value="fits" checked> fits
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="radio_{{trait_name}}" id="" value="fits" > json
+                                </label>
+                                <add-cart-button url="{{request.get_full_path}}/{{trait_name}}" class="pull-right"
+                                     options="['velocity_map', 'spec_cube_blue']"></add-cart-button>
+
+                                <h6 class="text-uppercase">
+                                    <a role="button" data-toggle="collapse" style="color:#888"
+                                       data-parent="#accordion_{{trait_type}}"
+                                       href="#collapse_{{trait_name}}"
+                                       aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties
+                                    </a>
+                                </h6>
+                                <div id="collapse_{{trait_name}}" class="panel-collapse collapse "
+                                     role="tabpanel"
                                      aria-labelledby="heading_{{trait_name}}">
-                                    <div class="panel-body">
-                                        <h6 class="text-uppercase">Properties</h6>
-                                        {% for trait_property_name, trait_property_value in value.items %}
-                                            <a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links"><p>{{ trait_property_name }}</p></a>
-                                        {% endfor %}
-                                    </div>
+                                    {% for trait_property_name, trait_property_value in value.items %}
+                                    <a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links">
+                                        <p>{{ trait_property_name }}</p></a>
+                                    {% endfor %}
                                 </div>
                             </div>
-
                         {% endif %}
+                        {% endfor %}
 
-                    {% endfor %}
 
+
+                    </div>
                 </div>
-
             </div>
+
          {% if forloop.counter|divisibleby:4 %}</div><div class="row">{% endif %}
          {% if forloop.last %}</div>{% endif %}
     {% endfor %}
@@ -109,8 +128,6 @@
     }
 
     trait_list.forEach(myfunction);
-
-
 </script>
 {% endblock %}
 
