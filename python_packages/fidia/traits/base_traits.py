@@ -9,7 +9,7 @@ from astropy.io import fits
 from .abstract_base_traits import *
 from ..exceptions import *
 from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
-    validate_trait_branches_versions_dict, validate_trait_type
+    validate_trait_type, validate_traitkey_part
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set
 from ..descriptions import PrettyName, Description, Documentation
@@ -38,6 +38,21 @@ log.enable_console_logging()
 #
 #     def __len__(self):
 #         return 0
+
+def validate_trait_branches_versions_dict(branches_versions):
+    if branches_versions is None:
+        return
+    assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
+    # Check that all branches meet the branch formatting requirements
+    for branch in branches_versions:
+        if branch is not None:
+            validate_traitkey_part(branch)
+        # Check that each branch has a list of versions:
+        assert is_list_or_set(branches_versions[branch])
+        # Check that all versions meet the branch formatting requirements
+        for version in branches_versions[branch]:
+            if version is not None:
+                assert validate_traitkey_part(version)
 
 class Trait(AbstractBaseTrait):
 

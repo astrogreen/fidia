@@ -48,21 +48,6 @@ def validate_traitkey_part(traitkey_part):
     if TRAIT_PART_RE.fullmatch(traitkey_part) is None:
         raise ValueError("'%s' is not a valid trait_key part" % traitkey_part)
 
-def validate_trait_branches_versions_dict(branches_versions):
-    if branches_versions is None:
-        return
-    assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
-    # Check that all branches meet the branch formatting requirements
-    for branch in branches_versions:
-        if branch is not None:
-            assert TRAIT_PART_RE.fullmatch(branch) is not None, "Invalid branch name '%s'" % branch
-        # Check that each branch has a list of versions:
-        assert is_list_or_set(branches_versions[branch])
-        # Check that all versions meet the branch formatting requirements
-        for version in branches_versions[branch]:
-            if version is not None:
-                assert TRAIT_PART_RE.fullmatch(version) is not None, "Invalid version name '%s'" % version
-
 
 class TraitKey(tuple):
     """TraitKey(trait_type, trait_name, version, object_id)"""
