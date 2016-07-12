@@ -14,7 +14,7 @@ class ExampleSpectralMap(SpectralMap):
 
     trait_type = "spectral_map"
 
-    available_branches = {None, 'other'}
+    branches_versions = {None: [None], "other": [None]}
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -43,7 +43,7 @@ class ExampleSpectralMapExtra(SpectralMap):
 
     trait_type = "spectral_map"
 
-    available_branches = {'extra'}
+    branches_versions = {'extra': [None]}
 
     def preload(self):
         # Make an object have typically the same random data.

@@ -17,25 +17,10 @@ class TraitRegistry:
         log.debug("Registering Trait '%s'", trait)
 
         # Confirm that the supplied Trait has all required attributes
-        assert hasattr(trait, 'trait_type'), "Trait must have 'trait_type' attribute."
-        if trait.qualifiers is not None:
-            assert hasattr(trait, 'qualifiers'), "Trait must have 'qualifiers' attribute."
         trait._validate_trait_class()
 
         # Add the trait to the set of known trait classes in this registry.
         self._registry.add(trait)
-
-        # Determine available branches:
-        if hasattr(trait, 'available_branches'):
-            branches = trait.available_branches
-        else:
-            branches = {None}
-
-        # Determine available versions:
-        if trait.available_versions is not None:
-            versions = trait.available_versions
-        else:
-            versions = {None}
 
         # Determine available qualifiers:
         if trait.qualifiers is not None:
@@ -43,20 +28,26 @@ class TraitRegistry:
         else:
             qualifiers = {None}
 
+        # Determine available branches:
+        if trait.branches_versions is None:
+            branches = {None: [None]}
+        else:
+            branches = trait.branches_versions
+
         # Generate all possible trait keys, and map them all to this trait.
         # log.vdebug("Qualifiers: %s", qualifiers)
         # log.vdebug("Branches: %s", branches),
         # log.vdebug("Versions: %s", versions)
-        for qualifier, branch, version in product(qualifiers, branches, versions):
+        for qualifier, branch in product(qualifiers, branches):
+            for version in branches[branch]:
+                tk = TraitKey(trait.trait_type, qualifier, branch, version)
+                if tk in self._trait_lookup:
+                    # @TODO: Raising this will leave the registry in a strange state.
+                    raise ValueError("Attempt to redefine Trait belonging to TraitKey '%s'", tk)
+                log.debug("Registering '%s' -> '%s'", tk, trait)
+                self._trait_lookup[tk] = trait
 
-            tk = TraitKey(trait.trait_type, qualifier, branch, version)
-            if tk in self._trait_lookup:
-                # @TODO: Raising this will leave the registry in a strange state.
-                raise ValueError("Attempt to redefine Trait belonging to TraitKey '%s'", tk)
-            log.debug("Registering '%s' -> '%s'", tk, trait)
-            self._trait_lookup[tk] = trait
-
-        # Generate all possible trait names and map them to this trait.
+        # Generate all possible trait_names
         for qualifier in qualifiers:
             trait_name = TraitKey.as_trait_name(trait.trait_type, qualifier)
             self._all_trait_names.add(trait_name)

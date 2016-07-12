@@ -8,20 +8,18 @@ from astropy.io import fits
 
 from .abstract_base_traits import *
 from ..exceptions import *
-from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE
+from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
+    validate_trait_branches_versions_dict, validate_trait_type
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary
+from ..utilities import SchemaDictionary, is_list_or_set
 from ..descriptions import PrettyName, Description, Documentation
+
 
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
-
-def is_list_or_set(obj):
-    """Return true if the object is a list or a set."""
-    return isinstance(obj, list) or isinstance(obj, set)
 
 # class DictTrait(Mapping):
 #     """A "mix-in class which provides dict-like access for Traits
@@ -54,7 +52,7 @@ class Trait(AbstractBaseTrait):
     # They must be set in sub-classes to avoid an error trying create a Trait.
     trait_type = None
     qualifiers = None
-    available_versions = None
+    branches_versions = None
 
 
     @classmethod
@@ -144,10 +142,16 @@ class Trait(AbstractBaseTrait):
 
     @classmethod
     def _validate_trait_class(cls):
-        assert cls.trait_type is not None
+        assert cls.trait_type is not None, "trait_type must be defined"
+        validate_trait_type(cls.trait_type)
 
         assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
         # assert cls.available_versions is not None
+
+        try:
+            validate_trait_branches_versions_dict(cls.branches_versions)
+        except AssertionError as e:
+            raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
 
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
@@ -155,37 +159,16 @@ class Trait(AbstractBaseTrait):
         self._validate_trait_class()
 
         self.archive = archive
+        self._parent_trait = parent_trait
+
         assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
         self.trait_key = trait_key
-        if trait_key.branch is None and parent_trait is not None:
-            # Inherit branch from parent trait:
-            self.branch = parent_trait.branch
-        else:
-            self.branch = trait_key.branch
 
-        # Trait Version handling:
-        #
-        #   The goal of this is to set the trait version if at all possible. The
-        #   following are tried:
-        #   - If version explicitly provided in this initialisation, that is the version.
-        #   - If this is a sub trait, check the parent trait for it's version.
-        #   - If the version is still none, try to set it to the default for this trait.
-        #
-        if trait_key.version is None and parent_trait is not None:
-            # Inherit version from parent trait, if permitted
-            if self.available_versions is not None and parent_trait.version in self.available_versions:
-                self.version = parent_trait.version
-            else:
-                self.version = None
-        else:
-            self.version = trait_key.version
-        # if self.version is None:
-        #     self.version = self.default_version
+        self._set_branch_and_version(trait_key)
 
         if object_id is None:
             raise KeyError("object_id must be supplied")
         self.object_id = object_id
-        self._parent_trait = parent_trait
         self.trait_qualifier = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
@@ -213,6 +196,65 @@ class Trait(AbstractBaseTrait):
         self._trait_dict = dict()
         if self._loading == 'eager':
             self._realise()
+
+    def _set_branch_and_version(self, trait_key):
+        """Trait Branch and Version handling:
+
+        The goal of this is to set the trait branch and version if at all possible. The
+        following are tried:
+        - If version explicitly provided in this initialisation, that is the version.
+        - If this is a sub trait check the parent trait for it's version.
+        - If the version is still none, try to set it to the default for this trait.
+        """
+
+        # if log.isEnabledFor(slogging.DEBUG):
+        assert isinstance(trait_key, TraitKey)
+
+        def validate_and_inherit(trait_key, parent_trait, valid, attribute):
+            """Helper function to validate and/or inherit.
+
+            This is defined because the logic is identical for both branches
+            and versions, so this avoides repetition
+
+            """
+            if trait_key is not None:
+                value = getattr(trait_key, attribute)
+                # Check that the branch is valid for this Trait:
+                if valid is not None:
+                    assert value in valid, \
+                        "Branch name '%s' not valid for trait '%s'" % (trait_key.branch, self)
+                return value
+            else:
+                if parent_trait is not None:
+                    value = getattr(parent_trait, attribute)
+                    # This is a sub trait. Inherit branch from parent unless not valid.
+                    if valid is not None and value in valid:
+                        return value
+                    else:
+                        # Parent is not valid here, so leave as None
+                        return None
+
+        # Determine the branch given the options.
+        self.branch = validate_and_inherit(trait_key, self._parent_trait, self.branches_versions, 'branch')
+
+        # If there is still no valid branch, set to the default value using the registry.
+        if self.branch is None:
+            # @TODO: Set to default branch of either this or parent trait.
+            pass
+
+        # Now that the branch has been specified, determine the valid versions
+        if self.branches_versions is not None:
+            valid_versions = self.branches_versions[self.branch]
+        else:
+            valid_versions = None
+
+        # Determine the version given the options
+        self.version = validate_and_inherit(trait_key, self._parent_trait, valid_versions, 'version')
+
+        # If there is still no valid version, set to the default value using the registry.
+        if self.version is None:
+            # @TODO: Set to default version of either this or parent trait.
+            pass
 
     @property
     def trait_name(self):
