@@ -13,7 +13,7 @@ from rest_framework.reverse import reverse
 # request = factory.post('/data/query/', data, format='json')
 # request = factory.put('/data/query/1/', {'title': 'my_test_SQL', 'SQL': 'SELECT * from InputCatA'}, format='json')
 
-# python3 manage.py test uesr.tests.test_user
+# python3 manage.py test user.tests.test_user
 
 spark_on = True
 
@@ -546,23 +546,21 @@ class UserAuthTests(TestSetUp, APITestCase):
 
     # TODO redirect and login on registration
 
-
-#
     def test_login_authenticated(self):
-        """ Authenticated user should see 'success' and not form """
+        """ Authenticated user should see 'success signed in' and not form """
         self.client.login(first_name='test_first_name', last_name='test_last_name',
                           username=self.username, email='test_user@test.com', password='test_password')
         test_response = self.client.get(self.url_login)
         self.assertTrue(status.is_success(test_response.status_code))
         self.assertIn('Success', str(test_response.content))
 
-        # POST to route still success! (try another user...)
+        # Registering new user whilst authenticated should fail...
         url_create = CreateUserTests.url_create
         new_user_dict = helper_new_user()
         test_response = self.client.post(url_create, new_user_dict, format='json')
-        self.assertEqual(test_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(test_response.status_code, status.HTTP_403_FORBIDDEN)
 
-        data = json.dumps({"username":new_user_dict['username'], "password": new_user_dict['password']})
+        data = json.dumps({"username": new_user_dict['username'], "password": new_user_dict['password']})
         test_response = self.client.post(self.url_login, data, content_type='application/json', HTTP_ACCEPT="text/html")
         print(test_response.content)
         print(test_response.status_code)

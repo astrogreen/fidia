@@ -8,7 +8,7 @@ console.log('directives.js');
     function disableAddCartButton (elem){
         // console.log('disable',elem);
         elem.addClass('btn-added-to-cart')
-            .html('<i class="fa fa-check"></i> <small>added to cart</small>')
+            .html('<i class="fa fa-check"></i>')
             .removeClass('btn-primary')
             .addClass('btn-default-disabled').attr('disabled', true);
     }

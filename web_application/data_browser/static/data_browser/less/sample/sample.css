@@ -5,12 +5,18 @@
   top: 8px;
   border-left: solid 15px #fff;
 }
+.sami_logo {
+  padding: 15px;
+}
 .gama {
   background-color: #fff;
   max-width: 80px;
   position: relative;
   top: 0;
   border-left: solid 15px #fff;
+}
+.gama_logo {
+  max-width: 150px;
 }
 .raw-data {
   max-height: 300px;
@@ -44,4 +50,65 @@ h6 {
 }
 .panel-group .panel + .panel {
   margin-top: -1px;
+}
+table.table-summary > tbody > tr:nth-child(1) > td {
+  text-align: center;
+}
+table.table-summary > tbody > tr:nth-child(2) > td:nth-child(1) {
+  vertical-align: middle;
+}
+table.table-summary > tbody > tr > td > strong {
+  text-transform: uppercase;
+}
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ MEDIA QUERIES
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+/*==========  Non-Mobile First Method  ==========*/
+.media-query-box {
+  height: 50px;
+  width: 50px;
+  border: dashed 1px black;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+@media only screen and (min-width: 992px) {
+  .media-query-box {
+    border: solid 1px purple;
+  }
+}
+/* Large Devices, Wide Screens */
+@media only screen and (max-width: 1200px) {
+  .media-query-box {
+    border: solid 1px red;
+  }
+}
+/* Medium Devices, Desktops */
+@media only screen and (max-width: 992px) {
+  .media-query-box {
+    border: solid 1px yellow;
+  }
+}
+/* Small Devices, Tablets */
+@media only screen and (max-width: 768px) {
+  .media-query-box {
+    border: solid 1px blue;
+  }
+  .sami_logo {
+    max-width: 80%;
+  }
+}
+/* Extra Small Devices, Phones */
+@media only screen and (max-width: 480px) {
+  .media-query-box {
+    border: solid 1px green;
+  }
+}
+/* Custom, iPhone Retina */
+@media only screen and (max-width: 320px) {
+  .media-query-box {
+    border: solid 1px orange;
+  }
 }

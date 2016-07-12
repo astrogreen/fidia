@@ -360,7 +360,8 @@ header .navbar li.dropdown.user.active > a:focus {
   margin-left: .5em;
 }
 .headline .headline-nav-stack {
-  margin-top: 5px;
+  margin-top: 6px;
+  border-left: solid 10px #fff;
 }
 .well {
   -webkit-box-shadow: none;
@@ -374,6 +375,9 @@ header .navbar li.dropdown.user.active > a:focus {
 }
 .well form {
   margin-bottom: 0;
+}
+.sub-heading {
+  color: #888;
 }
 .fa-text-inner {
   font-family: 'Roboto', sans-serif !important;

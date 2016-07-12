@@ -7,6 +7,7 @@
 {% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+
 <!--<script type="text/javascript" src="{% static 'cart/js/controllers.js' %}"></script>-->
 {% endblock %}
 {% block bodyclass %}{% endblock %}
@@ -20,86 +21,214 @@
 
 {% block content_render %}
 <div class="row">
-    <div class="col-sm-12"></div>
+    <!--<div class="col-sm-12"><div class="media-query-box"></div></div>-->
 </div>
 
     <div class="row">
         <div class="col-sm-12">
-            <h1 class="headline">
+            <h1 class="headline" id="summary">
                 <span>{{ objname }}</span>
                 {% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
+                {% comment %}
                 {% surveylogoimglink survey %}
+                {% endcomment %}
+                <span class="pull-right btn-group headline-nav-stack hidden-xs">
+                        <a type="button" class="btn btn-default btn-sm text-capitalize" href="#summary" title="Summary">Summary</a>
+                        <a type="button" class="btn btn-default btn-sm text-capitalize" href="#available_data" title="View Available data for download">Available Data</a>
+                </span>
+
             </h1>
         </div>
     </div>
     <div class="row">
+        <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+            <table class="table table-bordered table-summary">
+                <tbody>
+                <tr>
+                    <td colspan="2"><strong>Summary</strong></td>
+                </tr>
+                <tr class="visible-xs">
+                    <td><strong>Survey</strong></td>
+                    <td><img class="img-responsive {{survey}}_logo"
+                                         src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
+                </tr>
+                <tr class="hidden-xs">
+                    <td colspan="2"><img class="img-responsive {{survey}}_logo"
+                                         src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
+                </tr>
+                <tr>
+                    <td><strong>SAMI ID</strong></td>
+                    <td>{{objname}}</td>
+                </tr>
+                <tr>
+                    <td><strong>GAMA ID</strong></td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>IAU ID</strong></td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>RA</strong></td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>DEC</strong></td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>Redshift</strong></td>
+                    <td>-</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Spectrum</h3>
+                        </div>
+                        <div class="panel-body">
+                            <img src="/static/restapi_app/img/sov_test/test_spectra.png" class="img-responsive">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">SDSS Image</h3>
+                        </div>
+                        <div class="panel-body">
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                 alt="..." class="img-responsive">
+                            <p class="text-justify">Colour composite image, 19.5 arcsec on a side. False colour, 512 × 512 pixel, 0.2
+                                arcsec/pixel,
+                                5-band composite from SDSS DR7.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">SAMI Flux</h3>
+                        </div>
+                        <div class="panel-body">
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                 alt="..." class="img-responsive">
+                            <p class="text-justify">Hα for emission-line systems (red), stellar continuum for absorption-line galaxies
+                                (blue).</p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">SAMI Velocity</h3>
+                        </div>
+                        <div class="panel-body text-justify">
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                 alt="..." class="img-responsive">
+                            <p class="text-justify">Hα emission (blue to red via yellow) or stellar absorption fit (yellow to violet via blue).
+                                The grey dot in the bottom left represents the extent of the seeing disk. In rare cases
+                                there isn't enough signal to plot unbinned maps.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div class="row">
         <div class="col-sm-12">
+            <h2 class="headline" id="available_data"><span>Available Data</span></h2>
+        </div>
+    </div>
+    {% for trait_type in response.data.trait_list %}
+         {% if forloop.first %}
+            <div class="row">
+        {% endif %}
+
+        <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+
             <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading panel-background-grey">
+                    <h3 class="panel-title">{{trait_type | CapsSentence}}s</h3>
+                </div>
                 <div class="panel-body">
-                    <p><strong>{{ objname }}</strong></p>
-                    <p>Key info (ra, dec, etc)</p>
+                    <p>Some description about this trait type</p>
+                </div>
+                <!--List group-->
+                <div class="list-group list-group-collapse">
+                    {% for trait_name, value in response.data.schema.items %}
+                    {% if trait_type in trait_name %}
+                        <div class="list-group-item ">
+
+                            <h4 class="list-group-item-text">
+                                <a class="" href="{{trait_name}}">{{trait_name | CapsSentence | QualifierOnly}}</a>
+                            </h4>
+                                <p>Hα emission (blue to red via yellow) or stellar absorption fit (yellow to violet via blue). The grey dot in the bottom left represents the extent of the seeing disk. In rare cases there isn't enough signal to plot unbinned maps.</p>
+                                <h6><a href="{{trait_name}}" class="text-uppercase">view</a>
+                                </h6>
+
+                            <h6>
+                                <a role="button" data-toggle="collapse" class="text-uppercase"
+                                   data-parent="#accordion_{{trait_type}}"
+                                   href="#collapse_{{trait_name}}"
+                                   aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties
+                                </a>
+                            </h6>
+                            <div id="collapse_{{trait_name}}" class="panel-collapse collapse "
+                                 role="tabpanel"
+                                 aria-labelledby="heading_{{trait_name}}">
+                                <hr>
+                                {% for trait_property_name, trait_property_value in value.items %}
+                                <a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links">
+                                    <p>{{ trait_property_name }}</p></a>
+                                {% endfor %}
+                                <hr>
+                            </div>
+
+                            <h6 class="text-uppercase sub-heading">Add to Download</h6>
+                            <hr style="margin-top:5px;">
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <add-cart-button url="{{request.get_full_path}}/{{trait_name}}" class="pull-right"
+                                         options="['velocity_map', 'spec_cube_blue']"></add-cart-button>
+                                    <span class="button-dropdown pull-right" data-buttons="dropdown">
+                                        <button class="button button-small text-uppercase">
+                                          Format <i class="fa fa-caret-down"></i>
+                                        </button>
+
+                                        <ul class="button-dropdown-list button-dropdown-list-small">
+                                          <li><a>Fits</a></li>
+                                          <li><a>Json</a></li>
+                                        </ul>
+                                     </span>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    {% endif %}
+                    {% endfor %}
+
+
+
                 </div>
             </div>
         </div>
-    </div>
 
-    {% for trait_type in response.data.trait_list %}
-         {% if forloop.first %} <div class="row"> {% endif %}
-
-
-            <div class="col-md-3 col-sm-3 col-xs-6">
-
-                <div class="panel panel-default">
-                    <!-- Default panel contents -->
-                    <div class="panel-heading panel-background-grey">
-                        <h3 class="panel-title">{{trait_type | CapsSentence}}s</h3>
-                    </div>
-                    <!--List group-->
-                    <div class="list-group list-group-collapse">
-                        {% for trait_name, value in response.data.schema.items %}
-                        {% if trait_type in trait_name %}
-                            <div class="list-group-item ">
-
-                                <h4 class="list-group-item-text">
-                                    <a style="color:#333" href="{{trait_name}}">{{trait_name | CapsSentence | QualifierOnly}}</a>
-                                </h4>
-
-                                <label class="radio-inline">
-                                    <input type="radio" name="radio_{{trait_name}}" id="" value="fits" checked> fits
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="radio_{{trait_name}}" id="" value="fits" > json
-                                </label>
-                                <add-cart-button url="{{request.get_full_path}}/{{trait_name}}" class="pull-right"
-                                     options="['velocity_map', 'spec_cube_blue']"></add-cart-button>
-
-                                <h6 class="text-uppercase">
-                                    <a role="button" data-toggle="collapse" style="color:#888"
-                                       data-parent="#accordion_{{trait_type}}"
-                                       href="#collapse_{{trait_name}}"
-                                       aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties
-                                    </a>
-                                </h6>
-                                <div id="collapse_{{trait_name}}" class="panel-collapse collapse "
-                                     role="tabpanel"
-                                     aria-labelledby="heading_{{trait_name}}">
-                                    {% for trait_property_name, trait_property_value in value.items %}
-                                    <a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links">
-                                        <p>{{ trait_property_name }}</p></a>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
-                        {% endfor %}
-
-
-
-                    </div>
-                </div>
-            </div>
-
-         {% if forloop.counter|divisibleby:4 %}</div><div class="row">{% endif %}
-         {% if forloop.last %}</div>{% endif %}
+        {% if forloop.counter|divisibleby:4 %}</div><div class="row">{% endif %}
+        {% if forloop.last %}</div>{% endif %}
     {% endfor %}
 
 

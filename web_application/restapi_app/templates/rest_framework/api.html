@@ -40,7 +40,7 @@
         {% endblock %}
     </div>
   <div class="wrapper">
-    <div class="container" id="page-content">
+    <div class="container-fluid" id="page-content">
       {% block content_and_status %}
         {% with "200" as http_status_code %}
 
@@ -293,10 +293,21 @@
   <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
   <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
   <script src="{% static 'rest_framework/js/default.js' %}"></script>
+  <script src="{% static 'js/buttons/buttons.js' %}"></script>
+
   <script>
       $(document).ready(function() {
           $('form').ajaxForm();
       });
+
+    $(".dropdown-menu li a").click(function(){
+      $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+      $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
+    });
+    $(".button-dropdown-list li a").click(function(){
+      $(this).parents("span.button-dropdown").find('.button').html($(this).text() + ' <span class="caret"></span>');
+      $(this).parents("span.button-dropdown").find('.button').val($(this).data('value'));
+    });
   </script>
   {% block footer-extra %}{% endblock %}
 

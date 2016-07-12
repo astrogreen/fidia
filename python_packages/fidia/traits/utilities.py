@@ -1,7 +1,7 @@
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
-log.setLevel(slogging.INFO)
+log.setLevel(slogging.WARNING)
 
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
