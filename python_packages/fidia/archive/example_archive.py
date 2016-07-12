@@ -14,7 +14,7 @@ class ExampleSpectralMap(SpectralMap):
 
     trait_type = "spectral_map"
 
-    available_branches = {None, 'other'}
+    branches_versions = {None: [None], "other": [None]}
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -43,7 +43,7 @@ class ExampleSpectralMapExtra(SpectralMap):
 
     trait_type = "spectral_map"
 
-    available_branches = {'extra'}
+    branches_versions = {'extra': [None]}
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -114,6 +114,84 @@ class LineMap(Image):
     @trait_property('float.array')
     def variance(self):
         return np.random.random((20, 20))
+
+class RedImage(Image):
+
+    trait_type = 'image'
+
+    qualifiers = {'red'}
+
+
+    @trait_property('float.array')
+    def value(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def variance(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def extra_property_red(self):
+        return 'red'
+
+
+class BlueImage(Image):
+    trait_type = 'image'
+
+    qualifiers = {'blue'}
+
+    @trait_property('float.array')
+    def value(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def variance(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def extra_property_blue(self):
+        return 'blue'
+
+    sub_traits = TraitRegistry()
+
+    @sub_traits.register
+    class ImageSubTrait(Image):
+        trait_type = 'image'
+
+        qualifiers = {'blue'}
+
+
+        @trait_property('float.array')
+        def value(self):
+            return np.random.random((20, 20))
+
+
+        @trait_property('float.array')
+        def variance(self):
+            return np.random.random((20, 20))
+
+
+        @trait_property('float.array')
+        def extra_property_blue(self):
+            return 'blue'
+
+    @sub_traits.register
+    class RedImage(Image):
+        trait_type = 'image'
+
+        qualifiers = {'red'}
+
+        @trait_property('float.array')
+        def value(self):
+            return np.random.random((20, 20))
+
+        @trait_property('float.array')
+        def variance(self):
+            return np.random.random((20, 20))
+
+        @trait_property('float.array')
+        def extra_property_red(self):
+            return 'red'
 
 class Redshift(Measurement):
 
@@ -219,5 +297,7 @@ class ExampleArchive(Archive):
         # NOTE: Tests rely on this, so changing it will require updating the tests!
         self.available_traits.register(SimpleTrait)
         self.available_traits.register(SimpleTraitWithSubtraits)
+        self.available_traits.register(BlueImage)
+        self.available_traits.register(RedImage)
 
 

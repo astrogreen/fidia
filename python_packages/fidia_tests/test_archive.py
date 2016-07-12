@@ -153,3 +153,20 @@ class TestArchive:
         assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait', 'value')), TraitProperty)
         assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait', 'sub_trait')), Trait)
         assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait', 'sub_trait', 'extra')), TraitProperty)
+
+    def test_schema_for_traits_with_qualifiers_differs(self, example_archive):
+        schema = example_archive.schema()
+
+        assert 'extra_property_blue' in schema['image-blue']
+        assert 'extra_property_blue' not in schema['image-red']
+        assert 'extra_property_red' in schema['image-red']
+        assert 'extra_property_red' not in schema['image-blue']
+
+    def test_schema_for_subtraits_with_qualifiers_differs(self, example_archive):
+        schema = example_archive.schema()
+
+        sub_schema = schema['image-blue']
+        assert 'extra_property_blue' in sub_schema['image-blue']
+        assert 'extra_property_blue' not in sub_schema['image-red']
+        assert 'extra_property_red' in sub_schema['image-red']
+        assert 'extra_property_red' not in sub_schema['image-blue']

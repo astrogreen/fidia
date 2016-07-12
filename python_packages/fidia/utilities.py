@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+from collections import Iterable, Sized
 
 def none_at_indices(tup, indices):
     result = tuple()
@@ -46,3 +46,7 @@ class SchemaDictionary(dict):
             else:
                 # Something's wrong, probably a type mis-match.
                 raise Exception("The SchemaDictionary %s can not be updated with %s" % (self, other_dict[key]))
+
+def is_list_or_set(obj):
+    """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
+    return isinstance(obj, Iterable) and isinstance(obj, Sized)

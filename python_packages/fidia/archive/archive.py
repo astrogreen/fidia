@@ -138,8 +138,9 @@ class Archive(BaseArchive):
             result[trait_name] = SchemaDictionary()
             for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
                 log.debug("        Attempting to add Trait class '%s'", trait)
+                trait_schema = trait.schema()
                 try:
-                    result[trait_name].update(trait.schema())
+                    result[trait_name].update(trait_schema)
                 except ValueError:
                     log.error("Schema mis-match in traits: trait '%s' cannot be added " +
                               "to schema for '%s' containing: '%s'",

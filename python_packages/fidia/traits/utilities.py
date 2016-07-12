@@ -13,6 +13,7 @@ import re
 from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
+from ..utilities import is_list_or_set
 
 from ..descriptions import Description, Documentation, PrettyName
 
@@ -36,6 +37,19 @@ TRAIT_KEY_RE = re.compile(
             TRAIT_PART_RE=TRAIT_PART_RE.pattern),
     re.VERBOSE
 )
+
+def validate_trait_name(trait_name):
+    if TRAIT_NAME_RE.fullmatch(trait_name) is None:
+        raise ValueError("'%s' is not a valid trait_name" % trait_name)
+
+def validate_trait_type(trait_type):
+    if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
+        raise ValueError("'%s' is not a valid trait_type" % trait_type)
+
+def validate_traitkey_part(traitkey_part):
+    if TRAIT_PART_RE.fullmatch(traitkey_part) is None:
+        raise ValueError("'%s' is not a valid trait_key part" % traitkey_part)
+
 
 class TraitKey(tuple):
     """TraitKey(trait_type, trait_name, version, object_id)"""
