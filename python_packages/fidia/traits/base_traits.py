@@ -52,7 +52,7 @@ def validate_trait_branches_versions_dict(branches_versions):
         # Check that all versions meet the branch formatting requirements
         for version in branches_versions[branch]:
             if version is not None:
-                assert validate_traitkey_part(version)
+                validate_traitkey_part(version)
 
 class Trait(AbstractBaseTrait):
 
