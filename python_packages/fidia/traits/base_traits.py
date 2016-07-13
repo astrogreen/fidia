@@ -214,6 +214,10 @@ class Trait(AbstractBaseTrait):
         self._trait_dict = dict()
         if self._loading == 'eager':
             self._realise()
+        self._post_init()
+
+    def _post_init(self):
+        pass
 
     def _set_branch_and_version(self, trait_key):
         """Trait Branch and Version handling:
@@ -765,7 +769,11 @@ class Epoch(Measurement):
 class TimeSeries(Epoch, AbstractBaseArrayTrait): pass
 
 
-class Image(Map): pass
+class Image(Map):
+
+    @property
+    def shape(self):
+        return self.value.value.shape
 
 
 class SpectralMap(Trait, AbstractBaseArrayTrait):
