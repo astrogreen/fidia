@@ -70,7 +70,28 @@ table.table-summary > tbody > tr:nth-child(1) > td {text-align:center;}
 table.table-summary > tbody > tr:nth-child(2) > td:nth-child(1){vertical-align: middle;}
 table.table-summary > tbody > tr > td >strong {text-transform: uppercase;}
 
+table.table-overview{table-layout: fixed}
 
+table.table-overview tr {
+    > td {
+        padding:15px 0px 0px 0px;
+        text-align:center;
+        vertical-align:middle;
+        border-top:0;
+        border-right:1px #eee solid;
+        img{
+            display:inline-block;
+            max-height:40px;
+        }
+    }
+    > td:last-child {border-right:0}
+}
+
+table.table-overview tr:nth-child(2) td {
+    color:#aaa;
+    padding-top:0;
+    padding-bottom:15px;
+}
 
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -104,7 +125,7 @@ table.table-summary > tbody > tr > td >strong {text-transform: uppercase;}
     /* Small Devices, Tablets */
     @media only screen and (max-width : 768px) {
         .media-query-box{border:solid 1px blue;}
-        .sami_logo{max-width:80%}
+        .table.table-overview{table-layout: auto;}
     }
 
     /* Extra Small Devices, Phones */

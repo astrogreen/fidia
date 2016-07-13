@@ -14,21 +14,16 @@
 {% block content-delete %}{% endblock %}
 {% block content-filter-form %}{% endblock %}
 
-{% block content-page-header %}
-<h1>{{ objname }}</h1>
-{% endblock %}
+{% block page_title %}{% captureas survey_name %}{{objname | upper}}{% endcaptureas %}{{survey_name}}{% endblock %}
+{% block useful_links %}
+{% captureas survey %}{{objname | upper}}{% endcaptureas %}
+<li role="presentation" ><a href="http://sami-survey.org/">sami-survey.org</a></li>
+<li role="presentation" ><a href="http://sami-survey.org/"><img class="img-responsive"
+                                                     src="/static/restapi_app/img/logo/logo-{{survey}}.png"></a></li>
+{% endblock useful_links %}
 
 {% block content_render %}
 
-{% for key, value in response.data.items %}
-{% endfor %}
-
-{% captureas survey_name %}{{objname | upper}}{% endcaptureas %}
-<h1 class="headline">
-    <span>{{survey_name}}</span>
-    {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
-    {% surveylogoimglink survey %}
-</h1>
 <div class="row">
     <div class="col-sm-3">
         <h2 class="headline"><span>Data</span></h2>

@@ -22,27 +22,47 @@
     </div>
 </div>
 
+{% block page_title %}Team{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="#">useful link</a></li>
+<li role="presentation" ><a href="#">useful link</a></li>
+{% endblock useful_links %}
+
 {% block content_render %}
-<h1 class="headline">
-    <span>Team</span>
-</h1>
-<div class="container">
+<div class="row">
+
+</div>
+
     <div class="row">
-        <p>All-Sky Virtual Observatory (ASVO) Anglo-Australian Telescope (AAT) Node is developing an archive
+        <div class="col-sm-6">
+            <h2 class="headline">
+                <span>About</span>
+            </h2>
+            <p>All-Sky Virtual Observatory (ASVO) Anglo-Australian Telescope (AAT) Node is developing an archive
             infrastructure and interface that is extensible and scalable, designed to meet the current and future needs
             of the Australian astronomical community. This will be demonstrated by the deployment of two exemplar
             datasets (SAMI and GAMA survey data) that span the range of capabilities to be provided. The extensibility
             requirement ensures that, at the conclusion of the Project, the AAO is capable of ingestion and deployment
             of all AAT surveys of major national significance through the AAT Node. The node includes the requirement to
-            be interoperable with the other ASVO nodes and compliant with IVOA protocols.</p><br>
-        <p>
-
+            be interoperable with the other ASVO nodes and compliant with IVOA protocols.</p>
+        </div>
+        <div class="col-sm-6">
+             <h2 class="headline">
+                <span>Funding</span>
+            </h2>
+            <p>
             The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth Department of
             Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has coordinated with the
             Australian Astronomical Observatory (AAO), as the owners and operators of the AAT, to develop this ASVO
-            Node. This is a 2 year project with completion expected by June 2017. </p><br>
+            Node. This is a 2 year project with completion expected by June 2017. </p>
+        </div>
     </div>
     <div class="row">
+        <div class="col-xs-12">
+            <h2 class="headline">
+                <span>People</span>
+            </h2>
+        </div>
         <div class="col-sm-4 text-center">
             <img src="{% static 'restapi_app/img/about/team/ahopkins.jpg' %}"
                  class="img-responsive img-circle center-block team-image greyscale"
@@ -171,8 +191,6 @@
             <!--<h3>Contact Us</h3>-->
         </div>
     </div>
-
-</div>
 {% endblock %}
 {% block footer-extra %}
 

@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <footer class="footer" id="footer" >
-    <div class="container-fluid">
+    <div class="container">
         <div class="row">
             <div class="col-sm-3 col-xs-12 footer-block">
                 <h3>EXPLORE</h3>
@@ -37,10 +37,11 @@
             </div>
             <div class="col-sm-3 col-xs-12 footer-block">
                 <h3>Subscribe</h3>
+                <h4><small>Sign up to our newsletter</small></h4>
                 <form>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Email address</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+                    <label class="sr-only" for="exampleInputEmail1"></label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email address">
                   </div>
                   <button type="submit" class="btn btn-default form-control">SUBSCRIBE</button>
                 </form>

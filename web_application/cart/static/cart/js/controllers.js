@@ -6,13 +6,13 @@ console.log('controllers.js');
     var app = angular.module('DCApp');
     
     // Create 'fixtures'
-    var dummy_data_url = "/static/cart/js/dummy-data.json";
-    app.controller('DummyData', function($scope, $http){
-       $http.get(dummy_data_url).then(function(response){
-           $scope.data = response.data;
-           console.log('success - dummy data in $scope.data')
-       })
-    });
+    // var dummy_data_url = "/static/cart/js/dummy-data.json";
+    // app.controller('DummyData', function($scope, $http){
+    //    $http.get(dummy_data_url).then(function(response){
+    //        $scope.data = response.data;
+    //        console.log('success - dummy data in $scope.data')
+    //    })
+    // });
 
     // Inject in the CartService
     app.controller('CartController', function($scope, CartService){
@@ -64,6 +64,11 @@ console.log('controllers.js');
     app.filter('isEmpty', [function(){
         return function(object){
             return angular.equals({}, object);
+        }
+    }])
+    app.filter('isNotEmpty', [function(){
+        return function(object){
+            return ! angular.equals({}, object);
         }
     }])
 })(window.angular);
