@@ -9,18 +9,10 @@
 {% endblock %}
 
 
-<div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
-    <div class="container">
-        {% block breadcrumbs-outer %}
-        {% block breadcrumbs %}
-        <ul class="breadcrumb ">
-            <li><a href="{% url 'index' %}">Home</a></li>
-            <li class="active"><a href="{% url 'under-construction' %}">Team</a></li>
-        </ul>
-        {% endblock %}
-        {% endblock %}
-    </div>
-</div>
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active"><a href="{% url 'under-construction' %}">Team</a></li>
+{% endblock %}
 
 {% block page_title %}Team{% endblock %}
 {% block useful_links %}
@@ -29,9 +21,6 @@
 {% endblock useful_links %}
 
 {% block content_render %}
-<div class="row">
-
-</div>
 
     <div class="row">
         <div class="col-sm-6">

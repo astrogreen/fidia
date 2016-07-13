@@ -21,7 +21,7 @@
 
 {% block content_render %}
 {% verbatim %}
-<div class="container">
+
     <div class="row" ng-controller="CartController as ctrl3">
         <div class="col-sm-8">
             <div class="panel panel-default panel-cart">
@@ -60,12 +60,12 @@
                     </span>
                 </ul>
                 <div class="panel-body"  ng-if="ctrl3.items | isNotEmpty">
-                    <button class="button button-caution button-square button-border text-uppercase"
-                            title="Delete all items in the cart" id="checkout-empty" ng-click="ctrl3.emptyCart()"><i class="fa fa-trash-o"></i>
+                    <button class="button button-caution button-small text-uppercase"
+                            title="Delete all items in the cart" id="checkout-empty" ng-click="ctrl3.emptyCart()"><i class="fa fa-trash-o"></i> Empty
                     </button>
 
-                    <button class="btn btn-primary btn-sm js-tooltip pull-right" title="Download data in the cart"
-                            id="checkout-download">DOWNLOAD
+                    <button class="button button-primary button-small text-uppercase pull-right" title="Download data in the cart"
+                            id="checkout-download"><i class="fa fa-download"></i> Download
                     </button>
                 </div>
             </div>
@@ -91,7 +91,7 @@
         </div>
     </div>
 
-</div>
+
 {% endverbatim %}
 <script>
     $("#checkout-empty").mouseup(function() {

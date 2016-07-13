@@ -98,7 +98,7 @@ h6,
   line-height: 1.2;
 }
 p {
-  color: #515151;
+  color: #404040;
 }
 strong {
   color: inherit;
@@ -170,26 +170,43 @@ select {
   padding: 15px;
   word-wrap: break-word;
 }
+.https-status-message h1,
+.https-status-message h2,
+.https-status-message h3,
+.https-status-message h4,
+.https-status-message h5,
+.https-status-message h6 {
+  border: 0;
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ HEADER
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+header .navbar,
 header .navbar-default {
-  background: #fff;
   border-radius: 0;
   margin-bottom: 0;
+}
+header .navbar-default {
+  background: #fff;
+}
+header .navbar-default .navbar-nav > li > a {
+  color: #404040;
 }
 header ul.navbar-nav > li,
 header .navbar-header,
 header .navbar-brand {
   min-height: 60px;
-  text-transform: uppercase;
 }
 header ul.navbar-nav > li > a,
 header .navbar-header > a,
 header .navbar-brand > a {
   padding: 20px;
+}
+header ul.navbar-nav > li > a {
+  text-transform: uppercase;
+  color: #404040;
 }
 header a.navbar-brand {
   padding: 10px !important;
@@ -225,7 +242,7 @@ header user a {
 }
 header li.user > a,
 header user a > a {
-  text-align: right;
+  text-align: center;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -240,7 +257,6 @@ header user a > a {
   color: #333;
   border-bottom: 1px solid rgba(0, 0, 0, 0.075);
   min-height: 36px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   margin-top: 0px;
 }
 .breadcrumb {
@@ -279,15 +295,14 @@ header user a > a {
 .page_title_banner {
   margin-bottom: 15px;
 }
-.page_title_banner .container {
-  padding: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.075);
-}
 .page_title_banner h1 {
   font-size: 30px;
   line-height: 30px;
-  margin: 30px 15px;
+  margin: 30px 0px;
   border-bottom: 0;
+}
+.page_title_banner hr {
+  margin-top: 0 !important;
 }
 .useful_links {
   padding: 15px;
@@ -300,6 +315,13 @@ header user a > a {
 .useful_links .nav > li > a img {
   max-height: 40px;
   padding: 5px;
+  padding-right: 0;
+  margin-right: -5px;
+}
+.useful_links .nav > li > a:hover,
+.useful_links .nav > li > a:focus {
+  text-decoration: none;
+  background-color: transparent;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -325,11 +347,8 @@ header user a > a {
 ++ FOOTER
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-.wrapper {
-  padding: 15px;
-  position: relative;
-}
 .footer {
+  margin-top: 30px;
   background-color: #292F31;
   padding: 45px 15px 15px 15px;
   bottom: 0;

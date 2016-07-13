@@ -9,16 +9,12 @@
 {% endblock %}
 {% block bodyclass %}aat_dome{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
-{% block breadcrumbs-outer %}
-<ul class="breadcrumb ">
+{% block breadcrumbs %}
     <li class="active"><a href="{% url 'index' %}">Home</a></li>
     <li><a href="{% url 'rest_framework:login' %}">Sign In</a></li>
-</ul>
 {% endblock %}
 
-{% block content-filter-form %}{% endblock %}
-{% block content-header %}{% endblock %}
-
+{% block page_title_banner %}{% endblock %}
 {% block content_render %}
 <br>
 <div class="row">
@@ -30,11 +26,11 @@
             </div>
             <div class="panel-body">
                 {% if user.is_authenticated %}
-                    <h5 class="text-success text-uppercase"><strong>Success </strong></h5>
-                    <h5>Signed in as <a href="{% url 'user-profile-detail' user %}">{{user}}</a>
+                    <p class="text-success text-uppercase"><strong>Success </strong></p>
+                    <p>Signed in as <a href="{% url 'user-profile-detail' user %}">{{user}}</a>
                         <a href="{% url 'rest_framework:logout' %}" class="pull-right text-uppercase"> Sign Out
                     <i class="fa fa-sign-out" style="margin-top:3px"></i></a>
-                    </h5>
+                    </p>
 
                 {% else %}
                     <form action="{% url 'rest_framework:login' %}" role="form" method="post">
@@ -83,12 +79,12 @@
                                    id="submit-id-submit">
                         </div>
                         <br>
-                        <h5>Forgotten your Password?
+                        <p>Forgotten your Password?
                             <a href="{% url 'password_reset' %}" >
                                     <span>RESET</span>
                                 <i class="fa fa-refresh"></i>
                             </a>
-                        </h5>
+                        </p>
                     </form>
                 {% endif %}
             </div>

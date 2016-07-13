@@ -10,11 +10,9 @@
 {% endblock %}
 {% block bodyclass %}aat_outer{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
-{% block breadcrumbs-outer %}
-<ul class="breadcrumb ">
+{% block breadcrumbs %}
     <li class="active"><a href="{% url 'index' %}">Home</a></li>
     <li><a href="{% url 'user-profile-detail' user %}">Profile</a></li>
-</ul>
 {% endblock %}
 
 {% block page_title_banner %}{% endblock page_title_banner %}

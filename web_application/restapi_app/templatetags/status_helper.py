@@ -85,7 +85,7 @@ def status_info(request, status_code, user, status_code_detail):
         if status_code == 204:
             # 204 NO CONTENT
             snippet = """
-                <div class="col-md-12" style="margin-top: 30px">
+                <div class="col-md-12">
                     <div class="row-fluid text-center https-status-message">
                         <h1>There's nothing to see here.</h1>
                         <h2>{status_code_detail}</h2>

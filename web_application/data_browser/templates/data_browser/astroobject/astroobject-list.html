@@ -20,35 +20,24 @@
 {% block content-page-header %}{% endblock %}
 
 
-{% block page_title %}Data Browser{% endblock %}
+{% block page_title %}{{objname}}{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="#">useful link</a></li>
-<li role="presentation" ><a href="#">useful link</a></li>
+<li role="presentation" ><a href="{% url 'sov-list' %}">View in SOV</a></li>
+<li role="presentation" ><a href="{% url 'sami-list' %}">Back to Sami</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
-<!--<div class="col-sm-12"><div class="media-query-box"></div></div>-->
-<div class="row">
-    <div class="col-sm-12">
-        <p>{% lorem %}</p>
-        <h2>
-           {{ objname }}
-            {% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
-        </h2>
-    </div>
-</div>
+{% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12">
-
         <!-- Nav tabs -->
-        <ul class="nav nav-tabs" role="tablist" id="ao_tabs" style="margin-bottom:20px;">
+        <ul class="nav nav-tabs" role="tablist" id="ao_tabs">
             <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a>
             </li>
             <li role="presentation"><a href="#available_data" aria-controls="available_data" role="tab" data-toggle="tab">Available Data</a>
             </li>
             <li role="presentation"><a href="#additional_info" aria-controls="additional_info" role="tab" data-toggle="tab">Additional Info</a>
             </li>
-
         </ul>
 
         <!-- Tab panes -->
@@ -154,22 +143,162 @@
 
             </div>
             <div role="tabpanel" class="tab-pane" id="available_data">
-                <!--<div class="row">-->
-                    <!--<div class="col-sm-12">-->
-                        <!--<h2 class="headline"><span>Available Data</span></h2>-->
-                    <!--</div>-->
-                <!--</div>-->
+
+                <ul class="nav nav-tabs" role="tablist" id="trait_tabs" >
+                    {% for trait_type in response.data.trait_list %}
+                        <li role="presentation"
+                        {% if forloop.first %}class="active"{% endif %}
+                        ><a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_type | CapsSentence}}s</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="tab-content">
+                    {% for trait_type in response.data.trait_list %}
+                        <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">
+                            <div class="row">
+                                <div class="col-xs-12">
+
+                                    <div class="panel panel-default">
+
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <p>some description about this trait-type {% lorem %}</p>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <colgroup>
+                                                    <col style="width:10%">
+                                                    <col style="width:70%">
+                                                    <col style="width:20%">
+                                                  </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Trait Type</th>
+                                                        <th>Description</th>
+                                                        <th>Download</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for trait_name, value in response.data.schema.items %}
+                                                        {% if trait_type in trait_name %}
+                                                            <tr>
+                                                                <td>
+                                                                    <a class="" href="{{trait_name}}">{{trait_name | CapsSentence | QualifierOnly}}</a>
+                                                                </td>
+                                                                <td>
+                                                                    <p>Hα emission (blue to red via yellow) or stellar absorption fit (yellow to
+                                                                    violet via blue). The grey dot in the bottom left represents the extent of
+                                                                    the seeing disk. In rare cases there isn't enough signal to plot unbinned
+                                                                    maps.
+                                                                        <a role="button" data-toggle="collapse" class="text-uppercase sublink"
+                                                                       data-parent="#accordion_{{trait_type}}"
+                                                                       href="#collapse_{{trait_name}}"
+                                                                       aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties
+                                                                        </a>
+                                                                        <span id="collapse_{{trait_name}}" class="panel-collapse collapse "
+                                                                             role="tabpanel"  aria-labelledby="heading_{{trait_name}}">
+                                                                            {% for trait_property_name, trait_property_value in value.items %}
+                                                                                <a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links">
+                                                                                    {{ trait_property_name }}
+                                                                                </a>
+                                                                            {% endfor %}
+                                                                        </span>
+                                                                    </p>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="button-dropdown" data-buttons="dropdown">
+                                                                        <button class="button button-small text-uppercase">
+                                                                          Format <i class="fa fa-caret-down"></i>
+                                                                        </button><!--
+                                                                         --><ul class="button-dropdown-list button-dropdown-list-small">
+                                                                          <li><a>Fits</a></li>
+                                                                          <li><a>Json</a></li>
+                                                                        </ul>
+                                                                     </span><!--
+                                                                    --><add-cart-button url="{{request.get_full_path}}/{{trait_name}}"
+                                                                         options="['velocity_map', 'spec_cube_blue']"></add-cart-button>
+                                                                </td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+
+                                    <!--<div class="list-group list-group-collapse">-->
+                                        <!--{% for trait_name, value in response.data.schema.items %}-->
+                                        <!--{% if trait_type in trait_name %}-->
+                                            <!--<div class="list-group-item ">-->
+                                                <!--<div class="pull-right">&lt;!&ndash;-->
+                                                 <!--&ndash;&gt;<span class="button-dropdown" data-buttons="dropdown">-->
+                                                        <!--<button class="button button-small text-uppercase">-->
+                                                          <!--Format <i class="fa fa-caret-down"></i>-->
+                                                        <!--</button>&lt;!&ndash;-->
+                                                         <!--&ndash;&gt;<ul class="button-dropdown-list button-dropdown-list-small">-->
+                                                          <!--<li><a>Fits</a></li>-->
+                                                          <!--<li><a>Json</a></li>-->
+                                                        <!--</ul>-->
+                                                     <!--</span>&lt;!&ndash;-->
+                                                    <!--&ndash;&gt;<add-cart-button url="{{request.get_full_path}}/{{trait_name}}"-->
+                                                         <!--options="['velocity_map', 'spec_cube_blue']"></add-cart-button>-->
+                                                <!--</div>-->
+
+                                                <!--<h3 class="list-group-item-heading">-->
+                                                    <!--<a class="" href="{{trait_name}}">{{trait_name | CapsSentence | QualifierOnly}}</a>-->
+                                                <!--</h3>-->
+
+                                                <!--<p class="list-group-item-text">Hα emission (blue to red via yellow) or stellar absorption fit (yellow to-->
+                                                    <!--violet via blue). The grey dot in the bottom left represents the extent of-->
+                                                    <!--the seeing disk. In rare cases there isn't enough signal to plot unbinned-->
+                                                    <!--maps. <a role="button" data-toggle="collapse" class="text-uppercase sublink"-->
+                                                       <!--data-parent="#accordion_{{trait_type}}"-->
+                                                       <!--href="#collapse_{{trait_name}}"-->
+                                                       <!--aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties-->
+                                                    <!--</a></p>-->
+
+
+                                                <!--<div id="collapse_{{trait_name}}" class="panel-collapse collapse "-->
+                                                     <!--role="tabpanel"-->
+                                                     <!--aria-labelledby="heading_{{trait_name}}">-->
+                                                    <!--{% for trait_property_name, trait_property_value in value.items %}-->
+                                                    <!--<a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links">-->
+                                                        <!--<p>{{ trait_property_name }}</p></a>-->
+                                                    <!--{% endfor %}-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+                                        <!--{% endif %}-->
+                                        <!--{% endfor %}-->
+
+                                    <!--</div>-->
+                                </div>
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                {% comment %}
+
                 {% for trait_type in response.data.trait_list %}
                      {% if forloop.first %}
                         <div class="row">
                     {% endif %}
 
-                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
 
                         <div class="panel panel-default">
                             <!-- Default panel contents -->
-                            <div class="panel-heading panel-background-grey">
-                                <h3 class="panel-title">{{trait_type | CapsSentence}}s</h3>
+                            <div class="panel-heading">
+                                {{trait_type | CapsSentence}}s
                             </div>
                             <div class="panel-body">
                                 <p>Some description about this trait type</p>
@@ -184,33 +313,31 @@
                                             <a class="" href="{{trait_name}}">{{trait_name | CapsSentence | QualifierOnly}}</a>
                                         </h4>
                                             <p>Hα emission (blue to red via yellow) or stellar absorption fit (yellow to violet via blue). The grey dot in the bottom left represents the extent of the seeing disk. In rare cases there isn't enough signal to plot unbinned maps.</p>
-                                            <h6><a href="{{trait_name}}" class="text-uppercase">view</a>
-                                            </h6>
 
                                         <h6>
+                                            <a href="{{trait_name}}" class="text-uppercase">view</a>
                                             <a role="button" data-toggle="collapse" class="text-uppercase"
                                                data-parent="#accordion_{{trait_type}}"
                                                href="#collapse_{{trait_name}}"
                                                aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties
                                             </a>
                                         </h6>
+
+
                                         <div id="collapse_{{trait_name}}" class="panel-collapse collapse "
                                              role="tabpanel"
                                              aria-labelledby="heading_{{trait_name}}">
-                                            <hr>
                                             {% for trait_property_name, trait_property_value in value.items %}
                                             <a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links">
                                                 <p>{{ trait_property_name }}</p></a>
                                             {% endfor %}
-                                            <hr>
                                         </div>
-
-                                        <h6 class="text-uppercase sub-heading">Add to Download</h6>
-                                        <hr style="margin-top:5px;">
 
                                         <div class="row">
                                             <div class="col-xs-12">
-                                                <add-cart-button url="{{request.get_full_path}}/{{trait_name}}" class="pull-right"
+                                                <h6 class="text-uppercase sub-heading">Add to Download</h6>
+                                                <br>
+                                                <add-cart-button url="{{request.get_full_path}}/{{trait_name}}"
                                                      options="['velocity_map', 'spec_cube_blue']"></add-cart-button>
                                                 <span class="button-dropdown pull-right" data-buttons="dropdown">
                                                     <button class="button button-small text-uppercase">
@@ -236,11 +363,27 @@
                     {% if forloop.last %}</div>{% endif %}
                 {% endfor %}
 
-
+                {% endcomment %}
 
             </div>
             <div role="tabpanel" class="tab-pane" id="additional_info">
 
+                <!--<ul class="nav nav-tabs" role="tablist" id="trait_tabs" >-->
+                    <!--<li role="presentation" class="active"><a href="#trait1" aria-controls="trait1" role="tab" data-toggle="tab">trait1</a>-->
+                    <!--</li>-->
+                    <!--<li role="presentation"><a href="#trait2" aria-controls="trait2" role="tab" data-toggle="tab">trait2</a>-->
+                    <!--</li>-->
+                <!--</ul>-->
+                <!--<div class="tab-content">-->
+                    <!--<div role="tabpanel" class="tab-pane active" id="trait1">-->
+                  <!--trait1 content-->
+
+                    <!--</div>-->
+                    <!--<div role="tabpanel" class="tab-pane" id="trait2">-->
+                  <!--trait2 content-->
+
+                    <!--</div>-->
+                <!--</div>-->
 
 
             </div>
@@ -250,8 +393,6 @@
     </div>
 
 </div>
-
-
 
 
     <!--<div class="row">-->

@@ -10,7 +10,7 @@ console.log('directives.js');
         elem.addClass('btn-added-to-cart')
             .html('<i class="fa fa-check"></i>')
             .removeClass('btn-primary')
-            .addClass('btn-default-disabled').attr('disabled', true);
+            .attr('disabled', true);
     }
 
     // CartDirective

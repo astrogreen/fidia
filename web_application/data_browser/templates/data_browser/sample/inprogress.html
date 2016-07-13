@@ -9,19 +9,19 @@
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 {% endblock %}
 
+{% block page_title %}{% captureas survey_name %}{{objname | upper}}{% endcaptureas %}{{survey_name}}{% endblock %}
+{% block useful_links %}
+{% captureas survey %}{{objname | upper}}{% endcaptureas %}
+<li role="presentation" ><a href="http://gama-survey.org/">gama-survey.org</a></li>
+<li role="presentation" ><a href="http://gama-survey.org/"><img class="img-responsive"
+                                                     src="/static/restapi_app/img/logo/logo-{{survey}}.png"></a></li>
+{% endblock useful_links %}
 
 {% block content_render %}
-<h1 class="headline">
-    <span>GAMA</span>
-    {% captureas survey %}{% get_pks request.path -2 %}{% endcaptureas %}
-    {% surveylogoimglink survey %}
-</h1>
-<div class="container">
-    <div class=" row">
+    <div class="row">
         <div class="col col-md-3 col-sm-3">
             <p class="lead">In Progress</p>
             <p>GAMA data re-ingestion is underway!</p>
         </div>
     </div>
-</div>
 {% endblock %}

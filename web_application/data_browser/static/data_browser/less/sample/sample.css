@@ -28,8 +28,8 @@
 .overflow {
   width: 20em;
   /**
-     * Required properties to achieve text-overflow
-     */
+   * Required properties to achieve text-overflow
+   */
   white-space: nowrap;
   overflow: hidden;
 }
@@ -72,7 +72,7 @@ table.table-overview tr > td {
 }
 table.table-overview tr > td img {
   display: inline-block;
-  max-height: 40px;
+  max-height: 30px;
 }
 table.table-overview tr > td:last-child {
   border-right: 0;
@@ -81,6 +81,39 @@ table.table-overview tr:nth-child(2) td {
   color: #aaa;
   padding-top: 0;
   padding-bottom: 15px;
+}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: 15px;
+}
+h4.list-group-item-text {
+  margin-bottom: 10px;
+}
+h6 > a:nth-child(1) {
+  margin-right: 15px;
+}
+.nav-tabs {
+  margin: 15px 0 20px 0;
+}
+.nav-tabs:first-of-type {
+  margin-top: 0px;
+}
+.list-group {
+  margin-top: 15px;
+}
+.list-group .list-group-item {
+  border-radius: 0;
+}
+.sublink {
+  color: #707070;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

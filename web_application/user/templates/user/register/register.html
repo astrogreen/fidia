@@ -10,12 +10,12 @@
 {% block title %}Register{% endblock %}
 {% block bodyclass %}aat_outer{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
-{% block breadcrumbs-outer %}
-<ul class="breadcrumb ">
-    <li class="active"><a href="{% url 'index' %}">Home</a></li>
-    <li><a href="{% url 'user-register' %}">Register</a></li>
-</ul>
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'index' %}">Home</a></li>
+<li><a href="{% url 'user-register' %}">Register</a></li>
 {% endblock %}
+
+{% block page_title_banner %}{% endblock %}
 
 {% block content_render %}
 
@@ -41,24 +41,24 @@
                                         </button>
                                     </div>
                                     <br>
-                                    <h5 style="margin-top:5px;">Already have an Account?
+                                    <p style="margin-top:5px;">Already have an Account?
                                         <a href="{% url 'rest_framework:login' %}" class="text-uppercase">
                                             <span>Sign In</span>
                                             <i class="fa fa-lock"></i>
                                         </a>
-                                    </h5>
+                                    </p>
                                 </fieldset>
                             </form>
                             {% endwith %}
                         </div>
                     {% else %}
-                        <h5 class="text-success text-uppercase"><strong>Success </strong></h5>
-                        <h5>New user registered.
+                        <strong class="text-success text-uppercase">Success </strong>
+                        <p>New user registered.
                             <a href="{% url 'rest_framework:login' %}" class="text-uppercase pull-right">
                                 <span>Sign In</span>
                                 <i class="fa fa-lock"></i>
                             </a>
-                        </h5>
+                        </p>
                     {% endif %}
                 </div>
             </div>
