@@ -293,6 +293,8 @@ header user a > a {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 .page_title_banner {
+  background: url("../../img/background/background2.png") top repeat-x;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.075);
   margin-bottom: 15px;
 }
 .page_title_banner h1 {
