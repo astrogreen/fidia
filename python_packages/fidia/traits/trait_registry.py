@@ -1,5 +1,6 @@
 from itertools import product
 from .utilities import TraitKey, validate_trait_name, validate_trait_type
+from ..utilities import SchemaDictionary, DefaultsRegistry
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -11,7 +12,7 @@ class TraitRegistry:
     def __init__(self):
         self._registry = set()
         self._trait_lookup = dict()
-        self._all_trait_names = set()
+        self._trait_name_defaults = dict()
 
     def register(self, trait):
         log.debug("Registering Trait '%s'", trait)
@@ -50,7 +51,11 @@ class TraitRegistry:
         # Generate all possible trait_names
         for qualifier in qualifiers:
             trait_name = TraitKey.as_trait_name(trait.trait_type, qualifier)
-            self._all_trait_names.add(trait_name)
+            if trait_name not in self._trait_name_defaults:
+                self._trait_name_defaults[trait_name] = DefaultsRegistry()
+            if hasattr(trait, 'defaults'):
+                self._trait_name_defaults[trait_name].update_defaults(trait.defaults)
+
 
         return trait
 
@@ -99,5 +104,5 @@ class TraitRegistry:
 
     def get_trait_names(self):
         """A list of the unique trait types in this TraitRegistry."""
-        return self._all_trait_names
+        return self._trait_name_defaults.keys()
 
