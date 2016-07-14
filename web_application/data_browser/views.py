@@ -157,6 +157,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
+        print('TRAIT:'+trait_pk)
         try:
             trait = sample[galaxy_pk][trait_pk]
         except fidia.exceptions.NotInSample:
@@ -227,6 +228,9 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+        print(dynamic_pk)
+        print(trait_pk)
+        print(galaxy_pk)
         # @property
         # def dynamic_property_first_of_type(self, dynamic_pk):
             # split on /
@@ -236,6 +240,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         path.insert(0, trait_pk)
         # return Response({"data": str(ar.type_for_trait_path(path))})
+        print(ar.type_for_trait_path(path))
         if issubclass(ar.type_for_trait_path(path), Trait):
             trait_pointer = sample[galaxy_pk]
             for elem in path:

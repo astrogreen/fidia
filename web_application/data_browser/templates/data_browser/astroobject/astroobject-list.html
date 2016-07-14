@@ -194,7 +194,7 @@
                                                                     violet via blue). The grey dot in the bottom left represents the extent of
                                                                     the seeing disk. In rare cases there isn't enough signal to plot unbinned
                                                                     maps.
-                                                                        <a role="button" data-toggle="collapse" class="text-uppercase sublink"
+                                                                        <a role="button" data-toggle="collapse" class="text-uppercase subheading"
                                                                        data-parent="#accordion_{{trait_type}}"
                                                                        href="#collapse_{{trait_name}}"
                                                                        aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties
@@ -229,53 +229,6 @@
                                             </table>
                                         </div>
                                     </div>
-
-
-                                    <!--<div class="list-group list-group-collapse">-->
-                                        <!--{% for trait_name, value in response.data.schema.items %}-->
-                                        <!--{% if trait_type in trait_name %}-->
-                                            <!--<div class="list-group-item ">-->
-                                                <!--<div class="pull-right">&lt;!&ndash;-->
-                                                 <!--&ndash;&gt;<span class="button-dropdown" data-buttons="dropdown">-->
-                                                        <!--<button class="button button-small text-uppercase">-->
-                                                          <!--Format <i class="fa fa-caret-down"></i>-->
-                                                        <!--</button>&lt;!&ndash;-->
-                                                         <!--&ndash;&gt;<ul class="button-dropdown-list button-dropdown-list-small">-->
-                                                          <!--<li><a>Fits</a></li>-->
-                                                          <!--<li><a>Json</a></li>-->
-                                                        <!--</ul>-->
-                                                     <!--</span>&lt;!&ndash;-->
-                                                    <!--&ndash;&gt;<add-cart-button url="{{request.get_full_path}}/{{trait_name}}"-->
-                                                         <!--options="['velocity_map', 'spec_cube_blue']"></add-cart-button>-->
-                                                <!--</div>-->
-
-                                                <!--<h3 class="list-group-item-heading">-->
-                                                    <!--<a class="" href="{{trait_name}}">{{trait_name | CapsSentence | QualifierOnly}}</a>-->
-                                                <!--</h3>-->
-
-                                                <!--<p class="list-group-item-text">Hα emission (blue to red via yellow) or stellar absorption fit (yellow to-->
-                                                    <!--violet via blue). The grey dot in the bottom left represents the extent of-->
-                                                    <!--the seeing disk. In rare cases there isn't enough signal to plot unbinned-->
-                                                    <!--maps. <a role="button" data-toggle="collapse" class="text-uppercase sublink"-->
-                                                       <!--data-parent="#accordion_{{trait_type}}"-->
-                                                       <!--href="#collapse_{{trait_name}}"-->
-                                                       <!--aria-expanded="false" aria-controls="collapse_{{trait_name}}">properties-->
-                                                    <!--</a></p>-->
-
-
-                                                <!--<div id="collapse_{{trait_name}}" class="panel-collapse collapse "-->
-                                                     <!--role="tabpanel"-->
-                                                     <!--aria-labelledby="heading_{{trait_name}}">-->
-                                                    <!--{% for trait_property_name, trait_property_value in value.items %}-->
-                                                    <!--<a href="{{ trait_name }}/{{ trait_property_name }}" class="inline-links">-->
-                                                        <!--<p>{{ trait_property_name }}</p></a>-->
-                                                    <!--{% endfor %}-->
-                                                <!--</div>-->
-                                            <!--</div>-->
-                                        <!--{% endif %}-->
-                                        <!--{% endfor %}-->
-
-                                    <!--</div>-->
                                 </div>
                             </div>
 

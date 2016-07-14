@@ -108,12 +108,24 @@ h6 > a:nth-child(1) {
 .list-group .list-group-item {
   border-radius: 0;
 }
-.sublink {
+.subheading {
   color: #707070;
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
+}
+.trait_tabs .list-group {
+  margin-top: 0;
+}
+.trait_tabs .nav-tabs {
+  margin-bottom: 0;
+}
+.trait_tabs .panel-default {
+  border-top: 0px;
+}
+.trait_tabs .subheading {
+  margin-top: 10px;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
