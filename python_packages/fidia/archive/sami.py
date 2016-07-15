@@ -17,7 +17,7 @@ from cached_property import cached_property
 from fidia import *
 from .archive import Archive
 
-from ..utilities import WildcardDictionary
+from ..utilities import WildcardDictionary, DefaultsRegistry
 
 #from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 from fidia.traits import *
@@ -82,7 +82,7 @@ class TraitFromFitsFile(Trait):
         if not os.path.exists(self._fits_file_path) and \
                 os.path.exists(self._fits_file_path + ".gz"):
             self._fits_file_path = self._fits_file_path + ".gz"
-        else:
+        elif not os.path.exists(self._fits_file_path):
             raise DataNotAvailable(self._fits_file_path + " does not exist.")
 
         super()._post_init()
@@ -601,8 +601,9 @@ class LZIFUVelocityMap(VelocityMap):
 
     trait_type = "velocity_map"
 
-    default_version = "0.9b"
-    available_versions = {"0.9b"}
+    branches_versions = {'lzifu': {'0.9b'}}
+
+    defaults = DefaultsRegistry(default_branch='lzifu', version_defaults={'lzifu': '0.9b'})
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -833,6 +834,17 @@ class BalmerExtinctionMap(Image, TraitFromFitsFile):
 
     trait_type = 'extinction_map'
 
+    branches_versions = {
+        "1_comp": {'v01'},
+        "recom_comp": {'v01'}
+    }
+
+    defaults = DefaultsRegistry(
+        default_branch='recom_comp',
+        version_defaults={"1_comp": 'v01',
+                          "recom_comp": 'v01'}
+    )
+
     def fits_file_path(self):
         return (self.archive._base_directory_path +
                 "SFRextmaps/" +
@@ -846,9 +858,15 @@ class SFRMap(Image, TraitFromFitsFile):
     trait_type = 'sfr_map'
 
     branches_versions = {
-        "1_comp": {None},
-        "recom_comp": {None}
+        "1_comp": {'v01'},
+        "recom_comp": {'v01'}
     }
+
+    defaults = DefaultsRegistry(
+        default_branch='recom_comp',
+        version_defaults={"1_comp": 'v01',
+                          "recom_comp": 'v01'}
+    )
 
     def fits_file_path(self):
         return (self.archive._base_directory_path +
