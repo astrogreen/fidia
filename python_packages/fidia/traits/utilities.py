@@ -306,22 +306,40 @@ class BoundTraitProperty:
 
         log.debug("Loading data for get for TraitProperty '%s'", self.name)
 
+
+        # try...except block to handle attempting to preload the trait. If the
+        # preload fails, then we assume that the cleanup does not need to be called.
         try:
 
             # Preload the Trait if necessary.
             self._trait._load_incr()
+        except DataNotAvailable:
+            raise
+        except Exception as e:
+            log.exception("An exception occurred trying to preload Trait %s",
+                          self._trait.trait_key
+                          )
+            raise DataNotAvailable("An unexpected error occurred trying to retrieve the requested data.")
 
+        # Now, the Trait has been successfully preloaded. Here is another
+        # try...except block, which will make sure the Trait is cleaned up
+        # even if the TraitProperty can't be retrieved.
+
+        try:
             # Call the actual user defined loader function to get the value of the TraitProperty.
             value = self._trait_property.fload(self._trait)
         except DataNotAvailable:
             raise
         except Exception as e:
-            log.exception("An exception occurred trying to retrieve the TraitProperty %s of Trait %s",
+            log.exception("An unexpected exception occurred trying to retrieve the TraitProperty %s of Trait %s",
                           self._trait_property.name,
                           self._trait.trait_key
                           )
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
+            # Finally because we have definitely successfully run the
+            # preload command, we must run the cleanup even if there was an error.
+
             # Cleanup the Trait if necessary.
             self._trait._load_decr()
 
