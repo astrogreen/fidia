@@ -57,6 +57,8 @@ class SchemaDictionary(dict):
                 # Something's wrong, probably a type mis-match.
                 raise Exception("The SchemaDictionary %s can not be updated with %s" % (self, other_dict[key]))
 
+class Inherit: pass
+
 class DefaultsRegistry:
 
     def __init__(self, default_branch=None, version_defaults={}):
@@ -65,25 +67,48 @@ class DefaultsRegistry:
 
     @property
     def branch(self):
-        return self._default_branch
+        """
+        Return the default branch.
+
+        If the default has not been set, then return `Inherit`
+
+        """
+        if self._default_branch is None:
+            return Inherit
+        else:
+            return self._default_branch
 
     def version(self, branch):
-        return self._version_defaults[branch]
+        """Return the default version for the given branch.
 
-    def set_default_branch(self, branch):
-        self._default_branch = branch
+        If the dictionary has not been initialised, then return `Inherit`.
+
+        """
+        if self._version_defaults == {}:
+            return Inherit
+        else:
+            return self._version_defaults[branch]
+
+    def set_default_branch(self, branch, override=False):
+        # type: (str, bool) -> None
+        if branch is None:
+            return
+        if override or self._default_branch is None:
+            self._default_branch = branch
+        else:
+            raise ValueError("Attempt to change the default branch.")
 
     def set_default_version(self, branch, version, override=False):
+        # type: (str, str, bool) -> None
         if branch not in self._version_defaults or override:
             self._version_defaults[branch] = version
         elif self._version_defaults[branch] != version and not override:
             raise ValueError("Attempt to change the default version for branch '%s' from '%s'"
                              % (branch, self._version_defaults[branch]))
 
-    def update_defaults(self, other_defaults):
-        # type: (DefaultsRegistry, DefaultsRegistry) -> None
-        if self._default_branch != other_defaults._default_branch:
-            raise ValueError("Attempt to redefine default branch.")
+    def update_defaults(self, other_defaults, override=False):
+        # type: (DefaultsRegistry, bool) -> None
+        self.set_default_branch(other_defaults.branch, override=override)
         self._version_defaults.update(other_defaults._version_defaults)
 
 

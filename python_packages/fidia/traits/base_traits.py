@@ -14,7 +14,7 @@ from ..exceptions import *
 from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_traitkey_part
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set
+from ..utilities import SchemaDictionary, is_list_or_set, Inherit
 from ..descriptions import PrettyName, Description, Documentation
 
 
@@ -171,6 +171,7 @@ class Trait(AbstractBaseTrait):
         except AssertionError as e:
             raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
 
+
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
 
@@ -239,30 +240,36 @@ class Trait(AbstractBaseTrait):
             and versions, so this avoides repetition
 
             """
-            if trait_key is not None:
-                value = getattr(trait_key, attribute)
-                # Check that the branch is valid for this Trait:
+
+            current_value = getattr(trait_key, attribute)
+
+            if current_value not in (None, Inherit):
+                # We have been given a (branch/version) value, check that it
+                # is valid for this Trait:
                 if valid is not None:
-                    assert value in valid, \
-                        "Branch name '%s' not valid for trait '%s'" % (trait_key.branch, self)
-                return value
-            else:
+                    assert current_value in valid, \
+                        "%s '%s' not valid for trait '%s'" % (attribute, current_value, self)
+                return current_value
+            elif current_value is Inherit:
+                # We have been asked to inherit the branch/version from the
+                # parent trait. If the parent_trait is defined (i.e. this is
+                # not a top level trait), then take its value if it is valid
+                # for this trait.
                 if parent_trait is not None:
-                    value = getattr(parent_trait, attribute)
+                    parent_value = getattr(parent_trait, attribute)
                     # This is a sub trait. Inherit branch from parent unless not valid.
-                    if valid is not None and value in valid:
-                        return value
+                    if valid is not None and parent_value in valid:
+                        return parent_value
                     else:
                         # Parent is not valid here, so leave as None
                         return None
+            elif current_value is None:
+                # Currently no way to define the branch/version for this
+                # trait, so leave it as None.
+                return None
 
         # Determine the branch given the options.
         self.branch = validate_and_inherit(trait_key, self._parent_trait, self.branches_versions, 'branch')
-
-        # If there is still no valid branch, set to the default value using the registry.
-        if self.branch is None:
-            # @TODO: Set to default branch of either this or parent trait.
-            pass
 
         # Now that the branch has been specified, determine the valid versions
         if self.branches_versions is not None:
@@ -273,10 +280,6 @@ class Trait(AbstractBaseTrait):
         # Determine the version given the options
         self.version = validate_and_inherit(trait_key, self._parent_trait, valid_versions, 'version')
 
-        # If there is still no valid version, set to the default value using the registry.
-        if self.version is None:
-            # @TODO: Set to default version of either this or parent trait.
-            pass
 
     @property
     def trait_name(self):
@@ -291,8 +294,10 @@ class Trait(AbstractBaseTrait):
         """
         if trait_key is None:
             raise ValueError("The TraitKey must be provided.")
-        if not isinstance(trait_key, TraitKey):
-            trait_key = TraitKey.as_traitkey(trait_key)
+        trait_key = TraitKey.as_traitkey(trait_key)
+
+        # Fill in default values for any `None`s in `TraitKey`
+        trait_key = self.available_traits.update_key_with_defaults(trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if trait_key not in self._trait_cache:
@@ -467,10 +472,16 @@ class Trait(AbstractBaseTrait):
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
         """
+        log.debug("Incrementing preload for trait %s", self.trait_key)
         assert self._preload_count >= 0
-        if self._preload_count == 0:
-            self.preload()
-        self._preload_count += 1
+        try:
+            if self._preload_count == 0:
+                self.preload()
+        except:
+            log.exception("Exception in preloading trait %s", self.trait_key)
+            raise
+        else:
+            self._preload_count += 1
 
     def _load_decr(self):
         """Internal function to handle cleanup.
@@ -479,10 +490,15 @@ class Trait(AbstractBaseTrait):
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
         """
+        log.debug("Decrementing preload for trait %s", self.trait_key)
         assert self._preload_count > 0
-        if self._preload_count == 1:
-            self.cleanup()
-        self._preload_count -= 1
+        try:
+            if self._preload_count == 1:
+                self.cleanup()
+        except:
+            raise
+        else:
+            self._preload_count -= 1
 
     def _realise(self):
         """Search through the objects members for TraitProperties, and preload any found.

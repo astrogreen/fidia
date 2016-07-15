@@ -1,6 +1,6 @@
 from itertools import product
 from .utilities import TraitKey, validate_trait_name, validate_trait_type
-from ..utilities import SchemaDictionary, DefaultsRegistry
+from ..utilities import SchemaDictionary, DefaultsRegistry, Inherit
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -59,8 +59,32 @@ class TraitRegistry:
 
         return trait
 
-    def retrieve_with_key(self, trait_key):
+    def update_key_with_defaults(self, trait_key):
+        """Return TraitKey with branch and version populated from defaults.
+
+        Check the provided trait key, and if either the branch or version
+        have not been provided (none), then return an updated version.
+
+        """
+        # Ensure we are working with a full TraitKey object (or convert if necessary)
         tk = TraitKey.as_traitkey(trait_key)
+
+        # If the branch has not been specified, get the default from the DefaultsRegistry for this trait_name
+        if tk.branch is None:
+            tk = tk.replace(branch=self._trait_name_defaults[tk.trait_name].branch)
+            log.debug("Branch not supplied for '%s', using default '%s'", tk.trait_name, tk.branch)
+
+        # If the version has not been specified, get the default from the DefaultsRegistry for this trait_name
+        if tk.version is None:
+            tk = tk.replace(version=self._trait_name_defaults[tk.trait_name].version(tk.branch))
+            log.debug("Version not supplied for '%s', using default '%s'", tk.trait_name, tk.version)
+
+        return tk
+
+    def retrieve_with_key(self, trait_key):
+        # Ensure we are working with a full TraitKey object (or convert if necessary)
+        tk = TraitKey.as_traitkey(trait_key)
+        log.debug("Retrieving trait for key %s", tk)
         return self._trait_lookup[tk]
 
     # def retrieve_with_key_with_wildcards(self, trait_key):
