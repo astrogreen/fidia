@@ -84,7 +84,7 @@ class TestSAMISFRmaps:
 
         assert isinstance(a_sami_galaxy['sfr_map'].variance(), numpy.ndarray)
 
-        assert a_sami_galaxy['sfr_map'].value().shape == a_sami_galaxy['sfr_map'].variance()
+        assert a_sami_galaxy['sfr_map'].value().shape == a_sami_galaxy['sfr_map'].variance().shape
 
 
 
