@@ -167,8 +167,6 @@ class TestSAMIArchiveSchema:
             assert isinstance(schema[trait_name], dict)
 
     def test_cube_wcs_in_schema(self, schema):
-        schema = sami_archive.schema()
-
         schema['spectral_cube-red']['wcs']
 
 class TestSAMIArchiveMetadata:

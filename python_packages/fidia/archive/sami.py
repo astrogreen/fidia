@@ -607,7 +607,7 @@ class LZIFUVelocityMap(VelocityMap):
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev0.9b/recom_comp/" +
+                           "/lzifu_releasev" + self.version + "/recom_comp/" +
                            self.object_id + "_recom_comp.fits.gz")
         try:
             self._hdu = fits.open(lzifu_fits_file)
@@ -639,6 +639,7 @@ class LZIFUOneComponentLineMap(Image):
     trait_type = 'line_map'
 
     branches_versions = {"1_comp": {"0.9b", "0.9"}}
+    defaults = DefaultsRegistry(default_branch='1_comp', version_defaults={'1_comp': '0.9b'})
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -685,9 +686,28 @@ class LZIFUOneComponentLineMap(Image):
         variance = sigma**2
         return variance
 
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[0].header
+        return _wcs_string
+
+
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self._parent_trait._wcs_string.value
+
+
+    sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUWCS)
+
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
     branches_versions ={'recom_comp': {"0.9b"}}
+
+    # Extends 'line_map', so no defaults:
+    defaults = DefaultsRegistry(None, {'recom_comp': '0.9b'})
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +

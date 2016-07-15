@@ -41,7 +41,7 @@ class TestSAMILZIFU:
         assert themap.shape == (50, 50)
 
     def test_lzifu_ha_map_multicomponent(self, sami_sample):
-        themap = sami_sample['24433']['line_map', 'HALPHA']
+        themap = sami_sample['24433'][TraitKey('line_map', 'HALPHA', "recom_comp")]
 
         assert hasattr(themap, 'comp_1_flux')
         assert hasattr(themap, 'variance')
