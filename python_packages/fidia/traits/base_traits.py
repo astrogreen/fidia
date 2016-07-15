@@ -40,6 +40,7 @@ log.enable_console_logging()
 #         return 0
 
 def validate_trait_branches_versions_dict(branches_versions):
+    # type: ([dict, None]) -> None
     if branches_versions is None:
         return
     assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
@@ -162,6 +163,11 @@ class Trait(AbstractBaseTrait):
 
         assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
         # assert cls.available_versions is not None
+
+        if cls.branches_versions is not None:
+            assert getattr(cls, 'defaults', None) is not None, \
+                ("Trait class '%s' has branches_versions, but no defaults have been supplied." %
+                 cls)
 
         try:
             validate_trait_branches_versions_dict(cls.branches_versions)
@@ -290,7 +296,7 @@ class Trait(AbstractBaseTrait):
         trait_key = TraitKey.as_traitkey(trait_key)
 
         # Fill in default values for any `None`s in `TraitKey`
-        trait_key = self.available_traits.update_key_with_defaults(trait_key)
+        trait_key = self.sub_traits.update_key_with_defaults(trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if trait_key not in self._trait_cache:

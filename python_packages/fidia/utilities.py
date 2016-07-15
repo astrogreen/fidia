@@ -73,10 +73,10 @@ class DefaultsRegistry:
         If the default has not been set, then return `Inherit`
 
         """
-        if self._default_branch is None:
-            return Inherit
-        else:
-            return self._default_branch
+        # if self._default_branch is None:
+        #     return Inherit
+        # else:
+        return self._default_branch
 
     def version(self, branch):
         """Return the default version for the given branch.
@@ -84,8 +84,10 @@ class DefaultsRegistry:
         If the dictionary has not been initialised, then return `Inherit`.
 
         """
-        if self._version_defaults == {}:
-            return Inherit
+        # if self._version_defaults == {}:
+        #     return Inherit
+        if branch is None:
+            return None
         else:
             return self._version_defaults[branch]
 
@@ -96,19 +98,23 @@ class DefaultsRegistry:
         if override or self._default_branch is None:
             self._default_branch = branch
         else:
-            raise ValueError("Attempt to change the default branch.")
+            # Trying to update the default which has already been set.
+            # Throw an error only if this attempt would actually change
+            # the default.
+            if self._default_branch != branch:
+                raise ValueError("Attempt to change the default branch.")
 
     def set_default_version(self, branch, version, override=False):
         # type: (str, str, bool) -> None
         if branch not in self._version_defaults or override:
             self._version_defaults[branch] = version
-        elif self._version_defaults[branch] != version and not override:
+        elif self._version_defaults[branch] != version:
             raise ValueError("Attempt to change the default version for branch '%s' from '%s'"
                              % (branch, self._version_defaults[branch]))
 
     def update_defaults(self, other_defaults, override=False):
         # type: (DefaultsRegistry, bool) -> None
-        self.set_default_branch(other_defaults.branch, override=override)
+        self.set_default_branch(other_defaults._default_branch, override=override)
         self._version_defaults.update(other_defaults._version_defaults)
 
 

@@ -3,6 +3,7 @@ import numpy as np
 
 from .archive import Archive
 from ..traits import TraitKey, TraitRegistry, trait_property
+from ..utilities import DefaultsRegistry
 from ..traits.base_traits import SpectralMap, Image, Measurement, Trait
 from ..exceptions import DataNotAvailable
 
@@ -15,6 +16,8 @@ class ExampleSpectralMap(SpectralMap):
     trait_type = "spectral_map"
 
     branches_versions = {None: [None], "other": [None]}
+
+    defaults = DefaultsRegistry(None, {None: None, "other": None})
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -44,6 +47,8 @@ class ExampleSpectralMapExtra(SpectralMap):
     trait_type = "spectral_map"
 
     branches_versions = {'extra': [None]}
+
+    defaults = DefaultsRegistry(None, {'extra': None})
 
     def preload(self):
         # Make an object have typically the same random data.
