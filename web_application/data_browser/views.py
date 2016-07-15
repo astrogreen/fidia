@@ -11,12 +11,13 @@ from rest_framework.settings import api_settings
 import restapi_app.permissions
 import restapi_app.exceptions
 import restapi_app.renderers
+import restapi_app.utils.helpers
 
 import data_browser.serializers
 import data_browser.renderers
 
 import fidia.exceptions
-from fidia.traits import Trait, TraitProperty
+from fidia.traits import Trait, TraitProperty, TraitRegistry
 
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 
@@ -105,14 +106,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
-        # def get_serializer_context(self):
-        #     """
-        #     pass request attribute to serializer - add schema attribute
-        #     """
-        #     return {
-        #         'request': self.request,
-        #         'schema': ar.schema()
-        #     }
 
         try:
             astroobject = sample[galaxy_pk]
@@ -126,15 +119,33 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.AstroObjectSerializer
 
-        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+        # Get schema for this archive's astro object and sort alphabetically
+        sorted_schema_temp = {}
+
+        for key, value in sorted(ar.schema().items()):
+            sorted_schema_temp[key] = collections.OrderedDict(sorted(value.items()))
+
+        sorted_schema = collections.OrderedDict(sorted(sorted_schema_temp.items()))
+
+        # Get available traits (minus qualifier) for this archive's astro object
+        # to provide groupings (line maps, velocity maps etc) in ao view.
+        available_trait_set = ar.available_traits.get_traits()
+        trait_list = []
+
+        for ty in available_trait_set:
+            trait_list.append(ty.trait_type)
+
+        trait_list = restapi_app.utils.helpers.unique_list(trait_list)
 
         serializer = serializer_class(
             instance=astroobject, many=False,
             context={
                 'request': request,
-                'schema': sorted_schema
-                }
+                'schema': sorted_schema,
+                'trait_list': sorted(trait_list)
+            }
         )
+
         return Response(serializer.data)
 
 
@@ -146,6 +157,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
+        print('TRAIT:'+trait_pk)
         try:
             trait = sample[galaxy_pk][trait_pk]
         except fidia.exceptions.NotInSample:
@@ -216,15 +228,19 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+        print(dynamic_pk)
+        print(trait_pk)
+        print(galaxy_pk)
         # @property
         # def dynamic_property_first_of_type(self, dynamic_pk):
             # split on /
 
         # Determine what we're looking at.
         path = list(dynamic_pk.split('/'))
-        print(path)
+
         path.insert(0, trait_pk)
         # return Response({"data": str(ar.type_for_trait_path(path))})
+        print(ar.type_for_trait_path(path))
         if issubclass(ar.type_for_trait_path(path), Trait):
             trait_pointer = sample[galaxy_pk]
             for elem in path:

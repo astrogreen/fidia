@@ -31,7 +31,7 @@ trait_nested_router.register(r'(?P<trait_pk>[^/]+)', data_browser.views.TraitVie
 # traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', data_browser.views.TraitPropertyViewSet, base_name='traitproperty')
 
 sub_traitprop_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/]+)', lookup='trait')
-sub_traitprop_nested_router.register(r'(?P<dynamic_pk>.+)', data_browser.views.SubTraitPropertyViewSet, base_name='traitproperty')
+sub_traitprop_nested_router.register(r'(?P<dynamic_pk>.+)', data_browser.views.SubTraitPropertyViewSet, base_name='subtraitproperty')
 
 
 urlpatterns = [

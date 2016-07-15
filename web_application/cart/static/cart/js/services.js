@@ -77,7 +77,8 @@
                 if (undefined != $cookieStore){
                     var saved_items = [];
                     angular.forEach($cookieStore.get('items'), function(cookieitem){
-                        saved_items.push(cookieitem.url);
+                        // saved_items.push(cookieitem.url);
+                        saved_items.push(cookieitem.id);
                     });
                     return saved_items;
                 }

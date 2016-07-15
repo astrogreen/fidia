@@ -10,12 +10,13 @@
 {% endblock %}
 
 {% block bodyclass %}galaxy-dark{% endblock %}
+{% block navbarinverse %}navbar-inverse{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
-{% block breadcrumbs-outer %}
-<ul class="breadcrumb ">
-    <li class="active"><a href="{% url 'index' %}">Home</a></li>
-</ul>
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'index' %}">Home</a></li>
 {% endblock %}
+
+{% block page_title_banner %} {% endblock page_title_banner %}
 
 {% block content_render %}
 <section class="welcome row">

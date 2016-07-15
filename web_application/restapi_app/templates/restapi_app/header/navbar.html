@@ -1,22 +1,21 @@
 {% load staticfiles %}
 <header>
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-            <!--<a href="{% static 'index' %}" class="brand navbar-left"><img src="{% static '/static/img/aaodc-logo-6.png' %}" alt="AAO - Australian Astronomical Observatory"></a>-->
-            <a href="{% static 'index' %}" class="brand navbar-left aao_logo"><img src="{% static 'restapi_app/img/logo/aao_90x40.png' %}" alt="AAO - Australian Astronomical Observatory"></a>
-            <a href='http://www.asvo.org.au/' target='_blank' class="asvo_logo brand navbar-left "><img src="{% static 'restapi_app/img/logo/asvo_90x40.png' %}"></a>
-        </div>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/"><img src="{% static 'restapi_app/img/logo/aao_90x40.png' %}" alt="AAO - Australian Astronomical Observatory"></a></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li><a href="{% url 'index' %}">Home</a></li>
                     <li class="dropdown">
@@ -25,7 +24,7 @@
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">New Query</li>
                             {% url 'query-create-list' as the_url %}
-                            <li class="li-query"><a href="{{the_url}}#query-builder-form">Query Builder</a></li>
+                            <li class="li-query"><a href="{{the_url}}">Query Builder</a></li>
                             <li class="li-query"><a href="{{the_url}}#post-object-form">SQL</a></li>
                         </ul>
                     </li>
@@ -57,21 +56,21 @@
                             <li class="disabled"><a href="{% url 'under-construction' %}">Surveys</a></li>
                         </ul>
                     </li>
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">My Account </a>
-                        <ul class="dropdown-menu">
-                            {% if user.is_authenticated %}
-                            <li><a href="{% url 'user-profile-detail' user %}">Profile</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'query-list' %}">Query History</a></li>
-                            {% else %}
-                            <li class="disabled"><a href="{% url 'under-construction' %}">Profile</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li class="disabled"><a href="{% url 'query-list' %}">Query History</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"-->
+                           <!--aria-expanded="false">My Account </a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--{% if user.is_authenticated %}-->
+                            <!--<li><a href="{% url 'user-profile-detail' user %}">Profile</a></li>-->
+                            <!--<li role="separator" class="divider"></li>-->
+                            <!--<li><a href="{% url 'query-list' %}">Query History</a></li>-->
+                            <!--{% else %}-->
+                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Profile</a></li>-->
+                            <!--<li role="separator" class="divider"></li>-->
+                            <!--<li class="disabled"><a href="{% url 'query-list' %}">Query History</a></li>-->
+                            <!--{% endif %}-->
+                        <!--</ul>-->
+                    <!--</li>-->
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">Support</a>
@@ -92,12 +91,12 @@
                     </li>
 
                 </ul>
-              <ul class="nav navbar-nav navbar-right">
+                <ul class="nav navbar-nav navbar-right">
                 <li class="cart-li">
                     <a href="{% url 'cart' %}" class="cart-icon">
                         <svg version="1.1" class="icon" xmlns="http://www.w3.org/2000/svg"
                              xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px"
-                             viewBox="0 0 30 30">
+                             viewBox="0 0 28 28">
                             <path d="M27.715,10.48l-2.938,6.312c-0.082,0.264-0.477,0.968-1.318,0.968H11.831
                         c-0.89,0-1.479-0.638-1.602-0.904l-2.048-6.524C7.629,8.514,8.715,7.933,9.462,7.933c0.748,0,14.915,0,16.805,0
                         C27.947,7.933,28.17,9.389,27.715,10.48L27.715,10.48z M9.736,9.619c0.01,0.061,0.026,0.137,0.056,0.226l1.742,6.208
@@ -123,10 +122,13 @@
                 {% endblock %}
 
             </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
     </nav>
 
     <!--<span class="visible-xs media-query-box">SIZE XS</span><span class="visible-sm media-query-box">SIZE SM</span><span class="visible-md media-query-box">SIZE MD</span><span class="visible-lg media-query-box">SIZE LG</span>-->
     <!--<div class="media-query-box">test</div>-->
+
 </header>

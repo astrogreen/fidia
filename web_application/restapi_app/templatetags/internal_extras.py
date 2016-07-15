@@ -120,15 +120,13 @@ def optional_login_header(request):
             next_page = reverse('index')
 
     snippet = """<li class="background-white">
-                <a href='{login}?next={next}' class="text-error text-uppercase">
-                    <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
-
+                <a href='{login}?next={next}'>
+                    Sign In <i class="fa fa-lock"></i>
                 </a>
                 </li>
                 <li class="background-white">
-                <a href="{register}" class="btn btn-primary text-uppercase">
-                    <span>Register</span>
-                    <i class="fa fa-pencil-square-o"></i>
+                <a href="{register}">
+                    Register <i class="fa fa-pencil-square-o"></i>
                 </a>
             </li>"""
     snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)

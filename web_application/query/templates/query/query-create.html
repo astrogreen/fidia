@@ -52,6 +52,12 @@
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
 
+{% block page_title %}Query{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation' %}" title="Query Documentation">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a></li>
+{% endblock useful_links %}
+
 {% block content_render %}
     {% comment %}
     ------ NEW QUERY FORM ------
@@ -62,20 +68,9 @@
             {% if not response.data.queryResults %}
 
                 <div class="row">
-                    <div class="col-sm-12">
-                        <h1 class="headline">
-                            <span>Query </span>
-                            <span class="pull-right btn-group headline-nav-stack hidden-xs">
-                                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation' %}" title="Query Documentation">Documentation</a>
-                                    <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a>
-                            </span>
-                        </h1>
+                    <div class="col-sm-8">
+                        <p class="lead">Create a sample of astronomical objects - no coding necessary. </p>
 
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-12">
                         <p>Construct a sample of objects using the <a
                                 onclick="fTabSwitch('query-builder-form')"
                                 title="Create simple SQL queries with ease.">Query Builder</a>. Use the Schema
@@ -146,7 +141,7 @@
                                             {% csrf_token %}
                                             {{ post_form }}
                                             <div class="form-actions">
-                                                <button class="btn btn-primary btn-sm pull-right" title="Make a POST request on the {{ name }} resource" id="button-sql-submit">SUBMIT</button>
+                                                <button class="button button-primary button-small pull-right" title="Make a POST request on the {{ name }} resource" id="button-sql-submit">SUBMIT</button>
                                             </div>
                                         </fieldset>
                                     </form>
@@ -162,7 +157,7 @@
                     </div>
                     <div class="col-sm-4">
                          <h2 class="headline">
-                            <span>Schema</span>
+                            <span>Schema Browser</span>
                         </h2>
                         {% block schema-browser %}
                             {% include "query/schema-browser-module.html" %}

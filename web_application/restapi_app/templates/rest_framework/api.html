@@ -21,24 +21,49 @@
       {% include "restapi_app/header/navbar.html" %}
     {% endblock %}
 
-    <div class="breadcrumb-container container-fluid {% block breadcrumbclass %}{% endblock %}">
-        {% block breadcrumbs-outer %}
-        {% if breadcrumblist %}
-        {% block breadcrumbs %}
-          <ul class="breadcrumb ">
-            <li><a href="{% url 'index' %}">Home</a></li>
-            {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
+    <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+      {% block breadcrumbs-outer %}
+
+        <ul class="breadcrumb container">
+          {% block breadcrumbs %}
+            {% if breadcrumblist %}
+              <li><a href="{% url 'index' %}">Home</a></li>
+              {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
               {% if forloop.last %}
-                <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+              <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
               {% else %}
-                <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+              <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
               {% endif %}
-            {% endfor %}
-          </ul>
-        {% endblock %}
-      {% endif %}
-        {% endblock %}
+              {% endfor %}
+            {% endif %}
+          {% endblock %}
+        </ul>
+
+      {% endblock %}
     </div>
+{% block page_title_banner %}
+                <div class="page_title_banner">
+                  <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h1>{% block page_title %}{% endblock %}</h1>
+                        </div>
+                        <div class="col-sm-6 hidden-xs">
+                            <div class="useful_links pull-right">
+                              <ul class="nav nav-pills">
+                                {% block useful_links %}
+                                <!--<li role="presentation" ><a href="#">useful link</a></li>-->
+                                {% endblock useful_links %}
+                              </ul>
+                            </div>
+                        </div>
+                      <div class="col-xs-12">
+                        <!--<hr>-->
+                      </div>
+                    </div>
+                    </div>
+                </div>
+                {% endblock page_title_banner %}
   <div class="wrapper">
     <div class="container" id="page-content">
       {% block content_and_status %}
@@ -65,6 +90,9 @@
           {% block content %}
             {% captureas http_status_is_success %}{% is_success http_status_code %}{% endcaptureas %}
             {% if  http_status_is_success == "True" %}
+
+
+
               {% block content_render %}
 
                 <!-- Content to Render -->
@@ -293,10 +321,21 @@
   <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
   <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
   <script src="{% static 'rest_framework/js/default.js' %}"></script>
+  <script src="{% static 'js/buttons/buttons.js' %}"></script>
+
   <script>
       $(document).ready(function() {
           $('form').ajaxForm();
       });
+
+    $(".dropdown-menu li a").click(function(){
+      $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+      $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
+    });
+    $(".button-dropdown-list li a").click(function(){
+      $(this).parents("span.button-dropdown").find('.button').html($(this).text() + ' <span class="caret"></span>');
+      $(this).parents("span.button-dropdown").find('.button').val($(this).data('value'));
+    });
   </script>
   {% block footer-extra %}{% endblock %}
 

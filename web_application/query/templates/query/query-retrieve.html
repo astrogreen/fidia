@@ -40,8 +40,12 @@
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
 
-{% block content-filter-form %}{% endblock %}
-{% block content-header %}{% endblock %}
+{% block page_title %}Query Result{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation' %}" title="Query Documentation">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'query-list' %}">Query History</a></li>
+<li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
+{% endblock useful_links %}
 
 {% block content_render %}
 
@@ -50,20 +54,6 @@
     {% endcomment %}
 
     {% if response.data.queryResults %}
-
-        <div class="row">
-            <div class="col-sm-12">
-                <h1 class="headline">
-                    <span>{% if response.data.title %}{{response.data.title |truncatechars:30}}{% else %} Query # {{objname}} {% endif %}</span>
-                    <span class="pull-right btn-group headline-nav-stack hidden-xs">
-                            <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation' %}" title="Query Documentation">Documentation</a>
-                            <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}">Query History</a>
-                            <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-create-list' %}">New Query</a>
-                    </span>
-                </h1>
-
-            </div>
-        </div>
 
         <div class="row">
             <div class="col-sm-12"><div id="TableResultsWarning"></div></div>

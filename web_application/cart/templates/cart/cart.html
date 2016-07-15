@@ -10,21 +10,18 @@
 <link rel="stylesheet" type="text/css" href="{% static 'cart/css/cart/cart.min.css' %}"/>
 {% endblock %}
 
-{% block breadcrumbs-outer %}
-<ul class="breadcrumb ">
-    <li class="active"><a href="{% url 'index' %}">Home</a></li>
-    <li>Cart</li>
-</ul>
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'index' %}">Home</a></li>
+<li>Cart</li>
 {% endblock %}
+
+{% block page_title %}Cart{% endblock %}
+{% block useful_links %}
+{% endblock useful_links %}
 
 {% block content_render %}
 {% verbatim %}
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12">
-            <h1 class="headline"><span>Cart</span></h1>
-        </div>
-    </div>
+
     <div class="row" ng-controller="CartController as ctrl3">
         <div class="col-sm-8">
             <div class="panel panel-default panel-cart">
@@ -56,19 +53,19 @@
                     <span ng-repeat="item in ctrl3.items track by $index">
                         <li class="list-group-item"><strong>Gal {{item.id}}</strong> </li>
                         <li class="list-group-item list-group-sub-item">
-                            <a ng-href="{{item.url}}" class="text-normal">Velocity Map</a>
+                            <a ng-href="{{item.url}}" class="text-normal">{{item.options}}</a>
                             <a role="button" class="text-normal pull-right"><i
                                 class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(item.id)"></i></a>
                         </li>
                     </span>
                 </ul>
-                <div class="panel-footer">
-                    <button class="btn btn-default btn-error text-error btn-sm js-tooltip  text-uppercase"
-                                title="Delete all items in the cart" id="checkout-empty" ng-click="ctrl3.emptyCart()">EMPTY
+                <div class="panel-body"  ng-if="ctrl3.items | isNotEmpty">
+                    <button class="button button-caution button-small text-uppercase"
+                            title="Delete all items in the cart" id="checkout-empty" ng-click="ctrl3.emptyCart()"><i class="fa fa-trash-o"></i> Empty
                     </button>
 
-                    <button class="btn btn-primary btn-sm js-tooltip pull-right" title="Download data in the cart"
-                            id="checkout-download">DOWNLOAD
+                    <button class="button button-primary button-small text-uppercase pull-right" title="Download data in the cart"
+                            id="checkout-download"><i class="fa fa-download"></i> Download
                     </button>
                 </div>
             </div>
@@ -94,15 +91,7 @@
         </div>
     </div>
 
-    <div class="row">
-        <div ng-controller="DummyData">
-            <div class="col-md-3" ng-repeat="item in data">
-                <p>Gal{{item.id}}</p>
-                <add-cart-button item="item"></add-cart-button>
-            </div>
-        </div>
-    </div>
-</div>
+
 {% endverbatim %}
 <script>
     $("#checkout-empty").mouseup(function() {
