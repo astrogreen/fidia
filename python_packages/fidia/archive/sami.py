@@ -17,7 +17,7 @@ from cached_property import cached_property
 from fidia import *
 from .archive import Archive
 
-from ..utilities import WildcardDictionary
+from ..utilities import WildcardDictionary, DefaultsRegistry
 
 #from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 from fidia.traits import *
@@ -74,6 +74,40 @@ sami_cube_re = re.compile(
         (?P<n_comb>\d+)_
         (?P<plate_id>%s)
         (?:_(?P<binning>1sec))?""" % sami_plate_re.pattern, re.VERBOSE)
+
+class TraitFromFitsFile(Trait):
+
+    def _post_init(self):
+        self._fits_file_path = self.fits_file_path()
+        if not os.path.exists(self._fits_file_path) and \
+                os.path.exists(self._fits_file_path + ".gz"):
+            self._fits_file_path = self._fits_file_path + ".gz"
+        elif not os.path.exists(self._fits_file_path):
+            raise DataNotAvailable(self._fits_file_path + " does not exist.")
+
+        super()._post_init()
+
+    def preload(self):
+        self._hdu = fits.open(self._fits_file_path)
+
+    def cleanup(self):
+        self._hdu.close()
+
+def trait_property_from_fits_data(extension_name, type, name):
+
+    tp = TraitProperty(type=type, name=name)
+
+    tp.fload = lambda self: self._hdu[extension_name].data
+    tp.short_name = extension_name
+
+    # # @TODO: Providence information can't get filename currently...
+    # tp.providence = "!: FITS-Header {{file: '{filename}' extension: '{extension}' header: '{card_name}'}}".format(
+    #     card_name=header_card_name, extension=extension, filename='UNDEFINED'
+    # )
+
+    return tp
+
+
 
 def full_path_split(path):
     # Snippit from:
@@ -389,11 +423,11 @@ class SAMISpectralCube(SpectralMap):
 
         @trait_property('float')
         def _ra(self):
-            return self.parent_trait.ra()
+            return self._parent_trait.ra()
 
         @trait_property('float')
         def _dec(self):
-            return self.parent_trait.dec()
+            return self._parent_trait.dec()
 
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
@@ -402,7 +436,7 @@ class SAMISpectralCube(SpectralMap):
 
         @trait_property('string')
         def _wcs_string(self):
-            with self.parent_trait.preloaded_context() as pt:
+            with self._parent_trait.preloaded_context() as pt:
                 h = pt.hdu[0].header.copy()
                 # The PLATEID header keyword confuses the WCS package,
                 # so it must be removed from the header before creating
@@ -427,7 +461,7 @@ class SAMISpectralCube(SpectralMap):
         trait_type = 'telescope_metadata'
 
         def preload(self):
-            with self.parent_trait.preloaded_context() as pt:
+            with self._parent_trait.preloaded_context() as pt:
                 self._header = pt.hdu[0].header.copy()
                 self._header.providence = {"file": pt.hdu.filename, "extension": 0}
 
@@ -475,7 +509,7 @@ class SAMISpectralCube(SpectralMap):
         trait_type = 'detector_metadata'
 
         def preload(self):
-            with self.parent_trait.preloaded_context() as pt:
+            with self._parent_trait.preloaded_context() as pt:
                 self._header = pt.hdu[0].header.copy()
 
         def cleanup(self):
@@ -536,7 +570,7 @@ class SAMISpectralCube(SpectralMap):
         trait_type = 'instrument_metadata'
 
         def preload(self):
-            with self.parent_trait.preloaded_context() as pt:
+            with self._parent_trait.preloaded_context() as pt:
                 self._header = pt.hdu[0].header.copy()
 
         def cleanup(self):
@@ -567,12 +601,13 @@ class LZIFUVelocityMap(VelocityMap):
 
     trait_type = "velocity_map"
 
-    default_version = "0.9b"
-    available_versions = {"0.9b"}
+    branches_versions = {'lzifu': {'0.9b'}}
+
+    defaults = DefaultsRegistry(default_branch='lzifu', version_defaults={'lzifu': '0.9b'})
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev0.9b/recom_comp/" +
+                           "/lzifu_releasev" + self.version + "/recom_comp/" +
                            self.object_id + "_recom_comp.fits.gz")
         try:
             self._hdu = fits.open(lzifu_fits_file)
@@ -603,10 +638,8 @@ class LZIFUOneComponentLineMap(Image):
 
     trait_type = 'line_map'
 
-    available_versions = {"0.9b", "0.9"}
-    default_version = "0.9b"
-
-    available_branches = {"1_comp"}
+    branches_versions = {"1_comp": {"0.9b", "0.9"}}
+    defaults = DefaultsRegistry(default_branch='1_comp', version_defaults={'1_comp': '0.9b'})
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -654,11 +687,28 @@ class LZIFUOneComponentLineMap(Image):
         variance = sigma**2
         return variance
 
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[0].header
+        return _wcs_string
+
+
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self._parent_trait._wcs_string.value
+
+
+    sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUWCS)
+
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
-    available_versions = {"0.9b"}
+    branches_versions ={'recom_comp': {"0.9b"}}
 
-    available_branches ={'recom_comp'}
+    # Extends 'line_map', so no defaults:
+    defaults = DefaultsRegistry(None, {'recom_comp': '0.9b'})
 
     qualifier_required = True
     qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
@@ -725,7 +775,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            return self.parent_trait._wcs_string.value
+            return self._parent_trait._wcs_string.value
 
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUWCS)
@@ -803,6 +853,65 @@ class LZIFULineSpectrum(SpectralMap):
     @trait_property('float.array')
     def variance(self):
         return None
+
+
+class BalmerExtinctionMap(Image, TraitFromFitsFile):
+
+    trait_type = 'extinction_map'
+
+    branches_versions = {
+        "1_comp": {'v01'},
+        "recom_comp": {'v01'}
+    }
+
+    defaults = DefaultsRegistry(
+        default_branch='recom_comp',
+        version_defaults={"1_comp": 'v01',
+                          "recom_comp": 'v01'}
+    )
+
+    def fits_file_path(self):
+        return (self.archive._base_directory_path +
+                "SFRextmaps/" +
+                self.object_id + "_extinction_" + self.branch + ".fits")
+
+    value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
+    variance = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
+
+class SFRMap(Image, TraitFromFitsFile):
+
+    trait_type = 'sfr_map'
+
+    branches_versions = {
+        "1_comp": {'v01'},
+        "recom_comp": {'v01'}
+    }
+
+    defaults = DefaultsRegistry(
+        default_branch='recom_comp',
+        version_defaults={"1_comp": 'v01',
+                          "recom_comp": 'v01'}
+    )
+
+    def fits_file_path(self):
+        return (self.archive._base_directory_path +
+                                "SFRmaps/" +
+                                self.object_id + "_SFR_" + self.branch + ".fits")
+
+    value = trait_property_from_fits_data('SFR', 'float.array', 'value')
+    variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
+
+# class SFRClass(ClassificationMap):
+#
+#     trait_key = 'sfr_map'
+#
+#     def fits_file_path(self):
+#         return (self.archive._base_directory_path +
+#                                 "SFRmaps/" +
+#                                 self.object_id + "_SFR_" + self.branch + ".fits")
+#
+#     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
+#     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
 
 
 class SAMITeamArchive(Archive):
@@ -913,6 +1022,9 @@ class SAMITeamArchive(Archive):
         self.available_traits.register(LZIFUOneComponentLineMap)
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
         self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
+
+        self.available_traits.register(SFRMap)
+        self.available_traits.register(BalmerExtinctionMap)
 
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum

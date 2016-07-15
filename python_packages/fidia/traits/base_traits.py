@@ -10,11 +10,13 @@ import astropy.coordinates
 import astropy.wcs
 
 from .abstract_base_traits import *
-from ..exceptions import DataNotAvailable
-from .utilities import TraitProperty, TraitKey
+from ..exceptions import *
+from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
+    validate_trait_type, validate_traitkey_part
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary
+from ..utilities import SchemaDictionary, is_list_or_set, Inherit
 from ..descriptions import PrettyName, Description, Documentation
+
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -40,18 +42,37 @@ log.enable_console_logging()
 #     def __len__(self):
 #         return 0
 
+def validate_trait_branches_versions_dict(branches_versions):
+    # type: ([dict, None]) -> None
+    if branches_versions is None:
+        return
+    assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
+    # Check that all branches meet the branch formatting requirements
+    for branch in branches_versions:
+        if branch is not None:
+            validate_traitkey_part(branch)
+        # Check that each branch has a list of versions:
+        assert is_list_or_set(branches_versions[branch])
+        # Check that all versions meet the branch formatting requirements
+        for version in branches_versions[branch]:
+            if version is not None:
+                validate_traitkey_part(version)
+
 class Trait(AbstractBaseTrait):
 
     sub_traits = TraitRegistry()
 
-    default_version = {None}
-    available_versions = {None}
 
     pretty_name = PrettyName()
     description = Description()
     documentation = Documentation()
 
-    qualifier_required = False
+    # The following are a required part of the Trait interface.
+    # They must be set in sub-classes to avoid an error trying create a Trait.
+    trait_type = None
+    qualifiers = None
+    branches_versions = None
+
 
     @classmethod
     def schema(cls, include_subtraits=True):
@@ -76,12 +97,21 @@ class Trait(AbstractBaseTrait):
                 schema[trait_property.name] = trait_property.type
 
         if include_subtraits:
-            for trait_type in cls.sub_traits.get_trait_names():
+            for trait_name in cls.sub_traits.get_trait_names():
                 # Create empty this sub-trait type:
-                schema[trait_type] = SchemaDictionary()
+                schema[trait_name] = SchemaDictionary()
                 # Populate the dict with schema from each sub-type:
-                for trait_class in cls.sub_traits.get_traits(trait_type_filter=trait_type):
-                    schema[trait_type].update(trait_class.schema())
+                for trait_class in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                    subtrait_schema = trait_class.schema()
+                    try:
+                        schema[trait_name].update(subtrait_schema)
+                    except ValueError:
+                        log.error("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+                                  "to schema for '%s' containing: '%s'",
+                                  trait_class, trait_name, schema[trait_name])
+                        raise SchemaError("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+                                  "to schema for '%s' containing: '%s'",
+                                  trait_class, trait_name, schema[trait_name])
 
         return schema
 
@@ -104,40 +134,66 @@ class Trait(AbstractBaseTrait):
     #     for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
     #         yield trait_class
 
+    @classmethod
+    def answers_to_trait_name(cls, trait_name):
+        match = TRAIT_NAME_RE.fullmatch(trait_name)
+        if match is not None:
+            log.debug("Checking if trait '%s' responds to trait_name '%s'", cls, trait_name)
+            log.debug("TraitName match results: %s", match.groupdict())
+
+            # Check the trait_name against all possible trait_names supported by this Trait.
+            if match.group('trait_type') != cls.trait_type:
+                return False
+
+            # Confirm that the qualifier has been used correctly:
+            if match.group('trait_qualifier') is not None and cls.qualifiers is None:
+                raise ValueError("Trait type '%s' does not allow a qualifier." % cls.trait_type)
+            if match.group('trait_qualifier') is None and cls.qualifiers is not None:
+                raise ValueError("Trait type '%s' requires a qualifier." % cls.trait_type)
+
+            # Check trait_name against all known qualifiers provided by this Trait.
+            if cls.qualifiers is not None \
+                    and match.group('trait_qualifier') not in cls.qualifiers:
+                return False
+            return True
+        else:
+            return False
+
+    @classmethod
+    def _validate_trait_class(cls):
+        assert cls.trait_type is not None, "trait_type must be defined"
+        validate_trait_type(cls.trait_type)
+
+        assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
+        # assert cls.available_versions is not None
+
+        if cls.branches_versions is not None:
+            assert getattr(cls, 'defaults', None) is not None, \
+                ("Trait class '%s' has branches_versions, but no defaults have been supplied." %
+                 cls)
+
+        try:
+            validate_trait_branches_versions_dict(cls.branches_versions)
+        except AssertionError as e:
+            raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
+
+
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
+
+        self._validate_trait_class()
+
         self.archive = archive
+        self._parent_trait = parent_trait
+
         assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
         self.trait_key = trait_key
-        if trait_key.branch is None and parent_trait is not None:
-            # Inherit branch from parent trait:
-            self.branch = parent_trait.branch
-        else:
-            self.branch = trait_key.branch
 
-        # Trait Version handling:
-        #
-        #   The goal of this is to set the trait version if at all possible. The
-        #   following are tried:
-        #   - If version explicitly provided in this initialisation, that is the version.
-        #   - If this is a sub trait, check the parent trait for it's version.
-        #   - If the version is still none, try to set it to the default for this trait.
-        #
-        if trait_key.version is None and parent_trait is not None:
-            # Inherit version from parent trait, if permitted
-            if self.available_versions is not None and parent_trait.version in self.available_versions:
-                self.version = parent_trait.version
-            else:
-                self.version = None
-        else:
-            self.version = trait_key.version
-        if self.version is None:
-            self.version = self.default_version
+        self._set_branch_and_version(trait_key)
 
         if object_id is None:
             raise KeyError("object_id must be supplied")
         self.object_id = object_id
-        self.parent_trait = parent_trait
         self.trait_qualifier = trait_key.trait_qualifier
 
         self._trait_cache = OrderedDict()
@@ -165,6 +221,71 @@ class Trait(AbstractBaseTrait):
         self._trait_dict = dict()
         if self._loading == 'eager':
             self._realise()
+        self._post_init()
+
+    def _post_init(self):
+        pass
+
+    def _set_branch_and_version(self, trait_key):
+        """Trait Branch and Version handling:
+
+        The goal of this is to set the trait branch and version if at all possible. The
+        following are tried:
+        - If version explicitly provided in this initialisation, that is the version.
+        - If this is a sub trait check the parent trait for it's version.
+        - If the version is still none, try to set it to the default for this trait.
+        """
+
+        # if log.isEnabledFor(slogging.DEBUG):
+        assert isinstance(trait_key, TraitKey)
+
+        def validate_and_inherit(trait_key, parent_trait, valid, attribute):
+            """Helper function to validate and/or inherit.
+
+            This is defined because the logic is identical for both branches
+            and versions, so this avoides repetition
+
+            """
+
+            current_value = getattr(trait_key, attribute)
+
+            if current_value not in (None, Inherit):
+                # We have been given a (branch/version) value, check that it
+                # is valid for this Trait:
+                if valid is not None:
+                    assert current_value in valid, \
+                        "%s '%s' not valid for trait '%s'" % (attribute, current_value, self)
+                return current_value
+            elif current_value is Inherit:
+                # We have been asked to inherit the branch/version from the
+                # parent trait. If the parent_trait is defined (i.e. this is
+                # not a top level trait), then take its value if it is valid
+                # for this trait.
+                if parent_trait is not None:
+                    parent_value = getattr(parent_trait, attribute)
+                    # This is a sub trait. Inherit branch from parent unless not valid.
+                    if valid is not None and parent_value in valid:
+                        return parent_value
+                    else:
+                        # Parent is not valid here, so leave as None
+                        return None
+            elif current_value is None:
+                # Currently no way to define the branch/version for this
+                # trait, so leave it as None.
+                return None
+
+        # Determine the branch given the options.
+        self.branch = validate_and_inherit(trait_key, self._parent_trait, self.branches_versions, 'branch')
+
+        # Now that the branch has been specified, determine the valid versions
+        if self.branches_versions is not None:
+            valid_versions = self.branches_versions[self.branch]
+        else:
+            valid_versions = None
+
+        # Determine the version given the options
+        self.version = validate_and_inherit(trait_key, self._parent_trait, valid_versions, 'version')
+
 
     @property
     def trait_name(self):
@@ -179,8 +300,10 @@ class Trait(AbstractBaseTrait):
         """
         if trait_key is None:
             raise ValueError("The TraitKey must be provided.")
-        if not isinstance(trait_key, TraitKey):
-            trait_key = TraitKey.as_traitkey(trait_key)
+        trait_key = TraitKey.as_traitkey(trait_key)
+
+        # Fill in default values for any `None`s in `TraitKey`
+        trait_key = self.sub_traits.update_key_with_defaults(trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if trait_key not in self._trait_cache:
@@ -355,10 +478,16 @@ class Trait(AbstractBaseTrait):
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
         """
+        log.debug("Incrementing preload for trait %s", self.trait_key)
         assert self._preload_count >= 0
-        if self._preload_count == 0:
-            self.preload()
-        self._preload_count += 1
+        try:
+            if self._preload_count == 0:
+                self.preload()
+        except:
+            log.exception("Exception in preloading trait %s", self.trait_key)
+            raise
+        else:
+            self._preload_count += 1
 
     def _load_decr(self):
         """Internal function to handle cleanup.
@@ -367,10 +496,15 @@ class Trait(AbstractBaseTrait):
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
         """
+        log.debug("Decrementing preload for trait %s", self.trait_key)
         assert self._preload_count > 0
-        if self._preload_count == 1:
-            self.cleanup()
-        self._preload_count -= 1
+        try:
+            if self._preload_count == 1:
+                self.cleanup()
+        except:
+            raise
+        else:
+            self._preload_count -= 1
 
     def _realise(self):
         """Search through the objects members for TraitProperties, and preload any found.
@@ -657,7 +791,11 @@ class Epoch(Measurement):
 class TimeSeries(Epoch, AbstractBaseArrayTrait): pass
 
 
-class Image(Map): pass
+class Image(Map):
+
+    @property
+    def shape(self):
+        return self.value.value.shape
 
 
 class SpectralMap(Trait, AbstractBaseArrayTrait):

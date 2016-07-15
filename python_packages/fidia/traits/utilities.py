@@ -16,11 +16,20 @@ import re
 from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
+from ..utilities import is_list_or_set
 
 from ..descriptions import Description, Documentation, PrettyName
 
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
 TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
+
+TRAIT_NAME_RE = re.compile(
+    r"""(?P<trait_type>{TRAIT_TYPE_RE})
+        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?""".format(
+            TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
+            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+    re.VERBOSE
+)
 
 TRAIT_KEY_RE = re.compile(
     r"""(?P<trait_type>{TRAIT_TYPE_RE})
@@ -31,6 +40,19 @@ TRAIT_KEY_RE = re.compile(
             TRAIT_PART_RE=TRAIT_PART_RE.pattern),
     re.VERBOSE
 )
+
+def validate_trait_name(trait_name):
+    if TRAIT_NAME_RE.fullmatch(trait_name) is None:
+        raise ValueError("'%s' is not a valid trait_name" % trait_name)
+
+def validate_trait_type(trait_type):
+    if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
+        raise ValueError("'%s' is not a valid trait_type" % trait_type)
+
+def validate_traitkey_part(traitkey_part):
+    if TRAIT_PART_RE.fullmatch(traitkey_part) is None:
+        raise ValueError("'%s' is not a valid trait_key part" % traitkey_part)
+
 
 class TraitKey(tuple):
     """TraitKey(trait_type, trait_name, version, object_id)"""
@@ -315,22 +337,40 @@ class BoundTraitProperty:
 
         log.debug("Loading data for get for TraitProperty '%s'", self.name)
 
+
+        # try...except block to handle attempting to preload the trait. If the
+        # preload fails, then we assume that the cleanup does not need to be called.
         try:
 
             # Preload the Trait if necessary.
             self._trait._load_incr()
+        except DataNotAvailable:
+            raise
+        except Exception as e:
+            log.exception("An exception occurred trying to preload Trait %s",
+                          self._trait.trait_key
+                          )
+            raise DataNotAvailable("An unexpected error occurred trying to retrieve the requested data.")
 
+        # Now, the Trait has been successfully preloaded. Here is another
+        # try...except block, which will make sure the Trait is cleaned up
+        # even if the TraitProperty can't be retrieved.
+
+        try:
             # Call the actual user defined loader function to get the value of the TraitProperty.
             value = self._trait_property.fload(self._trait)
         except DataNotAvailable:
             raise
         except Exception as e:
-            log.exception("An exception occurred trying to retrieve the TraitProperty %s of Trait %s",
+            log.exception("An unexpected exception occurred trying to retrieve the TraitProperty %s of Trait %s",
                           self._trait_property.name,
                           self._trait.trait_key
                           )
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
+            # Finally because we have definitely successfully run the
+            # preload command, we must run the cleanup even if there was an error.
+
             # Cleanup the Trait if necessary.
             self._trait._load_decr()
 

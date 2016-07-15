@@ -8,6 +8,7 @@ from fidia.traits.base_traits import Trait
 from fidia.traits import TraitProperty, trait_property, TraitKey, TraitRegistry
 from fidia.archive import example_archive
 
+from fidia.traits.utilities import validate_trait_name, validate_trait_type
 
 def test_incomplete_trait_fails():
 
@@ -224,6 +225,17 @@ class TestTraitKeys:
     #     # Instance method approach
     #     assert TraitKey('trait', 'qual').as_trait_name() == 'trait-qual'
 
+    def test_convenience_trait_key_validation_functions(self):
+
+
+        with pytest.raises(ValueError):
+            validate_trait_name("blah:fsdf")
+
+        with pytest.raises(ValueError):
+            validate_trait_type("line_map-blue")
+
+        validate_trait_name("line_map-blue")
+        validate_trait_type("line_map")
 
 class TestTraitRegistry:
 

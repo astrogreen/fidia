@@ -16,6 +16,7 @@ from ..traits import TraitRegistry
 from .base_archive import BaseArchive
 from ..cache import DummyCache
 from ..utilities import SchemaDictionary
+from ..exceptions import *
 
 class Archive(BaseArchive):
     def __init__(self):
@@ -65,8 +66,10 @@ class Archive(BaseArchive):
             raise ValueError("The TraitKey must be provided.")
         if object_id is None:
             raise ValueError("The object_id must be provided.")
-        if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
-            trait_key = TraitKey(*trait_key)
+        trait_key = TraitKey.as_traitkey(trait_key)
+
+        # Fill in default values for any `None`s in `TraitKey`
+        trait_key = self.available_traits.update_key_with_defaults(trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if (object_id, trait_key, parent_trait) not in self._trait_cache:
@@ -124,7 +127,7 @@ class Archive(BaseArchive):
             return TraitProperty
 
     def can_provide(self, trait_key):
-        return trait_key in self.available_traits.get_all_traitkeys()
+        return trait_key.trait_name in self.available_traits.get_trait_names()
 
     def schema(self):
         """Provide a list of trait_keys and classes this archive generally supports."""
@@ -132,10 +135,20 @@ class Archive(BaseArchive):
         if self._schema:
             return self._schema
         result = SchemaDictionary()
+        log.debug("Building a schema for archive '%s'", self)
         for trait_name in self.available_traits.get_trait_names():
+            log.debug("    Processing traits with trait_name '%s'", trait_name)
             result[trait_name] = SchemaDictionary()
             for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
-                result[trait_name].update(trait.schema())
+                log.debug("        Attempting to add Trait class '%s'", trait)
+                trait_schema = trait.schema()
+                try:
+                    result[trait_name].update(trait_schema)
+                except ValueError:
+                    log.error("Schema mis-match in traits: trait '%s' cannot be added " +
+                              "to schema for '%s' containing: '%s'",
+                              trait, trait_name, result[trait_name])
+                    raise SchemaError("Schema mis-match in traits")
         self._schema = result
         return result
 

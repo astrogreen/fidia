@@ -42,6 +42,9 @@ def a_sami_galaxy(sami_sample):
 
 class TestSAMIArchive:
 
+    def test_full_sample_creation(self, sami_archive):
+        sami_archive.get_full_sample()
+
     def test_confirm_id_data_type(self, sami_archive, sami_sample):
         assert isinstance(next(iter(sami_archive.contents)), str)
         assert isinstance(next(iter(sami_sample.ids)), str)
@@ -51,8 +54,6 @@ class TestSAMIArchive:
     #     f = sami_archive.available_traits['spectral_cubes']u'/data/SAMI/data_releases/v0.9/2015_04_14-2015_04_22/cubed/41144/41144_red_7_Y15SAR3_P002_12T085_1sec.fits.gz')
     #     f.data()
 
-    def test_full_sample_creation(self, sami_archive):
-        sami_archive.get_full_sample()
 
     # def test_data_available(self, sami_archive):
     #     sami_archive.available_traits['spectral_cube'].data_available("41144")
@@ -92,39 +93,6 @@ class TestSAMIArchive:
     #     t = sami_sample['41144']['rss_map', '2015_04_14-2015_04_22:15apr20015sci.fits']
     #     assert isinstance(t.value, numpy.ndarray)
 
-    # def test_sami_traits_have_correct_schema_structure(self, sami_archive):
-    #
-    #     # Iterate over all known traits for this archive:
-    #     for trait_class in sami_archive.available_traits:
-    #         schema = sami_archive.available_traits[trait_class].schema()
-    #         # Schema should be dictionary-like:
-    #         assert isinstance(schema, dict)
-    #         for key in schema:
-    #             # Keys should be strings
-    #             assert isinstance(key, str)
-    #             # Values should be strings
-    #             assert isinstance(schema[key], str)
-    #             # Values should be valid data-types
-    #             # @TODO: Not implemented
-
-    def test_sami_archive_schema_no_empty_elements(self, sami_archive):
-        schema = sami_archive.schema()
-
-        assert not contains_empty_dicts(schema)
-
-    def test_sami_archive_has_correct_schema_structure(self, sami_archive):
-        schema = sami_archive.schema()
-
-        # Schema should be dictionary-like:
-        assert isinstance(schema, dict)
-        for trait_name in schema:
-
-            # Top level of schema should be a valid trait_name:
-            assert trait_name in sami_archive.available_traits.get_trait_names()
-
-            # Each element should be dictionary-like
-            assert isinstance(schema[trait_name], dict)
-
     # def test_get_trait_keys_for_rss(self, sami_archive):
     #     rss_keys = sami_archive.available_traits[('rss_map')].known_keys(sami_archive)
     #     key = rss_keys.pop()
@@ -143,6 +111,8 @@ class TestSAMIArchive:
     #             assert isinstance(trait, AbstractBaseTrait)
 
 
+class TestSAMISmartTraits:
+
     def test_cube_wcs(self, a_sami_galaxy):
 
         import astropy.wcs
@@ -157,9 +127,46 @@ class TestSAMIArchive:
         coord = a_sami_galaxy['spectral_cube', 'blue'].get_sub_trait(TraitKey('catalog_coordinate'))
         assert isinstance(coord, astropy.coordinates.SkyCoord)
 
-    def test_cube_wcs_in_schema(self, sami_archive):
+
+class TestSAMIArchiveSchema:
+
+    @pytest.fixture
+    def schema(self, sami_archive):
+        return sami_archive.schema()
+
+    # def test_sami_traits_have_correct_schema_structure(self, sami_archive):
+    #
+    #     # Iterate over all known traits for this archive:
+    #     for trait_class in sami_archive.available_traits:
+    #         schema = sami_archive.available_traits[trait_class].schema()
+    #         # Schema should be dictionary-like:
+    #         assert isinstance(schema, dict)
+    #         for key in schema:
+    #             # Keys should be strings
+    #             assert isinstance(key, str)
+    #             # Values should be strings
+    #             assert isinstance(schema[key], str)
+    #             # Values should be valid data-types
+    #             # @TODO: Not implemented
+
+    def test_sami_archive_schema_no_empty_elements(self, schema):
+
+        assert not contains_empty_dicts(schema)
+
+    def test_sami_archive_has_correct_schema_structure(self, schema, sami_archive):
         schema = sami_archive.schema()
 
+        # Schema should be dictionary-like:
+        assert isinstance(schema, dict)
+        for trait_name in schema:
+
+            # Top level of schema should be a valid trait_name:
+            assert trait_name in sami_archive.available_traits.get_trait_names()
+
+            # Each element should be dictionary-like
+            assert isinstance(schema[trait_name], dict)
+
+    def test_cube_wcs_in_schema(self, schema):
         schema['spectral_cube-red']['wcs']
 
 class TestSAMIArchiveMetadata:
