@@ -15,7 +15,7 @@ from operator import itemgetter as _itemgetter
 from ..exceptions import *
 from ..utilities import is_list_or_set
 
-from ..descriptions import Description, Documentation, PrettyName
+# from ..descriptions import DescriptionsMixin
 
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
 TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
