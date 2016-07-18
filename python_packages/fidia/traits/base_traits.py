@@ -12,7 +12,7 @@ from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_traitkey_part
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit
-from ..descriptions import PrettyName, Description, Documentation
+from ..descriptions import DescriptionsMixin
 
 
 from .. import slogging
@@ -55,14 +55,9 @@ def validate_trait_branches_versions_dict(branches_versions):
             if version is not None:
                 validate_traitkey_part(version)
 
-class Trait(AbstractBaseTrait):
+class Trait(DescriptionsMixin, AbstractBaseTrait):
 
     sub_traits = TraitRegistry()
-
-
-    pretty_name = PrettyName()
-    description = Description()
-    documentation = Documentation()
 
     # The following are a required part of the Trait interface.
     # They must be set in sub-classes to avoid an error trying create a Trait.

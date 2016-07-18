@@ -1,48 +1,70 @@
+class DescriptionsMixin:
+    """A mix-in class which provides descriptions functionality for any class.
 
+    Basically, there are four types of descriptions we must support:
 
-class DescriptionsDescriptor:
-    def __init__(self, string=None):
-        self.contents = string
+        @TODO: Finish documentation
 
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        else:
-            if self.contents is not None:
-                return self.contents
-            else:
-                return self.get_contents(instance, owner)
+    """
 
-    def get_contents(self, instance, owner):
-        return None
-
-class PrettyName(DescriptionsDescriptor):
-    pass
-
-
-class Description(DescriptionsDescriptor):
-    def get_contents(self, instance, owner):
+    @classmethod
+    def get_documentation(cls):
+        if hasattr(cls, '_documentation'):
+            return getattr(cls, '_documentation')
         try:
-            if hasattr(instance, 'doc') and instance.doc is not None:
-                if "\n" in instance.doc:
-                    return instance.doc.split("\n")[0]
-                else:
-                    return instance.doc
-            if hasattr(instance, '__doc__') and instance.__doc__ is not None:
-                if "\n" in instance.__doc__:
-                    return instance.__doc__.split("\n")[0]
-                else:
-                    return instance.__doc__
+            if hasattr(cls, 'doc') and cls.doc is not None:
+                return cls.doc
+            if hasattr(cls, '__doc__') and cls.__doc__ is not None:
+                return cls.__doc__
         except:
             return None
 
+    @classmethod
+    def set_documentation(cls, value, format='latex'):
+        cls._documentation = value
+        cls._documentation_format = format
 
-class Documentation(DescriptionsDescriptor):
-    def get_contents(self, instance, owner):
+    @classmethod
+    def get_pretty_name(cls):
+        if hasattr(cls, '_pretty_name'):
+            return getattr(cls, '_pretty_name')
+
+        if hasattr(cls, 'trait_name'):
+            # This is a trait, and we can convert the trait_name to a nicely formatted name
+            name = getattr(cls, 'trait_name')
+            # assert isinstance(name, str)
+            # Change underscores to spaces
+            name = name.replace("_", " ")
+            # Make the first letters of each word capital.
+            name.title()
+
+            # Append the qualifier:
+            # @TODO: write this bit.
+            return name
+
+
+    @classmethod
+    def set_pretty_name(cls, value):
+        cls._pretty_name = value
+
+    @classmethod
+    def get_description(cls):
+        if hasattr(cls, '_short_description'):
+            return getattr(cls, '_short_description')
         try:
-            if hasattr(instance, 'doc') and instance.doc is not None:
-                return instance.doc
-            if hasattr(instance, '__doc__') and instance.__doc__ is not None:
-                return instance.__doc__
+            if hasattr(cls, 'doc') and cls.doc is not None:
+                if "\n" in cls.doc:
+                    return cls.doc.split("\n")[0]
+                else:
+                    return cls.doc
+            if hasattr(cls, '__doc__') and cls.__doc__ is not None:
+                if "\n" in cls.__doc__:
+                    return cls.__doc__.split("\n")[0]
+                else:
+                    return cls.__doc__
         except:
             return None
+
+    @classmethod
+    def set_description(cls, value):
+        cls._short_description = value
