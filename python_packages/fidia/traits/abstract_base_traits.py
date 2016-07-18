@@ -38,12 +38,8 @@ class AbstractBaseTrait(metaclass=ABCMeta):
     def schema(cls):
         raise NotImplementedError
 
-    @abstractproperty
+    # @abstractproperty
     def value(self):
-        raise NotImplementedError
-
-    @abstractclassmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
         raise NotImplementedError
 
     # @abstractproperty

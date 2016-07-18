@@ -2,21 +2,22 @@
 import numpy as np
 
 from .archive import Archive
-from ..traits.utilities import TraitKey, TraitMapping, trait_property
+from ..traits import TraitKey, TraitRegistry, trait_property
+from ..utilities import DefaultsRegistry
 from ..traits.base_traits import SpectralMap, Image, Measurement, Trait
 from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
 
-    # def init(self):
-    #     if self.trait_qualifier != 'mymap':
-    #         raise DataNotAvailable("ExampleSpectraMap only has trait_qualifier='mymap' data.")
+    def init(self):
+        if self.object_id == 'Gal2':
+            raise DataNotAvailable("Gal2 has no 'spectral_map'")
 
     trait_type = "spectral_map"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
+    branches_versions = {None: [None], "other": [None]}
+
+    defaults = DefaultsRegistry(None, {None: None, "other": None})
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -45,9 +46,9 @@ class ExampleSpectralMapExtra(SpectralMap):
 
     trait_type = "spectral_map"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
+    branches_versions = {'extra': [None]}
+
+    defaults = DefaultsRegistry(None, {'extra': None})
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -74,18 +75,14 @@ class ExampleSpectralMapExtra(SpectralMap):
         assert not self._clean
         return np.random.random()
 
-    @trait_property('string')
-    def galaxy_name(self):
-        assert not self._clean
-        return self.object_id
+    # @trait_property('string')
+    # def galaxy_name(self):
+    #     assert not self._clean
+    #     return self.object_id
 
 class VelocityMap(Image):
 
     trait_type = "velocity_map"
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
 
     @property
     def shape(self):
@@ -108,10 +105,6 @@ class LineMap(Image):
 
     trait_type = "line_map"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
-
     @property
     def shape(self):
         return self.value.shape
@@ -127,13 +120,87 @@ class LineMap(Image):
     def variance(self):
         return np.random.random((20, 20))
 
+class RedImage(Image):
+
+    trait_type = 'image'
+
+    qualifiers = {'red'}
+
+
+    @trait_property('float.array')
+    def value(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def variance(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def extra_property_red(self):
+        return 'red'
+
+
+class BlueImage(Image):
+    trait_type = 'image'
+
+    qualifiers = {'blue'}
+
+    @trait_property('float.array')
+    def value(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def variance(self):
+        return np.random.random((20, 20))
+
+    @trait_property('float.array')
+    def extra_property_blue(self):
+        return 'blue'
+
+    sub_traits = TraitRegistry()
+
+    @sub_traits.register
+    class ImageSubTrait(Image):
+        trait_type = 'image'
+
+        qualifiers = {'blue'}
+
+
+        @trait_property('float.array')
+        def value(self):
+            return np.random.random((20, 20))
+
+
+        @trait_property('float.array')
+        def variance(self):
+            return np.random.random((20, 20))
+
+
+        @trait_property('float.array')
+        def extra_property_blue(self):
+            return 'blue'
+
+    @sub_traits.register
+    class RedImage(Image):
+        trait_type = 'image'
+
+        qualifiers = {'red'}
+
+        @trait_property('float.array')
+        def value(self):
+            return np.random.random((20, 20))
+
+        @trait_property('float.array')
+        def variance(self):
+            return np.random.random((20, 20))
+
+        @trait_property('float.array')
+        def extra_property_red(self):
+            return 'red'
+
 class Redshift(Measurement):
 
     trait_type = "redshift"
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
 
     @trait_property('float')
     def value(self):
@@ -145,10 +212,6 @@ class Redshift(Measurement):
 class TestMissingProperty(SpectralMap):
 
     trait_type = "spectral_map"
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
 
     @property
     def shape(self):
@@ -166,22 +229,24 @@ class TestMissingProperty(SpectralMap):
         return self.object_id
 
 class SimpleTrait(Trait):
+    """Description for SimpleTrait.
 
+    Extended documentation for SimpleTrait.
+
+    """
     # NOTE: Tests rely on this class, so changing it will require updating the tests!
 
     trait_type = "simple_trait"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
-
     @trait_property('float')
     def value(self):
         return 5.5
+    value.description = "TheValue"
 
     @trait_property('string')
     def extra(self):
         return "Extra info"
+    extra.description = "ExtraInformation"
 
 class SimpleTraitWithSubtraits(Trait):
 
@@ -189,12 +254,11 @@ class SimpleTraitWithSubtraits(Trait):
 
     trait_type = "simple_heir_trait"
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, trait_qualifier="", version="")]
+    sub_traits = TraitRegistry()
 
-    _sub_traits = TraitMapping()
-    _sub_traits[TraitKey('sub_trait')] = SimpleTrait
+    @sub_traits.register
+    class SubTrait(SimpleTrait):
+        trait_type = 'sub_trait'
 
     @trait_property('float')
     def value(self):
@@ -206,6 +270,8 @@ class SimpleTraitWithSubtraits(Trait):
 
 
 class ExampleArchive(Archive):
+
+    available_traits = TraitRegistry()
 
     def __init__(self):
         # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
@@ -224,16 +290,19 @@ class ExampleArchive(Archive):
     def name(self):
         return 'ExampleArchive'
 
+
     def define_available_traits(self):
-        self.available_traits[TraitKey('spectral_map', None, None, None)] = ExampleSpectralMap
-        self.available_traits[TraitKey('spectral_map', 'extra', None, None)] = ExampleSpectralMapExtra
-        self.available_traits[TraitKey('spectral_map', 'extra', None, 'Gal2')] = TestMissingProperty
-        self.available_traits[TraitKey('line_map', None, None, None)] = LineMap
-        self.available_traits[TraitKey('velocity_map', None, None, None)] = VelocityMap
-        self.available_traits[TraitKey('redshift', None, None, None)] = Redshift
+        self.available_traits.register(ExampleSpectralMap)
+        self.available_traits.register(ExampleSpectralMapExtra)
+        # self.available_traits[TraitKey('spectral_map', 'extra', None, 'Gal2')] = TestMissingProperty
+        self.available_traits.register(LineMap)
+        self.available_traits.register(VelocityMap)
+        self.available_traits.register(Redshift)
 
         # NOTE: Tests rely on this, so changing it will require updating the tests!
-        self.available_traits[TraitKey('simple_trait', None, None, None)] = SimpleTrait
-        self.available_traits[TraitKey('simple_heir_trait', None, None, None)] = SimpleTraitWithSubtraits
+        self.available_traits.register(SimpleTrait)
+        self.available_traits.register(SimpleTraitWithSubtraits)
+        self.available_traits.register(BlueImage)
+        self.available_traits.register(RedImage)
 
 
