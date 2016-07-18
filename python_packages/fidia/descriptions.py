@@ -1,71 +1,70 @@
-from . import slogging
-log = slogging.getLogger(__name__)
-log.enable_console_logging()
-log.setLevel(slogging.DEBUG)
+class DescriptionsMixin:
+    """A mix-in class which provides descriptions functionality for any class.
 
+    Basically, there are four types of descriptions we must support:
 
-class DescriptionsDescriptor:
+        @TODO: Finish documentation
 
-    def __get__(self, instance, klass):
+    """
+
+    @classmethod
+    def get_documentation(cls):
+        if hasattr(cls, '_documentation'):
+            return getattr(cls, '_documentation')
         try:
-            if instance is None:
-                return klass._descriptive_data[self.attribute_name]
-            elif instance is not None:
-                return instance._descriptive_data[self.attribute_name]
-        except (KeyError, AttributeError):
-            return self.get_contents(instance, klass)
-
-    def __set__(self, instance, value):
-        raise Exception("Descriptive information cannot be set in this way. Programming Error.")
-
-    def get_contents(self, instance, klass):
-        return None
-
-class PrettyName(DescriptionsDescriptor):
-    attribute_name = "pretty_name"
-
-
-class Description(DescriptionsDescriptor):
-    attribute_name = "description"
-    def get_contents(self, instance, klass):
-        try:
-            if hasattr(instance, 'doc') and instance.doc is not None:
-                if "\n" in instance.doc:
-                    return instance.doc.split("\n")[0]
-                else:
-                    return instance.doc
-            if hasattr(instance, '__doc__') and instance.__doc__ is not None:
-                if "\n" in instance.__doc__:
-                    return instance.__doc__.split("\n")[0]
-                else:
-                    return instance.__doc__
+            if hasattr(cls, 'doc') and cls.doc is not None:
+                return cls.doc
+            if hasattr(cls, '__doc__') and cls.__doc__ is not None:
+                return cls.__doc__
         except:
             return None
 
+    @classmethod
+    def set_documentation(cls, value, format='latex'):
+        cls._documentation = value
+        cls._documentation_format = format
 
-class Documentation(DescriptionsDescriptor):
-    attribute_name = "documentation"
-    def get_contents(self, instance, klass):
-        if instance is None:
-            object = klass
-        else:
-            object = instance
+    @classmethod
+    def get_pretty_name(cls):
+        if hasattr(cls, '_pretty_name'):
+            return getattr(cls, '_pretty_name')
 
+        if hasattr(cls, 'trait_name'):
+            # This is a trait, and we can convert the trait_name to a nicely formatted name
+            name = getattr(cls, 'trait_name')
+            # assert isinstance(name, str)
+            # Change underscores to spaces
+            name = name.replace("_", " ")
+            # Make the first letters of each word capital.
+            name.title()
+
+            # Append the qualifier:
+            # @TODO: write this bit.
+            return name
+
+
+    @classmethod
+    def set_pretty_name(cls, value):
+        cls._pretty_name = value
+
+    @classmethod
+    def get_description(cls):
+        if hasattr(cls, '_short_description'):
+            return getattr(cls, '_short_description')
         try:
-            if hasattr(object, 'doc') and object.doc is not None:
-                return object.doc
-            if hasattr(object, '__doc__') and object.__doc__ is not None:
-                return object.__doc__
+            if hasattr(cls, 'doc') and cls.doc is not None:
+                if "\n" in cls.doc:
+                    return cls.doc.split("\n")[0]
+                else:
+                    return cls.doc
+            if hasattr(cls, '__doc__') and cls.__doc__ is not None:
+                if "\n" in cls.__doc__:
+                    return cls.__doc__.split("\n")[0]
+                else:
+                    return cls.__doc__
         except:
             return None
 
-class ShortName(DescriptionsDescriptor):
-    attribute_name = "short_name"
-
-    def get_contents(self, instance, klass):
-        if instance is None:
-            object = klass
-        else:
-            object = instance
-
-        return object.__name__
+    @classmethod
+    def set_description(cls, value):
+        cls._short_description = value

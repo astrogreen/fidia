@@ -134,16 +134,16 @@ class TestTraits:
     def test_trait_descriptions(self):
         test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
-        assert hasattr(test_trait, 'pretty_name')
-        assert hasattr(test_trait, 'documentation')
-        assert hasattr(test_trait, 'description')
+        assert hasattr(test_trait, 'get_pretty_name')
+        assert hasattr(test_trait, 'get_documentation')
+        assert hasattr(test_trait, 'get_description')
 
-        assert test_trait.description == "Description for SimpleTrait."
+        assert test_trait.get_description() == "Description for SimpleTrait."
 
-        print(type(test_trait.documentation))
-        print(test_trait.documentation)
-        assert "Extended documentation" in test_trait.documentation
-        assert "Description for SimpleTrait" in test_trait.documentation
+        print(type(test_trait.get_documentation))
+        print(test_trait.get_documentation())
+        assert "Extended documentation" in test_trait.get_documentation()
+        assert "Description for SimpleTrait" in test_trait.get_documentation()
 
 
     def test_trait_property_description(self):
