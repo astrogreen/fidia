@@ -11,15 +11,16 @@ import pandas as pd
 
 from ..sample import Sample
 from ..traits import Trait, TraitKey, TraitProperty
-from ..traits.utilities import TraitMapping
+from ..traits import TraitRegistry
 from .base_archive import BaseArchive
 from ..cache import DummyCache
 from ..utilities import SchemaDictionary
+from ..exceptions import *
 
 class Archive(BaseArchive):
     def __init__(self):
         # Traits (or properties)
-        self.available_traits = TraitMapping()
+        self.available_traits = TraitRegistry()
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
@@ -64,8 +65,10 @@ class Archive(BaseArchive):
             raise ValueError("The TraitKey must be provided.")
         if object_id is None:
             raise ValueError("The object_id must be provided.")
-        if not isinstance(trait_key, TraitKey) and isinstance(trait_key, tuple):
-            trait_key = TraitKey(*trait_key)
+        trait_key = TraitKey.as_traitkey(trait_key)
+
+        # Fill in default values for any `None`s in `TraitKey`
+        trait_key = self.available_traits.update_key_with_defaults(trait_key)
 
         # Check if we have already loaded this trait, otherwise load and cache it here.
         if (object_id, trait_key, parent_trait) not in self._trait_cache:
@@ -77,7 +80,7 @@ class Archive(BaseArchive):
 
             # Determine which class responds to the requested trait.
             # Potential for far more complex logic here in future.
-            trait_class = self.available_traits[trait_key]
+            trait_class = self.available_traits.retrieve_with_key(trait_key)
 
             # Create the trait object and cache it
             log.debug("Returning trait_class %s", type(trait_class))
@@ -114,7 +117,7 @@ class Archive(BaseArchive):
         current_schema_item = schema
         for path_element in path:
             trait_key = TraitKey.as_traitkey(path_element)
-            current_schema_item = current_schema_item[trait_key.trait_type]
+            current_schema_item = current_schema_item[trait_key.trait_name]
 
         # Decide whether the item in the schema corresponds to a Trait or TraitProperty
         if isinstance(current_schema_item, dict):
@@ -123,7 +126,7 @@ class Archive(BaseArchive):
             return TraitProperty
 
     def can_provide(self, trait_key):
-        return trait_key in self.available_traits
+        return trait_key.trait_name in self.available_traits.get_trait_names()
 
     def schema(self):
         """Provide a list of trait_keys and classes this archive generally supports."""
@@ -131,10 +134,20 @@ class Archive(BaseArchive):
         if self._schema:
             return self._schema
         result = SchemaDictionary()
-        for trait_type in self.available_traits.get_trait_types():
-            result[trait_type] = SchemaDictionary()
-            for trait in self.available_traits.get_traits_for_type(trait_type):
-                result[trait_type].update(trait.schema())
+        log.debug("Building a schema for archive '%s'", self)
+        for trait_name in self.available_traits.get_trait_names():
+            log.debug("    Processing traits with trait_name '%s'", trait_name)
+            result[trait_name] = SchemaDictionary()
+            for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
+                log.debug("        Attempting to add Trait class '%s'", trait)
+                trait_schema = trait.schema()
+                try:
+                    result[trait_name].update(trait_schema)
+                except ValueError:
+                    log.error("Schema mis-match in traits: trait '%s' cannot be added " +
+                              "to schema for '%s' containing: '%s'",
+                              trait, trait_name, result[trait_name])
+                    raise SchemaError("Schema mis-match in traits")
         self._schema = result
         return result
 
