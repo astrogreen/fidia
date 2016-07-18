@@ -6,22 +6,25 @@
 {% block title %}Documentation{% endblock %}
 
 {% block head-extra %}
-<script src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
-<script src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
+<script type="text/javascript">
+    //get url for available catalogues
+    urlCataloguesGlobal = "{% url "catalogues" %}"
+</script>
+
+<script type="text/javascript" src="{% static 'query/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/isteven-multi-select/isteven-multi-select.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation/documentation.min.css' %}"/>
+
+<link rel="stylesheet" type="text/css" href="{% static 'query/css/query-builder/query-builder.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'query/css/schema-browser/schema-browser.min.css' %}"/>
+
 <script type="text/javascript">
     //get url for available catalogues
     urlCataloguesGlobal = "{% url 'catalogues' %}"
 </script>
-<script src="{% static 'restapi_app/js/query-builder/app.js' %}"></script>
-<script src="{% static 'restapi_app/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/isteven-multi-select/isteven-multi-select.js' %}"></script>
 
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation/documentation.min.css' %}"/>
-<link rel="stylesheet" href="{% static 'restapi_app/css/isteven-multi-select/isteven-multi-select.css' %}" type="text/css"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/schema-browser/schema-browser.min.css' %}"/>
 {% endblock %}
-{% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
-
 
 <div class="container-fluid breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
     <div class="container">
@@ -38,7 +41,7 @@
 </div>
 
 
-{% block content %}
+{% block content_render %}
 <h1 class="headline">
     <span>Documentation</span>
 </h1>
@@ -59,7 +62,7 @@
                 <p>Select an option from the dropdown below to discover the schema. If further options are available, new dropdowns will appear. </p>
                 <div id="schema-browser-intro" class="subgroup">
                     {% block schema-browser %}
-                    {% include "restapi_app/query/schema-browser-module.html" %}
+                    {% include "query/schema-browser-module.html" %}
                     {% endblock %}
                 </div>
             </section>

@@ -1,0 +1,43 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Dummy Item{% endblock %}
+
+{% block angular-ng-app-class %}ng-app="DCApp"{% endblock %}
+
+{% block head-extra %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'cart/css/cart/cart.min.css' %}"/>
+
+<script type="text/javascript" src="{% static 'cart/js/controllers.js' %}"></script>
+
+{% endblock %}
+
+{% block breadcrumbs-outer %}
+<ul class="breadcrumb ">
+    <li class="active"><a href="{% url 'index' %}">Home</a></li>
+    <li>Item</li>
+</ul>
+{% endblock %}
+
+{% block content_render %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="headline"><span>Dummy Items</span></h1>
+        </div>
+        <div ng-controller="DummyData">
+            <div class="col-md-3" ng-repeat="item in data">
+                <h6 ng-bind="item.url"></h6>
+                <p>Gal <span ng-bind="item.id"></span></p>
+                <add-cart-button item="item"></add-cart-button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
+{% endblock %}

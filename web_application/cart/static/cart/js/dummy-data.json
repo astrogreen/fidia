@@ -1,0 +1,18 @@
+[
+  {
+		"id": "/asvo/sami/221375/line_map-OIII5007/",
+		"options": ["velocity_map", "spectral_cube_red"]
+  },
+  {
+		"id":  "http://asvo.org/terrificgalaxy/linemap",
+		"options": ["velocity_map"]
+  },
+  {
+		"id":  "http://asvo.org/terrificgalaxy/velocity_map",
+		"options": ["spectral_cube_blue"]
+  },
+  {
+		"id":  "http://asvo.org/65406/linemap",
+		"options": ["velocity_map", "spectral_cube_blue"]
+  }
+]

@@ -1,0 +1,181 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}{{objname}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block page_title %}{% filter uppercase %}{% get_pks request.path -4 %}{% endfilter %} {% get_pks request.path -3 %}: {{objname}}{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'sov-list' %}">View in SOV</a></li>
+<li role="presentation" ><a href="{% url 'sami-list' %}">Back to Sami</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row">
+    <div class="col-sm-4">
+        <div class="trait_tabs">
+            <ul class="nav nav-tabs" role="tablist" id="trait_tabs" >
+                <li role="presentation" class="active"><a href="#description" aria-controls="description" role="tab" data-toggle="tab">Description</a>
+                </li>
+                <li role="presentation"><a href="#properties" aria-controls="properties" role="tab" data-toggle="tab">Properties</a>
+                </li>
+                <li role="presentation"><a href="#download" aria-controls="download" role="tab" data-toggle="tab">Download</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="description">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>{% lorem %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="properties">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                           <p>Component properties of {{objname}} are listed below, click on one for more info.</p>
+                        </div>
+                        <ul class="list-group">
+                            {% for key, value in response.data.items %}
+                                <li class="list-group-item"><a href="{{key}}">{{key | CapsSentence}}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="download">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>Download {{objname}} instantly, or add to your cart and keep browsing.<br></p>
+
+                            {% if 'GET' in allowed_methods %}
+                                {% if api_settings.URL_FORMAT_OVERRIDE %}
+                                    <p class="subheading">Add to Cart</p>
+                                    <span class="button-dropdown" data-buttons="dropdown">
+                                        <button class="button button-small text-uppercase">
+                                          Format <i class="fa fa-caret-down"></i>
+                                        </button><!--
+                                         --><ul class="button-dropdown-list button-dropdown-list-small">
+                                            {% for format in available_formats %}
+                                                {% if format != 'api' %}
+                                                    <li>
+                                                        <a class="js-tooltip"
+                                                           data-url="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                                           title="Download {{ objname }} with the format set to `{{ format }}`">
+                                                            {{ format }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                     </span><!--
+                                    --><add-cart-button url="{{request.get_full_path}}"
+                                         options="['velocity_map', 'spec_cube_blue']"></add-cart-button>
+                                    {% endif %}
+                            {% endif %}
+
+                            {% if 'GET' in allowed_methods %}
+                            <p class="subheading">Download now</p>
+                            <form id="get-form">
+                                <fieldset>
+                                    {% if api_settings.URL_FORMAT_OVERRIDE %}
+                                        {% for format in available_formats %}
+                                            {% if format != 'api' %}
+                                                <a class="button button-small button-primary js-tooltip text-uppercase"
+                                                       href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                                       rel="nofollow" title="Download {{ objname }} with the format set to `{{ format }}`">
+                                                        {{ format }}</a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </fieldset>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default ">
+            <div class="panel-body">
+                <p><strong>Plot Options</strong></p>
+                <p>interactive plotting options go here</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-8">
+        <div id="{% get_pks request.path -2 %}">
+            <p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p>
+            {% comment %}
+                {% for key, value in response.data.items %}
+                <strong>{{key}}</strong><br>
+                    {% for keya, valuea in value.items %}
+                        keya:{{keya}}<br>
+                        valuea:{{valuea}}<br>
+                    {% endfor %}
+                <br>
+                {% endfor %}
+            {% endcomment %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block content-DRFs %}{% endblock %}
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script src="{% static 'restapi_app/js/plotly/plotly.min.js' %}"></script>
+<!--<script src="{% static 'restapi_app/js/plotly/custom/plot_maps.js' %}"></script>-->
+
+<!--<script type="text/javascript">-->
+    <!--var trait_url = "{{request.build_absolute_uri}}value/?format=json";-->
+    <!--var trait_name = "{% get_pks request.path -2 %}";-->
+
+    <!--// only run if ! spectral-->
+    <!--if (trait_name.indexOf("spectral") < 0){-->
+        <!--// Check if handed with the reponse-->
+
+
+        <!--// Get json for this trait and populate-->
+        <!--$.ajax({-->
+            <!--url: trait_url,-->
+            <!--// here, don't let ajax parse as json, NANs are a problem. set type to string and parse with parseMore-->
+            <!--dataType: 'text',-->
+            <!--type: 'GET',-->
+            <!--success: function (data) {-->
+                <!--// Parse NANs here-->
+                <!--var trait_data = JSON.parseMore(data);-->
+                <!--// Run plotly-->
+                <!--plot_map(trait_name, trait_data);-->
+            <!--},-->
+            <!--error: function (jqXHR, exception) {-->
+                <!--alert("Error");-->
+                <!--if (jqXHR.status === 0) {-->
+                    <!--console.log('Not connect.\n Verify Network.');-->
+                <!--} else if (jqXHR.status == 404) {-->
+                    <!--console.log('Requested page not found. [404]');-->
+                <!--} else if (jqXHR.status == 500) {-->
+                    <!--console.log('Internal Server Error [500].');-->
+                <!--} else if (exception === 'parsererror') {-->
+                    <!--console.log('Requested JSON parse failed.');-->
+                <!--} else if (exception === 'timeout') {-->
+                    <!--console.log('Time out error.');-->
+                <!--} else if (exception === 'abort') {-->
+                    <!--console.log('Ajax request aborted.');-->
+                <!--} else {-->
+                    <!--console.log('Uncaught Error.\n' + jqXHR.responseText);-->
+                <!--}-->
+            <!--}-->
+        <!--});-->
+    <!--} else {-->
+        <!--$('#'+trait_name).html('tbd');-->
+    <!--};-->
+<!--</script>-->
+
+{% endblock %}
+
