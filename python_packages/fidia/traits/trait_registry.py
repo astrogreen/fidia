@@ -93,9 +93,24 @@ class TraitRegistry:
             log.debug("Returning all traits of this TraitRegistry (no filter applied).")
             return self._registry
 
-    def get_all_traitkeys(self):
-        """A list of all known trait keys in the registry."""
-        return self._trait_lookup.keys()
+    def get_all_traitkeys(self, trait_type_filter=None, trait_name_filter=None):
+        """A list of all known trait keys in the registry, optionally filtered."""
+        filtered_keys = set(self._trait_lookup.keys())
+
+        # Note that the trait name filter is more specific, so if present, it is
+        # run first (and then there is no need to do a trait type filter).
+        if trait_name_filter is not None:
+            # Then filter for matching trait names
+            for trait_key in filtered_keys:
+                if trait_key.trait_name != trait_name_filter:
+                    filtered_keys.remove(trait_key)
+        elif trait_type_filter is not None:
+            # Then filter for matching trait types
+            for trait_key in filtered_keys:
+                if trait_key.trait_type != trait_type_filter:
+                    filtered_keys.remove(trait_key)
+
+        return filtered_keys
 
     def get_trait_names(self):
         """A list of the unique trait types in this TraitRegistry."""
