@@ -122,7 +122,8 @@ class TestTraits:
         # Hierarchical part of schema:
         assert 'sub_trait' in schema
         assert isinstance(schema['sub_trait'], dict)
-        assert 'value' in schema['sub_trait']
+        assert isinstance(schema['sub_trait'][None], dict)
+        assert 'value' in schema['sub_trait'][None]
 
     def test_retrieve_sub_trait_by_dictionary(self):
 
