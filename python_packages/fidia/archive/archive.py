@@ -137,15 +137,16 @@ class Archive(BaseArchive):
         log.debug("Building a schema for archive '%s'", self)
         trait_types = self.available_traits.get_trait_types()
         for trait_type in trait_types:
-            log.debug("    Processing traits with trait_name '%s'", trait_type)
+            log.debug("    Processing traits with trait_type '%s'", trait_type)
             result[trait_type] = SchemaDictionary()
             trait_names = self.available_traits.get_trait_names(trait_type_filter=trait_type)
             for trait_name in trait_names:
+                log.debug("        Processing traits with trait_name '%s'", trait_name)
                 trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
                 for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
-                    log.debug("        Attempting to add Trait class '%s'", trait)
+                    log.debug("            Attempting to add Trait class '%s'", trait)
                     trait_schema = trait.schema()
-                    if trait_name not in result[trait_type]:
+                    if trait_qualifier not in result[trait_type]:
                         result[trait_type][trait_qualifier] = SchemaDictionary()
                     try:
                         result[trait_type][trait_qualifier].update(trait_schema)
