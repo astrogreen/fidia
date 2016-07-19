@@ -27,6 +27,83 @@ from avro.schema import RECORD
 #         '/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/',
 #         '/net/aaolxz/iscsi/data/SAMI/catalogues/sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits')
 
+
+def get_traitproperty_data(trait):
+    # type: (Trait) -> dict
+    """Retrieve data for all trait properties attached to the Trait."""
+    # Get data for TraitProperties, and store it in the following dicts.
+    trait_property_type = dict()
+    trait_property_data = dict()
+    for trait_property_name in trait.trait_property_dir():
+        try:
+            trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
+            trait_property_data[trait_property_name] = getattr(trait, trait_property_name).value
+        except:
+            # Unable to retrieve the trait property for some reason. Skip for now.
+            # TODO: Provide a warning
+            tb = traceback.format_exc()
+            print(tb)
+            trait_property_type[trait_property_name] = None
+            trait_property_data[trait_property_name] = None
+            continue
+    return {"trait_property_types": trait_property_type,
+            "trait_property_data": trait_property_data}
+
+def get_sub_trait_data(trait):
+    # type: (Trait) -> dict
+    """Retrieve data for sub-Traits attached to the Trait"""
+    # Iterate through sub_traits by recursing on this function.
+    #
+    # NOTE: There are two versions of the code below, one of which is
+    # commented out. Version 1 supports branches/versions in sub-traits,
+    # while version 2 does not.
+
+    # Place to store the sub_trait data:
+    sub_trait_data = dict()
+    for sub_trait_name in trait.sub_traits.get_trait_names():
+        # ------ VERSION 1 ------
+        # This version of the code is designed for if sub-traits
+        # have branches and versions. This is not currently supported.
+        #
+        # for traitkey in trait.sub_traits.get_all_traitkeys():
+        #     sub_trait_data[sub_trait_name] = dict()
+        #     # Only include traits in this loop which have the right trait_name:
+        #     if traitkey.trait_name == sub_trait_name:
+        #         sub_trait_branch_version = traitkey.branch + "-" + traitkey.version
+        #         sub_trait = trait.sub_traits.retrieve_with_key(traitkey)
+        #         sub_trait_data[sub_trait_name][sub_trait_branch_version] = get_trait_data(sub_trait)
+
+        # ------ VERSION 2 ------
+        # This version is for non-versioned sub-traits. In this case,
+        # there is no version or branches, so the trait_name will
+        # uniquely identify the trait.
+        #
+        # Note that this will not break even if the archive actually
+        # has branched and versioned sub-traits, but only the default
+        # will be made available here.
+
+        sub_trait = trait.sub_traits.retrieve_with_key(sub_trait_name)
+        sub_trait_data[sub_trait_name] = get_trait_data(sub_trait)
+
+def get_trait_data(trait):
+    # type: (Trait) -> dict
+    """Retrieve data for TraitProperties and sub-Traits attached to the Trait"""
+
+    result = dict()
+
+    # Get data for TraitProperties
+    trait_property_data = get_traitproperty_data(trait)
+    # Add TraitProperty data to result
+    result.update(trait_property_data)
+
+    # Get data for sub-Traits
+    sub_trait_data = get_sub_trait_data(trait)
+    # Add sub_trait_data to result
+    result.update({"sub_trait_data": sub_trait_data})
+
+    return result
+
+
 def main(args):
 
     ar = SAMITeamArchive(args.input_dir, args.catalogue)
@@ -59,16 +136,14 @@ def main(args):
                 trait_avro_schema = field_map[trait_key.trait_type]
                 print(trait_avro_schema)
                 if isinstance(trait_avro_schema.type, schema.MapSchema): # This check is not a necessity
-                    version = 'b1_v1'
+                    version = trait.branch + "-" + trait.version
                     #record_schema = trait_avro_schema.type.values
                     #record_fields = record_schema.field_map
 
                     trait_property_schema = trait_schema[trait_key.trait_type]
                     for trait_property_name in trait_property_schema:
                         if isinstance(trait_property_schema[trait_property_name], dict):
-                            # This property is a sub-trait, so skip (for now)
-                            # TODO: Implement sub-trait ingestion
-                            continue
+                            sub_trait_data = get_sub_trait_data(trait)
                         else:
                             trait_property_type = trait_property_schema[trait_property_name]
                         try:
