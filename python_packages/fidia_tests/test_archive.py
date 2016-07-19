@@ -112,7 +112,7 @@ class TestArchive:
     def test_archive_has_correct_schema(self, simple_archive):
         ar = simple_archive()
         schema = ar.schema()
-        assert schema == {'spectral_map': {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}
+        assert schema == {'spectral_map': {None: {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}}
 
     def test_all_object_traits_in_schema(self, simple_archive):
         ar = simple_archive()
@@ -157,16 +157,16 @@ class TestArchive:
     def test_schema_for_traits_with_qualifiers_differs(self, example_archive):
         schema = example_archive.schema()
 
-        assert 'extra_property_blue' in schema['image-blue']
-        assert 'extra_property_blue' not in schema['image-red']
-        assert 'extra_property_red' in schema['image-red']
-        assert 'extra_property_red' not in schema['image-blue']
+        assert 'extra_property_blue' in schema['image']['blue']
+        assert 'extra_property_blue' not in schema['image']['red']
+        assert 'extra_property_red' in schema['image']['red']
+        assert 'extra_property_red' not in schema['image']['blue']
 
     def test_schema_for_subtraits_with_qualifiers_differs(self, example_archive):
         schema = example_archive.schema()
 
-        sub_schema = schema['image-blue']
-        assert 'extra_property_blue' in sub_schema['image-blue']
-        assert 'extra_property_blue' not in sub_schema['image-red']
-        assert 'extra_property_red' in sub_schema['image-red']
-        assert 'extra_property_red' not in sub_schema['image-blue']
+        sub_schema = schema['image']['blue']
+        assert 'extra_property_blue' in sub_schema['image']['blue']
+        assert 'extra_property_blue' not in sub_schema['image']['red']
+        assert 'extra_property_red' in sub_schema['image']['red']
+        assert 'extra_property_red' not in sub_schema['image']['blue']

@@ -158,16 +158,25 @@ class TestSAMIArchiveSchema:
 
         # Schema should be dictionary-like:
         assert isinstance(schema, dict)
-        for trait_name in schema:
+        valid_trait_types = sami_archive.available_traits.get_trait_types()
+        for trait_type in schema:
 
-            # Top level of schema should be a valid trait_name:
-            assert trait_name in sami_archive.available_traits.get_trait_names()
+            # Top level of schema should be a valid trait_type:
+            assert trait_type in valid_trait_types
 
             # Each element should be dictionary-like
-            assert isinstance(schema[trait_name], dict)
+            assert isinstance(schema[trait_type], dict)
+
+            # Next level of schema should be a valid trait_qualifier or None
+            valid_trait_names = sami_archive.available_traits.get_trait_names()
+            for trait_qualifier in schema[trait_type]:
+                assert TraitKey.as_trait_name(trait_type, trait_qualifier) in valid_trait_names
+
+                # Each element should be dictionary-like
+                assert isinstance(schema[trait_type][trait_qualifier], dict)
 
     def test_cube_wcs_in_schema(self, schema):
-        schema['spectral_cube-red']['wcs']
+        schema['spectral_cube']['red']['wcs']
 
 class TestSAMIArchiveMetadata:
 
