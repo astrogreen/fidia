@@ -43,7 +43,7 @@ class TraitRegistry:
                 tk = TraitKey(trait.trait_type, qualifier, branch, version)
                 if tk in self._trait_lookup:
                     # @TODO: Raising this will leave the registry in a strange state.
-                    raise ValueError("Attempt to redefine Trait belonging to TraitKey '%s'", tk)
+                    raise ValueError("Attempt to redefine Trait belonging to TraitKey '%s'" % str(tk))
                 log.debug("Registering '%s' -> '%s'", tk, trait)
                 self._trait_lookup[tk] = trait
 
@@ -112,7 +112,21 @@ class TraitRegistry:
 
         return filtered_keys
 
-    def get_trait_names(self):
+    def get_trait_types(self):
+        return {t.trait_type for t in self.get_traits()}
+
+    def get_trait_names(self, trait_type_filter=None):
+        # type: (str) -> set
         """A list of the unique trait types in this TraitRegistry."""
-        return self._all_trait_names
+        filtered_names = set()
+
+        if trait_type_filter is not None:
+            # Then filter for matching trait types
+            for trait_name in self._all_trait_names:
+                if TraitKey.split_trait_name(trait_name)[0] != trait_type_filter:
+                    filtered_names.add(trait_name)
+            return filtered_names
+        else:
+            return self._all_trait_names
+
 
