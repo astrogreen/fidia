@@ -1,5 +1,6 @@
 from itertools import product
 from .utilities import TraitKey, validate_trait_name, validate_trait_type
+from ..utilities import SchemaDictionary, DefaultsRegistry, Inherit
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -11,7 +12,7 @@ class TraitRegistry:
     def __init__(self):
         self._registry = set()
         self._trait_lookup = dict()
-        self._all_trait_names = set()
+        self._trait_name_defaults = dict()
 
     def register(self, trait):
         log.debug("Registering Trait '%s'", trait)
@@ -50,12 +51,40 @@ class TraitRegistry:
         # Generate all possible trait_names
         for qualifier in qualifiers:
             trait_name = TraitKey.as_trait_name(trait.trait_type, qualifier)
-            self._all_trait_names.add(trait_name)
+            if trait_name not in self._trait_name_defaults:
+                self._trait_name_defaults[trait_name] = DefaultsRegistry()
+            if hasattr(trait, 'defaults'):
+                self._trait_name_defaults[trait_name].update_defaults(trait.defaults)
+
 
         return trait
 
-    def retrieve_with_key(self, trait_key):
+    def update_key_with_defaults(self, trait_key):
+        """Return TraitKey with branch and version populated from defaults.
+
+        Check the provided trait key, and if either the branch or version
+        have not been provided (none), then return an updated version.
+
+        """
+        # Ensure we are working with a full TraitKey object (or convert if necessary)
         tk = TraitKey.as_traitkey(trait_key)
+
+        # If the branch has not been specified, get the default from the DefaultsRegistry for this trait_name
+        if tk.branch is None:
+            tk = tk.replace(branch=self._trait_name_defaults[tk.trait_name].branch)
+            log.debug("Branch not supplied for '%s', using default '%s'", tk.trait_name, tk.branch)
+
+        # If the version has not been specified, get the default from the DefaultsRegistry for this trait_name
+        if tk.version is None:
+            tk = tk.replace(version=self._trait_name_defaults[tk.trait_name].version(tk.branch))
+            log.debug("Version not supplied for '%s', using default '%s'", tk.trait_name, tk.version)
+
+        return tk
+
+    def retrieve_with_key(self, trait_key):
+        # Ensure we are working with a full TraitKey object (or convert if necessary)
+        tk = TraitKey.as_traitkey(trait_key)
+        log.debug("Retrieving trait for key %s", tk)
         return self._trait_lookup[tk]
 
     # def retrieve_with_key_with_wildcards(self, trait_key):
@@ -95,21 +124,23 @@ class TraitRegistry:
 
     def get_all_traitkeys(self, trait_type_filter=None, trait_name_filter=None):
         """A list of all known trait keys in the registry, optionally filtered."""
-        filtered_keys = set(self._trait_lookup.keys())
+        filtered_keys = set()
+        all_keys = self._trait_lookup.keys()
 
         # Note that the trait name filter is more specific, so if present, it is
         # run first (and then there is no need to do a trait type filter).
         if trait_name_filter is not None:
             # Then filter for matching trait names
-            for trait_key in filtered_keys:
-                if trait_key.trait_name != trait_name_filter:
-                    filtered_keys.remove(trait_key)
+            for trait_key in all_keys:
+                if trait_key.trait_name == trait_name_filter:
+                    filtered_keys.add(trait_key)
         elif trait_type_filter is not None:
             # Then filter for matching trait types
-            for trait_key in filtered_keys:
-                if trait_key.trait_type != trait_type_filter:
-                    filtered_keys.remove(trait_key)
-
+            for trait_key in all_keys:
+                if trait_key.trait_type == trait_type_filter:
+                    filtered_keys.add(trait_key)
+        else:
+            filtered_keys = all_keys
         return filtered_keys
 
     def get_trait_types(self):
@@ -119,14 +150,15 @@ class TraitRegistry:
         # type: (str) -> set
         """A list of the unique trait types in this TraitRegistry."""
         filtered_names = set()
+        all_names = self._trait_name_defaults.keys()
 
         if trait_type_filter is not None:
             # Then filter for matching trait types
-            for trait_name in self._all_trait_names:
-                if TraitKey.split_trait_name(trait_name)[0] != trait_type_filter:
+            for trait_name in all_names:
+                if TraitKey.split_trait_name(trait_name)[0] == trait_type_filter:
                     filtered_names.add(trait_name)
             return filtered_names
         else:
-            return self._all_trait_names
+            return all_names
 
 

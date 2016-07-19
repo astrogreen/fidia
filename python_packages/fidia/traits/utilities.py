@@ -15,8 +15,6 @@ from operator import itemgetter as _itemgetter
 from ..exceptions import *
 from ..utilities import is_list_or_set
 
-from ..descriptions import Description, Documentation, PrettyName
-
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
 TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
 
@@ -110,7 +108,6 @@ class TraitKey(tuple):
     def split_trait_name(cls, trait_key_like):
         tk = cls.as_traitkey(trait_key_like)
         return (tk.trait_type, tk.trait_qualifier)
-
 
     @staticmethod
     def _make_trait_name(trait_type, trait_qualifier):
@@ -219,15 +216,6 @@ class TraitProperty(metaclass=ABCMeta):
         'int.array'
     ]
 
-    # pretty_name = PrettyName()
-    # description = Description()
-    # documentation = Documentation()
-
-    pretty_name = None
-    description = None
-    documentation = None
-    short_name = None
-
     def __init__(self, fload=None, fset=None, fdel=None, doc=None, type=None, name=None):
         self.fload = fload
         self.fset = fset
@@ -283,7 +271,6 @@ class BoundTraitProperty:
         self._trait = trait
         self._trait_property = trait_property
 
-
     @property
     def name(self):
         return self._trait_property.name
@@ -295,22 +282,6 @@ class BoundTraitProperty:
     @property
     def doc(self):
         return self._trait_property.doc
-
-    @property
-    def short_name(self):
-        return self._trait_property.short_name
-
-    @property
-    def description(self):
-        return self._trait_property.description
-
-    @property
-    def documentation(self):
-        return self._trait_property.documentation
-
-    @property
-    def pretty_name(self):
-        return self._trait_property.pretty_name
 
     def __call__(self):
         """Retrieve the value of this TraitProperty"""
@@ -339,22 +310,40 @@ class BoundTraitProperty:
 
         log.debug("Loading data for get for TraitProperty '%s'", self.name)
 
+
+        # try...except block to handle attempting to preload the trait. If the
+        # preload fails, then we assume that the cleanup does not need to be called.
         try:
 
             # Preload the Trait if necessary.
             self._trait._load_incr()
+        except DataNotAvailable:
+            raise
+        except Exception as e:
+            log.exception("An exception occurred trying to preload Trait %s",
+                          self._trait.trait_key
+                          )
+            raise DataNotAvailable("An unexpected error occurred trying to retrieve the requested data.")
 
+        # Now, the Trait has been successfully preloaded. Here is another
+        # try...except block, which will make sure the Trait is cleaned up
+        # even if the TraitProperty can't be retrieved.
+
+        try:
             # Call the actual user defined loader function to get the value of the TraitProperty.
             value = self._trait_property.fload(self._trait)
         except DataNotAvailable:
             raise
         except Exception as e:
-            log.exception("An exception occurred trying to retrieve the TraitProperty %s of Trait %s",
+            log.exception("An unexpected exception occurred trying to retrieve the TraitProperty %s of Trait %s",
                           self._trait_property.name,
                           self._trait.trait_key
                           )
             raise DataNotAvailable("An error occurred trying to retrieve the requested data.")
         finally:
+            # Finally because we have definitely successfully run the
+            # preload command, we must run the cleanup even if there was an error.
+
             # Cleanup the Trait if necessary.
             self._trait._load_decr()
 
@@ -364,17 +353,3 @@ class BoundTraitProperty:
 # `isinstance(value, TraitProperty)` work as expected for `TraitProperty`s that have
 # been bound to their `Trait`.
 TraitProperty.register(BoundTraitProperty)
-
-def trait_property_from_fits_header(header_card_name, type, name):
-
-    tp = TraitProperty(type=type, name=name)
-
-    tp.fload = lambda self: self._header[header_card_name]
-    tp.short_name = header_card_name
-
-    # # @TODO: Providence information can't get filename currently...
-    # tp.providence = "!: FITS-Header {{file: '{filename}' extension: '{extension}' header: '{card_name}'}}".format(
-    #     card_name=header_card_name, extension=extension, filename='UNDEFINED'
-    # )
-
-    return tp
