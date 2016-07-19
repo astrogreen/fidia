@@ -9,9 +9,9 @@ from fidia.archive import sami, example_archive
 # ar = sami.SAMITeamArchive("/home/agreen/sami_test_release/",
 #                           "/home/agreen/sami_test_release/" +
 #                           "sami_small_test_cat.fits")
-# ar = sami.SAMITeamArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
-#                           "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
-ar = example_archive.ExampleArchive()
+ar = sami.SAMITeamArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
+                          "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
+# ar = example_archive.ExampleArchive()
 
 schema = ar.schema()
 
