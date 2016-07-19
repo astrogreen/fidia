@@ -35,8 +35,8 @@ def get_traitproperty_data(trait):
     trait_property_type = dict()
     trait_property_data = dict()
     for trait_property_name in trait.trait_property_dir():
+        trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
         try:
-            trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
             trait_property_data[trait_property_name] = getattr(trait, trait_property_name).value
         except:
             # Unable to retrieve the trait property for some reason. Skip for now.
@@ -46,6 +46,29 @@ def get_traitproperty_data(trait):
             trait_property_type[trait_property_name] = None
             trait_property_data[trait_property_name] = None
             continue
+        # Not sure what this statement achieves?
+        if trait_property_data is None:
+            continue
+        if 'array' in trait_property_type[trait_property_name]:
+            # This is an array trait, so it will have to be flattened, and have
+            # it's shape stored separately.
+            array_dict = dict()
+            if hasattr(trait_property_data[trait_property_name], 'shape'):
+                # Shape attribute can provide the shape of the data (probably a
+                # numpy array).
+                array_dict['shape'] = str(trait_property_data.shape)
+                array_dict['dataValues'] = trait_property_data.flatten().tolist()
+            elif isinstance(trait_property_data[trait_property_name], list):
+                # A one-dimensional Python list.
+                array_dict['shape'] = "({})".format(len(trait_property_data[trait_property_name]))
+                array_dict['dataValues'] = trait_property_data[trait_property_name]
+            else:
+                # Unknown array format. Skip.
+                continue
+
+            # Replace the trait_property_data with the modified, array-format version:
+            trait_property_data[trait_property_name] = array_dict
+
     return {"trait_property_types": trait_property_type,
             "trait_property_data": trait_property_data}
 
@@ -140,35 +163,8 @@ def main(args):
                     #record_schema = trait_avro_schema.type.values
                     #record_fields = record_schema.field_map
 
-                    trait_property_schema = trait_schema[trait_key.trait_type]
-                    for trait_property_name in trait_property_schema:
-                        if isinstance(trait_property_schema[trait_property_name], dict):
-                            sub_trait_data = get_sub_trait_data(trait)
-                        else:
-                            trait_property_type = trait_property_schema[trait_property_name]
-                        try:
-                            trait_property_data = getattr(trait, trait_property_name).value
-                        except:
-                            # Unable to retrieve the trait property for some reason. Skip for now.
-                            # TODO: Provide a warning
-                            tb = traceback.format_exc()
-                            print(tb)
-                            continue
+                    trait_record = get_traitproperty_data(trait)['trait_property_data']
 
-                        if 'array' in trait_property_type:
-                            # This is an array trait, so it will have to be flattened, and have it's shape stored.
-                            if trait_property_data is None:
-                                continue
-                            data_dict = dict()
-                            if 'string' in trait_property_type:
-                                data_dict['shape'] = '(1,0)'
-                                data_dict['dataValues'] = trait_property_data
-                            else:
-                                data_dict['shape'] = str(trait_property_data.shape)
-                                data_dict['dataValues'] = trait_property_data.flatten().tolist()
-                            trait_record[trait_property_name] = data_dict
-                        else:
-                            trait_record[trait_property_name] = trait_property_data
                     trait_map[version] = trait_record
                     astro_record[trait_key.trait_type] = trait_map
 
