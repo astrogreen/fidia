@@ -106,6 +106,10 @@ class TraitKey(tuple):
         #         return self._make_trait_name(self.trait_key, self.trait_qualifier)
         # TODO: Implement solutions for other cases.
 
+    @classmethod
+    def split_trait_name(cls, trait_key_like):
+        tk = cls.as_traitkey(trait_key_like)
+        return (tk.trait_type, tk.trait_qualifier)
 
     @staticmethod
     def _make_trait_name(trait_type, trait_qualifier):

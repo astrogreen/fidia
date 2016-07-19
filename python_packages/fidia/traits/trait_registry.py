@@ -44,7 +44,7 @@ class TraitRegistry:
                 tk = TraitKey(trait.trait_type, qualifier, branch, version)
                 if tk in self._trait_lookup:
                     # @TODO: Raising this will leave the registry in a strange state.
-                    raise ValueError("Attempt to redefine Trait belonging to TraitKey '%s'", tk)
+                    raise ValueError("Attempt to redefine Trait belonging to TraitKey '%s'" % str(tk))
                 log.debug("Registering '%s' -> '%s'", tk, trait)
                 self._trait_lookup[tk] = trait
 
@@ -122,11 +122,43 @@ class TraitRegistry:
             log.debug("Returning all traits of this TraitRegistry (no filter applied).")
             return self._registry
 
-    def get_all_traitkeys(self):
-        """A list of all known trait keys in the registry."""
-        return self._trait_lookup.keys()
+    def get_all_traitkeys(self, trait_type_filter=None, trait_name_filter=None):
+        """A list of all known trait keys in the registry, optionally filtered."""
+        filtered_keys = set()
+        all_keys = self._trait_lookup.keys()
 
-    def get_trait_names(self):
+        # Note that the trait name filter is more specific, so if present, it is
+        # run first (and then there is no need to do a trait type filter).
+        if trait_name_filter is not None:
+            # Then filter for matching trait names
+            for trait_key in all_keys:
+                if trait_key.trait_name == trait_name_filter:
+                    filtered_keys.add(trait_key)
+        elif trait_type_filter is not None:
+            # Then filter for matching trait types
+            for trait_key in all_keys:
+                if trait_key.trait_type == trait_type_filter:
+                    filtered_keys.add(trait_key)
+        else:
+            filtered_keys = all_keys
+        return filtered_keys
+
+    def get_trait_types(self):
+        return {t.trait_type for t in self.get_traits()}
+
+    def get_trait_names(self, trait_type_filter=None):
+        # type: (str) -> set
         """A list of the unique trait types in this TraitRegistry."""
-        return self._trait_name_defaults.keys()
+        filtered_names = set()
+        all_names = self._trait_name_defaults.keys()
+
+        if trait_type_filter is not None:
+            # Then filter for matching trait types
+            for trait_name in all_names:
+                if TraitKey.split_trait_name(trait_name)[0] == trait_type_filter:
+                    filtered_names.add(trait_name)
+            return filtered_names
+        else:
+            return all_names
+
 
