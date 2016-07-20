@@ -75,7 +75,7 @@ class Trait(AbstractBaseTrait):
 
 
     @classmethod
-    def schema(cls, include_subtraits=True):
+    def schema(cls, include_subtraits=True, by_trait_name=False):
         """Provide the schema of data in this trait as a dictionary.
 
         The schema is presented as a dictionary, where the keys are strings
@@ -91,32 +91,54 @@ class Trait(AbstractBaseTrait):
 
         """
 
-
-        schema = SchemaDictionary()
-        for trait_property in cls._trait_properties():
+        if by_trait_name:
+            schema = SchemaDictionary()
+            for trait_property in cls._trait_properties():
                 schema[trait_property.name] = trait_property.type
 
-        if include_subtraits:
-            log.debug("Building a schema for subtraits of '%s'", cls)
-            trait_types = cls.sub_traits.get_trait_types()
-            for trait_type in trait_types:
-                log.debug("    Processing traits with trait_name '%s'", trait_type)
-                schema[trait_type] = SchemaDictionary()
-                trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
-                for trait_name in trait_names:
-                    trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-                    for trait in cls.sub_traits.get_traits(trait_name_filter=trait_name):
-                        log.debug("        Attempting to add Trait class '%s'", trait)
-                        trait_schema = trait.schema()
-                        if trait_name not in schema[trait_type]:
-                            schema[trait_type][trait_qualifier] = SchemaDictionary()
+            if include_subtraits:
+                for trait_name in cls.sub_traits.get_trait_names():
+                    # Create empty this sub-trait type:
+                    schema[trait_name] = SchemaDictionary()
+                    # Populate the dict with schema from each sub-type:
+                    for trait_class in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                        subtrait_schema = trait_class.schema()
                         try:
-                            schema[trait_type][trait_qualifier].update(trait_schema)
+                            schema[trait_name].update(subtrait_schema)
                         except ValueError:
-                            log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
+                            log.error("Schema mis-match in traits: sub-trait '%s' cannot be added " +
                                       "to schema for '%s' containing: '%s'",
-                                      trait, trait_type, schema[trait_type][trait_name])
-                            raise SchemaError("Schema mis-match in traits")
+                                      trait_class, trait_name, schema[trait_name])
+                            raise SchemaError("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+                                              "to schema for '%s' containing: '%s'",
+                                              trait_class, trait_name, schema[trait_name])
+
+        else:
+            schema = SchemaDictionary()
+            for trait_property in cls._trait_properties():
+                    schema[trait_property.name] = trait_property.type
+
+            if include_subtraits:
+                log.debug("Building a schema for subtraits of '%s'", cls)
+                trait_types = cls.sub_traits.get_trait_types()
+                for trait_type in trait_types:
+                    log.debug("    Processing traits with trait_name '%s'", trait_type)
+                    schema[trait_type] = SchemaDictionary()
+                    trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
+                    for trait_name in trait_names:
+                        trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
+                        for trait in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                            log.debug("        Attempting to add Trait class '%s'", trait)
+                            trait_schema = trait.schema()
+                            if trait_name not in schema[trait_type]:
+                                schema[trait_type][trait_qualifier] = SchemaDictionary()
+                            try:
+                                schema[trait_type][trait_qualifier].update(trait_schema)
+                            except ValueError:
+                                log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
+                                          "to schema for '%s' containing: '%s'",
+                                          trait, trait_type, schema[trait_type][trait_name])
+                                raise SchemaError("Schema mis-match in traits")
 
         return schema
 
