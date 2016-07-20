@@ -111,17 +111,24 @@ class TestArchive:
 
     def test_archive_has_correct_schema(self, simple_archive):
         ar = simple_archive()
-        schema = ar.schema()
-        assert schema == {'spectral_map': {None: {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}}
+        schema_by_trait_type = ar.schema(by_trait_name=False)
+        assert schema_by_trait_type == {'spectral_map': {None: {
+            'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}}
+
+        schema_by_trait_name = ar.schema(by_trait_name=True)
+        assert schema_by_trait_name == {'spectral_map': {
+            'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}
 
     def test_all_object_traits_in_schema(self, simple_archive):
         ar = simple_archive()
-        schema = ar.schema()
+        schema_by_trait_type = ar.schema(by_trait_name=False)
+        schema_by_trait_name = ar.schema(by_trait_name=True)
         sample = ar.get_full_sample()
         for astro_object in sample:
             trait_key_list = sample[astro_object].keys()
             for tk in trait_key_list:
-                assert tk.trait_name in schema
+                assert tk.trait_name in schema_by_trait_name
+                assert tk.trait_type in schema_by_trait_type
 
     # Other tests.
 
@@ -155,7 +162,7 @@ class TestArchive:
         assert issubclass(example_archive.type_for_trait_path(('simple_heir_trait', 'sub_trait', 'extra')), TraitProperty)
 
     def test_schema_for_traits_with_qualifiers_differs(self, example_archive):
-        schema = example_archive.schema()
+        schema = example_archive.schema(by_trait_name=False)
 
         assert 'extra_property_blue' in schema['image']['blue']
         assert 'extra_property_blue' not in schema['image']['red']
@@ -163,7 +170,7 @@ class TestArchive:
         assert 'extra_property_red' not in schema['image']['blue']
 
     def test_schema_for_subtraits_with_qualifiers_differs(self, example_archive):
-        schema = example_archive.schema()
+        schema = example_archive.schema(by_trait_name=False)
 
         sub_schema = schema['image']['blue']
         assert 'extra_property_blue' in sub_schema['image']['blue']
