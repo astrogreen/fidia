@@ -12,7 +12,7 @@ import astropy.wcs
 from .abstract_base_traits import *
 from ..exceptions import *
 from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
-    validate_trait_type, validate_traitkey_part
+    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit
 from ..descriptions import DescriptionsMixin
@@ -50,13 +50,13 @@ def validate_trait_branches_versions_dict(branches_versions):
     # Check that all branches meet the branch formatting requirements
     for branch in branches_versions:
         if branch is not None:
-            validate_traitkey_part(branch)
+            validate_trait_branch(branch)
         # Check that each branch has a list of versions:
         assert is_list_or_set(branches_versions[branch])
         # Check that all versions meet the branch formatting requirements
         for version in branches_versions[branch]:
             if version is not None:
-                validate_traitkey_part(version)
+                validate_trait_version(version)
 
 class Trait(DescriptionsMixin, AbstractBaseTrait):
 
@@ -187,6 +187,9 @@ class Trait(DescriptionsMixin, AbstractBaseTrait):
         validate_trait_type(cls.trait_type)
 
         assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
+        if cls.qualifiers is not None:
+            for qual in cls.qualifiers:
+                validate_trait_qualifier(qual)
         # assert cls.available_versions is not None
 
         if cls.branches_versions is not None:
