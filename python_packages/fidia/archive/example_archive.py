@@ -241,10 +241,12 @@ class SimpleTrait(Trait):
     @trait_property('float')
     def value(self):
         return 5.5
+    value.description = "TheValue"
 
     @trait_property('string')
     def extra(self):
         return "Extra info"
+    extra.description = "ExtraInformation"
 
 class SimpleTraitWithSubtraits(Trait):
 

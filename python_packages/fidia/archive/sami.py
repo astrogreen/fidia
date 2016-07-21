@@ -19,7 +19,9 @@ from .archive import Archive
 
 from ..utilities import WildcardDictionary
 
-from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
+#from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
+from fidia.traits import *
+from fidia.traits.utilities import trait_property_from_fits_header
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -170,50 +172,9 @@ class SAMIRowStackedSpectra(SpectralMap):
 
     """
 
+    sub_traits = TraitRegistry()
+
     trait_type = 'rss_map'
-
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        return [TraitKey(cls.trait_type, "")]
-
-    @classmethod
-    def known_keys(cls, archive, object_id=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        # Need to know the directory of the archive
-        known_keys = set()
-        # Get RSS filenames from headers of cubes. Only need to sample one binning scheme, so we use "1sec"
-        if object_id is None:
-            # Search for all available data regardless of ID:
-            cube_files = glob(archive._base_directory_path + "*/cubed/*/*_1sec.fits*")
-        else:
-            # Only return data for particular object_id provided
-            cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*_1sec.fits*")
-        for f in cube_files:
-            # Trim the base directory off the path and split into directories:
-            dir_parts = f[len(archive._base_directory_path):].split("/")
-            # RunId is first element:
-            run_id = dir_parts[0]
-            # Object ID is second to last element:
-            object_id = dir_parts[-2]
-            if object_id not in archive.contents:
-                continue
-            # Open file to get list of RSS files from header
-            with fits.open(f) as hdu:
-                index = 1
-                while True:
-                    try:
-                        rss_filename = hdu[0].header['RSS_FILE ' + str(index)]
-                    except KeyError:
-                        break
-                    else:
-                        index += 1
-                        known_keys.add(TraitKey(cls.trait_type, run_id + ":" + rss_filename))
-            # Break out of the loop early for debuging purposes:
-            if len(known_keys) > 50:
-                break
-        return known_keys
-
 
     def init(self):
 
@@ -286,31 +247,12 @@ class SAMISpectralCube(SpectralMap):
         The plate_id is optional, if ommitted, then a default will be chosen.
     """
 
+    sub_traits = TraitRegistry()
+
     trait_type = 'spectral_cube'
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        # Currently only knows about "red" and "blue" (because a default plate ID is chosen).
-        return [TraitKey(cls.trait_type, 'red'), TraitKey(cls.trait_type, 'blue')]
-
-    # @classmethod
-    # def known_keys(cls, archive, object_id=None):
-    #     """Return a list of unique identifiers which can be used to retrieve actual data."""
-    #
-    #     # @TODO: This still uses old code to determine the available keys instead of the cube_directory.
-    #
-    #     if object_id is None:
-    #         # Return a list for all possible data
-    #         cube_files = []
-    #         for id in archive.contents:
-    #              cube_files.extend(glob(archive._base_directory_path + "*/cubed/" + id + "/*.fits*"))
-    #     else:
-    #         # Only asked for data for a particular object_id
-    #         cube_files = glob(archive._base_directory_path + "*/cubed/" + object_id + "/*.fits*")
-    #
-    #     # cube_files = glob(archive._base_directory_path + "*/cubed/*/*.fits*")
-    #     known_keys = set(cls._traitkey_from_cube_path(f) for f in cube_files)
-    #     return known_keys
+    qualifier_required = True
+    qualifiers = {'red', 'blue'}
 
     @classmethod
     def _traitkey_from_cube_path(cls, path):
@@ -434,19 +376,191 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
-    @trait_property('string')
-    def wcs_string(self):
-        h = self.hdu[0].header.copy()
-        # The PLATEID header keyword confuses the WCS package,
-        # so it must be removed from the header before creating
-        # the WCS object
-        del h['PLATEID']
-        w = wcs.WCS(h)
-        return w.to_header_string()
 
-    @cached_property
-    def wcs(self):
-        return wcs.WCS(self.wcs_string)
+    #
+    # Sub Traits
+    #
+
+
+    @sub_traits.register
+    class CatCoordinate(SkyCoordinate):
+
+        trait_type = 'catalog_coordinate'
+
+        @trait_property('float')
+        def _ra(self):
+            return self.parent_trait.ra()
+
+        @trait_property('float')
+        def _dec(self):
+            return self.parent_trait.dec()
+
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+
+        trait_type = 'wcs'
+
+        @trait_property('string')
+        def _wcs_string(self):
+            with self.parent_trait.preloaded_context() as pt:
+                h = pt.hdu[0].header.copy()
+                # The PLATEID header keyword confuses the WCS package,
+                # so it must be removed from the header before creating
+                # the WCS object
+                del h['PLATEID']
+                w = wcs.WCS(h)
+                return w.to_header_string()
+
+    @sub_traits.register
+    class AAT(OpticalTelescopeCharacteristics):
+        """AAT Telescope characteristics defined by FITS header
+
+        Relevant section from the header:
+
+            ORIGIN  = 'AAO     '           / Originating Institution
+            TELESCOP= 'Anglo-Australian Telescope' / Telescope Name
+            ALT_OBS =                 1164 / Altitude of observatory in metres
+            LAT_OBS =            -31.27704 / Observatory latitude in degrees
+            LONG_OBS=             149.0661 / Observatory longitude in degrees
+        """
+
+        trait_type = 'telescope_metadata'
+
+        def preload(self):
+            with self.parent_trait.preloaded_context() as pt:
+                self._header = pt.hdu[0].header.copy()
+                self._header.providence = {"file": pt.hdu.filename, "extension": 0}
+
+        def cleanup(self):
+            del self._header
+
+        # trait_properties = [
+        #     TraitPropertyFromFitsHeader(name='telescope', header_name='TELESCOP'),
+        #     TraitPropertyFromFitsHeader(name='altitude', header_name='ALT_OBS'),
+        #     TraitPropertyFromFitsHeader(name='latitude', header_name='LAT_OBS'),
+        #     TraitPropertyFromFitsHeader(name='longitude', header_name='LONG_OBS'),
+        # ]
+
+        telescope = trait_property_from_fits_header('TELESCOP', 'string', 'telescope')
+
+        altitude = trait_property_from_fits_header('ALT_OBS', 'string', 'altitude')
+
+        latitude = trait_property_from_fits_header('LAT_OBS', 'string', 'latitude')
+
+        longitude = trait_property_from_fits_header('LONG_OBS', 'string', 'longitude')
+
+
+    @sub_traits.register
+    class AAOmegaDetector(DetectorCharacteristics):
+        """AAOmega Detector characteristics defined by FITS header
+
+        Relevant section from the header:
+            DCT_DATE= 'Sep 12 2014'        / DCT release date
+            DCT_VER = 'r3_110_2_3'         / DCT version number
+            DETECXE =                 2048 / Last column of detector
+            DETECXS =                    1 / First column of detector
+            DETECYE =                 4102 / Last row of detector
+            DETECYS =                    1 / First row of detector
+            DETECTOR= 'E2V2A   '           / Detector name
+            XPIXSIZE=                  15. / X Pixel size in microns
+            YPIXSIZE=                  15. / Y Pixel size in microns
+            METHOD  = 'CCD Charge shuffling technique' / Observing method
+            SPEED   = 'NORMAL  '           / Readout speed
+            READAMP = 'RIGHT   '           / Readout amplifier
+            RO_GAIN =                 1.88 / Readout amplifier (inverse) gain (e-/ADU)
+            RO_NOISE=                 3.61 / Readout noise (electrons)
+
+        """
+
+        trait_type = 'detector_metadata'
+
+        def preload(self):
+            with self.parent_trait.preloaded_context() as pt:
+                self._header = pt.hdu[0].header.copy()
+
+        def cleanup(self):
+            del self._header
+
+        detector_id = trait_property_from_fits_header('DETECTOR', 'string', 'detector_id')
+        detector_id.short_name = "DETECTOR"
+
+        gain = trait_property_from_fits_header('RO_GAIN', 'string', 'gain')
+        gain.short_name = "RO_GAIN"
+
+        read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
+        read_noise.short_name = 'RO_NOISE'
+
+        read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
+        read_speed.short_name = 'SPEED'
+
+        detector_control_software_date = trait_property_from_fits_header('DCT_DATE', 'string', 'detector_control_software_date')
+        detector_control_software_date.short_name = 'DCT_DATE'
+
+        detector_control_software_version = trait_property_from_fits_header('DCT_VER', 'string', 'detector_control_software_version')
+        detector_control_software_version.short_name = 'DCT_VER'
+
+        read_amplifier = trait_property_from_fits_header('READAMP', 'string', 'read_amplifier')
+        read_amplifier.short_name = 'READAMP'
+
+
+    @sub_traits.register
+    class SAMICharacteristics(SpectrographCharacteristics):
+        """Characteristics of the SAMI Instrument
+
+        Relevant Header Sections:
+
+            RCT_VER = 'r3_71HB '           / Run Control Task version number
+            RCT_DATE= '19-Oct-2013'        / Run Control Task version date
+            RADECSYS= 'FK5     '           / FK5 reference system
+            INSTRUME= 'AAOMEGA-SAMI'       / Instrument in use
+            SPECTID = 'BL      '           / Spectrograph ID
+            GRATID  = '580V    '           / Disperser ID
+            GRATTILT=                  0.7 / Grating tilt to be symmetric (degree)
+            GRATLPMM=                582.0 / Disperser ruling (lines/mm)
+            ORDER   =                    1 / Spectrum order
+            TDFCTVER= 'r11_33A '           / 2dF Control Task Version
+            TDFCTDAT= '17-Oct-2014'        / 2dF Control Task Version Date
+            DICHROIC= 'X5700   '           / Dichroic name
+            OBSTYPE = 'OBJECT  '           / Observation type
+            TOPEND  = 'PF      '           / Telescope top-end
+            AXIS    = 'REF     '           / Current optical axis
+            AXIS_X  =                   0. / Optical axis x (mm)
+            AXIS_Y  =                   0. / Optical axis y (mm)
+            TRACKING= 'TRACKING'           / Telescope is tracking.
+            TDFDRVER= '1.34    '           / 2dfdr version
+            PLATEID = 'Y14SAR3_P005_12T056_15T080' / Plate ID (from config file)
+            LABEL   = 'Y14SAR3_P005_12T056 - Run 16 galaxy plate 5 - field 1' / Configuratio
+
+        """
+
+        trait_type = 'instrument_metadata'
+
+        def preload(self):
+            with self.parent_trait.preloaded_context() as pt:
+                self._header = pt.hdu[0].header.copy()
+
+        def cleanup(self):
+            del self._header
+
+        # @trait_property('string')
+        # def instrument_id(self):
+        #     with self.parent_trait.preloaded_context() as pt:
+        #         return pt.hdu[0].header['INSTRUME']
+
+        instrument_id = trait_property_from_fits_header('INSTRUME', 'string', 'instrument_id')
+
+        spectrograph_arm = trait_property_from_fits_header('SPECTID', 'string', 'spectrograph_arm')
+
+        disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
+
+        disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
+
+        instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
+
+        instrument_software_date = trait_property_from_fits_header('TDFCTDAT', 'string', 'instrument_software_date')
+
+        dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
+
 
 
 class LZIFUVelocityMap(VelocityMap):
@@ -455,12 +569,6 @@ class LZIFUVelocityMap(VelocityMap):
 
     default_version = "0.9b"
     available_versions = {"0.9b"}
-
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        known_keys = [TraitKey(cls.trait_type, None, None, None)]
-        return known_keys
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -495,8 +603,10 @@ class LZIFUOneComponentLineMap(Image):
 
     trait_type = 'line_map'
 
-    default_version = "0.9b"
     available_versions = {"0.9b", "0.9"}
+    default_version = "0.9b"
+
+    available_branches = {"1_comp"}
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -512,13 +622,7 @@ class LZIFUOneComponentLineMap(Image):
         'SII6731': 'SII6731'
     }
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        known_keys = []
-        for line in cls.line_name_map:
-            known_keys.append(TraitKey(cls.trait_type, line, None))
-        return known_keys
+    qualifiers = line_name_map.keys()
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -553,6 +657,8 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
     available_versions = {"0.9b"}
 
+    available_branches ={'recom_comp'}
+
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
                            "/lzifu_releasev" + self.version + "/recom_comp/" +
@@ -568,7 +674,6 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     @trait_property('float.array')
     def variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
@@ -576,55 +681,55 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     @trait_property('float.array')
     def comp_1_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
-        log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def comp_1_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
     @trait_property('float.array')
     def comp_2_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[2, :, :]
-        log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def comp_2_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
     @trait_property('float.array')
     def comp_3_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[3, :, :]
-        log.debug("Returning type: %s", type(value))
         return value
 
     @trait_property('float.array')
     def comp_3_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
-        log.debug("Returning type: %s", type(variance))
         variance = sigma**2
         return variance
 
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[0].header
+        return _wcs_string
 
+
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self.parent_trait._wcs_string.value
+
+    sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUContinuum(SpectralMap):
 
     trait_type = 'spectral_continuum_cube'
 
-    @classmethod
-    def all_keys_for_id(cls, archive, object_id, parent_trait=None):
-        """Return a list of unique identifiers which can be used to retrieve actual data."""
-        known_keys = []
-        for color in ('red', 'blue'):
-            known_keys.append(TraitKey(cls.trait_type, color, None))
-        return known_keys
+    qualifiers = {'red', 'blue'}
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -694,6 +799,7 @@ class LZIFULineSpectrum(SpectralMap):
     def variance(self):
         return None
 
+
 class SAMITeamArchive(Archive):
 
     def __init__(self, base_directory_path, master_catalog_path):
@@ -703,6 +809,13 @@ class SAMITeamArchive(Archive):
         log.debug("master_catalog_path: %s", self._master_catalog_path)
 
         self._cubes_directory = self._get_cube_info()
+
+        with fits.open(self._master_catalog_path) as m:
+            fits_table = m[1].data
+            self.tabular_data = pd.DataFrame.from_records(
+                fits_table.tolist(),
+                columns=map(lambda x: x.name, fits_table.columns))
+        self.tabular_data.set_index('CATID')
 
         self._contents = set(self._cubes_directory.index.get_level_values('sami_id'))
 
@@ -784,17 +897,17 @@ class SAMITeamArchive(Archive):
     def define_available_traits(self):
 
         # Trait 'spectral_cube'
-        self.available_traits[TraitKey(SAMISpectralCube.trait_type, None, None, None)] = SAMISpectralCube
+        self.available_traits.register(SAMISpectralCube)
         # Trait 'rss_map' (now a sub-trait of spectral_cube above.)
         # self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
 
         # LZIFU Items
 
-        self.available_traits[TraitKey('velocity_map', None, None, None)] = LZIFUVelocityMap
+        self.available_traits.register(LZIFUVelocityMap)
 
-        self.available_traits[TraitKey('line_map', None, "1_comp", None)] = LZIFUOneComponentLineMap
+        self.available_traits.register(LZIFUOneComponentLineMap)
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
-        self.available_traits[TraitKey('line_map', None, None, None)] = LZIFURecommendedMultiComponentLineMap
+        self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
 
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum

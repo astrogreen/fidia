@@ -33,6 +33,25 @@ class SchemaDictionary(dict):
     Note that this is not fully implemented. It only prevents changes introduced through the `.update` method. See ASVO-
 
     """
+
+    @classmethod
+    def _convert_to_schema_dictionary(cls, dictionary):
+        if isinstance(dictionary, dict) and not isinstance(dictionary, SchemaDictionary):
+            dictionary = SchemaDictionary(dictionary)
+        for key in dictionary:
+            if isinstance(dictionary[key], dict):
+                dictionary[key] = cls._convert_to_schema_dictionary(dictionary[key])
+        return dictionary
+
+    def __init__(self, *args, **kwargs):
+        super(SchemaDictionary, self).__init__(*args, **kwargs)
+
+        # Walk the new dictionary, replacing any plain dicts with SchemaDicts:
+        for key in self:
+            if isinstance(self[key], dict):
+                self[key] = self._convert_to_schema_dictionary(self[key])
+
+
     def update(self, other_dict):
 
         if not hasattr(other_dict, 'keys'):
