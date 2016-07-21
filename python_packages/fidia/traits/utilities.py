@@ -16,23 +16,27 @@ from ..exceptions import *
 from ..utilities import is_list_or_set
 
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
-TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
+TRAIT_QUAL_RE = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_.]*')
+TRAIT_BRANCH_RE = TRAIT_QUAL_RE
+TRAIT_VERSION_RE = TRAIT_QUAL_RE
 
 TRAIT_NAME_RE = re.compile(
     r"""(?P<trait_type>{TRAIT_TYPE_RE})
-        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?""".format(
+        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE}))?""".format(
             TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
-            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+            TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern),
     re.VERBOSE
 )
 
 TRAIT_KEY_RE = re.compile(
     r"""(?P<trait_type>{TRAIT_TYPE_RE})
-        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?
-        (?::(?P<branch>{TRAIT_TYPE_RE}))?
-        (?:\((?P<version>{TRAIT_PART_RE})\))?""".format(
+        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE}))?
+        (?::(?P<branch>{TRAIT_BRANCH_RE}))?
+        (?:\((?P<version>{TRAIT_VERSION_RE})\))?""".format(
             TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
-            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+            TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern,
+            TRAIT_BRANCH_RE=TRAIT_BRANCH_RE.pattern,
+            TRAIT_VERSION_RE=TRAIT_VERSION_RE.pattern),
     re.VERBOSE
 )
 
@@ -44,9 +48,19 @@ def validate_trait_type(trait_type):
     if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
         raise ValueError("'%s' is not a valid trait_type" % trait_type)
 
-def validate_traitkey_part(traitkey_part):
-    if TRAIT_PART_RE.fullmatch(traitkey_part) is None:
-        raise ValueError("'%s' is not a valid trait_key part" % traitkey_part)
+def validate_trait_qualifier(trait_qualifier):
+    if TRAIT_QUAL_RE.fullmatch(trait_qualifier) is None:
+        raise ValueError("'%s' is not a valid trait qualifier" % trait_qualifier)
+
+def validate_trait_branch(trait_branch):
+    if TRAIT_BRANCH_RE.fullmatch(trait_branch) is None:
+        raise ValueError("'%s' is not a valid trait branch" % trait_branch)
+
+def validate_trait_version(trait_version):
+    if TRAIT_VERSION_RE.fullmatch(trait_version) is None:
+        raise ValueError("'%s' is not a valid trait version" % trait_version)
+
+
 
 
 class TraitKey(tuple):
@@ -58,13 +72,13 @@ class TraitKey(tuple):
 
     def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
         """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
-        if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
-            raise ValueError("Trait type %s doesn't match the required format %s"
-                             % (trait_type, TRAIT_TYPE_RE.pattern))
-        for item in (trait_qualifier, branch, version):
-            if item is not None and TRAIT_PART_RE.fullmatch(item) is None:
-                raise ValueError("Trait part %s doesn't match the required format %s"
-                                 % (item, TRAIT_PART_RE.pattern))
+        validate_trait_type(trait_type)
+        if trait_qualifier is not None:
+            validate_trait_qualifier(trait_qualifier)
+        if branch is not None:
+            validate_trait_branch(branch)
+        if version is not None:
+            validate_trait_version(version)
         return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
 
     @classmethod
