@@ -7,6 +7,7 @@ import re
 
 from astropy import wcs
 from astropy.io import fits
+from astropy import units
 
 import pandas as pd
 
@@ -575,18 +576,29 @@ class LZIFUVelocityMap(VelocityMap):
 
     trait_type = "velocity_map"
 
-    branches_versions = {'lzifu': {'0.9b'}}
+    branches_versions = {"lzifu": {"V02"}}
 
-    defaults = DefaultsRegistry(default_branch='lzifu', version_defaults={'lzifu': '0.9b'})
+    defaults = DefaultsRegistry(default_branch="lzifu", version_defaults={"lzifu": "V02"})
+
+    def init(self):
+
+        data_product_name = "EmissionLineFits"
+
+        self._lzifu_fits_file = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            "1_comp",
+            self.object_id + "_1_comp.fits"))
+
+        if not os.path.exists(self._lzifu_fits_file):
+            if os.path.exists(self._lzifu_fits_file + ".gz"):
+                self._lzifu_fits_file += ".gz"
+            else:
+                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
 
     def preload(self):
-        lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev" + self.version + "/recom_comp/" +
-                           self.object_id + "_recom_comp.fits.gz")
-        try:
-            self._hdu = fits.open(lzifu_fits_file)
-        except:
-            raise DataNotAvailable("No LZIFU data for SAMI ID '%s'" % self.object_id)
+        self._hdu = fits.open(self._lzifu_fits_file)
 
     def cleanup(self):
         self._hdu.close()
@@ -597,7 +609,7 @@ class LZIFUVelocityMap(VelocityMap):
 
     @property
     def unit(self):
-        return None
+        return units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -612,8 +624,8 @@ class LZIFUOneComponentLineMap(Image):
 
     trait_type = 'line_map'
 
-    branches_versions = {"1_comp": {"0.9b", "0.9"}}
-    defaults = DefaultsRegistry(default_branch='1_comp', version_defaults={'1_comp': '0.9b'})
+    branches_versions = {"1_comp": {"V02"}}
+    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -631,11 +643,24 @@ class LZIFUOneComponentLineMap(Image):
 
     qualifiers = line_name_map.keys()
 
+    def init(self):
+        data_product_name = "EmissionLineFits"
+
+        self._lzifu_fits_file = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            "1_comp",
+            self.object_id + "_1_comp.fits"))
+
+        if not os.path.exists(self._lzifu_fits_file):
+            if os.path.exists(self._lzifu_fits_file + ".gz"):
+                self._lzifu_fits_file += ".gz"
+            else:
+                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+
     def preload(self):
-        lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev" + self.version + "/1_comp/" +
-                           self.object_id + "_1_comp.fits.gz")
-        self._hdu = fits.open(lzifu_fits_file)
+        self._hdu = fits.open(self._lzifu_fits_file)
 
     def cleanup(self):
         self._hdu.close()
@@ -656,7 +681,7 @@ class LZIFUOneComponentLineMap(Image):
     @trait_property('float.array')
     def variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
-        log.debug("Returning type: %s", type(variance))
+        log.debug("Returning type: %s", type(sigma))
         variance = sigma**2
         return variance
 
@@ -678,10 +703,26 @@ class LZIFUOneComponentLineMap(Image):
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
-    branches_versions ={'recom_comp': {"0.9b"}}
+    branches_versions ={'recom_comp': {"V02"}}
 
     # Extends 'line_map', so no defaults:
-    defaults = DefaultsRegistry(None, {'recom_comp': '0.9b'})
+    defaults = DefaultsRegistry(None, {'recom_comp': 'V02'})
+
+    def init(self):
+        data_product_name = "EmissionLineFits"
+
+        self._lzifu_fits_file = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            self.branch,
+            self.object_id + "_" + self.branch + ".fits"))
+
+        if not os.path.exists(self._lzifu_fits_file):
+            if os.path.exists(self._lzifu_fits_file + ".gz"):
+                self._lzifu_fits_file += ".gz"
+            else:
+                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -829,20 +870,24 @@ class BalmerExtinctionMap(Image, TraitFromFitsFile):
     trait_type = 'extinction_map'
 
     branches_versions = {
-        "1_comp": {'v01'},
-        "recom_comp": {'v01'}
+        "1_comp": {"V02"},
+        "recom_comp": {"V02"}
     }
 
     defaults = DefaultsRegistry(
-        default_branch='recom_comp',
-        version_defaults={"1_comp": 'v01',
-                          "recom_comp": 'v01'}
+        default_branch="recom_comp",
+        version_defaults={"1_comp": "V02",
+                          "recom_comp": "V02"}
     )
 
     def fits_file_path(self):
-        return (self.archive._base_directory_path +
-                "SFRextmaps/" +
-                self.object_id + "_extinction_" + self.branch + ".fits")
+        data_product_name = "ExtinctCorrMaps"
+
+        return "/".join(
+            (self.archive.vap_data_path,
+             data_product_name,
+             data_product_name + self.version,
+             self.object_id + "_extinction_" + self.branch + ".fits"))
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
     variance = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
@@ -863,9 +908,13 @@ class SFRMap(Image, TraitFromFitsFile):
     )
 
     def fits_file_path(self):
-        return (self.archive._base_directory_path +
-                                "SFRmaps/" +
-                                self.object_id + "_SFR_" + self.branch + ".fits")
+        data_product_name = "SFRMaps"
+
+        return "/".join(
+            (self.archive.vap_data_path,
+             data_product_name,
+             data_product_name + self.version,
+             self.object_id + "_SFR_" + self.branch + ".fits"))
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
