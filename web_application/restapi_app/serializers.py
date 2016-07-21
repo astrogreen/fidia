@@ -203,7 +203,7 @@ def get_and_update_depth_limit(kwargs):
             depth_limit = 0
 
     trait_pk = kwargs.pop('trait_pk', -1)
-    if trait_pk == 'spectral_cube':
+    if trait_pk == 'spectral_map':
         depth_limit = 0
     return depth_limit
 
