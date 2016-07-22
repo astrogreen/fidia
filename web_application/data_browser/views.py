@@ -122,7 +122,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # Get schema for this archive's astro object and sort alphabetically
         sorted_schema_temp = {}
 
-        for key, value in sorted(ar.schema().items()):
+        for key, value in sorted(ar.schema(by_trait_name=True).items()):
             sorted_schema_temp[key] = collections.OrderedDict(sorted(value.items()))
 
         sorted_schema = collections.OrderedDict(sorted(sorted_schema_temp.items()))

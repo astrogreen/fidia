@@ -70,7 +70,7 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSe
 
         serializer_class = sov.serializers.SOVRetrieveSerializer
 
-        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+        sorted_schema = dict(collections.OrderedDict(ar.schema(by_trait_name=True)))
 
         serializer = serializer_class(
             instance=astroobject, many=False,
