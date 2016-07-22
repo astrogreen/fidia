@@ -8,6 +8,7 @@ from restapi_app.fields import AbsoluteURLField
 import fidia, collections
 from fidia.traits.utilities import TraitProperty
 from fidia.traits.base_traits import Trait
+from fidia.descriptions import DescriptionsMixin
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +25,19 @@ def get_and_update_depth_limit(kwargs):
     if trait_pk == 'spectral_cube':
         depth_limit = 0
     return depth_limit
+
+
+class DocumentationHTMLField(serializers.Field):
+    """Serializer for the FIDIA documentation for an object as HTML."""
+
+    def get_attribute(self, instance):
+        # type: (DescriptionsMixin) -> DescriptionsMixin
+        assert isinstance(instance, DescriptionsMixin)
+        return instance
+
+    def to_representation(self, obj):
+        # type: (DescriptionsMixin) -> str
+        return obj.get_documentation(format='html')
 
 
 # class DynamicPropertySerializer(serializers.Serializer):
@@ -83,6 +97,10 @@ def get_and_update_depth_limit(kwargs):
 
 class AstroObjectTraitPropertySerializer(serializers.Serializer):
 
+    # documentation = DocumentationHTMLField()
+    # short_description = serializers.CharField(source='get_description')
+    # pretty_name = serializers.CharField(source='get_pretty_name')
+
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         data_display = kwargs.pop('data_display', 'include')
@@ -110,6 +128,11 @@ class AstroObjectTraitPropertySerializer(serializers.Serializer):
 
 
 class AstroObjectTraitSerializer(serializers.Serializer):
+
+    # documentation = DocumentationHTMLField()
+    # short_description = serializers.CharField(source='get_description')
+    # pretty_name = serializers.CharField(source='get_pretty_name')
+
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
