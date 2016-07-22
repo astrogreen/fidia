@@ -156,7 +156,7 @@ class DescriptionsMixin:
             log.debug("Format designator found, format set to '%s'", cls._documentation_format)
             del doc_lines[-1]
         else:
-            cls._documentation_format = None
+            cls._documentation_format = 'markdown'
             log.debug("No format descriptor found, candidate was: `%s`", doc_lines[-1])
 
         # Rejoin all but the first line:
@@ -197,14 +197,14 @@ class DescriptionsMixin:
         if hasattr(cls, '_pretty_name'):
             return getattr(cls, '_pretty_name')
 
-        if hasattr(cls, 'trait_name'):
+        if hasattr(cls, 'trait_type'):
             # This is a trait, and we can convert the trait_name to a nicely formatted name
-            name = getattr(cls, 'trait_name')
+            name = getattr(cls, 'trait_type')
             # assert isinstance(name, str)
             # Change underscores to spaces
             name = name.replace("_", " ")
             # Make the first letters of each word capital.
-            name.title()
+            name = name.title()
 
             # Append the qualifier:
             # @TODO: write this bit.
@@ -236,3 +236,49 @@ class DescriptionsMixin:
     @classmethod
     def set_description(cls, value):
         cls._short_description = value
+
+class TraitDescriptionsMixin(DescriptionsMixin):
+    """Extends Descriptions Mixin to include support for qualifiers on Traits
+
+     The qualifiers aren't known until the Trait is instantated, so these must
+     be handled differently.
+
+     This mixin is only valid for Trait classes.
+
+     """
+
+    def get_pretty_name(self):
+        """Return a pretty version of the Trait's name, including the qualifier if present.
+
+        Note, this overrides a class method which would just return a pretty
+        version of the trait_type alone. So if this method is called on the
+        class, one gets only that.
+
+        """
+        if hasattr(self, '_pretty_name'):
+            name = getattr(self, '_pretty_name')
+        else:
+            # This is a trait, and we can convert the trait_name to a nicely formatted name
+            name = getattr(self, 'trait_type')
+            # Change underscores to spaces
+            name = name.replace("_", " ")
+            # Make the first letters of each word capital.
+            name = name.title()
+
+        if self.trait_qualifier is not None:
+            if hasattr(self, '_pretty_name_qualifiers'):
+                name += " — " + self._pretty_name_qualifiers[self.trait_qualifier]
+            else:
+                name += " — " + self.trait_qualifier
+
+        return name
+
+    @classmethod
+    def set_pretty_name(cls, value, **kwargs):
+        cls._pretty_name = value
+        for key in kwargs:
+            if key not in cls.qualifiers:
+                raise KeyError("'%s' is not a qualifier of trait '%s'" % (key, cls))
+        if not hasattr(cls, '_pretty_name_qualifiers'):
+            cls._pretty_name_qualifiers = dict()
+        cls._pretty_name_qualifiers.update(kwargs)
