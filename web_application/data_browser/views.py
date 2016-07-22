@@ -21,7 +21,7 @@ from fidia.traits import Trait, TraitProperty, TraitRegistry
 
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 
-# log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 # from fidia.archive.example_archive import ExampleArchive
 # ar = ExampleArchive()
@@ -157,6 +157,13 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/trait/trait-list.html'
 
+        def get_context(self, data, accepted_media_type, renderer_context):
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['html_documentation'] = renderer_context['view'].documentation_html
+            context['pretty_name'] = renderer_context['view'].pretty_name
+            context['short_description'] = renderer_context['view'].short_description
+            return context
+
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
@@ -181,6 +188,14 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'request': request,
             }
         )
+
+        # Add some data to the view so that it can be made available to the renderer.
+        #
+        # This data is not included in the actual data of the serialized object
+        # (though that is possible, see the implementations of the Serializers)
+        self.documentation_html = trait.get_documentation('html')
+        self.pretty_name = trait.get_pretty_name()
+        self.short_description = trait.get_description()
 
         return Response(serializer.data)
 
@@ -218,6 +233,15 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             instance=trait_property, many=False,
             context={'request': request}
         )
+
+        # Add some data to the view so that it can be made available to the renderer.
+        #
+        # This data is not included in the actual data of the serialized object
+        # (though that is possible, see the implementations of the Serializers)
+        self.documentation_html = trait_property.get_documentation('html')
+        self.pretty_name = trait_property.get_pretty_name()
+        self.short_description = trait_property.get_description()
+
         return Response(serializer.data)
 
     def finalize_response(self, request, response, *args, **kwargs):
