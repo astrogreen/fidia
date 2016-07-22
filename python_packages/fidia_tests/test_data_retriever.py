@@ -28,7 +28,7 @@ class TestDataRetriver():
         assert isinstance(data, DataFrame)
 
         # scenario 3
-        trait_key = 'spectral_cube'
+        trait_key = 'spectral_map'
         trait_property_name = 'total_exposure'
 
         data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name)
@@ -36,7 +36,7 @@ class TestDataRetriver():
         assert isinstance(data, DataFrame)
 
         # scenario 4
-        trait_key = 'spectral_cube'
+        trait_key = 'spectral_map'
         trait_property_name = 'cubing_code_version'
 
         data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name)

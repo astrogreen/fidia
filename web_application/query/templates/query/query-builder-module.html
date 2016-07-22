@@ -10,12 +10,9 @@
                 <!--SELECT-->
                 <div class="panel panel-default ">
                     <div class="panel-heading panel-background-grey">
-                        <!--<h3 class="panel-title">SELECT</h3>-->
-                        <h3 class="panel-title">
-                             <span>SELECT</span>
-                             <a class=" black pull-right" href="" ng-click="fAddCatalogue()">
+                        SELECT
+                        <a class=" black pull-right" href="" ng-click="fAddCatalogue()">
                                     <i class="fa fa-plus fa-slim-line"></i></a>
-                         </h3>
                     </div>
                     <div class="panel-body">
                         <div ng-repeat="nodecat in inputCatalogues track by $index" class="clearfix false-row">
@@ -40,11 +37,9 @@
                 </div>
                 <div class="panel panel-default" ng-show="inputJoins.length>0">
                     <div class="panel-heading panel-background-grey">
-                        <h3 class="panel-title">
-                             <span>JOIN</span>
-                             <a class=" black pull-right" href="" ng-click="fAddJoin()">
+                        JOIN
+                        <a class=" black pull-right" href="" ng-click="fAddJoin()">
                                     <i class="fa fa-plus fa-slim-line"></i></a>
-                         </h3>
                     </div>
                     <div class="panel-body">
                         <div ng-repeat="join in inputJoins track by $index" class="clearfix false-row">
@@ -74,9 +69,10 @@
                 </div>
                 <div class="panel panel-default">
                     <div class="panel-heading panel-background-grey">
-                        <h3 class="panel-title"><span>WHERE</span>
-                             <a class=" black pull-right" href="" ng-click="fAddWhere()">
-                                    <i class="fa fa-plus fa-slim-line"></i></a></h3>
+                        WHERE
+                        <a class=" black pull-right" href="" ng-click="fAddWhere()">
+                                    <i class="fa fa-plus fa-slim-line"></i></a>
+
                     </div>
                     <div class="panel-body" ng-show="inputWheres.length>0">
                         <div ng-repeat="nodewhere in inputWheres track by $index" class="clearfix false-row">
@@ -109,9 +105,7 @@
                 </div>
                 <div class="panel panel-default ">
                     <div class="panel-heading panel-background-grey">
-                        <h3 class="panel-title">
-                             <span>OUTPUT SQL</span>
-                         </h3>
+                        OUTPUT SQL
                     </div>
                     <div id="query-form-errors">
                         <div class="panel-body error" ng-show="error.errorFlag == true">
@@ -144,16 +138,16 @@
 
                  <div class="row">
                      <div  class="col-sm-12">
-                         <button class="btn btn-sm btn-primary pull-right text-uppercase" type="button"
+                         <button class="button button-small button-primary pull-right text-uppercase" type="button"
                                  ng-click=""
                                  id="query-builder-submit" disabled>SUBMIT
                          </button>
                          <button type="button"
-                                 class="btn btn-sm btn-default text-uppercase pull-right pulsing-button"
+                                 class="button button-small btn-default text-uppercase pull-right pulsing-button"
                                  ng-click="fValidate()" style="margin-right:5px;"
                                  title="Check form is correctly populated" id="check-button">VALIDATE
                          </button>
-                         <button class="btn btn-sm btn-default pull-left text-uppercase" type="button"
+                         <button class="button button-small pull-left text-uppercase" type="button"
                                  ng-click="fReset()"
                                  id="query-builder-reset">Reset
                          </button>

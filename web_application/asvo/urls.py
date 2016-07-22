@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^asvo/', include('restapi_app.urls')),
 
+    url(r'^asvo/', include('cart.urls')),
     url(r'^asvo/', include('data_browser.urls')),
     url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),

@@ -1,4 +1,8 @@
-app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeout, $http) {
+(function(angular){
+
+    var app = angular.module("DCApp");
+
+    app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeout, $http) {
 
         /* -- INITIALIZATION -- */
 
@@ -917,6 +921,6 @@ app.controller('Ctrl1', ['$scope', '$timeout', '$http', function($scope, $timeou
   ///
 }]);
 
-
+})(window.angular);
 
 

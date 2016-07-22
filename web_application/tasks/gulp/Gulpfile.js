@@ -47,7 +47,7 @@ var gulp = require('gulp'),
 gulp.task('watch', function(){
     // watch the css files in the less directory (transpiler will update if less is altered)
     // minify and move to css/folder/
-    gulp.watch(['../**/static/**/less/**/*.css'], function(file){
+    gulp.watch(['../../**/static/**/less/**/*.css'], function(file){
     })
         .on("change", function(file){
             // console.log(file);

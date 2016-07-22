@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.http import HttpResponse
 
+from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
+
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -11,46 +13,15 @@ from rest_framework.settings import api_settings
 import restapi_app.permissions
 import restapi_app.exceptions
 import restapi_app.renderers
+import restapi_app.utils.helpers
 
 import data_browser.serializers
 import data_browser.renderers
 
 import fidia.exceptions
+from fidia.traits import Trait, TraitProperty, TraitRegistry
 
-# from fidia.archive.asvo_spark import AsvoSparkArchive
-
-# log = logging.getLogger(__name__)
-
-# from fidia.archive.example_archive import ExampleArchive
-# ar = ExampleArchive()
-# sample = ar.get_full_sample()
-
-from fidia.archive.sami import SAMITeamArchive
-
-# ar = SAMITeamArchive(
-#     "/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
-#     "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
-#     "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
-
-ar = SAMITeamArchive(
-    settings.SAMI_TEAM_DATABASE,
-    settings.SAMI_TEAM_DATABASE_CATALOG)
-
-sample = ar.get_full_sample()
-
-# >>> ar.schema()
-# {'line_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'},
-# 'redshift': {'value': 'float'},
-# 'spectral_map': {'extra_value': 'float',
-#    'galaxy_name': 'string',
-#    'value': 'float.array',
-#    'variance': 'float.array'},
-# 'velocity_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'}}
-#
-# >>> sample['Gal1']['redshift'].value
-# 3.14159
-#
-
+log = logging.getLogger(__name__)
 
 class GAMAViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
@@ -61,7 +32,7 @@ class GAMAViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
-            sample
+            sami_dr1_sample
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -79,7 +50,7 @@ class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
-            sample
+            sami_dr1_sample
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -87,7 +58,7 @@ class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.SampleSerializer
         serializer = serializer_class(
-            instance=sample, many=False,
+            instance=sami_dr1_sample, many=False,
             context={'request': request},
             depth_limit=1
         )
@@ -104,17 +75,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
-        # def get_serializer_context(self):
-        #     """
-        #     pass request attribute to serializer - add schema attribute
-        #     """
-        #     return {
-        #         'request': self.request,
-        #         'schema': ar.schema()
-        #     }
 
         try:
-            astroobject = sample[galaxy_pk]
+            astroobject = sami_dr1_sample[galaxy_pk]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + galaxy_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
@@ -125,15 +88,33 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.AstroObjectSerializer
 
-        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+        # Get schema for this archive's astro object and sort alphabetically
+        sorted_schema_temp = {}
+
+        for key, value in sorted(ar.schema(by_trait_name=True).items()):
+            sorted_schema_temp[key] = collections.OrderedDict(sorted(value.items()))
+
+        sorted_schema = collections.OrderedDict(sorted(sorted_schema_temp.items()))
+
+        # Get available traits (minus qualifier) for this archive's astro object
+        # to provide groupings (line maps, velocity maps etc) in ao view.
+        available_trait_set = ar.available_traits.get_traits()
+        trait_list = []
+
+        for ty in available_trait_set:
+            trait_list.append(ty.trait_type)
+
+        trait_list = restapi_app.utils.helpers.unique_list(trait_list)
 
         serializer = serializer_class(
             instance=astroobject, many=False,
             context={
                 'request': request,
-                'schema': sorted_schema
-                }
+                'schema': sorted_schema,
+                'trait_list': sorted(trait_list)
+            }
         )
+
         return Response(serializer.data)
 
 
@@ -142,11 +123,19 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/trait/trait-list.html'
 
+        def get_context(self, data, accepted_media_type, renderer_context):
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['html_documentation'] = renderer_context['view'].documentation_html
+            context['pretty_name'] = renderer_context['view'].pretty_name
+            context['short_description'] = renderer_context['view'].short_description
+            return context
+
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
+        print('TRAIT:'+trait_pk)
         try:
-            trait = sample[galaxy_pk][trait_pk]
+            trait = sami_dr1_sample[galaxy_pk][trait_pk]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + galaxy_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
@@ -165,6 +154,14 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'request': request,
             }
         )
+
+        # Add some data to the view so that it can be made available to the renderer.
+        #
+        # This data is not included in the actual data of the serialized object
+        # (though that is possible, see the implementations of the Serializers)
+        self.documentation_html = trait.get_documentation('html')
+        self.pretty_name = trait.get_pretty_name()
+        self.short_description = trait.get_description()
 
         return Response(serializer.data)
 
@@ -188,7 +185,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
             # address trait properties via . not []
-            trait_property = getattr(sample[galaxy_pk][trait_pk], traitproperty_pk)
+            trait_property = getattr(sami_dr1_sample[galaxy_pk][trait_pk], traitproperty_pk)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -202,6 +199,15 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             instance=trait_property, many=False,
             context={'request': request}
         )
+
+        # Add some data to the view so that it can be made available to the renderer.
+        #
+        # This data is not included in the actual data of the serialized object
+        # (though that is possible, see the implementations of the Serializers)
+        self.documentation_html = trait_property.get_documentation('html')
+        self.pretty_name = trait_property.get_pretty_name()
+        self.short_description = trait_property.get_description()
+
         return Response(serializer.data)
 
     def finalize_response(self, request, response, *args, **kwargs):
@@ -215,9 +221,42 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+        print(dynamic_pk)
+        print(trait_pk)
+        print(galaxy_pk)
         # @property
         # def dynamic_property_first_of_type(self, dynamic_pk):
             # split on /
+
+        # Determine what we're looking at.
+        path = list(dynamic_pk.split('/'))
+
+        path.insert(0, trait_pk)
+        # return Response({"data": str(ar.type_for_trait_path(path))})
+        print(ar.type_for_trait_path(path))
+        if issubclass(ar.type_for_trait_path(path), Trait):
+            trait_pointer = sami_dr1_sample[galaxy_pk]
+            for elem in path:
+                trait_pointer = trait_pointer[elem]
+            serializer = data_browser.serializers.AstroObjectTraitSerializer(
+                instance=trait_pointer, many=False,
+                context={'request': request}
+            )
+
+        elif issubclass(ar.type_for_trait_path(path), TraitProperty):
+            trait_pointer = sami_dr1_sample[galaxy_pk]
+            for elem in path[:-1]:
+                trait_pointer = trait_pointer[elem]
+            trait_property = getattr(trait_pointer, path[-1])
+            serializer = data_browser.serializers.AstroObjectTraitPropertySerializer(
+                instance=trait_property, many=False,
+                context={'request': request}
+            )
+        else:
+            raise Exception("programming error")
+
+        return Response(serializer.data)
+
 
         # Return a list of components
         dynamic_components = dynamic_pk.split('/')

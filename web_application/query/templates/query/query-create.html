@@ -4,18 +4,15 @@
 {% load internal_extras %}
 {% block title %}Query{% endblock %}
 {% block head-extra %}
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular.1.5.0.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'restapi_app/js/ace-min-noconflict/ace.js' %}"></script>
-<script type="text/javascript" src="{% static 'restapi_app/js/isteven-multi-select/isteven-multi-select.js' %}"></script>
+
 <script type="text/javascript">
     //get url for available catalogues
     urlCataloguesGlobal = "{% url "catalogues" %}"
 </script>
-<script type="text/javascript" src="{% static 'query/js/app.js' %}"></script>
+
 <script type="text/javascript" src="{% static 'query/js/query-builder/CtrlQueryBuilder.js' %}"></script>
 <script type="text/javascript" src="{% static 'query/js/schema-browser/CtrlSchemaBrowser.js' %}"></script>
-
 
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/isteven-multi-select/isteven-multi-select.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'query/css/query-builder/query-builder.min.css' %}"/>
@@ -55,7 +52,12 @@
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
 
-{% block angular-ng-app-class %}ng-app="myApp"{% endblock %}
+{% block page_title %}Query{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation' %}" title="Query Documentation">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a></li>
+{% endblock useful_links %}
+
 {% block content_render %}
     {% comment %}
     ------ NEW QUERY FORM ------
@@ -64,15 +66,11 @@
     {% if display_edit_forms %}
         {% if post_form or raw_data_post_form %}
             {% if not response.data.queryResults %}
-                <h1 class="headline">
-                    <span>Query</span>
-                    <div class="btn-group on-this-page-btn-group pull-right" role="group" aria-label="...">
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'documentation-query-builder' %}" title="Query Documentation">Documentation</a>
-                        <a type="button" class="btn btn-default btn-sm text-uppercase" href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a>
-                    </div>
-                </h1>
+
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-8">
+                        <p class="lead">Create a sample of astronomical objects - no coding necessary. </p>
+
                         <p>Construct a sample of objects using the <a
                                 onclick="fTabSwitch('query-builder-form')"
                                 title="Create simple SQL queries with ease.">Query Builder</a>. Use the Schema
@@ -143,7 +141,7 @@
                                             {% csrf_token %}
                                             {{ post_form }}
                                             <div class="form-actions">
-                                                <button class="btn btn-primary btn-sm pull-right" title="Make a POST request on the {{ name }} resource" id="button-sql-submit">SUBMIT</button>
+                                                <button class="button button-primary button-small pull-right" title="Make a POST request on the {{ name }} resource" id="button-sql-submit">SUBMIT</button>
                                             </div>
                                         </fieldset>
                                     </form>
@@ -159,7 +157,7 @@
                     </div>
                     <div class="col-sm-4">
                          <h2 class="headline">
-                            <span>Schema</span>
+                            <span>Schema Browser</span>
                         </h2>
                         {% block schema-browser %}
                             {% include "query/schema-browser-module.html" %}

@@ -1,1 +1,1 @@
-var app = angular.module("myApp", [ "isteven-multi-select", 'ngSanitize' ]);
+var app = angular.module("DCApp", [ "isteven-multi-select", 'ngSanitize' ]);
