@@ -119,6 +119,9 @@ SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 SAMI_TEAM_DATABASE = ''
 SAMI_TEAM_DATABASE_CATALOG = ''
 
+SAMI_DR1_DATABASE = ''
+SAMI_DR1_DATABASE_CATALOG = ''
+
 
 # Pandoc paths
 # https://pypi.python.org/pypi/pypandoc

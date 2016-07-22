@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.http import HttpResponse
 
+from asvo.fidia_samples_archives import sami_dr1_sample
+
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -19,43 +21,7 @@ import data_browser.renderers
 import fidia.exceptions
 from fidia.traits import Trait, TraitProperty, TraitRegistry
 
-# from fidia.archive.asvo_spark import AsvoSparkArchive
-
 log = logging.getLogger(__name__)
-
-# from fidia.archive.example_archive import ExampleArchive
-# ar = ExampleArchive()
-# sample = ar.get_full_sample()
-
-from fidia.archive import sami
-
-# ar = sami.SAMITeamArchive(
-#     "/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
-#     "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
-#     "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
-
-# ar = sami.SAMITeamArchive(
-#     settings.SAMI_TEAM_DATABASE,
-#     settings.SAMI_TEAM_DATABASE_CATALOG)
-
-ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
-                               "dr1_catalog/dr1_20160720.txt")
-
-sample = ar.get_full_sample()
-
-# >>> ar.schema()
-# {'line_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'},
-# 'redshift': {'value': 'float'},
-# 'spectral_map': {'extra_value': 'float',
-#    'galaxy_name': 'string',
-#    'value': 'float.array',
-#    'variance': 'float.array'},
-# 'velocity_map': {'value': 'float.ndarray', 'variance': 'float.ndarray'}}
-#
-# >>> sample['Gal1']['redshift'].value
-# 3.14159
-#
-
 
 class GAMAViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
@@ -66,7 +32,7 @@ class GAMAViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
-            sample
+            sami_dr1_sample
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -84,7 +50,7 @@ class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, format=None):
         try:
-            sample
+            sami_dr1_sample
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -92,7 +58,7 @@ class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.SampleSerializer
         serializer = serializer_class(
-            instance=sample, many=False,
+            instance=sami_dr1_sample, many=False,
             context={'request': request},
             depth_limit=1
         )
@@ -111,7 +77,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
 
         try:
-            astroobject = sample[galaxy_pk]
+            astroobject = sami_dr1_sample[galaxy_pk]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + galaxy_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
@@ -169,7 +135,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
         print('TRAIT:'+trait_pk)
         try:
-            trait = sample[galaxy_pk][trait_pk]
+            trait = sami_dr1_sample[galaxy_pk][trait_pk]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + galaxy_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
@@ -219,7 +185,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
             # address trait properties via . not []
-            trait_property = getattr(sample[galaxy_pk][trait_pk], traitproperty_pk)
+            trait_property = getattr(sami_dr1_sample[galaxy_pk][trait_pk], traitproperty_pk)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -269,7 +235,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # return Response({"data": str(ar.type_for_trait_path(path))})
         print(ar.type_for_trait_path(path))
         if issubclass(ar.type_for_trait_path(path), Trait):
-            trait_pointer = sample[galaxy_pk]
+            trait_pointer = sami_dr1_sample[galaxy_pk]
             for elem in path:
                 trait_pointer = trait_pointer[elem]
             serializer = data_browser.serializers.AstroObjectTraitSerializer(
@@ -278,7 +244,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             )
 
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
-            trait_pointer = sample[galaxy_pk]
+            trait_pointer = sami_dr1_sample[galaxy_pk]
             for elem in path[:-1]:
                 trait_pointer = trait_pointer[elem]
             trait_property = getattr(trait_pointer, path[-1])
