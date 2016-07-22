@@ -1,7 +1,7 @@
 import collections
 from django.conf import settings
 
-from asvo.fidia_samples_archives import sami_dr1_sample
+from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
 from rest_framework import renderers, viewsets, status, mixins
 from rest_framework.response import Response
