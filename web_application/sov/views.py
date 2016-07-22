@@ -11,11 +11,20 @@ import restapi_app.renderers
 
 import sov.serializers
 
-from fidia.archive.sami import SAMITeamArchive
+from fidia.archive import sami
 
-ar = SAMITeamArchive(
-    settings.SAMI_TEAM_DATABASE,
-    settings.SAMI_TEAM_DATABASE_CATALOG)
+# ar = sami.SAMITeamArchive(
+#     "/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
+#     "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
+#     "sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits")
+
+# ar = sami.SAMITeamArchive(
+#     settings.SAMI_TEAM_DATABASE,
+#     settings.SAMI_TEAM_DATABASE_CATALOG)
+
+ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
+                               "dr1_catalog/dr1_20160720.txt")
+
 
 sample = ar.get_full_sample()
 
