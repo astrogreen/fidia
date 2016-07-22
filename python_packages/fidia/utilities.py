@@ -3,6 +3,7 @@ from collections import Iterable, Sized
 from contextlib import contextmanager
 import os
 import errno
+import fcntl
 from time import sleep
 
 from . import slogging
@@ -172,7 +173,8 @@ class exclusive_file_lock:
         n_waits = 0
         while not lock_aquired:
             try:
-                fd = os.open(self.lockfilename, os.O_CREAT | os.O_EXCL | os.O_EXLOCK | os.O_WRONLY)
+                fd = os.open(self.lockfilename, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                fcntl.lockf(fd, fcntl.LOCK_EX)
             except OSError as e:
                 if e.errno != errno.EEXIST:
                     raise
