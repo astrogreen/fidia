@@ -1,5 +1,14 @@
 from copy import deepcopy
 from collections import Iterable, Sized
+from contextlib import contextmanager
+import os
+import errno
+from time import sleep
+
+from . import slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.DEBUG)
+log.enable_console_logging()
 
 def none_at_indices(tup, indices):
     result = tuple()
@@ -33,6 +42,25 @@ class SchemaDictionary(dict):
     Note that this is not fully implemented. It only prevents changes introduced through the `.update` method. See ASVO-
 
     """
+
+    @classmethod
+    def _convert_to_schema_dictionary(cls, dictionary):
+        if isinstance(dictionary, dict) and not isinstance(dictionary, SchemaDictionary):
+            dictionary = SchemaDictionary(dictionary)
+        for key in dictionary:
+            if isinstance(dictionary[key], dict):
+                dictionary[key] = cls._convert_to_schema_dictionary(dictionary[key])
+        return dictionary
+
+    def __init__(self, *args, **kwargs):
+        super(SchemaDictionary, self).__init__(*args, **kwargs)
+
+        # Walk the new dictionary, replacing any plain dicts with SchemaDicts:
+        for key in self:
+            if isinstance(self[key], dict):
+                self[key] = self._convert_to_schema_dictionary(self[key])
+
+
     def update(self, other_dict):
 
         if not hasattr(other_dict, 'keys'):
@@ -123,3 +151,52 @@ class Default: pass
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
     return isinstance(obj, Iterable) and isinstance(obj, Sized)
+
+class exclusive_file_lock:
+    """A context manager which will block while another process holds a lock on the named file.
+
+    While another process is executing this context, this process will block,
+    and only start executing the context once the lock has been released.
+
+    Adapted from http://stackoverflow.com/questions/30407352/how-to-prevent-a-race-condition-when-multiple-processes-attempt-to-write-to-and
+
+    """
+
+    def __init__(self, filename):
+        self.lockfilename = filename + '.LOCK'
+
+    def __enter__(self):
+
+        # Loop until a lock file can be created:
+        lock_aquired = False
+        n_waits = 0
+        while not lock_aquired:
+            try:
+                fd = os.open(self.lockfilename, os.O_CREAT | os.O_EXCL | os.O_EXLOCK | os.O_WRONLY)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
+                else:
+                    # Wait some time for the lock to be cleared before trying again.
+                    sleep(0.5)
+                    n_waits += 1
+                    if n_waits == 10:
+                        log.warning("Waiting for exclusive lock on file '%s'", self.lockfilename)
+                    if n_waits == 10:
+                        log.warning("Still waiting for exclusive lock on file '%s': stale lockfile?",
+                                    self.lockfilename)
+
+            except:
+                raise
+            else:
+                lock_aquired = True
+
+        # Lock has been aquired. Open the file
+        self.f = os.fdopen(fd)
+
+        return
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Context complete. Release the lock.
+        os.remove(self.lockfilename)
+        self.f.close()

@@ -17,27 +17,30 @@ from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
 from ..utilities import is_list_or_set
-
-from ..descriptions import Description, Documentation, PrettyName
+from ..descriptions import DescriptionsMixin
 
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
-TRAIT_PART_RE = re.compile(r'[a-zA-Z0-9_][a-zA-Z0-9_.]*')
+TRAIT_QUAL_RE = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_.]*')
+TRAIT_BRANCH_RE = TRAIT_QUAL_RE
+TRAIT_VERSION_RE = TRAIT_QUAL_RE
 
 TRAIT_NAME_RE = re.compile(
     r"""(?P<trait_type>{TRAIT_TYPE_RE})
-        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?""".format(
+        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE}))?""".format(
             TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
-            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+            TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern),
     re.VERBOSE
 )
 
 TRAIT_KEY_RE = re.compile(
     r"""(?P<trait_type>{TRAIT_TYPE_RE})
-        (?:-(?P<trait_qualifier>{TRAIT_PART_RE}))?
-        (?::(?P<branch>{TRAIT_TYPE_RE}))?
-        (?:\((?P<version>{TRAIT_PART_RE})\))?""".format(
+        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE}))?
+        (?::(?P<branch>{TRAIT_BRANCH_RE}))?
+        (?:\((?P<version>{TRAIT_VERSION_RE})\))?""".format(
             TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
-            TRAIT_PART_RE=TRAIT_PART_RE.pattern),
+            TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern,
+            TRAIT_BRANCH_RE=TRAIT_BRANCH_RE.pattern,
+            TRAIT_VERSION_RE=TRAIT_VERSION_RE.pattern),
     re.VERBOSE
 )
 
@@ -49,9 +52,19 @@ def validate_trait_type(trait_type):
     if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
         raise ValueError("'%s' is not a valid trait_type" % trait_type)
 
-def validate_traitkey_part(traitkey_part):
-    if TRAIT_PART_RE.fullmatch(traitkey_part) is None:
-        raise ValueError("'%s' is not a valid trait_key part" % traitkey_part)
+def validate_trait_qualifier(trait_qualifier):
+    if TRAIT_QUAL_RE.fullmatch(trait_qualifier) is None:
+        raise ValueError("'%s' is not a valid trait qualifier" % trait_qualifier)
+
+def validate_trait_branch(trait_branch):
+    if TRAIT_BRANCH_RE.fullmatch(trait_branch) is None:
+        raise ValueError("'%s' is not a valid trait branch" % trait_branch)
+
+def validate_trait_version(trait_version):
+    if TRAIT_VERSION_RE.fullmatch(trait_version) is None:
+        raise ValueError("'%s' is not a valid trait version" % trait_version)
+
+
 
 
 class TraitKey(tuple):
@@ -63,13 +76,13 @@ class TraitKey(tuple):
 
     def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
         """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
-        if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
-            raise ValueError("Trait type %s doesn't match the required format %s"
-                             % (trait_type, TRAIT_TYPE_RE.pattern))
-        for item in (trait_qualifier, branch, version):
-            if item is not None and TRAIT_PART_RE.fullmatch(item) is None:
-                raise ValueError("Trait part %s doesn't match the required format %s"
-                                 % (item, TRAIT_PART_RE.pattern))
+        validate_trait_type(trait_type)
+        if trait_qualifier is not None:
+            validate_trait_qualifier(trait_qualifier)
+        if branch is not None:
+            validate_trait_branch(branch)
+        if version is not None:
+            validate_trait_version(version)
         return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
 
     @classmethod
@@ -109,6 +122,10 @@ class TraitKey(tuple):
         #         return self._make_trait_name(self.trait_key, self.trait_qualifier)
         # TODO: Implement solutions for other cases.
 
+    @classmethod
+    def split_trait_name(cls, trait_key_like):
+        tk = cls.as_traitkey(trait_key_like)
+        return (tk.trait_type, tk.trait_qualifier)
 
     @staticmethod
     def _make_trait_name(trait_type, trait_qualifier):
@@ -206,7 +223,7 @@ def trait_property(func_or_type):
     raise Exception("trait_property decorator used incorrectly. Check documentation.")
 
 
-class TraitProperty(metaclass=ABCMeta):
+class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
 
     allowed_types = [
         'string',
@@ -216,15 +233,6 @@ class TraitProperty(metaclass=ABCMeta):
         'float.array',
         'int.array'
     ]
-
-    # pretty_name = PrettyName()
-    # description = Description()
-    # documentation = Documentation()
-
-    pretty_name = None
-    description = None
-    documentation = None
-    short_name = None
 
     def __init__(self, fload=None, fset=None, fdel=None, doc=None, type=None, name=None):
         self.fload = fload
@@ -281,6 +289,15 @@ class BoundTraitProperty:
         self._trait = trait
         self._trait_property = trait_property
 
+    def __getattr__(self, item):
+        """Pass most undefined attribute requests to the host TraitProperty.
+
+        Note that any method or attribute explicitly defined in this class will
+        override the host TraitProperty's attributes.
+
+        """
+        if item not in ('loader',) and not item.startswith("_"):
+            return getattr(self._trait_property, item)
 
     @property
     def name(self):
@@ -293,22 +310,6 @@ class BoundTraitProperty:
     @property
     def doc(self):
         return self._trait_property.doc
-
-    @property
-    def short_name(self):
-        return self._trait_property.short_name
-
-    @property
-    def description(self):
-        return self._trait_property.description
-
-    @property
-    def documentation(self):
-        return self._trait_property.documentation
-
-    @property
-    def pretty_name(self):
-        return self._trait_property.pretty_name
 
     def __call__(self):
         """Retrieve the value of this TraitProperty"""

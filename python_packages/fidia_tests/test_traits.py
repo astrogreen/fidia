@@ -94,35 +94,68 @@ class TestTraits:
             assert not isinstance(value, TraitProperty)
 
     def test_trait_schema(self):
-
+        """This test checks both versions of the schema."""
         test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
-        schema = test_trait.schema()
+        # Test the schema by trait_type
+        schema_by_trait_type = test_trait.schema(by_trait_name=False)
 
-        assert isinstance(schema, dict)
+        assert isinstance(schema_by_trait_type, dict)
 
-        assert 'value' in schema
-        assert schema['value'] == 'float'
-        assert 'extra' in schema
-        assert schema['extra'] == 'string'
+        assert 'value' in schema_by_trait_type
+        assert schema_by_trait_type['value'] == 'float'
+        assert 'extra' in schema_by_trait_type
+        assert schema_by_trait_type['extra'] == 'string'
+
+        del schema_by_trait_type
+
+        # Test the schema by trait_name
+        schema_by_trait_name = test_trait.schema(by_trait_name=True)
+
+        assert isinstance(schema_by_trait_name, dict)
+
+        assert 'value' in schema_by_trait_name
+        assert schema_by_trait_name['value'] == 'float'
+        assert 'extra' in schema_by_trait_name
+        assert schema_by_trait_name['extra'] == 'string'
 
     def test_trait_schema_with_subtraits(self):
 
         test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
-        schema = test_trait.schema()
+        # Test the schema by trait_type
+        schema_by_trait_type = test_trait.schema(by_trait_name=False)
 
-        assert isinstance(schema, dict)
+        assert isinstance(schema_by_trait_type, dict)
 
-        assert 'value' in schema
-        assert schema['value'] == 'float'
-        assert 'extra' in schema
-        assert schema['extra'] == 'string'
+        assert 'value' in schema_by_trait_type
+        assert schema_by_trait_type['value'] == 'float'
+        assert 'extra' in schema_by_trait_type
+        assert schema_by_trait_type['extra'] == 'string'
 
         # Hierarchical part of schema:
-        assert 'sub_trait' in schema
-        assert isinstance(schema['sub_trait'], dict)
-        assert 'value' in schema['sub_trait']
+        assert 'sub_trait' in schema_by_trait_type
+        assert isinstance(schema_by_trait_type['sub_trait'], dict)
+        assert isinstance(schema_by_trait_type['sub_trait'][None], dict)
+        assert 'value' in schema_by_trait_type['sub_trait'][None]
+
+        del schema_by_trait_type
+
+        # Test the schema by trait_name
+        schema_by_trait_name = test_trait.schema(by_trait_name=True)
+
+        assert isinstance(schema_by_trait_name, dict)
+
+        assert 'value' in schema_by_trait_name
+        assert schema_by_trait_name['value'] == 'float'
+        assert 'extra' in schema_by_trait_name
+        assert schema_by_trait_name['extra'] == 'string'
+
+        # Hierarchical part of schema:
+        assert 'sub_trait' in schema_by_trait_name
+        assert isinstance(schema_by_trait_name['sub_trait'], dict)
+        assert isinstance(schema_by_trait_name['sub_trait'], dict)
+        assert 'value' in schema_by_trait_name['sub_trait']
 
     def test_retrieve_sub_trait_by_dictionary(self):
 
@@ -134,16 +167,22 @@ class TestTraits:
     def test_trait_descriptions(self):
         test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
-        assert hasattr(test_trait, 'pretty_name')
-        assert hasattr(test_trait, 'documentation')
-        assert hasattr(test_trait, 'description')
+        assert hasattr(test_trait, 'get_pretty_name')
+        assert hasattr(test_trait, 'get_documentation')
+        assert hasattr(test_trait, 'get_description')
 
-        assert test_trait.description == "Description for SimpleTrait."
+        assert test_trait.get_description() == "Description for SimpleTrait."
 
-        print(type(test_trait.documentation))
-        print(test_trait.documentation)
-        assert "Extended documentation" in test_trait.documentation
-        assert "Description for SimpleTrait" in test_trait.documentation
+    def test_trait_documentation(self):
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+
+        print(type(test_trait.get_documentation))
+        print(test_trait.get_documentation())
+        assert "Extended documentation" in test_trait.get_documentation()
+        assert "Description for SimpleTrait" in test_trait.get_documentation()
+        assert test_trait._documentation_format == 'markdown'
+
+        assert "<strong>text</strong>" in test_trait.get_documentation('html')
 
 
     def test_trait_property_description(self):

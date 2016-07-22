@@ -27,7 +27,7 @@ class Archive(BaseArchive):
 
         self.cache = DummyCache()
 
-        self._schema = None
+        self._schema = {'by_trait_type': None, 'by_trait_name': None}
 
         super(BaseArchive, self).__init__()
 
@@ -35,8 +35,13 @@ class Archive(BaseArchive):
     def writeable(self):
         raise NotImplementedError("")
 
+    @property
     def contents(self):
-        return list()
+        return self._contents
+    @contents.setter
+    def contents(self, value):
+        self._contents = set(value)
+
 
     @property
     def name(self):
@@ -114,7 +119,7 @@ class Archive(BaseArchive):
         """
 
         # Drill down the schema:
-        schema = self.schema()
+        schema = self.schema(by_trait_name=True)
         current_schema_item = schema
         for path_element in path:
             trait_key = TraitKey.as_traitkey(path_element)
@@ -129,27 +134,61 @@ class Archive(BaseArchive):
     def can_provide(self, trait_key):
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
-    def schema(self):
+    def schema(self, by_trait_name=False):
         """Provide a list of trait_keys and classes this archive generally supports."""
 
-        if self._schema:
-            return self._schema
-        result = SchemaDictionary()
-        log.debug("Building a schema for archive '%s'", self)
-        for trait_name in self.available_traits.get_trait_names():
-            log.debug("    Processing traits with trait_name '%s'", trait_name)
-            result[trait_name] = SchemaDictionary()
-            for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
-                log.debug("        Attempting to add Trait class '%s'", trait)
-                trait_schema = trait.schema()
-                try:
-                    result[trait_name].update(trait_schema)
-                except ValueError:
-                    log.error("Schema mis-match in traits: trait '%s' cannot be added " +
-                              "to schema for '%s' containing: '%s'",
-                              trait, trait_name, result[trait_name])
-                    raise SchemaError("Schema mis-match in traits")
-        self._schema = result
+        if by_trait_name:
+            # Produce a version of the schema which has trait_type and
+            # trait_name combined on a single level.
+            if self._schema['by_trait_name']:
+                # Cached copy available, return that.
+                return self._schema['by_trait_name']
+            result = SchemaDictionary()
+            log.debug("Building a schema by_trait_name for archive '%s'", self)
+            for trait_name in self.available_traits.get_trait_names():
+                log.debug("    Processing traits with trait_name '%s'", trait_name)
+                result[trait_name] = SchemaDictionary()
+                for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
+                    log.debug("        Attempting to add Trait class '%s'", trait)
+                    trait_schema = trait.schema(by_trait_name=by_trait_name)
+                    try:
+                        result[trait_name].update(trait_schema)
+                    except ValueError:
+                        log.error("Schema mis-match in traits: trait '%s' cannot be added " +
+                                  "to schema for '%s' containing: '%s'",
+                                  trait, trait_name, result[trait_name])
+                        raise SchemaError("Schema mis-match in traits")
+            self._schema['by_trait_name'] = result
+
+        else:
+            # Produce a version of the schema which has trait_type on one level,
+            # and trait_name on the next nested level.
+            if self._schema['by_trait_type']:
+                # Cached copy available, return that.
+                return self._schema['by_trait_type']
+            result = SchemaDictionary()
+            log.debug("Building a schema by_trait_type for archive '%s'", self)
+            trait_types = self.available_traits.get_trait_types()
+            for trait_type in trait_types:
+                log.debug("    Processing traits with trait_type '%s'", trait_type)
+                result[trait_type] = SchemaDictionary()
+                trait_names = self.available_traits.get_trait_names(trait_type_filter=trait_type)
+                for trait_name in trait_names:
+                    log.debug("        Processing traits with trait_name '%s'", trait_name)
+                    trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
+                    for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
+                        log.debug("            Attempting to add Trait class '%s'", trait)
+                        trait_schema = trait.schema(by_trait_name=by_trait_name)
+                        if trait_qualifier not in result[trait_type]:
+                            result[trait_type][trait_qualifier] = SchemaDictionary()
+                        try:
+                            result[trait_type][trait_qualifier].update(trait_schema)
+                        except ValueError:
+                            log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
+                                      "to schema for '%s' containing: '%s'",
+                                      trait, trait_type, result[trait_type][trait_name])
+                            raise SchemaError("Schema mis-match in traits")
+                self._schema['by_trait_type'] = result
         return result
 
     def define_available_traits(self):
