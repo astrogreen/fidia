@@ -8,6 +8,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
+DEFAULT_FORMAT = 'markdown'
 
 def parse_short_description_from_doc_string(doc_string):
     """Get a short description from the first line of a doc-string."""
@@ -18,9 +19,11 @@ def parse_short_description_from_doc_string(doc_string):
 
 
 def formatted(text, input_format, output_format=None):
-    if output_format is None:
+    if output_format is None or input_format == output_format:
+        # No conversion requested or necessary
         return text
     else:
+        # Convert text to new format using Pandoc
         return pypandoc.convert_text(text, output_format, format=input_format)
 
 
@@ -156,7 +159,7 @@ class DescriptionsMixin:
             log.debug("Format designator found, format set to '%s'", cls._documentation_format)
             del doc_lines[-1]
         else:
-            cls._documentation_format = 'markdown'
+            cls._documentation_format = DEFAULT_FORMAT
             log.debug("No format descriptor found, candidate was: `%s`", doc_lines[-1])
 
         # Rejoin all but the first line:
@@ -188,7 +191,7 @@ class DescriptionsMixin:
             return None
 
     @classmethod
-    def set_documentation(cls, value, format='latex'):
+    def set_documentation(cls, value, format=DEFAULT_FORMAT):
         cls._documentation = value
         cls._documentation_format = format
 
