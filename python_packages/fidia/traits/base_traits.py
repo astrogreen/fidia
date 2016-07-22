@@ -12,7 +12,7 @@ import astropy.wcs
 from .abstract_base_traits import *
 from ..exceptions import *
 from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
-    validate_trait_type, validate_traitkey_part
+    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit
 from ..descriptions import DescriptionsMixin
@@ -50,13 +50,13 @@ def validate_trait_branches_versions_dict(branches_versions):
     # Check that all branches meet the branch formatting requirements
     for branch in branches_versions:
         if branch is not None:
-            validate_traitkey_part(branch)
+            validate_trait_branch(branch)
         # Check that each branch has a list of versions:
         assert is_list_or_set(branches_versions[branch])
         # Check that all versions meet the branch formatting requirements
         for version in branches_versions[branch]:
             if version is not None:
-                validate_traitkey_part(version)
+                validate_trait_version(version)
 
 class Trait(DescriptionsMixin, AbstractBaseTrait):
 
@@ -70,7 +70,7 @@ class Trait(DescriptionsMixin, AbstractBaseTrait):
 
 
     @classmethod
-    def schema(cls, include_subtraits=True):
+    def schema(cls, include_subtraits=True, by_trait_name=False):
         """Provide the schema of data in this trait as a dictionary.
 
         The schema is presented as a dictionary, where the keys are strings
@@ -86,32 +86,54 @@ class Trait(DescriptionsMixin, AbstractBaseTrait):
 
         """
 
-
-        schema = SchemaDictionary()
-        for trait_property in cls._trait_properties():
+        if by_trait_name:
+            schema = SchemaDictionary()
+            for trait_property in cls._trait_properties():
                 schema[trait_property.name] = trait_property.type
 
-        if include_subtraits:
-            log.debug("Building a schema for subtraits of '%s'", cls)
-            trait_types = cls.sub_traits.get_trait_types()
-            for trait_type in trait_types:
-                log.debug("    Processing traits with trait_name '%s'", trait_type)
-                schema[trait_type] = SchemaDictionary()
-                trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
-                for trait_name in trait_names:
-                    trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-                    for trait in cls.sub_traits.get_traits(trait_name_filter=trait_name):
-                        log.debug("        Attempting to add Trait class '%s'", trait)
-                        trait_schema = trait.schema()
-                        if trait_name not in schema[trait_type]:
-                            schema[trait_type][trait_qualifier] = SchemaDictionary()
+            if include_subtraits:
+                for trait_name in cls.sub_traits.get_trait_names():
+                    # Create empty this sub-trait type:
+                    schema[trait_name] = SchemaDictionary()
+                    # Populate the dict with schema from each sub-type:
+                    for trait_class in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                        subtrait_schema = trait_class.schema()
                         try:
-                            schema[trait_type][trait_qualifier].update(trait_schema)
+                            schema[trait_name].update(subtrait_schema)
                         except ValueError:
-                            log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
+                            log.error("Schema mis-match in traits: sub-trait '%s' cannot be added " +
                                       "to schema for '%s' containing: '%s'",
-                                      trait, trait_type, schema[trait_type][trait_name])
-                            raise SchemaError("Schema mis-match in traits")
+                                      trait_class, trait_name, schema[trait_name])
+                            raise SchemaError("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+                                              "to schema for '%s' containing: '%s'",
+                                              trait_class, trait_name, schema[trait_name])
+
+        else:
+            schema = SchemaDictionary()
+            for trait_property in cls._trait_properties():
+                    schema[trait_property.name] = trait_property.type
+
+            if include_subtraits:
+                log.debug("Building a schema for subtraits of '%s'", cls)
+                trait_types = cls.sub_traits.get_trait_types()
+                for trait_type in trait_types:
+                    log.debug("    Processing traits with trait_name '%s'", trait_type)
+                    schema[trait_type] = SchemaDictionary()
+                    trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
+                    for trait_name in trait_names:
+                        trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
+                        for trait in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                            log.debug("        Attempting to add Trait class '%s'", trait)
+                            trait_schema = trait.schema()
+                            if trait_name not in schema[trait_type]:
+                                schema[trait_type][trait_qualifier] = SchemaDictionary()
+                            try:
+                                schema[trait_type][trait_qualifier].update(trait_schema)
+                            except ValueError:
+                                log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
+                                          "to schema for '%s' containing: '%s'",
+                                          trait, trait_type, schema[trait_type][trait_name])
+                                raise SchemaError("Schema mis-match in traits")
 
         return schema
 
@@ -165,6 +187,9 @@ class Trait(DescriptionsMixin, AbstractBaseTrait):
         validate_trait_type(cls.trait_type)
 
         assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
+        if cls.qualifiers is not None:
+            for qual in cls.qualifiers:
+                validate_trait_qualifier(qual)
         # assert cls.available_versions is not None
 
         if cls.branches_versions is not None:
