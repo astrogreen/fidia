@@ -1127,12 +1127,15 @@ class SAMIDR1PublicArchive(Archive):
                 print(info['sami_id'], info['color'] + '_cube_file')
                 try:
                     catalog_cube_file = self.cube_file_index.loc[info['sami_id'], info['color'] + '_cube_file']
-                    assert info['filename'] == catalog_cube_file
                 except:
                     log.debug("Cube file '%s' rejected because it is not in the master cat.", info['filename'])
                 else:
-                    cube_directory.append(info)
-
+                    if info['filename'] == catalog_cube_file:
+                        cube_directory.append(info)
+                    elif info['filename'] + ".gz" == catalog_cube_file:
+                        cube_directory.append(info)
+                    else:
+                        log.debug("Cube file '%s' rejected because it is not in the master cat.", info['filename'])
 
             if len(cube_directory) == 0:
                 raise ArchiveValidationError("No valid cube file for SAMI Archive.")
