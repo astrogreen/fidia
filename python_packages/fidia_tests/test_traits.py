@@ -173,10 +173,16 @@ class TestTraits:
 
         assert test_trait.get_description() == "Description for SimpleTrait."
 
+    def test_trait_documentation(self):
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+
         print(type(test_trait.get_documentation))
         print(test_trait.get_documentation())
         assert "Extended documentation" in test_trait.get_documentation()
         assert "Description for SimpleTrait" in test_trait.get_documentation()
+        assert test_trait._documentation_format == 'markdown'
+
+        assert "<strong>text</strong>" in test_trait.get_documentation('html')
 
 
     def test_trait_property_description(self):

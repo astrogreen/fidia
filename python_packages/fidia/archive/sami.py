@@ -282,6 +282,7 @@ class SAMISpectralCube(SpectralMap):
         log.debug("TraitKey: %s", self.trait_key)
         self._color = self.trait_qualifier
 
+        # Binning can be either '05' or '10'
         self._binning = "05"
 
         # We don't currently support multiple observations, so set the plate ID
@@ -866,6 +867,28 @@ class LZIFULineSpectrum(SpectralMap):
 
 
 class BalmerExtinctionMap(Image, TraitFromFitsFile):
+    """Emission extinction map based on the Balmer decrement.
+
+    Extinction maps are calculated using the EmissionLineFitsV01 (which includes
+    Balmer flux errors incorporating continuum uncertainties) using the Balmer
+    decrement and the Cardelli+89 extinction law, using the code below.
+
+    ```
+    balmerdec = ha/hb
+    balmerdecerr = balmerdec * sqrt((haerr/ha)^2 + (hberr/hb)^2)
+    attencorr = (balmerdec / 2.86)^2.36
+    attencorrerr = abs((attencorr * 2.36 * balmerdecerr)/balmerdec)
+    ```
+
+    These maps will be in units of “attenuation correction factor” — such that
+    you can multiply this map by the Halpha cube to obtain de-extincted Halpha
+    cubes.  Note that, when the Balmer decrement is less than 2.86, no
+    correction will be applied (attenuation correction factor = 1., error = 0.).
+
+    Errors (1-sigma uncertainties) in the extinction are included as a second
+    extension in each file.
+
+    """
 
     trait_type = 'extinction_map'
 
@@ -891,8 +914,47 @@ class BalmerExtinctionMap(Image, TraitFromFitsFile):
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
     variance = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
+BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
+
 
 class SFRMap(Image, TraitFromFitsFile):
+    r"""Map of star formation rate based on Hα emission.
+
+    Star formation rate (SFR) map calculated using the EmissionLineFitsV01
+    (which includes Balmer flux errors incorporating continuum uncertainties),
+    ExtinctionCorrMapsV01, and SFMasksV01.  These are used to calculate star
+    formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$) and
+    star formation rate surface density maps (in $M_\odot\,\rm{yr}^{-1} \,
+    \rm{kpc}^2$) using the code below.  Note that we are using the
+    flow-corrected redshifts z_tonry_1 from the SAMI-matched GAMA catalog
+    (SAMITargetGAMAregionsV02) to calculate distances.
+
+    ```
+    H0 = 70.                                    ;; (km/s)/Mpc, SAMI official cosmology
+    distmpc = lumdist(z_tonry,H0=H0)            ;; in Mpc; defaults to omega_m=0.3
+    dist = distmpc[0] * 3.086d24                ;; in cm
+    kpcperarc = (distmpc[0]/(1+z_tonry[0])^2) * 1000./206265  ;; kiloparsecs per arcsecond
+    kpcperpix = kpcperarc*0.5                   ;; half arcsec pixels
+    halum = haflux * SFR_classmap * attencorr * 1d-16 * 4*!pi *dist^2   ;; now in erg/s
+    sfr = halum * 7.9d-42                       ;; now in Msun/yr, Kennicutt+94
+    sfrsd = sfr / kpcperpix^2                   ;; this one in Msun/yr/kpc^2
+    ```
+
+    Errors (1-sigma uncertainty) in SFR or SFRSD are included as a second extension in each file.
+
+    A separate map is made for each set of LZIFU emission line fits for each
+    galaxy: 1 Gaussian component (`*_1_comp.fits`), 2 Gaussian components
+    (`*_2_comp.fits`), 3 Gaussian components (`*_3_comp.fits`), and the recommended
+    number of components for each spaxel (`*_recom_comp.fits`).  Each map has
+    dimensions of $(50,50,ncomp+1)$.  The slice `[*,*,0]` represents the total star
+    formation rate (from the total Halpha flux) summed over all components, and
+    the `[*,*,ncomp]` slices represent the star formation rate from each
+    individual component.
+
+
+    ##format: markdown
+
+    """
 
     trait_type = 'sfr_map'
 
@@ -918,6 +980,8 @@ class SFRMap(Image, TraitFromFitsFile):
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
+SFRMap.set_pretty_name("Star Formation Rate")
+
 
 # class SFRClass(ClassificationMap):
 #
