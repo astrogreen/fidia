@@ -984,14 +984,14 @@ class SFRMap(Image, TraitFromFitsFile):
     trait_type = 'sfr_map'
 
     branches_versions = {
-        "1_comp": {'v01'},
-        "recom_comp": {'v01'}
+        "1_comp": {'V02'},
+        "recom_comp": {'V02'}
     }
 
     defaults = DefaultsRegistry(
         default_branch='recom_comp',
-        version_defaults={"1_comp": 'v01',
-                          "recom_comp": 'v01'}
+        version_defaults={"1_comp": 'V02',
+                          "recom_comp": 'V02'}
     )
 
     def fits_file_path(self):
