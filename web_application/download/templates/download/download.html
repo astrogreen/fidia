@@ -1,0 +1,87 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Swag Bag{% endblock %}
+
+{% block head-extra %}
+<script type="text/javascript" src="{% static 'download/js/controllers.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
+{% endblock %}
+
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'index' %}">Home</a></li>
+<li>Download</li>
+{% endblock %}
+
+{% block page_title %}Download{% endblock %}
+{% block useful_links %}
+{% endblock useful_links %}
+
+{% block content_render %}
+{% verbatim %}
+
+    <div class="row" ng-controller="DownloadController as ctrl3">
+        <div class="col-sm-8">
+            <div class="panel panel-default panel-download">
+                <div class="panel-heading text-uppercase">
+                    <strong> Download </strong>
+                    <i class="fa fa-download pull-right" style="margin-top:3px"></i>
+                </div>
+                <div class="panel-body warning" ng-if="ctrl3.items | isEmpty">
+                    <strong class="text-uppercase">Download Empty</strong>
+                    <p>Visit the <a type="button" class="" href="{% url 'sami-list' %}">Data Browser</a> or make a <a
+                            type="button" class="" href="{% url 'query-list' %}">Query</a> to add data!
+                    </p>
+                </div>
+                <ul class="list-group">
+                    <span ng-repeat="item in ctrl3.items track by $index">
+                        <li class="list-group-item"><strong>Gal {{item.id}}</strong> </li>
+                        <li class="list-group-item list-group-sub-item">
+                            <a ng-href="{{item.url}}" class="text-normal">{{item.options}}</a>
+                            <a role="button" class="text-normal pull-right"><i
+                                class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(item.id)"></i></a>
+                        </li>
+                    </span>
+                </ul>
+                <div class="panel-body"  ng-if="ctrl3.items | isNotEmpty">
+                    <button class="button button-caution button-small text-uppercase"
+                            title="Delete all items in the download" id="checkout-empty" ng-click="ctrl3.emptyDownload()"><i class="fa fa-trash-o"></i> Empty
+                    </button>
+
+                    <button class="button button-primary button-small text-uppercase pull-right" title="Download data in the download"
+                            id="checkout-download"><i class="fa fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <strong class="text-uppercase">Summary</strong>
+                </div>
+
+                <!-- List group -->
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Total</strong></li>
+                    <li class="list-group-item list-group-sub-item">Data <span class="badge" ng-bind="ctrl3.getItemCount()"></span>
+                    </li>
+                    <li class="list-group-item list-group-sub-item">Objects<span class="badge">-</span>
+                    </li>
+                    <li class="list-group-item"><strong>Per Survey</strong></li>
+                    <li class="list-group-item list-group-sub-item">SAMI <span class="badge">-</span></li>
+                    <li class="list-group-item list-group-sub-item">GAMA <span class="badge">-</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+{% endverbatim %}
+<script>
+    $("#checkout-empty").mouseup(function() {
+        $(this).addClass('animated rubberBand')
+});
+</script>
+{% endblock %}

@@ -7,17 +7,11 @@
 {% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
-
-<!--<script type="text/javascript" src="{% static 'cart/js/controllers.js' %}"></script>-->
+<link rel="stylesheet" href="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
 
-{% block content-options %}{% endblock %}
-{% block content-delete %}{% endblock %}
-{% block content-filter-form %}{% endblock %}
-
-{% block content-page-header %}{% endblock %}
 
 
 {% block page_title %}{{objname}}{% endblock %}
@@ -320,6 +314,19 @@
 
             </div>
             <div role="tabpanel" class="tab-pane" id="additional_info">
+                <div class="row">
+                    <div class="col-sm-8" id="aladin-lite-div-container">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Aladin Lite
+                            </div>
+                            <div class="panel-body">
+                                <!--<div id="aladin-lite-div" style="width:100%;height:98%;"></div>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!--<ul class="nav nav-tabs" role="tablist" id="trait_tabs" >-->
                     <!--<li role="presentation" class="active"><a href="#trait1" aria-controls="trait1" role="tab" data-toggle="tab">trait1</a>-->
@@ -378,6 +385,22 @@
       e.preventDefault()
       $(this).tab('show')
     })
+</script>
+
+<script type="text/javascript" src="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
+<script type="text/javascript">
+//    $(window).on("load resize",function(e){
+//        $('#aladin-lite-div').width($('#aladin-lite-div-container').width()-30);
+//        $('#aladin-lite-div').height($('#aladin-lite-div-container').width()-30);
+//        $('#aladin-lite-div-container').hide.show(0);
+//    });
+//    $('#additional_info').click(function(){
+//        $('#aladin-lite-div').width($('#aladin-lite-div-container').width()-30);
+//        $('#aladin-lite-div').height($('#aladin-lite-div-container').width()-30);
+//        $('#aladin-lite-div-container').hide.show(0);
+//    })
+
+//    var aladin = A.aladin('#aladin-lite-div', {survey: "P/SDSS9/color", fov:60});
 </script>
 {% endblock %}
 

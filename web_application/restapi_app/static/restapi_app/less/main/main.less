@@ -165,6 +165,13 @@ header {
       color: #404040;
     }
   }
+  .navbar-fixed-top {
+      top: 0;
+      position: relative;
+      right: 0;
+      left: 0;
+      z-index: 1000;
+  }
 
   ul.navbar-nav > li, .navbar-header, .navbar-brand {
     min-height: 60px;
@@ -187,13 +194,13 @@ header {
       box-shadow:inset 0px 3px #B83C2E;
   }
 
-  .cart-li{
+  .download-li{
       background:#f2f2f2;
       max-height:60px;
       max-width:60px;
       //background-color:#f1f3f3;
-      .cart-icon {
-        padding-bottom: 15px !important;
+      .download-icon {
+        //padding-bottom: 15px !important;
         position:relative;
         .badge {
           position: absolute;
@@ -225,10 +232,12 @@ header {
 .breadcrumb-container {
   width:100%;
   //background:url("../../img/background/background2.png") top repeat-x;
-  background-color: #F4F5F6;
-  background-color: rgba(244, 245, 246,1);
-  background-color:#FAFAFA;
-  color:#333;
+  //background-color: #F4F5F6;
+  //background-color: rgba(244, 245, 246,1);
+  //background-color:#FAFAFA;
+  //color:#333;
+  background-color:#2A2F31;
+
   border-bottom: 1px solid rgba(0, 0, 0, 0.075);
 
   min-height: 36px;
@@ -241,14 +250,15 @@ header {
 
   margin-bottom: 0;
 
-  li a{color:#333;}
+  li a{color:#333;color:#ddd; font-weight:300;}
   background: transparent;
   li.active a {
     color: #111;
+    color:#fff;
   }
   li+li:before {
     color:#333;
-
+    color:#ddd; font-weight:300;
   }
 }
 
@@ -295,7 +305,7 @@ header {
   .nav > li > a {
     line-height:40px;
     text-transform: uppercase;
-    color: #757575;
+    color: #333;
     img {max-height:40px;padding:5px; padding-right:0;margin-right:-5px;}
   }
   .nav>li>a:hover, .nav>li>a:focus {
@@ -760,6 +770,9 @@ ol.linenums li {
   top: 0;
   left: 0
 }
+
+
+    .breadcrumb-container{margin-top:0px;}
     /* Large Devices, Wide Screens */
     @media only screen and (max-width : 1200px) {
       .media-query-box{border:solid 1px red;}
@@ -767,7 +780,7 @@ ol.linenums li {
 
     /* Medium Devices, Desktops */
     @media only screen and (max-width : 992px) {
-      .media-query-box{border:solid 1px yello;}
+      .media-query-box{border:solid 1px yellow;}
     }
 
     /* Small Devices, Tablets */
@@ -778,11 +791,25 @@ ol.linenums li {
     /* Extra Small Devices, Phones */
     @media only screen and (max-width : 480px) {
       .media-query-box{border:solid 1px green;}
+      header {
+        .navbar-fixed-top {
+            top: 0;
+            border-width: 0 0 1px;
+            position: fixed;
+            right: 0;
+            left: 0;
+            z-index: 1030;
+        }
+        .breadcrumb-container {
+          margin-top: 60px;
+        }
+      }
     }
 
     /* Custom, iPhone Retina */
     @media only screen and (max-width : 320px) {
       .media-query-box{border:solid 1px orange;}
+
     }
 
 

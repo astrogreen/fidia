@@ -21,10 +21,11 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^asvo/', include('restapi_app.urls')),
 
-    url(r'^asvo/', include('cart.urls')),
-    url(r'^asvo/', include('data_browser.urls')),
+    # url(r'^asvo/', include('cart.urls')),
+    url(r'^asvo/', include('download.urls')),
+    # url(r'^asvo/', include('data_browser.urls')),
     url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),
-    url(r'^asvo/', include('sov.urls')),
+    # url(r'^asvo/', include('sov.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
 ]

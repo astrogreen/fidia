@@ -194,6 +194,13 @@ header .navbar-default {
 header .navbar-default .navbar-nav > li > a {
   color: #404040;
 }
+header .navbar-fixed-top {
+  top: 0;
+  position: relative;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+}
 header ul.navbar-nav > li,
 header .navbar-header,
 header .navbar-brand {
@@ -222,16 +229,15 @@ header .navbar-default .navbar-nav > .active > a:focus {
   background-color: #fff;
   box-shadow: inset 0px 3px #B83C2E;
 }
-header .cart-li {
+header .download-li {
   background: #f2f2f2;
   max-height: 60px;
   max-width: 60px;
 }
-header .cart-li .cart-icon {
-  padding-bottom: 15px !important;
+header .download-li .download-icon {
   position: relative;
 }
-header .cart-li .cart-icon .badge {
+header .download-li .download-icon .badge {
   position: absolute;
   right: 5px;
   top: 5px;
@@ -251,10 +257,7 @@ header user a > a {
 */
 .breadcrumb-container {
   width: 100%;
-  background-color: #F4F5F6;
-  background-color: #f4f5f6;
-  background-color: #FAFAFA;
-  color: #333;
+  background-color: #2A2F31;
   border-bottom: 1px solid rgba(0, 0, 0, 0.075);
   min-height: 36px;
   margin-top: 0px;
@@ -265,12 +268,17 @@ header user a > a {
 }
 .breadcrumb li a {
   color: #333;
+  color: #ddd;
+  font-weight: 300;
 }
 .breadcrumb li.active a {
   color: #111;
+  color: #fff;
 }
 .breadcrumb li + li:before {
   color: #333;
+  color: #ddd;
+  font-weight: 300;
 }
 .breadcrumb-container.transparent {
   background-color: transparent;
@@ -312,7 +320,7 @@ header user a > a {
 .useful_links .nav > li > a {
   line-height: 40px;
   text-transform: uppercase;
-  color: #757575;
+  color: #333;
 }
 .useful_links .nav > li > a img {
   max-height: 40px;
@@ -719,6 +727,9 @@ ol.linenums li {
   top: 0;
   left: 0;
 }
+.breadcrumb-container {
+  margin-top: 0px;
+}
 /* Large Devices, Wide Screens */
 @media only screen and (max-width: 1200px) {
   .media-query-box {
@@ -728,7 +739,7 @@ ol.linenums li {
 /* Medium Devices, Desktops */
 @media only screen and (max-width: 992px) {
   .media-query-box {
-    border: solid 1px yello;
+    border: solid 1px yellow;
   }
 }
 /* Small Devices, Tablets */
@@ -741,6 +752,17 @@ ol.linenums li {
 @media only screen and (max-width: 480px) {
   .media-query-box {
     border: solid 1px green;
+  }
+  header .navbar-fixed-top {
+    top: 0;
+    border-width: 0 0 1px;
+    position: fixed;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+  }
+  header .breadcrumb-container {
+    margin-top: 60px;
   }
 }
 /* Custom, iPhone Retina */
