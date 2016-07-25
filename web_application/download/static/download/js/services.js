@@ -153,7 +153,10 @@
             },
 
             download: function(){
-                // Implement the download
+                // Create an object that contains the full data list
+                // Format: unique url, options
+                // /data/sami/gal1/redshift/value/
+
             }
 
         }
