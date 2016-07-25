@@ -5,10 +5,16 @@ console.log('directives.js');
     var app = angular.module('DCApp');
 
     // Style new disabled button
-    function disableAddDownloadButton (elem){
-        // console.log('disable',elem);
-        elem.addClass('btn-added-to-download')
-            .html('<i class="fa fa-check"></i>')
+    function disableAddButton (elem){
+        // disable the add button
+        elem.html('<i class="fa fa-check"></i>')
+            .removeClass('btn-primary')
+            .attr('disabled', true);
+    }
+
+    function disableFormatDropdown(elem){
+        // disable the format button
+        elem.html('Added')
             .removeClass('btn-primary')
             .attr('disabled', true);
     }
@@ -44,52 +50,83 @@ console.log('directives.js');
                 // @ == string
                 // & == one-way binding
                 // = == two-way binding
-                // item: "@"
+                formats: "=",
+                format: "="
             },
             replace: true,
             templateUrl: '/static/download/js/templates/add-download-button.html',
             link: function(scope, elem, attr){
 
-                // Construct the item object (on the local scope) from the element attributes
-                scope.item = {};
-                if (typeof attr.url !== 'undefined') {
-                    scope.item['id'] = attr.url;
-                    if (typeof attr.options !== 'undefined') {
-                        scope.item['options'] = attr.options;
+                // define targets on scope.
+                scope.add_button = angular.element(elem[0].querySelector('.add-button'));
+                scope.format_dropdown_button = angular.element(elem[0].querySelector('.format-dropdown button'));
+                scope.format_dropdown_li = angular.element(elem[0].querySelector('.format-dropdown ul li'));
+                // populate the dropdown
+                scope.populateDropdown = function(){
+                    if (typeof attr.formats !== 'undefined' && attr.formats.length > 0){
+                        scope.formats = JSON.parse(attr.formats);
+                    };
+                };
+
+                scope.constructItem = function() {
+                    // Construct the item object (on the local scope) from the element attributes
+                    scope.item = {};
+                    if (typeof attr.url !== 'undefined') {
+                        scope.item['id'] = attr.url;
+                        if (typeof attr.options !== 'undefined') {
+                            scope.item['options'] = attr.options;
+                        }
+                        if (typeof attr.formats !== 'undefined' && typeof scope.format !== 'undefined') {
+                            //    this won't have been set yet.
+                            scope.item['format'] = scope.format;
+                        }
+                    } else {
+                        scope.item['id'] = 'Error. Cannot find id (url) has been set for this add-to-download-directive. Please contact the site administrator. '
                     }
-                } else {
-                    scope.item['id'] = 'Error. Cannot find id (url) has been set for this add-to-download-directive. Please contact the site administrator. '
-                }
+                };
 
                 angular.element(document).ready(function() {
+                    scope.populateDropdown();
+                    scope.constructItem();
+
                     var saved_items = DownloadService.checkItemInCookie();
 
                     // CHECK for this in cookie already and disable the button.
                     if (undefined != saved_items){
                         for (var i = 0; i < saved_items.length; i++) {
                             if (saved_items[i] == scope.item['id']){
-                                disableAddDownloadButton(elem);
+                                disableAddButton(scope.add_button);
+                                disableFormatDropdown(scope.format_dropdown_button);
                             }
                         }
                     }
                 });
 
                 scope.addItem = function(){
+                    scope.constructItem();
+
                     // Pass the item into the addItem method of DownloadService
                     // populate the items obj for this particular view before start writing in to the cookie
                     DownloadService.getItems();
                     DownloadService.addItem(scope.item);
                     DownloadService.getItemCount();
-                },
-                elem.bind('click', function(e){
-                    // e.currentTarget is element that event is hooked on (target is the one that received the click)
-                    disableAddDownloadButton(angular.element(e.currentTarget));
 
                     $('#mini-download').addClass('bounce')
                         .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
                             $('#mini-download').removeClass('bounce');
                         });
-                })
+
+                    //disable the button
+                    disableAddButton(scope.add_button);
+                    disableFormatDropdown(scope.format_dropdown_button);
+
+                };
+
+                scope.chooseFormat = function(f){
+                    scope.item.format = f;
+                };
+
+
             }
         }
     });

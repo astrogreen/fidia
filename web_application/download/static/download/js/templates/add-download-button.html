@@ -1,1 +1,16 @@
-<button class="button button-small button-primary button-square" ng-click="addItem()" id="" options=""><i class="fa fa-plus"></i></button>
+<span>
+    <span class="button-dropdown format-dropdown" data-buttons="dropdown" id="">
+        <button class="button button-small text-uppercase" ng-class="{disabled: !formats.length}">
+            <span ng-hide="item.format">Format <i class="fa fa-caret-down"></i></span>
+            <span ng-show="item.format">{{item.format}}</span>
+        </button><!--
+         --><ul class="button-dropdown-list button-dropdown-list-small" ng-show="formats.length">
+                <li ng-repeat="f in formats">
+                    <a ng-show="f" class="js-tooltip" format-type="{{f}}" ng-click="chooseFormat(f)">{{ f }}</a>
+                </li>
+            </ul>
+     </span><!--
+    --><button class="button button-small button-primary button-square add-button" ng-disabled="formats.length && !item.format" ng-click="addItem()" url="" options="" formats="">
+        <i class="fa fa-plus"></i>
+       </button>
+</span>

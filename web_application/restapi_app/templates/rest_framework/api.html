@@ -333,6 +333,7 @@
       $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
     });
     $(".button-dropdown-list li a").click(function(){
+      console.log('BUTTON CLICK');
       $(this).parents("span.button-dropdown").find('.button').html($(this).text() + ' <span class="caret"></span>');
       $(this).parents("span.button-dropdown").find('.button').val($(this).data('value'));
     });

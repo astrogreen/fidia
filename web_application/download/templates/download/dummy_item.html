@@ -29,14 +29,25 @@
         <div class="col-xs-12">
             <h1 class="headline"><span>Dummy Items</span></h1>
         </div>
-        <div ng-controller="DummyData">
-            <div class="col-md-3" ng-repeat="item in data">
-                <h6 ng-bind="item.id"></h6>
-                <p>options <span ng-bind="item.options"></span></p>
-                <hr>
-                <add-download-button url="{{item.id}}" options="{{item.options}}"></add-download-button>
-            </div>
-        </div>
+        <!--<div ng-controller="DummyData">-->
+            <!--<div class="col-md-3" ng-repeat="item in data">-->
+                <!--<h6 ng-bind="item.id"></h6>-->
+                <!--<p>options <span ng-bind="item.options"></span></p><br>-->
+                <!--<p>formats <span ng-bind="item.formats"></span></p>-->
+                <!--<hr>-->
+
+
+                <!--<br>-->
+
+                <!--<br>-->
+                <!--&lt;!&ndash;-->
+                <!--&ndash;&gt;<add-download-button url="{{item.id}}" options="{{item.options}}" formats="item.formats"></add-download-button>-->
+            <!--</div>-->
+        <!--</div>-->
+        <br><hr>
+        <add-download-button url='test/this/url' options='["terrific", "options"]' formats='["a","b","c"]'></add-download-button><br>
+        <add-download-button url='test/this/url/secondary' options='["terrific", "options"]' formats></add-download-button><br>
+        <add-download-button url='test/this/url/secondary/thirdary' options formats='["a","b","c"]'></add-download-button>
     </div>
 </div>
 {% endverbatim %}
