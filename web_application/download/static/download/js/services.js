@@ -32,7 +32,7 @@
         // Update cookies
         function updateItemsCookie(){
             console.log('updateItemsCookie: ', items);
-            checkCookie();
+            // checkCookie();
             // Initialize an object that will be saved as a cookie
             var itemsCookie = {};
             // Loop through the items in the download
@@ -59,6 +59,17 @@
             }
         }
 
+        var arr = [{ id: 1, username: 'fred' },
+          { id: 2, username: 'bill'},
+          { id: 3, username: 'ted' }];
+
+        function objExists(arr, elem, property) {
+          return arr.some(function(el) {
+            return el[property] === elem;
+          });
+        }
+
+
         // Angular factories return service objects
         return {
 
@@ -66,7 +77,7 @@
                 // Initialize the itemsCookie variable
                 var itemsCookie;
 
-                checkCookie();
+                // checkCookie();
 
                 // Check if download is empty, if not - populate the current service with the cookie items
                 if(!items.length) {
@@ -101,8 +112,6 @@
                 // Check if item already exists
                 // If exists - don't add
                 // Else, push the item onto the items array, at the relevant astronomical object key
-                checkCookie();
-
                 if (!items[item.id]){
                     // Add prettify property to item
                     item = this.prettifyCookie(item);
@@ -113,6 +122,8 @@
                 }
                 // Update cookie
                 updateItemsCookie();
+                // Update angular summary obj
+                this.getSummary();
             },
 
             removeItem: function(id){
@@ -157,16 +168,57 @@
                 return total;
             },
 
-            getAstronomicalObjectsCount: function(){
-                var total_astronomical_objects = 0;
-                // Loop through items array and increment the total number of unique AOs
-                return total_astronomical_objects;
-            },
+            getSummary: function(){
 
-            getItemPerSurvey: function(){
-                var total_per_survey = {};
+                var summary = {
+                    "bySample": [
+                            // {"sample": "GAMA", "count": 3},
+                            // {"sample": "GALAH", "count": 6},
+                        ],
+                        "byObject": [
+                            // {"id": 1, "name": "John Doe"},
+                            // {"id": 2, "name": "Don Joeh"}
+                        ],
+                        "byData": [
+                            // {"id": 1, "name": "John Doe"},
+                            // {"id": 2, "name": "Don Joeh"}
+                        ],
+                };
+                var itemsCookie = this.getItems();
+
+                angular.forEach(itemsCookie, function(val, key){
+                    // bySample
+                    var sample_str = val.prettify.sample;
+
+                    if (objExists(summary.bySample, sample_str, 'sample') == true){
+                        // if the object exists in the sample structure already
+                        // find it and boost the count.
+                        for (var i=0;i<summary.bySample.length;i++){
+                            if (summary.bySample[i].sample == sample_str){
+                                summary.bySample[i]["count"] = summary.bySample[i]["count"]+1;
+                            }
+                        }
+                    } else {
+                        summary.bySample.push({"sample": sample_str, "count": 1})
+                    }
+                    // byObject
+                    var object_str = val.prettify.ao;
+                    if (objExists(summary.byObject, object_str, 'ao') == true){
+                        // if the object exists in the ao structure already
+                        // find it and boost the count.
+                        for (var i=0;i<summary.byObject.length;i++){
+                            if (summary.byObject[i].ao == object_str){
+                                summary.byObject[i]["count"] = summary.byObject[i]["count"]+1;
+                            }
+                        }
+                    } else {
+                        summary.byObject.push({"ao": object_str, "count": 1})
+                    }
+
+
+                });
                 // append to gama, sami etc (can this be modified for any sample)
-                return total_per_survey;
+                return summary;
             },
 
             prettifyCookie: function(item){
@@ -178,6 +230,7 @@
 
                 var data_obj = {}, temp = [];
 
+                data_obj['url'] = item.id.split('?format=')[0];
                 data_obj['sample'] = url_arr[0].toUpperCase();
                 data_obj['ao'] = url_arr[1];
 

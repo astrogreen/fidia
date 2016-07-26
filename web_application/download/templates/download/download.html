@@ -35,7 +35,7 @@
                             type="button" class="" href="{% url 'query-list' %}">Query</a> to add data!
                     </p>
                 </div>
-                <table class="table">
+                <table class="table" ng-if="ctrl3.items | isNotEmpty">
                     <thead>
                         <tr>
                             <th>Sample</th>
@@ -49,13 +49,19 @@
                         <tr ng-repeat="item in ctrl3.items track by $index">
                             <td>{{item.prettify.sample}}</td>
                             <td>{{item.prettify.ao}}</td>
-                            <td><span ng-repeat="t in item.prettify.else">{{t}}</span></td>
+                            <td>
+                                <span ng-repeat="t in item.prettify.else">
+                                    <span ng-if="!$last">{{t}} /</span>
+                                    <a ng-if="$last" ng-href="{{item.prettify.url}}">{{t}}</a>
+                                </span>
+                            </td>
                             <td>{{item.prettify.format}}</td>
                             <td><a role="button" class="text-normal"><i
                                 class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(item.id)"></i></a></td>
                         </tr>
                     </tbody>
                 </table>
+                <div>
                 <!--<ul class="list-group" >-->
                     <!--<span ng-repeat="item in ctrl3.items track by $index">-->
 
@@ -174,6 +180,7 @@
                     <!--</div>-->
 
                 <!--</ul>-->
+                </div>
                 <div class="panel-body"  ng-if="ctrl3.items | isNotEmpty">
                     <button class="button button-caution button-small text-uppercase"
                             title="Delete all items in the download" id="checkout-empty" ng-click="ctrl3.emptyDownload()"><i class="fa fa-trash-o"></i> Empty
@@ -199,11 +206,10 @@
                     <li class="list-group-item"><strong>Total</strong></li>
                     <li class="list-group-item list-group-sub-item">Data <span class="badge" ng-bind="ctrl3.getItemCount()"></span>
                     </li>
-                    <li class="list-group-item list-group-sub-item">Objects<span class="badge">-</span>
-                    </li>
+                    <li class="list-group-item"><strong>Per Object</strong></li>
+                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.byObject">{{obj.ao}} <span class="badge">{{obj.count}}</span></li>
                     <li class="list-group-item"><strong>Per Survey</strong></li>
-                    <li class="list-group-item list-group-sub-item">SAMI <span class="badge">-</span></li>
-                    <li class="list-group-item list-group-sub-item">GAMA <span class="badge">-</span></li>
+                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.bySample">{{obj.sample}} <span class="badge">{{obj.count}}</span></li>
                 </ul>
             </div>
         </div>

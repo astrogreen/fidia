@@ -21,11 +21,12 @@ console.log('controllers.js');
         // Here, we've registered properties on $scope.ctrl rather than on $scope (all modules have global access
         // to $scope - which may result in unwanted cross-talk
 
-
         // Set the items on the scope to the items in the DownloadService using the getItems method
         ctrl3.items = {};
 
         ctrl3.items = DownloadService.getItems();
+
+        ctrl3.summary = DownloadService.getSummary();
 
         ctrl3.addItem = function(item){
             // Pass the item into the addItem method of the DownloadService
@@ -37,33 +38,15 @@ console.log('controllers.js');
             return DownloadService.getItemCount();
         };
 
-        ctrl3.getAstronomicalObjectsCount = function(){
-            DownloadService.getAstronomicalObjectsCount()
-        };
-
-        ctrl3.getItemPerSurvey = function (){
-            DownloadService.getItemPerSurvey()
-        };
-
         ctrl3.removeItem = function(id){
             // Pass item id into the removeItem method of DownloadService
             DownloadService.removeItem(id);
+            ctrl3.summary = DownloadService.getSummary();
         };
         
         ctrl3.emptyDownload = function(items){
             DownloadService.emptyDownload($scope.items);
-        };
-
-        ctrl3.parseDownloadCookie = function(){
-            // var cookie_arr = DownloadService.prettifyCookie();
-            // console.log(cookie_arr);
-            // var prettydownload = [];
-            // for (var i = 0; i < cookie_arr.length; i++){
-            //     // var temp = InspectorService.nestedData(cookie_arr[i]);
-            //     prettydownload.push(temp);
-            // }
-            // console.log(prettydownload);
-            // DownloadService.parseDownloadCookie();
+            ctrl3.summary = DownloadService.getSummary();
         };
 
         ctrl3.download = function(){
@@ -71,7 +54,6 @@ console.log('controllers.js');
             DownloadService.download();
         };
 
-        ctrl3.parseDownloadCookie();
     });
 
     app.filter('isEmpty', [function(){

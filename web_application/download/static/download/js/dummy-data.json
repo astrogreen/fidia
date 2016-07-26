@@ -5,18 +5,18 @@
         "formats": ["fits", "json"]
   },
   {
-		"id":  "http://127.0.0.1:8000/asvo/terrificgalaxy/linemap",
+		"id":  "http://127.0.0.1:8000/asvo/sami/65409/line_map-OIII5007/value/",
 		"options": ["velocity_map"],
         "formats": ["fits", "json"]
   },
   {
-		"id":  "http://127.0.0.1:8000/asvo/sami/1234/line_map:OIII/",
+		"id":  "http://127.0.0.1:8000/asvo/sami/221375/line_map-OIII5007/subtrait/traitproperty",
 		"options": ["spectral_cube_blue"],
         "formats": []
 
   },
   {
-		"id":  "http://127.0.0.1:8000/asvo/65406/linemap",
+		"id":  "http://127.0.0.1:8000/asvo/sami/65409/line_map-OIII5007/",
 		"options": ["velocity_map", "spectral_cube_blue"],
         "formats": ["json"]
   }

@@ -71,6 +71,11 @@ console.log('directives.js');
                     // DO THIS ONLY ONCE
                     scope.item = {};
                     if (typeof attr.url !== 'undefined') {
+                        // Check the url has a trailing slash, if not, append one.
+                        var lastChar = attr.url.substr(-1);     // Selects the last character
+                        if (lastChar != '/') {                  // If the last character is not a slash
+                           attr.url = attr.url + '/';           // Append a slash to it.
+                        }
                         scope.item['id'] = attr.url;
                         if (typeof attr.options !== 'undefined') {
                             scope.item['options'] = attr.options;
