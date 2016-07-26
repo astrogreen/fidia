@@ -744,7 +744,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         lzifu_fits_file = (self.archive._base_directory_path +
                            "/lzifu_releasev" + self.version + "/recom_comp/" +
                            self.object_id + "_recom_comp.fits.gz")
-        self._hdu = fits.open(lzifu_fits_file)
+        self._hdu = fits.open(self._lzifu_fits_file)
 
     @trait_property('float.array')
     def value(self):
