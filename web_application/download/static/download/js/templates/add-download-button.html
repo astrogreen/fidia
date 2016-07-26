@@ -6,7 +6,7 @@
         </button><!--
          --><ul class="button-dropdown-list button-dropdown-list-small" ng-show="formats.length">
                 <li ng-repeat="f in formats">
-                    <a ng-show="f" class="js-tooltip" format-type="{{f}}" ng-click="chooseFormat(f)">{{ f }}</a>
+                    <a ng-show="f" class="js-tooltip {{f}}" format-type="{{f}}" ng-click="chooseFormat(f)">{{ f }}</a>
                 </li>
             </ul>
      </span><!--

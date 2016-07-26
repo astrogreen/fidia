@@ -1,22 +1,22 @@
 [
   {
-		"id": "/asvo/sami/221375/line_map-OIII5007/",
+		"id": "http://127.0.0.1:8000/asvo/sami/221375/line_map-OIII5007/",
 		"options": ["velocity_map", "spectral_cube_red"],
         "formats": ["fits", "json"]
   },
   {
-		"id":  "http://asvo.org/terrificgalaxy/linemap",
+		"id":  "http://127.0.0.1:8000/asvo/terrificgalaxy/linemap",
 		"options": ["velocity_map"],
         "formats": ["fits", "json"]
   },
   {
-		"id":  "http://asvo.org/terrificgalaxy/velocity_map",
+		"id":  "http://127.0.0.1:8000/asvo/sami/1234/line_map:OIII/",
 		"options": ["spectral_cube_blue"],
         "formats": []
 
   },
   {
-		"id":  "http://asvo.org/65406/linemap",
+		"id":  "http://127.0.0.1:8000/asvo/65406/linemap",
 		"options": ["velocity_map", "spectral_cube_blue"],
         "formats": ["json"]
   }

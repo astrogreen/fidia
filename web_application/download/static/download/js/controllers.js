@@ -1,5 +1,4 @@
 console.log('controllers.js');
-
 (function(angular){
     "use strict";
 
@@ -40,7 +39,7 @@ console.log('controllers.js');
 
         ctrl3.getAstronomicalObjectsCount = function(){
             DownloadService.getAstronomicalObjectsCount()
-        }
+        };
 
         ctrl3.getItemPerSurvey = function (){
             DownloadService.getItemPerSurvey()
@@ -49,16 +48,30 @@ console.log('controllers.js');
         ctrl3.removeItem = function(id){
             // Pass item id into the removeItem method of DownloadService
             DownloadService.removeItem(id);
-        }
+        };
         
         ctrl3.emptyDownload = function(items){
             DownloadService.emptyDownload($scope.items);
-        }
-        
+        };
+
+        ctrl3.parseDownloadCookie = function(){
+            // var cookie_arr = DownloadService.prettifyCookie();
+            // console.log(cookie_arr);
+            // var prettydownload = [];
+            // for (var i = 0; i < cookie_arr.length; i++){
+            //     // var temp = InspectorService.nestedData(cookie_arr[i]);
+            //     prettydownload.push(temp);
+            // }
+            // console.log(prettydownload);
+            // DownloadService.parseDownloadCookie();
+        };
+
         ctrl3.download = function(){
             // Invoke the download method of the DownloadService
             DownloadService.download();
         };
+
+        ctrl3.parseDownloadCookie();
     });
 
     app.filter('isEmpty', [function(){

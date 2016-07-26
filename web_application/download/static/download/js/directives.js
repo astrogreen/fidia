@@ -1,6 +1,6 @@
 console.log('directives.js');
 (function(angular){
-    "use strict"
+    "use strict";
 
     var app = angular.module('DCApp');
 
@@ -33,12 +33,11 @@ console.log('directives.js');
                     // Returns the item count from the Download Service
                     return DownloadService.getItemCount();
                 }
-
             }
         };
     });
 
-    app.directive('addDownloadButton', function(DownloadService){
+    app.directive('addDownloadButton', function(DownloadService, $filter){
         return {
             // E for Element
             // A for Attribute
@@ -51,7 +50,6 @@ console.log('directives.js');
                 // & == one-way binding
                 // = == two-way binding
                 formats: "=",
-                format: "="
             },
             replace: true,
             templateUrl: '/static/download/js/templates/add-download-button.html',
@@ -70,15 +68,16 @@ console.log('directives.js');
 
                 scope.constructItem = function() {
                     // Construct the item object (on the local scope) from the element attributes
+                    // DO THIS ONLY ONCE
                     scope.item = {};
                     if (typeof attr.url !== 'undefined') {
                         scope.item['id'] = attr.url;
                         if (typeof attr.options !== 'undefined') {
                             scope.item['options'] = attr.options;
                         }
-                        if (typeof attr.formats !== 'undefined' && typeof scope.format !== 'undefined') {
+                        if (typeof attr.formats !== 'undefined') {
                             //    this won't have been set yet.
-                            scope.item['format'] = scope.format;
+                            scope.item['format'] = '';
                         }
                     } else {
                         scope.item['id'] = 'Error. Cannot find id (url) has been set for this add-to-download-directive. Please contact the site administrator. '
@@ -94,16 +93,35 @@ console.log('directives.js');
                     // CHECK for this in cookie already and disable the button.
                     if (undefined != saved_items){
                         for (var i = 0; i < saved_items.length; i++) {
-                            if (saved_items[i] == scope.item['id']){
-                                disableAddButton(scope.add_button);
-                                disableFormatDropdown(scope.format_dropdown_button);
+                            if (undefined != scope.formats){
+                                for (var j = 0; j < scope.formats.length; j++){
+                                    var temp = scope.item['id']+'?format='+scope.formats[j];
+                                    if (saved_items[i] == temp){
+                                        // IF this url with this format is in the cart,
+                                        // then say this piece of data has been added already
+                                        // scope.formats.splice(j,1);
+                                        // scope.$apply();
+                                        disableAddButton(scope.add_button);
+                                        disableFormatDropdown(scope.format_dropdown_button);
+                                    }
+                                }
+                            } else {
+                                if (saved_items[i] == scope.item['id']){
+                                    disableAddButton(scope.add_button);
+                                    disableFormatDropdown(scope.format_dropdown_button);
+                                }
                             }
                         }
                     }
                 });
 
                 scope.addItem = function(){
-                    scope.constructItem();
+                    // Lock in format
+                    if (scope.item['format']){
+                        var temp = scope.item['id'];
+                        // ?format=type
+                        scope.item['id'] = temp+'?format='+scope.item['format'];
+                    }
 
                     // Pass the item into the addItem method of DownloadService
                     // populate the items obj for this particular view before start writing in to the cookie
@@ -116,14 +134,13 @@ console.log('directives.js');
                             $('#mini-download').removeClass('bounce');
                         });
 
-                    //disable the button
+                    //disable the buttons
                     disableAddButton(scope.add_button);
                     disableFormatDropdown(scope.format_dropdown_button);
-
                 };
 
                 scope.chooseFormat = function(f){
-                    scope.item.format = f;
+                    scope.item['format'] = f;
                 };
 
 

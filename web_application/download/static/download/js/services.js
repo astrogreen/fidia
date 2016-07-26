@@ -2,7 +2,7 @@
 // Create a download service
 (function(angular){
    // Force variable declarations
-    "use strict"
+    "use strict";
 
     // turn off for dev:
     // console.log = function() {};
@@ -44,7 +44,20 @@
             // Use the $cookieStore service to persist the itemsCookie object to the cookie named 'items'
             $cookieStore.put('items', itemsCookie);
             checkCookie();
-        };
+        }
+
+        function removeFromArray(array, elem){
+            for(var i = array.length-1; i--;){
+                if (array[i] === elem) array.splice(i, 1);
+            }
+        }
+
+        function cleanArray(array){
+            var remove_arr = [document.domain, document.domain+':'+location.port, location.protocol, 'asvo', "", ''];
+            for(var j = 0; j < remove_arr.length; j++){
+                removeFromArray(array,remove_arr[j]);
+            }
+        }
 
         // Angular factories return service objects
         return {
@@ -89,8 +102,12 @@
                 // If exists - don't add
                 // Else, push the item onto the items array, at the relevant astronomical object key
                 checkCookie();
+
                 if (!items[item.id]){
+                    // Add prettify property to item
+                    item = this.prettifyCookie(item);
                     items[item.id] = item;
+
                 } else {
                     // nothing - we don't need to update quantity - but this will need altering to cope with AO structure
                 }
@@ -150,6 +167,35 @@
                 var total_per_survey = {};
                 // append to gama, sami etc (can this be modified for any sample)
                 return total_per_survey;
+            },
+
+            prettifyCookie: function(item){
+                var url_arr = item.id.split("/");
+                cleanArray(url_arr);
+                // Knowing that the 0 and 1 elements will always be sample and ao, we can
+                // predefine these for the view.
+                // Though this isn't actually asserted... it should be.
+
+                var data_obj = {}, temp = [];
+
+                data_obj['sample'] = url_arr[0].toUpperCase();
+                data_obj['ao'] = url_arr[1];
+
+                if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
+                    // If a format exists on the last element of the array, pop it off
+                    // and prettify
+                    data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
+                    url_arr.pop();
+                }
+
+                for(var i = 2; i < url_arr.length; i++) {
+                    if(url_arr[i]!=="" && url_arr[i]!==''){
+                        temp.push(url_arr[i]);
+                    }
+                }
+                data_obj['else'] = temp;
+                item['prettify'] = data_obj;
+                return item
             },
 
             download: function(){
