@@ -35,8 +35,13 @@ class Archive(BaseArchive):
     def writeable(self):
         raise NotImplementedError("")
 
+    @property
     def contents(self):
-        return list()
+        return self._contents
+    @contents.setter
+    def contents(self, value):
+        self._contents = set(value)
+
 
     @property
     def name(self):

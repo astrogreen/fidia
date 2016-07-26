@@ -119,6 +119,13 @@ SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 SAMI_TEAM_DATABASE = ''
 SAMI_TEAM_DATABASE_CATALOG = ''
 
+SAMI_DR1_DATABASE = ''
+SAMI_DR1_DATABASE_CATALOG = ''
+
+
+# Pandoc paths
+# https://pypi.python.org/pypi/pypandoc
+PANDOC_PATH = '/usr/bin/pandoc'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -239,6 +246,8 @@ try:
 except ImportError:
     pass
 
+# Bring pandoc path into effect.
+os.environ.setdefault('PYPANDOC_PANDOC', PANDOC_PATH)
 
 RECAPTCHA_PUBLIC_KEY = '6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j'
 RECAPTCHA_PRIVATE_KEY = '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn'

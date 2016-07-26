@@ -4,10 +4,10 @@ from glob import glob
 import os.path
 import datetime
 import re
-import time
 
 from astropy import wcs
 from astropy.io import fits
+from astropy import units
 
 import pandas as pd
 
@@ -17,7 +17,7 @@ from cached_property import cached_property
 from fidia import *
 from .archive import Archive
 
-from ..utilities import WildcardDictionary, DefaultsRegistry
+from ..utilities import WildcardDictionary, DefaultsRegistry, exclusive_file_lock
 
 #from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 from fidia.traits import *
@@ -74,6 +74,11 @@ sami_cube_re = re.compile(
         (?P<n_comb>\d+)_
         (?P<plate_id>%s)
         (?:_(?P<binning>1sec))?""" % sami_plate_re.pattern, re.VERBOSE)
+
+SAMI_RUN_NAME_RE = re.compile(
+    r"""^(?P<start_date>\d{4}_\d{1,2}_\d{1,2})-
+        (?P<end_date>\d{4}_\d{1,2}_\d{1,2})$""", re.VERBOSE)
+
 
 class TraitFromFitsFile(Trait):
 
@@ -265,52 +270,25 @@ class SAMIRowStackedSpectra(SpectralMap):
 
 
 class SAMISpectralCube(SpectralMap):
-    """Load a SAMI Data cube.
-
-    TraitName is "color.binning":
-
-        color: (red|blue)
-        binning*: (05|10)
-
-        * The binning is optional: if it is omitted, a default will be set.
-
-    TraitVersion is "plate_id":
-
-        plate_id: ex. Y15SAR3_P002_12T085
-
-        The plate_id is optional, if ommitted, then a default will be chosen.
-    """
+    """Load a SAMI Data cube."""
 
     sub_traits = TraitRegistry()
 
-    trait_type = 'spectral_cube'
-
-    qualifier_required = True
+    trait_type = 'spectral_map'
     qualifiers = {'red', 'blue'}
-
-    @classmethod
-    def _traitkey_from_cube_path(cls, path):
-        info = cube_info_from_path(path)
-        return TraitKey(cls.trait_type, info['color'] + "." + info['binning'], info['plate_id'], info['sami_id'])
 
     def init(self):
 
         log.debug("TraitKey: %s", self.trait_key)
-        # Get necessary parameters from the trait_qualifier, filling in defaults if necessary
-        if self.trait_qualifier in ('blue', 'red'):
-            self._color = self.trait_qualifier
-        else:
-            raise DataNotAvailable("SAMISpectralCube data not available for colour %s" % self.trait_qualifier)
+        self._color = self.trait_qualifier
+
+        # Binning can be either '05' or '10'
         self._binning = "05"
 
-        # Get necessary parameters from the trait_version, filling in defaults if necessary
-        if self.trait_key.version is None:
-            # Default requested. For now, we simply choose the first item
-            # appearing in the archive's cube_directory.
-            self._plate_id = self.archive._cubes_directory.ix[self.object_id, self._color, self._binning]\
-                .reset_index()['plate_id'].iloc[0]
-        else:
-            self._plate_id = self.version
+        # We don't currently support multiple observations, so set the plate ID
+        # to the first/only observation
+        self._plate_id = self.archive._cubes_directory.ix[self.object_id, self._color, self._binning]\
+            .reset_index()['plate_id'].iloc[0]
 
         # Confirm the requested data actually exists:
         try:
@@ -323,19 +301,14 @@ class SAMISpectralCube(SpectralMap):
             if not isinstance(path, str):
                 log.debug("Something's wrong, `path` is not a string?!, probably: ")
                 log.debug("More than one cube file found for TraitKey %s", self.trait_key)
-                raise MultipleResults("Multiple SAMISpectralCubes available for {}.".format(self.trait_key))
+                raise Exception("Multiple SAMISpectralCubes available for {}.".format(self.trait_key))
+            if not os.path.exists(path):
+                raise DataNotAvailable("SAMISpectralCube data not available for {}".format(self.trait_key))
 
-        self._cube_path = self.archive._cubes_directory\
-            .ix[self.object_id, self._color, self._binning, self._plate_id]['path']
-
-        # Add links to sub_traits
-        # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
-        # self._sub_traits[TraitKey('rss', None, None, None)] = SAMIRowStackedSpectra
-
+        self._cube_path = path
 
     def preload(self):
         self.hdu = fits.open(self._cube_path)
-
 
     def cleanup(self):
         self.hdu.close()
@@ -395,6 +368,9 @@ class SAMISpectralCube(SpectralMap):
         """Catalog declination of the galaxy."""
         return self.hdu[0].header['CATADEC']
 
+    # Add links to sub_traits
+    # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
+    # self._sub_traits[TraitKey('rss', None, None, None)] = SAMIRowStackedSpectra
 
     @trait_property('string.array')
     def source_rss_frames(self):
@@ -601,18 +577,29 @@ class LZIFUVelocityMap(VelocityMap):
 
     trait_type = "velocity_map"
 
-    branches_versions = {'lzifu': {'0.9b'}}
+    branches_versions = {"lzifu": {"V02"}}
 
-    defaults = DefaultsRegistry(default_branch='lzifu', version_defaults={'lzifu': '0.9b'})
+    defaults = DefaultsRegistry(default_branch="lzifu", version_defaults={"lzifu": "V02"})
+
+    def init(self):
+
+        data_product_name = "EmissionLineFits"
+
+        self._lzifu_fits_file = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            "1_comp",
+            self.object_id + "_1_comp.fits"))
+
+        if not os.path.exists(self._lzifu_fits_file):
+            if os.path.exists(self._lzifu_fits_file + ".gz"):
+                self._lzifu_fits_file += ".gz"
+            else:
+                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
 
     def preload(self):
-        lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev" + self.version + "/recom_comp/" +
-                           self.object_id + "_recom_comp.fits.gz")
-        try:
-            self._hdu = fits.open(lzifu_fits_file)
-        except:
-            raise DataNotAvailable("No LZIFU data for SAMI ID '%s'" % self.object_id)
+        self._hdu = fits.open(self._lzifu_fits_file)
 
     def cleanup(self):
         self._hdu.close()
@@ -623,7 +610,7 @@ class LZIFUVelocityMap(VelocityMap):
 
     @property
     def unit(self):
-        return None
+        return units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -638,8 +625,8 @@ class LZIFUOneComponentLineMap(Image):
 
     trait_type = 'line_map'
 
-    branches_versions = {"1_comp": {"0.9b", "0.9"}}
-    defaults = DefaultsRegistry(default_branch='1_comp', version_defaults={'1_comp': '0.9b'})
+    branches_versions = {"1_comp": {"V02"}}
+    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -658,11 +645,24 @@ class LZIFUOneComponentLineMap(Image):
     qualifier_required = True
     qualifiers = line_name_map.keys()
 
+    def init(self):
+        data_product_name = "EmissionLineFits"
+
+        self._lzifu_fits_file = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            "1_comp",
+            self.object_id + "_1_comp.fits"))
+
+        if not os.path.exists(self._lzifu_fits_file):
+            if os.path.exists(self._lzifu_fits_file + ".gz"):
+                self._lzifu_fits_file += ".gz"
+            else:
+                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+
     def preload(self):
-        lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev" + self.version + "/1_comp/" +
-                           self.object_id + "_1_comp.fits.gz")
-        self._hdu = fits.open(lzifu_fits_file)
+        self._hdu = fits.open(self._lzifu_fits_file)
 
     def cleanup(self):
         self._hdu.close()
@@ -683,7 +683,7 @@ class LZIFUOneComponentLineMap(Image):
     @trait_property('float.array')
     def variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
-        log.debug("Returning type: %s", type(variance))
+        log.debug("Returning type: %s", type(sigma))
         variance = sigma**2
         return variance
 
@@ -702,13 +702,39 @@ class LZIFUOneComponentLineMap(Image):
 
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUWCS)
+LZIFUOneComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (33726A)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007A)',
+    OI6300='[OI] (6300A)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583)',
+    SII6716='[SII] (6716)',
+    SII6731='[SII] (6731)')
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
-    branches_versions ={'recom_comp': {"0.9b"}}
+    branches_versions ={'recom_comp': {"V02"}}
 
     # Extends 'line_map', so no defaults:
-    defaults = DefaultsRegistry(None, {'recom_comp': '0.9b'})
+    defaults = DefaultsRegistry(None, {'recom_comp': 'V02'})
+
+    def init(self):
+        data_product_name = "EmissionLineFits"
+
+        self._lzifu_fits_file = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            self.branch,
+            self.object_id + "_" + self.branch + ".fits"))
+
+        if not os.path.exists(self._lzifu_fits_file):
+            if os.path.exists(self._lzifu_fits_file + ".gz"):
+                self._lzifu_fits_file += ".gz"
+            else:
+                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
 
     qualifier_required = True
     qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
@@ -779,6 +805,16 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUWCS)
+LZIFURecommendedMultiComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (3726Å)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007Å)',
+    OI6300='[OI] (6300Å)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583Å)',
+    SII6716='[SII] (6716Å)',
+    SII6731='[SII] (6731Å)')
 
 class LZIFUContinuum(SpectralMap):
 
@@ -856,29 +892,94 @@ class LZIFULineSpectrum(SpectralMap):
 
 
 class BalmerExtinctionMap(Image, TraitFromFitsFile):
+    """Emission extinction map based on the Balmer decrement.
+
+    Extinction maps are calculated using the EmissionLineFitsV01 (which includes
+    Balmer flux errors incorporating continuum uncertainties) using the Balmer
+    decrement and the Cardelli+89 extinction law, using the code below.
+
+    ```
+    balmerdec = ha/hb
+    balmerdecerr = balmerdec * sqrt((haerr/ha)^2 + (hberr/hb)^2)
+    attencorr = (balmerdec / 2.86)^2.36
+    attencorrerr = abs((attencorr * 2.36 * balmerdecerr)/balmerdec)
+    ```
+
+    These maps will be in units of “attenuation correction factor” — such that
+    you can multiply this map by the Halpha cube to obtain de-extincted Halpha
+    cubes.  Note that, when the Balmer decrement is less than 2.86, no
+    correction will be applied (attenuation correction factor = 1., error = 0.).
+
+    Errors (1-sigma uncertainties) in the extinction are included as a second
+    extension in each file.
+
+    """
 
     trait_type = 'extinction_map'
 
     branches_versions = {
-        "1_comp": {'v01'},
-        "recom_comp": {'v01'}
+        "1_comp": {"V02"},
+        "recom_comp": {"V02"}
     }
 
     defaults = DefaultsRegistry(
-        default_branch='recom_comp',
-        version_defaults={"1_comp": 'v01',
-                          "recom_comp": 'v01'}
+        default_branch="recom_comp",
+        version_defaults={"1_comp": "V02",
+                          "recom_comp": "V02"}
     )
 
     def fits_file_path(self):
-        return (self.archive._base_directory_path +
-                "SFRextmaps/" +
-                self.object_id + "_extinction_" + self.branch + ".fits")
+        data_product_name = "ExtinctCorrMaps"
+
+        return "/".join(
+            (self.archive.vap_data_path,
+             data_product_name,
+             data_product_name + self.version,
+             self.object_id + "_extinction_" + self.branch + ".fits"))
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
     variance = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
+BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
+
 
 class SFRMap(Image, TraitFromFitsFile):
+    r"""Map of star formation rate based on Hα emission.
+
+    Star formation rate (SFR) map calculated using the EmissionLineFitsV01
+    (which includes Balmer flux errors incorporating continuum uncertainties),
+    ExtinctionCorrMapsV01, and SFMasksV01.  These are used to calculate star
+    formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$) and
+    star formation rate surface density maps (in $M_\odot\,\rm{yr}^{-1} \,
+    \rm{kpc}^2$) using the code below.  Note that we are using the
+    flow-corrected redshifts z_tonry_1 from the SAMI-matched GAMA catalog
+    (SAMITargetGAMAregionsV02) to calculate distances.
+
+    ```
+    H0 = 70.                                    ;; (km/s)/Mpc, SAMI official cosmology
+    distmpc = lumdist(z_tonry,H0=H0)            ;; in Mpc; defaults to omega_m=0.3
+    dist = distmpc[0] * 3.086d24                ;; in cm
+    kpcperarc = (distmpc[0]/(1+z_tonry[0])^2) * 1000./206265  ;; kiloparsecs per arcsecond
+    kpcperpix = kpcperarc*0.5                   ;; half arcsec pixels
+    halum = haflux * SFR_classmap * attencorr * 1d-16 * 4*!pi *dist^2   ;; now in erg/s
+    sfr = halum * 7.9d-42                       ;; now in Msun/yr, Kennicutt+94
+    sfrsd = sfr / kpcperpix^2                   ;; this one in Msun/yr/kpc^2
+    ```
+
+    Errors (1-sigma uncertainty) in SFR or SFRSD are included as a second extension in each file.
+
+    A separate map is made for each set of LZIFU emission line fits for each
+    galaxy: 1 Gaussian component (`*_1_comp.fits`), 2 Gaussian components
+    (`*_2_comp.fits`), 3 Gaussian components (`*_3_comp.fits`), and the recommended
+    number of components for each spaxel (`*_recom_comp.fits`).  Each map has
+    dimensions of $(50,50,ncomp+1)$.  The slice `[*,*,0]` represents the total star
+    formation rate (from the total Halpha flux) summed over all components, and
+    the `[*,*,ncomp]` slices represent the star formation rate from each
+    individual component.
+
+
+    ##format: markdown
+
+    """
 
     trait_type = 'sfr_map'
 
@@ -894,12 +995,18 @@ class SFRMap(Image, TraitFromFitsFile):
     )
 
     def fits_file_path(self):
-        return (self.archive._base_directory_path +
-                                "SFRmaps/" +
-                                self.object_id + "_SFR_" + self.branch + ".fits")
+        data_product_name = "SFRMaps"
+
+        return "/".join(
+            (self.archive.vap_data_path,
+             data_product_name,
+             data_product_name + self.version,
+             self.object_id + "_SFR_" + self.branch + ".fits"))
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
+SFRMap.set_pretty_name("Star Formation Rate Map")
+
 
 # class SFRClass(ClassificationMap):
 #
@@ -912,6 +1019,175 @@ class SFRMap(Image, TraitFromFitsFile):
 #
 #     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
 #     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
+
+def update_path(path):
+    if path[-1] != "/":
+        path = path + "/"
+    assert os.path.exists(path)
+    return path
+
+
+class SAMIDR1PublicArchive(Archive):
+
+    cache_dir = "/tmp/fidia-sami_archive/"
+
+    def __init__(self, base_directory_path, master_catalog_name):
+
+        self.base_path = update_path(base_directory_path)
+        self.core_data_path = self.base_path + "data_releases/v0.9/"
+        self.vap_data_path = self.base_path + "data_products/"
+        self.catalog_path = self.base_path + "catalogues/"
+
+        if not os.path.isdir(self.cache_dir):
+            os.mkdir(self.cache_dir)
+
+        self._base_directory_path = base_directory_path
+        self.master_catalog_path = self.catalog_path + master_catalog_name
+        log.debug("master_catalog_path: %s", self.master_catalog_path)
+
+        # Load the master catalog and get the list of IDs this archive will support:
+        master_cat = pd.read_table(self.master_catalog_path,
+                      delim_whitespace=True,
+                      header=None, names=('SAMI_ID', 'red_cube_file'),
+                      dtype={'SAMI_ID': str, 'red_cube_file': str}).set_index('SAMI_ID')
+        self.contents = master_cat.index
+
+
+        # The master catalog only has red cube file names, so create a column with blue names as well:
+        red_files = master_cat['red_cube_file']
+        blue_files = red_files.apply(lambda x: x.replace("red", "blue"))
+        master_cat['blue_cube_file'] = blue_files
+
+        self.cube_file_index = master_cat
+
+        log.debug("master cat loaded.")
+
+        self._cubes_directory = self._find_cubes()
+
+        catalog_data_path = (self.catalog_path + "SAMItargetGAMAregions/SAMItargetGAMAregionsV02/" +
+                             "SAMItargetGAMAregionsV02.fits")
+        with fits.open(catalog_data_path) as m:
+            fits_table = m[1].data
+            self.tabular_data = pd.DataFrame.from_records(
+                fits_table.tolist(),
+                columns=map(lambda x: x.name, fits_table.columns))
+        self.tabular_data.set_index('CATID', inplace=True)
+
+        # Local cache for traits
+        self._trait_cache = dict()
+
+        super(SAMIDR1PublicArchive, self).__init__()
+
+
+    def _find_cubes(self):
+
+        # Create a set of observing runs in this archive
+        self.observing_runs = set()
+        for item in os.listdir(self.core_data_path):
+            run_match = SAMI_RUN_NAME_RE.match(item)
+            if run_match:
+                self.observing_runs.add(item)
+
+        # The rest of this function is fairly slow, so we cache the information
+        # for future invocations/other processes. This is done in a thread-safe
+        # manner.
+
+        cube_data_cache_path = self.cache_dir + self.__class__.__name__ + "cube_file_index.pd.pickle"
+
+        # Grab a file lock so that we will not collide with other processes
+        with exclusive_file_lock(cube_data_cache_path):
+            if os.path.exists(cube_data_cache_path):
+                # Cache already exists.
+
+                # Check if perhaps the cache should be invalidated
+                cache_update_time = os.stat(cube_data_cache_path).st_mtime
+                mod_update_time = os.stat(__file__).st_mtime
+                if mod_update_time < cache_update_time:
+                    # Cache is newer than this file, so assume it is valid.
+                    cube_directory = pd.read_pickle(cube_data_cache_path)
+                    log.info("Existing cache of SAMI cubes found and read in.")
+                    return cube_directory
+                else:
+                    os.remove(cube_data_cache_path)
+                    log.info("Existing cache of SAMI cubes found and invalidated.")
+
+            # Cache file doesn't exist or has been invalided so create it.
+            log.info("No existing cache of SAMI cubes found---creating new one.")
+
+            # Find all known cube files:
+            cube_file_paths = glob(self.core_data_path + "*/cubed/*/*.fits*")
+            if len(cube_file_paths) == 0:
+                raise ArchiveValidationError("No cube files found for SAMI Archive.")
+            cube_directory = []
+            for path in cube_file_paths:
+                info = cube_info_from_path(path)
+
+                # Only include this file if explicitly listed in the
+                # cube_file_index
+                print(info['sami_id'], info['color'] + '_cube_file')
+                try:
+                    catalog_cube_file = self.cube_file_index.loc[info['sami_id'], info['color'] + '_cube_file']
+                except:
+                    log.debug("Cube file '%s' rejected because it is not in the master cat.", info['filename'])
+                else:
+                    if info['filename'] == catalog_cube_file:
+                        cube_directory.append(info)
+                    elif info['filename'] + ".gz" == catalog_cube_file:
+                        cube_directory.append(info)
+                    else:
+                        log.debug("Cube file '%s' rejected because it is not in the master cat.", info['filename'])
+
+            if len(cube_directory) == 0:
+                raise ArchiveValidationError("No valid cube file for SAMI Archive.")
+
+            cube_directory = pd.DataFrame(cube_directory)
+            log.debug(cube_directory)
+            cube_directory.set_index(['sami_id', 'color', 'binning', 'plate_id'], inplace=True)
+
+            # Write out the file (while still under the lock)
+            cube_directory.to_pickle(cube_data_cache_path)
+
+        return cube_directory
+
+    def _cubes_available(self):
+        """Generate a list of objects which have "cubed" directories."""
+        cube_ids = map(os.path.basename, glob(self._base_directory_path + "*/cubed/*"))
+
+        # Note, there may be duplicates; the following prints a list of duplicates
+        #print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
+        return cube_ids
+
+    @property
+    def name(self):
+        return 'SAMI'
+
+    def define_available_traits(self):
+
+        # Trait 'spectral_cube'
+        self.available_traits.register(SAMISpectralCube)
+        # Trait 'rss_map' (now a sub-trait of spectral_cube above.)
+        # self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
+
+        # LZIFU Items
+
+        self.available_traits.register(LZIFUVelocityMap)
+
+        self.available_traits.register(LZIFUOneComponentLineMap)
+        # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
+        self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
+
+        self.available_traits.register(SFRMap)
+        self.available_traits.register(BalmerExtinctionMap)
+
+        # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
+        # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
+
+        if log.isEnabledFor(slogging.DEBUG):
+            log.debug("------Available traits--------")
+            for key in self.available_traits.get_all_traitkeys():
+                log.debug("   Key: %s", key)
+
+        return self.available_traits
 
 
 class SAMITeamArchive(Archive):
@@ -1035,3 +1311,57 @@ class SAMITeamArchive(Archive):
                 log.debug("   Key: %s", key)
 
         return self.available_traits
+
+
+
+
+
+
+
+SAMISpectralCube.set_pretty_name("Spectral Map")
+SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy")
+
+# SAMISpectralCube.value.set_description
+# SAMISpectralCube.variance.set_description
+# SAMISpectralCube.covariance.set_description
+# SAMISpectralCube.weight.set_description
+# SAMISpectralCube.total_exposure.set_description
+# SAMISpectralCube.cubing_code_version.set_description
+# SAMISpectralCube.plate_id.set_description
+# SAMISpectralCube.plate_label.set_description
+
+# SAMISpectralCube.CatCoordinate.set_pretty_name()
+SAMISpectralCube.CatCoordinate.set_description("Catalog coordinate of the target centre of the SAMI fibre bundle.")
+
+SAMISpectralCube.AAT.altitude.set_description("Altitude of observatory in metres")
+SAMISpectralCube.AAT.latitude.set_description("Observatory latitude in degrees")
+SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees)")
+
+
+
+
+LZIFUOneComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (33726A)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007A)',
+    OI6300='[OI] (6300A)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583)',
+    SII6716='[SII] (6716)',
+    SII6731='[SII] (6731)')
+
+LZIFURecommendedMultiComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (3726Å)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007Å)',
+    OI6300='[OI] (6300Å)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583Å)',
+    SII6716='[SII] (6716Å)',
+    SII6731='[SII] (6731Å)')
+
+BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
+SFRMap.set_pretty_name("Star Formation Rate Map")
+

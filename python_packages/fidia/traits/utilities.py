@@ -17,6 +17,7 @@ from operator import itemgetter as _itemgetter
 
 from ..exceptions import *
 from ..utilities import is_list_or_set
+from ..descriptions import DescriptionsMixin
 
 TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
 TRAIT_QUAL_RE = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_.]*')
@@ -222,7 +223,7 @@ def trait_property(func_or_type):
     raise Exception("trait_property decorator used incorrectly. Check documentation.")
 
 
-class TraitProperty(metaclass=ABCMeta):
+class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
 
     allowed_types = [
         'string',
@@ -287,6 +288,16 @@ class BoundTraitProperty:
     def __init__(self, trait, trait_property):
         self._trait = trait
         self._trait_property = trait_property
+
+    def __getattr__(self, item):
+        """Pass most undefined attribute requests to the host TraitProperty.
+
+        Note that any method or attribute explicitly defined in this class will
+        override the host TraitProperty's attributes.
+
+        """
+        if item not in ('loader',) and not item.startswith("_"):
+            return getattr(self._trait_property, item)
 
     @property
     def name(self):

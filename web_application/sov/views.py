@@ -1,6 +1,8 @@
 import collections
 from django.conf import settings
 
+from asvo.fidia_samples_archives import sami_dr1_sample
+
 from rest_framework import renderers, viewsets, status, mixins
 from rest_framework.response import Response
 
@@ -11,13 +13,7 @@ import restapi_app.renderers
 
 import sov.serializers
 
-from fidia.archive.sami import SAMITeamArchive
-
-ar = SAMITeamArchive(
-    settings.SAMI_TEAM_DATABASE,
-    settings.SAMI_TEAM_DATABASE_CATALOG)
-
-sample = ar.get_full_sample()
+from fidia.archive import sami
 
 
 class SOVListSurveysViewSet(viewsets.ViewSet):
@@ -32,7 +28,7 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
          - this will have autocomplete form
         """
         try:
-            sample
+            sami_dr1_sample
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -40,7 +36,7 @@ class SOVListSurveysViewSet(viewsets.ViewSet):
 
         serializer_class = sov.serializers.SOVListSurveysSerializer
         serializer = serializer_class(
-            instance=sample, many=True,
+            instance=sami_dr1_sample, many=True,
             context={'request': request},
         )
         return Response(serializer.data)
@@ -62,7 +58,7 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSe
     def retrieve(self, request, pk=None, sample_pk=None, format=None):
 
         try:
-            astroobject = sample[pk]
+            astroobject = sami_dr1_sample[pk]
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -70,7 +66,7 @@ class SOVRetrieveObjectViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSe
 
         serializer_class = sov.serializers.SOVRetrieveSerializer
 
-        sorted_schema = dict(collections.OrderedDict(ar.schema()))
+        sorted_schema = dict(collections.OrderedDict(ar.schema(by_trait_name=True)))
 
         serializer = serializer_class(
             instance=astroobject, many=False,

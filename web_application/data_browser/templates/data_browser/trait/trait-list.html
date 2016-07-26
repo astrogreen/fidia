@@ -10,7 +10,7 @@
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
 
-{% block page_title %}{% filter uppercase %}{% get_pks request.path -4 %}{% endfilter %} {% get_pks request.path -3 %}: {{objname}}{% endblock %}
+{% block page_title %}{% filter uppercase %}{% get_pks request.path -4 %}{% endfilter %} {% get_pks request.path -3 %}: {{pretty_name}}{% endblock %}
 {% block useful_links %}
 <li role="presentation" ><a href="{% url 'sov-list' %}">View in SOV</a></li>
 <li role="presentation" ><a href="{% url 'sami-list' %}">Back to Sami</a></li>
@@ -32,7 +32,7 @@
                 <div role="tabpanel" class="tab-pane active" id="description">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <p>{% lorem %}</p>
+                            <p>{{ html_documentation | safe }}</p>
                         </div>
                     </div>
                 </div>

@@ -28,8 +28,10 @@ def sami_archive():
     # ar = sami.SAMITeamArchive("/home/agreen/sami_test_release/",
     #                           "/home/agreen/sami_test_release/" +
     #                           "sami_small_test_cat.fits")
-    ar = sami.SAMITeamArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
-                              "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
+    # ar = sami.SAMITeamArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
+    #                           "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
+    ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
+                                   "dr1_catalog/dr1_20160720.txt")
     return ar
 
 @pytest.fixture(scope='module')
@@ -59,12 +61,12 @@ class TestSAMIArchive:
     #     sami_archive.available_traits['spectral_cube'].data_available("41144")
 
     def test_retrieve_data_from_sample(self, sami_sample):
-        sami_sample.get_archive_id(sami_sample.get_archive_for_property(TraitKey('spectral_cube', 'blue')),'24433')
+        sami_sample.get_archive_id(sami_sample.get_archive_for_property(TraitKey('spectral_map', 'blue')),'24433')
         # 1.0 arcsec binning
-        t = sami_sample['24433']['spectral_cube', 'red']
+        t = sami_sample['24433']['spectral_map', 'red']
         assert isinstance(t.value(), numpy.ndarray)
         # 0.5 arcsec binning
-        t = sami_sample['24433']['spectral_cube', 'blue']
+        t = sami_sample['24433']['spectral_map', 'blue']
         assert isinstance(t.value(), numpy.ndarray)
 
     # This test disabled because there are no duplicates in DR1
@@ -87,7 +89,7 @@ class TestSAMIArchive:
 
     def test_attempt_retrieve_object_not_in_sample(self, sami_sample):
         with pytest.raises(fidia.NotInSample):
-            sami_sample['random']['spectral_cube', u'blue']
+            sami_sample['random']['spectral_map', u'blue']
 
     # def test_retrieve_rss_data(self, sami_sample):
     #     t = sami_sample['41144']['rss_map', '2015_04_14-2015_04_22:15apr20015sci.fits']
@@ -117,14 +119,14 @@ class TestSAMISmartTraits:
 
         import astropy.wcs
 
-        wcs = a_sami_galaxy['spectral_cube', 'blue'].get_sub_trait(TraitKey('wcs'))
+        wcs = a_sami_galaxy['spectral_map', 'blue'].get_sub_trait(TraitKey('wcs'))
         assert isinstance(wcs, astropy.wcs.WCS)
 
 
     def test_cube_coord(self, a_sami_galaxy):
         import astropy.coordinates
 
-        coord = a_sami_galaxy['spectral_cube', 'blue'].get_sub_trait(TraitKey('catalog_coordinate'))
+        coord = a_sami_galaxy['spectral_map', 'blue'].get_sub_trait(TraitKey('catalog_coordinate'))
         assert isinstance(coord, astropy.coordinates.SkyCoord)
 
 
@@ -176,19 +178,19 @@ class TestSAMIArchiveSchema:
                 assert isinstance(schema[trait_type][trait_qualifier], dict)
 
     def test_cube_wcs_in_schema(self, schema):
-        schema['spectral_cube']['red']['wcs']
+        schema['spectral_map']['red']['wcs']
 
 class TestSAMIArchiveMetadata:
 
     def test_telescope_metadata(self, a_sami_galaxy):
-        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).telescope() == 'Anglo-Australian Telescope'
-        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).latitude() == -31.27704
-        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).longitude() == 149.0661
-        assert a_sami_galaxy['spectral_cube-red'].get_sub_trait(TraitKey('telescope_metadata')).altitude() == 1164
+        assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).telescope() == 'Anglo-Australian Telescope'
+        assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).latitude() == -31.27704
+        assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).longitude() == 149.0661
+        assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).altitude() == 1164
 
 
     def test_instrument_metadata(self, a_sami_galaxy):
-        sub_trait = a_sami_galaxy['spectral_cube-blue'].get_sub_trait(TraitKey('instrument_metadata'))
+        sub_trait = a_sami_galaxy['spectral_map-blue'].get_sub_trait(TraitKey('instrument_metadata'))
 
         assert isinstance(sub_trait, sami.SAMISpectralCube.SAMICharacteristics)
 
@@ -200,7 +202,7 @@ class TestSAMIArchiveMetadata:
 
 
     def test_detector_metadata(self, a_sami_galaxy):
-        sub_trait = a_sami_galaxy['spectral_cube-blue'].get_sub_trait(TraitKey('detector_metadata'))
+        sub_trait = a_sami_galaxy['spectral_map-blue'].get_sub_trait(TraitKey('detector_metadata'))
 
         assert isinstance(sub_trait, sami.SAMISpectralCube.AAOmegaDetector)
 

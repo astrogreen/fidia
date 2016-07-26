@@ -15,7 +15,7 @@ from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit
-from ..descriptions import DescriptionsMixin
+from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 
 from .. import slogging
@@ -58,7 +58,7 @@ def validate_trait_branches_versions_dict(branches_versions):
             if version is not None:
                 validate_trait_version(version)
 
-class Trait(DescriptionsMixin, AbstractBaseTrait):
+class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
     sub_traits = TraitRegistry()
 
