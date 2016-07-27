@@ -26,6 +26,7 @@ urlpatterns = [
     # url(r'^asvo/', include('data_browser.urls')),
     url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),
+    url(r'^asvo/', include('schema.urls')),
     # url(r'^asvo/', include('sov.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
 ]

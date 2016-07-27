@@ -143,6 +143,13 @@ select {
 .fa-slim-line {
   -webkit-text-stroke: 1px #ffffff;
 }
+code {
+  padding: 2px 4px;
+  font-size: 90%;
+  color: #5aa8d8;
+  background-color: #f9f2f4;
+  border-radius: 4px;
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ SUCCESS FAILURE CLASSES

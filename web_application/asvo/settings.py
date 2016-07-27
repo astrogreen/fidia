@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'user',
     'restapi_app',
     'rest_framework',
+    'schema',
     'sov',
 )
 
