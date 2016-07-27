@@ -23,13 +23,14 @@ import data_browser.renderers
 
 
 class SchemaViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/main.html'
 
     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
+        # Get FIDIA list of available samples (surveys).
+
         # try:
         #     sami_dr1_sample
         # except KeyError:
@@ -38,6 +39,108 @@ class SchemaViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         #     return Response(status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"samples": ['sami', 'gama']})
+
+
+class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'schema/sample.html'
+
+    renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def list(self, request, pk=None, sample_pk=None, format=None):
+        # Get FIDIA list of available samples (surveys).
+
+        # try:
+        #     sami_dr1_sample
+        # except KeyError:
+        #     return Response(status=status.HTTP_404_NOT_FOUND)
+        # except ValueError:
+        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"sample": sample_pk, "aos": ['9874', '9874']})
+
+
+class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+    class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'schema/astroobject.html'
+
+    renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
+        # Get FIDIA list of available samples (surveys).
+
+        # try:
+        #     sami_dr1_sample
+        # except KeyError:
+        #     return Response(status=status.HTTP_404_NOT_FOUND)
+        # except ValueError:
+        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"sample": sample_pk, "astroobject": astroobject_pk, "traits": "from fidia"})
+
+
+class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+    class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'schema/trait.html'
+
+    renderer_classes = (TraitRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
+        return Response({"sample": sample_pk, "astroobject": astroobject_pk, "trait": trait_pk,
+                         "traitproperties_subtraits": "traitproperties and subtraits from fidia"})
+
+
+class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+    class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'schema/subtraitproperty.html'
+
+    renderer_classes = (SubTraitPropertyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+
+        return Response({"sample": sample_pk, "astroobject": astroobject_pk, "trait": trait_pk,
+                         "dynamic_pk": dynamic_pk})
+
+        # path = list(dynamic_pk.split('/'))
+
+        # path.insert(0, trait_pk)
+        # return Response({"data": str(ar.type_for_trait_path(path))})
+        # print(ar.type_for_trait_path(path))
+        # if issubclass(ar.type_for_trait_path(path), Trait):
+        #     trait_pointer = sami_dr1_sample[galaxy_pk]
+        #     for elem in path:
+        #         trait_pointer = trait_pointer[elem]
+        #     serializer = data_browser.serializers.AstroObjectTraitSerializer(
+        #         instance=trait_pointer, many=False,
+        #         context={'request': request}
+        #     )
+        #
+        # elif issubclass(ar.type_for_trait_path(path), TraitProperty):
+        #     trait_pointer = sami_dr1_sample[galaxy_pk]
+        #     for elem in path[:-1]:
+        #         trait_pointer = trait_pointer[elem]
+        #     trait_property = getattr(trait_pointer, path[-1])
+        #     serializer = data_browser.serializers.AstroObjectTraitPropertySerializer(
+        #         instance=trait_property, many=False,
+        #         context={'request': request}
+        #     )
+        # else:
+        #     raise Exception("programming error")
+
+        # return Response(serializer.data)
+
+
+        # Return a list of components
+        dynamic_components = dynamic_pk.split('/')
+        # first component distinction: ST/TP
+        return Response({'dynamic_pk': dynamic_components})
+
+
+
+
 
 
 # class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

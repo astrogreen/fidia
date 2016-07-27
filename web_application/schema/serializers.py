@@ -5,12 +5,10 @@ from rest_framework.reverse import reverse
 
 from restapi_app.fields import AbsoluteURLField
 
-import fidia, collections
-from fidia.traits.utilities import TraitProperty
-from fidia.traits.base_traits import Trait
-from fidia.descriptions import DescriptionsMixin
-
-log = logging.getLogger(__name__)
+# import fidia, collections
+# from fidia.traits.utilities import TraitProperty
+# from fidia.traits.base_traits import Trait
+# from fidia.descriptions import DescriptionsMixin
 
 
 def get_and_update_depth_limit(kwargs):
@@ -27,17 +25,45 @@ def get_and_update_depth_limit(kwargs):
     return depth_limit
 
 
-class DocumentationHTMLField(serializers.Field):
-    """Serializer for the FIDIA documentation for an object as HTML."""
+# class SampleSerializer(serializers.Serializer):
+#
+#     def __init__(self, *args, **kwargs):
+#         depth_limit = get_and_update_depth_limit(kwargs)
+#         super().__init__(*args, **kwargs)
+#
+#         sample = self.instance
+#         assert isinstance(sample, fidia.Sample), \
+#             "SampleSerializer must have an instance of fidia.Sample, " +\
+#             "not '%s': try SampleSerializer(instance=sample)" % sample
+#         depth_limit = 0
+#
+#         for astro_object in sample:
+#             url_kwargs = {
+#                     'galaxy_pk': str(astro_object),
+#                 }
+#             url = reverse("galaxy-list", kwargs=url_kwargs)
+#
+#             if depth_limit == 0:
+#                 # No details to be displayed below this level
+#                 # self.fields[astro_object] = serializers.CharField()
+#                 self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
+#             else:
+#                 # Recurse displaying details at lower level
+#                 self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
 
-    def get_attribute(self, instance):
-        # type: (DescriptionsMixin) -> DescriptionsMixin
-        assert isinstance(instance, DescriptionsMixin)
-        return instance
 
-    def to_representation(self, obj):
-        # type: (DescriptionsMixin) -> str
-        return obj.get_documentation(format='html')
+
+# class DocumentationHTMLField(serializers.Field):
+#     """Serializer for the FIDIA documentation for an object as HTML."""
+#
+#     def get_attribute(self, instance):
+#         # type: (DescriptionsMixin) -> DescriptionsMixin
+#         assert isinstance(instance, DescriptionsMixin)
+#         return instance
+#
+#     def to_representation(self, obj):
+#         # type: (DescriptionsMixin) -> str
+#         return obj.get_documentation(format='html')
 
 
 # class DynamicPropertySerializer(serializers.Serializer):
@@ -201,36 +227,3 @@ class AstroObjectSerializer(serializers.Serializer):
     trait_list = serializers.SerializerMethodField()
 
 
-class SampleSerializer(serializers.Serializer):
-
-    def __init__(self, *args, **kwargs):
-        depth_limit = get_and_update_depth_limit(kwargs)
-        super().__init__(*args, **kwargs)
-
-        sample = self.instance
-        assert isinstance(sample, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " +\
-            "not '%s': try SampleSerializer(instance=sample)" % sample
-        depth_limit = 0
-
-        for astro_object in sample:
-            url_kwargs = {
-                    'galaxy_pk': str(astro_object),
-                }
-            url = reverse("galaxy-list", kwargs=url_kwargs)
-
-            if depth_limit == 0:
-                # No details to be displayed below this level
-                # self.fields[astro_object] = serializers.CharField()
-                self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
-            else:
-                # Recurse displaying details at lower level
-                self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
-
-
-class DataCheckoutSerializer(serializers.Serializer):
-
-    urls = serializers.CharField(max_length=10000000, required=False)
-
-    def create(self, validated_data):
-        pass

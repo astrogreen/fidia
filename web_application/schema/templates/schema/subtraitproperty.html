@@ -2,13 +2,13 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %}Schema | {{response.data.astroobject | uppercase }} {{response.data.trait }}{% endblock %}
+{% block title %}Schema | {{response.data.astroobject | uppercase }} {{response.data.trait }} {{response.data.dynamic_pk }}{% endblock %}
 {% block head-extra %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'schema/css/schema/schema.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}Schema: {{response.data.sample | uppercase }} {{response.data.astroobject | uppercase }} {{response.data.trait}} {% endblock %}
+{% block page_title %}Schema: {{response.data.sample | uppercase }} {{response.data.astroobject | uppercase }} {{response.data.trait}} {{response.data.dynamic_pk}} {% endblock %}
 {% block useful_links %}
 <li role="presentation" ><a href="#data-structure">Data Structure</a></li>
 {% endblock useful_links %}
@@ -16,12 +16,12 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12">
-        <h2>{{response.data.sample | uppercase }} {{response.data.astroobject | uppercase }} {{response.data.trait}} Trait Properties</h2>
+        <h2>{{response.data.sample | uppercase }} {{response.data.astroobject | uppercase }} {{response.data.trait}} {{response.data.dynamic_pk}} description</h2>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-12">
-        {{response.data.traitproperties_subtraits}}
+        {{response.data.dynamic_pk}}
     </div>
 </div>
 {% endblock %}
