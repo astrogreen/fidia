@@ -28,8 +28,7 @@ class SchemaViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         template = 'schema/main.html'
 
     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    breadcrumb_name = None
-
+    # breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, format=None):
 
