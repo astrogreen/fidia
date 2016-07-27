@@ -50,38 +50,33 @@
             <div class="panel-body">
                 {% include 'query/query-history-table.html' %}
 
-                {% if 'GET' in allowed_methods %}
-                <form id="get-form" class="text-right">
-                    <fieldset>
-                        {% if api_settings.URL_FORMAT_OVERRIDE %}
-                        <div class="btn-group format-selection">
-                            <a class="btn btn-default  btn-sm js-tooltip" href="{{ request.get_full_path }}"
-                               rel="nofollow"
-                               title="Download user {{user}}'s {{ name }} by format type">Download Query List</a>
-                            <button class="btn btn-default btn-sm dropdown-toggle js-tooltip" data-toggle="dropdown"
-                                    title="Specify a format for data download">
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                {% for format in available_formats %}
-                                {% if format != 'api' %}
-                                <li>
-                                    <a class="js-tooltip format-option"
-                                       href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                       rel="nofollow" title="Download {{ name }} with the format set to `{{ format }}`">{{
-                                        format }}</a>
-                                </li>
-                                {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% else %}
-                        <a class="btn btn-default btn-sm js-tooltip" href="{{ request.get_full_path }}" rel="nofollow"
-                           title="View user {{user}}'s {{ name }}">GET</a>
-                        {% endif %}
-                    </fieldset>
-                </form>
-                {% endif %}
+                {% block content-download %}
+                    {% if 'GET' in allowed_methods %}
+                        <form id="download-list" class="custom-inline">
+                            {% if api_settings.URL_FORMAT_OVERRIDE %}
+                            <span class="button-dropdown text-right pull-right" data-buttons="dropdown">
+                                <button class="button button-small text-uppercase">
+                                   Download Query History <i class="fa fa-caret-down"></i>
+                                </button>
+
+                                <ul class="button-dropdown-list button-dropdown-list-small">
+                                  {% for format in available_formats %}
+                                    {% if format != "api" %}
+                                        <li>
+                                            <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                               rel="nofollow" target="_blank"  title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                              </span>
+                            {% else %}
+                                <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
+                                   title="Download {{user}}'s query # {{objname}}">PERMANENT LINK</a>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                {% endblock %}
 
             </div>
         </div>

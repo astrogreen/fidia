@@ -266,6 +266,7 @@ header user a > a {
   margin-bottom: 0;
   background: transparent;
 }
+.breadcrumb li,
 .breadcrumb li a {
   color: #333;
   color: #ddd;
@@ -301,8 +302,9 @@ header user a > a {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 .page_title_banner {
-  background: url("../../img/background/background2.png") top repeat-x;
+  background: #FFFFFF;
   border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
 }
 .page_title_banner h1 {

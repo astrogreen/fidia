@@ -48,7 +48,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'astrospark',
     'bootstrap3',
-    # 'cart',
     'download',
     'data_browser',
     'django_extensions',
@@ -57,7 +56,6 @@ INSTALLED_APPS = (
     'user',
     'restapi_app',
     'rest_framework',
-    # 'rest_framework_swagger',
     'sov',
 )
 

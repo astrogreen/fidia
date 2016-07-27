@@ -1,12 +1,68 @@
-<div class="panel">
-    download options to get data products for this sample (use sami schema)
+<div class="col-sm-8">
+    <p>Select the products you wish to download for this sample and click the
+        <strong>add to download</strong> button.</p>
+
+    <ul class="nav nav-tabs" role="tablist" id="download_tabs">
+        <li role="presentation" class="active"><a href="#available_data" aria-controls="available_data" role="tab"
+                                                  data-toggle="tab">Data</a>
+        </li>
+        <li role="presentation"><a href="#summary" aria-controls="summary" role="tab"
+                                   data-toggle="tab">About</a>
+        </li>
+        <li role="presentation"><a href="#additional_info" aria-controls="additional_info" role="tab"
+                                   data-toggle="tab">Contact</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+
+        <div role="tabpanel" class="tab-pane active" id="available_data">
+
+            <div class="well">
+                test
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="summary">
+             <div class="well">
+                test2
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="additional_info">
+             <div class="well">
+                test3
+            </div>
+        </div>
+    </div>
+    <div class="panel">
+        download options to get data products for this sample (use sami schema)
+    </div>
+    Get an astro-object's schema? Thing is, this will change depending on the object... SAMI is a different schema to
+    GAMA..
+    get both. Tab it up. hand as options namespaced by the sample type.
+
+    This relies on the schema/sample/ao view being active first...
+    Probably on the dataTable side for now:
+    1. parse incoming json.
+    2. attach a data browser url
+
+    For data download:
+    3. iterate over sami schema
+    4. send sample url + list of properties to cart (url = sample, need options property on cookie)
+
+
+</div>
+<div class="col-sm-4">
+    <div class="panel panel-default info">
+        <div class="panel-body">
+            <strong class="text-uppercase">Note</strong>
+            <p>
+                This selection tool displays all available types of data product hosted at AAODC.
+                However, not all data products are available for all objects (e.g., some GAMA galaxies will <strong>not</strong> have
+                SAMI data). Once you have made your selection, <a href="{% url 'download' %}">download the data</a> and check the resultant download package for products that do not exist.
+
+            </p>
+        </div>
+    </div>
 </div>
 
-Probably on the dataTable side for now:
-1. parse incoming json.
-2. attach a data browser url
 
-For data download:
-3. iterate over sami schema
-4. send sample url + list of properties to cart (url = sample, need options property on cookie)
 
