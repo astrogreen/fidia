@@ -23,12 +23,16 @@ import data_browser.renderers
 
 
 class SchemaViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/main.html'
 
     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    breadcrumb_name = None
+
 
     def list(self, request, pk=None, sample_pk=None, format=None):
+
         # Get FIDIA list of available samples (surveys).
 
         # try:
@@ -37,17 +41,21 @@ class SchemaViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         #     return Response(status=status.HTTP_404_NOT_FOUND)
         # except ValueError:
         #     return Response(status=status.HTTP_400_BAD_REQUEST)
-
         return Response({"samples": ['sami', 'gama']})
 
 
 class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/sample.html'
 
     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, format=None):
+
+        SampleViewSet.breadcrumb_list.extend([sample_pk.upper()])
+
         # Get FIDIA list of available samples (surveys).
 
         # try:
@@ -66,8 +74,12 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         template = 'schema/astroobject.html'
 
     renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
+
+        AstroObjectViewSet.breadcrumb_list.extend([sample_pk.upper(), astroobject_pk])
+
         # Get FIDIA list of available samples (surveys).
 
         # try:
@@ -86,8 +98,12 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         template = 'schema/trait.html'
 
     renderer_classes = (TraitRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
+
+        TraitViewSet.breadcrumb_list.extend([sample_pk.upper(), astroobject_pk, trait_pk])
+
         return Response({"sample": sample_pk, "astroobject": astroobject_pk, "trait": trait_pk,
                          "traitproperties_subtraits": "traitproperties and subtraits from fidia"})
 
@@ -98,8 +114,12 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         template = 'schema/subtraitproperty.html'
 
     renderer_classes = (SubTraitPropertyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+
+        SubTraitPropertyViewSet.breadcrumb_list.extend([sample_pk.upper(), astroobject_pk, trait_pk, dynamic_pk.replace('/', ": ")])
+
 
         return Response({"sample": sample_pk, "astroobject": astroobject_pk, "trait": trait_pk,
                          "dynamic_pk": dynamic_pk})
