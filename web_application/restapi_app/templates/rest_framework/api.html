@@ -68,6 +68,7 @@
     <div class="container" id="page-content">
       {% block content_and_status %}
         {% with "200" as http_status_code %}
+
           {% if response.status_code %}
             {% captureas http_status_code %}{{response.status_code}}{% endcaptureas %}
           {% elif response.status %}
@@ -80,6 +81,8 @@
             {% captureas http_status_detail %}{{response.detail}}{% endcaptureas %}
           {% elif response.data.non_field_errors %}
             {% captureas http_status_detail %}{{response.data.non_field_errors}}{% endcaptureas %}
+          {% elif response.data %}
+            {% captureas http_status_detail %}{{response.data}}{% endcaptureas %}
           {% endif %}
 
           {% block http_status %}

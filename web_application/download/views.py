@@ -23,12 +23,13 @@ import download.models
 # download history
 
 
-class DownloadView(viewsets.ModelViewSet):
+class DownloadCreateView(generics.CreateAPIView):
     """
     Download Viewset. Create new download request, view download history, re-issue a download on a particular retrieve.
     """
-    serializer_class = download.serializers.DownloadSerializer
+    serializer_class = download.serializers.DownloadCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    breadcrumb_list = []
 
     def get_queryset(self):
         """
@@ -40,6 +41,48 @@ class DownloadView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+    def get(self, request, format=None):
+        """
+        Return the blank form for a POST request
+        """
+        DownloadCreateView.breadcrumb_list.extend(['Download'])
+        return Response()
+
+
+class DownloadListView(generics.ListAPIView):
+    """
+    Download History List
+    """
+    serializer_class = download.serializers.DownloadSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    breadcrumb_list = ['Download History']
+
+    class DownloadListRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'download/download-list.html'
+
+    renderer_classes = (DownloadListRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get_queryset(self):
+        """
+        Download queryset filtered by current user
+        """
+        user = self.request.user
+        return download.models.Download.objects.filter(owner=user).order_by('-updated')
+
+
+class DownloadRetrieveDestroyView(generics.RetrieveDestroyAPIView):
+    """
+    Retrieve or destroy a particular Download object
+    """
+    serializer_class = download.serializers.DownloadSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Download queryset filtered by current user
+        """
+        user = self.request.user
+        return download.models.Download.objects.filter(owner=user).order_by('-updated')
 
 # class DownloadItem(object):
 #     def __init__(self, id=None, url_list=None, **kwargs):

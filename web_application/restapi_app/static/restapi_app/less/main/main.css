@@ -25,6 +25,7 @@ html {
 body {
   /* Margin bottom by footer height */
   background-color: #ffffff;
+  color: #404040;
   font-family: 'Roboto', sans-serif;
 }
 body .panel-heading,
@@ -97,7 +98,8 @@ h6,
   color: #232829;
   line-height: 1.2;
 }
-p {
+p,
+.popover-anchor {
   color: #404040;
 }
 strong {
@@ -660,6 +662,14 @@ pre {
 }
 #filtersModal .modal-body h2 {
   margin-top: 0;
+}
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ POPOVERS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+.popover {
+  border-radius: 0;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

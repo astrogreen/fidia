@@ -36,6 +36,12 @@ def optional_logout(request, user):
         querylist_url = reverse('query-list')
     except NoReverseMatch:
         return ''
+
+    try:
+        downloadlist_url = reverse('download-list')
+    except NoReverseMatch:
+        return ''
+
     try:
         user = request.user
         profile = reverse('user-profile-detail', kwargs={'username': user})
@@ -50,10 +56,11 @@ def optional_logout(request, user):
         <ul class="dropdown-menu">
             <li><a href="{profile}">Profile</a></li>
             <li><a href="{requests}">Query History</a></li>
+            <li><a href="{download}">Download History</a></li>
             <li><a href='{logout_url}'>Sign out </a></li>
         </ul>
     </li>"""
-    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, )
+    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, download=downloadlist_url )
 
     return mark_safe(snippet)
 
