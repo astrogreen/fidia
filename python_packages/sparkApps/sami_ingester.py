@@ -219,8 +219,10 @@ def get_property_data(schema, trait_data):
         else:
             if key not in trait_data['trait_property_data']:
                 data.append(None)
-                continue
-            data.append(trait_data['trait_property_data'][key])
+            elif key is '_wcs_string':
+                data.append('dummy_wcs_string')
+            else:
+                data.append(trait_data['trait_property_data'][key])
     return data
 
 def get_spark_type(type):
