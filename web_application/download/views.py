@@ -13,61 +13,87 @@ import restapi_app.renderers
 import restapi_app.permissions
 
 import download.serializers
+import download.models
 
 
-class DownloadItem(object):
-    def __init__(self, id=None, url_list=None, **kwargs):
-        self.id = id
-        self.url_list = self.get_url_list(url_list)
-        self.ao = self.get_ao(url_list)
-        # for field in ('id', 'url', 'ao', 'format'):
-        #     setattr(self, field, kwargs.get(field, None))
-
-    def get_ao(self, url_list):
-        j = url_list[0]
-        return j.split('/asvo/sami/')[1].split('/')[0]
-
-    def get_url_list(self, url_list):
-        url_dict = {}
-        for url in url_list:
-            url_dict[url] = self.get_format(url)
-        return url_dict
-        # return json.loads('{"urllist": {"url": "format"}}')
-
-    def get_format(self, url):
-        """ Priority: format taken from url string then attempt to sniff best format to return """
-        if len(url.split('?format=')) > 1:
-            return url.split('?format=')[1]
-        else:
-            # TODO have to do some sniffing here to find available formats and send most appropriate
-            return 'fits'
+# Implement a list/retrieve?
+# saves previous downloaded list (json only). post to view implements the download.
+# get - single retrieve or list of previous downloads. Yup good stuff. data is json and reconstructed in the view.
+# create == cart
+# download history
 
 
-download_dict = {
-    1: DownloadItem(id=1, url_list=['/asvo/sami/1234/trait/traitprop?format=json', '/asvo/sami/1234/trait/?format=csv']),
-    # 2: CartItem(id=2, url='/asvo/sami/4678/trait?format=csv', ao='xordoquy', format='test'),
-    # 3: CartItem(id=3, url='/asvo/sami/1234/trait/subtrait/traitproperty', ao='xordoquy', format='test'),
-    # 4: CartItem(id=4, url='/asvo/sami/645123/trait/subtrait/traitproperty', ao='xordoquy', format='test'),
-}
-
-
-class DownloadView(generics.ListCreateAPIView):
+class DownloadView(viewsets.ModelViewSet):
     """
-    Shopping cart is available to the api - browsable and json.
+    Download Viewset. Create new download request, view download history, re-issue a download on a particular retrieve.
     """
-    serializer_class = cart.serializers.CartSerializer
-    queryset = cart_dict
+    serializer_class = download.serializers.DownloadSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        serializer = cart.serializers.CartSerializer(
-            instance=cart_dict.values(), many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        """
+        Download queryset filtered by current user
+        """
+        user = self.request.user
+        return download.models.Download.objects.filter(owner=user).order_by('-updated')
 
-    def post(self, request, *args, **kwargs):
-        """ Handle data download from cart dict: take json list, return  """
-        return 'data'
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
+
+# class DownloadItem(object):
+#     def __init__(self, id=None, url_list=None, **kwargs):
+#         self.id = id
+#         self.url_list = self.get_url_list(url_list)
+#         self.ao = self.get_ao(url_list)
+#         # for field in ('id', 'url', 'ao', 'format'):
+#         #     setattr(self, field, kwargs.get(field, None))
 #
+#     def get_ao(self, url_list):
+#         j = url_list[0]
+#         return j.split('/asvo/sami/')[1].split('/')[0]
+#
+#     def get_url_list(self, url_list):
+#         url_dict = {}
+#         for url in url_list:
+#             url_dict[url] = self.get_format(url)
+#         return url_dict
+#         # return json.loads('{"urllist": {"url": "format"}}')
+#
+#     def get_format(self, url):
+#         """ Priority: format taken from url string then attempt to sniff best format to return """
+#         if len(url.split('?format=')) > 1:
+#             return url.split('?format=')[1]
+#         else:
+#             # TODO have to do some sniffing here to find available formats and send most appropriate
+#             return 'fits'
+#
+#
+# download_dict = {
+#     1: DownloadItem(id=1, url_list=['/asvo/sami/1234/trait/traitprop?format=json', '/asvo/sami/1234/trait/?format=csv']),
+#     # 2: CartItem(id=2, url='/asvo/sami/4678/trait?format=csv', ao='xordoquy', format='test'),
+#     # 3: CartItem(id=3, url='/asvo/sami/1234/trait/subtrait/traitproperty', ao='xordoquy', format='test'),
+#     # 4: CartItem(id=4, url='/asvo/sami/645123/trait/subtrait/traitproperty', ao='xordoquy', format='test'),
+# }
+
+
+# class DownloadView(generics.ListCreateAPIView):
+#     """
+#     Shopping cart is available to the api - browsable and json.
+#     """
+#     serializer_class = cart.serializers.CartSerializer
+#     queryset = cart_dict
+#
+#     def get(self, request, *args, **kwargs):
+#         serializer = cart.serializers.CartSerializer(
+#             instance=cart_dict.values(), many=True)
+#         return Response(serializer.data)
+#
+#     def post(self, request, *args, **kwargs):
+#         """ Handle data download from cart dict: take json list, return  """
+#         return 'data'
+#
+# #
 # class CartView(views.APIView):
 #     """
 #     Download data from shopping cart. Uses session storage to persist list.

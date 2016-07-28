@@ -4,10 +4,11 @@ from django.conf.urls.static import static
 import rest_framework.routers
 
 import restapi_app.views
-# import download.views
+import download.views
 
 router = rest_framework.routers.SimpleRouter()
 
+router.register(r'download-history', download.views.DownloadView, base_name='download')
 
 urlpatterns = [
     url(r'', include(router.urls)),
@@ -18,6 +19,7 @@ urlpatterns = [
     url(r'download/dummy-item/$',
         restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='download/dummy_item.html'),
         name='dummy-item'),
+
 ]
 
 
