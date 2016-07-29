@@ -98,9 +98,11 @@ h6,
   color: #232829;
   line-height: 1.2;
 }
-p,
-.popover-anchor {
+p {
   color: #404040;
+}
+.popover-anchor {
+  color: #9CA8AC;
 }
 strong {
   color: inherit;
@@ -538,6 +540,9 @@ li {
 }
 .panel .panel-heading a {
   color: #333;
+}
+.panel .panel-icon {
+  margin-top: 3px;
 }
 .panel-default > .panel-heading {
   background-color: #FAFAFA;

@@ -1,0 +1,130 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Download History{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
+{% endblock %}
+
+{% block breadcrumbss %}
+<li class="active"><a href="{% url 'index' %}">Home</a></li>
+<li>Download {{objname}}</li>
+<li>Download {{objname}}</li>
+{% endblock %}
+
+{% block page_title %}Download {{objname}}{% endblock %}
+{% block useful_links %}
+{% endblock useful_links %}
+
+{% block content_renders %}
+
+<div class="row">
+    <div class="col-sm-8">
+        <div class="panel panel-default panel-download">
+            <div class="panel-heading text-uppercase">
+                <strong> Download </strong>
+                <i class="fa fa-download pull-right" style="margin-top:3px"></i>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsisve">
+                    <table class="table table-condensed">
+                        <colgroup>
+                            <col span="1" style="width: 20%;">
+                            <col span="1" style="width: 30%;">
+                            <col span="1" style="width: 20%;">
+                            <col span="1" style="width: 10%;">
+                            <col span="1" style="width: 20%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Download Request</th>
+                            <th>Download Link
+                                <a href="#" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                                    data-content="<p>There are three stages of download:</p><dl><dt class='text-warning'>In Progress</dt><dd>Your Download is underway.</dd><dt class='text-info'>Ready to Download</dt><dd>Your Download is ready, please download it within 7 days.</dd><dt class='text-error'>Expired</dt><dd>Your Download has expired and has been removed from our servers.</dd></dl>"
+                                    data-placement="top"><i class="fa fa-question-circle"></i></a></th>
+                            <th>Size <a href="#" data-toggle="popover" class="popover-anchor" data-trigger="focus"
+                                        data-content="Size on disk in MB" data-placement="top"><i
+                                    class="fa fa-question-circle"></i></a></th>
+                            <th>Date <a href="#" data-toggle="popover" class="popover-anchor" data-trigger="focus"
+                                        data-content="Most recent downloads are shown first." data-placement="top"><i
+                                    class="fa fa-question-circle"></i></a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for obj in response.data.results %}
+                        <tr>
+                            <td><a href="{{obj.url}}">{{obj.title}}</a></td>
+                            <td>{{obj.downloaditems}}</td>
+                            <td class="{% if 'progress' in obj.downloadlink %}text-info{% elif 'expired' in obj.downloadlink %}text-error{% else %}{% endif %}">
+                                <em>{{obj.downloadlink}}</em>
+                            </td>
+                            <td>{{obj.size}}</td>
+                            <td>{{obj.created}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% block content-download %}
+                    {% if 'GET' in allowed_methods %}
+                        <form id="download-list" class="custom-inline">
+                            {% if api_settings.URL_FORMAT_OVERRIDE %}
+                            <span class="button-dropdown text-right pull-right" data-buttons="dropdown">
+                                <button class="button button-small text-uppercase">
+                                   Download History <i class="fa fa-caret-down"></i>
+                                </button>
+
+                                <ul class="button-dropdown-list button-dropdown-list-small">
+                                  {% for format in available_formats %}
+                                    {% if format != "api" %}
+                                        <li>
+                                            <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                               rel="nofollow" target="_blank"  title="Download your Download History with the format set to `{{ format }}`">{{ format }}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                              </span>
+                            {% else %}
+                                <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
+                                   title="Download {{user}}'s Download History">PERMANENT LINK</a>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        </div>
+
+
+    </div>
+    <div class="col-sm-4">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <strong class="text-uppercase">Summary</strong>
+            </div>
+
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Total</strong></li>
+                <li class="list-group-item list-group-sub-item">Downloads <span
+                        class="badge">{{response.data.count}}</span>
+                </li>
+                <li class="list-group-item list-group-sub-item">Size
+                    <span class="badge">0</span>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover();
+});
+</script>
+{% endblock %}

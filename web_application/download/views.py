@@ -60,6 +60,11 @@ class DownloadListView(generics.ListAPIView):
     class DownloadListRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'download/download-list.html'
 
+        def get_context(self, data, accepted_media_type, renderer_context):
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['total_count'] = 22
+            return context
+
     renderer_classes = (DownloadListRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get_queryset(self):
@@ -76,6 +81,12 @@ class DownloadRetrieveDestroyView(generics.RetrieveDestroyAPIView):
     """
     serializer_class = download.serializers.DownloadSerializer
     permission_classes = [permissions.IsAuthenticated]
+    breadcrumb_list = ['Download History', 'Download ']
+
+    class DownloadRetrieveDestroyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'download/download-retrieve.html'
+
+    renderer_classes = (DownloadRetrieveDestroyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get_queryset(self):
         """
@@ -83,6 +94,7 @@ class DownloadRetrieveDestroyView(generics.RetrieveDestroyAPIView):
         """
         user = self.request.user
         return download.models.Download.objects.filter(owner=user).order_by('-updated')
+
 
 # class DownloadItem(object):
 #     def __init__(self, id=None, url_list=None, **kwargs):

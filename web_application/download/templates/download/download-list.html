@@ -25,11 +25,11 @@
         <div class="panel panel-default panel-download">
             <div class="panel-heading text-uppercase">
                 <strong> Download </strong>
-                <i class="fa fa-download pull-right" style="margin-top:3px"></i>
+                <i class="fa fa-download pull-right panel-icon"></i>
             </div>
             <div class="panel-body">
                 <div class="table-responsisve">
-                    <table class="table table-condensed">
+                    <table class="table table-hover">
                         <colgroup>
                             <col span="1" style="width: 20%;">
                             <col span="1" style="width: 30%;">
@@ -43,14 +43,14 @@
                             <th>Download Request</th>
                             <th>Download Link
                                 <a href="#" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                                    data-content="<p>There are three stages of download:</p><dl><dt class='text-warning'>In Progress</dt><dd>Your Download is underway.</dd><dt class='text-info'>Ready to Download</dt><dd>Your Download is ready, please download it within 7 days.</dd><dt class='text-error'>Expired</dt><dd>Your Download has expired and has been removed from our servers.</dd></dl>"
-                                    data-placement="top"><i class="fa fa-question-circle"></i></a></th>
+                                    data-content="<p>There are three stages of download:</p><dl><dt class='text-warning'>In Progress</dt><dd>Your Download is underway.</dd><dt class='text-success'>Ready to Download</dt><dd>Your Download is ready, please download it within 7 days.</dd><dt class='text-error'>Expired</dt><dd>Your Download has expired and has been removed from our servers.</dd></dl>"
+                                    data-placement="top"><i class="fa fa-info-circle"></i></a></th>
                             <th>Size <a href="#" data-toggle="popover" class="popover-anchor" data-trigger="focus"
                                         data-content="Size on disk in MB" data-placement="top"><i
-                                    class="fa fa-question-circle"></i></a></th>
+                                    class="fa fa-info-circle"></i></a></th>
                             <th>Date <a href="#" data-toggle="popover" class="popover-anchor" data-trigger="focus"
                                         data-content="Most recent downloads are shown first." data-placement="top"><i
-                                    class="fa fa-question-circle"></i></a></th>
+                                    class="fa fa-info-circle"></i></a></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -58,7 +58,7 @@
                         <tr>
                             <td><a href="{{obj.url}}">{{obj.title}}</a></td>
                             <td>{{obj.downloaditems}}</td>
-                            <td class="{% if 'progress' in obj.downloadlink %}text-info{% elif 'expired' in obj.downloadlink %}text-error{% else %}{% endif %}">
+                            <td class="{% if 'progress' in obj.downloadlink %}text-success{% elif 'expired' in obj.downloadlink %}text-error{% else %}{% endif %}">
                                 <em>{{obj.downloadlink}}</em>
                             </td>
                             <td>{{obj.size}}</td>
@@ -101,31 +101,128 @@
 
     </div>
     <div class="col-sm-4">
-        <div class="panel panel-default">
+        <div class="panel panel-default panel-statistics">
             <div class="panel-body">
                 <strong class="text-uppercase">Summary</strong>
+                <i class="fa fa-pie-chart pull-right panel-icon"></i>
             </div>
 
             <!-- List group -->
             <ul class="list-group">
+                <li class="list-group-item text-right">
+                    <div id="statistics"><!-- Plotly chart will be drawn inside this DIV --></div>
+
+                    <i class="fa fa-square text-warning"></i> Query
+                    <i class="fa fa-square text-error"></i> Downloads
+                    <i class="fa fa-square text-success"></i> Free
+
+                </li>
                 <li class="list-group-item"><strong>Total</strong></li>
                 <li class="list-group-item list-group-sub-item">Downloads <span
                         class="badge">{{response.data.count}}</span>
                 </li>
-                <li class="list-group-item"><strong>Per Object</strong></li>
-                <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.byObject">{{obj.ao}}
-                    <span class="badge">{{obj.count}}</span></li>
-                <li class="list-group-item"><strong>Per Survey</strong></li>
-                <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.bySample">{{obj.sample}}
-                    <span class="badge">{{obj.count}}</span></li>
+                <li class="list-group-item list-group-sub-item">Disk Usage
+                    <span class="badge">20MB</span>
+                </li>
+
             </ul>
         </div>
     </div>
 </div>
-
+<script src="{% static 'restapi_app/js/plotly/plotly.latest.min.js' %}"></script>
 <script>
 $(document).ready(function(){
     $('[data-toggle="popover"]').popover();
 });
+var trace1 = {
+    x: [30],
+    y: [1],
+    name: 'query',
+    orientation: 'h',
+    marker: {
+        color: '#f1cb76',
+        width: 1
+    },
+    type: 'bar',
+    hoverinfo: 'none',
+};
+
+var trace2 = {
+    x: [10],
+    y: [1],
+    name: 'downloads',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+        color: '#a94442',
+        width: 1
+    }, hoverinfo: 'none',
+};
+var trace3 = {
+    x: [60],
+    y: [1],
+    name: 'free',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+        color: '#5aa8d8',
+        width: 1
+    }, hoverinfo: 'none',
+};
+var data = [trace1, trace2, trace3];
+
+var annotationContent = [];
+var x_pos = 0;
+for (var i = 0; i < data.length; i++) {
+    x_pos += data[i]['x'][0];
+    var result = {
+        x: x_pos-data[i]['x'][0]/2,
+        y: 1,
+        text: data[i]['x'][0]+'%',
+        xanchor: 'center',
+        yanchor: 'center',
+        showarrow: false
+    };
+    annotationContent.push(result);
+}
+console.log(annotationContent)
+var layout = {
+    annotations: annotationContent,
+    margin: {
+        l: 0,
+        r: 0,
+        b: 0,
+        t: 0,
+        pad: 0
+    },
+    xaxis: {
+        autorange: false,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
+        autotick: true,
+        ticks: '',
+        fixedrange: true,
+        showticklabels: false,
+        range: [0,100],
+
+    },
+    yaxis: {
+        autorange: true,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
+        autotick: true,
+        ticks: '',
+        showticklabels: false,
+        fixedrange: true
+    },
+    height: 30,
+    width: document.getElementById('statistics').offsetWidth,
+    barmode: 'stack',
+    showlegend: false
+};
+
+Plotly.newPlot('statistics', data, layout, {displayModeBar: false});
 </script>
 {% endblock %}
