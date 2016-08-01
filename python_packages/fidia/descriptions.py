@@ -165,7 +165,7 @@ class TraitDescriptionsMixin(DescriptionsMixin):
             name = name.title()
 
         if self.trait_qualifier is not None:
-            if hasattr(self, '_pretty_name_qualifiers'):
+            if hasattr(self, '_pretty_name_qualifiers') and self.trait_qualifier in self._pretty_name_qualifiers:
                 name += " — " + self._pretty_name_qualifiers[self.trait_qualifier]
             else:
                 name += " — " + self.trait_qualifier

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.http import HttpResponse
 
-from asvo.fidia_samples_archives import sami_dr1_sample
+from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
