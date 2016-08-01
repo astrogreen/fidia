@@ -4,7 +4,7 @@ from ..utilities import SchemaDictionary, DefaultsRegistry, Inherit
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 class TraitRegistry:

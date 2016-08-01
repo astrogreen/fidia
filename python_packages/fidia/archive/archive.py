@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from .. import slogging
 log = slogging.getLogger(__name__)
 # log.setLevel(slogging.DEBUG)
-log.enable_console_logging()
+# log.enable_console_logging()
+log.setLevel(slogging.WARNING)
 
 from collections import OrderedDict
 

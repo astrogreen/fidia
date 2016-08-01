@@ -642,6 +642,7 @@ class LZIFUOneComponentLineMap(Image):
         'SII6731': 'SII6731'
     }
 
+    qualifier_required = True
     qualifiers = line_name_map.keys()
 
     def init(self):
@@ -701,6 +702,16 @@ class LZIFUOneComponentLineMap(Image):
 
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUWCS)
+LZIFUOneComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (33726A)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007A)',
+    OI6300='[OI] (6300A)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583)',
+    SII6716='[SII] (6716)',
+    SII6731='[SII] (6731)')
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
@@ -724,6 +735,10 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
                 self._lzifu_fits_file += ".gz"
             else:
                 raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+
+    qualifier_required = True
+    qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
+
 
     def preload(self):
         lzifu_fits_file = (self.archive._base_directory_path +
@@ -790,6 +805,16 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUWCS)
+LZIFURecommendedMultiComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (3726Å)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007Å)',
+    OI6300='[OI] (6300Å)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583Å)',
+    SII6716='[SII] (6716Å)',
+    SII6731='[SII] (6731Å)')
 
 class LZIFUContinuum(SpectralMap):
 
@@ -959,14 +984,14 @@ class SFRMap(Image, TraitFromFitsFile):
     trait_type = 'sfr_map'
 
     branches_versions = {
-        "1_comp": {'v01'},
-        "recom_comp": {'v01'}
+        "1_comp": {'V02'},
+        "recom_comp": {'V02'}
     }
 
     defaults = DefaultsRegistry(
         default_branch='recom_comp',
-        version_defaults={"1_comp": 'v01',
-                          "recom_comp": 'v01'}
+        version_defaults={"1_comp": 'V02',
+                          "recom_comp": 'V02'}
     )
 
     def fits_file_path(self):
@@ -980,7 +1005,7 @@ class SFRMap(Image, TraitFromFitsFile):
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
-SFRMap.set_pretty_name("Star Formation Rate")
+SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
 # class SFRClass(ClassificationMap):
@@ -1102,12 +1127,15 @@ class SAMIDR1PublicArchive(Archive):
                 print(info['sami_id'], info['color'] + '_cube_file')
                 try:
                     catalog_cube_file = self.cube_file_index.loc[info['sami_id'], info['color'] + '_cube_file']
-                    assert info['filename'] == catalog_cube_file
                 except:
                     log.debug("Cube file '%s' rejected because it is not in the master cat.", info['filename'])
                 else:
-                    cube_directory.append(info)
-
+                    if info['filename'] == catalog_cube_file:
+                        cube_directory.append(info)
+                    elif info['filename'] + ".gz" == catalog_cube_file:
+                        cube_directory.append(info)
+                    else:
+                        log.debug("Cube file '%s' rejected because it is not in the master cat.", info['filename'])
 
             if len(cube_directory) == 0:
                 raise ArchiveValidationError("No valid cube file for SAMI Archive.")
@@ -1283,3 +1311,57 @@ class SAMITeamArchive(Archive):
                 log.debug("   Key: %s", key)
 
         return self.available_traits
+
+
+
+
+
+
+
+SAMISpectralCube.set_pretty_name("Spectral Map")
+SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy")
+
+# SAMISpectralCube.value.set_description
+# SAMISpectralCube.variance.set_description
+# SAMISpectralCube.covariance.set_description
+# SAMISpectralCube.weight.set_description
+# SAMISpectralCube.total_exposure.set_description
+# SAMISpectralCube.cubing_code_version.set_description
+# SAMISpectralCube.plate_id.set_description
+# SAMISpectralCube.plate_label.set_description
+
+# SAMISpectralCube.CatCoordinate.set_pretty_name()
+SAMISpectralCube.CatCoordinate.set_description("Catalog coordinate of the target centre of the SAMI fibre bundle.")
+
+SAMISpectralCube.AAT.altitude.set_description("Altitude of observatory in metres")
+SAMISpectralCube.AAT.latitude.set_description("Observatory latitude in degrees")
+SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees)")
+
+
+
+
+LZIFUOneComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (33726A)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007A)',
+    OI6300='[OI] (6300A)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583)',
+    SII6716='[SII] (6716)',
+    SII6731='[SII] (6731)')
+
+LZIFURecommendedMultiComponentLineMap.set_pretty_name(
+    "Line Map",
+    OII3726="[OII] (3726Å)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007Å)',
+    OI6300='[OI] (6300Å)',
+    HALPHA='Hα',
+    NII6583='[NII] (6583Å)',
+    SII6716='[SII] (6716Å)',
+    SII6731='[SII] (6731Å)')
+
+BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
+SFRMap.set_pretty_name("Star Formation Rate Map")
+
