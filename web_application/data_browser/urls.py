@@ -15,15 +15,17 @@ router = rest_framework.routers.SimpleRouter()
 # router = ExtendDefaultRouter()
 
 router.register(r'gama', data_browser.views.GAMAViewSet, base_name='gama')
-router.register(r'sami', data_browser.views.SAMIViewSet, base_name='sami')
 
-# router.register(r'testing/(?P<dynamic_pk>.+)', data_browser.views.TestingViewSet, base_name='testing')
+router.register(r'data-browser', data_browser.views.DataBrowserViewSet, base_name='data-browser')
 
 # Nested routes for sample (SAMI)
-object_nested_router = NestedExtendDefaultRouter(router, r'sami', lookup='sami')
-object_nested_router.register(r'(?P<galaxy_pk>[^/]+)', data_browser.views.AstroObjectViewSet, base_name='galaxy')
+sample_nested_router = NestedExtendDefaultRouter(router, r'data-browser', lookup='data-browser')
+sample_nested_router.register(r'(?P<sample_pk>[^/]+)', data_browser.views.SAMIViewSet, base_name='sample')
 
-trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<galaxy_pk>[^/]+)', lookup='galaxy')
+object_nested_router = NestedExtendDefaultRouter(sample_nested_router, r'(?P<sample_pk>[^/]+)', lookup='sample')
+object_nested_router.register(r'(?P<astroobject_pk>[^/]+)', data_browser.views.AstroObjectViewSet, base_name='astroobject')
+
+trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<astroobject_pk>[^/]+)', lookup='astroobject')
 trait_nested_router.register(r'(?P<trait_pk>[^/]+)', data_browser.views.TraitViewSet, base_name='trait')
 # trait_nested_router.register(r'(?P<trait_pk>' + TRAIT_KEY_RE.pattern + ')', data_browser.views.TraitViewSet, base_name='trait')
 
@@ -36,12 +38,11 @@ sub_traitprop_nested_router.register(r'(?P<dynamic_pk>.+)', data_browser.views.S
 
 urlpatterns = [
     url(r'^(?i)', include(router.urls)),
+    url(r'^(?i)', include(sample_nested_router.urls)),
     url(r'^(?i)', include(object_nested_router.urls)),
     url(r'^(?i)', include(trait_nested_router.urls)),
     # url(r'^(?i)', include(traitprop_nested_router.urls)),
     url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
-    url(r'^(?i)checkout/', data_browser.views.Checkout.as_view(), name='checkout'),
-    url(r'^sandbox/$', TemplateView.as_view(template_name='data_browser/sandbox/sandbox.html'), name='sandbox'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

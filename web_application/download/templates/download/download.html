@@ -29,38 +29,44 @@
                     <strong> Download </strong>
                     <i class="fa fa-download pull-right" style="margin-top:3px"></i>
                 </div>
-                <div class="panel-body warning" ng-if="ctrl3.items | isEmpty">
-                    <strong class="text-uppercase">Download Empty</strong>
-                    <p>Visit the <a type="button" class="" href="{% url 'sami-list' %}">Data Browser</a> or make a <a
-                            type="button" class="" href="{% url 'query-list' %}">Query</a> to add data!
-                    </p>
-                </div>
-                <table class="table" ng-if="ctrl3.items | isNotEmpty">
-                    <thead>
-                        <tr>
-                            <th>Sample</th>
-                            <th>AstroObject</th>
-                            <th>Download</th>
-                            <th>Format</th>
-                            <th>Remove</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="item in ctrl3.items track by $index">
-                            <td>{{item.prettify.sample}}</td>
-                            <td>{{item.prettify.ao}}</td>
-                            <td>
+                <div class="panel-body">
+                    <div ng-if="ctrl3.items | isEmpty">
+                        <strong class="text-uppercase">Download Empty</strong>
+                        <p>Visit the <a type="button" class="" href="{% url 'sami-list' %}">Data Browser</a> or make a
+                            <a type="button" class="" href="{% url 'query-list' %}">Query</a> to add data!
+                        </p>
+                    </div>
+                    <div class="table-responsive" ng-if="ctrl3.items | isNotEmpty">
+                        <table class="table table-hover" ng-if="ctrl3.items | isNotEmpty">
+                            <thead>
+                            <tr>
+                                <th>Sample</th>
+                                <th>AstroObject</th>
+                                <th>Download</th>
+                                <th>Format</th>
+                                <th>Remove</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in ctrl3.items track by $index">
+                                <td>{{item.prettify.sample}}</td>
+                                <td>{{item.prettify.ao}}</td>
+                                <td>
                                 <span ng-repeat="t in item.prettify.else">
                                     <span ng-if="!$last">{{t}} /</span>
                                     <a ng-if="$last" ng-href="{{item.prettify.url}}">{{t}}</a>
                                 </span>
-                            </td>
-                            <td>{{item.prettify.format}}</td>
-                            <td><a role="button" class="text-normal"><i
-                                class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(item.id)"></i></a></td>
-                        </tr>
-                    </tbody>
-                </table>
+                                </td>
+                                <td>{{item.prettify.format}}</td>
+                                <td><a role="button" class="text-normal"><i
+                                        class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(item.id)"></i></a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div>
                 <!--<ul class="list-group" >-->
                     <!--<span ng-repeat="item in ctrl3.items track by $index">-->
@@ -198,7 +204,7 @@
         <div class="col-sm-4">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <strong class="text-uppercase">Summary</strong>
+                    <strong class="text-uppercase">Download Summary</strong>
                 </div>
 
                 <!-- List group -->

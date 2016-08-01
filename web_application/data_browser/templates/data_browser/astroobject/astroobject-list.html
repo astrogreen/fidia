@@ -9,18 +9,14 @@
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" href="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
 {% endblock %}
-{% block bodyclass %}{% endblock %}
-{% block breadcrumbclass %}{% endblock %}
-
-
 
 {% block page_title %}{{objname}}{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'sov-list' %}">View in SOV</a></li>
+<!--<li role="presentation" ><a href="{% url 'sov-list' %}">View in SOV</a></li>-->
 <li role="presentation" ><a href="{% url 'sami-list' %}">Back to Sami</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
+{% block content_renders %}
 {% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12">

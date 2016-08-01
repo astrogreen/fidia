@@ -153,4 +153,19 @@ console.log('directives.js');
         }
     });
 
-})(window.angular)
+    // DownloadDirective
+    app.directive('sampleDownload', function(DownloadService){
+        return{
+            // Create in an isolated scope
+            scope:{
+            },
+            restrict: 'AE',
+            replace: true,
+            templateUrl: '/static/download/js/templates/sample-download.html',
+            link: function(scope, elem, attr){
+                // Does nothing yet...
+            }
+        };
+    });
+
+})(window.angular);

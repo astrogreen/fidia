@@ -252,11 +252,17 @@
             },
 
             download: function(){
+                // TODO This function should create a valid json and save in user's download history
+                // This will be easier to write once DataBrowser is completed, having a firm idea of the
+                // allowed directives.
+
                 // Create an object that contains the full data list
                 // Format: unique url, options
                 // /data/sami/gal1/redshift/value/
+            },
 
-            }
+
+
 
         }
     })
