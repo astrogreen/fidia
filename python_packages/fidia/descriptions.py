@@ -1,7 +1,10 @@
 import textwrap
 import re
+from inspect import isclass
 
 import pypandoc
+
+from .utilities import classorinstancemethod
 
 from . import slogging
 log = slogging.getLogger(__name__)
@@ -9,6 +12,19 @@ log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 DEFAULT_FORMAT = 'markdown'
+
+def prettify(string):
+    # type: (str) -> str
+    """Reformat a string to be more human readable."""
+
+    # @TODO: Add support for CamelCase.
+
+    # Change underscores to spaces
+    result = string.replace("_", " ")
+    # Make the first letters of each word capital.
+    result = result.title()
+
+    return result
 
 def parse_short_description_from_doc_string(doc_string):
     """Get a short description from the first line of a doc-string."""
@@ -96,19 +112,8 @@ class DescriptionsMixin:
         if hasattr(cls, '_pretty_name'):
             return getattr(cls, '_pretty_name')
 
-        if hasattr(cls, 'trait_type'):
-            # This is a trait, and we can convert the trait_name to a nicely formatted name
-            name = getattr(cls, 'trait_type')
-            # assert isinstance(name, str)
-            # Change underscores to spaces
-            name = name.replace("_", " ")
-            # Make the first letters of each word capital.
-            name = name.title()
-
-            # Append the qualifier:
-            # @TODO: write this bit.
-            return name
-
+        # No name explicitly provided, so we do our best with the class name.
+        return prettify(cls.__name__)
 
     @classmethod
     def set_pretty_name(cls, value):
@@ -144,8 +149,48 @@ class TraitDescriptionsMixin(DescriptionsMixin):
 
      This mixin is only valid for Trait classes.
 
+     IMPLEMENTATION NOTES:
+
+        The functions of this mixin are designed to work on either a class or an
+        instance and behave sensibly in either case. Therefore this class uses
+        the non-built-in `classsorisntancemethod`, and then within each method
+        decides if it has been handed a class or an instance.
+
      """
-    def get_pretty_name(self):
+
+    @classorinstancemethod
+    def get_qualifier_pretty_name(self, qualifier=None):
+        """Return the pretty name for this Trait, building it from the Trait type and qualifier if necessary."""
+
+        # This function is designed to work on either a class or an instance.
+        #
+        # To reduce duplication of code, all of the work is implemented for the case
+        # that it has been called as a class method. If it is called as an
+        # instance method, then it simply calls the class method with the appropriate arguments.
+
+        if isclass(self) and qualifier is None:
+            raise ValueError("Must provide qualifier for which to return pretty name")
+
+        elif isclass(self) and qualifier not in self.qualifiers:
+            raise ValueError("Qualifier provided is not valid for Trait class '%s'" % str(self))
+
+        elif isclass(self):
+            # This is a class and we've been given a valid qualifier to provide the pretty name for
+            if hasattr(self, '_pretty_name_qualifiers') and qualifier in self._pretty_name_qualifiers:
+                # A pretty name has been explicilty defined
+                return self._pretty_name_qualifiers[self.trait_qualifier]
+            else:
+                # No pretty name defined, so prettify the qualifier
+                return prettify(qualifier)
+
+        else:
+            # This is an instance of a Trait, so we know the qualifier.
+            # Therefore, call this function as a class method and explicitly
+            # provide the trait_qualifier
+            return type(self).get_qualifier_pretty_name(self.trait_qualifier)
+
+    @classorinstancemethod
+    def get_pretty_name(self, qualifier=None):
         """Return a pretty version of the Trait's name, including the qualifier if present.
 
         Note, this overrides a class method which would just return a pretty
@@ -154,23 +199,43 @@ class TraitDescriptionsMixin(DescriptionsMixin):
 
         """
 
-        if hasattr(self, '_pretty_name'):
-            name = getattr(self, '_pretty_name')
-        else:
-            # This is a trait, and we can convert the trait_name to a nicely formatted name
-            name = getattr(self, 'trait_type')
-            # Change underscores to spaces
-            name = name.replace("_", " ")
-            # Make the first letters of each word capital.
-            name = name.title()
+        # This function is designed to work on either a class or an instance.
+        #
+        # To reduce duplication of code, all of the work is implemented for the case
+        # that it has been called as a class method. If it is called as an
+        # instance method, then it simply calls the class method with the appropriate arguments.
 
-        if self.trait_qualifier is not None:
-            if hasattr(self, '_pretty_name_qualifiers') and self.trait_qualifier in self._pretty_name_qualifiers:
-                name += " — " + self._pretty_name_qualifiers[self.trait_qualifier]
+        if isclass(self) and qualifier is None:
+            # No qualifier is present/available
+            if hasattr(self, '_pretty_name'):
+                # Pretty name explicitly defined
+                return getattr(self, '_pretty_name')
             else:
-                name += " — " + self.trait_qualifier
+                # Pretty name not explicitly defined
+                # Because this is a trait, and we can convert the trait_type to a nicely formatted name
+                return prettify(getattr(self, 'trait_type'))
 
-        return name
+        elif isclass(self) and qualifier not in self.qualifiers:
+            # A qualifier has been provided, but isn't known to this class.
+            raise ValueError("Qualifier provided is not valid for Trait class '%s'" % str(self))
+
+        elif isclass(self):
+            # This is a class, and the trait_qualifier has been explicitly provided
+
+            # Get the pretty name for this Trait class without a qualifier:
+            name = self.get_pretty_name(None)
+
+            # Append the pretty name for the qualifier
+            name += " — " + self.get_qualifier_pretty_name(qualifier)
+
+            return name
+
+        else:
+            # This is an instance of a Trait, so we know the qualifier.
+            # Therefore, call this function as a class method and explicitly
+            # provide the trait_qualifier
+            return type(self).get_pretty_name(self.trait_qualifier)
+
 
     @classmethod
     def set_pretty_name(cls, value, **kwargs):
@@ -181,20 +246,3 @@ class TraitDescriptionsMixin(DescriptionsMixin):
         if not hasattr(cls, '_pretty_name_qualifiers'):
             cls._pretty_name_qualifiers = dict()
         cls._pretty_name_qualifiers.update(kwargs)
-
-
-    @classmethod
-    def get_qualifier_pretty_name(self, trait_qualifier):
-        """Return a pretty version of the Trait's qualifier."""
-        if hasattr(self, '_pretty_name_qualifiers') and trait_qualifier in self._pretty_name_qualifiers:
-            return self._pretty_name_qualifiers[trait_qualifier]
-        elif trait_qualifier in self.qualifiers:
-            # We just reformat the qualifier itself.
-            name = trait_qualifier
-            # Change underscores to spaces
-            name = name.replace("_", " ")
-            # Make the first letters of each word capital.
-            name = name.title()
-            return name
-        else:
-            raise Exception("Invalid qualifier '%s' for Trait class '%s'" % (trait_qualifier, str(self)))
