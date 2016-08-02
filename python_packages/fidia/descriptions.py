@@ -13,6 +13,10 @@ log.enable_console_logging()
 
 DEFAULT_FORMAT = 'markdown'
 
+SHORT_NAME_RE = re.compile(
+    r"^[A-Z0-9_-]+$"
+)
+
 def prettify(string):
     # type: (str) -> str
     """Reformat a string to be more human readable."""
@@ -48,7 +52,38 @@ class DescriptionsMixin:
 
     Basically, there are four types of descriptions we must support:
 
-        @TODO: Finish documentation
+    Pretty Name
+
+        A formatted version of the field's name. This can contain spaces,
+        retains case information, and can contain LaTeX Math (AMS) enclosed in $
+        symbols. Note that in many cases, this will already be defined by the
+        parent Trait class, in which case it should not be over-written.
+
+    Short Description
+
+        A brief description of the data, typically no more than 80 characters.
+        This description need not repeat information that should already be
+        obvious from the context (e.g. the name of the Trait or property), but
+        might clarify what it is or it's origin as appropriate. Examples:
+
+        - Spectroscopic redshift from GAMA Survey
+        - Zenith distance at start of exposure
+        - Stellar Pop. Syn. e-folding time for the exponentially declining SFH
+        - Short descriptions support LaTeX Math (AMS) when enclosed in $ symbols.
+
+    Long Description
+
+        An in-depth description of the data. This description can be as detailed
+        and extended as required. Github flavoured markdown is supported in full
+        (and it's use is encouraged to make the description more readable).
+        Additionally, LaTeX Math (AMS) is supported both for inline (when
+        enclosed in single $ symbols), and display mode (when enclosed in double
+        $$ symbols).
+
+    Short Name
+
+        A very short name (typically less than 8 charachters) suitable for use
+        in e.g. FITS headers.
 
     """
 
@@ -140,6 +175,26 @@ class DescriptionsMixin:
     @classmethod
     def set_description(cls, value):
         cls._short_description = value
+
+    @classmethod
+    def get_short_name(cls):
+        if hasattr(cls, '_short_name'):
+            return cls._short_name
+        else:
+            # Use the name of the class as the short name, with munging to uppercase
+            name = cls.__name__
+            # Convert to upper case
+            name = name.upper()
+            return name
+
+    @classmethod
+    def set_short_name(cls, value):
+        if not isinstance(value, str):
+            ValueError("Short name can only be set to a string.")
+        value_upper = value.upper()
+        if SHORT_NAME_RE.match(value_upper) is None:
+            raise ValueError("Invalid Short Name '%s': Short names can only consist of letters, numbers and underscores" % value)
+        cls._short_name = value_upper
 
 class TraitDescriptionsMixin(DescriptionsMixin):
     """Extends Descriptions Mixin to include support for qualifiers on Traits
