@@ -1,4 +1,5 @@
 from itertools import product
+
 from .utilities import TraitKey, validate_trait_name, validate_trait_type
 from ..utilities import SchemaDictionary, DefaultsRegistry, Inherit
 
@@ -123,6 +124,7 @@ class TraitRegistry:
             return self._registry
 
     def get_all_traitkeys(self, trait_type_filter=None, trait_name_filter=None):
+        # type: (str, str) -> List[TraitKey]
         """A list of all known trait keys in the registry, optionally filtered."""
         filtered_keys = set()
         all_keys = self._trait_lookup.keys()
@@ -144,11 +146,16 @@ class TraitRegistry:
         return filtered_keys
 
     def get_trait_types(self):
+        # type: () -> Set[str]
         return {t.trait_type for t in self.get_traits()}
 
     def get_trait_names(self, trait_type_filter=None):
-        # type: (str) -> set
-        """A list of the unique trait types in this TraitRegistry."""
+        # type: (str) -> Set[str]
+        """A list of the unique trait names in this TraitRegistry, optionally filtered.
+
+        trait_type_filter: (string) trait_type to get names for.
+
+        """
         filtered_names = set()
         all_names = self._trait_name_defaults.keys()
 

@@ -68,6 +68,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     qualifiers = None
     branches_versions = None
 
+    descriptions_allowed = 'class'
 
     @classmethod
     def schema(cls, include_subtraits=True, by_trait_name=False):
@@ -349,6 +350,26 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             self._trait_cache[trait_key] = trait
 
         return self._trait_cache[trait_key]
+
+    def get_all_branches_versions(self):
+        # type: () -> Set[TraitKey]
+        """Get all of the valid TraitKeys for Traits of this trait_name within the archive.
+
+        This function effectively "spans" not only this particular class, but
+        all other classes with the same trait_name in the current archive.
+
+        Therefore, this is the preferred way to get the other branches and versions, rather than
+        interrogating the value of `branches_versions`, which will not cover
+        other classes with the same trait_name.
+
+        """
+        # NOTE: this must be an instance method because the parent_trait and
+        # archive are not known by the class.
+
+        if self._parent_trait is None:
+            return self.archive.available_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
+        else:
+            return self._parent_trait.sub_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
 
     # @property
     # def trait_name(self):

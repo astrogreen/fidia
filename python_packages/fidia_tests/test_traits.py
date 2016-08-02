@@ -8,6 +8,8 @@ from fidia.traits.base_traits import Trait
 from fidia.traits import TraitProperty, trait_property, TraitKey, TraitRegistry
 from fidia.archive import example_archive
 
+from fidia.descriptions import TraitDescriptionsMixin
+
 from fidia.traits.utilities import validate_trait_name, validate_trait_type
 
 def test_incomplete_trait_fails():
@@ -190,6 +192,34 @@ class TestTraits:
 
         assert test_trait.value.description == "TheValue"
         assert test_trait.extra.description == "ExtraInformation"
+
+class TestTraitsInArchives:
+
+    @pytest.fixture
+    def example_archive(self):
+        return example_archive.ExampleArchive()
+
+    def test_trait_pretty_names(self, example_archive):
+        # type: (example_archive.ExampleArchive) -> None
+        image_trait_classes = example_archive.available_traits.get_traits(trait_type_filter='image')
+        a_trait = image_trait_classes[0]
+        assert issubclass(a_trait, Trait)
+        assert a_trait.get_pretty_name() == 'Image'
+
+    def test_trait_qualifer_pretty_name(self, example_archive):
+        # type: (example_archive.ExampleArchive) -> None
+        image_trait_classes = example_archive.available_traits.get_traits(trait_name_filter='image-red')
+        a_trait = image_trait_classes[0]
+        assert issubclass(a_trait, Trait)
+        assert issubclass(a_trait, TraitDescriptionsMixin)
+        assert a_trait.get_qualifier_pretty_name('red') == 'Red'
+
+        # red_image_trait_key = example_archive.available_traits.update_key_with_defaults('image-red')
+        image_trait = example_archive.get_full_sample()['Gal1']['image-red']
+        assert isinstance(image_trait, Trait)
+        assert isinstance(image_trait, TraitDescriptionsMixin)
+        assert image_trait.get_qualifier_pretty_name('red') == 'Red'
+
 
 class TestTraitKeys:
 
