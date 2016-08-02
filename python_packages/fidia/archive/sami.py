@@ -630,6 +630,9 @@ class LZIFUOneComponentLineMap(Image):
     branches_versions = {"1_comp": {"V02"}}
     defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
 
+    sub_traits = TraitRegistry()
+
+
     line_name_map = {
         'OII3726': 'OII3726',
         'OII3729': 'OII3729',
@@ -644,7 +647,6 @@ class LZIFUOneComponentLineMap(Image):
         'SII6731': 'SII6731'
     }
 
-    qualifier_required = True
     qualifiers = line_name_map.keys()
 
     def init(self):
@@ -689,31 +691,22 @@ class LZIFUOneComponentLineMap(Image):
         variance = sigma**2
         return variance
 
-
-    @trait_property('string')
-    def _wcs_string(self):
-        _wcs_string = self._hdu[0].header
-        return _wcs_string
-
-
+    @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
 
-
-    sub_traits = TraitRegistry()
-    sub_traits.register(LZIFUWCS)
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Map",
-    OII3726="[OII] (33726A)",
+    OII3726="[OII] (3726Å)",
     HBETA='Hβ',
-    OIII5007='[OIII] (5007A)',
-    OI6300='[OI] (6300A)',
+    OIII5007='[OIII] (5007Å)',
+    OI6300='[OI] (6300Å)',
     HALPHA='Hα',
-    NII6583='[NII] (6583)',
-    SII6716='[SII] (6716)',
-    SII6731='[SII] (6731)')
+    NII6583='[NII] (6583Å)',
+    SII6716='[SII] (6716Å)',
+    SII6731='[SII] (6731Å)')
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
@@ -738,7 +731,6 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
             else:
                 raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
 
-    qualifier_required = True
     qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
 
 
@@ -794,19 +786,18 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         variance = sigma**2
         return variance
 
-    @trait_property('string')
-    def _wcs_string(self):
-        _wcs_string = self._hdu[0].header
-        return _wcs_string
+    #
+    # Sub Traits
+    #
+    sub_traits = TraitRegistry()
 
 
+    @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
 
-    sub_traits = TraitRegistry()
-    sub_traits.register(LZIFUWCS)
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
     "Line Map",
     OII3726="[OII] (3726Å)",
