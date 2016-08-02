@@ -92,7 +92,7 @@ class TraitFromFitsFile(Trait):
         elif not os.path.exists(self._fits_file_path):
             raise DataNotAvailable(self._fits_file_path + " does not exist.")
 
-        super()._post_init()
+        super(TraitFromFitsFile, self)._post_init()
 
     def preload(self):
         self._hdu = fits.open(self._fits_file_path)
@@ -105,7 +105,7 @@ def trait_property_from_fits_data(extension_name, type, name):
     tp = TraitProperty(type=type, name=name)
 
     tp.fload = lambda self: self._hdu[extension_name].data
-    tp.short_name = extension_name
+    tp.set_short_name(extension_name)
 
     # # @TODO: Providence information can't get filename currently...
     # tp.providence = "!: FITS-Header {{file: '{filename}' extension: '{extension}' header: '{card_name}'}}".format(
@@ -494,25 +494,25 @@ class SAMISpectralCube(SpectralMap):
             del self._header
 
         detector_id = trait_property_from_fits_header('DETECTOR', 'string', 'detector_id')
-        detector_id.short_name = "DETECTOR"
+        # detector_id.set_short_name("DETECTOR")
 
         gain = trait_property_from_fits_header('RO_GAIN', 'string', 'gain')
-        gain.short_name = "RO_GAIN"
+        # gain.set_short_name("RO_GAIN")
 
         read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
-        read_noise.short_name = 'RO_NOISE'
+        # read_noise.set_short_name('RO_NOISE')
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
-        read_speed.short_name = 'SPEED'
+        # read_speed.set_short_name('SPEED')
 
         detector_control_software_date = trait_property_from_fits_header('DCT_DATE', 'string', 'detector_control_software_date')
-        detector_control_software_date.short_name = 'DCT_DATE'
+        # detector_control_software_date.set_short_name('DCT_DATE')
 
         detector_control_software_version = trait_property_from_fits_header('DCT_VER', 'string', 'detector_control_software_version')
-        detector_control_software_version.short_name = 'DCT_VER'
+        # detector_control_software_version.set_short_name('DCT_VER')
 
         read_amplifier = trait_property_from_fits_header('READAMP', 'string', 'read_amplifier')
-        read_amplifier.short_name = 'READAMP'
+        # read_amplifier.set_short_name('READAMP')
 
 
     @sub_traits.register

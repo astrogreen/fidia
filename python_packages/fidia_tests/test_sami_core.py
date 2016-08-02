@@ -183,13 +183,20 @@ class TestSAMIArchiveSchema:
 class TestSAMIArchiveMetadata:
 
     def test_telescope_metadata(self, a_sami_galaxy):
+        # type: (AstronomicalObject) -> None
         assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).telescope() == 'Anglo-Australian Telescope'
         assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).latitude() == -31.27704
         assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).longitude() == 149.0661
         assert a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata')).altitude() == 1164
 
+    def test_short_names(self, a_sami_galaxy):
+        # type: (AstronomicalObject) -> None
+        tel_metadata = a_sami_galaxy['spectral_map-red'].get_sub_trait(TraitKey('telescope_metadata'))
+        assert tel_metadata.telescope.get_short_name() == 'TELESCOP'
+        assert tel_metadata.latitude.get_short_name() == 'LAT_OBS'
 
     def test_instrument_metadata(self, a_sami_galaxy):
+        # type: (AstronomicalObject) -> None
         sub_trait = a_sami_galaxy['spectral_map-blue'].get_sub_trait(TraitKey('instrument_metadata'))
 
         assert isinstance(sub_trait, sami.SAMISpectralCube.SAMICharacteristics)
@@ -202,6 +209,7 @@ class TestSAMIArchiveMetadata:
 
 
     def test_detector_metadata(self, a_sami_galaxy):
+        # type: (AstronomicalObject) -> None
         sub_trait = a_sami_galaxy['spectral_map-blue'].get_sub_trait(TraitKey('detector_metadata'))
 
         assert isinstance(sub_trait, sami.SAMISpectralCube.AAOmegaDetector)
