@@ -46,8 +46,7 @@ class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        pass
-        # template = 'data_browser/sample/sample-list.html'
+        template = 'data_browser/sample/sample-list.html'
 
     renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 

@@ -1,7 +1,7 @@
 .data-browser-root a,
 .schema-browser-root a {
   text-decoration: none;
-  cursor: hand ;
+  cursor: hand;
   background-color: #F7F8F8;
 }
 .data-browser-root .panel-default,
@@ -81,18 +81,9 @@
   color: #4078C0;
   line-height: 24px;
 }
-.data-browser-root .panel-default .panel-heading .header-container small,
-.schema-browser-root .panel-default .panel-heading .header-container small {
-  color: #aebdc1;
-  font-size: 15px;
-  font-weight: normal;
-  left: 0;
-  line-height: 0;
-}
-.data-browser-root .panel-default .panel-heading .header-container p,
-.schema-browser-root .panel-default .panel-heading .header-container p {
-  font-weight: 300;
-  line-height: 18px;
+.data-browser-root .panel-default .panel-heading .header-container .sub-heading,
+.schema-browser-root .panel-default .panel-heading .header-container .sub-heading {
+  opacity: 0.87;
 }
 .data-browser-root .panel-default .panel-heading:hover,
 .schema-browser-root .panel-default .panel-heading:hover {

@@ -131,9 +131,7 @@
 </div>
 <script src="{% static 'restapi_app/js/plotly/plotly.latest.min.js' %}"></script>
 <script>
-$(document).ready(function(){
-    $('[data-toggle="popover"]').popover();
-});
+
 var trace1 = {
     x: [30],
     y: [1],
@@ -185,7 +183,7 @@ for (var i = 0; i < data.length; i++) {
     };
     annotationContent.push(result);
 }
-console.log(annotationContent)
+
 var layout = {
     annotations: annotationContent,
     margin: {

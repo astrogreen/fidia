@@ -9,25 +9,6 @@
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'query/css/schema-browser/schema-browser.min.css' %}"/>
 
-<style type="text/css">
-    table {
-        table-layout: fixed;
-    }
-
-    table tr {
-        height: 1em;
-    }
-
-    td {
-        overflow: hidden;
-        white-space: nowrap;
-    }
-
-    .nav-pagination {
-        background-color: transparent;
-        float: right;
-    }
-</style>
 {% block head-extra-extra%}{% endblock %}
 {% endblock %}
 
@@ -37,20 +18,50 @@
 <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
-
+{% block content-test %}
 <div class="row">
     <div class="col-xs-12">
-        <p>Re-visit, edit and update previous queries.</p><br>
+        <p class="lead">Re-visit, edit and update previous queries.</p><br>
         <div class="panel panel-default">
-            <div class="panel-heading text-uppercase">
-                <strong> Query History </strong>
-                <i class="fa fa-history pull-right" style="margin-top:3px"></i>
+            <div class="panel-heading">
+                Query History
             </div>
-            <div class="panel-body">
-                {% include 'query/query-history-table.html' %}
+            <table class="table table-hover table-astro-object">
+                <tbody>
+                {% for this in response.data.results %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-9 col-xs-12">
+                                    <a href="{{this.url}}">
+                                        <h4 class="text-info" style="border:0"> {{this.title}}</h4>
+                                    </a>
+                                    <p class="truncate">{{this.SQL}}{{this.SQL}}
+                                        <span class="fake-ellipsis">...</span>
+                                    </p>
 
-                {% block content-download %}
+                                    <p><span class="version sub-heading"><i class="fa fa-clock-o"></i> {{this.updated}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3 text-right col-xs-12 options">
+                                    <div class="btn-dropdown">
+                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-download"></i> Actions <i class="fa fa-caret-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% block content-download %}
                     {% if 'GET' in allowed_methods %}
                         <form id="download-list" class="custom-inline">
                             {% if api_settings.URL_FORMAT_OVERRIDE %}
@@ -77,10 +88,6 @@
                         </form>
                     {% endif %}
                 {% endblock %}
-
-            </div>
-        </div>
-
         {% if paginator %}
         <nav class="nav-pagination">
             {% get_pagination_html paginator %}
