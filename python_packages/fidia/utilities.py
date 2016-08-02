@@ -4,6 +4,7 @@ from contextlib import contextmanager
 import os
 import errno
 import fcntl
+import functools
 from time import sleep
 
 from . import slogging
@@ -202,3 +203,22 @@ class exclusive_file_lock:
         # Context complete. Release the lock.
         os.remove(self.lockfilename)
         self.f.close()
+
+
+class classorinstancemethod(object):
+    """Define a method which will work as both a class or an instance method.
+
+    See: http://stackoverflow.com/questions/2589690/creating-a-method-that-is-simultaneously-an-instance-and-class-method
+
+    """
+    def __init__(self, method):
+        self.method = method
+
+    def __get__(self, obj=None, objtype=None):
+        @functools.wraps(self.method)
+        def _wrapper(*args, **kwargs):
+            if obj is not None:
+                return self.method(obj, *args, **kwargs)
+            else:
+                return self.method(objtype, *args, **kwargs)
+        return _wrapper
