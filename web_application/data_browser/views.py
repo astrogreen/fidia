@@ -94,6 +94,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         try:
             astro_object = sami_dr1_sample[astroobject_pk]
+            assert isinstance(astro_object, fidia.AstronomicalObject)
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
@@ -104,31 +105,23 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.AstroObjectSerializer
 
-        # # Get schema for this archive's astro object and sort alphabetically
-        # sorted_schema_temp = {}
-        #
-        # for key, value in sorted(ar.schema(by_trait_name=True).items()):
-        #     sorted_schema_temp[key] = collections.OrderedDict(sorted(value.items()))
-        #
-        # sorted_schema = collections.OrderedDict(sorted(sorted_schema_temp.items()))
-        #
-        # # Get available traits (minus qualifier) for this archive's astro object
-        # # to provide groupings (line maps, velocity maps etc) in ao view.
-        # available_trait_set = ar.available_traits.get_traits()
-        # trait_list = []
-        #
-        # for ty in available_trait_set:
-        #     trait_list.append(ty.trait_type)
-        #
-        # trait_list = restapi_app.utils.helpers.unique_list(trait_list)
-
         # Dict of available traits
         trait_registry = ar.available_traits
         trait_info = {}
         for trait_type in trait_registry.get_trait_types():
-            # Get the trait names filtered by trait type
+
+            # Get info for a trait_key (trait name) filtered by trait type
             trait_info[trait_type] = {}
+
+            # Descriptions
+
+            trait_info[trait_type]["description"] = ""
+            trait_info[trait_type]["traits"] = {}
+
             for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
+
+                default_trait_key = trait_registry.update_key_with_defaults(trait_name)
+                trait_class = trait_registry.retrieve_with_key(default_trait_key)
 
                 # url
                 url_kwargs = {
@@ -136,13 +129,23 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     'astroobject_pk': astroobject_pk,
                     'sample_pk': sample_pk,
                 }
-
                 trait_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
 
+                # Pretty Name
+                # - trait_type
+                if hasattr(trait_class, "_pretty_name"):
+                    # trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
+                    trait_info[trait_type]["pretty_name"] = trait_class._pretty_name
+                # - trait_key
+                trait_key_pretty_name = None
+
                 # Descriptions
-                default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                trait_class = trait_registry.retrieve_with_key(default_trait_key)
-                trait_short_description = trait_class.get_description()
+                # - trait_type description
+                trait_type_short_description = trait_class.get_description()
+                trait_info[trait_type]["description"] = trait_type_short_description
+
+                # - trait_key description
+                trait_key_short_description = None
 
                 # Formats
                 formats = []
@@ -151,19 +154,19 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     if f != "api": formats.append(f)
 
                 # Versions
-                versions = {}
-                versions = {"v1": "url"}
+                versions = None
+                # versions = {"v1": "url"}
 
                 # Branches
-                branches = {}
-                branches = {"branch_1": "url"}
+                branches = None
+                # branches = {"branch_1": "url"}
 
-                trait_info[trait_type][trait_name] = {"url": trait_url,
-                                                      "description": trait_short_description,
-                                                      "versions": versions,
-                                                      "branches": branches,
-                                                      "formats": formats}
-
+                trait_info[trait_type]["traits"][trait_name] = {"url": trait_url,
+                                                                "pretty_name": trait_key_pretty_name,
+                                                                "description": trait_key_short_description,
+                                                                "versions": versions,
+                                                                "branches": branches,
+                                                                "formats": formats}
 
         serializer = serializer_class(
             instance=astro_object, many=False,
@@ -171,10 +174,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'sample': sample_pk,
                 'astroobject': astroobject_pk,
                 'request': request,
-                # 'schema': sorted_schema,
-                # 'trait_list': sorted(trait_list)
-                # 'trait_types': trait_registry.get_trait_types(),
-                # 'trait_names': trait_registry.get_trait_names(),
                 'available_traits': trait_info
             }
         )
