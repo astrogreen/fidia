@@ -5,6 +5,8 @@ import os.path
 import datetime
 import re
 
+import numpy as np
+
 from astropy import wcs
 from astropy.io import fits
 from astropy import units
@@ -1008,17 +1010,68 @@ class SFRMap(Image, TraitFromFitsFile):
 SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
-# class SFRClass(ClassificationMap):
-#
-#     trait_key = 'sfr_map'
-#
-#     def fits_file_path(self):
-#         return (self.archive._base_directory_path +
-#                                 "SFRmaps/" +
-#                                 self.object_id + "_SFR_" + self.branch + ".fits")
-#
-#     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
-#     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
+class EmissionClass(ClassificationMap, TraitFromFitsFile):
+    """Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
+
+    We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
+    [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV01 to
+    determine whether the emission lines are dominated by photoionization from
+    HII regions or other sources like AGN or shocks, using the BPT/VO87
+    diagnostic diagrams and dividing lines from Kewley et al. 2006.  We only
+    classify spaxels with ratios that have a signal-to-noise ratio of at least
+    5.
+
+    We additionally add a likely classification of "star-forming" to spaxels
+    with log([NII]/Hα) <-0.4 without an [OIII] detection.
+
+    Each spaxel in the map is 1 (when star formation dominates the emission in
+    all available line ratios) or 0 (when other ionization mechanisms dominate),
+    so it may be simply multiplied by the Hα flux map to produce "Hα
+    from star formation" maps.
+
+    We note that these classifications are done only using the TOTAL EMISSION
+    LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
+    we classify the total emission in that spaxel, not the individual
+    components.
+
+    The files (one per galaxy per component fit) may be found on bill at
+    /export/bill1/sami_data/data_products/SFMasks/SFMasksV01
+
+    Each fits file is accompanied by an EPS figure showing the BPT and VO87
+    diagnostic diagrams with each spaxel (of S/N>5 in each relevant line)
+    plotted.  Blue points correspond to the unambiguous SF (SFMasks=1; in HII
+    region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
+    spaxels are plotted in black.
+
+    """
+
+    trait_key = 'emission_classification_map'
+
+    class_remap = {
+        0: "No Data",
+        1: "Star formation",
+        2: "Other ionisation mechanisms"}
+
+    def fits_file_path(self):
+        return (self.archive._base_directory_path +
+                                "SFRmaps/" +
+                                self.object_id + "_SFR_" + self.branch + ".fits")
+
+    @trait_property
+    def value(self):
+        input_data = self._hdu[1].data
+
+        # Change the input array into an integer array for storage.
+        class_remap = {
+            np.nan: 0,
+            1.0: 1,
+            0.0: 2}
+        output_data = np.empty(input_data.shape, dtype=np.int)
+        for key in class_remap:
+            output_data[input_data == key] = class_remap[key]
+        return output_data
+
+EmissionClass.set_pretty_name("Emission Classification Map")
 
 def update_path(path):
     if path[-1] != "/":

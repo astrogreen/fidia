@@ -1,6 +1,6 @@
 from .base_traits import \
     Trait, Measurement, TimeSeries, SpectralMap, Map, Image, WorldCoordinateSystem, SkyCoordinate, \
-    OpticalTelescopeCharacteristics, DetectorCharacteristics, SpectrographCharacteristics
+    OpticalTelescopeCharacteristics, DetectorCharacteristics, SpectrographCharacteristics, ClassificationMap
 from .galaxy_traits import VelocityMap
 
 from .utilities import TraitProperty, trait_property, TraitKey

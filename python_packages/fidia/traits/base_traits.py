@@ -850,3 +850,8 @@ class SpectralMap(Trait, AbstractBaseArrayTrait):
 class Classification(Trait, AbstractBaseClassification): pass
 
 
+class ClassificationMap(Trait):
+
+    valid_classifications = None
+
+
