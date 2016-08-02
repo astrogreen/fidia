@@ -1022,30 +1022,35 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
     5.
 
     We additionally add a likely classification of "star-forming" to spaxels
-    with log([NII]/Hα) <-0.4 without an [OIII] detection.
+    with $\log({\rm [NII]}/{\rm Hα}) <-0.4 $ without an [OIII] detection.
 
-    Each spaxel in the map is 1 (when star formation dominates the emission in
-    all available line ratios) or 0 (when other ionization mechanisms dominate),
-    so it may be simply multiplied by the Hα flux map to produce "Hα
-    from star formation" maps.
+    Classifications are stored in the map as an integer with the following definitions:
+
+    | Pixel Value | Classification |
+    | ------------|----------------|
+    |   0         |  No data       |
+    |   1         | star formation dominates the emission in all available line ratios |
+    |   2         | other ionization mechanisms dominate |
 
     We note that these classifications are done only using the TOTAL EMISSION
     LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
     we classify the total emission in that spaxel, not the individual
     components.
 
-    The files (one per galaxy per component fit) may be found on bill at
-    /export/bill1/sami_data/data_products/SFMasks/SFMasksV01
-
-    Each fits file is accompanied by an EPS figure showing the BPT and VO87
-    diagnostic diagrams with each spaxel (of S/N>5 in each relevant line)
-    plotted.  Blue points correspond to the unambiguous SF (SFMasks=1; in HII
-    region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
-    spaxels are plotted in black.
-
     """
 
-    trait_key = 'emission_classification_map'
+    trait_type = 'emission_classification_map'
+
+    branches_versions = {
+        "1_comp": {'V02'},
+        "recom_comp": {'V02'}
+    }
+
+    defaults = DefaultsRegistry(
+        default_branch='recom_comp',
+        version_defaults={"1_comp": 'V02',
+                          "recom_comp": 'V02'}
+    )
 
     class_remap = {
         0: "No Data",
@@ -1053,11 +1058,15 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
         2: "Other ionisation mechanisms"}
 
     def fits_file_path(self):
-        return (self.archive._base_directory_path +
-                                "SFRmaps/" +
-                                self.object_id + "_SFR_" + self.branch + ".fits")
+        data_product_name = "SFMasks"
 
-    @trait_property
+        return "/".join(
+            (self.archive.vap_data_path,
+             data_product_name,
+             data_product_name + self.version,
+             self.object_id + "_SFMask_" + self.branch + ".fits"))
+
+    @trait_property("int.array")
     def value(self):
         input_data = self._hdu[1].data
 
@@ -1067,8 +1076,18 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
             1.0: 1,
             0.0: 2}
         output_data = np.empty(input_data.shape, dtype=np.int)
+        output_data[:] = -1
         for key in class_remap:
+            if key is np.nan:
+                # Must use alternate logic for nans
+                output_data[np.isnan(input_data)] = class_remap[key]
             output_data[input_data == key] = class_remap[key]
+
+        if np.count_nonzero(output_data == -1) > 0:
+            # For some reason, not all pixels have matched the categories.
+            raise Exception("Data corruption in '%s'" % self)
+
+
         return output_data
 
 EmissionClass.set_pretty_name("Emission Classification Map")
@@ -1234,6 +1253,8 @@ class SAMIDR1PublicArchive(Archive):
 
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
+
+        self.available_traits.register(EmissionClass)
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")

@@ -3,6 +3,7 @@ import pytest
 import numpy
 from fidia.archive import sami
 from fidia.traits import TraitKey, Trait
+from fidia.astro_object import AstronomicalObject
 
 @pytest.fixture(scope='module')
 def sami_archive():
@@ -92,3 +93,20 @@ class TestSAMISFRmaps:
 
     def test_extinction_map_present(self, a_sami_galaxy):
         assert isinstance(a_sami_galaxy['extinction_map'], Trait)
+
+    def test_emission_classification_maps_present(self, a_sami_galaxy):
+        # type: (AstronomicalObject) -> None
+
+
+        trait_list = (
+            a_sami_galaxy['emission_classification_map'],
+            a_sami_galaxy['emission_classification_map:1_comp'],
+            a_sami_galaxy['emission_classification_map:recom_comp']
+        )
+        for trait in trait_list:
+            assert isinstance(trait, Trait)
+            assert isinstance(trait.value(), numpy.ndarray)
+
+            # Check that the data is in the correct range (three classes)
+            assert numpy.min(trait.value()) == 0
+            assert numpy.max(trait.value()) == 2
