@@ -7,32 +7,28 @@
 {% block title %}{{objname}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
-<link rel="stylesheet" href="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
 {% endblock %}
 
-{% block page_title %}{{objname}}{% endblock %}
+{% block page_title %}{{response.data.astroobject}}{% endblock %}
 {% block useful_links %}
-<!--<li role="presentation" ><a href="{% url 'sov-list' %}">View in SOV</a></li>-->
-<li role="presentation" ><a href="{% url 'sami-list' %}">Back to Sami</a></li>
+<li role="presentation" ><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to {{response.data.sample}}</a></li>
 {% endblock useful_links %}
 
-{% block content_renders %}
-{% captureas survey %}{% get_pks request.path -3 %}{% endcaptureas %}
+{% block content-test %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12">
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist" id="ao_tabs">
-            <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a>
+            <li role="presentation"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a>
             </li>
-            <li role="presentation"><a href="#available_data" aria-controls="available_data" role="tab" data-toggle="tab">Available Data</a>
-            </li>
-            <li role="presentation"><a href="#additional_info" aria-controls="additional_info" role="tab" data-toggle="tab">Additional Info</a>
+            <li role="presentation" class="active"><a href="#available_data" aria-controls="available_data" role="tab" data-toggle="tab">Available Data</a>
             </li>
         </ul>
 
         <!-- Tab panes -->
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="summary">
+            <div role="tabpanel" class="tab-pane " id="summary">
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="panel panel-default">
@@ -132,18 +128,17 @@
                         </div>
 
             </div>
-            <div role="tabpanel" class="tab-pane" id="available_data">
+            <div role="tabpanel" class="tab-pane active" id="available_data">
 
                 <ul class="nav nav-tabs" role="tablist" id="trait_tabs" >
-                    {% for trait_type in response.data.trait_list %}
-                        <li role="presentation"
-                        {% if forloop.first %}class="active"{% endif %}
-                        ><a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_type | CapsSentence}}s</a>
+                    {% for trait_type, trait_value in response.data.available_traits.items %}
+                        <li role="presentation" {% if forloop.first %}class="active"{% endif %}>
+                            <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}</a>
                         </li>
                     {% endfor %}
                 </ul>
                 <div class="tab-content">
-                    {% for trait_type in response.data.trait_list %}
+                    {% for trait_type, trait_value in response.data.available_traits.items %}
                         <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">
                             <div class="row">
                                 <div class="col-xs-12">
@@ -153,8 +148,7 @@
                                         <div class="panel-body">
                                             <div class="row">
                                                 <div class="col-xs-12">
-                                                    <p>some description about this trait-type {% lorem %}</p>
-
+                                                    <p>{{trait_value.description}}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -173,6 +167,32 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                {% for trait, value in trait_value.traits %}
+                                                <tr>
+                                                    <td>
+                                                        <a class="" href="{{value.url}}">{{value.pretty_name}}</a>
+                                                    </td>
+                                                    <td>
+                                                        <p>{{value.description}}</p>
+                                                    </td>
+                                                    <td>
+                                                        <span class="button-dropdown" data-buttons="dropdown">
+                                                            <button class="button button-small text-uppercase">
+                                                              Format <i class="fa fa-caret-down"></i>
+                                                            </button><!--
+                                                             --><ul class="button-dropdown-list button-dropdown-list-small">
+                                                              {% for format in value.formats %}
+                                                            <li><a>{{format}}</a></li>
+                                                              {% endfor %}
+                                                            </ul>
+                                                         </span><!--
+                                                        --><add-cart-button url="{{request.get_full_path}}/{{trait_name}}"
+                                                             options="['velocity_map', 'spec_cube_blue']"></add-cart-button>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+
+
                                                     {% for trait_name, value in response.data.schema.items %}
                                                         {% if trait_type in trait_name %}
                                                             <tr>
@@ -309,40 +329,6 @@
                 {% endcomment %}
 
             </div>
-            <div role="tabpanel" class="tab-pane" id="additional_info">
-                <div class="row">
-                    <div class="col-sm-8" id="aladin-lite-div-container">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                Aladin Lite
-                            </div>
-                            <div class="panel-body">
-                                <!--<div id="aladin-lite-div" style="width:100%;height:98%;"></div>-->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!--<ul class="nav nav-tabs" role="tablist" id="trait_tabs" >-->
-                    <!--<li role="presentation" class="active"><a href="#trait1" aria-controls="trait1" role="tab" data-toggle="tab">trait1</a>-->
-                    <!--</li>-->
-                    <!--<li role="presentation"><a href="#trait2" aria-controls="trait2" role="tab" data-toggle="tab">trait2</a>-->
-                    <!--</li>-->
-                <!--</ul>-->
-                <!--<div class="tab-content">-->
-                    <!--<div role="tabpanel" class="tab-pane active" id="trait1">-->
-                  <!--trait1 content-->
-
-                    <!--</div>-->
-                    <!--<div role="tabpanel" class="tab-pane" id="trait2">-->
-                  <!--trait2 content-->
-
-                    <!--</div>-->
-                <!--</div>-->
-
-
-            </div>
         </div>
 
 
@@ -381,22 +367,6 @@
       e.preventDefault()
       $(this).tab('show')
     })
-</script>
-
-<script type="text/javascript" src="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
-<script type="text/javascript">
-//    $(window).on("load resize",function(e){
-//        $('#aladin-lite-div').width($('#aladin-lite-div-container').width()-30);
-//        $('#aladin-lite-div').height($('#aladin-lite-div-container').width()-30);
-//        $('#aladin-lite-div-container').hide.show(0);
-//    });
-//    $('#additional_info').click(function(){
-//        $('#aladin-lite-div').width($('#aladin-lite-div-container').width()-30);
-//        $('#aladin-lite-div').height($('#aladin-lite-div-container').width()-30);
-//        $('#aladin-lite-div-container').hide.show(0);
-//    })
-
-//    var aladin = A.aladin('#aladin-lite-div', {survey: "P/SDSS9/color", fov:60});
 </script>
 {% endblock %}
 

@@ -78,8 +78,7 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        pass
-        # template = 'data_browser/astroobject/astroobject-list.html'
+        template = 'data_browser/astroobject/astroobject-list.html'
 
         # def get_context(self, data, accepted_media_type, renderer_context):
         #     context = super().get_context(data, accepted_media_type, renderer_context)
@@ -136,6 +135,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 if hasattr(trait_class, "_pretty_name"):
                     # trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
                     trait_info[trait_type]["pretty_name"] = trait_class._pretty_name
+                else:
+                    trait_info[trait_type]["pretty_name"] = trait_type
+
                 # - trait_key
                 trait_key_pretty_name = None
 
@@ -149,7 +151,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
                 # Formats
                 formats = []
-                for r in self.renderer_classes:
+                for r in TraitViewSet.renderer_classes:
                     f = str(r.format)
                     if f != "api": formats.append(f)
 
