@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from .. import slogging
 log = slogging.getLogger(__name__)
 # log.setLevel(slogging.DEBUG)
-log.enable_console_logging()
+# log.enable_console_logging()
+log.setLevel(slogging.WARNING)
 
 from collections import OrderedDict
 
@@ -34,8 +35,13 @@ class Archive(BaseArchive):
     def writeable(self):
         raise NotImplementedError("")
 
+    @property
     def contents(self):
-        return list()
+        return self._contents
+    @contents.setter
+    def contents(self, value):
+        self._contents = set(value)
+
 
     @property
     def name(self):

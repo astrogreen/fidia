@@ -32,6 +32,8 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# TODO TURN THIS OFF IN PRODUCTION! DUMPS EMAILS IN CONSOLE
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ALLOWED_HOSTS = ['*']
 
@@ -44,17 +46,18 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'aatnode',
     'astrospark',
     'bootstrap3',
-    # 'captcha',
-    # 'clever_selects',
+    'cart',
+    'data_browser',
     'django_extensions',
     'mathfilters',
+    'query',
+    'user',
     'restapi_app',
     'rest_framework',
-    'rest_framework.authtoken',
     # 'rest_framework_swagger',
+    'sov',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -88,6 +91,7 @@ TEMPLATES = [
 ]
 
 LOGIN_REDIRECT_URL = 'index'
+LOGIN_URL = 'rest_framework:login'
 
 WSGI_APPLICATION = 'asvo.wsgi.application'
 
@@ -115,6 +119,13 @@ SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
 SAMI_TEAM_DATABASE = ''
 SAMI_TEAM_DATABASE_CATALOG = ''
 
+SAMI_DR1_DATABASE = ''
+SAMI_DR1_DATABASE_CATALOG = ''
+
+
+# Pandoc paths
+# https://pypi.python.org/pypi/pypandoc
+PANDOC_PATH = '/usr/bin/pandoc'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -235,6 +246,8 @@ try:
 except ImportError:
     pass
 
+# Bring pandoc path into effect.
+os.environ.setdefault('PYPANDOC_PANDOC', PANDOC_PATH)
 
 RECAPTCHA_PUBLIC_KEY = '6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j'
 RECAPTCHA_PRIVATE_KEY = '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn'
@@ -243,17 +256,22 @@ NOCAPTCHA = True
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/day',
+    },
     'TEST_REQUEST_RENDERER_CLASSES': (
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.TemplateHTMLRenderer',
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
-    )
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
+
+

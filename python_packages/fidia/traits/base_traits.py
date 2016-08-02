@@ -15,7 +15,7 @@ from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit
-from ..descriptions import DescriptionsMixin
+from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 
 from .. import slogging
@@ -58,7 +58,7 @@ def validate_trait_branches_versions_dict(branches_versions):
             if version is not None:
                 validate_trait_version(version)
 
-class Trait(DescriptionsMixin, AbstractBaseTrait):
+class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
     sub_traits = TraitRegistry()
 
@@ -246,6 +246,10 @@ class Trait(DescriptionsMixin, AbstractBaseTrait):
         self._trait_dict = dict()
         if self._loading == 'eager':
             self._realise()
+        self._post_init()
+
+    def _post_init(self):
+        pass
 
     def _set_branch_and_version(self, trait_key):
         """Trait Branch and Version handling:
@@ -832,7 +836,11 @@ class Epoch(Measurement):
 class TimeSeries(Epoch, AbstractBaseArrayTrait): pass
 
 
-class Image(Map): pass
+class Image(Map):
+
+    @property
+    def shape(self):
+        return self.value.value.shape
 
 
 class SpectralMap(Trait, AbstractBaseArrayTrait):

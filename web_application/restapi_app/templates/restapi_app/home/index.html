@@ -10,14 +10,15 @@
 {% endblock %}
 
 {% block bodyclass %}galaxy-dark{% endblock %}
+{% block navbarinverse %}navbar-inverse{% endblock %}
 {% block breadcrumbclass %}inverted{% endblock %}
-{% block breadcrumbs-outer %}
-<ul class="breadcrumb ">
-    <li class="active"><a href="{% url 'index' %}">Home</a></li>
-</ul>
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'index' %}">Home</a></li>
 {% endblock %}
 
-{% block content %}
+{% block page_title_banner %} {% endblock page_title_banner %}
+
+{% block content_render %}
 <section class="welcome row">
     <div class="container">
         <div class="content">
@@ -42,7 +43,7 @@
 
             <div class="infographic row">
                 <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'query-list'%}">
+                    <a href="{% url 'query-create-list'%}">
                         <div class="circle">
                             <i class="fa fa-search"></i>
                             <div class="line"></div>
@@ -51,7 +52,7 @@
                     <p>Query</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'data'%}">
+                    <a href="{% url 'under-construction'%}">
                         <div class="circle">
                             <i class="fa fa-database"></i>
                             <div class="line"></div>

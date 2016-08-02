@@ -233,6 +233,9 @@ class SimpleTrait(Trait):
 
     Extended documentation for SimpleTrait.
 
+    Some *markdown* formatted **text** and math: $\int_{\pi} f(x) dx$
+
+    ##format: markdown
     """
     # NOTE: Tests rely on this class, so changing it will require updating the tests!
 

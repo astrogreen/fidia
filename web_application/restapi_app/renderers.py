@@ -1,20 +1,22 @@
 from io import BytesIO
 import logging
+
+from django import forms
+from django.core.paginator import Page
+from django.core.urlresolvers import resolve
 from django.template import Context, RequestContext, Template, loader
+
 from rest_framework import VERSION, exceptions, serializers, status
 from rest_framework import renderers
 from rest_framework.exceptions import UnsupportedMediaType
 from rest_framework.request import is_form_media_type, override_method
-from django import forms
-from django.core.paginator import Page
-from django.template import Context, RequestContext, Template, loader
 from rest_framework import VERSION, exceptions, serializers, status
 from rest_framework.exceptions import ParseError
 from rest_framework.request import is_form_media_type, override_method
 from rest_framework.settings import api_settings
-# from rest_framework.utils.breadcrumbs import get_breadcrumbs
-from .utils.breadcrumbs import get_breadcrumbs_by_viewname, get_object_name
-from django.core.urlresolvers import resolve
+
+from restapi_app.utils.breadcrumbs import get_breadcrumbs_by_viewname, get_object_name
+
 from fidia.traits.base_traits import Trait
 
 log = logging.getLogger(__name__)
@@ -122,94 +124,9 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
         return context
 
 
-class SampleRenderer(ExtendBrowsableAPIRenderer):
-    """
-    SampleViewSet (list only)
-    """
-    template = 'restapi_app/sample/sample-list.html'
-
-
-class GAMARenderer(ExtendBrowsableAPIRenderer):
-    """
-    SampleViewSet (list only)
-    """
-    template = 'restapi_app/sample/inprogress.html'
-
-
-class AstroObjectRenderer(ExtendBrowsableAPIRenderer):
-    """
-    AstroObjectViewSet (list only)
-    """
-    template = 'restapi_app/astroobject/astroobject-list.html'
-
-
-class TraitRenderer(ExtendBrowsableAPIRenderer):
-    template = 'restapi_app/trait/trait-list.html'
-
-
-class TraitPropertyRenderer(ExtendBrowsableAPIRenderer):
-    template = 'restapi_app/trait_property/traitproperty-list.html'
-
-
-class SubTraitRenderer(ExtendBrowsableAPIRenderer):
-    template = 'restapi_app/sub_trait/sub_trait-list.html'
-
-
-class QueryRenderer(ExtendBrowsableAPIRenderer):
-    """
-    BrowseSurveysViewSet
-    """
-    # note this template extends restapi_app/query/query-builder.html
-    # where most of the html structure resides
-    template = 'restapi_app/query/query.html'
-
-
-class QueryCreateRenderer(ExtendBrowsableAPIRenderer):
-    """
-    Read-only Query History
-    """
-    template = 'restapi_app/query/query-create.html'
-
-
-class QueryListRenderer(ExtendBrowsableAPIRenderer):
-    """
-    Read-only Query History
-    """
-    template = 'restapi_app/query/query-list.html'
-
-
-class QueryRetrieveUpdateDestroyRenderer(ExtendBrowsableAPIRenderer):
-    """
-    Retrieve query instance
-    """
-    template = 'restapi_app/query/query-retrieve.html'
-
-
-class SOVListRenderer(ExtendBrowsableAPIRenderer):
-    """
-    BrowseSurveysViewSet
-    """
-    template = 'restapi_app/sov/list.html'
-
-
-class SOVDetailRenderer(ExtendBrowsableAPIRenderer):
-    """
-    BrowseSurveysViewSet
-    """
-
-    template = 'restapi_app/sov/detail.html'
-
-
 class APIRootRenderer(ExtendBrowsableAPIRenderer):
     """
-    APIROOT Template
+    APIROOT Template (no longer needed...)
     """
     template = 'restapi_app/api-root/list.html'
 
-
-# - - USERS - -
-class CreateUserRenderer(ExtendBrowsableAPIRenderer):
-    """
-    BrowseSurveysViewSet
-    """
-    template = 'restapi_app/register/register.html'

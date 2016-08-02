@@ -1,16 +1,12 @@
+from django.utils.encoding import force_text
+
 from rest_framework.exceptions import APIException
 from rest_framework import status
-from django.utils.encoding import force_text
 
 
 class NoPropertyFound(APIException):
     status_code = 404
     default_detail = 'No Property found'
-
-
-class BadSQL(APIException):
-    status_code = 400
-    default_detail = 'Bad Request'
 
 
 class Conflict(APIException):

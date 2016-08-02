@@ -74,6 +74,8 @@ WARN = logging.WARN
 WARNING = logging.WARNING
 ERROR = logging.ERROR
 INFO = logging.INFO
+VDEBUG = 9
+VVDEBUG = 8
 
 def configure_logging():
     """Configure logging for this package and return the package level logger"""
@@ -184,6 +186,16 @@ def disable_console_logging(self):
             self.removeHandler(hndlr)
 
 
+def vdebug(self, msg, *args, **kwargs):
+    """Debug function for verbose debugging"""
+    self.log(VDEBUG, msg, *args, **kwargs)
+
+
+def vvdebug(self, msg, *args, **kwargs):
+    """Debug function for very verbose debugging."""
+    self.log(VVDEBUG, msg, *args, **kwargs)
+
+
 def getLogger(name):
     """Get the logger for `name`, adding some special convenience functions and setup if required."""
     package_log = configure_logging()
@@ -199,6 +211,9 @@ def getLogger(name):
     log.enable_console_logging = types.MethodType(enable_console_logging, log)
     log.disable_console_logging = types.MethodType(disable_console_logging, log)
     # log.set_console_level = types.MethodType(set_console_level, log)
+
+    log.vdebug = types.MethodType(vdebug, log)
+    log.vvdebug = types.MethodType(vvdebug, log)
 
     return log
         

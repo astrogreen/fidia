@@ -1,0 +1,142 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}{{objname}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'sov/css/sov/sov.min.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+{% block content_render %}
+<h1 class="headline">
+    <span>{{objname}}</span>
+</h1>
+<div class="row">
+    <div class=" col-sm-6 col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <!--<h3 class="panel-title">Source</h3>-->
+            </div>
+            <div class="panel-body">
+                <p class="lead">Single Object Viewer</p>
+                <p>
+                    View the key data products for any object.
+                    Where available, the SOV brings together data from all surveys hosted at the AAT-Node.
+                </p>
+                <p>Select a survey in the next panel to load available sources.</p><br>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-sm-6  col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Select Survey</h3>
+            </div>
+            <div class="panel-body extra-padding">
+
+                <div class="col-xs-6">
+                    <a class=" " onclick="fSurveyData('SAMI')" role="button">
+                        {% with 'restapi_app/img/logo/logo-'|add:'sami'|add:'.png' as image_static %}
+                        <img class="img-responsive center-block sami" src="{% static image_static %}">
+                        {% endwith %}
+                    </a>
+                </div>
+                <div class="col-xs-6">
+                    <a class="disabled " onclick="fSurveyData('GAMA')" role="button">
+                        {% with 'restapi_app/img/logo/logo-'|add:'gama'|add:'.png' as image_static %}
+                        <img class="img-responsive center-block  gama" src="{% static image_static %}">
+                        {% endwith %}
+                    </a>
+
+                </div>
+
+                <div class="col-xs-6"><br>
+                    <a class="btn btn-default btn-block SAMI btn-survey " onclick="fSurveyData(this.id)" id="SAMI">
+                        SAMI
+                    </a>
+                </div>
+                <div class="col-xs-6"><br>
+                    <a class="btn btn-default btn-block GAMA disabled btn-survey" onclick="fSurveyData(this.id)"
+                       id="GAMA">
+                        GAMA
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class=" col-sm-6 col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-background-grey">
+                <h3 class="panel-title">Select Source</h3>
+            </div>
+            <div class="panel-body extra-padding">
+
+                <p id="search-info">Search for an object.</p>
+                <br>
+                <select type="text" class="searchbox selectized text-center" id="autocomplete-widget" placeholder="SEARCH...">
+                    <option value="" disabled selected>Select an object</option>
+                    {% for key, value in response.data.items %}
+                    <option value="{{value}}">{{key}}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-block btn-md btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">Go</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    AstroObjectsJson = JSON.parse("{{ content|escapejs }}");
+    console.log(AstroObjectsJson);
+    var dummy = [{'name': 'SEARCH..', 'url': ''}];
+    $(document).ready(function () {
+        $selector = $("#autocomplete-widget").selectize({
+            closeAfterSelect: true,
+            selectOnTab: true,
+            options: dummy,
+            valueField: 'url',
+            labelField: 'name',
+            searchField: 'name',
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                $('#autocomplete-button').attr('href', value).attr('disabled', false)
+            }
+        });
+        var control = $selector[0].selectize;
+        control.disable();
+    });
+
+
+    function fSurveyData(id) {
+//        console.log($selector);
+//        console.log(id)
+        if (id != 'GAMA') {
+            $('#search-info').html('Search for a '+id+' object.');
+            $('.btn-survey').removeClass('btn-success');
+            $('#' + id).addClass('btn-success');
+
+            // TODO ready for multiple complete survey data samples
+            var control = $selector[0].selectize;
+            control.enable();
+            control.clear();
+            control.clearOptions();
+            //        control.addOption([{'name':id+'98655','url':'foo'}])
+            control.addOption(AstroObjectsJson);
+        }
+    }
+    ;
+</script>
+{% endblock %}
+
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+{% endblock %}
+

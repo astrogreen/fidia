@@ -20,61 +20,13 @@ from rest_framework.utils.urls import replace_query_param
 
 register = template.Library()
 
-# {% block status-info %}
-#       {{ response.status_code }} {{ response.status_text }}
-#     {% endblock status-info %}
-
-@register.simple_tag
-def status_is_success(status_code):
-    if status.is_success(status_code):
-        return True
-    else:
-        return False
-    
-
-@register.simple_tag
-def status_info(request, status_code, user, status_code_detail):
-    """
-    Display status info if not success (HTTP_2xx)
-    """
-    if status.is_success(status_code):
-        snippet = ""
-    else:
-        snippet = """
-                <div class=" col-md-12" style="margin-top: 30px">
-                    <div class="row-fluid text-center">
-                        <h1>Oops!</h1>
-                        <h2>{status_code_detail}</h2>
-                        <h4>Status Code: {status_code}</h4>
-                        <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact Support </a>
-                        </p>
-                    </div>
-                    <div class="text-center splitter">
-                    <br>
-            """
-        if user == 'AnonymousUser':
-            snippet += "{optional_login}"
-        snippet += "</div></div>"
-
-        snippet = format_html(snippet, status_code=status_code, request=request, user=user,
-                              status_code_detail=status_code_detail, optional_login=optional_login(request))
-
-    return mark_safe(snippet)
-
-
-@register.simple_tag
-def status_is_success(status_code):
-    if status.is_success(status_code):
-        return True
-    else:
-        return False
-
 
 @register.simple_tag
 def optional_logout(request, user):
     """
     Include a logout snippet if REST framework's logout view is in the URLconf.
     """
+
     try:
         logout_url = reverse('rest_framework:logout')
     except NoReverseMatch:
@@ -85,21 +37,23 @@ def optional_logout(request, user):
     except NoReverseMatch:
         return ''
     try:
-        logout_page = reverse('logout-page')
+        user = request.user
+        profile = reverse('user-profile-detail', kwargs={'username': user})
     except NoReverseMatch:
         return ''
 
-    snippet = """<li class="dropdown">
+    snippet = """<li class="dropdown user">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             {user}
             <b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
+            <li><a href="{profile}">Profile</a></li>
             <li><a href="{requests}">Query History</a></li>
-            <li><a href='{href}?next={logout_page}'>Sign out <i class="fa fa-sign-out"></i></a></li>
+            <li><a href='{logout_url}'>Sign out </a></li>
         </ul>
     </li>"""
-    snippet = format_html(snippet, user=escape(user), href=logout_url, requests=querylist_url, logout_page=logout_page)
+    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, )
 
     return mark_safe(snippet)
 
@@ -121,30 +75,19 @@ def optional_login(request):
     # On successful sign-in, prevent user being directed back to logout, register or login
     next_page = request.path
     next_url = escape(resolve(request.path_info).url_name)
+    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout', 'rest_framework:logout', ]
 
     if request.user != 'AnonymousUser':
-        if next_url == 'logout-page' or next_url == 'user-register' or next_url == 'login':
-            next_page = ''
+        if next_url in urls_to_avoid:
+            next_page = reverse('index')
 
-    # If this page is the registration form, drop register button
-    if next_url == 'user-register':
-        snippet = """<div class="user">
-                    <a href='{login}?next={next}' class="signin">
-                        <span>Sign In</span>
-                        <i class="fa fa-lock"></i>
-                    </a>
-                </div>"""
-    # If logged in, drop both buttons
-    # elif request.user != 'AnonymousUser':
-    #     snippet = ""
-    # else:
-    snippet = """<div class="user">
-                <a href='{login}?next={next}' class="signin">
-                    <span>Sign In</span>
-                    <i class="fa fa-lock"></i>
+    snippet = """<div class='user'>
+                <a href='{login}?next={next}' class="text-error text-uppercase">
+                    <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
+
                 </a>
-                <span>OR</span>
-                <a href="{register}" class="register">
+                &nbsp;<strong> OR </strong>&nbsp;
+                <a href="{register}" class="btn btn-primary text-uppercase">
                     <span>Register</span>
                     <i class="fa fa-pencil-square-o"></i>
                 </a>
@@ -152,6 +95,42 @@ def optional_login(request):
     snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
     return mark_safe(snippet)
 
+
+@register.simple_tag
+def optional_login_header(request):
+    """
+    Include a login snippet if REST framework's login view is in the URLconf.
+    """
+    try:
+        login_url = reverse('rest_framework:login')
+    except NoReverseMatch:
+        return ''
+    try:
+        register_url = reverse('user-register')
+    except NoReverseMatch:
+        return ''
+
+    # On successful sign-in, prevent user being directed back to logout, register or login
+    next_page = request.path
+    next_url = escape(resolve(request.path_info).url_name)
+    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout', 'rest_framework:logout', ]
+
+    if request.user != 'AnonymousUser':
+        if next_url in urls_to_avoid:
+            next_page = reverse('index')
+
+    snippet = """<li class="background-white">
+                <a href='{login}?next={next}'>
+                    Sign In <i class="fa fa-lock"></i>
+                </a>
+                </li>
+                <li class="background-white">
+                <a href="{register}">
+                    Register <i class="fa fa-pencil-square-o"></i>
+                </a>
+            </li>"""
+    snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
+    return mark_safe(snippet)
 
 @register.filter
 def of_key(value, arg):
@@ -326,3 +305,10 @@ def fstrip_trailing_slash(url):
     """
     new_url = url.rstrip('/')
     return new_url
+
+
+@register.filter
+def add_class(field, class_name):
+    return field.as_widget(attrs={
+        "class": " ".join((field.css_classes(), class_name))
+    })
