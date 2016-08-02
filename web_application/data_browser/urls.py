@@ -14,13 +14,11 @@ import data_browser.views
 router = rest_framework.routers.SimpleRouter()
 # router = ExtendDefaultRouter()
 
-router.register(r'gama', data_browser.views.GAMAViewSet, base_name='gama')
-
 router.register(r'data-browser', data_browser.views.DataBrowserViewSet, base_name='data-browser')
 
 # Nested routes for sample (SAMI)
 sample_nested_router = NestedExtendDefaultRouter(router, r'data-browser', lookup='data-browser')
-sample_nested_router.register(r'(?P<sample_pk>[^/]+)', data_browser.views.SAMIViewSet, base_name='sample')
+sample_nested_router.register(r'(?P<sample_pk>[^/]+)', data_browser.views.SampleViewSet, base_name='sample')
 
 object_nested_router = NestedExtendDefaultRouter(sample_nested_router, r'(?P<sample_pk>[^/]+)', lookup='sample')
 object_nested_router.register(r'(?P<astroobject_pk>[^/]+)', data_browser.views.AstroObjectViewSet, base_name='astroobject')

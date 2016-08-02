@@ -1,0 +1,40 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{response.data.sample | uppercase}}{% endblock %}
+{% block useful_links %}
+{% with response.data.sample as survey %}
+<li role="presentation"><a href="http://gama-survey.org/">gama-survey.org</a></li>
+<li role="presentation"><a href="http://gama-survey.org/"><img class="img-responsive"
+                                                               src="/static/restapi_app/img/logo/logo-{{survey}}.png"></a>
+</li>
+{% endwith %}
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row">
+    <div class="col-sm-12">
+        <h2>Status</h2>
+    </div>
+    <div class="col-md-3 col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-heading text-uppercase">
+                <strong>In Progress</strong>
+                <i class="fa fa-refresh pull-right panel-icon"></i>
+            </div>
+            <div class="panel-body">
+                <p>GAMA data ingestion is underway!</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

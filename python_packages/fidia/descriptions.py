@@ -145,7 +145,6 @@ class TraitDescriptionsMixin(DescriptionsMixin):
      This mixin is only valid for Trait classes.
 
      """
-
     def get_pretty_name(self):
         """Return a pretty version of the Trait's name, including the qualifier if present.
 
@@ -154,6 +153,7 @@ class TraitDescriptionsMixin(DescriptionsMixin):
         class, one gets only that.
 
         """
+
         if hasattr(self, '_pretty_name'):
             name = getattr(self, '_pretty_name')
         else:
@@ -181,3 +181,20 @@ class TraitDescriptionsMixin(DescriptionsMixin):
         if not hasattr(cls, '_pretty_name_qualifiers'):
             cls._pretty_name_qualifiers = dict()
         cls._pretty_name_qualifiers.update(kwargs)
+
+
+    @classmethod
+    def get_qualifier_pretty_name(self, trait_qualifier):
+        """Return a pretty version of the Trait's qualifier."""
+        if hasattr(self, '_pretty_name_qualifiers') and trait_qualifier in self._pretty_name_qualifiers:
+            return self._pretty_name_qualifiers[trait_qualifier]
+        elif trait_qualifier in self.qualifiers:
+            # We just reformat the qualifier itself.
+            name = trait_qualifier
+            # Change underscores to spaces
+            name = name.replace("_", " ")
+            # Make the first letters of each word capital.
+            name = name.title()
+            return name
+        else:
+            raise Exception("Invalid qualifier '%s' for Trait class '%s'" % (trait_qualifier, str(self)))

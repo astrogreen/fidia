@@ -26,37 +26,23 @@ log = logging.getLogger(__name__)
 
 class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    def list(self, request, pk=None, sample_pk=None, format=None):
-        # try:
-        #     sami_dr1_sample
-        # except KeyError:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-        # except ValueError:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+    class DataBrowserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'data_browser/data_browser_root/root.html'
+    renderer_classes = (DataBrowserRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
-        # Here, ask FIDIA what samples its got in its archive...
-        return Response({"samples": "['gama','sami']"})
+    def list(self, request, pk=None, format=None):
+        # Request available samples from FIDIA
+        samples = ["sami", "gama"]
 
-
-class GAMAViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
-    class GAMARenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/sample/inprogress.html'
-
-    renderer_classes = (GAMARenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-
-    def list(self, request, pk=None, sample_pk=None, format=None):
-        try:
-            sami_dr1_sample
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'nodata': True})
+        serializer_class = data_browser.serializers.DataBrowserSerializer
+        serializer = serializer_class(
+            many=False, instance=sami_dr1_sample,
+            context={'request': request, 'samples': samples},
+        )
+        return Response(serializer.data)
 
 
-class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         pass
@@ -65,35 +51,47 @@ class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
-        try:
-            # TODO ask FIDIA what it's for sample_pk
-            sami_dr1_sample
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = data_browser.serializers.SampleSerializer
-        serializer = serializer_class(
-            instance=sami_dr1_sample, many=False,
-            context={'request': request, 'sample': sample_pk},
-            depth_limit=0,
-        )
-        return Response(serializer.data)
+        if sample_pk == 'gama':
+            self.SampleRenderer.template = 'data_browser/sample/in_progress.html'
+            return Response({"sample": "gama"})
+
+        else:
+            try:
+                # TODO ask FIDIA what it's got for for sample_pk
+                sami_dr1_sample
+            except KeyError:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            except ValueError:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            serializer_class = data_browser.serializers.SampleSerializer
+            serializer = serializer_class(
+                instance=sami_dr1_sample, many=False,
+                context={'request': request, 'sample': sample_pk},
+                depth_limit=0,
+            )
+            return Response(serializer.data)
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        pass
-        # template = 'data_browser/astroobject/astroobject-list.html'
+        template = 'data_browser/astroobject/astroobject-list.html'
+
+        def get_context(self, data, accepted_media_type, renderer_context):
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['trait_short_descriptions'] = renderer_context['view'].trait_short_descriptions
+            context['trait_pretty_names'] = renderer_context['view'].trait_pretty_names
+            return context
+
 
     renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
 
         try:
-            astroobject = sami_dr1_sample[astroobject_pk]
+            astro_object = sami_dr1_sample[astroobject_pk]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
@@ -104,34 +102,48 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.AstroObjectSerializer
 
-        # Get schema for this archive's astro object and sort alphabetically
-        sorted_schema_temp = {}
+        # # Get schema for this archive's astro object and sort alphabetically
+        # sorted_schema_temp = {}
+        #
+        # for key, value in sorted(ar.schema(by_trait_name=True).items()):
+        #     sorted_schema_temp[key] = collections.OrderedDict(sorted(value.items()))
+        #
+        # sorted_schema = collections.OrderedDict(sorted(sorted_schema_temp.items()))
+        #
+        # # Get available traits (minus qualifier) for this archive's astro object
+        # # to provide groupings (line maps, velocity maps etc) in ao view.
+        # available_trait_set = ar.available_traits.get_traits()
+        # trait_list = []
+        #
+        # for ty in available_trait_set:
+        #     trait_list.append(ty.trait_type)
+        #
+        # trait_list = restapi_app.utils.helpers.unique_list(trait_list)
 
-        for key, value in sorted(ar.schema(by_trait_name=True).items()):
-            sorted_schema_temp[key] = collections.OrderedDict(sorted(value.items()))
-
-        sorted_schema = collections.OrderedDict(sorted(sorted_schema_temp.items()))
-
-        # Get available traits (minus qualifier) for this archive's astro object
-        # to provide groupings (line maps, velocity maps etc) in ao view.
-        available_trait_set = ar.available_traits.get_traits()
-        trait_list = []
-
-        for ty in available_trait_set:
-            trait_list.append(ty.trait_type)
-
-        trait_list = restapi_app.utils.helpers.unique_list(trait_list)
+        trait_registry = ar.available_traits
 
         serializer = serializer_class(
-            instance=astroobject, many=False,
+            instance=astro_object, many=False,
             context={
                 'sample': sample_pk,
                 'astroobject': astroobject_pk,
                 'request': request,
-                'schema': sorted_schema,
-                'trait_list': sorted(trait_list)
+                # 'schema': sorted_schema,
+                # 'trait_list': sorted(trait_list)
+                'trait_types': trait_registry.get_trait_types(),
+                'trait_names': trait_registry.get_trait_names()
             }
         )
+
+        print("hi")
+
+        self.trait_short_descriptions = dict()
+        self.trait_pretty_names = dict()
+        for trait_name in trait_registry.get_trait_names():
+            default_trait_key = trait_registry.update_key_with_defaults(trait_name)
+            trait_class = trait_registry.retrieve_with_key(default_trait_key)
+            self.trait_short_descriptions[trait_name] = trait_class.get_description()
+            self.trait_pretty_names[trait_name] = trait_class.get_pretty_name()
 
         return Response(serializer.data)
 

@@ -41,6 +41,15 @@ class DocumentationHTMLField(serializers.Field):
         return obj.get_documentation(format='html')
 
 
+class DataBrowserSerializer(serializers.Serializer):
+
+    def get_samples(self, obj):
+        print(self.context['samples'])
+        return self.context['samples']
+
+    samples = serializers.SerializerMethodField()
+
+
 class SampleSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
@@ -87,24 +96,24 @@ class AstroObjectSerializer(serializers.Serializer):
 
         # self.fields['name'] = serializers.CharField(required=False)
 
-        for trait in astro_object:
-            depth_limit = 0
-            trait_key = trait
-
-            url_kwargs = {
-                'sample_pk': self.context['sample'],
-                'astroobject_pk': astro_object._identifier,
-                'trait_pk': str(trait_key)
-            }
-
-            url = reverse("data_browser:trait-list", kwargs=url_kwargs)
-            if depth_limit == 0:
-                self.fields[str(trait_key)] = AbsoluteURLField(url=url, required=False)
-                # No details to be displayed below this level
-            else:
-                # Recurse displaying details at lower level
-                self.fields[str(trait_key)] = \
-                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
+        # for trait in astro_object:
+        #     depth_limit = 0
+        #     trait_key = trait
+        #
+        #     url_kwargs = {
+        #         'sample_pk': self.context['sample'],
+        #         'astroobject_pk': astro_object._identifier,
+        #         'trait_pk': str(trait_key)
+        #     }
+        #
+        #     url = reverse("data_browser:trait-list", kwargs=url_kwargs)
+        #     if depth_limit == 0:
+        #         self.fields[str(trait_key)] = AbsoluteURLField(url=url, required=False)
+        #         # No details to be displayed below this level
+        #     else:
+        #         # Recurse displaying details at lower level
+        #         self.fields[str(trait_key)] = \
+        #             AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
 
     def get_sample(self, obj):
         return self.context['sample']
@@ -112,16 +121,21 @@ class AstroObjectSerializer(serializers.Serializer):
     def get_astroobject(self, obj):
         return self.context['astroobject']
 
+    def get_trait_types(self, obj):
+        return self.context['trait_types']
+
+    def get_trait_names(self, obj):
+        return self.context['trait_names']
+
     def get_schema(self, obj):
         return self.context['schema']
 
-    def get_trait_list(self, obj):
-        return self.context['trait_list']
-
     sample = serializers.SerializerMethodField()
     astroobject = serializers.SerializerMethodField()
-    schema = serializers.SerializerMethodField()
-    trait_list = serializers.SerializerMethodField()
+    trait_types = serializers.SerializerMethodField()
+    trait_names = serializers.SerializerMethodField()
+    # schema = serializers.SerializerMethodField()
+
 
 
 class AstroObjectTraitPropertySerializer(serializers.Serializer):

@@ -25,6 +25,7 @@ html {
 body {
   /* Margin bottom by footer height */
   background-color: #ffffff;
+  background-color: #F7F8F8;
   color: #404040;
   font-family: 'Roboto', sans-serif;
 }

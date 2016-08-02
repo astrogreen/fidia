@@ -1,0 +1,66 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}Data Browser{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Data Browser{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema</a></li>
+<li role="presentation"><a href="{% url 'documentation' %}">Documentation</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row data-browser-root">
+    <div class="col-xs-12">
+        <p>The Data Browser is a portal to all data hosted at the AAODC. Each survey's components are discoverable in a
+            tree-like structure, allowing you to view the data itself, alongside any associated meta data.
+        </p>
+
+        <p>{% lorem %}</p><br>
+
+    </div>
+    {% for sample in response.data.samples %}
+    <div class="col-sm-6">
+        <a href="{{sample}}">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="media-container">
+                        <div class="img-container">
+                            <img class="img-responsive {{sample}}" src="/static/data_browser/img/logo-{{sample}}-dark.png">
+                        </div>
+                    </div>
+                    <div class="header-container">
+                        <h3>{{sample | uppercase}}
+                            <small>
+                                {% with "data_browser/data_browser_root/samples/object_count_"|add:sample|add:".html" as template %}
+                                    {% include template %}
+                                {% endwith %}
+                                objects
+                            </small>
+                        </h3>
+                        {% with "data_browser/data_browser_root//samples/"|add:sample|add:".html" as template %}
+                        {% include template %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+
+    <div class="col-sm-6">
+
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
