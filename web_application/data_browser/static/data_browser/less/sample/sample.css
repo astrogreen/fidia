@@ -94,6 +94,10 @@
   font-weight: 300;
   line-height: 18px;
 }
+.data-browser-root .panel-default .panel-heading:hover,
+.schema-browser-root .panel-default .panel-heading:hover {
+  background: #fafafa;
+}
 .raw-data {
   max-height: 300px;
   overflow: scroll;
@@ -173,35 +177,20 @@ h6 > a:nth-child(1) {
   margin-right: 15px;
 }
 .nav-tabs {
-  margin: 15px 0 20px 0;
+  margin: 15px 0;
+  border-bottom: 1px solid #eee;
 }
-.nav-tabs:first-of-type {
-  margin-top: 0px;
+span.version {
+  margin-left: 5px;
 }
-.list-group {
-  margin-top: 15px;
+.table-astro-object a {
+  text-decoration: none;
 }
-.list-group .list-group-item {
-  border-radius: 0;
+.table-astro-object a h4 {
+  margin-bottom: 6px;
 }
-.subheading {
-  color: #707070;
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 20px;
-}
-.trait_tabs .list-group {
-  margin-top: 0;
-}
-.trait_tabs .nav-tabs {
-  margin-bottom: 0;
-}
-.trait_tabs .panel-default {
-  border-top: 0px;
-}
-.trait_tabs .subheading {
-  margin-top: 10px;
+.table-astro-object .options {
+  padding: 6px 15px;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -20,7 +20,7 @@ import data_browser.serializers
 import data_browser.renderers
 
 import fidia.exceptions
-from fidia.traits import Trait, TraitProperty, TraitRegistry
+from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey
 
 log = logging.getLogger(__name__)
 
@@ -103,7 +103,11 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer_class = data_browser.serializers.AstroObjectSerializer
-
+        url_kwargs = {
+            'astroobject_pk': astroobject_pk,
+            'sample_pk': sample_pk,
+        }
+        astro_object_url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=request)
         # Dict of available traits
         trait_registry = ar.available_traits
         trait_info = {}
@@ -113,7 +117,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             trait_info[trait_type] = {}
 
             # Descriptions
-
             trait_info[trait_type]["description"] = ""
             trait_info[trait_type]["traits"] = {}
 
@@ -128,47 +131,38 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     'astroobject_pk': astroobject_pk,
                     'sample_pk': sample_pk,
                 }
-                trait_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
+                trait_name_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
 
                 # Pretty Name
                 # - trait_type
-                if hasattr(trait_class, "_pretty_name"):
-                    # trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
-                    trait_info[trait_type]["pretty_name"] = trait_class._pretty_name
-                else:
-                    trait_info[trait_type]["pretty_name"] = trait_type
+                trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
 
-                # - trait_key
-                trait_key_pretty_name = None
+                # - trait_name
+                trait_name_pretty_name = trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1])
 
                 # Descriptions
                 # - trait_type description
                 trait_type_short_description = trait_class.get_description()
                 trait_info[trait_type]["description"] = trait_type_short_description
 
-                # - trait_key description
-                trait_key_short_description = None
+                # - trait_name description
+                trait_name_short_description = None
 
                 # Formats
-                formats = []
+                trait_name_formats = []
                 for r in TraitViewSet.renderer_classes:
                     f = str(r.format)
-                    if f != "api": formats.append(f)
-
-                # Versions
-                versions = None
-                # versions = {"v1": "url"}
+                    if f != "api": trait_name_formats.append(f)
 
                 # Branches
-                branches = None
-                # branches = {"branch_1": "url"}
+                trait_name_branches = {str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))
+                                        for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
 
-                trait_info[trait_type]["traits"][trait_name] = {"url": trait_url,
-                                                                "pretty_name": trait_key_pretty_name,
-                                                                "description": trait_key_short_description,
-                                                                "versions": versions,
-                                                                "branches": branches,
-                                                                "formats": formats}
+                trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
+                                                                "pretty_name": trait_name_pretty_name,
+                                                                "description": trait_name_short_description,
+                                                                "branches": trait_name_branches,
+                                                                "formats": trait_name_formats}
 
         serializer = serializer_class(
             instance=astro_object, many=False,
@@ -179,15 +173,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'available_traits': trait_info
             }
         )
-
-        # self.trait_short_descriptions = dict()
-        # self.trait_pretty_names = dict()
-        # for trait_name in trait_registry.get_trait_names():
-        #     default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-        #     trait_class = trait_registry.retrieve_with_key(default_trait_key)
-        #     self.trait_short_descriptions[trait_name] = trait_class.get_description()
-        #     self.trait_pretty_names[trait_name] = trait_class.get_pretty_name()
-
         return Response(serializer.data)
 
 

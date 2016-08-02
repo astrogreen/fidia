@@ -25,7 +25,6 @@ html {
 body {
   /* Margin bottom by footer height */
   background-color: #ffffff;
-  background-color: #F7F8F8;
   color: #404040;
   font-family: 'Roboto', sans-serif;
 }
@@ -95,6 +94,11 @@ h6,
   color: #1D2122;
   color: #232829;
   line-height: 1.2;
+}
+small,
+.sub-heading {
+  color: #aebdc1;
+  color: #8ca1a6;
 }
 p {
   color: #404040;
@@ -312,6 +316,7 @@ header user a > a {
 */
 .page_title_banner {
   background: #FFFFFF;
+  background-color: #fafafa;
   border-bottom: 1px solid rgba(0, 0, 0, 0.075);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
@@ -431,9 +436,6 @@ header user a > a {
 .well form {
   margin-bottom: 0;
 }
-.sub-heading {
-  color: #888;
-}
 .fa-text-inner {
   font-family: 'Roboto', sans-serif !important;
   font-size: 35% !important;
@@ -465,8 +467,8 @@ li {
 .btn-primary:focus,
 .btn-primary.focus {
   color: #fff;
-  background-color: #459dd3;
-  border-color: #3092cf;
+  background-color: #fafafa;
+  border-color: #eee;
 }
 .btn-default-disabled {
   box-shadow: 0 3px 0 0 #2c83ba;
@@ -477,6 +479,13 @@ li {
   background-color: #a94442;
   color: #fff;
   border: 1px solid #a94442;
+}
+.button-dropdown-list > li > a {
+  display: block;
+  padding: 7px;
+  line-height: 24px;
+  float: none;
+  text-decoration: none;
 }
 .pagination {
   font-size: 12px;
@@ -589,14 +598,6 @@ li {
 .resource-description,
 .response-info {
   margin-bottom: 2em;
-}
-.version:before {
-  content: "v";
-  opacity: 0.6;
-  padding-right: 0.25em;
-}
-.version {
-  font-size: 70%;
 }
 .format-option {
   font-family: Menlo, Consolas, "Andale Mono", "Lucida Console", monospace;

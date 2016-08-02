@@ -142,7 +142,7 @@
   .button.disabled, .button.is-disabled, .button:disabled {
     top: 0 !important;
     background: #EEE !important;
-    border: 1px solid #DDD !important;
+    border: 0px solid #DDD !important;
     text-shadow: 0 1px 1px white !important;
     color: #CCC !important;
     cursor: default !important;
