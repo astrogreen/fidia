@@ -46,6 +46,27 @@ def formatted(text, input_format, output_format=None):
         # Convert text to new format using Pandoc
         return pypandoc.convert_text(text, output_format, format=input_format)
 
+def instance_check(obj):
+    """Helper function to respect whether descriptions may be set on instances, classes or both.
+
+    """
+
+    if not hasattr(obj, 'descriptions_allowed'):
+        # The object's class does not explicitly define what kinds of descriptions are allowed, so assume both.
+        log.debug("Descriptions_allowed not set, class or instance are valid.")
+        return True
+    if isclass(obj) and obj.descriptions_allowed in ('both', 'class'):
+        log.debug("Operating on class object '%s' and allowed." % str(obj))
+        return True
+    if not isclass(obj) and obj.descriptions_allowed in ('both', 'instance'):
+        log.debug("Operating on instance object '%s' and allowed." % str(obj))
+        return True
+
+    # Otherwise, request to do something not allowed:
+    raise ValueError("Attempt to set description field on '%s' does not match `descriptions_allowed` of '%s'"
+                     % (str(obj), obj.descriptions_allowed))
+
+
 
 class DescriptionsMixin:
     """A mix-in class which provides descriptions functionality for any class.
@@ -87,8 +108,8 @@ class DescriptionsMixin:
 
     """
 
-    @classmethod
-    def _parse_doc_string(cls, doc_string):
+    @classorinstancemethod
+    def _parse_doc_string(self, doc_string):
         """Take a doc string and parse it for documentation."""
         log.debug("Parsing doc string: \n'''%s'''", doc_string)
 
@@ -102,11 +123,11 @@ class DescriptionsMixin:
         # Check for a format designator at the end.
         match = re.match(r"^\s*#+format: (?P<format>\w+)\s*$", doc_lines[-1])
         if match:
-            cls._documentation_format = match.group('format')
-            log.debug("Format designator found, format set to '%s'", cls._documentation_format)
+            documentation_format = match.group('format')
+            log.debug("Format designator found, format set to '%s'", documentation_format)
             del doc_lines[-1]
         else:
-            cls._documentation_format = DEFAULT_FORMAT
+            documentation_format = DEFAULT_FORMAT
             log.debug("No format descriptor found, candidate was: `%s`", doc_lines[-1])
 
         # Rejoin all but the first line:
@@ -118,29 +139,49 @@ class DescriptionsMixin:
         # Rejoin first line:
         documentation = "\n".join((doc_lines[0], documentation))
 
-        cls._documentation = documentation
-
-    @classmethod
-    def get_documentation(cls, format=None):
-        if hasattr(cls, '_documentation'):
-            log.info("Documentaiton found in cls._documentation")
-            return formatted(cls._documentation, cls._documentation_format, format)
+        # Update either the class or the instance as appropriate:
         try:
-            if hasattr(cls, 'doc') and cls.doc is not None:
+            instance_check(self)
+        except ValueError:
+            if isclass(self) and self.descriptions_allowed == 'instance':
+                # In this case, we probably have already had an error, but do nothing.
+                log.error("Cannot save parsed doc string as descriptions only allowed on instance" +
+                          " and have been given the class '%s'" % self)
+                pass
+            if not isclass(self) and self.descriptions_allowed == 'class':
+                # We have been given an instance, but descriptions are only allowed on classes, so set there.
+                type(self)._documentation = documentation
+                type(self)._documentation_format = documentation_format
+        else:
+            # In this case, the instance check passes, and it is safe to save
+            # the description data on the object we have (class or instance)
+            self._documentation = documentation
+            self._documentation_format = documentation_format
+
+    @classorinstancemethod
+    def get_documentation(self, format=None):
+        if hasattr(self, '_documentation'):
+            log.info("Documentaiton found in cls._documentation")
+            return formatted(self._documentation, self._documentation_format, format)
+        try:
+            if hasattr(self, 'doc') and self.doc is not None:
                 log.info("Documentation found in cls.doc")
-                cls._parse_doc_string(cls.doc)
-                return formatted(cls._documentation, cls._documentation_format, format)
-            if hasattr(cls, '__doc__') and cls.__doc__ is not None:
+                self._parse_doc_string(self.doc)
+                return formatted(self._documentation, self._documentation_format, format)
+            if hasattr(self, '__doc__') and self.__doc__ is not None:
                 log.info("Documentation found in cls.__doc__")
-                cls._parse_doc_string(cls.__doc__)
-                return formatted(cls._documentation, cls._documentation_format, format)
+                self._parse_doc_string(self.__doc__)
+                return formatted(self._documentation, self._documentation_format, format)
         except:
             return None
 
-    @classmethod
-    def set_documentation(cls, value, format=DEFAULT_FORMAT):
-        cls._documentation = value
-        cls._documentation_format = format
+    @classorinstancemethod
+    def set_documentation(self, value, format=DEFAULT_FORMAT):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
+
+        self._documentation = value
+        self._documentation_format = format
 
     @classmethod
     def get_pretty_name(cls):
@@ -176,25 +217,31 @@ class DescriptionsMixin:
     def set_description(cls, value):
         cls._short_description = value
 
-    @classmethod
-    def get_short_name(cls):
-        if hasattr(cls, '_short_name'):
-            return cls._short_name
+    @classorinstancemethod
+    def get_short_name(self):
+        if hasattr(self, '_short_name'):
+            return self._short_name
         else:
             # Use the name of the class as the short name, with munging to uppercase
-            name = cls.__name__
+            if isclass(self):
+                name = self.__name__
+            else:
+                name = type(self).__name__
             # Convert to upper case
             name = name.upper()
             return name
 
-    @classmethod
-    def set_short_name(cls, value):
+    @classorinstancemethod
+    def set_short_name(self, value):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
+
         if not isinstance(value, str):
             ValueError("Short name can only be set to a string.")
         value_upper = value.upper()
         if SHORT_NAME_RE.match(value_upper) is None:
             raise ValueError("Invalid Short Name '%s': Short names can only consist of letters, numbers and underscores" % value)
-        cls._short_name = value_upper
+        self._short_name = value_upper
 
 class TraitDescriptionsMixin(DescriptionsMixin):
     """Extends Descriptions Mixin to include support for qualifiers on Traits

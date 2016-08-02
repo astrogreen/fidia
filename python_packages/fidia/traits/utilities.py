@@ -234,6 +234,8 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         'int.array'
     ]
 
+    descriptions_allowed = 'instance'
+
     def __init__(self, fload=None, fset=None, fdel=None, doc=None, type=None, name=None):
         self.fload = fload
         self.fset = fset
@@ -387,7 +389,7 @@ def trait_property_from_fits_header(header_card_name, type, name):
     tp = TraitProperty(type=type, name=name)
 
     tp.fload = lambda self: self._header[header_card_name]
-    tp.short_name = header_card_name
+    tp.set_short_name(header_card_name)
 
     # # @TODO: Providence information can't get filename currently...
     # tp.providence = "!: FITS-Header {{file: '{filename}' extension: '{extension}' header: '{card_name}'}}".format(

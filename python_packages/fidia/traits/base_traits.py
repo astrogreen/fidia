@@ -68,6 +68,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     qualifiers = None
     branches_versions = None
 
+    descriptions_allowed = 'class'
 
     @classmethod
     def schema(cls, include_subtraits=True, by_trait_name=False):
