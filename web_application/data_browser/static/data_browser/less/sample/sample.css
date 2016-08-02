@@ -1,22 +1,26 @@
-body {
-  background-color: #F7F8F8;
-}
-.data-browser-root a {
+.data-browser-root a,
+.schema-browser-root a {
   text-decoration: none;
   cursor: hand ;
+  background-color: #F7F8F8;
 }
-.data-browser-root .panel-default {
+.data-browser-root .panel-default,
+.schema-browser-root .panel-default {
   border-color: #fff;
 }
 .data-browser-root .panel-default .panel-heading,
-.data-browser-root .panel-default .panel-footer {
+.schema-browser-root .panel-default .panel-heading,
+.data-browser-root .panel-default .panel-footer,
+.schema-browser-root .panel-default .panel-footer {
   background-color: #FFFFFF;
 }
-.data-browser-root .panel-default .panel-heading {
+.data-browser-root .panel-default .panel-heading,
+.schema-browser-root .panel-default .panel-heading {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   padding: 25px;
 }
-.data-browser-root .panel-default .panel-heading .media-container {
+.data-browser-root .panel-default .panel-heading .media-container,
+.schema-browser-root .panel-default .panel-heading .media-container {
   color: #21abc7;
   cursor: auto;
   display: block;
@@ -30,7 +34,8 @@ body {
   text-align: left;
   width: 110px;
 }
-.data-browser-root .panel-default .panel-heading .media-container .img-container {
+.data-browser-root .panel-default .panel-heading .media-container .img-container,
+.schema-browser-root .panel-default .panel-heading .media-container .img-container {
   margin-top: 5px;
   height: 100px;
   position: relative;
@@ -42,7 +47,8 @@ body {
   padding: 10px;
   overflow: hidden;
 }
-.data-browser-root .panel-default .panel-heading .media-container .img-container img {
+.data-browser-root .panel-default .panel-heading .media-container .img-container img,
+.schema-browser-root .panel-default .panel-heading .media-container .img-container img {
   max-width: 80px;
   max-height: 80px;
   left: 0;
@@ -52,11 +58,13 @@ body {
   bottom: 0;
   margin: auto;
 }
-.data-browser-root .panel-default .panel-heading .media-container .img-container .gama {
+.data-browser-root .panel-default .panel-heading .media-container .img-container .gama,
+.schema-browser-root .panel-default .panel-heading .media-container .img-container .gama {
   max-width: 70px;
   max-height: 70px;
 }
-.data-browser-root .panel-default .panel-heading .header-container {
+.data-browser-root .panel-default .panel-heading .header-container,
+.schema-browser-root .panel-default .panel-heading .header-container {
   cursor: auto;
   display: table-cell;
   height: 109.5px;
@@ -64,22 +72,25 @@ body {
   text-align: left;
   vertical-align: middle;
 }
-.data-browser-root .panel-default .panel-heading .header-container h3 {
+.data-browser-root .panel-default .panel-heading .header-container h3,
+.schema-browser-root .panel-default .panel-heading .header-container h3 {
   margin-bottom: 6px;
   border-bottom: 0;
   margin-top: 6px;
   font-size: 24px;
-  color: #3f9ad2;
+  color: #4078C0;
   line-height: 24px;
 }
-.data-browser-root .panel-default .panel-heading .header-container small {
+.data-browser-root .panel-default .panel-heading .header-container small,
+.schema-browser-root .panel-default .panel-heading .header-container small {
   color: #aebdc1;
   font-size: 15px;
   font-weight: normal;
   left: 0;
   line-height: 0;
 }
-.data-browser-root .panel-default .panel-heading .header-container p {
+.data-browser-root .panel-default .panel-heading .header-container p,
+.schema-browser-root .panel-default .panel-heading .header-container p {
   font-weight: 300;
   line-height: 18px;
 }

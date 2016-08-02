@@ -69,10 +69,7 @@ body h6 {
   line-height: 20px;
 }
 body a {
-  color: #A30000;
-}
-body a:hover {
-  color: #c20000;
+  color: #4078C0;
 }
 body a.disabled {
   pointer-events: none;
@@ -151,7 +148,7 @@ select {
 code {
   padding: 2px 4px;
   font-size: 90%;
-  color: #5aa8d8;
+  color: #4078C0;
   background-color: #f9f2f4;
   border-radius: 4px;
 }
@@ -164,7 +161,7 @@ code {
   color: #515151;
 }
 .text-success {
-  color: #5aa8d8;
+  color: #4078C0;
 }
 .text-error {
   color: #a94442;
@@ -452,9 +449,9 @@ li {
   outline: 0 none;
 }
 .btn-primary {
-  background-color: #5aa8d8;
+  background-color: #4078C0;
   color: #fff;
-  border: 1px solid #5aa8d8;
+  border: 1px solid #4078C0;
 }
 .btn-primary:active:hover,
 .btn-primary.active:hover,
@@ -480,22 +477,6 @@ li {
   background-color: #a94442;
   color: #fff;
   border: 1px solid #a94442;
-}
-/***********************
-  RAISED BUTTON
-************************/
-.btn-primary.raised {
-  box-shadow: 0 3px 0 0 #2c83ba;
-  text-transform: uppercase;
-  border-radius: 3px !important;
-}
-.btn-primary.raised:active,
-.btn-primary.raised.focus {
-  background: #5aa8d8;
-  box-shadow: none;
-  margin-bottom: -3px;
-  margin-top: 3px;
-  border: solid 1px #5aa8d8;
 }
 .pagination {
   font-size: 12px;
@@ -580,7 +561,7 @@ li {
 }
 .panel.success,
 .panel-body.success {
-  border-left: 3px solid #5aa8d8;
+  border-left: 3px solid #4078C0;
 }
 .panel-footer {
   border-top: solid 1px #ddd;

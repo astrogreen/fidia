@@ -6,6 +6,7 @@
 {% block head-extra %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'schema/css/schema/schema.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
@@ -18,36 +19,43 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12">
-        <h2>Schema by Survey</h2>
+        <h2>Survey Schemas</h2>
     </div>
 </div>
-<div class="row">
+<div class="row schema-browser-root">
     <div class="col-xs-12">
         <p>AAODC hosts surveys containing a variety of astronomical objects. You can view the schema for the current
             surveys ingested into the system below.</p>
         <br>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Schema
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-overview">
-                    <tbody>
-                    <tr>
-                        {% for survey in response.data.samples %}
-                        <td><a href=""><img class="img-responsive"
-                                            src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-                            <div>{{survey | uppercase }}</div>
-                        </a></td>
-                        {% endfor %}
-                    </tr>
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
+    {% for sample in response.data.samples %}
+    <div class="col-sm-6">
+        <a href="{{sample}}/">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="media-container">
+                        <div class="img-container">
+                            <img class="img-responsive {{sample}}" src="/static/data_browser/img/logo-{{sample}}-dark.png">
+                        </div>
+                    </div>
+                    <div class="header-container">
+                        <h3>{{sample | uppercase}}
+                            <small>
+                                {% with "data_browser/data_browser_root/samples/object_count_"|add:sample|add:".html" as template %}
+                                    {% include template %}
+                                {% endwith %}
+                                objects
+                            </small>
+                        </h3>
+                        {% with "data_browser/data_browser_root//samples/"|add:sample|add:".html" as template %}
+                        {% include template %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
 </div>
 
 <div class="row" id="data-structure">

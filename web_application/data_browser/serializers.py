@@ -121,19 +121,23 @@ class AstroObjectSerializer(serializers.Serializer):
     def get_astroobject(self, obj):
         return self.context['astroobject']
 
-    def get_trait_types(self, obj):
-        return self.context['trait_types']
+    # def get_trait_types(self, obj):
+    #     return self.context['trait_types']
+    #
+    # def get_trait_names(self, obj):
+    #     return self.context['trait_names']
 
-    def get_trait_names(self, obj):
-        return self.context['trait_names']
+    def get_available_traits(self, obj):
+        return self.context['available_traits']
 
     def get_schema(self, obj):
         return self.context['schema']
 
     sample = serializers.SerializerMethodField()
     astroobject = serializers.SerializerMethodField()
-    trait_types = serializers.SerializerMethodField()
-    trait_names = serializers.SerializerMethodField()
+    # trait_types = serializers.SerializerMethodField()
+    # trait_names = serializers.SerializerMethodField()
+    available_traits = serializers.SerializerMethodField()
     # schema = serializers.SerializerMethodField()
 
 

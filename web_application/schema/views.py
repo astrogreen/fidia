@@ -25,21 +25,15 @@ import data_browser.renderers
 class SchemaViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'schema/main.html'
+        template = 'schema/root.html'
 
     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     # breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, format=None):
 
-        # Get FIDIA list of available samples (surveys).
+        # TODO Get FIDIA list of available samples (surveys).
 
-        # try:
-        #     sami_dr1_sample
-        # except KeyError:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-        # except ValueError:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response({"samples": ['sami', 'gama']})
 
 
