@@ -220,3 +220,8 @@ def trait_property_from_fits_header(header_card_name, type, name):
     # )
 
     return tp
+
+def trait_property_from_constant(const_value, type, name):
+    tp = TraitProperty(type=type, name=name)
+    tp.fload = lambda self: const_value
+    return tp

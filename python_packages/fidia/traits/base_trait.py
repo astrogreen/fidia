@@ -537,7 +537,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
         """
-        log.debug("Incrementing preload for trait %s", self.trait_key)
+        log.vdebug("Incrementing preload for trait %s", self.trait_key)
         assert self._preload_count >= 0
         try:
             if self._preload_count == 0:
@@ -555,7 +555,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
         """
-        log.debug("Decrementing preload for trait %s", self.trait_key)
+        log.vdebug("Decrementing preload for trait %s", self.trait_key)
         assert self._preload_count > 0
         try:
             if self._preload_count == 1:
@@ -664,10 +664,12 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         hdulist.append(primary_hdu)
 
         # Attach all "meta-data" Traits to Header of Primary HDU
+        from . import meta_data_traits
         for sub_trait in self.get_all_subtraits():
-            from . import meta_data_traits
-            if not issubclass(sub_trait, meta_data_traits.MetadataTrait):
+            log.debug("Searching for metadata in subtrait '%s'...", sub_trait)
+            if not isinstance(sub_trait, meta_data_traits.MetadataTrait):
                 continue
+            log.debug("Adding metadata trait '%s'", sub_trait)
             # MetadataTrait will have a bunch of Trait Properties which should
             # be appended individually, so we iterate over each Trait's
             # TraitProperties
@@ -675,6 +677,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 keyword_name = trait_property.get_short_name()
                 keyword_value = trait_property.value
                 keyword_comment = trait_property.get_description()
+                log.debug("Adding metadata TraitProperty '%s' to header", keyword_name)
                 primary_hdu.header[keyword_name] = (
                     keyword_value,
                     keyword_comment)
@@ -697,6 +700,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             keyword_name = trait_property.get_short_name()
             keyword_value = trait_property.value
             keyword_comment = trait_property.get_description()
+            log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
             primary_hdu.header[keyword_name] = (
                 keyword_value,
                 keyword_comment)
@@ -712,6 +716,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 # @TODO: Issue a warning?
                 log.warning("TraitProperty '%s' skipped because it is to long to fit in header", trait_property)
                 continue
+            log.debug("Adding string TraitProperty '%s' to header", keyword_name)
             primary_hdu.header[keyword_name] = (
                 keyword_value,
                 keyword_comment)
