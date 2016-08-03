@@ -99,7 +99,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                     # Create empty this sub-trait type:
                     schema[trait_name] = SchemaDictionary()
                     # Populate the dict with schema from each sub-type:
-                    for trait_class in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                    for trait_class in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
                         subtrait_schema = trait_class.schema()
                         try:
                             schema[trait_name].update(subtrait_schema)
@@ -125,7 +125,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                     trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
                     for trait_name in trait_names:
                         trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-                        for trait in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                        for trait in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
                             log.debug("        Attempting to add Trait class '%s'", trait)
                             trait_schema = trait.schema()
                             if trait_name not in schema[trait_type]:

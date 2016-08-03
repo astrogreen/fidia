@@ -126,7 +126,6 @@ class RedImage(Image):
 
     qualifiers = {'red'}
 
-
     @trait_property('float.array')
     def value(self):
         return np.random.random((20, 20))
@@ -135,7 +134,7 @@ class RedImage(Image):
     def variance(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('string')
     def extra_property_red(self):
         return 'red'
 
@@ -153,7 +152,7 @@ class BlueImage(Image):
     def variance(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('string')
     def extra_property_blue(self):
         return 'blue'
 
@@ -176,7 +175,7 @@ class BlueImage(Image):
             return np.random.random((20, 20))
 
 
-        @trait_property('float.array')
+        @trait_property('string')
         def extra_property_blue(self):
             return 'blue'
 
@@ -194,7 +193,7 @@ class BlueImage(Image):
         def variance(self):
             return np.random.random((20, 20))
 
-        @trait_property('float.array')
+        @trait_property('string')
         def extra_property_red(self):
             return 'red'
 
