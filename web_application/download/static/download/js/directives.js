@@ -57,8 +57,10 @@ console.log('directives.js');
 
                 // populate the dropdown
                 scope.populateDropdown = function(){
+                    console.log(attr.formats);
                     if (typeof attr.formats !== 'undefined' && attr.formats.length > 0){
-                        scope.formats = JSON.parse(attr.formats);
+                        // Parse the valid json string (after replacing ' for ") as a valid JS object
+                        scope.formats = JSON.parse(attr.formats.replace(/'/g, '"'));
                     };
                 };
 

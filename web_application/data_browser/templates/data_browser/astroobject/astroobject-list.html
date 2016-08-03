@@ -166,6 +166,7 @@
                                                             </p>
                                                         </div>
                                                         <div class="col-sm-4 text-right col-xs-12 options">
+
                                                             <div class="btn-group" role="group" aria-label="...">
                                                                 <div class="btn-group" role="group">
                                                                     <button type="button" class="btn btn-default dropdown-toggle"
@@ -178,16 +179,9 @@
                                                                         {% endfor %}
                                                                     </ul>
                                                                 </div>
-                                                                <div class="btn-group" role="group">
-                                                                    <button type="button" class="btn btn-default dropdown-toggle"
-                                                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                        <i class="fa fa-download"></i> Download <i class="fa fa-caret-down"></i>
-                                                                    </button>
-                                                                    <ul class="dropdown-menu">
-
-                                                                    </ul>
-                                                                </div>
+                                                                <add-download-button url='{{value.url}}' options='' formats='{{value.formats}}'></add-download-button>
                                                             </div>
+
                                                         </div>
                                                     </div>
                                                 </td>
@@ -213,22 +207,6 @@
 {% block content-DRFs %}{% endblock %}
 {% block footer-extra %}
 <script type="application/javascript">
-    var trait_list = {
-    {
-        response.data.trait_list | safe
-    }
-    }
-    ;
-
-    function myfunction(item, index) {
-        // Open up accordion for first panel in each column
-        $('#accordion_' + item + ' .panel:first-of-type .panel-title a').attr('aria-expanded', true);
-        $('#accordion_' + item + ' .panel:first-of-type .panel-collapse.collapse').addClass('in');
-
-    }
-
-    trait_list.forEach(myfunction);
-
     $('#ao_tabs a').click(function (e) {
         e.preventDefault()
         $(this).tab('show')
