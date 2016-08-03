@@ -18,88 +18,67 @@
 {% block useful_links %}
 {% endblock useful_links %}
 
-{% block content_render %}
-
+{% block content-test %}
 <div class="row">
-    <div class="col-sm-8">
-        <div class="panel panel-default panel-download">
-            <div class="panel-heading text-uppercase">
-                <strong> Download </strong>
-                <i class="fa fa-download pull-right panel-icon"></i>
-            </div>
-            <div class="panel-body">
-                <div class="table-responsisve">
-                    <table class="table table-hover">
-                        <colgroup>
-                            <col span="1" style="width: 20%;">
-                            <col span="1" style="width: 30%;">
-                            <col span="1" style="width: 20%;">
-                            <col span="1" style="width: 10%;">
-                            <col span="1" style="width: 20%;">
-                        </colgroup>
-                        <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Download Request</th>
-                            <th>Download Link
-                                <a href="#" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                                    data-content="<p>There are three stages of download:</p><dl><dt class='text-warning'>In Progress</dt><dd>Your Download is underway.</dd><dt class='text-success'>Ready to Download</dt><dd>Your Download is ready, please download it within 7 days.</dd><dt class='text-error'>Expired</dt><dd>Your Download has expired and has been removed from our servers.</dd></dl>"
-                                    data-placement="top"><i class="fa fa-info-circle"></i></a></th>
-                            <th>Size <a href="#" data-toggle="popover" class="popover-anchor" data-trigger="focus"
-                                        data-content="Size on disk in MB" data-placement="top"><i
-                                    class="fa fa-info-circle"></i></a></th>
-                            <th>Date <a href="#" data-toggle="popover" class="popover-anchor" data-trigger="focus"
-                                        data-content="Most recent downloads are shown first." data-placement="top"><i
-                                    class="fa fa-info-circle"></i></a></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for obj in response.data.results %}
-                        <tr>
-                            <td><a href="{{obj.url}}">{{obj.title}}</a></td>
-                            <td>{{obj.downloaditems}}</td>
-                            <td class="{% if 'progress' in obj.downloadlink %}text-success{% elif 'expired' in obj.downloadlink %}text-error{% else %}{% endif %}">
-                                <em>{{obj.downloadlink}}</em>
-                            </td>
-                            <td>{{obj.size}}</td>
-                            <td>{{obj.created}}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% block content-download %}
-                    {% if 'GET' in allowed_methods %}
-                        <form id="download-list" class="custom-inline">
-                            {% if api_settings.URL_FORMAT_OVERRIDE %}
-                            <span class="button-dropdown text-right pull-right" data-buttons="dropdown">
-                                <button class="button button-small text-uppercase">
-                                   Download History <i class="fa fa-caret-down"></i>
-                                </button>
-
-                                <ul class="button-dropdown-list button-dropdown-list-small">
-                                  {% for format in available_formats %}
-                                    {% if format != "api" %}
-                                        <li>
-                                            <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                               rel="nofollow" target="_blank"  title="Download your Download History with the format set to `{{ format }}`">{{ format }}</a>
-                                        </li>
-                                    {% endif %}
-                                    {% endfor %}
-                                </ul>
-                              </span>
-                            {% else %}
-                                <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
-                                   title="Download {{user}}'s Download History">PERMANENT LINK</a>
-                            {% endif %}
-                        </form>
-                    {% endif %}
-                {% endblock %}
-            </div>
-        </div>
-
-
+    <div class="col-xs-12 col-sm-12">
+        <p class="lead">Download data from AAODC. </p>
     </div>
+    <div class="col-xs-12 col-sm-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Download History
+                <span class="pull-right sub-heading">
+                    <a href="#" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                        data-content="<p>There are three stages of download:</p><dl><dt class='text-warning'>In Progress</dt><dd>Your Download is underway.</dd><dt class='text-success'>Ready to Download</dt><dd>Your Download is ready, please download it within 7 days.</dd><dt class='text-error'>Expired</dt><dd>Your Download has expired and has been removed from our servers.</dd></dl>"
+                        data-placement="left"><i class="fa fa-info-circle"></i></a>
+                </span>
+
+            </div>
+            <table class="table table-hover">
+                <tbody>
+                {% for this in response.data.results %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-9 col-xs-12">
+                                    <a href="{{this.url}}">
+                                        <h4 class="text-info" style="border:0"> {{this.title}}</h4>
+                                    </a>
+                                    <!--<p>{{this.downloaditems}}</p>-->
+                                    <p class="version">
+                                        <span class="sub-heading"><i class="fa fa-clock-o"></i> {{this.updated}}</span>
+                                        <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3 text-right col-xs-12 options">
+                                        <button type="button" class="btn btn-default btn-sm text-capitalize {% if 'rogress' in this.downloadlink %}disabled{% elif 'xpired' in this.downloadlink %}disabled{% endif %}">
+                                            {% if 'rogress' in this.downloadlink %}
+                                                <i class="fa fa-hourglass-half fa-sm text-success"></i>
+                                            {% elif 'xpired' in this.downloadlink %}
+                                                <i class="fa fa-clock-o"></i>
+                                            {% else %}
+                                                <i class="fa fa-download"></i>
+                                            {% endif %}
+                                            <span class="{% if 'rogress' in this.downloadlink %}text-success{% elif 'xpired' in this.downloadlink %}text-error{% else %}{% endif %}">
+                                                <em>{{this.downloadlink}}</em>
+                                            </span>
+                                        </button>
+
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% if paginator %}
+        <nav class="nav-pagination">
+            {% get_pagination_html paginator %}
+        </nav>
+        {% endif %}
+    </div>
+
     <div class="col-sm-4">
         <div class="panel panel-default panel-statistics">
             <div class="panel-body">
@@ -127,6 +106,32 @@
 
             </ul>
         </div>
+        {% block content-download %}
+            {% if 'GET' in allowed_methods %}
+                <form id="download-list" class="custom-inline">
+                    {% if api_settings.URL_FORMAT_OVERRIDE %}
+                    <div class="btn-group">
+                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Download History <i class="fa fa-caret-down"></i>
+                          </button>
+                          <ul class="dropdown-menu">
+                            {% for format in available_formats %}
+                            {% if format != "api" %}
+                                <li>
+                                    <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                       rel="nofollow" target="_blank"  title="Download your Download History with the format set to `{{ format }}`">{{ format }}</a>
+                                </li>
+                            {% endif %}
+                            {% endfor %}
+                          </ul>
+                        </div>
+                    {% else %}
+                        <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
+                           title="Download {{user}}'s Download History">PERMANENT LINK</a>
+                    {% endif %}
+                </form>
+            {% endif %}
+        {% endblock %}
     </div>
 </div>
 <script src="{% static 'restapi_app/js/plotly/plotly.latest.min.js' %}"></script>
@@ -163,7 +168,7 @@ var trace3 = {
     orientation: 'h',
     type: 'bar',
     marker: {
-        color: '#5aa8d8',
+        color: '#4078C0',
         width: 1
     }, hoverinfo: 'none',
 };

@@ -57,7 +57,6 @@ console.log('directives.js');
 
                 // populate the dropdown
                 scope.populateDropdown = function(){
-                    console.log(attr.formats);
                     if (typeof attr.formats !== 'undefined' && attr.formats.length > 0){
                         // Parse the valid json string (after replacing ' for ") as a valid JS object
                         scope.formats = JSON.parse(attr.formats.replace(/'/g, '"'));
@@ -125,7 +124,7 @@ console.log('directives.js');
                 scope.addItem = function(f){
                     // Get clicked item from scope.items by format
                     scope.item = scope.items[f];
-                    console.log(scope.item);
+
                     // Pass the item into the addItem method of DownloadService
                     // populate the items obj for this particular view before start writing in to the cookie
                     DownloadService.getItems();

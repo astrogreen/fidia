@@ -53,7 +53,7 @@
         }
 
         function cleanArray(array){
-            var remove_arr = [document.domain, document.domain+':'+location.port, location.protocol, 'asvo', "", ''];
+            var remove_arr = [document.domain, document.domain+':'+location.port, location.protocol, 'asvo', "", '', 'data-browser', 'query-history', 'sov'];
             for(var j = 0; j < remove_arr.length; j++){
                 removeFromArray(array,remove_arr[j]);
             }
@@ -114,7 +114,7 @@
                 // Else, push the item onto the items array, at the relevant astronomical object key
                 if (!items[item.id]){
                     // Add prettify property to item
-                    item = this.prettifyCookie(item);
+                    // item = this.prettifyCookie(item);
                     items[item.id] = item;
                 } else {
                     // nothing - we don't need to update quantity - but this will need altering to cope with AO structure
@@ -220,34 +220,71 @@
                 return summary;
             },
 
-            prettifyCookie: function(item){
-                var url_arr = item.id.split("/");
-                cleanArray(url_arr);
-                // Knowing that the 0 and 1 elements will always be sample and ao, we can
-                // predefine these for the view.
-                // Though this isn't actually asserted... it should be.
+            prettifyCookie: function(items){
+                var prettyCookie = {};
+                // object, id: prettyfied array
+                angular.forEach(items, function(v, url){
+                    prettyCookie[url] = {};
 
-                var data_obj = {}, temp = [];
+                    // Clean the url, removing all excess info (protocol, domain etc) and split into arr
+                    var url_arr = url.split("/");
+                    cleanArray(url_arr);
+                    // Knowing that the 0 and 1 elements will always be sample and ao, we can
+                    // predefine these for the view.
+                    // Though this isn't actually asserted... it should be.
+                    var data_obj = {}, temp = [];
 
-                data_obj['url'] = item.id.split('?format=')[0];
-                data_obj['sample'] = url_arr[0].toUpperCase();
-                data_obj['ao'] = url_arr[1];
+                    data_obj['url'] = url.split('?format=')[0];
+                    data_obj['sample'] = url_arr[0].toUpperCase();
+                    data_obj['ao'] = url_arr[1];
+                    data_obj['id'] = url;
 
-                if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
+                    if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
                     // If a format exists on the last element of the array, pop it off
                     // and prettify
-                    data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
-                    url_arr.pop();
-                }
-
-                for(var i = 2; i < url_arr.length; i++) {
-                    if(url_arr[i]!=="" && url_arr[i]!==''){
-                        temp.push(url_arr[i]);
+                        data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
+                        url_arr.pop();
                     }
-                }
-                data_obj['else'] = temp;
-                item['prettify'] = data_obj;
-                return item
+                    // Collect the remaining data pieces below trait into one line
+                    for(var i = 2; i < url_arr.length; i++) {
+                        if(url_arr[i]!=="" && url_arr[i]!==''){
+                            temp.push(url_arr[i]);
+                        }
+                    }
+                    data_obj['else'] = temp;
+                    prettyCookie[url] = data_obj;
+                });
+
+
+                return prettyCookie;
+
+                // var url_arr = item.id.split("/");
+                // cleanArray(url_arr);
+                // // Knowing that the 0 and 1 elements will always be sample and ao, we can
+                // // predefine these for the view.
+                // // Though this isn't actually asserted... it should be.
+                //
+                // var data_obj = {}, temp = [];
+                //
+                // data_obj['url'] = item.id.split('?format=')[0];
+                // data_obj['sample'] = url_arr[0].toUpperCase();
+                // data_obj['ao'] = url_arr[1];
+                //
+                // if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
+                //     // If a format exists on the last element of the array, pop it off
+                //     // and prettify
+                //     data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
+                //     url_arr.pop();
+                // }
+                //
+                // for(var i = 2; i < url_arr.length; i++) {
+                //     if(url_arr[i]!=="" && url_arr[i]!==''){
+                //         temp.push(url_arr[i]);
+                //     }
+                // }
+                // data_obj['else'] = temp;
+                // item['prettify'] = data_obj;
+                // return item
             },
 
             download: function(){

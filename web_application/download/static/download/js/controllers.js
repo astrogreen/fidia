@@ -28,6 +28,8 @@ console.log('controllers.js');
 
         ctrl3.summary = DownloadService.getSummary();
 
+        ctrl3.prettyCookie = DownloadService.prettifyCookie(ctrl3.items);
+
         ctrl3.addItem = function(item){
             // Pass the item into the addItem method of the DownloadService
             DownloadService.addItem(item);
