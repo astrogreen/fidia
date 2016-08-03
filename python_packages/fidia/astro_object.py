@@ -1,7 +1,7 @@
 
 import collections
 
-from .traits.utilities import TraitKey, parse_trait_key
+from .traits import TraitKey
 
 class AstronomicalObject(collections.MutableMapping):
 
@@ -51,7 +51,7 @@ class AstronomicalObject(collections.MutableMapping):
             # @TODO!
             raise Exception("List indexing behaviour not implemented.")
         else:
-            key = parse_trait_key(key)
+            key = TraitKey.as_traitkey(key)
             #raise Exception("Key indexing behaviour not implemented.")
             # # Asked for a single property
             # archive = self.sample.get_archive_for_property(key)

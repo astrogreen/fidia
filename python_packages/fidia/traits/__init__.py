@@ -8,5 +8,8 @@ from .meta_data_traits import OpticalTelescopeCharacteristics, DetectorCharacter
 
 from .galaxy_traits import VelocityMap
 
-from .utilities import TraitProperty, trait_property, TraitKey
+from .trait_property import TraitProperty, trait_property
+from .trait_key import TraitKey, \
+    validate_trait_type, validate_trait_qualifier, validate_trait_branch, validate_trait_version, \
+    validate_trait_name
 from .trait_registry import TraitRegistry

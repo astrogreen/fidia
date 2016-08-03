@@ -12,7 +12,8 @@ from astropy.io import fits
 # Internal package imports
 from .abstract_base_traits import *
 from ..exceptions import *
-from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
+from .trait_property import TraitProperty
+from .trait_key import TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit

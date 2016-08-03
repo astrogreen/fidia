@@ -5,7 +5,7 @@ import numpy
 import fidia
 from fidia.archive import sami
 
-from fidia.traits.utilities import TraitKey
+from fidia.traits import TraitKey
 from fidia.traits.abstract_base_traits import AbstractBaseTrait
 from fidia.exceptions import DataNotAvailable
 
