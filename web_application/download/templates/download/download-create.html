@@ -58,9 +58,11 @@
                                          <h4 style="border:0">
                                             Download Empty!
                                         </h4>
-                                        <p>Visit the <a href="{% url ' data_browser:data-browser-list'%}">Data
+                                        {% endverbatim %}
+                                        <p>Visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
                                             Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a> to add
                                                               data.</p>
+                                        {% verbatim %}
                                     </div>
                                 </div>
                             </td>
@@ -70,19 +72,62 @@
 
 
             </div>
-                <button class="btn btn-error btn-sm text-uppercase" ng-if="ctrl3.items | isNotEmpty"
-                    title="Delete all items in the download" id="checkout-empty"
-                    ng-click="ctrl3.emptyDownload()"><i class="fa fa-trash-o"></i> Empty
-            </button>
+
             {% endverbatim %}
         </div>
         <div class="col-sm-4">
-            <div class="panel panel-default" ng-if="ctrl3.items | isNotEmpty">
-                {% verbatim %}
-                <div class="panel-body">
-                    <span class="text-uppercase">Download Summary</span>
-                </div>
+            {% if post_form or raw_data_post_form %}
+                {% if post_form %}
+                    <div class="" ng-if="ctrl3.items | isNotEmpty">
+                        {% with form=post_form %}
+                            <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" novalidate>
+                                <fieldset>
+                                    {% csrf_token %}
+                                    <div class="form-group ">
+                                        <label class="control-label label-sub-heading">
+                                            Download Title
+                                            <span class="sub-heading" id="title_info">
+                                                <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                                                   data-trigger="focus"
+                                                   data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
+                                                   data-placement="left"><i class="fa fa-info-circle"></i></a>
+                                            </span>
+                                        </label>
+                                        <input name="title" class="form-control" type="text" placeholder="My Download">
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label sr-only">
+                                          Downloaditems
+                                        </label>
+                                        {% verbatim %}
+                                        <input name="downloaditems" class="form-control" type="hidden" value="{{ctrl3.download}}">
+                                        {% endverbatim %}
+                                    </div>
 
+                                    <div class="form-actions">
+                                        <button class="btn btn-primary btn-sm text-uppercase pull-right" title="Download data in the download"
+                                            id="checkout-download"><i class="fa fa-download"></i> Download
+                                        </button>
+                                    </div>
+                                    {% verbatim %}
+                                    <a class="btn btn-default btn-sm text-uppercase" ng-if="ctrl3.items | isNotEmpty"
+                                            title="Delete all items in the download" id="checkout-empty"
+                                            ng-click="ctrl3.emptyDownload()"><i class="fa fa-trash-o text-error"></i> Empty
+                                    </a>
+                                    {% endverbatim %}
+                                </fieldset>
+                            </form>
+                        {% endwith %}
+                    </div>
+                {% endif %}
+            {% endif %}
+            <hr>
+
+            <div class="panel panel-default" ng-if="ctrl3.items | isNotEmpty">
+                <div class="panel-body">
+                    <span class="text-uppercase">Summary</span>
+                </div>
+                {% verbatim %}
                 <!-- List group -->
                 <ul class="list-group">
                     <li class="list-group-item"><strong>Total</strong></li>
@@ -98,45 +143,7 @@
                 {% endverbatim %}
             </div>
 
-            {% if post_form or raw_data_post_form %}
-                {% if post_form %}
-                    <div class="" ng-if="ctrl3.items | isNotEmpty">
-                        {% with form=post_form %}
-                        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" novalidate>
-                            <fieldset>
-                                {% csrf_token %}
-                                <div class="form-group ">
-                                    <label class="control-label">
-                                        Download Title
-                                        <span class="sub-heading" id="title_info">
-                                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
-                                               data-trigger="focus"
-                                               data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
-                                               data-placement="left"><i class="fa fa-info-circle"></i></a>
-                                        </span>
-                                    </label>
-                                    <input name="title" class="form-control" type="text" placeholder="My Download">
-                                </div>
-                                <div class="form-group ">
-                                    <label class="control-label sr-only">
-                                      Downloaditems
-                                    </label>
-                                    {% verbatim %}
-                                    <input name="downloaditems" class="form-control" type="hidden" value="{{ctrl3.download}}">
-                                    {% endverbatim %}
-                                </div>
 
-                                <div class="form-actions">
-                                    <button class="btn btn-primary btn-sm text-uppercase pull-right" title="Download data in the download"
-                                        id="checkout-download"><i class="fa fa-download"></i> Download
-                                    </button>
-                                </div>
-                            </fieldset>
-                        </form>
-                        {% endwith %}
-                    </div>
-                    {% endif %}
-            {% endif %}
         </div>
     </div>
 

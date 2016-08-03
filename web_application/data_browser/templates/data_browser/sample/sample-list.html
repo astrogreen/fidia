@@ -15,7 +15,7 @@
 
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12">
@@ -28,9 +28,11 @@
                     <tbody>
                     <tr>
                         <td><img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
-                        <td>test</td>
-                        <td>test</td>
-                        <td>test</td>
+                        <td>{% with "data_browser/sample/survey/"|add:survey|add:"/pi.html" as template %}
+                        {% include template %}
+                        {% endwith %}</td>
+                        <td>1.0</td>
+                        <td>{{response.data.astro_objects | length}}</td>
                         <td>test</td>
                     </tr>
                     <tr>
@@ -73,17 +75,16 @@
                                     </div>
                                     <div class="panel-body">
                                         <p>{% lorem %}</p><br>
-                                        <p>Download a list of available objects in {{survey_name}} <span
-                                                class="text-error">DR 1.0</span></p>
+                                        <p>Download a list of available objects in {{survey_name}} <i class="fa fa-map-marker"></i> DR 1.0</p>
+                                        <br>
                                         {% if 'GET' in allowed_methods %}
                                         <form id="get-form" class="form-inline">
                                             <fieldset>
                                                 {% if api_settings.URL_FORMAT_OVERRIDE %}
                                                 <div class="btn-group  btn-block format-selection">
-                                                    <button class="button button-small button-block dropdown-toggle js-tooltip"
-                                                            data-toggle="dropdown"
-                                                            title="Specify a format for the request">
-                                                        <i class="fa fa-download"></i> DOWNLOAD
+                                                    <button class="btn btn-block btn-default dropdown-toggle js-tooltip"
+                                                            data-toggle="dropdown">
+                                                        <i class="fa fa-download"></i> Download {{survey|uppercase}} object list
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         {% for format in available_formats %}
@@ -100,7 +101,7 @@
                                                     </ul>
                                                 </div>
                                                 {% else %}
-                                                <a class="button button-small js-tooltip"
+                                                <a class="btn btn-default btn0sm js-tooltip"
                                                    href="{{ request.get_full_path }}" rel="nofollow"
                                                    title="View user {{user}}'s {{ name }}">GET</a>
                                                 {% endif %}
@@ -118,7 +119,7 @@
                                     <div class="panel-body">
                                         <p>Browse the available {{survey_name}} data for each object. Search for an
                                             object below by either typing in the input box, or click an option.
-                                        <a href="#" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                                        <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
                                     data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
                                     data-placement="top"><i class="fa fa-info-circle"></i></a>
                                         </p>
@@ -130,8 +131,7 @@
                                             <option value="{{value}}">{{key}}</option>
                                             {% endfor %}
                                         </select>
-                                        <a class="button button-block button-primary button-small" type="button" href=""
-                                           disabled
+                                        <a class="btn btn-block btn-primary" type="button" href="" disabled
                                            id="autocomplete-button">GO</a>
                                     </div>
                                 </div>
@@ -158,9 +158,7 @@
         </div>
     </div>
 </div>
-
 <script>
-
     $(document).ready(function () {
         $selector = $("#autocomplete-widget").selectize({
             closeAfterSelect: true,
@@ -173,11 +171,8 @@
             }
         });
     });
-
 </script>
 {% endblock %}
-
-{% block content-DRF %}{% endblock %}
 {% block footer-extra %}
 <script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
 {% endblock %}

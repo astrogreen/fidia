@@ -98,6 +98,9 @@ small,
 .sub-heading {
   color: #8ca1a6;
 }
+.label-sub-heading {
+  color: #767676;
+}
 p,
 ul.paragraph-list li {
   opacity: 0.87;
