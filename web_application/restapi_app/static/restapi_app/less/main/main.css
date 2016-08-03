@@ -458,6 +458,10 @@ header user a > a {
 li {
   border-radius: 0 !important;
 }
+.btn {
+  transition-property: all;
+  transition-duration: .3s;
+}
 .btn:focus,
 .btn:active:focus,
 .btn.active:focus {
@@ -469,9 +473,9 @@ li {
   border: 1px solid #4078C0;
 }
 .btn-primary:hover {
-  color: #fff;
-  background-color: #4078C0;
-  border-color: #4078C0;
+  background-color: #6693cd;
+  border-color: #6693cd;
+  color: #FFF;
 }
 .btn-primary:active:hover,
 .btn-primary.active:hover,
@@ -497,6 +501,11 @@ li {
   background-color: #a94442;
   color: #fff;
   border: 1px solid #a94442;
+}
+.btn-error:hover {
+  background-color: #d9534f;
+  border-color: #d9534f;
+  color: #FFF;
 }
 .button-dropdown-list > li > a {
   display: block;

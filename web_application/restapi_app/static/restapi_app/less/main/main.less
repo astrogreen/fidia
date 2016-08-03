@@ -529,7 +529,8 @@ header {
 .btn, li {
   border-radius: 0 !important;
 }
-
+.btn{    transition-property: all;
+    transition-duration: .3s;}
 .btn:focus, .btn:active:focus, .btn.active:focus {
   outline: 0 none;
 }
@@ -541,9 +542,9 @@ header {
 }
 
 .btn-primary:hover {
-    color: #fff;
-    background-color: #4078C0;
-    border-color: #4078C0;
+    background-color: #6693cd;
+    border-color: #6693cd;
+    color: #FFF;
 }
 
 .btn-primary:active:hover, .btn-primary.active:hover, .open > .dropdown-toggle.btn-primary:hover, .btn-primary:active:focus,
@@ -565,10 +566,14 @@ header {
   color: #fff;
   border: 1px solid #a94442;
 }
+.btn-error:hover{
+  background-color: #d9534f;
+  border-color: #d9534f;
+  color: #FFF;
+}
 
 .button-dropdown-list > li > a {
   display: block;
-  //font-size: 12.8px;
   padding: 7px;
   line-height: 24px;
   float: none;

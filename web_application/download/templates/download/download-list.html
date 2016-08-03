@@ -21,18 +21,17 @@
 {% block content-test %}
 <div class="row">
     <div class="col-xs-12 col-sm-12">
-        <p class="lead">Download data from AAODC. </p>
+        <p class="lead">Re-download data from your Download History. </p>
     </div>
     <div class="col-xs-12 col-sm-8">
         <div class="panel panel-default">
             <div class="panel-heading">
                 Download History
                 <span class="pull-right sub-heading">
-                    <a href="#" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                        data-content="<p>There are three stages of download:</p><dl><dt class='text-warning'>In Progress</dt><dd>Your Download is underway.</dd><dt class='text-success'>Ready to Download</dt><dd>Your Download is ready, please download it within 7 days.</dd><dt class='text-error'>Expired</dt><dd>Your Download has expired and has been removed from our servers.</dd></dl>"
+                    <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                        data-content="<p>There are three stages of download:</p><dl><dt class='sub-heading'>In Progress</dt><dd><p>Your Download is underway.</p></dd><dt class='text-success'>Ready to Download</dt><dd><p>Your Download is ready, please download it within 7 days.</p></dd><dt class='text-error'>Expired</dt><dd><p>Your Download is no longer valid.</p></dd></dl>"
                         data-placement="left"><i class="fa fa-info-circle"></i></a>
                 </span>
-
             </div>
             <table class="table table-hover">
                 <tbody>
@@ -51,18 +50,10 @@
                                     </p>
                                 </div>
                                 <div class="col-sm-3 text-right col-xs-12 options">
-                                        <button type="button" class="btn btn-default btn-sm text-capitalize {% if 'rogress' in this.downloadlink %}disabled{% elif 'xpired' in this.downloadlink %}disabled{% endif %}">
-                                            {% if 'rogress' in this.downloadlink %}
-                                                <i class="fa fa-hourglass-half fa-sm text-success"></i>
-                                            {% elif 'xpired' in this.downloadlink %}
-                                                <i class="fa fa-clock-o"></i>
-                                            {% else %}
-                                                <i class="fa fa-download"></i>
-                                            {% endif %}
-                                            <span class="{% if 'rogress' in this.downloadlink %}text-success{% elif 'xpired' in this.downloadlink %}text-error{% else %}{% endif %}">
-                                                <em>{{this.downloadlink}}</em>
-                                            </span>
-                                        </button>
+
+                                    <span class="text-capitalize {% if 'rogress' in this.downloadlink %}sub-heading{% elif 'xpired' in this.downloadlink %}text-error{% else %}textt-success{% endif %}">
+                                        <em>{{this.downloadlink}}</em>
+                                    </span>
 
                                 </div>
                             </div>
@@ -106,13 +97,14 @@
 
             </ul>
         </div>
+
         {% block content-download %}
             {% if 'GET' in allowed_methods %}
                 <form id="download-list" class="custom-inline">
                     {% if api_settings.URL_FORMAT_OVERRIDE %}
-                    <div class="btn-group">
-                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Download History <i class="fa fa-caret-down"></i>
+                    <div class="btn-group pull-right">
+                          <button type="button" class="btn btn-primary btn-sm text-uppercase dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-download"></i> Download History <i class="fa fa-caret-down"></i>
                           </button>
                           <ul class="dropdown-menu">
                             {% for format in available_formats %}

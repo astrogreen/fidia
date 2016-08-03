@@ -153,7 +153,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 for r in TraitViewSet.renderer_classes:
                     f = str(r.format)
                     if f != "api": trait_name_formats.append(f)
-                print(json.dumps(trait_name_formats))
 
                 # Branches
                 trait_name_branches = {str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))

@@ -30,6 +30,8 @@ console.log('controllers.js');
 
         ctrl3.prettyCookie = DownloadService.prettifyCookie(ctrl3.items);
 
+        ctrl3.download = DownloadService.download();
+
         ctrl3.addItem = function(item){
             // Pass the item into the addItem method of the DownloadService
             DownloadService.addItem(item);
@@ -44,16 +46,13 @@ console.log('controllers.js');
             // Pass item id into the removeItem method of DownloadService
             DownloadService.removeItem(id);
             ctrl3.summary = DownloadService.getSummary();
+            ctrl3.prettyCookie = DownloadService.prettifyCookie(ctrl3.items);
+            ctrl3.download = DownloadService.download();
         };
         
-        ctrl3.emptyDownload = function(items){
+        ctrl3.emptyDownload = function(){
             DownloadService.emptyDownload($scope.items);
             ctrl3.summary = DownloadService.getSummary();
-        };
-
-        ctrl3.download = function(){
-            // Invoke the download method of the DownloadService
-            DownloadService.download();
         };
 
     });

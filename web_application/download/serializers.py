@@ -18,7 +18,7 @@ class DownloadCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     owner = serializers.ReadOnlyField(source='owner.username')
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
-    title = serializers.CharField(default='My Download', max_length=100)
+    title = serializers.CharField(default='My Download', max_length=100, style={'placeholder': 'My Download'})
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     downloaditems = serializers.CharField(required=True, allow_null=False)
     downloadlink = serializers.URLField(required=False, max_length=150, read_only=True)

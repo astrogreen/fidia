@@ -59,10 +59,6 @@
             }
         }
 
-        var arr = [{ id: 1, username: 'fred' },
-          { id: 2, username: 'bill'},
-          { id: 3, username: 'ted' }];
-
         function objExists(arr, elem, property) {
           return arr.some(function(el) {
             return el[property] === elem;
@@ -97,11 +93,10 @@
             },
 
             checkItemInCookie: function(){
-                // share data between directives
+                // share data between services
                 if (undefined != $cookieStore){
                     var saved_items = [];
                     angular.forEach($cookieStore.get('items'), function(cookieitem){
-                        // saved_items.push(cookieitem.url);
                         saved_items.push(cookieitem.id);
                     });
                     return saved_items;
@@ -113,9 +108,9 @@
                 // If exists - don't add
                 // Else, push the item onto the items array, at the relevant astronomical object key
                 if (!items[item.id]){
-                    // Add prettify property to item
-                    // item = this.prettifyCookie(item);
+                    // TODO strip the item.id field once added as already present in key - this might affect other services
                     items[item.id] = item;
+
                 } else {
                     // nothing - we don't need to update quantity - but this will need altering to cope with AO structure
                 }
@@ -167,62 +162,9 @@
                 return total;
             },
 
-            getSummary: function(){
-
-                var summary = {
-                    "bySample": [
-                            // {"sample": "GAMA", "count": 3},
-                            // {"sample": "GALAH", "count": 6},
-                        ],
-                        "byObject": [
-                            // {"id": 1, "name": "John Doe"},
-                            // {"id": 2, "name": "Don Joeh"}
-                        ],
-                        "byData": [
-                            // {"id": 1, "name": "John Doe"},
-                            // {"id": 2, "name": "Don Joeh"}
-                        ],
-                };
-                var itemsCookie = this.getItems();
-
-                angular.forEach(itemsCookie, function(val, key){
-                    // bySample
-                    var sample_str = val.prettify.sample;
-
-                    if (objExists(summary.bySample, sample_str, 'sample') == true){
-                        // if the object exists in the sample structure already
-                        // find it and boost the count.
-                        for (var i=0;i<summary.bySample.length;i++){
-                            if (summary.bySample[i].sample == sample_str){
-                                summary.bySample[i]["count"] = summary.bySample[i]["count"]+1;
-                            }
-                        }
-                    } else {
-                        summary.bySample.push({"sample": sample_str, "count": 1})
-                    }
-                    // byObject
-                    var object_str = val.prettify.ao;
-                    if (objExists(summary.byObject, object_str, 'ao') == true){
-                        // if the object exists in the ao structure already
-                        // find it and boost the count.
-                        for (var i=0;i<summary.byObject.length;i++){
-                            if (summary.byObject[i].ao == object_str){
-                                summary.byObject[i]["count"] = summary.byObject[i]["count"]+1;
-                            }
-                        }
-                    } else {
-                        summary.byObject.push({"ao": object_str, "count": 1})
-                    }
-
-
-                });
-                // append to gama, sami etc (can this be modified for any sample)
-                return summary;
-            },
-
             prettifyCookie: function(items){
                 var prettyCookie = {};
-                // object, id: prettyfied array
+                // object, id: prettified array
                 angular.forEach(items, function(v, url){
                     prettyCookie[url] = {};
 
@@ -238,6 +180,7 @@
                     data_obj['sample'] = url_arr[0].toUpperCase();
                     data_obj['ao'] = url_arr[1];
                     data_obj['id'] = url;
+                    data_obj['options'] = v.options;
 
                     if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
                     // If a format exists on the last element of the array, pop it off
@@ -251,51 +194,66 @@
                             temp.push(url_arr[i]);
                         }
                     }
-                    data_obj['else'] = temp;
+                    data_obj['trait'] = temp;
                     prettyCookie[url] = data_obj;
                 });
-
-
                 return prettyCookie;
+            },
 
-                // var url_arr = item.id.split("/");
-                // cleanArray(url_arr);
-                // // Knowing that the 0 and 1 elements will always be sample and ao, we can
-                // // predefine these for the view.
-                // // Though this isn't actually asserted... it should be.
-                //
-                // var data_obj = {}, temp = [];
-                //
-                // data_obj['url'] = item.id.split('?format=')[0];
-                // data_obj['sample'] = url_arr[0].toUpperCase();
-                // data_obj['ao'] = url_arr[1];
-                //
-                // if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
-                //     // If a format exists on the last element of the array, pop it off
-                //     // and prettify
-                //     data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
-                //     url_arr.pop();
-                // }
-                //
-                // for(var i = 2; i < url_arr.length; i++) {
-                //     if(url_arr[i]!=="" && url_arr[i]!==''){
-                //         temp.push(url_arr[i]);
-                //     }
-                // }
-                // data_obj['else'] = temp;
-                // item['prettify'] = data_obj;
-                // return item
+            getSummary: function(prettifiedCookie){
+
+                var summary = {
+                    "bySample": [
+                            // {"sample": "GAMA", "count": 3},
+                        ],
+                        "byObject": [
+                            // {"id": 1, "name": "John Doe"},
+                        ],
+                        "byData": [
+                            // {"id": 1, "name": "John Doe"},
+                        ],
+                };
+                var itemsCookie = this.prettifyCookie(this.getItems());
+
+                angular.forEach(itemsCookie, function(val, key){
+                    // bySample
+                    var sample_str = val.sample;
+
+                    if (objExists(summary.bySample, sample_str, 'sample') == true){
+                        // if the object exists in the sample structure already
+                        // find it and boost the count.
+                        for (var i=0;i<summary.bySample.length;i++){
+                            if (summary.bySample[i].sample == sample_str){
+                                summary.bySample[i]["count"] = summary.bySample[i]["count"]+1;
+                            }
+                        }
+                    } else {
+                        summary.bySample.push({"sample": sample_str, "count": 1})
+                    }
+                    // byObject
+                    var object_str = val.ao;
+                    if (objExists(summary.byObject, object_str, 'ao') == true){
+                        // if the object exists in the ao structure already
+                        // find it and boost the count.
+                        for (var j=0;j<summary.byObject.length;j++){
+                            if (summary.byObject[j].ao == object_str){
+                                summary.byObject[j]["count"] = summary.byObject[j]["count"]+1;
+                            }
+                        }
+                    } else {
+                        summary.byObject.push({"ao": object_str, "count": 1})
+                    }
+                });
+
+                return summary;
             },
 
             download: function(){
                 // TODO This function should create a valid json and save in user's download history
-                // This will be easier to write once DataBrowser is completed, having a firm idea of the
-                // allowed directives.
-
-                // Create an object that contains the full data list
-                // Format: unique url, options
-                // /data/sami/gal1/redshift/value/
-            },
+                // Wrap up (pretty==more info attched) cookie and return a string of valid JSON
+                var download_arr = this.prettifyCookie(this.getItems());
+                return JSON.stringify(download_arr);
+            }
 
             // user clicks button format appended to url.
 

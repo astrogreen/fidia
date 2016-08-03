@@ -1,0 +1,170 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Download{% endblock %}
+
+{% block head-extra %}
+<script type="text/javascript" src="{% static 'download/js/controllers.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Download{% endblock %}
+{% block useful_links %}
+{% endblock useful_links %}
+
+{% block content_render %}
+
+    <div class="row" ng-controller="DownloadController as ctrl3">
+        <div class="col-sm-8">
+            {% verbatim %}
+            <div class="panel panel-default panel-download">
+                <div class="panel-heading text-uppercase">
+                    Download
+                </div>
+
+                <table class="table table-hover">
+                    <tbody>
+                        <tr ng-repeat="p in ctrl3.prettyCookie track by $index" ng-if="ctrl3.items | isNotEmpty">
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm-9 col-xs-12">
+                                        <h4 class="text-info" style="border:0">
+                                            {{p.sample}} / {{p.ao}} /
+                                            <span ng-repeat="t in p.trait">
+                                                <span ng-if="!$last">{{t}} /</span>
+                                                <a ng-if="$last" ng-href="{{p.url}}">{{t}}</a>
+                                            </span>
+                                        </h4>
+                                        <p class="version">
+                                            <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{p.format}}</span>
+                                            <span class="sub-heading"><i class="fa fa-map-marker"></i> {{p.version}} V1.0</span>
+                                            <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-3 text-right col-xs-12 options">
+                                        <a role="button" class="text-normal">
+                                            <i class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(p.id)"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-if="ctrl3.items | isEmpty">
+                            <td>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                         <h4 style="border:0">
+                                            Download Empty!
+                                        </h4>
+                                        <p>Visit the <a href="{% url ' data_browser:data-browser-list'%}">Data
+                                            Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a> to add
+                                                              data.</p>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+            </div>
+                <button class="btn btn-error btn-sm text-uppercase" ng-if="ctrl3.items | isNotEmpty"
+                    title="Delete all items in the download" id="checkout-empty"
+                    ng-click="ctrl3.emptyDownload()"><i class="fa fa-trash-o"></i> Empty
+            </button>
+            {% endverbatim %}
+        </div>
+        <div class="col-sm-4">
+            <div class="panel panel-default" ng-if="ctrl3.items | isNotEmpty">
+                {% verbatim %}
+                <div class="panel-body">
+                    <span class="text-uppercase">Download Summary</span>
+                </div>
+
+                <!-- List group -->
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Total</strong></li>
+                    <li class="list-group-item list-group-sub-item">Data <span class="badge" ng-bind="ctrl3.getItemCount()"></span>
+                    </li>
+                    <li class="list-group-item"><strong>Per Object</strong></li>
+                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.byObject">{{obj.ao}} <span class="badge">{{obj.count}}</span></li>
+                    <li class="list-group-item"><strong>Per Survey</strong></li>
+                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.bySample">{{obj.sample}} <span class="badge">{{obj.count}}</span></li>
+                    <li class="list-group-item">Estimated Download Size <span class="badge">5MB</span></li>
+
+                </ul>
+                {% endverbatim %}
+            </div>
+
+            {% if post_form or raw_data_post_form %}
+                {% if post_form %}
+                    <div class="" ng-if="ctrl3.items | isNotEmpty">
+                        {% with form=post_form %}
+                        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" novalidate>
+                            <fieldset>
+                                {% csrf_token %}
+                                <div class="form-group ">
+                                    <label class="control-label">
+                                        Download Title
+                                        <span class="sub-heading" id="title_info">
+                                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                                               data-trigger="focus"
+                                               data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
+                                               data-placement="left"><i class="fa fa-info-circle"></i></a>
+                                        </span>
+                                    </label>
+                                    <input name="title" class="form-control" type="text" placeholder="My Download">
+                                </div>
+                                <div class="form-group ">
+                                    <label class="control-label sr-only">
+                                      Downloaditems
+                                    </label>
+                                    {% verbatim %}
+                                    <input name="downloaditems" class="form-control" type="hidden" value="{{ctrl3.download}}">
+                                    {% endverbatim %}
+                                </div>
+
+                                <div class="form-actions">
+                                    <button class="btn btn-primary btn-sm text-uppercase pull-right" title="Download data in the download"
+                                        id="checkout-download"><i class="fa fa-download"></i> Download
+                                    </button>
+                                </div>
+                            </fieldset>
+                        </form>
+                        {% endwith %}
+                    </div>
+                    {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+
+
+
+<script>
+
+    $(function () {
+
+        $('.list-group-item').on('click', function () {
+            $('.fa', this)
+                    .toggleClass('fa-chevron-right')
+                    .toggleClass('fa-chevron-down');
+        });
+
+    });
+
+    // HACK inject bootstrap classes to change form layout (DRF restricts to horizontal)
+    $('form .form-group').each(function () {
+        $(this).children('label.col-sm-2').removeClass('col-sm-2');
+        if ($(this).children('.col-sm-10').length) {
+            $(this).children('.col-sm-10').replaceWith(function () {
+                return $(this).contents();
+            });
+        }
+    });
+
+
+</script>
+{% endblock %}

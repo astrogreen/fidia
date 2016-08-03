@@ -27,9 +27,12 @@ class DownloadCreateView(generics.CreateAPIView):
     """
     Download Viewset. Create new download request, view download history, re-issue a download on a particular retrieve.
     """
+    class DownloadCreateRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'download/download-create.html'
     serializer_class = download.serializers.DownloadCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
     breadcrumb_list = []
+    renderer_classes = (DownloadCreateRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get_queryset(self):
         """
