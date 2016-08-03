@@ -109,12 +109,12 @@
                                             id="checkout-download"><i class="fa fa-download"></i> Download
                                         </button>
                                     </div>
-                                    {% verbatim %}
+
                                     <a class="btn btn-default btn-sm text-uppercase" ng-if="ctrl3.items | isNotEmpty"
-                                            title="Delete all items in the download" id="checkout-empty"
-                                            ng-click="ctrl3.emptyDownload()"><i class="fa fa-trash-o text-error"></i> Empty
+                                            title="Delete all items in the download" id="emptyDownload"  data-toggle="modal" data-target="#empty-modal-sm">
+                                        <i class="fa fa-trash-o text-error"></i> Empty
                                     </a>
-                                    {% endverbatim %}
+
                                 </fieldset>
                             </form>
                         {% endwith %}
@@ -143,7 +143,26 @@
                 {% endverbatim %}
             </div>
 
-
+            <!-- Confirmation modal -->
+                <div class="modal fade" id="empty-modal-sm" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <strong> ARE YOU SURE? </strong>
+                                <p>Emptying the Download is irreversible. </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">CANCEL</button>
+                                {% verbatim %}
+                                    <button class="btn btn-error btn-sm text-uppercase"
+                                            title="Delete all items in the download" id="checkout-empty"  data-dismiss="modal"
+                                            ng-click="ctrl3.emptyDownload()"> Empty
+                                    </button>
+                                {% endverbatim %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
         </div>
     </div>
 
@@ -171,7 +190,6 @@
             });
         }
     });
-
 
 </script>
 {% endblock %}
