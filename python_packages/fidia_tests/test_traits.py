@@ -4,8 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pytest
 
 from fidia.traits.abstract_base_traits import *
-from fidia.traits.base_traits import Trait
-from fidia.traits import TraitProperty, trait_property, TraitKey, TraitRegistry
+from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin

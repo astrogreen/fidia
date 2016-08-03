@@ -6,8 +6,7 @@ from rest_framework.reverse import reverse
 from restapi_app.fields import AbsoluteURLField
 
 import fidia, collections
-from fidia.traits.utilities import TraitProperty
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait, TraitProperty
 from fidia.descriptions import DescriptionsMixin
 
 log = logging.getLogger(__name__)

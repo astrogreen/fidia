@@ -1,7 +1,7 @@
 import pytest
 
 from fidia import Sample, AstronomicalObject
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait
 from fidia.archive.example_archive import ExampleArchive
 
 class TestAstronomicalObject:

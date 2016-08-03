@@ -1,7 +1,7 @@
 import sys
 
 from fidia.archive import example_archive, archive
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait
 
 from py4j.java_gateway import JavaGateway, GatewayParameters
 from py4j.java_collections import MapConverter, ListConverter
