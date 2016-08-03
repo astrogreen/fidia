@@ -67,6 +67,12 @@ body a {
 body a.disabled {
   pointer-events: none;
 }
+body li.disabled {
+  cursor: not-allowed;
+}
+body li.disabled a {
+  pointer-events: none;
+}
 h1,
 h2,
 h3,

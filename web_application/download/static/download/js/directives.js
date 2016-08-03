@@ -4,19 +4,16 @@ console.log('directives.js');
 
     var app = angular.module('DCApp');
 
-    // Style new disabled button
-    function disableAddButton (elem){
-        // disable the add button
-        elem.html('<i class="fa fa-check"></i>')
-            .removeClass('btn-primary')
-            .attr('disabled', true);
+    function caretToTick(elem){
+        // Switch caret for green tick
+        elem.html('<i class="fa fa-check text-success"></i>');
     }
 
-    function disableFormatDropdown(elem){
-        // disable the format button
-        elem.html('Added')
-            .removeClass('btn-primary')
-            .attr('disabled', true);
+    function disableFormat(elem, format){
+        elem.html(format + '<small class="sub-heading"> ADDED</small>')
+            .attr('disabled', true)
+            .addClass('disabled')
+            .parent('li').addClass('disabled');
     }
 
     // DownloadDirective
@@ -49,16 +46,15 @@ console.log('directives.js');
                 // @ == string
                 // & == one-way binding
                 // = == two-way binding
-                formats: "=",
+                formats: "="
             },
             replace: true,
             templateUrl: '/static/download/js/templates/add-download-button.html',
             link: function(scope, elem, attr){
 
                 // define targets on scope.
-                scope.add_button = angular.element(elem[0].querySelector('.add-button'));
-                scope.format_dropdown_button = angular.element(elem[0].querySelector('.format-dropdown button'));
-                scope.format_dropdown_li = angular.element(elem[0].querySelector('.format-dropdown ul li'));
+                scope.caret_button = angular.element(elem[0].querySelector('.add-to-download-caret'));
+
                 // populate the dropdown
                 scope.populateDropdown = function(){
                     if (typeof attr.formats !== 'undefined' && attr.formats.length > 0){
@@ -67,25 +63,31 @@ console.log('directives.js');
                 };
 
                 scope.constructItem = function() {
-                    // Construct the item object (on the local scope) from the element attributes
                     // DO THIS ONLY ONCE
-                    scope.item = {};
-                    if (typeof attr.url !== 'undefined') {
-                        // Check the url has a trailing slash, if not, append one.
+
+                    // Construct an item per format (on the local scope) from the element attributes
+                    // items = {format: item, format: item}
+                    if (typeof attr.url !== 'undefined' && typeof scope.formats !== 'undefined') {
+                        scope.items = {};
+
                         var lastChar = attr.url.substr(-1);     // Selects the last character
                         if (lastChar != '/') {                  // If the last character is not a slash
                            attr.url = attr.url + '/';           // Append a slash to it.
                         }
-                        scope.item['id'] = attr.url;
-                        if (typeof attr.options !== 'undefined') {
-                            scope.item['options'] = attr.options;
+                        for (var f = 0; f< scope.formats.length; f++){
+                            // Create temp item, append the format type
+                            var item ={};
+                            var temp = attr.url;
+                            // ?format=type
+                            item['id']=temp+'?format='+scope.formats[f];
+                            item['options'] = attr.options;
+                            item['format'] = scope.formats[f];
+                            scope.items[scope.formats[f]] = item;
                         }
-                        if (typeof attr.formats !== 'undefined') {
-                            //    this won't have been set yet.
-                            scope.item['format'] = '';
-                        }
+
                     } else {
-                        scope.item['id'] = 'Error. Cannot find id (url) has been set for this add-to-download-directive. Please contact the site administrator. '
+                        console.log('Error. Cannot find id (url) has been set for this add-to-download-' +
+                            'directive. Please contact the site administrator. ');
                     }
                 };
 
@@ -98,36 +100,30 @@ console.log('directives.js');
                     // CHECK for this in cookie already and disable the button.
                     if (undefined != saved_items){
                         for (var i = 0; i < saved_items.length; i++) {
+                            // console.log(saved_items[i]);
                             if (undefined != scope.formats){
-                                for (var j = 0; j < scope.formats.length; j++){
-                                    var temp = scope.item['id']+'?format='+scope.formats[j];
+                                angular.forEach(scope.items, function(v, k){
+                                    var temp = v['id'];
                                     if (saved_items[i] == temp){
-                                        // IF this url with this format is in the cart,
-                                        // then say this piece of data has been added already
-                                        // scope.formats.splice(j,1);
-                                        // scope.$apply();
-                                        disableAddButton(scope.add_button);
-                                        disableFormatDropdown(scope.format_dropdown_button);
+                                        // Already in cart, disable this element
+                                        var format = v['format'];
+                                        caretToTick(scope.caret_button);
+                                        scope.format_dropdown = angular.element(elem[0].querySelector("ul.dropdown-menu li ."+format));
+                                        disableFormat(scope.format_dropdown, format);
+
+                                    } else {
+
                                     }
-                                }
-                            } else {
-                                if (saved_items[i] == scope.item['id']){
-                                    disableAddButton(scope.add_button);
-                                    disableFormatDropdown(scope.format_dropdown_button);
-                                }
+                                });
                             }
                         }
                     }
                 });
 
-                scope.addItem = function(){
-                    // Lock in format
-                    if (scope.item['format']){
-                        var temp = scope.item['id'];
-                        // ?format=type
-                        scope.item['id'] = temp+'?format='+scope.item['format'];
-                    }
-
+                scope.addItem = function(f){
+                    // Get clicked item from scope.items by format
+                    scope.item = scope.items[f];
+                    console.log(scope.item);
                     // Pass the item into the addItem method of DownloadService
                     // populate the items obj for this particular view before start writing in to the cookie
                     DownloadService.getItems();
@@ -139,9 +135,17 @@ console.log('directives.js');
                             $('#mini-download').removeClass('bounce');
                         });
 
-                    //disable the buttons
-                    disableAddButton(scope.add_button);
-                    disableFormatDropdown(scope.format_dropdown_button);
+                    // Change button states
+                    // disableAddButton(scope.add_button);
+                    // disableFormatDropdown(scope.format_dropdown_button);
+                    caretToTick(scope.caret_button);
+
+                    scope.format_dropdown = angular.element(elem[0].querySelector("ul.dropdown-menu li ."+f));
+
+                    disableFormat(scope.format_dropdown, f);
+
+                    // angular.element(elem[0].querySelector(".dropdown-menu ul li ."+f))
+                    //     .html('added')
                 };
 
                 scope.chooseFormat = function(f){

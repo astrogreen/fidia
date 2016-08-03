@@ -116,7 +116,6 @@
                     // Add prettify property to item
                     item = this.prettifyCookie(item);
                     items[item.id] = item;
-
                 } else {
                     // nothing - we don't need to update quantity - but this will need altering to cope with AO structure
                 }
@@ -261,7 +260,7 @@
                 // /data/sami/gal1/redshift/value/
             },
 
-
+            // user clicks button format appended to url.
 
 
         }
