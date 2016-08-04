@@ -176,20 +176,25 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/trait/trait-list.html'
+    # class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+    #     template = 'data_browser/trait/trait-list.html'
 
-        def get_context(self, data, accepted_media_type, renderer_context):
-            context = super().get_context(data, accepted_media_type, renderer_context)
-            context['html_documentation'] = renderer_context['view'].documentation_html
-            context['pretty_name'] = renderer_context['view'].pretty_name
-            context['short_description'] = renderer_context['view'].short_description
-            return context
+        # def get_context(self, data, accepted_media_type, renderer_context):
+        #     context = super().get_context(data, accepted_media_type, renderer_context)
+        #     context['html_documentation'] = renderer_context['view'].documentation_html
+        #     context['pretty_name'] = renderer_context['view'].pretty_name
+        #     context['short_description'] = renderer_context['view'].short_description
+        #     return context
 
-    renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+    # renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
-        print('TRAIT:'+trait_pk)
+
+        # Dict of available traits
+        trait_registry = ar.available_traits
+        default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
+
+
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
         except fidia.exceptions.NotInSample:
@@ -208,6 +213,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             instance=trait, many=False,
             context={
                 'request': request,
+                # 'trait_key': default_trait_key
             }
         )
 
@@ -215,9 +221,9 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         #
         # This data is not included in the actual data of the serialized object
         # (though that is possible, see the implementations of the Serializers)
-        self.documentation_html = trait.get_documentation('html')
-        self.pretty_name = trait.get_pretty_name()
-        self.short_description = trait.get_description()
+        # self.documentation_html = trait.get_documentation('html')
+        # self.pretty_name = trait.get_pretty_name()
+        # self.short_description = trait.get_description()
 
         return Response(serializer.data)
 

@@ -9,6 +9,7 @@ from restapi_app.fields import AbsoluteURLField
 import fidia, collections
 from fidia.traits.utilities import TraitProperty
 from fidia.traits.base_traits import Trait
+from fidia import traits
 from fidia.descriptions import DescriptionsMixin
 
 log = logging.getLogger(__name__)
@@ -112,6 +113,90 @@ class AstroObjectSerializer(serializers.Serializer):
     available_traits = serializers.SerializerMethodField()
 
 
+class AstroObjectTraitSerializer(serializers.Serializer):
+    """Serializer for the Trait level of the Data Browser"""
+
+    # documentation = DocumentationHTMLField()
+    # short_description = serializers.CharField(source='get_description')
+    # pretty_name = serializers.CharField(source='get_pretty_name')
+
+    def __init__(self, *args, **kwargs):
+        depth_limit = get_and_update_depth_limit(kwargs)
+        log.debug("depth_limit: %s", depth_limit)
+        super().__init__(*args, **kwargs)
+
+        trait = self.instance
+        assert isinstance(trait, Trait)
+
+        print(trait.trait_key)
+        print(trait.branch)
+        print(trait)
+        print(vars(trait))
+        print(trait.trait_type)
+        print(type(trait))
+        print(isinstance(trait, traits.Image))
+
+        if (isinstance(trait, traits.Image)):
+            depth_limit = 1
+        else:
+            depth_limit = 0
+
+        for trait_property in trait.trait_properties():
+            # define serializer type by instance type
+            traitproperty_type = trait_property.type
+
+            # Decide whether data will be included:
+            # Turn this back to always on once visualizers have been sorted out. Currently
+            # visualization is handled on a per-case basis in the JS via AJAX
+
+            # Depth limit needs to be a bit more dynamic. It should tunnel down if not spectral cube :)
+            # Need some mapping here.
+            if depth_limit > 0:
+                # Recurse into trait properties
+                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='include')
+            else:
+                # Simply show the trait types and descriptions
+                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='exclude')
+
+    def get_branch(self, trait):
+        return trait.branch
+
+    def get_version(self, trait):
+        return trait.version
+
+    def get_available_branches_versions(self, trait):
+        return trait.get_all_branches_versions()
+
+    def get_description(self, trait):
+        return trait.get_description()
+
+    def get_pretty_name(self, trait):
+        return trait.get_pretty_name()
+
+    def get_documentation(self, trait):
+        return trait.get_documentation()
+
+    def get_trait_key(self, trait):
+        return trait.trait_key
+
+    # def get_sub_trait(self, trait):
+    #     print(self.context['trait_key'])
+    #     return trait.get_sub_trait(self.context['trait_key'])
+
+    branch = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+    available_branches_versions = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    pretty_name = serializers.SerializerMethodField()
+    documentation = serializers.SerializerMethodField()
+    trait_key = serializers.SerializerMethodField()
+    # sub_trait = serializers.SerializerMethodField()
+
+
+
+
 
 class AstroObjectTraitPropertySerializer(serializers.Serializer):
 
@@ -143,44 +228,6 @@ class AstroObjectTraitPropertySerializer(serializers.Serializer):
 
         if data_display == 'include':
             self.fields['value'] = data_serializer
-
-
-class AstroObjectTraitSerializer(serializers.Serializer):
-
-    # documentation = DocumentationHTMLField()
-    # short_description = serializers.CharField(source='get_description')
-    # pretty_name = serializers.CharField(source='get_pretty_name')
-
-
-    def __init__(self, *args, **kwargs):
-        depth_limit = get_and_update_depth_limit(kwargs)
-        log.debug("depth_limit: %s", depth_limit)
-        super().__init__(*args, **kwargs)
-
-        trait = self.instance
-        assert isinstance(trait, Trait)
-
-        for trait_property in trait.trait_properties():
-            # define serializer type by instance type
-            traitproperty_type = trait_property.type
-
-            # Decide whether data will be included:
-            # Turn this back to always on once visualizers have been sorted out. Currently
-            # visualization is handled on a per-case basis in the JS via AJAX
-
-            depth_limit = 0
-            # Depth limit needs to be a bit more dynamic. It should tunnel down if not spectral cube :)
-            # Need some mapping here.
-
-            if depth_limit > 0:
-                # Recurse into trait properties
-                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='include')
-            else:
-                # Simply show the trait types and descriptions
-                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='exclude')
-
 
 
 
