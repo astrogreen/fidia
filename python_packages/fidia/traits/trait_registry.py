@@ -1,8 +1,11 @@
+# Standard Library Imports
 from itertools import product
 
-from .utilities import TraitKey, validate_trait_name, validate_trait_type
-from ..utilities import SchemaDictionary, DefaultsRegistry, Inherit
+# Internal package imports
+from .trait_key import TraitKey, validate_trait_name, validate_trait_type
+from ..utilities import DefaultsRegistry
 
+# Logging import and setup
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)

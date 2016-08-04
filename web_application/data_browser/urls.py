@@ -7,8 +7,6 @@ import rest_framework.routers
 
 from restapi_app.routers import ExtendDefaultRouter, NestedExtendDefaultRouter
 
-from fidia.traits.utilities import TRAIT_KEY_RE
-
 import data_browser.views
 
 router = rest_framework.routers.SimpleRouter()

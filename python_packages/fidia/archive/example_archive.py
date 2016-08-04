@@ -4,7 +4,7 @@ import numpy as np
 from .archive import Archive
 from ..traits import TraitKey, TraitRegistry, trait_property
 from ..utilities import DefaultsRegistry
-from ..traits.base_traits import SpectralMap, Image, Measurement, Trait
+from ..traits import SpectralMap, Image, Measurement, Trait
 from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
