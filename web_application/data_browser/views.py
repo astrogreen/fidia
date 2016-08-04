@@ -53,9 +53,7 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, pk=None, sample_pk=None, format=None):
 
         if sample_pk == 'gama':
-            print('gama')
-            self.SampleRenderer.template = 'data_browser/sample/in_progress.html'
-            return Response({"sample": "gama"})
+            return Response({"sample": "gama", "in_progress": True})
 
         else:
             try:

@@ -378,6 +378,10 @@ header user a > a {
   cursor: not-allowed;
   pointer-events: none;
 }
+.nav-pagination {
+  background-color: transparent;
+  float: right;
+}
 .pager > .disabled > a,
 .pager > .disabled > a:hover,
 .pager > .disabled > a:focus {

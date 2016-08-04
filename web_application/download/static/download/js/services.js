@@ -252,6 +252,7 @@
                 // TODO This function should create a valid json and save in user's download history
                 // Wrap up (pretty==more info attched) cookie and return a string of valid JSON
                 var download_arr = this.prettifyCookie(this.getItems());
+                console.log(download_arr);
                 return JSON.stringify(download_arr);
             }
 
