@@ -161,7 +161,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                                                                 "description": trait_name_short_description,
                                                                 "branches": trait_name_branches,
                                                                 "formats": trait_name_formats}
-
+ 
         serializer = serializer_class(
             instance=astro_object, many=False,
             context={
@@ -209,7 +209,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = data_browser.serializers.AstroObjectTraitSerializer
+        serializer_class = data_browser.serializers.TraitSerializer
         serializer = serializer_class(
             instance=trait, many=False,
             context={
@@ -301,7 +301,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             trait_pointer = sami_dr1_sample[astroobject_pk]
             for elem in path:
                 trait_pointer = trait_pointer[elem]
-            serializer = data_browser.serializers.AstroObjectTraitSerializer(
+            serializer = data_browser.serializers.TraitSerializer(
                 instance=trait_pointer, many=False,
                 context={'request': request}
             )

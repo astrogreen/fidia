@@ -2,9 +2,9 @@
 import numpy as np
 
 from .archive import Archive
-from ..traits import TraitKey, TraitRegistry, trait_property
+from ..traits import *
+from ..traits.trait_property import trait_property_from_constant
 from ..utilities import DefaultsRegistry
-from ..traits import SpectralMap, Image, Measurement, Trait
 from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
@@ -126,6 +126,9 @@ class RedImage(Image):
 
     qualifiers = {'red'}
 
+    def preload(self):
+        # Make an object have typically the same random data.
+        np.random.seed(hash(self.object_id) % 500000)
 
     @trait_property('float.array')
     def value(self):
@@ -135,7 +138,7 @@ class RedImage(Image):
     def variance(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('string')
     def extra_property_red(self):
         return 'red'
 
@@ -145,6 +148,10 @@ class BlueImage(Image):
 
     qualifiers = {'blue'}
 
+    def preload(self):
+        # Make an object have typically the same random data.
+        np.random.seed(hash(self.object_id) % 500000)
+
     @trait_property('float.array')
     def value(self):
         return np.random.random((20, 20))
@@ -153,11 +160,21 @@ class BlueImage(Image):
     def variance(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('string')
     def extra_property_blue(self):
         return 'blue'
 
     sub_traits = TraitRegistry()
+
+    @sub_traits.register
+    class DetectorMetadata(DetectorCharacteristics):
+
+        trait_type = 'detector_metadata'
+
+        detector_id = trait_property_from_constant('DETECTOR', 'string', 'detector_id')
+        detector_id.set_short_name("DETECTOR")
+
+        gain = trait_property_from_constant(0.3, 'float', 'gain')
 
     @sub_traits.register
     class ImageSubTrait(Image):
@@ -165,6 +182,9 @@ class BlueImage(Image):
 
         qualifiers = {'blue'}
 
+        def preload(self):
+            # Make an object have typically the same random data.
+            np.random.seed(hash(self.object_id) % 500000)
 
         @trait_property('float.array')
         def value(self):
@@ -176,7 +196,7 @@ class BlueImage(Image):
             return np.random.random((20, 20))
 
 
-        @trait_property('float.array')
+        @trait_property('string')
         def extra_property_blue(self):
             return 'blue'
 
@@ -186,6 +206,10 @@ class BlueImage(Image):
 
         qualifiers = {'red'}
 
+        def preload(self):
+            # Make an object have typically the same random data.
+            np.random.seed(hash(self.object_id) % 500000)
+
         @trait_property('float.array')
         def value(self):
             return np.random.random((20, 20))
@@ -194,7 +218,7 @@ class BlueImage(Image):
         def variance(self):
             return np.random.random((20, 20))
 
-        @trait_property('float.array')
+        @trait_property('string')
         def extra_property_red(self):
             return 'red'
 

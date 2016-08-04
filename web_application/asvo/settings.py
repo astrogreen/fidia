@@ -207,7 +207,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
-            'filters': ['debug_filter']
+            # 'filters': ['debug_filter']
         }
         # 'mail_admins': {
         #     'level': 'ERROR',
@@ -217,7 +217,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'propagate': True,
             'level': 'INFO',
         },
@@ -231,6 +231,10 @@ LOGGING = {
             'level': 'DEBUG'
         },
         'restapi_app': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG'
+        },
+        'data_browser': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG'
         },

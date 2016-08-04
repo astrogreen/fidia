@@ -10,8 +10,9 @@ import fidia, collections
 from fidia.traits import Trait, TraitProperty
 from fidia import traits
 from fidia.descriptions import DescriptionsMixin
-
+from fidia.traits.trait_property import BoundTraitProperty
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 
 def get_and_update_depth_limit(kwargs):
@@ -112,7 +113,7 @@ class AstroObjectSerializer(serializers.Serializer):
     available_traits = serializers.SerializerMethodField()
 
 
-class AstroObjectTraitSerializer(serializers.Serializer):
+class TraitSerializer(serializers.Serializer):
     """Serializer for the Trait level of the Data Browser"""
 
     # documentation = DocumentationHTMLField()
@@ -127,49 +128,41 @@ class AstroObjectTraitSerializer(serializers.Serializer):
         trait = self.instance
         assert isinstance(trait, Trait)
 
-        print(trait.trait_key)
-        print(trait.branch)
-        print(trait)
-        print(vars(trait))
-        print(trait.trait_type)
-        print(type(trait))
-        print(isinstance(trait, traits.Image))
+        log.debug("Serializing trait '%s'", trait.trait_name)
 
-        if (isinstance(trait, traits.Image)):
-            depth_limit = 1
-        else:
-            depth_limit = 0
+        # print(trait.trait_key)
+        # print(trait.branch)
+        # print(trait)
+        # print(vars(trait))
+        # print(trait.trait_type)
+        # print(type(trait))
+        # print(isinstance(trait, traits.Image))
 
-        # for sub_trait in trait.g
+        # If image type, send 2D values for display
 
+        log.debug("Adding Sub-traits")
+        # define serializer type by instance type
+        for sub_trait in trait.get_all_subtraits():
+            log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
+            # setattr(self, sub_trait.trait_name, None)
+            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait)
+            # del getattr(self, sub_trait.trait_name)
+            # self.fields[sub_trait.trait_name] = SubTraitField(sub_trait_name='wcs')
+
+        log.debug("Adding Trait properties")
         for trait_property in trait.trait_properties():
-
-            assert isinstance(trait_property, TraitProperty) or isinstance(trait_property, SubTrait)
-            # define serializer type by instance type
+            log.debug("Adding Trait Property '%s'", trait_property.name)
             traitproperty_type = trait_property.type
 
-            # here need, is if traitproperty or sub trait.
-
-            print(trait_property.name)
-            print(traitproperty_type)
-            # Decide whether data will be included:
-            # Turn this back to always on once visualizers have been sorted out. Currently
-            # visualization is handled on a per-case basis in the JS via AJAX
-
-            # Depth limit needs to be a bit more dynamic. It should tunnel down if not spectral cube :)
-            # Need some mapping here.
-            if depth_limit > 0:
-                # Recurse into trait properties
-                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='include')
+            # Recurse into trait properties
+            if 'array' in traitproperty_type:
+                # TraitProperty is an array, so display a URL for it's value
+                self.fields[trait_property.name] = TraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='url')
             else:
-                if traitproperty_type == "float.array":
-                    temp_depth_limit = 0
-                else:
-                    temp_depth_limit = 1
-                # Simply show the trait types and descriptions
-                self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
-                    instance=trait_property, depth_limit=temp_depth_limit, data_display='exclude')
+                # TraitProperty is not an array so we want it's actual value returned.
+                self.fields[trait_property.name] = TraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='value')
 
     def get_branch(self, trait):
         return trait.branch
@@ -192,10 +185,6 @@ class AstroObjectTraitSerializer(serializers.Serializer):
     def get_trait_key(self, trait):
         return trait.trait_key
 
-    # def get_sub_trait(self, trait):
-    #     print(self.context['trait_key'])
-    #     return trait.get_sub_trait(self.context['trait_key'])
-
     branch = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
     available_branches_versions = serializers.SerializerMethodField()
@@ -203,8 +192,142 @@ class AstroObjectTraitSerializer(serializers.Serializer):
     pretty_name = serializers.SerializerMethodField()
     documentation = serializers.SerializerMethodField()
     trait_key = serializers.SerializerMethodField()
-    # sub_trait = serializers.SerializerMethodField()
 
+    def get_attribute(self, instance):
+        """
+        Given the *outgoing* object instance, return the primitive value
+        that should be used for this field.
+        """
+        try:
+            # return self.instance
+
+            if isinstance(instance, Trait):
+                # Use sub-trait retrieval logic:
+                return instance[self.source_attrs[0]]
+            else:
+                # Use TraitProperty retrieval logic:
+                return getattr(instance, self.source_attrs[0])
+
+            # return serializers.get_attribute(instance, self.source_attrs)
+        except (KeyError, AttributeError) as exc:
+            if not self.required and self.default is serializers.empty:
+                raise serializers.SkipField()
+            msg = (
+                'Got {exc_type} when attempting to get a value for field '
+                '`{field}` on serializer `{serializer}`.\nThe serializer '
+                'field might be named incorrectly and not match '
+                'any attribute or key on the `{instance}` instance.\n'
+                'Original exception text was: {exc}.'.format(
+                    exc_type=type(exc).__name__,
+                    field=self.field_name,
+                    serializer=self.parent.__class__.__name__,
+                    instance=instance.__class__.__name__,
+                    exc=exc
+                )
+            )
+            raise type(exc)(msg)
+
+
+    # def to_representation(self, instance):
+    #     """
+    #     Object instance -> Dict of primitive datatypes.
+    #     """
+    #     ret = collections.OrderedDict()
+    #     fields = self._readable_fields
+    #
+    #     for field in fields:
+    #
+    #         try:
+    #             attribute = field.get_attribute(instance)
+    #         except SkipField:
+    #             continue
+    #
+    #         if attribute is None:
+    #             # We skip `to_representation` for `None` values so that
+    #             # fields do not have to explicitly deal with that case.
+    #             ret[field.field_name] = None
+    #         else:
+    #             ret[field.field_name] = field.to_representation(instance)
+    #
+    #     return ret
+
+
+class TraitPropertySerializer(serializers.Serializer):
+    """
+    Trait Properties have the following:
+
+        Properties:
+            name, type, value
+
+        Methods:
+             get_short_name
+             get_pretty_name
+             get_description
+             get_documentation
+        (these are the 'standard' description fields, see fidia/descriptions.py)
+    """
+
+    def __init__(self, *args, **kwargs):
+        depth_limit = get_and_update_depth_limit(kwargs)
+        data_display = kwargs.pop('data_display', 'value')
+        # data_display = 'include'
+        super().__init__(*args, **kwargs)
+
+        if isinstance(self.instance, TraitProperty):
+            trait_property = self.instance
+
+            self.fields['name'] = serializers.CharField(required=False)
+            self.fields['type'] = serializers.CharField(required=False)
+
+            # Determine the appropriate serializer for the data
+            if 'array' in trait_property.type:
+                data_serializer = serializers.ListField(required=False)
+            elif trait_property.type == 'float':
+                data_serializer = serializers.FloatField(required=False)
+            elif trait_property.type == 'int':
+                data_serializer = serializers.IntegerField(required=False)
+            elif trait_property.type == 'string':
+                data_serializer = serializers.CharField(required=False)
+
+            if data_display == 'value':
+                self.fields['value'] = data_serializer
+            elif data_display == 'url':
+                self.fields['value'] = serializers.SerializerMethodField()
+
+    def get_short_name(self, trait_property):
+        return trait_property.get_short_name()
+    def get_pretty_name(self, trait_property):
+        return trait_property.get_pretty_name()
+    def get_description(self, trait_property):
+        return trait_property.get_description()
+    def get_documentation(self, trait_property):
+        return trait_property.get_documentation()
+
+    def get_value(self, trait_property):
+        return "THE URL TO THE DATA"
+
+    short_name = serializers.SerializerMethodField()
+    pretty_name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    documentation = serializers.SerializerMethodField()
+
+        # if isinstance(self.instance, SubTrait):
+        #     sub_trait = self.instance
+        #     self.fields['name'] = serializers.CharField(required=False)
+        #     self.fields['type'] = serializers.CharField(required=False)
+        #
+        #     # Determine the appropriate serializer for the data
+        #     if 'array' in sub_trait.type:
+        #         data_serializer = serializers.ListField(required=False)
+        #     elif sub_trait.type == 'float':
+        #         data_serializer = serializers.FloatField(required=False)
+        #     elif sub_trait.type == 'int':
+        #         data_serializer = serializers.IntegerField(required=False)
+        #     elif sub_trait.type == 'string':
+        #         data_serializer = serializers.CharField(required=False)
+        #
+        #     if data_display == 'include':
+        #         self.fields['value'] = data_serializer
 
 
 

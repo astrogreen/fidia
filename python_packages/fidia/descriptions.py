@@ -221,7 +221,10 @@ class DescriptionsMixin:
     def get_short_name(self):
         if hasattr(self, '_short_name'):
             return self._short_name
-        else:
+        elif hasattr(self, 'name'):
+            # TraitProperties have a 'name' attribute
+            return self.name.upper()
+        elif hasattr(self, 'descriptions_allowed') and self.descriptions_allowed in ('both', 'class'):
             # Use the name of the class as the short name, with munging to uppercase
             if isclass(self):
                 name = self.__name__
@@ -230,6 +233,9 @@ class DescriptionsMixin:
             # Convert to upper case
             name = name.upper()
             return name
+        else:
+            # Cannot use the name of the class, no known name for the instance
+            return ""
 
     @classorinstancemethod
     def set_short_name(self, value):
