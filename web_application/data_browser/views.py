@@ -176,7 +176,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    # class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+    class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        pass
     #     template = 'data_browser/trait/trait-list.html'
 
         # def get_context(self, data, accepted_media_type, renderer_context):
@@ -186,7 +187,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         #     context['short_description'] = renderer_context['view'].short_description
         #     return context
 
-    # renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+    renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 

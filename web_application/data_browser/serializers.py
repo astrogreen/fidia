@@ -141,10 +141,18 @@ class AstroObjectTraitSerializer(serializers.Serializer):
         else:
             depth_limit = 0
 
+        # for sub_trait in trait.g
+
         for trait_property in trait.trait_properties():
+
+            assert isinstance(trait_property, TraitProperty) or isinstance(trait_property, SubTrait)
             # define serializer type by instance type
             traitproperty_type = trait_property.type
 
+            # here need, is if traitproperty or sub trait.
+
+            print(trait_property.name)
+            print(traitproperty_type)
             # Decide whether data will be included:
             # Turn this back to always on once visualizers have been sorted out. Currently
             # visualization is handled on a per-case basis in the JS via AJAX
@@ -156,9 +164,13 @@ class AstroObjectTraitSerializer(serializers.Serializer):
                 self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
                     instance=trait_property, depth_limit=depth_limit, data_display='include')
             else:
+                if traitproperty_type == "float.array":
+                    temp_depth_limit = 0
+                else:
+                    temp_depth_limit = 1
                 # Simply show the trait types and descriptions
                 self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='exclude')
+                    instance=trait_property, depth_limit=temp_depth_limit, data_display='exclude')
 
     def get_branch(self, trait):
         return trait.branch
