@@ -4,12 +4,13 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{response.data.astroobject}} {{response.data.trait}}{% endblock %}
+{% block title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}{{response.data.astroobject}} {{response.data.trait}}{% endblock %}
+{% block page_title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
 {% block useful_links %}
 <li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
     {{response.data.sample}}</a></li>
@@ -20,10 +21,120 @@
 {% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12">
+    <div class="col-xs-6 col-sm-4 options">
+        <h2>{{response.data.pretty_name}}</h2>
+    </div>
+    <div class="text-right col-xs-6 col-sm-8 options">
+        <span class="branch_version">
+            <span class="sub-heading"><i class="fa fa-code-fork"></i>{{response.data.branch}}</span>
+            <span class="sub-heading"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
+        </span>
+        <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-code-fork"></i> Other Branches <i class="fa fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    {% for branch_name, branch_url in value.branches.items %}
+                    <li><a href="{{branch_url}}">{{branch_name}}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-map-marker"></i> Other Versions <i class="fa fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    {% for branch_name, branch_url in value.branches.items %}
+                    <li><a href="{{branch_url}}">{{branch_name}}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4 col-xs-12">
+        Description here {{response.data.description}}
+        <hr>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOne">
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  Documentation
+                </a>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <div class="panel-body">
+                {{response.data.documentation}}
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingTwo">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  WCS
+                </a>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+              <div class="panel-body">
+                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingThree">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
+                   aria-expanded="false" aria-controls="collapseThree">
+                    Something else (set these on the context)
+                </a>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+              <div class="panel-body">
+                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+              </div>
+            </div>
+          </div>
+        </div>
 
-        le data
 
+        {% if response.data.wcs %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    WCS
+                </div>
+
+                <div class="panel-body">
+                    <p class="sub-heading">{{wcs.description}} Description</p>
+                    <p class="sub-heading">{{wcs.documentation}} Documentation</p>
+
+
+                    <!--{% for key, val in response.data.wcs.items %}-->
+                        <!--{% if key not in reserved_keywords %}-->
+                            <!--{% if val %}-->
+                                <!--{{key}}-->
+                                <!--{% for keya, vala in val.items %}-->
+                                    <!--<p class="sub-heading">{{val.description}}</p>-->
+                                    <!--{% if key not in reserved_keywords %}-->
+                                        <!--{{keya}}:{{vala}}<br>-->
+                                    <!--{% endif %}-->
+                                <!--{% endfor %}-->
+                            <!--{% endif %}-->
+                        <!--{% endif %}-->
+                    <!--{% endfor %}-->
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-sm-8 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                DATAAA
+            </div>
+        </div>
     </div>
 
 </div>

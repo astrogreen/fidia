@@ -183,16 +183,18 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+
         template = 'data_browser/trait/trait-list.html'
 
-        # def get_context(self, data, accepted_media_type, renderer_context):
-        #     context = super().get_context(data, accepted_media_type, renderer_context)
-        #     context['html_documentation'] = renderer_context['view'].documentation_html
-        #     context['pretty_name'] = renderer_context['view'].pretty_name
-        #     context['short_description'] = renderer_context['view'].short_description
-        #     return context
+        def get_context(self, data, accepted_media_type, renderer_context):
+            """Add info the browsable API"""
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['reserved_keywords'] = ['sample', 'astroobject', 'trait', 'trait_key', 'pretty_name', 'all_branches_versions']
+            # context['html_documentation'] = renderer_context['view'].documentation_html
+            # context['pretty_name'] = renderer_context['view'].pretty_name
+            # context['short_description'] = renderer_context['view'].short_description
+            return context
 
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
     breadcrumb_list = []
@@ -202,8 +204,9 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         TraitViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk, trait_pk])
 
         # Dict of available traits
-        # trait_registry = ar.available_traits
-        # default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
+        trait_registry = ar.available_traits
+        default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
+        print(default_trait_key)
 
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
@@ -219,14 +222,18 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer_class = data_browser.serializers.TraitSerializer
+
+        # Add reserved keys to the context so the template knows not to iterate over these keys,
+        # rather, they will be explicitly positioned.
+
         serializer = serializer_class(
             instance=trait, many=False,
             context={
                 'request': request,
                 'sample': sample_pk,
                 'astroobject': astroobject_pk,
-                'trait': trait_pk
-                # 'trait_key': default_trait_key
+                'trait': trait_pk,
+                'trait_key': default_trait_key,
             }
         )
 
@@ -237,6 +244,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # self.documentation_html = trait.get_documentation('html')
         # self.pretty_name = trait.get_pretty_name()
         # self.short_description = trait.get_description()
+
+        # renderer_context['reserved_keywords']: reserved_keywords
 
         return Response(serializer.data)
 

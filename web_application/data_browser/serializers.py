@@ -170,7 +170,7 @@ class TraitSerializer(serializers.Serializer):
     def get_version(self, trait):
         return trait.version
 
-    def get_available_branches_versions(self, trait):
+    def get_all_branches_versions(self, trait):
         return trait.get_all_branches_versions()
 
     def get_description(self, trait):
@@ -182,16 +182,13 @@ class TraitSerializer(serializers.Serializer):
     def get_documentation(self, trait):
         return trait.get_documentation()
 
-    def get_trait_key(self, trait):
-        return trait.trait_key
-
     branch = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
-    available_branches_versions = serializers.SerializerMethodField()
+    all_branches_versions = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
     documentation = serializers.SerializerMethodField()
-    trait_key = serializers.SerializerMethodField()
+
 
     def get_sample(self, obj):
         return self.context['sample']
@@ -202,9 +199,13 @@ class TraitSerializer(serializers.Serializer):
     def get_trait(self, obj):
         return self.context['trait']
 
+    def get_trait_key(self, obj):
+        return self.context['trait_key']
+
     sample = serializers.SerializerMethodField()
     astroobject = serializers.SerializerMethodField()
     trait = serializers.SerializerMethodField()
+    trait_key = serializers.SerializerMethodField()
 
     def get_attribute(self, instance):
         """

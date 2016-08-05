@@ -1,0 +1,13 @@
+.branch_version {
+  margin-right: 10px;
+  margin-top: 1px;
+}
+.branch_version .sub-heading {
+  margin-right: 10px;
+}
+.branch_version .sub-heading i.fa {
+  margin-right: 3px;
+}
+.panel .panel-heading h4 {
+  border: 0;
+}

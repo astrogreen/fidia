@@ -194,17 +194,17 @@ LOGGING = {
     # },
     'handlers': {
         'null': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.NullHandler',
         },
         'file': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + '/aatnode-django.log',
             'formatter': 'verbose_with_times'
         },
         'console': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
             # 'filters': ['debug_filter']
@@ -219,7 +219,7 @@ LOGGING = {
         'django': {
             'handlers': ['file', 'console'],
             'propagate': True,
-            'level': 'INFO',
+            'level': 'WARNING',
         },
         # 'django.request': {
         #     'handlers': ['mail_admins'],
@@ -228,19 +228,19 @@ LOGGING = {
         # },
         'aatnode': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG'
+            'level': 'WARNING'
         },
         'restapi_app': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG'
+            'level': 'WARNING'
         },
         'data_browser': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG'
+            'level': 'WARNING'
         },
         'fidia': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG'
+            'level': 'WARNING'
         }
     }
 }

@@ -91,7 +91,6 @@ def get_breadcrumbs_by_viewname(url, request=None):
                     # suffix = getattr(view, 'suffix', None)
                     suffix = ''
                     name = view_name_func(cls, suffix)
-                    print(name)
                     # new_name = get_object_name(url, request)
 
                     # if new_name != '':
