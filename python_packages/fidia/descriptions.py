@@ -8,7 +8,7 @@ from .utilities import classorinstancemethod
 
 from . import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.INFO)
 log.enable_console_logging()
 
 DEFAULT_FORMAT = 'markdown'

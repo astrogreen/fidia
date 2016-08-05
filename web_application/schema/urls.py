@@ -7,7 +7,7 @@ import rest_framework.routers
 
 from restapi_app.routers import NestedExtendDefaultRouter
 
-from fidia.traits.utilities import TRAIT_KEY_RE
+from fidia.traits.trait_key import TRAIT_KEY_RE
 
 import schema.views
 

@@ -302,66 +302,60 @@ class TraitPropertySerializer(serializers.Serializer):
         return trait_property.get_description()
     def get_documentation(self, trait_property):
         return trait_property.get_documentation()
-
     def get_value(self, trait_property):
         return "THE URL TO THE DATA"
+    def get_url(self, trait_property):
+        """If a Trait property has a URL, then it can be traversed to the next level"""
+        # Need to inject the sub-trait url, so this probably needs getting by
+        # traversing up the parent tree
+        # if has attr (trait) has attr (trait) - prepend
+        subtrait_key = ''
+        if hasattr(trait_property, '_trait'):
+            if hasattr(trait_property._trait, '_parent_trait'):
+                if hasattr(trait_property._trait._parent_trait, '_parent_trait'):
+                    subtrait_key = str(trait_property._trait.trait_key)+'/'
+
+        return getattr(self.context['request'], 'path')+subtrait_key+trait_property.name
 
     short_name = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     documentation = serializers.SerializerMethodField()
-
-        # if isinstance(self.instance, SubTrait):
-        #     sub_trait = self.instance
-        #     self.fields['name'] = serializers.CharField(required=False)
-        #     self.fields['type'] = serializers.CharField(required=False)
-        #
-        #     # Determine the appropriate serializer for the data
-        #     if 'array' in sub_trait.type:
-        #         data_serializer = serializers.ListField(required=False)
-        #     elif sub_trait.type == 'float':
-        #         data_serializer = serializers.FloatField(required=False)
-        #     elif sub_trait.type == 'int':
-        #         data_serializer = serializers.IntegerField(required=False)
-        #     elif sub_trait.type == 'string':
-        #         data_serializer = serializers.CharField(required=False)
-        #
-        #     if data_display == 'include':
-        #         self.fields['value'] = data_serializer
+    url = serializers.SerializerMethodField()
 
 
 
 
-class AstroObjectTraitPropertySerializer(serializers.Serializer):
-
-    # documentation = DocumentationHTMLField()
-    # short_description = serializers.CharField(source='get_description')
-    # pretty_name = serializers.CharField(source='get_pretty_name')
-
-    def __init__(self, *args, **kwargs):
-        depth_limit = get_and_update_depth_limit(kwargs)
-        data_display = kwargs.pop('data_display', 'include')
-        # data_display = 'include'
-        super().__init__(*args, **kwargs)
-
-        trait_property = self.instance
-        assert isinstance(trait_property, TraitProperty)
-
-        self.fields['name'] = serializers.CharField(required=False)
-        self.fields['type'] = serializers.CharField(required=False)
-
-        # Determine the appropriate serializer for the data
-        if 'array' in trait_property.type:
-            data_serializer = serializers.ListField(required=False)
-        elif trait_property.type == 'float':
-            data_serializer = serializers.FloatField(required=False)
-        elif trait_property.type == 'int':
-            data_serializer = serializers.IntegerField(required=False)
-        elif trait_property.type == 'string':
-            data_serializer = serializers.CharField(required=False)
-
-        if data_display == 'include':
-            self.fields['value'] = data_serializer
+# class AstroObjectTraitPropertySerializer(serializers.Serializer):
+#
+#     # documentation = DocumentationHTMLField()
+#     # short_description = serializers.CharField(source='get_description')
+#     # pretty_name = serializers.CharField(source='get_pretty_name')
+#
+#     def __init__(self, *args, **kwargs):
+#         depth_limit = get_and_update_depth_limit(kwargs)
+#         data_display = kwargs.pop('data_display', 'include')
+#         # data_display = 'include'
+#         super().__init__(*args, **kwargs)
+#
+#         trait_property = self.instance
+#         assert isinstance(trait_property, TraitProperty)
+#
+#         self.fields['name'] = serializers.CharField(required=False)
+#         self.fields['type'] = serializers.CharField(required=False)
+#
+#         # Determine the appropriate serializer for the data
+#         if 'array' in trait_property.type:
+#             data_serializer = serializers.ListField(required=False)
+#         elif trait_property.type == 'float':
+#             data_serializer = serializers.FloatField(required=False)
+#         elif trait_property.type == 'int':
+#             data_serializer = serializers.IntegerField(required=False)
+#         elif trait_property.type == 'string':
+#             data_serializer = serializers.CharField(required=False)
+#
+#         if data_display == 'include':
+#             self.fields['value'] = data_serializer
 
 
 

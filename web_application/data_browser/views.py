@@ -161,7 +161,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                                                                 "description": trait_name_short_description,
                                                                 "branches": trait_name_branches,
                                                                 "formats": trait_name_formats}
- 
+
         serializer = serializer_class(
             instance=astro_object, many=False,
             context={
@@ -238,6 +238,40 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return response
 
 
+class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+
+        # Determine what we're looking at.
+        # type_for_trait_path requires the trait_key and current "path"
+        path = list(dynamic_pk.split('/'))
+
+        path.insert(0, trait_pk)
+
+        if issubclass(ar.type_for_trait_path(path), Trait):
+            trait_pointer = sami_dr1_sample[astroobject_pk]
+            for elem in path:
+                trait_pointer = trait_pointer[elem]
+            serializer = data_browser.serializers.TraitSerializer(
+                instance=trait_pointer, many=False,
+                context={'request': request}
+            )
+
+        elif issubclass(ar.type_for_trait_path(path), TraitProperty):
+            trait_pointer = sami_dr1_sample[astroobject_pk]
+            for elem in path[:-1]:
+                trait_pointer = trait_pointer[elem]
+            trait_property = getattr(trait_pointer, path[-1])
+            serializer = data_browser.serializers.TraitPropertySerializer(
+                instance=trait_property, many=False,
+                context={'request': request}
+            )
+        else:
+            raise Exception("programming error")
+
+        return Response(serializer.data)
+
+
 class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
@@ -281,47 +315,3 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return response
 
 
-class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
-    def list(self, request, pk=None, astroobject_pk=None, trait_pk=None, dynamic_pk=None, format=None):
-        print(dynamic_pk)
-        print(trait_pk)
-        print(astroobject_pk)
-        # @property
-        # def dynamic_property_first_of_type(self, dynamic_pk):
-            # split on /
-
-        # Determine what we're looking at.
-        path = list(dynamic_pk.split('/'))
-
-        path.insert(0, trait_pk)
-        # return Response({"data": str(ar.type_for_trait_path(path))})
-        print(ar.type_for_trait_path(path))
-        if issubclass(ar.type_for_trait_path(path), Trait):
-            trait_pointer = sami_dr1_sample[astroobject_pk]
-            for elem in path:
-                trait_pointer = trait_pointer[elem]
-            serializer = data_browser.serializers.TraitSerializer(
-                instance=trait_pointer, many=False,
-                context={'request': request}
-            )
-
-        elif issubclass(ar.type_for_trait_path(path), TraitProperty):
-            trait_pointer = sami_dr1_sample[astroobject_pk]
-            for elem in path[:-1]:
-                trait_pointer = trait_pointer[elem]
-            trait_property = getattr(trait_pointer, path[-1])
-            serializer = data_browser.serializers.AstroObjectTraitPropertySerializer(
-                instance=trait_property, many=False,
-                context={'request': request}
-            )
-        else:
-            raise Exception("programming error")
-
-        return Response(serializer.data)
-
-
-        # Return a list of components
-        dynamic_components = dynamic_pk.split('/')
-        # first component distinction: ST/TP
-        return Response({'dynamic_pk': dynamic_components})
