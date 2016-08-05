@@ -91,15 +91,15 @@ def get_breadcrumbs_by_viewname(url, request=None):
                     # suffix = getattr(view, 'suffix', None)
                     suffix = ''
                     name = view_name_func(cls, suffix)
-
+                    print(name)
                     # new_name = get_object_name(url, request)
 
                     # if new_name != '':
                     #     name = new_name
 
                     if breadcrumb_list_from_view:
-                        name = breadcrumb_list_from_view.pop()
-
+                        if breadcrumb_list_from_view.__len__() > 0:
+                            name = breadcrumb_list_from_view.pop()
                     insert_url = preserve_builtin_query_params(prefix + url, request)
                     breadcrumbs_list.insert(0, (name, insert_url))
                     seen.append(view)

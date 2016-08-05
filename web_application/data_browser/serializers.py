@@ -193,6 +193,19 @@ class TraitSerializer(serializers.Serializer):
     documentation = serializers.SerializerMethodField()
     trait_key = serializers.SerializerMethodField()
 
+    def get_sample(self, obj):
+        return self.context['sample']
+
+    def get_astroobject(self, obj):
+        return self.context['astroobject']
+
+    def get_trait(self, obj):
+        return self.context['trait']
+
+    sample = serializers.SerializerMethodField()
+    astroobject = serializers.SerializerMethodField()
+    trait = serializers.SerializerMethodField()
+
     def get_attribute(self, instance):
         """
         Given the *outgoing* object instance, return the primitive value
@@ -249,7 +262,7 @@ class TraitSerializer(serializers.Serializer):
     #         else:
     #             ret[field.field_name] = field.to_representation(instance)
     #
-    #     return ret
+        return ret
 
 
 class TraitPropertySerializer(serializers.Serializer):
@@ -324,7 +337,14 @@ class TraitPropertySerializer(serializers.Serializer):
     url = serializers.SerializerMethodField()
 
 
-
+class AttributeSerializer(serializers.Serializer):
+    """
+    This will be used if an endpoint is identified as an attribute on an instance of Trait or Trait property,
+    rather than either of the latter.
+    The call logic for this function will go in the Dynamic ViewSet (once I figure out how to call methods
+    dynamically (ie., get_<dynamic_pk> on <trait_pk or <trait_property_pk>
+    """
+    pass
 
 # class AstroObjectTraitPropertySerializer(serializers.Serializer):
 #

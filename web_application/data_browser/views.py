@@ -44,13 +44,18 @@ class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
+    """
+    Viewset for Sample route. Provides List view only.
+    """
     class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/sample/sample-list.html'
 
     renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, format=None):
+
+        SampleViewSet.breadcrumb_list.extend([str(sample_pk).upper()])
 
         if sample_pk == 'gama':
             return Response({"sample": "gama", "in_progress": True})
@@ -86,9 +91,11 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
     renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
 
+        AstroObjectViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk])
         try:
             astro_object = sami_dr1_sample[astroobject_pk]
             assert isinstance(astro_object, fidia.AstronomicalObject)
@@ -176,9 +183,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
+
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        pass
-    #     template = 'data_browser/trait/trait-list.html'
+        template = 'data_browser/trait/trait-list.html'
 
         # def get_context(self, data, accepted_media_type, renderer_context):
         #     context = super().get_context(data, accepted_media_type, renderer_context)
@@ -188,13 +195,15 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         #     return context
 
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
-        # Dict of available traits
-        trait_registry = ar.available_traits
-        default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
+        TraitViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk, trait_pk])
 
+        # Dict of available traits
+        # trait_registry = ar.available_traits
+        # default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
 
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
@@ -214,6 +223,9 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             instance=trait, many=False,
             context={
                 'request': request,
+                'sample': sample_pk,
+                'astroobject': astroobject_pk,
+                'trait': trait_pk
                 # 'trait_key': default_trait_key
             }
         )
