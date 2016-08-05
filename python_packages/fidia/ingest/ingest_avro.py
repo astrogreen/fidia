@@ -1,7 +1,8 @@
 from fidia.archive import example_archive
-from fidia.archive.sami import SAMITeamArchive
+from fidia.archive.sami import SAMITeamArchive, SAMIDR1PublicArchive
 from fidia.traits.base_traits import Trait
-
+from fidia.utilities import SchemaDictionary
+#from fidia.ingest.ingest_utility import *
 import traceback
 
 from avro.datafile import DataFileWriter
@@ -10,12 +11,12 @@ from avro import schema
 from avro import io
 
 import time
-
+import json
 from fidia.cache.data_retriver import DataRetriever
 
 import argparse
 
-from avro.schema import RECORD
+from avro.schema import *
 
 #ar = example_archive.ExampleArchive()
 
@@ -56,8 +57,8 @@ def get_traitproperty_data(trait):
             if hasattr(trait_property_data[trait_property_name], 'shape'):
                 # Shape attribute can provide the shape of the data (probably a
                 # numpy array).
-                array_dict['shape'] = str(trait_property_data.shape)
-                array_dict['dataValues'] = trait_property_data.flatten().tolist()
+                array_dict['shape'] = str(trait_property_data[trait_property_name].shape)
+                array_dict['dataValues'] = trait_property_data[trait_property_name].flatten().tolist()
             elif isinstance(trait_property_data[trait_property_name], list):
                 # A one-dimensional Python list.
                 array_dict['shape'] = "({})".format(len(trait_property_data[trait_property_name]))
@@ -129,54 +130,23 @@ def get_trait_data(trait):
 
 def main(args):
 
-    ar = SAMITeamArchive(args.input_dir, args.catalogue)
+    #ar = SAMITeamArchive(args.input_dir, args.catalogue)
+    ar = SAMIDR1PublicArchive(args.input_dir, args.catalogue)
 
     trait_schema = ar.schema()
 
     # Now we need to build the schema.
-    schema_string = createSchema(trait_schema)
-    schema_object = schema.Parse(schema_string)
+    # schema_string = createSchema(trait_schema)
+
+    schema_object = get_avro_schema(trait_schema)
+
+    #schema_object = schema.Parse(schema_string)
 
     field_map = schema_object.field_map
 
     writer = DataFileWriter(open(args.output_file, "wb"), DatumWriter(), schema_object)
+    write_astro_objects(ar, trait_schema, writer)
     astro_record = dict()
-    sample = ar.get_full_sample()
-
-    remaining_ids = removeIngestedObjects(sample, args.table)
-
-    try:
-        for object_id in remaining_ids:
-            astro_record['object_id'] = object_id
-
-            for trait_key in sample[object_id]:
-
-                assert trait_key.trait_type in trait_schema
-                trait = sample[object_id][trait_key]
-                assert isinstance(trait, Trait)
-                trait_map = dict()
-                trait_record = dict()
-                trait_avro_schema = field_map[trait_key.trait_type]
-                print(trait_avro_schema)
-                if isinstance(trait_avro_schema.type, schema.MapSchema): # This check is not a necessity
-                    version = trait.branch + "-" + trait.version
-                    #record_schema = trait_avro_schema.type.values
-                    #record_fields = record_schema.field_map
-
-                    trait_record = get_traitproperty_data(trait)['trait_property_data']
-
-                    trait_map[version] = trait_record
-                    astro_record[trait_key.trait_type] = trait_map
-
-            appendTimeStart = time.clock()
-            writer.append(astro_record)
-            writer.flush()
-            appendTimeEnd = time.clock()
-            print('append time : ' + str(appendTimeEnd - appendTimeStart))
-        writer.close()
-    except:
-        tb = traceback.format_exc()
-        print(tb)
 
 
 def removeIngestedObjects(sample, table):
@@ -194,6 +164,216 @@ def removeIngestedObjects(sample, table):
     remaining_ids = set(sample.keys()).difference(set(obj_id_list))
     print('Remaining ids:\n' + str(remaining_ids))
     return remaining_ids
+
+
+
+
+def write_astro_objects(archive, schema, writer):
+    sample = archive.get_full_sample()
+    astro_obj_list = list()
+    try:
+        count = 0
+        for object_id in sample:
+            if count is 1:
+                break
+            astro_record = dict()
+            astro_record['object_id'] = object_id
+            trait_types = dict()
+
+            for trait_type in schema:
+                trait_type_schema = schema[trait_type]
+                trait_type_data = dict()
+                already_added = False
+                for type_key in trait_type_schema:        # type_key = HBeta, 00II3
+                    trait_schema = trait_type_schema[type_key]
+
+                    # get the trait for the key
+                    versions = dict()
+                    if type_key is None:
+                        for trait_key in sample[object_id].keys():
+                            if trait_type in trait_key.trait_name:
+                                trait = sample[object_id][trait_key]
+                                if trait.branch is None:
+                                    branch_version = None
+                                else:
+                                    branch_version = trait.branch + '-' + trait.version
+                                trait_data = get_trait_data(trait)
+                                versions.update({branch_version: get_property_data(trait_schema, trait_data)})
+                        astro_record[trait_type] = versions
+                        already_added = True
+                    else:
+                        #for trait_key in archive.available_traits.get_all_traitkeys(trait_name_filter=trait_type + '-' + type_key):
+                        for trait_key in sample[object_id].keys():
+                            if trait_type + '-' + type_key in trait_key.trait_name:
+                                trait = sample[object_id][trait_key]   # what happens if there are more than 1 version?
+                                if trait.branch is None:
+                                    branch_version = None
+                                else:
+                                    branch_version = trait.branch + '-' + trait.version
+                                trait_data = get_trait_data(trait)
+                                versions.update({branch_version: get_property_data(trait_schema, trait_data)})
+                    trait_type_data[type_key] = versions
+                if not already_added:
+                    astro_record[trait_type] = trait_type_data
+            writer.append(astro_record)
+            writer.flush()
+            count += 1
+        writer.close()
+    except:
+        tb = traceback.format_exc()
+        print(tb)
+
+    #return astro_obj_list
+
+def get_property_data(schema, trait_data):
+    data = dict()
+    for key in schema:
+        if isinstance(schema[key], SchemaDictionary):
+            if trait_data['sub_trait_data'] is None:
+                data[key] = None
+                continue
+            elif key not in trait_data['sub_trait_data']:
+                data[key] = None
+                continue
+            sub_trait_data = trait_data['sub_trait_data'][key]['trait_property_data']
+            sub_schema = schema[key]
+            data[key] = get_property_data(sub_schema, sub_trait_data)
+        else:
+            if key not in trait_data['trait_property_data']:
+                data[key] = None
+            elif key is '_wcs_string':
+                data[key] = 'dummy_wcs_string'
+            else:
+                data[key] = trait_data['trait_property_data'][key]
+    return data
+
+
+
+
+
+
+
+def get_avro_schema(schema):
+
+    astro_record_fields = list()
+    astro_record_fields.append(Field(PrimitiveSchema(STRING), 'object_id', 0, False, names=Names()))
+    top_index = 0
+    for trait_type in schema:                               # trait_type = line_map
+        trait_type_schema = schema[trait_type]              # line_map dict. keys are - 00I0, HBeta etc.
+
+        trait_type_avro_fields = list()
+        already_added = False
+        key_index = 0
+        for trait_key in trait_type_schema:                 # trait_key = OII3, HBeta etc.
+            trait_schema = trait_type_schema[trait_key]     # trait_schema dict
+
+            trait_fields = list()
+            field_index = 0
+            for trait_property_key in trait_schema:         # comp_2_variance
+                trait_prop_type = trait_schema[trait_property_key]
+                if isinstance(trait_prop_type, SchemaDictionary):
+                    trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL),
+                                        RecordSchema(trait_property_key.capitalize(), 'au.gov.aao.asvo.model',
+                                                        get_subtraits(trait_prop_type), names=Names())]),
+                                        trait_property_key, field_index, False, names=Names())
+
+                    field_index += 1
+                else:
+                    dtypes = trait_prop_type.split('.')
+                    if 'array' in trait_prop_type:
+                        data_vals = Field(ArraySchema(PrimitiveSchema(dtypes[0])), 'dataValues', 0, False, names=Names())
+                        shape = Field(PrimitiveSchema(STRING), 'shape', 1, False, names=Names())
+                        trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL),
+                                            RecordSchema(trait_property_key.capitalize(), 'au.gov.aao.asvo.model',
+                                            [data_vals, shape], names=Names())]), trait_property_key,
+                                                 field_index, False, names=Names())
+
+                        field_index += 1
+                    else:
+
+                        trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(dtypes[0])]),
+                                                             trait_property_key, field_index, False, names=Names())
+                        field_index += 1
+
+                trait_fields.append(trait_prop_field)
+
+            if trait_key is None:
+
+                astro_record_fields.append(Field(UnionSchema([PrimitiveSchema(NULL),
+                                                    MapSchema(RecordSchema(trait_type.capitalize(), 'au.gov.aao.asvo.model',
+                                                        trait_fields, names=Names()))]),trait_type, top_index, False, names=Names()))
+                already_added = True
+                top_index += 1
+            else:
+                trait_type_avro_fields.append(Field(UnionSchema([PrimitiveSchema(NULL),
+                                                    MapSchema(RecordSchema(trait_key.capitalize(), 'au.gov.aao.asvo.model',
+                                                        trait_fields, names=Names()))]), trait_key, key_index, False, names=Names()))
+                already_added = False
+                key_index += 1
+        if not (already_added):
+            astro_record_fields.append(Field(UnionSchema([PrimitiveSchema(NULL),
+                                                          RecordSchema(trait_type.capitalize(), 'type_ns',
+                                                                       trait_type_avro_fields, names=Names())]),
+                                                                        trait_type, top_index, False, names=Names()))
+            top_index += 1
+
+    av_record_schema = RecordSchema('astroObject', 'au.gov.aao.asvo.model', astro_record_fields, names=Names())
+
+    return av_record_schema
+
+
+
+def get_subtraits(type):  # type = wcs dict - { None: {a: string, b: string} }
+
+    field_list = list()
+
+    for sub_key in type:                        # sub_key - None
+        #sub_schema = StructType()
+        sub_schema = list()
+        field_index = 0
+        sub_prop_schema = type[sub_key]         # sub_key = None.
+        for k in sub_prop_schema:
+            sub_prop_type = sub_prop_schema[k]
+            if isinstance(sub_prop_type, SchemaDictionary):
+                get_subtraits(sub_prop_type)
+            else:
+                sub_types = sub_prop_type.split('.')
+                if 'array' in sub_prop_type:
+
+                    data_vals = Field(ArraySchema(PrimitiveSchema(sub_types[0])), 'dataValues', 0, False)
+
+                    shape = Field(PrimitiveSchema(STRING), 'shape', 1, False)
+
+                    sub_prop_field = Field(UnionSchema([PrimitiveSchema(NULL),
+                                            RecordSchema(k.capitalize(), 'namesp', [data_vals, shape], names=Names())]),
+                                                k, field_index, False, names=Names())
+
+                    field_index += 1
+                else:
+                    sub_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(sub_types[0])]),
+                                                       k, field_index, False, names=Names())
+                    field_index += 1
+            sub_schema.append(sub_prop_field)
+
+        if sub_key is None:
+            return sub_schema
+        else:
+            #sub_trait_schema.add(sub_key, sub_schema)
+
+            # sub_key = 4, 5, 6
+            # sub_key = 4
+
+            #{ name:4, type:record, fields:[sub_schema{name:wcs_string, type=..}, {name=bla_str, ...}]}
+
+            # Is this a record? Yes.
+            # wcs has different versions
+            # we need to create a record with sub_schema fields. Then create a field from that and add it to the list
+
+            #sub_sch_record = RecordSchema(sub_key, 'namsp', sub_schema, names=Names())
+
+            #field_list.append(sub_sch_record)
+            pass
+    return field_list # should return a list of Fields
 
 
 def createSchema(schema):
@@ -254,6 +434,8 @@ def doSubtraits(value, sch, sub_trait=True):
                     \"type\": [\"null\", ''' + type + ']},'     #if null allowed, put union here ["null", type]
     sch = sch[:-1] + ']'
     return sch
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Ingest astronomical objects')
