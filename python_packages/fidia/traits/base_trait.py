@@ -602,6 +602,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
 
     def __getitem__(self, key):
+        # type: (TraitKey) -> Trait
         """Provide dictionary-like retrieve of sub-traits"""
         return self.get_sub_trait(key)
 
