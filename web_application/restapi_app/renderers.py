@@ -47,8 +47,6 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
     add in get_astroobj name
     """
 
-    template = 'rest_framework/api.html'
-
     def get_astro_object_name(self, request):
         """
         Return the astro object name
