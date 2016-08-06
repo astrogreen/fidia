@@ -185,20 +185,20 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Trait Viewset
     """
+
+    def __init__(self, sub_trait_list=None, *args, **kwargs):
+        self.sub_trait_list = sub_trait_list
+
     breadcrumb_list = []
-    sub_trait_list = []
 
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
-        def __init__(self, sub_trait_list=None):
-            # self.sub_trait_list = sub_trait_list
-            # self.sub_trait_list = TraitViewSet.sub_trait_list
+        def __init__(self, sub_trait_list_extended=None, *args, **kwargs):
             self.template = 'data_browser/trait/trait-list.html'
 
-        sub_trait_list = []
-
-        def get_context(self, data, accepted_media_type, renderer_context, sub_traits=sub_trait_list):
-            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather, they will be explicitly positioned. """
+        def get_context(self, data, accepted_media_type, renderer_context):
+            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
+            they will be explicitly positioned. """
 
             context = super().get_context(data, accepted_media_type, renderer_context)
 
@@ -212,8 +212,9 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation", "url",
                                                   "name", "type", "value", ]
 
-            context['sub_traits'] = sub_traits
-            # context['sub_traits'] = []
+            trait = sami_dr1_sample[data['astroobject']][data['trait']]
+
+            context['sub_traits'] = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
 
             context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version',
                                             'all_branches_versions', ] + \
@@ -251,9 +252,6 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.TraitSerializer
 
-        # Pass sub-trait keys (if any) to the render context.
-        TraitViewSet.TraitRenderer.sub_trait_list = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
-
         serializer = serializer_class(
             instance=trait, many=False,
             context={
@@ -272,8 +270,6 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # self.documentation_html = trait.get_documentation('html')
         # self.pretty_name = trait.get_pretty_name()
         # self.short_description = trait.get_description()
-
-        # renderer_context['reserved_keywords']: reserved_keywords
 
         return Response(serializer.data)
 
