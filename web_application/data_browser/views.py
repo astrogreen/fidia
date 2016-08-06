@@ -190,7 +190,20 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         def get_context(self, data, accepted_media_type, renderer_context):
             """Add info the browsable API"""
             context = super().get_context(data, accepted_media_type, renderer_context)
-            context['reserved_keywords'] = ['sample', 'astroobject', 'trait', 'trait_key', 'pretty_name', 'all_branches_versions']
+
+            context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key']
+
+            context['side_bar_explicit_render'] = ['description', 'documentation']
+
+            # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
+            context['trait_keywords'] = ['wcs', ]
+
+            context['reserved_keywords'] = ['pretty_name', 'short_name', 'value', 'branch', 'version',
+                                            'all_branches_versions', ] + \
+                                           context['side_bar_explicit_render'] + \
+                                           context['fidia_keys'] + \
+                                           context['trait_keywords']
+
             # context['html_documentation'] = renderer_context['view'].documentation_html
             # context['pretty_name'] = renderer_context['view'].pretty_name
             # context['short_description'] = renderer_context['view'].short_description
@@ -206,7 +219,6 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # Dict of available traits
         trait_registry = ar.available_traits
         default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
-        print(default_trait_key)
 
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]

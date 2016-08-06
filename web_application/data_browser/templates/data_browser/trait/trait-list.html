@@ -57,59 +57,121 @@
 </div>
 <div class="row">
     <div class="col-sm-4 col-xs-12">
-        Description here {{response.data.description}}
-        <hr>
-        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingOne">
-                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                  Documentation
-                </a>
+        <code>Reserved first, followed by trait_key</code>
+        <br>
+        <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+            {% for r in side_bar_explicit_render %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}"
+                       {% if forloop.first %}
+                       aria-expanded="true"
+                       {% endif %}
+                       aria-controls="collapse{{r}}">
+                        {{r |capfirst}}
+                    </a>
+                </div>
+                <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
+                    <div class="panel-body">
+                        {{ response.data|key:r }}
+                    </div>
+                </div>
             </div>
-            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-              <div class="panel-body">
-                {{response.data.documentation}}
-              </div>
+            {% endfor %}
+            {% for r in trait_keywords %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
+                        {{ response.data|key:r |key:'pretty_name' }}
+                    </a>
+                </div>
+                <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
+                    <div class="panel-body">
+                        {{ response.data|key:r }}
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingTwo">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                  WCS
-                </a>
-            </div>
-            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-              <div class="panel-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-              </div>
-            </div>
-          </div>
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingThree">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
-                   aria-expanded="false" aria-controls="collapseThree">
-                    Something else (set these on the context)
-                </a>
-            </div>
-            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-              <div class="panel-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-              </div>
-            </div>
-          </div>
+            {% endfor %}
+
+            <!--Now Iterate over remaining, excluding all reserved_keywords (which include the explitly rendered ones above)-->
+            {% for r, v in response.data.items %}
+                {% if r in reserved_keywords %}
+                {% else %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="heading{{r}}">
+                            <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
+                                {{ response.data|key:r |key:'pretty_name' }}
+                                {{ response.data|key:r |key:'short_name' }}
+                            </a>
+                        </div>
+                        <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
+                            <div class="panel-body">
+                                {{ response.data|key:r }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
         </div>
 
 
-        {% if response.data.wcs %}
+        {{r}}<br>
 
+
+        Description here {{response.data.description}}
+        <hr>
+        <div>
+        <!--<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">-->
+          <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading" role="tab" id="headingOne">-->
+                <!--<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">-->
+                  <!--Documentation-->
+                <!--</a>-->
+            <!--</div>-->
+            <!--<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">-->
+              <!--<div class="panel-body">-->
+                <!--{{response.data.documentation}}-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading" role="tab" id="headingTwo">-->
+                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">-->
+                  <!--WCS-->
+                <!--</a>-->
+            <!--</div>-->
+            <!--<div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">-->
+              <!--<div class="panel-body">-->
+                <!--Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading" role="tab" id="headingThree">-->
+                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"-->
+                   <!--aria-expanded="false" aria-controls="collapseThree">-->
+                    <!--Something else (set these on the context)-->
+                <!--</a>-->
+            <!--</div>-->
+            <!--<div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">-->
+              <!--<div class="panel-body">-->
+                <!--Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+        </div>
+        {% for k, v in trait_keywords %}
+
+        {% if response.data.k %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    WCS
+                    {{response.data.k}}
                 </div>
 
                 <div class="panel-body">
-                    <p class="sub-heading">{{wcs.description}} Description</p>
-                    <p class="sub-heading">{{wcs.documentation}} Documentation</p>
+                    <p class="sub-heading">{{response.data.k.description}} Description</p>
+                    <p class="sub-heading">{{response.data.k.documentation}} Documentation</p>
 
 
                     <!--{% for key, val in response.data.wcs.items %}-->
@@ -128,6 +190,7 @@
                 </div>
             </div>
         {% endif %}
+        {% endfor %}
     </div>
     <div class="col-sm-8 col-xs-12">
         <div class="panel panel-default">

@@ -319,3 +319,10 @@ def add_class(field, class_name):
     return field.as_widget(attrs={
         "class": " ".join((field.css_classes(), class_name))
     })
+
+
+@register.filter
+def key(d, key_name):
+    """ Get a supplied key value from a dictionary"""
+    return d[key_name]
+key = register.filter('key', key)
