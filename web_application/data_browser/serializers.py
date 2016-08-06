@@ -143,6 +143,7 @@ class TraitSerializer(serializers.Serializer):
         log.debug("Adding Sub-traits")
         # define serializer type by instance type
         for sub_trait in trait.get_all_subtraits():
+
             log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
             # setattr(self, sub_trait.trait_name, None)
             self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait)

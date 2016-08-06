@@ -70,6 +70,7 @@
                        aria-controls="collapse{{r}}">
                         {{r |capfirst}}
                     </a>
+                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
@@ -78,12 +79,15 @@
                 </div>
             </div>
             {% endfor %}
-            {% for r in trait_keywords %}
+
+            <!--Explicitly specifited trait properties will appear first-->
+            {% for r in trait_properties %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="heading{{r}}">
                     <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
                         {{ response.data|key:r |key:'pretty_name' }}
                     </a>
+                    <span class="sub-heading pull-right">explicitly rendered trait_property</span>
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
@@ -93,20 +97,44 @@
             </div>
             {% endfor %}
 
-            <!--Now Iterate over remaining, excluding all reserved_keywords (which include the explitly rendered ones above)-->
+            <!--Iterate over sub-traits-->
+            {% for r in sub_traits %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
+                        {{ response.data|key:r |key:'pretty_name' }}
+                    </a>
+                    <span class="sub-heading pull-right">sub-trait</span>
+                </div>
+                <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
+                    <div class="panel-body">
+                        {{ response.data|key:r }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+
+            <!--Now Iterate over remaining, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
             {% for r, v in response.data.items %}
                 {% if r in reserved_keywords %}
                 {% else %}
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="heading{{r}}">
                             <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
-                                {{ response.data|key:r |key:'pretty_name' }}
-                                {{ response.data|key:r |key:'short_name' }}
+                                {{ response.data|key:r |key:'pretty_name' }} {{r}}
+
                             </a>
+                            <span class="sub-heading pull-right">all other trait_property</span>
                         </div>
                         <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
                             <div class="panel-body">
-                                {{ response.data|key:r }}
+                                {% for tpk in trait_property_keywords %}
+                                    <code>{{tpk}}</code>
+                                {% comment %}
+                                    {{ response.data|key:r |key:tpk }}<br>
+                                {% endcomment %}
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -114,12 +142,6 @@
             {% endfor %}
         </div>
 
-
-        {{r}}<br>
-
-
-        Description here {{response.data.description}}
-        <hr>
         <div>
         <!--<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">-->
           <!--<div class="panel panel-default">-->

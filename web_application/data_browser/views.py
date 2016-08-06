@@ -182,13 +182,16 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    Trait Viewset
+    """
 
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-
         template = 'data_browser/trait/trait-list.html'
 
         def get_context(self, data, accepted_media_type, renderer_context):
-            """Add info the browsable API"""
+            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather, they will be explicitly positioned. """
+
             context = super().get_context(data, accepted_media_type, renderer_context)
 
             context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key']
@@ -196,20 +199,27 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['side_bar_explicit_render'] = ['description', 'documentation']
 
             # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
-            context['trait_keywords'] = ['wcs', ]
+            context['trait_properties'] = ['value']
 
-            context['reserved_keywords'] = ['pretty_name', 'short_name', 'value', 'branch', 'version',
+            context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation", "url",
+                                                  "name", "type", "value", ]
+
+            # context['sub_traits'] = sub_traits
+            context['sub_traits'] = []
+
+            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version',
                                             'all_branches_versions', ] + \
                                            context['side_bar_explicit_render'] + \
                                            context['fidia_keys'] + \
-                                           context['trait_keywords']
-
+                                           context['trait_properties'] + \
+                                           context['sub_traits']
             # context['html_documentation'] = renderer_context['view'].documentation_html
             # context['pretty_name'] = renderer_context['view'].pretty_name
             # context['short_description'] = renderer_context['view'].short_description
             return context
 
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+
     breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
@@ -235,8 +245,12 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer_class = data_browser.serializers.TraitSerializer
 
-        # Add reserved keys to the context so the template knows not to iterate over these keys,
-        # rather, they will be explicitly positioned.
+        # Pass sub-trait keys (if any) to the render context.
+        self.sub_trait_list = []
+        for sub_trait in trait.get_all_subtraits():
+            self.sub_trait_list.append(sub_trait.trait_name)
+
+        print(self.sub_trait_list)
 
         serializer = serializer_class(
             instance=trait, many=False,
