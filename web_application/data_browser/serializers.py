@@ -318,7 +318,8 @@ class TraitPropertySerializer(serializers.Serializer):
     def get_documentation(self, trait_property):
         return trait_property.get_documentation()
     def get_value(self, trait_property):
-        return "THE URL TO THE DATA"
+        return self.get_url(trait_property)
+
     def get_url(self, trait_property):
         """If a Trait property has a URL, then it can be traversed to the next level"""
         # Need to inject the sub-trait url, so this probably needs getting by
@@ -330,7 +331,9 @@ class TraitPropertySerializer(serializers.Serializer):
                 if hasattr(trait_property._trait._parent_trait, '_parent_trait'):
                     subtrait_key = str(trait_property._trait.trait_key)+'/'
 
-        return getattr(self.context['request'], 'path')+subtrait_key+trait_property.name
+        return getattr(self.context['request'], 'path')+subtrait_key+trait_property.name+'/'
+
+
 
     short_name = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()

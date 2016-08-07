@@ -85,13 +85,30 @@
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="heading{{r}}">
                     <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
-                        {{ response.data|key:r |key:'pretty_name' }}
+                        {{ response.data|key:r |key:'pretty_name' }} [{{r}}]
                     </a>
                     <span class="sub-heading pull-right">explicitly rendered trait_property</span>
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
-                        {{ response.data|key:r }}
+                        <span class="sub-heading pull-right">{{response.data|key:r|key:"type"}}</span>
+
+                        <strong>Value
+                        <span class="sub-heading">
+                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                                data-content="<p>If the value is not a single value or string, the link to data is shown. Warning: the data size may be large.</p>"
+                                data-placement="right"><i class="fa fa-info-circle"></i></a>
+                        </span>
+                        </strong>
+                        <p>{{response.data|key:r|key:"value"}}</p>
+                        <strong>Description</strong>
+                        <p>{{response.data|key:r|key:"description"}}</p>
+                        <strong>Documentation</strong>
+                        <p class="readmore">{{response.data|key:r|key:"documentation"}}{% lorem 200 w %}</p>
+                        <strong>URL</strong>
+                        <p><a href="{{response.data|key:r|key:'url'}}">{{response.data|key:r|key:"url"}}</a></p>
+<br>
+
                     </div>
                 </div>
             </div>
@@ -108,21 +125,24 @@
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
-                        {{ response.data|key:r }}
+                        {% for t in response.data|key:r %}
+                        <code>    {{t}}</code>
+                        <p>{{response.data|key:r|key:t}}</p>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
             {% endfor %}
 
 
-            <!--Now Iterate over remaining, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
+            <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
             {% for r, v in response.data.items %}
                 {% if r in reserved_keywords %}
                 {% else %}
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="heading{{r}}">
                             <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
-                                {{ response.data|key:r |key:'pretty_name' }} {{r}}
+                                {{ response.data|key:r |key:'pretty_name' }} [{{r}}]
 
                             </a>
                             <span class="sub-heading pull-right">all other trait_property</span>
@@ -217,7 +237,8 @@
     <div class="col-sm-8 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-body">
-                DATAAA
+                DATA
+
             </div>
         </div>
     </div>
@@ -233,4 +254,5 @@
         $(this).tab('show')
     })
 </script>
+<script type="application/javascript" src="{% static 'restapi_app/js/showmore/showmore.js'%}"></script>
 {% endblock %}

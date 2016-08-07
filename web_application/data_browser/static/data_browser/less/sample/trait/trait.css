@@ -11,3 +11,6 @@
 .panel .panel-heading h4 {
   border: 0;
 }
+.readmorecontent span {
+  display: none;
+}
