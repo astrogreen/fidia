@@ -69,7 +69,9 @@ $(document).ready(function() {
             $(this).addClass("readless");
             $(this).html(lesstext);
         }
+        // show/hide the text
         $(this).parent().prev().toggle();
+        // show/hide the previous sibling (==ellipsis class)
         $(this).prev().toggle(300).css('display', 'inline');
         return false;
     });

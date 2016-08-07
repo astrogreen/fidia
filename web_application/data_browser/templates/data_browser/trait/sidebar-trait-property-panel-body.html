@@ -1,0 +1,16 @@
+{% load internal_extras %}
+<span class="sub-heading pull-right">{{tpdata|key:tp|key:"type"}}</span>
+<p class="heading"><strong>Value</strong>
+    <span class="sub-heading">
+                <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                   data-content="<p>If the value is not a single value or string, the link to data is shown. Warning: the data size may be large.</p>"
+                   data-placement="right"><i class="fa fa-info-circle"></i></a>
+            </span>
+</p>
+<p class="readmore">{{tpdata|key:tp|key:"value"}}</p>
+<p class="heading"><strong>Description</strong>
+<p class="readmore">{{tpdata|key:tp|key:"description"}}</p>
+<p class="heading"><strong>Documentation</strong>
+<p class="readmore">{{tpdata|key:tp|key:"documentation"}}{% lorem 200 w %}</p>
+<p class="heading"><strong>URL</strong>
+<p><a href="{{tpdata|key:tp|key:'url'}}">{{tpdata|key:tp|key:"url"}}</a></p>

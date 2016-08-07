@@ -36,8 +36,12 @@
                     <i class="fa fa-code-fork"></i> Other Branches <i class="fa fa-caret-down"></i>
                 </button>
                 <ul class="dropdown-menu">
-                    {% for branch_name, branch_url in value.branches.items %}
-                    <li><a href="{{branch_url}}">{{branch_name}}</a></li>
+                    {% for i in response.data.all_branches_versions %}
+                    {% if i.branch == response.data.branch %}
+                        <li class="disabled"><a href="{{branch}}">{{i.branch}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
+                    {% else %}
+                        <li><a href="{{i.url}}">{{i.branch}}</a></li>
+                    {% endif %}
                     {% endfor %}
                 </ul>
             </div>
@@ -47,6 +51,18 @@
                     <i class="fa fa-map-marker"></i> Other Versions <i class="fa fa-caret-down"></i>
                 </button>
                 <ul class="dropdown-menu">
+                    {% for i in response.data.all_branches_versions %}
+                        {% if i.branch == response.data.branch %}
+                            {% for version in i.versions %}
+                                {% if version == response.data.version %}
+                                    <li class="disabled"><a href="{{i.url}}({{version}})">{{version}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
+                                {% else %}
+                                    <li><a href="{{i.url}}({{version}})">{{version}}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+
                     {% for branch_name, branch_url in value.branches.items %}
                     <li><a href="{{branch_url}}">{{branch_name}}</a></li>
                     {% endfor %}
@@ -57,8 +73,6 @@
 </div>
 <div class="row">
     <div class="col-sm-4 col-xs-12">
-        <code>Reserved first, followed by trait_key</code>
-        <br>
         <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
             {% for r in side_bar_explicit_render %}
             <div class="panel panel-default">
@@ -74,165 +88,99 @@
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
-                        {{ response.data|key:r }}
+                        <p class="readmore">{{ response.data|key:r }} {% lorem 50 w %}</p>
+
                     </div>
                 </div>
             </div>
             {% endfor %}
 
             <!--Explicitly specifited trait properties will appear first-->
-            {% for r in trait_properties %}
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="heading{{r}}">
-                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
-                        {{ response.data|key:r |key:'pretty_name' }} [{{r}}]
-                    </a>
-                    <span class="sub-heading pull-right">explicitly rendered trait_property</span>
-                </div>
-                <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
-                    <div class="panel-body">
-                        <span class="sub-heading pull-right">{{response.data|key:r|key:"type"}}</span>
-
-                        <strong>Value
-                        <span class="sub-heading">
-                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                                data-content="<p>If the value is not a single value or string, the link to data is shown. Warning: the data size may be large.</p>"
-                                data-placement="right"><i class="fa fa-info-circle"></i></a>
-                        </span>
-                        </strong>
-                        <p>{{response.data|key:r|key:"value"}}</p>
-                        <strong>Description</strong>
-                        <p>{{response.data|key:r|key:"description"}}</p>
-                        <strong>Documentation</strong>
-                        <p class="readmore">{{response.data|key:r|key:"documentation"}}{% lorem 200 w %}</p>
-                        <strong>URL</strong>
-                        <p><a href="{{response.data|key:r|key:'url'}}">{{response.data|key:r|key:"url"}}</a></p>
-<br>
-
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+            {% with response.data as tpdata %}
+                {% for tp in trait_properties %}
+                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                {% endfor %}
+            {% endwith %}
 
             <!--Iterate over sub-traits-->
             {% for r in sub_traits %}
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="heading{{r}}">
-                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
-                        {{ response.data|key:r |key:'pretty_name' }}
-                    </a>
-                    <span class="sub-heading pull-right">sub-trait</span>
-                </div>
-                <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
-                    <div class="panel-body">
-                        {% for t in response.data|key:r %}
-                        <code>    {{t}}</code>
-                        <p>{{response.data|key:r|key:t}}</p>
-                        {% endfor %}
+                {% include 'data_browser/trait/sidebar-sub-trait.html' %}
+                <div class="panel panel-default sub-trait-sidebar">
+                    <div class="panel-heading" role="tab" id="heading{{r}}">
+                        <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
+                            {{ response.data|key:r |key:'pretty_name' }}
+                        </a>
+                        <span class="sub-heading pull-right">sub-trait</span>
                     </div>
-                </div>
-            </div>
-            {% endfor %}
-
-
-            <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
-            {% for r, v in response.data.items %}
-                {% if r in reserved_keywords %}
-                {% else %}
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="heading{{r}}">
-                            <a role="button" data-toggle="collapse" href="#collapse{{r}}" aria-controls="collapse{{r}}">
-                                {{ response.data|key:r |key:'pretty_name' }} [{{r}}]
-
-                            </a>
-                            <span class="sub-heading pull-right">all other trait_property</span>
-                        </div>
-                        <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
-                            <div class="panel-body">
-                                {% for tpk in trait_property_keywords %}
-                                    <code>{{tpk}}</code>
-                                {% comment %}
-                                    {{ response.data|key:r |key:tpk }}<br>
-                                {% endcomment %}
+                    <div id="collapse{{r}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{r}}">
+                        <div class="panel-body nested-sidebar">
+                            <div class="panel-group" id="nested-sidebar{{r}}" role="tablist" aria-multiselectable="true">
+                                {% for r in side_bar_explicit_render %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="nested_heading{{r}}">
+                                        <i class="fa fa-level-up fa-rotate-90"></i>
+                                        <a role="button" data-toggle="collapse" href="#nested_collapse{{r}}"
+                                           {% if forloop.first %}
+                                           aria-expanded="true"
+                                           {% endif %}
+                                           aria-controls="collapse{{r}}">
+                                            {{r |capfirst}}
+                                        </a>
+                                        <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                                    </div>
+                                    <div id="nested_collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="nested_heading{{r}}">
+                                        <div class="panel-body">
+                                            <p class="readmore">{% lorem 50 w %}{{ response.data|key:r }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% for t in response.data|key:r %}
+                                    {% if t in reserved_keywords %}
+                                    {% else %}
+                                        <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="nested_heading{{t}}">
+                                            <i class="fa fa-level-up fa-rotate-90"></i>
+                                            <a role="button" data-toggle="collapse" href="#nested_collapse{{t}}"
+                                               {% if forloop.first %}
+                                               aria-expanded="true"
+                                               {% endif %}
+                                               aria-controls="collapse{{t}}">
+                                                {{t |capfirst}}
+                                            </a>
+                                            <span class="sub-heading pull-right">trait_property</span>
+                                        </div>
+                                        <div id="nested_collapse{{t}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="nested_heading{{t}}">
+                                            <div class="panel-body">
+                                                {% with response.data|key:r as tpdata %}
+                                                    {% with t as tp %}
+                                                        {% include 'data_browser/trait/sidebar-trait-property-panel-body.html' %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
-                {% endif %}
+                </div>
             {% endfor %}
+
+
+            <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
+            {% with response.data as tpdata %}
+                {% for tp in tpdata %}
+                    {% if tp in reserved_keywords %}
+                    {% else %}
+                        {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+
         </div>
 
-        <div>
-        <!--<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">-->
-          <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading" role="tab" id="headingOne">-->
-                <!--<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">-->
-                  <!--Documentation-->
-                <!--</a>-->
-            <!--</div>-->
-            <!--<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">-->
-              <!--<div class="panel-body">-->
-                <!--{{response.data.documentation}}-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading" role="tab" id="headingTwo">-->
-                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">-->
-                  <!--WCS-->
-                <!--</a>-->
-            <!--</div>-->
-            <!--<div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">-->
-              <!--<div class="panel-body">-->
-                <!--Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading" role="tab" id="headingThree">-->
-                <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"-->
-                   <!--aria-expanded="false" aria-controls="collapseThree">-->
-                    <!--Something else (set these on the context)-->
-                <!--</a>-->
-            <!--</div>-->
-            <!--<div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">-->
-              <!--<div class="panel-body">-->
-                <!--Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
-        </div>
-        {% for k, v in trait_keywords %}
-
-        {% if response.data.k %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {{response.data.k}}
-                </div>
-
-                <div class="panel-body">
-                    <p class="sub-heading">{{response.data.k.description}} Description</p>
-                    <p class="sub-heading">{{response.data.k.documentation}} Documentation</p>
-
-
-                    <!--{% for key, val in response.data.wcs.items %}-->
-                        <!--{% if key not in reserved_keywords %}-->
-                            <!--{% if val %}-->
-                                <!--{{key}}-->
-                                <!--{% for keya, vala in val.items %}-->
-                                    <!--<p class="sub-heading">{{val.description}}</p>-->
-                                    <!--{% if key not in reserved_keywords %}-->
-                                        <!--{{keya}}:{{vala}}<br>-->
-                                    <!--{% endif %}-->
-                                <!--{% endfor %}-->
-                            <!--{% endif %}-->
-                        <!--{% endif %}-->
-                    <!--{% endfor %}-->
-                </div>
-            </div>
-        {% endif %}
-        {% endfor %}
     </div>
     <div class="col-sm-8 col-xs-12">
         <div class="panel panel-default">

@@ -290,7 +290,7 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # Determine what we're looking at.
         # type_for_trait_path requires the trait_key and current "path"
         path = list(dynamic_pk.split('/'))
-
+        this_trait_key = path
         path.insert(0, trait_pk)
 
         if issubclass(ar.type_for_trait_path(path), Trait):
@@ -299,7 +299,12 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 trait_pointer = trait_pointer[elem]
             serializer = data_browser.serializers.TraitSerializer(
                 instance=trait_pointer, many=False,
-                context={'request': request}
+                context={'request': request,
+                         'sample': sample_pk,
+                         'astroobject': astroobject_pk,
+                         'trait': trait_pk,
+                         'trait_key': this_trait_key,
+                         }
             )
 
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):

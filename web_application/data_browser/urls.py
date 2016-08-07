@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 import rest_framework.routers
 
 from restapi_app.routers import ExtendDefaultRouter, NestedExtendDefaultRouter
+from fidia.traits.trait_key import TRAIT_KEY_RE
 
 import data_browser.views
 
@@ -23,7 +24,8 @@ object_nested_router.register(r'(?P<astroobject_pk>[^/]+)', data_browser.views.A
 
 trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<astroobject_pk>[^/]+)', lookup='astroobject')
 trait_nested_router.register(r'(?P<trait_pk>[^/]+)', data_browser.views.TraitViewSet, base_name='trait')
-# trait_nested_router.register(r'(?P<trait_pk>' + TRAIT_KEY_RE.pattern + ')', data_browser.views.TraitViewSet, base_name='trait')
+# trait_key_pattern = '(?P<trait_type>[a-zA-Z][a-zA-Z0-9_]*)(?:-(?P<trait_qualifier>[a-zA-Z0-9][a-zA-Z0-9_.]*))?(?:[:](?P<branch>[a-zA-Z0-9][a-zA-Z0-9_.]*))?(?:\((?P<version>[a-zA-Z0-9][a-zA-Z0-9_.]*)\))?'
+trait_nested_router.register(r'(?P<trait_pk>' + TRAIT_KEY_RE.pattern + ')', data_browser.views.TraitViewSet, base_name='trait')
 
 # traitprop_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/.]+)', lookup='trait')
 # traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', data_browser.views.TraitPropertyViewSet, base_name='traitproperty')

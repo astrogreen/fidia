@@ -11,6 +11,24 @@
 .panel .panel-heading h4 {
   border: 0;
 }
+p.heading {
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
 .readmorecontent span {
   display: none;
+}
+.sub-trait-sidebar .nested-sidebar {
+  padding: 0;
+  border-top: 0 !important;
+}
+.sub-trait-sidebar .nested-sidebar .panel-default {
+  border-left: 0;
+  border-right: 0;
+}
+.sub-trait-sidebar .nested-sidebar .panel-default .panel-heading {
+  background-color: #f3f3f3;
+}
+.sub-trait-sidebar .nested-sidebar .panel-default .panel-body {
+  padding-left: 30px;
 }

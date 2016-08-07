@@ -45,7 +45,6 @@ class DocumentationHTMLField(serializers.Field):
 class DataBrowserSerializer(serializers.Serializer):
 
     def get_samples(self, obj):
-        print(self.context['samples'])
         return self.context['samples']
 
     samples = serializers.SerializerMethodField()
@@ -146,11 +145,21 @@ class TraitSerializer(serializers.Serializer):
 
             log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
             # setattr(self, sub_trait.trait_name, None)
-            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait)
+
+            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait,
+                                                                context={
+                                                                    'request': self.context['request'],
+                                                                    'sample': self.context['sample'],
+                                                                    'astroobject': self.context['astroobject'],
+                                                                    'trait': self.context['trait'],
+                                                                    'trait_key': self.context['trait_key'],
+                                                                }, many=False)
+
             # del getattr(self, sub_trait.trait_name)
             # self.fields[sub_trait.trait_name] = SubTraitField(sub_trait_name='wcs')
 
         log.debug("Adding Trait properties")
+
         for trait_property in trait.trait_properties():
             log.debug("Adding Trait Property '%s'", trait_property.name)
             traitproperty_type = trait_property.type
@@ -172,7 +181,28 @@ class TraitSerializer(serializers.Serializer):
         return trait.version
 
     def get_all_branches_versions(self, trait):
-        return trait.get_all_branches_versions()
+        b_v_arr = []
+        url_kwargs = {
+            'astroobject_pk': self.context['astroobject'],
+            'sample_pk': self.context['sample']
+        }
+        url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
+
+        for i in trait.get_all_branches_versions():
+            if i.branch != None:
+
+                # Construct URL
+                this_url = url + str(i.trait_name) + ':' + str(i.branch)
+
+                # If already in array, append a version to that branch
+                for j in b_v_arr:
+                    if j['branch'] == str(i.branch):
+                        j['versions'].append(str.i.version)
+                # Else add new branch
+                b_v_arr.append({"branch": str(i.branch), "url": this_url,
+                                "versions": [str(i.version), 'Vdummy']})
+
+        return b_v_arr
 
     def get_description(self, trait):
         return trait.get_description()
@@ -189,7 +219,6 @@ class TraitSerializer(serializers.Serializer):
     description = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
     documentation = serializers.SerializerMethodField()
-
 
     def get_sample(self, obj):
         return self.context['sample']
