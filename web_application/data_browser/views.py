@@ -222,6 +222,16 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                                            context['fidia_keys'] + \
                                            context['trait_properties'] + \
                                            context['sub_traits']
+            # Formats
+            trait_name_formats = []
+            for r in TraitViewSet.renderer_classes:
+                f = str(r.format)
+                if f != "api": trait_name_formats.append(f)
+
+            context['formats'] = trait_name_formats
+
+
+
             # context['html_documentation'] = renderer_context['view'].documentation_html
             # context['pretty_name'] = renderer_context['view'].pretty_name
             # context['short_description'] = renderer_context['view'].short_description

@@ -29,6 +29,8 @@
             <span class="sub-heading"><i class="fa fa-code-fork"></i>{{response.data.branch}}</span>
             <span class="sub-heading"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
         </span>
+
+        <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}'></add-download-button>
         <div class="btn-group" role="group" aria-label="...">
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
