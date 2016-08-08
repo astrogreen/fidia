@@ -232,6 +232,10 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             context['trait_type'] = trait.trait_type
 
+            if trait.trait_type == "line_map" : context['trait_line_map_render'] = True
+            if trait.trait_type == "sfr_map" : context['trait_srf_map_render'] = True
+
+
             # context['html_documentation'] = renderer_context['view'].documentation_html
             # context['pretty_name'] = renderer_context['view'].pretty_name
             # context['short_description'] = renderer_context['view'].short_description

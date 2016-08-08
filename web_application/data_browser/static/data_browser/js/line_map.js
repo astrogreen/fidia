@@ -87,9 +87,8 @@ function fGenerateColourScale(map_val){
     // Generate mapping between colours and colorbar, log or linear
     for (var i=0; i<numcolors; i++){
         colorscale[i] = [i/(numcolors-1), colors[i]];
-        console.log((Zscale*i)/(numcolors-1)+Zmin);
         tickvals[i] = Number((Zscale*i)/(numcolors-1)+Zmin).toPrecision(2);
-        console.log(colorscale[i],tickvals[i]);
+        // console.log(colorscale[i],tickvals[i]);
     }
 
     return {
@@ -114,7 +113,7 @@ function plot_map(name, data, selector){
     else {
         return $(map_selector).html('Validation Fail: value array is irregular. Contact support. ');
     }
-    console.log(map_val);
+
     // Get number of pixels
     var row_pixel_count = map_val.length;
     var col_pixel_count = map_val[0].length;
@@ -171,7 +170,8 @@ function plot_map(name, data, selector){
         title: map_title
     };
 
-    var plotDiv = document.getElementById(map_selector.replace("#",""));
+    var raw_id = map_selector.replace("#","");
+    var plotDiv = document.getElementById(raw_id);
 
     Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false});
 

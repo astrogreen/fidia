@@ -90,7 +90,7 @@
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
-                        <p class="readmore">{{ response.data|key:r }} {% lorem 50 w %}</p>
+                        <p class="readmore">{{ response.data|key:r }}</p>
 
                     </div>
                 </div>
@@ -132,7 +132,7 @@
                                     </div>
                                     <div id="{{s}}_nested_collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{r}}">
                                         <div class="panel-body">
-                                            <p class="readmore">{{ response.data|key:s|key:r }} {% lorem 50 w %}</p>
+                                            <p class="readmore">{{ response.data|key:s|key:r }} </p>
                                         </div>
                                     </div>
                                 </div>
@@ -209,7 +209,7 @@
 </script>
 <script type="application/javascript" src="{% static 'restapi_app/js/showmore/showmore.js'%}"></script>
 
-{% if trait_type != 'spectral_map' %}
+{% if trait_line_map_render == True %}
     <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
     <script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
     <script type="application/javascript" src="{% static 'data_browser/js/line_map.js'%}"></script>
