@@ -271,8 +271,8 @@
     var SAMI_URL = "";
     var GAMA_URL = "";
     {% comment %}
-    var SAMI_URL = "{% url 'sami-list' %}";
-    var GAMA_URL = "{% url 'gama-list' %}";
+    var SAMI_URL = "{% url 'data_browser:sample-list' sample_pk='sami' %}";
+    var GAMA_URL = "{% url 'data_browser:sample-list' sample_pk='gama' %}";
     {% endcomment %}
     data = JSON.parse("{{ content|escapejs }}");
 

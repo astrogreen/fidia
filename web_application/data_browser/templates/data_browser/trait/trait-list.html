@@ -181,17 +181,29 @@
         </div>
 
     </div>
-    <div class="col-sm-8 col-xs-12">
+    <div class="col-sm-6 col-xs-12">
         <div class="panel panel-default">
+
             <div class="panel-body">
                 <div id="{{trait_type}}_plotly_plot">
                     <!--Dynamic plotly rendering based on Trait Type-->
                     <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
                 </div>
-
             </div>
         </div>
     </div>
+    <div class="col-sm-2 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Plot Options
+            </div>
+            <div class="panel-body">
+                <div id="{{trait_type}}_plotly_plot_options">
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 </div>
 
@@ -204,28 +216,40 @@
         $(this).tab('show')
     })
 </script>
-<script>
 
-</script>
 <script type="application/javascript" src="{% static 'restapi_app/js/readmore/readmore.js'%}"></script>
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
 
-{% if trait_line_map_render == True %}
-    <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
-    <script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
-    <script type="application/javascript" src="{% static 'data_browser/js/line_map.js'%}"></script>
+{% if trait_2D_map == True %}
+
     <script type="text/javascript">
 
+        $(document).ready(function(){
+            var trait_url = "{{request.build_absolute_uri}}value/?format=json";
+            var trait_name = "{{response.data.pretty_name}}";
+            var map_selector = "#{{trait_type}}_plotly_plot";
+            var options_selector = "#{{trait_type}}_plotly_plot_options";
 
-        var trait_url = "{{request.build_absolute_uri}}value/?format=json";
-        var trait_name = "{{response.data.pretty_name}}";
-        var map_selector = "#{{trait_type}}_plotly_plot";
+            function changePlotData(data, array_index){
+                // If single component
+                var trait_data = data;
+                if (array_index != null){
+                    // If multi-component
+                    trait_data = data[array_index];
+                }
+                if (getdim(trait_data) !== false) {
+                    // Everything's good, clear the element
+                    $(map_selector).html('');
+                    // Call plotly
+                    plot_map(trait_name, trait_data, map_selector);
+                }
+                else {
+                    return $(map_selector).html('Validation Fail: value array is irregular. Contact support. ');
+                }
+            };
 
-        // only run if ! spectral
-        if (trait_name.indexOf("spectral") < 0){
-            // Check if handed with the reponse
-
-
-            // Get json for this trait and populate
             $.ajax({
                 url: trait_url,
                 // here, don't let ajax parse as json, NANs are a problem. set type to string and parse with parseMore
@@ -233,9 +257,25 @@
                 type: 'GET',
                 success: function (data) {
                     // Parse NANs here
-                    var trait_data = JSON.parseMore(data);
-                    // Call plotly
-                    plot_map(trait_name, trait_data, map_selector);
+                    var trait_value = JSON.parseMore(data);
+
+                    // Does value have multiple extensions? If so, add in plot options.
+                    if (typeof(trait_value.value[0][0][0]) != 'undefined'){
+                        for (var a = 0; a < trait_value.value.length; a++){
+                            var checked="";
+                            if(a==0){checked='checked'}
+                            $(options_selector).append('<div class="radio"> <label> <input type="radio" name="optionsRadios" id="optionsRadios'+a+'" value="'+a+'" '+checked+'> '+a+' </label> </div>')
+                        }
+                        changePlotData(trait_value.value, 0);
+
+                        $("input[name=optionsRadios]").click(function(){
+                            console.log($("input[name=optionsRadios]:checked").val());
+                            var array_index = Number($("input[name=optionsRadios]:checked").val());
+                            changePlotData(trait_value.value, array_index);
+                        });
+                    } else {
+                        changePlotData(trait_value.value);
+                    }
                 },
                 error: function (jqXHR, exception) {
                     alert("Error");
@@ -256,9 +296,8 @@
                     }
                 }
             });
-        } else {
-            $('#'+trait_name).html('tbd');
-        };
+        });
     </script>
 {% endif %}
+
 {% endblock %}

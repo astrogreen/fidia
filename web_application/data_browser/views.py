@@ -232,8 +232,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             context['trait_type'] = trait.trait_type
 
-            if trait.trait_type == "line_map" : context['trait_line_map_render'] = True
-            if trait.trait_type == "sfr_map" : context['trait_srf_map_render'] = True
+            two_d_plot_types = ["line_map", "sfr_map", "velocity_map", "extinction_map"]
+            if trait.trait_type in two_d_plot_types: context['trait_2D_map'] = True
 
 
             # context['html_documentation'] = renderer_context['view'].documentation_html

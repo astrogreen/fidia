@@ -104,15 +104,15 @@ function plot_map(name, data, selector){
 
     var map_title = name;
     var map_selector = selector;
-
-    if (getdim(data.value) !== false) {
-        // Everything's good, clear the element
-        $(map_selector).html('');
-        var map_val = data.value;
-    }
-    else {
-        return $(map_selector).html('Validation Fail: value array is irregular. Contact support. ');
-    }
+    var map_val = data;
+    // if (getdim(data.value) !== false) {
+    //     // Everything's good, clear the element
+    //     $(map_selector).html('');
+    //     var map_val = data.value;
+    // }
+    // else {
+    //     return $(map_selector).html('Validation Fail: value array is irregular. Contact support. ');
+    // }
 
     // Get number of pixels
     var row_pixel_count = map_val.length;
@@ -162,12 +162,12 @@ function plot_map(name, data, selector){
         width:elementWidth,
         height:elementWidth,
         margin: {
-            l: 0.08*elementWidth,
-            r: 0.10*elementWidth,
-            b:0.09*elementWidth,
-            t: 0.09*elementWidth
+            l: 0.04*elementWidth,
+            r: 0.05*elementWidth,
+            b:0.04*elementWidth,
+            t: 0.02*elementWidth
         },
-        title: map_title
+        // title: map_title
     };
 
     var raw_id = map_selector.replace("#","");
