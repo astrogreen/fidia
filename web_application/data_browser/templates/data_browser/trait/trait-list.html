@@ -189,7 +189,7 @@
             <div class="panel-body">
                 <div id="{{trait_type}}_plotly_plot">
                     <!--Dynamic plotly rendering based on Trait Type-->
-                    <p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p>
+                    <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
                 </div>
 
             </div>
@@ -209,7 +209,7 @@
 </script>
 <script type="application/javascript" src="{% static 'restapi_app/js/showmore/showmore.js'%}"></script>
 
-{% if trait_type == 'line_map' %}
+{% if trait_type != 'spectral_map' %}
     <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
     <script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
     <script type="application/javascript" src="{% static 'data_browser/js/line_map.js'%}"></script>
