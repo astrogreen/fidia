@@ -95,8 +95,9 @@ h6,
   line-height: 1.2;
 }
 small,
-.sub-heading {
-  color: #8ca1a6;
+.sub-heading,
+a.sub-heading {
+  color: #8ca1a6 !important;
 }
 .label-sub-heading {
   color: #767676;

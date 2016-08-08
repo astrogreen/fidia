@@ -217,7 +217,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             context['sub_traits'] = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
 
-            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version',
+            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version', 'url',
                                             'all_branches_versions', ] + \
                                            context['side_bar_explicit_render'] + \
                                            context['fidia_keys'] + \
@@ -330,10 +330,9 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['side_bar_explicit_render'] = ['description', 'documentation']
 
             context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation",
-                                                  "url",
                                                   "name", "type", "value", ]
 
-            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version',
+            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version',  "url",
                                             'all_branches_versions', ] + \
                                            context['side_bar_explicit_render'] + \
                                            context['fidia_keys']
@@ -492,7 +491,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, traitproperty_pk=None, format=None):
 
-        self.template = 'data_browser/trait_property/trait-property.html'
+        self.template = 'data_browser/trait_property/list.html'
         elem = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk], traitproperty_pk)
 
         serializer = data_browser.serializers.TraitPropertySerializer(

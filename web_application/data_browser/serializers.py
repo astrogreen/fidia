@@ -156,9 +156,6 @@ class TraitSerializer(serializers.Serializer):
                                                                     'trait_key': self.context['trait_key'],
                                                                 }, many=False)
 
-            # del getattr(self, sub_trait.trait_name)
-            # self.fields[sub_trait.trait_name] = SubTraitField(sub_trait_name='wcs')
-
         log.debug("Adding Trait properties")
 
         for trait_property in trait.trait_properties():
@@ -241,10 +238,25 @@ class TraitSerializer(serializers.Serializer):
     def get_trait_key(self, obj):
         return self.context['trait_key']
 
+    def get_url(self, trait):
+        """If sub-trait, then get parent trait's key """
+        # Need to inject the sub-trait url if this instance is a sub-trait
+        # so this probably needs getting by
+        # traversing up the parent tree, though there may be a better way of doing this.
+        subtrait_key = ''
+
+        if hasattr(trait, '_parent_trait'):
+            if hasattr(trait._parent_trait, '_parent_trait'):
+                subtrait_key = str(trait.trait_key)+'/'
+
+        return getattr(self.context['request'], 'path')+subtrait_key
+
     sample = serializers.SerializerMethodField()
     astroobject = serializers.SerializerMethodField()
     trait = serializers.SerializerMethodField()
     trait_key = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+
 
     def get_attribute(self, instance):
         """

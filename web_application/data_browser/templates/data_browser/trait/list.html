@@ -111,7 +111,7 @@
                         <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
                             {{ response.data|key:s |key:'pretty_name' }}
                         </a>
-                        <span class="sub-heading pull-right">sub-trait</span>
+                        <span class="sub-heading pull-right">sub-trait <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
                     </div>
                     <div id="collapse{{s}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{s}}">
                         <div class="panel-body nested-sidebar">
@@ -143,13 +143,10 @@
                                         <div class="panel-heading" role="tab" id="nested_heading{{t}}">
                                             <i class="fa fa-level-up fa-rotate-90"></i>
                                             <a role="button" data-toggle="collapse" href="#{{s}}_nested_collapse{{t}}"
-                                               {% if forloop.first %}
-                                               aria-expanded="true"
-                                               {% endif %}
-                                               aria-controls="collapse{{t}}">
+                                               {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{t}}">
                                                 {{t |capfirst}}
                                             </a>
-                                            <span class="sub-heading pull-right">trait_property</span>
+                                            <span class="sub-heading pull-right">trait_property  <a href="{{ response.data|key:s|key:t |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
                                         </div>
                                         <div id="{{s}}_nested_collapse{{t}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{t}}">
                                             <div class="panel-body">
