@@ -173,7 +173,7 @@ function plot_map(name, data, selector){
     var raw_id = map_selector.replace("#","");
     var plotDiv = document.getElementById(raw_id);
 
-    Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false});
+    Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false, displayModeBar:false});
 
 
     // RESPONSIVE TO CHANGING WINDOW SIZE

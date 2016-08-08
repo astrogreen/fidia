@@ -1,6 +1,6 @@
 from __future__ import unicode_literals, absolute_import
 
-import re
+import re, json
 from django import template
 from django.template import Library
 from django.core.urlresolvers import reverse, NoReverseMatch, reverse_lazy, resolve
@@ -324,5 +324,16 @@ def add_class(field, class_name):
 @register.filter
 def key(d, key_name):
     """ Get a supplied key value from a dictionary"""
+    if key_name == "None":
+        return d
     return d[key_name]
-key = register.filter('key', key)
+
+
+@register.filter
+def get_type(value):
+    return type(value)
+
+
+@register.filter
+def stringify(list):
+    return json.dumps(str(list))

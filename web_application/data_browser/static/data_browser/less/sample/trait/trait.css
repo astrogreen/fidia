@@ -29,3 +29,64 @@ p.heading {
 .sub-trait-sidebar .nested-sidebar .panel-default .panel-body {
   padding-left: 30px;
 }
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ PRETTIFY
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+#sidebar {
+  /* Specify class=linenums on a pre to get line numbering */
+}
+#sidebar .com {
+  color: #93a1a1;
+}
+#sidebar .lit {
+  color: #195f91;
+}
+#sidebar .pun,
+#sidebar .opn,
+#sidebar .clo {
+  color: #93a1a1;
+}
+#sidebar .fun {
+  color: #dc322f;
+}
+#sidebar .str,
+#sidebar .atv {
+  color: #D14;
+}
+#sidebar .kwd,
+#sidebar .prettyprint .tag {
+  color: #1e347b;
+}
+#sidebar .typ,
+#sidebar .atn,
+#sidebar .dec,
+#sidebar .var {
+  color: teal;
+}
+#sidebar .pln {
+  color: #48484c;
+}
+#sidebar .prettyprint {
+  padding: 0;
+  background-color: #ffffff;
+  border: 0;
+  max-height: 300px;
+  overflow: scroll;
+}
+#sidebar .prettyprint.linenums {
+  -webkit-box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+  -moz-box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+  box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+}
+#sidebar ol.linenums {
+  margin: 0 0 0 33px;
+  /* IE indents via margin-left */
+}
+#sidebar ol.linenums li {
+  padding-left: 12px;
+  color: #bebec5;
+  line-height: 20px;
+  text-shadow: 0 1px 0 #fff;
+}

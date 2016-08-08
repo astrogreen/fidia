@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class DataBrowserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/data_browser_root/root.html'
+        template = 'data_browser/root/list.html'
     renderer_classes = (DataBrowserRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, format=None):
@@ -48,7 +48,7 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     Viewset for Sample route. Provides List view only.
     """
     class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/sample/sample-list.html'
+        template = 'data_browser/sample/list.html'
 
     renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     breadcrumb_list = []
@@ -81,7 +81,7 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/astroobject/astroobject-list.html'
+        template = 'data_browser/astroobject/list.html'
 
         # def get_context(self, data, accepted_media_type, renderer_context):
         #     context = super().get_context(data, accepted_media_type, renderer_context)
@@ -194,7 +194,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
         def __init__(self, sub_trait_list_extended=None, *args, **kwargs):
-            self.template = 'data_browser/trait/trait-list.html'
+            self.template = 'data_browser/trait/list.html'
 
         def get_context(self, data, accepted_media_type, renderer_context):
             """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
@@ -297,85 +297,169 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return response
 
 
-class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    Dynamic View evaluated on instance type is Trait or Trait property
+    This is only one level
+    """
 
-    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, dynamic_pk=None, format=None):
+    def __init__(self, sample=None, astroobject=None, trait=None, template=None, *args, **kwargs):
+        self.sample = sample
+        self.astroobject = astroobject
+        self.trait = trait
 
-        # Determine what we're looking at.
-        # type_for_trait_path requires the trait_key and current "path"
-        path = list(dynamic_pk.split('/'))
-        this_trait_key = path
-        path.insert(0, trait_pk)
+        self.renderer_classes = (self.SubTraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
-        if issubclass(ar.type_for_trait_path(path), Trait):
-            trait_pointer = sami_dr1_sample[astroobject_pk]
-            for elem in path:
-                trait_pointer = trait_pointer[elem]
-            serializer = data_browser.serializers.TraitSerializer(
-                instance=trait_pointer, many=False,
+    breadcrumb_list = []
+
+    class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+
+        def get_context(self, data, accepted_media_type, renderer_context):
+            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
+            they will be explicitly positioned. """
+
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['sample'] = renderer_context['view'].sample
+            context['astroobject'] = renderer_context['view'].astroobject
+            context['trait'] = renderer_context['view'].trait
+            # context['trait_url'] = renderer_context['view'].trait_url
+            context['template'] = renderer_context['view'].template
+
+            return context
+
+        @property
+        def template(self):
+            if hasattr(self.renderer_context['view'], "template"):
+                return self.renderer_context['view'].template
+            else:
+                return 'rest_framework/api.html'
+
+    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, traitproperty_pk=None, format=None):
+
+        # Look at traitproperty_pk first, see if we're looking at subtrait/trait property
+        if traitproperty_pk is not None:
+            self.template = 'data_browser/trait_property/trait-property.html'
+            elem = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk], traitproperty_pk)
+
+            serializer = data_browser.serializers.TraitPropertySerializer(
+                instance=elem, many=False,
                 context={'request': request,
                          'sample': sample_pk,
                          'astroobject': astroobject_pk,
-                         'trait': trait_pk,
-                         'trait_key': this_trait_key,
                          }
             )
-
-        elif issubclass(ar.type_for_trait_path(path), TraitProperty):
-            trait_pointer = sami_dr1_sample[astroobject_pk]
-            for elem in path[:-1]:
-                trait_pointer = trait_pointer[elem]
-            trait_property = getattr(trait_pointer, path[-1])
-            serializer = data_browser.serializers.TraitPropertySerializer(
-                instance=trait_property, many=False,
-                context={'request': request}
-            )
         else:
-            raise Exception("programming error")
+            # Determine what we're looking at.
+            # type_for_trait_path requires the trait_key and current "path"
+            path = list(subtraitproperty_pk.split('/'))
+            this_trait_key = path
+            path.insert(0, trait_pk)
+
+            if issubclass(ar.type_for_trait_path(path), Trait):
+                # self.template = 'data_browser/dynamic/dynamic_template.html'
+                print('SUB TRAIT USE SUB-TRAIT TEMPLATE')
+                self.template = 'data_browser/sub_trait/sub-trait.html'
+                trait_pointer = sami_dr1_sample[astroobject_pk]
+                for elem in path:
+                    trait_pointer = trait_pointer[elem]
+                serializer = data_browser.serializers.TraitSerializer(
+                    instance=trait_pointer, many=False,
+                    context={'request': request,
+                             'sample': sample_pk,
+                             'astroobject': astroobject_pk,
+                             'trait': trait_pk,
+                             'trait_key': this_trait_key,
+                             }
+                )
+
+            elif issubclass(ar.type_for_trait_path(path), TraitProperty):
+                self.template = 'data_browser/trait_property/trait-property.html'
+                trait_pointer = sami_dr1_sample[astroobject_pk]
+                for elem in path[:-1]:
+                    trait_pointer = trait_pointer[elem]
+                trait_property = getattr(trait_pointer, path[-1])
+
+                serializer = data_browser.serializers.TraitPropertySerializer(
+                    instance=trait_property, many=False,
+                    context={'request': request,
+                             'sample': sample_pk,
+                             'astroobject': astroobject_pk,
+                             'trait': this_trait_key,
+                             }
+                )
+            else:
+                raise Exception("programming error")
+
+        # Add some data to the view so that it can be made available to the renderer.
+        # This data is not included in the actual data of the serialized object
+        # (though that is possible, see the implementations of the Serializers)
+
+        # self.sample = sample_pk
+        # self.astroobject = astroobject_pk
+        # # self.trait = trait_pointer.get_pretty_name()
+        # url_kwargs = {
+        #     'astroobject_pk': astroobject_pk,
+        #     'sample_pk': sample_pk,
+        #     'trait_pk': trait_pk
+        # }
+        # self.trait_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
+        #
+        # # Set Breadcrumbs for this method
+        # SubTraitPropertyViewSet.breadcrumb_list.extend(
+        #     [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(), subtraitproperty_pk])
 
         return Response(serializer.data)
 
 
 class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    Final level of nesting - this will provide a level to all those sub-trait/traitproperty views.
+    Might not even need it - may be able to pass through SubTraitProperty Viewset with carefully managed pks
+    """
+
+    def __init__(self, sample=None, astroobject=None, trait=None, template=None, *args, **kwargs):
+        self.sample = sample
+        self.astroobject = astroobject
+        self.trait = trait
+
+        self.renderer_classes = (self.TraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+
+    breadcrumb_list = []
 
     class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/trait_property/traitproperty-list.html'
 
-    renderer_classes = (TraitPropertyRenderer, renderers.JSONRenderer)
+        def get_context(self, data, accepted_media_type, renderer_context):
+            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
+            they will be explicitly positioned. """
 
-    def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
-        try:
-            # address trait properties via . not []
-            trait_property = getattr(sami_dr1_sample[astroobject_pk][trait_pk], traitproperty_pk)
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        except AttributeError:
-            raise restapi_app.exceptions.NoPropertyFound("No property %s" % traitproperty_pk)
-            # return Response(status=status.HTTP_404_NOT_FOUND)
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['sample'] = renderer_context['view'].sample
+            context['astroobject'] = renderer_context['view'].astroobject
+            context['trait'] = renderer_context['view'].trait
+            # context['trait_url'] = renderer_context['view'].trait_url
+            context['template'] = renderer_context['view'].template
 
-        serializer_class = data_browser.serializers.AstroObjectTraitPropertySerializer
-        serializer = serializer_class(
-            instance=trait_property, many=False,
-            context={'request': request}
+            return context
+
+        @property
+        def template(self):
+            if hasattr(self.renderer_context['view'], "template"):
+                return self.renderer_context['view'].template
+            else:
+                return 'rest_framework/api.html'
+
+    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, traitproperty_pk=None, format=None):
+
+        self.template = 'data_browser/trait_property/trait-property.html'
+        elem = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk], traitproperty_pk)
+
+        serializer = data_browser.serializers.TraitPropertySerializer(
+            instance=elem, many=False,
+            context={'request': request,
+                     'sample': sample_pk,
+                     'astroobject': astroobject_pk,
+                     }
         )
 
-        # Add some data to the view so that it can be made available to the renderer.
-        #
-        # This data is not included in the actual data of the serialized object
-        # (though that is possible, see the implementations of the Serializers)
-        self.documentation_html = trait_property.get_documentation('html')
-        self.pretty_name = trait_property.get_pretty_name()
-        self.short_description = trait_property.get_description()
-
         return Response(serializer.data)
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        response = super().finalize_response(request, response, *args, **kwargs)
-        if response.accepted_renderer.format == 'fits':
-            filename = "{astroobject_pk}-{trait_pk}-{traitproperty_pk}.fits".format(**kwargs)
-            response['content-disposition'] = "attachment; filename=%s" % filename
-        return response
-
 

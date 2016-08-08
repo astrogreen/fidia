@@ -1,0 +1,76 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
+{% block useful_links %}
+{% comment %}
+<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
+    {{response.data.sample}}</a></li>
+<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}>Back to
+    {{response.data.astroobject}}</a></li>
+{% endcomment %}
+{% endblock useful_links %}
+
+
+{% block content-test %}
+{% captureas survey %}{{sample}}{% endcaptureas %}
+<div class="row">
+    <div class="col-xs-6 col-sm-4 options">
+        <h2>{{response.data.pretty_name}}</h2>
+    </div>
+    <div class="text-right col-xs-6 col-sm-8 options">
+        <span class="branch_version">
+            <span class="sub-heading"><i class="fa fa-level-up"></i><a href="{{trait_url}}">{{trait}}</a></span>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4 col-xs-12">
+        <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+            SUB TRAIT TEMPLATE
+
+            <!--Explicitly specifited trait properties will appear first-->
+
+
+        </div>
+
+    </div>
+    <div class="col-sm-6 col-xs-12">
+        <div class="panel panel-default trait_property_value">
+            <div class="panel-body">
+                <div id="{{trait_type}}_plotly_plot">
+                    <!--Dynamic plotly rendering based on Trait Type-->
+                    <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Plot Options
+            </div>
+            <div class="panel-body">
+                <div id="{{trait_type}}_plotly_plot_options">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block footer-extra %}
+
+{% endblock %}
