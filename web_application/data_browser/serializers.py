@@ -238,18 +238,41 @@ class TraitSerializer(serializers.Serializer):
     def get_trait_key(self, obj):
         return self.context['trait_key']
 
+    # def get_url(self, trait):
+    #     """If sub-trait, then get parent trait's key """
+    #     # Need to inject the sub-trait url if this instance is a sub-trait
+    #     # so this probably needs getting by
+    #     # traversing up the parent tree, though there may be a better way of doing this.
+    #     subtrait_key = ''
+    #
+    #     if hasattr(trait, '_parent_trait'):
+    #         if hasattr(trait._parent_trait, '_parent_trait'):
+    #             subtrait_key = str(trait.trait_key)+'/'
+    #
+    #     return getattr(self.context['request'], 'path')+subtrait_key
+
     def get_url(self, trait):
-        """If sub-trait, then get parent trait's key """
-        # Need to inject the sub-trait url if this instance is a sub-trait
-        # so this probably needs getting by
-        # traversing up the parent tree, though there may be a better way of doing this.
-        subtrait_key = ''
+        """Return URL for current instance (subtrait/tp or tp)"""
+        # Need to inject the sub-trait url, so this probably needs getting by
+        # traversing up the parent tree, though this may not be the best method
+        # if has attr (trait) has attr (trait) - prepend
+
+        url_kwargs = {
+            'astroobject_pk': self.context['astroobject'],
+            'sample_pk': self.context['sample'],
+            'trait_pk': self.context['trait'],
+        }
+        _url = reverse("data_browser:trait-list", kwargs=url_kwargs)
+
+        subtrait_str = ""
 
         if hasattr(trait, '_parent_trait'):
             if hasattr(trait._parent_trait, '_parent_trait'):
-                subtrait_key = str(trait.trait_key)+'/'
+                subtrait_str = str(trait.trait_key)+'/'
 
-        return getattr(self.context['request'], 'path')+subtrait_key
+        _url += subtrait_str
+
+        return _url
 
     sample = serializers.SerializerMethodField()
     astroobject = serializers.SerializerMethodField()
