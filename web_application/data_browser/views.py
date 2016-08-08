@@ -230,7 +230,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             context['formats'] = trait_name_formats
 
-
+            context['trait_type'] = trait.trait_type
 
             # context['html_documentation'] = renderer_context['view'].documentation_html
             # context['pretty_name'] = renderer_context['view'].pretty_name
