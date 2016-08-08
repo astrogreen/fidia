@@ -469,6 +469,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['sample'] = renderer_context['view'].sample
             context['astroobject'] = renderer_context['view'].astroobject
             context['trait'] = renderer_context['view'].trait
+            context['subtrait'] = renderer_context['view'].subtrait
             context['template'] = renderer_context['view'].template
 
             return context
@@ -482,8 +483,15 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, traitproperty_pk=None, format=None):
 
-        self.template = 'data_browser/trait_property/list.html'
         elem = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk], traitproperty_pk)
+        trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
+        subtrait_pointer = sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk]
+
+        self.template = 'data_browser/trait_property/list.html'
+        self.astroobject = astroobject_pk
+        self.sample = sample_pk
+        self.trait = trait_pointer.get_pretty_name()
+        self.subtrait = subtrait_pointer.get_pretty_name()
 
         serializer = data_browser.serializers.TraitPropertySerializer(
             instance=elem, many=False,
@@ -496,5 +504,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                      }
         )
 
+        TraitPropertyViewSet.breadcrumb_list.extend(
+            [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+             subtrait_pointer.get_pretty_name(), elem.get_pretty_name()])
         return Response(serializer.data)
 

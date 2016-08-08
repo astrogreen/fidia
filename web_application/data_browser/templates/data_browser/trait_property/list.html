@@ -4,20 +4,20 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
+{% block title %}{{astroobject}} | {{trait}} | {{subtrait}} | {{response.data.pretty_name}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
+{% block page_title %}{{astroobject}} | {{trait}} | {{subtrait}} | {{response.data.pretty_name}}{% endblock %}
 {% block useful_links %}
-{% comment %}
-<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
-    {{response.data.sample}}</a></li>
-<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}>Back to
-    {{response.data.astroobject}}</a></li>
-{% endcomment %}
+
+<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=sample %}>Back to
+    {{sample |uppercase}}</a></li>
+<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=sample astroobject_pk=astroobject %}>Back to
+    {{astroobject|uppercase}}</a></li>
+
 {% endblock useful_links %}
 
 
@@ -101,5 +101,7 @@
 {% endblock %}
 
 {% block footer-extra %}
-
+<script>
+    $('.panel-collapse').collapse('show');
+</script>
 {% endblock %}

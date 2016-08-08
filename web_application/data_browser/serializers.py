@@ -198,7 +198,7 @@ class TraitSerializer(serializers.Serializer):
                         j['versions'].append(str.i.version)
                 # Else add new branch
                 b_v_arr.append({"branch": str(i.branch), "url": this_url,
-                                "versions": [str(i.version), 'Vdummy']})
+                                "versions": [str(i.version)]})
 
         return b_v_arr
 
@@ -237,19 +237,6 @@ class TraitSerializer(serializers.Serializer):
 
     def get_trait_key(self, obj):
         return self.context['trait_key']
-
-    # def get_url(self, trait):
-    #     """If sub-trait, then get parent trait's key """
-    #     # Need to inject the sub-trait url if this instance is a sub-trait
-    #     # so this probably needs getting by
-    #     # traversing up the parent tree, though there may be a better way of doing this.
-    #     subtrait_key = ''
-    #
-    #     if hasattr(trait, '_parent_trait'):
-    #         if hasattr(trait._parent_trait, '_parent_trait'):
-    #             subtrait_key = str(trait.trait_key)+'/'
-    #
-    #     return getattr(self.context['request'], 'path')+subtrait_key
 
     def get_url(self, trait):
         """Return URL for current instance (subtrait/tp or tp)"""

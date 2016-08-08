@@ -4,13 +4,13 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
+{% block title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
+{% block page_title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
 {% block useful_links %}
 <li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
     {{response.data.sample}}</a></li>
