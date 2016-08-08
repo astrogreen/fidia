@@ -79,19 +79,16 @@
             {% for r in side_bar_explicit_render %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="heading{{r}}">
-                    <a role="button" data-toggle="collapse" href="#collapse{{r}}"
-                       {% if forloop.first %}
-                       aria-expanded="true"
-                       {% endif %}
-                       aria-controls="collapse{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
                         {{r |capfirst}}
                     </a>
                     <span class="sub-heading pull-right">explicitly rendered attributes</span>
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
-                        <p class="readmore">{{ response.data|key:r }}</p>
-
+                        <div class="readmore">
+                        {% autoescape off %}{{ response.data|key:r }}{% endautoescape %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -207,7 +204,10 @@
         $(this).tab('show')
     })
 </script>
-<script type="application/javascript" src="{% static 'restapi_app/js/showmore/showmore.js'%}"></script>
+<script>
+
+</script>
+<script type="application/javascript" src="{% static 'restapi_app/js/readmore/readmore.js'%}"></script>
 
 {% if trait_line_map_render == True %}
     <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>

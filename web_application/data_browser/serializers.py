@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 
 from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
@@ -13,7 +14,7 @@ from fidia.descriptions import DescriptionsMixin
 from fidia.traits.trait_property import BoundTraitProperty
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-
+os.environ['PYPANDOC_PANDOC'] = '/usr/local/bin/pandoc'
 
 def get_and_update_depth_limit(kwargs):
     depth_limit = kwargs.pop('depth_limit', -1)
@@ -211,7 +212,15 @@ class TraitSerializer(serializers.Serializer):
         return trait.get_pretty_name()
 
     def get_documentation(self, trait):
-        return trait.get_documentation()
+        # If API - return pre-formatted html, and replace $ with $$ for MathJax
+
+        if self.context['request'].accepted_renderer.format == 'api' or 'html':
+            if trait.get_documentation() is not None:
+                return trait.get_documentation('html').replace("$", "$$")
+            else:
+                return trait.get_documentation('html')
+        else:
+            return trait.get_documentation()
 
     branch = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()

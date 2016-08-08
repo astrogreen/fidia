@@ -15,9 +15,6 @@ p.heading {
   margin-bottom: 5px;
   margin-top: 5px;
 }
-.readmorecontent span {
-  display: none;
-}
 .sub-trait-sidebar .nested-sidebar {
   padding: 0;
   border-top: 0 !important;

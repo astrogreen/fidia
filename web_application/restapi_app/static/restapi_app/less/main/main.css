@@ -444,6 +444,20 @@ header user a > a {
 ++ GLOBAL STYLING
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.readmore {
+  overflow: hidden;
+  max-height: 87px;
+  position: relative;
+  padding-bottom: 20px;
+  transition: all 0.3s ease-in;
+}
+.readmore .readmore_link {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #fbfbfb;
+  width: 100px;
+}
 .well {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
