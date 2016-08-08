@@ -1,0 +1,241 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
+    {{response.data.sample}}</a></li>
+<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}>Back to
+    {{response.data.astroobject}}</a></li>
+{% endblock useful_links %}
+
+{% block content-test %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<div class="row">
+    <div class="col-xs-6 col-sm-4 options">
+        <h2>{{response.data.pretty_name}}</h2>
+    </div>
+    <div class="text-right col-xs-6 col-sm-8 options">
+        <span class="branch_version">
+            <span class="sub-heading"><i class="fa fa-code-fork"></i>{{response.data.branch}}</span>
+            <span class="sub-heading"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
+        </span>
+
+        <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}'></add-download-button>
+        <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-code-fork"></i> Other Branches <i class="fa fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    {% for i in response.data.all_branches_versions %}
+                    {% if i.branch == response.data.branch %}
+                        <li class="disabled"><a href="{{branch}}">{{i.branch}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
+                    {% else %}
+                        <li><a href="{{i.url}}">{{i.branch}}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-map-marker"></i> Other Versions <i class="fa fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    {% for i in response.data.all_branches_versions %}
+                        {% if i.branch == response.data.branch %}
+                            {% for version in i.versions %}
+                                {% if version == response.data.version %}
+                                    <li class="disabled"><a href="{{i.url}}({{version}})">{{version}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
+                                {% else %}
+                                    <li><a href="{{i.url}}({{version}})">{{version}}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for branch_name, branch_url in value.branches.items %}
+                    <li><a href="{{branch_url}}">{{branch_name}}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4 col-xs-12">
+        <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+            {% for r in side_bar_explicit_render %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
+                        {{r |capfirst}}
+                    </a>
+                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                </div>
+                <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
+                    <div class="panel-body">
+                        <div class="readmore">
+                        {% autoescape off %}{{ response.data|key:r }}{% endautoescape %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!--Explicitly specifited trait properties will appear first-->
+            {% with response.data as tpdata %}
+                {% for tp in trait_properties %}
+                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                {% endfor %}
+            {% endwith %}
+
+            <!--Iterate over sub-traits-->
+            {% for s in sub_traits %}
+                {% include 'data_browser/trait/sidebar-sub-trait.html' %}
+                <div class="panel panel-default sub-trait-sidebar">
+                    <div class="panel-heading" role="tab" id="heading{{s}}">
+                        <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
+                            {{ response.data|key:s |key:'pretty_name' }}
+                        </a>
+                        <span class="sub-heading pull-right">sub-trait</span>
+                    </div>
+                    <div id="collapse{{s}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{s}}">
+                        <div class="panel-body nested-sidebar">
+                            <div class="panel-group" id="nested-sidebar{{s}}" role="tablist" aria-multiselectable="true">
+                                {% for r in side_bar_explicit_render %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="{{s}}_nested_heading{{r}}">
+                                        <i class="fa fa-level-up fa-rotate-90"></i>
+                                        <a role="button" data-toggle="collapse" href="#{{s}}_nested_collapse{{r}}"
+                                           {% if forloop.first %}
+                                           aria-expanded="true"
+                                           {% endif %}
+                                           aria-controls="{{s}}_nested_collapse{{r}}">
+                                            {{r |capfirst}}
+                                        </a>
+                                        <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                                    </div>
+                                    <div id="{{s}}_nested_collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{r}}">
+                                        <div class="panel-body">
+                                            <p class="readmore">{{ response.data|key:s|key:r }} </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% for t in response.data|key:s %}
+                                    {% if t in reserved_keywords %}
+                                    {% else %}
+                                        <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="nested_heading{{t}}">
+                                            <i class="fa fa-level-up fa-rotate-90"></i>
+                                            <a role="button" data-toggle="collapse" href="#{{s}}_nested_collapse{{t}}"
+                                               {% if forloop.first %}
+                                               aria-expanded="true"
+                                               {% endif %}
+                                               aria-controls="collapse{{t}}">
+                                                {{t |capfirst}}
+                                            </a>
+                                            <span class="sub-heading pull-right">trait_property</span>
+                                        </div>
+                                        <div id="{{s}}_nested_collapse{{t}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{t}}">
+                                            <div class="panel-body">
+                                                {% with response.data|key:s as tpdata %}
+                                                    {% with t as tp %}
+                                                        {% include 'data_browser/trait/sidebar-trait-property-panel-body.html' %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+
+            <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
+            {% with response.data as tpdata %}
+                {% for tp in tpdata %}
+                    {% if tp in reserved_keywords %}
+                    {% else %}
+                        {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+
+        </div>
+
+    </div>
+    <div class="col-sm-6 col-xs-12">
+        <div class="panel panel-default">
+
+            <div class="panel-body">
+                <div id="{{trait_type}}_plotly_plot">
+                    <!--Dynamic plotly rendering based on Trait Type-->
+                    <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Plot Options
+            </div>
+            <div class="panel-body">
+                <div id="{{trait_type}}_plotly_plot_options">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block footer-extra %}
+<script type="application/javascript">
+    $('#ao_tabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show')
+    })
+</script>
+
+
+
+{% if trait_2D_map == True %}
+    <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+    <script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+    <script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
+    <script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+            var trait_url = "{{request.build_absolute_uri}}value/?format=json";
+            var trait_name = "{{response.data.pretty_name}}";
+            var map_selector = "#{{trait_type}}_plotly_plot";
+            var options_selector = "#{{trait_type}}_plotly_plot_options";
+
+            trait_plot(trait_url, trait_name, map_selector, options_selector);
+
+        });
+    </script>
+{% endif %}
+
+{% endblock %}
