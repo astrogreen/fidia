@@ -341,6 +341,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['formats'] = renderer_context['view'].formats
             context['branch'] = renderer_context['view'].branch
             context['version'] = renderer_context['view'].version
+            context['trait_2D_map'] = renderer_context['view'].trait_2D_map
 
             return context
 
@@ -363,9 +364,10 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
 
             subtrait_pointer = trait_pointer[subtraitproperty_pk]
-            self.type = subtrait_pointer.trait_type
 
-            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True
+            self.type = subtrait_pointer.trait_type
+            self.trait_2D_map = False
+            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True;
 
             # Formats
             formats = []
@@ -393,9 +395,10 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             self.template = 'data_browser/trait_property/list.html'
             trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
             traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
-            self.type = getattr(traitproperty_pointer, 'type')
 
-            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True
+            self.type = trait_pointer.trait_type
+            self.trait_2D_map = False
+            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True;
 
             # Formats
             formats = []
@@ -471,6 +474,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['trait'] = renderer_context['view'].trait
             context['subtrait'] = renderer_context['view'].subtrait
             context['template'] = renderer_context['view'].template
+            context['trait_2D_map'] = renderer_context['view'].trait_2D_map
 
             return context
 
@@ -492,6 +496,10 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sample = sample_pk
         self.trait = trait_pointer.get_pretty_name()
         self.subtrait = subtrait_pointer.get_pretty_name()
+
+        self.type = subtrait_pointer.trait_type
+        self.trait_2D_map = False
+        if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True;
 
         serializer = data_browser.serializers.TraitPropertySerializer(
             instance=elem, many=False,
