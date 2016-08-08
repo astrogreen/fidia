@@ -95,11 +95,13 @@
             {% endfor %}
 
             <!--Explicitly specifited trait properties will appear first-->
-            {% with response.data as tpdata %}
-                {% for tp in trait_properties %}
-                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
-                {% endfor %}
-            {% endwith %}
+            {% if trait_properties %}
+                {% with response.data as tpdata %}
+                    {% for tp in trait_properties %}
+                        {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                    {% endfor %}
+                {% endwith %}
+            {% endif %}
 
             <!--Iterate over sub-traits-->
             {% for s in sub_traits %}

@@ -24,6 +24,7 @@ from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey
 
 log = logging.getLogger(__name__)
 
+TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "extinction_map"]
 
 class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
@@ -232,8 +233,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             context['trait_type'] = trait.trait_type
 
-            two_d_plot_types = ["line_map", "sfr_map", "velocity_map", "extinction_map"]
-            if trait.trait_type in two_d_plot_types: context['trait_2D_map'] = True
+            if trait.trait_type in TWO_D_PLOT_TYPES: context['trait_2D_map'] = True
 
 
             # context['html_documentation'] = renderer_context['view'].documentation_html
@@ -322,8 +322,26 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['sample'] = renderer_context['view'].sample
             context['astroobject'] = renderer_context['view'].astroobject
             context['trait'] = renderer_context['view'].trait
-            # context['trait_url'] = renderer_context['view'].trait_url
+            context['trait_url'] = renderer_context['view'].trait_url
             context['template'] = renderer_context['view'].template
+
+
+            context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key']
+            context['side_bar_explicit_render'] = ['description', 'documentation']
+
+            context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation",
+                                                  "url",
+                                                  "name", "type", "value", ]
+
+            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version',
+                                            'all_branches_versions', ] + \
+                                           context['side_bar_explicit_render'] + \
+                                           context['fidia_keys']
+
+            context['type'] = renderer_context['view'].type
+            context['formats'] = renderer_context['view'].formats
+            context['branch'] = renderer_context['view'].branch
+            context['version'] = renderer_context['view'].version
 
             return context
 
@@ -334,79 +352,103 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             else:
                 return 'rest_framework/api.html'
 
-    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, traitproperty_pk=None, format=None):
+    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, format=None):
 
-        # Look at traitproperty_pk first, see if we're looking at subtrait/trait property
-        if traitproperty_pk is not None:
-            self.template = 'data_browser/trait_property/trait-property.html'
-            elem = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk], traitproperty_pk)
+        # Determine what we're looking at.
+        # type_for_trait_path requires the trait_key and current "path"
+        path = [subtraitproperty_pk]
+        path.insert(0, trait_pk)
 
-            serializer = data_browser.serializers.TraitPropertySerializer(
-                instance=elem, many=False,
+        if issubclass(ar.type_for_trait_path(path), Trait):
+            self.template = 'data_browser/sub_trait/list.html'
+            trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
+
+            subtrait_pointer = trait_pointer[subtraitproperty_pk]
+            self.type = subtrait_pointer.trait_type
+
+            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True
+
+            # Formats
+            formats = []
+            for r in TraitViewSet.renderer_classes:
+                f = str(r.format)
+                if f != "api": formats.append(f)
+            self.formats = formats
+            self.branch = trait_pointer.branch
+            self.version = trait_pointer.version
+
+            serializer = data_browser.serializers.TraitSerializer(
+                instance=subtrait_pointer, many=False,
                 context={'request': request,
                          'sample': sample_pk,
                          'astroobject': astroobject_pk,
-                         }
-            )
+                         'trait': trait_pk,
+                         'trait_key': subtraitproperty_pk,
+                         })
+            # Set Breadcrumbs for this method
+            SubTraitPropertyViewSet.breadcrumb_list.extend(
+                [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(), subtrait_pointer.get_pretty_name()])
+
+        elif issubclass(ar.type_for_trait_path(path), TraitProperty):
+            self.template = 'data_browser/trait_property/list.html'
+            trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
+            traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
+            self.type = getattr(traitproperty_pointer, 'type')
+
+            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True
+
+            # Formats
+            formats = []
+            for r in TraitViewSet.renderer_classes:
+                f = str(r.format)
+                if f != "api": formats.append(f)
+            self.formats = formats
+            self.branch = trait_pointer.branch
+            self.version = trait_pointer.version
+
+            # trait_pointer = sami_dr1_sample[astroobject_pk]
+            # for elem in path[:-1]:
+            #     trait_pointer = trait_pointer[elem]
+            # trait_property = getattr(trait_pointer, path[-1])
+
+            serializer = data_browser.serializers.TraitPropertySerializer(
+                instance=traitproperty_pointer, many=False,
+                context={'request': request,
+                         'sample': sample_pk,
+                         'astroobject': astroobject_pk,
+                         'trait': trait_pk,
+                         'trait_key': subtraitproperty_pk,
+                         })
+            # Set Breadcrumbs for this method
+            SubTraitPropertyViewSet.breadcrumb_list.extend(
+                [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+                 traitproperty_pointer.get_pretty_name()])
+
+            # serializer = data_browser.serializers.TraitPropertySerializer(
+            #     instance=trait_property, many=False,
+            #     context={'request': request,
+            #              'sample': sample_pk,
+            #              'astroobject': astroobject_pk,
+            #              'trait': trait_pk,
+            #              'trait_key': subtraitproperty_pk,
+            #              }
+            # )
         else:
-            # Determine what we're looking at.
-            # type_for_trait_path requires the trait_key and current "path"
-            path = list(subtraitproperty_pk.split('/'))
-            this_trait_key = path
-            path.insert(0, trait_pk)
-
-            if issubclass(ar.type_for_trait_path(path), Trait):
-                # self.template = 'data_browser/dynamic/dynamic_template.html'
-                print('SUB TRAIT USE SUB-TRAIT TEMPLATE')
-                self.template = 'data_browser/sub_trait/sub-trait.html'
-                trait_pointer = sami_dr1_sample[astroobject_pk]
-                for elem in path:
-                    trait_pointer = trait_pointer[elem]
-                serializer = data_browser.serializers.TraitSerializer(
-                    instance=trait_pointer, many=False,
-                    context={'request': request,
-                             'sample': sample_pk,
-                             'astroobject': astroobject_pk,
-                             'trait': trait_pk,
-                             'trait_key': this_trait_key,
-                             }
-                )
-
-            elif issubclass(ar.type_for_trait_path(path), TraitProperty):
-                self.template = 'data_browser/trait_property/trait-property.html'
-                trait_pointer = sami_dr1_sample[astroobject_pk]
-                for elem in path[:-1]:
-                    trait_pointer = trait_pointer[elem]
-                trait_property = getattr(trait_pointer, path[-1])
-
-                serializer = data_browser.serializers.TraitPropertySerializer(
-                    instance=trait_property, many=False,
-                    context={'request': request,
-                             'sample': sample_pk,
-                             'astroobject': astroobject_pk,
-                             'trait': this_trait_key,
-                             }
-                )
-            else:
-                raise Exception("programming error")
+            raise Exception("programming error")
 
         # Add some data to the view so that it can be made available to the renderer.
         # This data is not included in the actual data of the serialized object
         # (though that is possible, see the implementations of the Serializers)
 
-        # self.sample = sample_pk
-        # self.astroobject = astroobject_pk
-        # # self.trait = trait_pointer.get_pretty_name()
-        # url_kwargs = {
-        #     'astroobject_pk': astroobject_pk,
-        #     'sample_pk': sample_pk,
-        #     'trait_pk': trait_pk
-        # }
-        # self.trait_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
-        #
-        # # Set Breadcrumbs for this method
-        # SubTraitPropertyViewSet.breadcrumb_list.extend(
-        #     [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(), subtraitproperty_pk])
+        self.sample = sample_pk
+        self.astroobject = astroobject_pk
+        self.trait = trait_pointer.get_pretty_name()
+        url_kwargs = {
+            'astroobject_pk': astroobject_pk,
+            'sample_pk': sample_pk,
+            'trait_pk': trait_pk
+        }
+        self.trait_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
 
         return Response(serializer.data)
 
