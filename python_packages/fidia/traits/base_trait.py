@@ -296,11 +296,31 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # Determine the version given the options
         self.version = validate_and_inherit(trait_key, self._parent_trait, valid_versions, 'version')
 
-
     @property
     def trait_name(self):
         return self.trait_key.trait_name
 
+    def get_all_branches_versions(self):
+        # type: () -> Set[TraitKey]
+        """Get all of the valid TraitKeys for Traits of this trait_name within the archive.
+
+        This function effectively "spans" not only this particular class, but
+        all other classes with the same trait_name in the current archive.
+
+        Therefore, this is the preferred way to get the other branches and versions, rather than
+        interrogating the value of `branches_versions`, which will not cover
+        other classes with the same trait_name.
+
+        """
+        # NOTE: this must be an instance method because the parent_trait and
+        # archive are not known by the class.
+
+        if self._parent_trait is None:
+            return self.archive.available_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
+        else:
+            return self._parent_trait.sub_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
+
+    #
     #  __        __  ___  __         ___                    __               __
     # /__` |  | |__)  |  |__)  /\  |  |     |__|  /\  |\ | |  \ |    | |\ | / _`
     # .__/ \__/ |__)  |  |  \ /~~\ |  |     |  | /~~\ | \| |__/ |___ | | \| \__>
@@ -360,33 +380,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             trait = self.get_sub_trait(trait_name)
             yield trait
 
-    def get_all_branches_versions(self):
-        # type: () -> Set[TraitKey]
-        """Get all of the valid TraitKeys for Traits of this trait_name within the archive.
 
-        This function effectively "spans" not only this particular class, but
-        all other classes with the same trait_name in the current archive.
-
-        Therefore, this is the preferred way to get the other branches and versions, rather than
-        interrogating the value of `branches_versions`, which will not cover
-        other classes with the same trait_name.
-
-        """
-        # NOTE: this must be an instance method because the parent_trait and
-        # archive are not known by the class.
-
-        if self._parent_trait is None:
-            return self.archive.available_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
-        else:
-            return self._parent_trait.sub_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
-
+    #
     #  __             __             __        ___  __   __     __   ___  __
     # |__) |    |  | / _` | |\ |    /  \ \  / |__  |__) |__) | |  \ |__  /__`
     # |    |___ \__/ \__> | | \|    \__/  \/  |___ |  \ |  \ | |__/ |___ .__/
     #
     # The following three functions are for the "plugin-writter" to override.
     #
-
 
     def init(self):
         """Extra initialisations for a Trait.
@@ -416,7 +417,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         """
         pass
 
-
+    #
     # ___  __         ___  __   __   __   __   ___  __  ___                        __               __
     #  |  |__)  /\  |  |  |__) |__) /  \ |__) |__  |__)  |  \ /    |__|  /\  |\ | |  \ |    | |\ | / _`
     #  |  |  \ /~~\ |  |  |    |  \ \__/ |    |___ |  \  |   |     |  | /~~\ | \| |__/ |___ | | \| \__>
@@ -452,15 +453,6 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
                 if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
-
-    # def sub_traits(self):
-    #     """Generator which iterates over the sub-Traits of this Trait."""
-    #
-    #     for key in dir(type(self)):
-    #         obj = getattr(type(self), key)
-    #         if isinstance(obj, TraitProperty):
-    #             log.debug("Found trait property '{}'".format(key))
-    #             yield obj
 
     @classmethod
     def trait_property_dir(cls):
@@ -512,10 +504,12 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         for tp in self._trait_properties(trait_type):
             yield getattr(self, tp.name).value
 
+    #
     #  __   __   ___       __        __          __
     # |__) |__) |__  |    /  \  /\  |  \ | |\ | / _`
     # |    |  \ |___ |___ \__/ /~~\ |__/ | | \| \__>
-
+    #
+    # Methods to handle loading the data associated with this Trait into memory.
 
     @contextmanager
     def preloaded_context(self):
@@ -536,6 +530,8 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         This function should be called prior to anything which requires calling
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
+
+        See also the `preloaded_context` function.
         """
         log.vdebug("Incrementing preload for trait %s", self.trait_key)
         assert self._preload_count >= 0

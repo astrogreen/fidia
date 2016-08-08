@@ -174,10 +174,3 @@ class TraitKey(tuple):
     branch = property(itemgetter(2), doc='Branch')
 
     version = property(itemgetter(3), doc='Version')
-
-def parse_trait_key(key):
-    """Return a fully fledged TraitKey for the key given.
-
-    Effectively this is just a smart "cast" from string or tuple."""
-    return TraitKey.as_traitkey(key)
-
