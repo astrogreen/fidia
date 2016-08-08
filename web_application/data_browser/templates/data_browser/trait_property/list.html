@@ -36,37 +36,66 @@
 <div class="row">
     <div class="col-sm-4 col-xs-12">
         <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
-            TRAIT PROPERTY TEMPLATE
+            {% for r in side_bar_explicit_render %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
+                        {{r |capfirst}}
+                    </a>
+                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                </div>
+                <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
+                    <div class="panel-body">
+                        <div class="readmore">
+                        {% autoescape off %}{{ response.data|key:r }}{% endautoescape %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
 
-            <!--Explicitly specifited trait properties will appear first-->
+            {% with response.data as tpdata %}
+                {% with "None" as tp %}
+                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                {% endwith %}
+            {% endwith %}
+
 
 
         </div>
 
     </div>
-    <div class="col-sm-6 col-xs-12">
-        <div class="panel panel-default trait_property_value">
-            <div class="panel-body">
-                <div id="{{trait_type}}_plotly_plot">
-                    <!--Dynamic plotly rendering based on Trait Type-->
-                    <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+    {% if trait_2D_map == True %}
+        <div class="col-sm-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="{{trait_type}}_plotly_plot">
+                        <!--Dynamic plotly rendering based on Trait Type-->
+                        <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-sm-2 col-xs-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Plot Options
-            </div>
-            <div class="panel-body">
-                <div id="{{trait_type}}_plotly_plot_options">
+        <div class="col-sm-2 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Plot Options
+                </div>
+                <div class="panel-body">
+                    <div id="{{trait_type}}_plotly_plot_options">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-
+    {% else %}
+        <div class="col-sm-8 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <p>In Progress... </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
 
 {% endblock %}

@@ -382,7 +382,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'sample': sample_pk,
                          'astroobject': astroobject_pk,
                          'trait': trait_pk,
-                         'trait_key': subtraitproperty_pk,
+                         'subtraitproperty': subtraitproperty_pk,
+                         'trait_key': str(subtrait_pointer.trait_key),
                          })
             # Set Breadcrumbs for this method
             SubTraitPropertyViewSet.breadcrumb_list.extend(
@@ -416,22 +417,13 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'sample': sample_pk,
                          'astroobject': astroobject_pk,
                          'trait': trait_pk,
-                         'trait_key': subtraitproperty_pk,
+                         'subtraitproperty': subtraitproperty_pk,
                          })
             # Set Breadcrumbs for this method
             SubTraitPropertyViewSet.breadcrumb_list.extend(
                 [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
                  traitproperty_pointer.get_pretty_name()])
 
-            # serializer = data_browser.serializers.TraitPropertySerializer(
-            #     instance=trait_property, many=False,
-            #     context={'request': request,
-            #              'sample': sample_pk,
-            #              'astroobject': astroobject_pk,
-            #              'trait': trait_pk,
-            #              'trait_key': subtraitproperty_pk,
-            #              }
-            # )
         else:
             raise Exception("programming error")
 
@@ -477,7 +469,6 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['sample'] = renderer_context['view'].sample
             context['astroobject'] = renderer_context['view'].astroobject
             context['trait'] = renderer_context['view'].trait
-            # context['trait_url'] = renderer_context['view'].trait_url
             context['template'] = renderer_context['view'].template
 
             return context
@@ -499,6 +490,9 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context={'request': request,
                      'sample': sample_pk,
                      'astroobject': astroobject_pk,
+                     'trait': trait_pk,
+                     'subtraitproperty': subtraitproperty_pk,
+                     'traitproperty': traitproperty_pk
                      }
         )
 
