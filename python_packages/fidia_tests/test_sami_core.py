@@ -216,3 +216,8 @@ class TestSAMIArchiveMetadata:
 
         assert sub_trait.detector_control_software_version() == 'r3_110_2_3'
         assert sub_trait.detector_id() == 'E2V2A'
+
+        assert sub_trait.detector_control_software_date.get_short_name() == "DCT_DATE"
+
+        print(sub_trait.detector_id.get_description())
+        assert sub_trait.detector_id.get_description() is None
