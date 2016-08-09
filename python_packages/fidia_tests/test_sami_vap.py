@@ -2,7 +2,7 @@ import pytest
 
 import numpy
 from fidia.archive import sami
-from fidia.traits import TraitKey, Trait
+from fidia.traits import TraitKey, Trait, WorldCoordinateSystem
 from fidia.astro_object import AstronomicalObject
 
 @pytest.fixture(scope='module')
@@ -48,6 +48,14 @@ class TestSAMILZIFU:
 
         assert hasattr(themap, 'comp_1_flux')
         assert hasattr(themap, 'variance')
+
+    def test_wcs_on_both_branches(self, a_sami_galaxy):
+
+        for trait_key in a_sami_galaxy['line_map-HALPHA'].get_all_branches_versions():
+            trait = a_sami_galaxy[trait_key]
+            wcs_sub_trait = trait['wcs']
+            assert isinstance(wcs_sub_trait, WorldCoordinateSystem)
+
 
         # theoldmap = sami_sample['28860'][TraitKey('line_map', 'HALPHA', branch='1_comp', version='0.9')]
         #

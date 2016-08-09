@@ -656,8 +656,10 @@ class LZIFUOneComponentLineMap(Image):
             self.archive.vap_data_path,
             data_product_name,
             data_product_name + self.version,
-            "1_comp",
-            self.object_id + "_1_comp.fits"))
+            self.branch,
+            self.object_id + "_" + self.branch + ".fits"))
+
+        log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
 
         if not os.path.exists(self._lzifu_fits_file):
             if os.path.exists(self._lzifu_fits_file + ".gz"):
@@ -720,30 +722,11 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     # Extends 'line_map', so no defaults:
     defaults = DefaultsRegistry(None, {'recom_comp': 'V02'})
 
-    def init(self):
-        data_product_name = "EmissionLineFits"
-
-        self._lzifu_fits_file = "/".join((
-            self.archive.vap_data_path,
-            data_product_name,
-            data_product_name + self.version,
-            self.branch,
-            self.object_id + "_" + self.branch + ".fits"))
-
-        if not os.path.exists(self._lzifu_fits_file):
-            if os.path.exists(self._lzifu_fits_file + ".gz"):
-                self._lzifu_fits_file += ".gz"
-            else:
-                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
-
     qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
 
 
     def preload(self):
-        lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev" + self.version + "/recom_comp/" +
-                           self.object_id + "_recom_comp.fits.gz")
-        self._hdu = fits.open(lzifu_fits_file)
+        self._hdu = fits.open(self._lzifu_fits_file)
 
     @trait_property('float.array')
     def value(self):
