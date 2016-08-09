@@ -377,6 +377,7 @@ header {
 
 .useful_links {
   padding: 15px;
+  ul li:last-child a {padding-right:0;}
   .nav > li > a {
     line-height: 40px;
     text-transform: uppercase;
@@ -489,6 +490,17 @@ header {
 ++ GLOBAL STYLING
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.headline {
+  h2 {
+    margin-top: 0;
+    //display:inline-block;
+  }
+  .options {
+    line-height: 40px;
+    //display:inline-block;
+
+  }
+}
 
 //.headline {
 //  overflow-x: hidden;
@@ -811,6 +823,17 @@ pre {
 
 }
 
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ DROPDOWNS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
+    //color: #fff;
+    //text-decoration: none;
+    //outline: 0;
+    background-color: inherit;
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ TABLES

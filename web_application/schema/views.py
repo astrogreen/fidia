@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.http import HttpResponse
 
-# from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
+from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
@@ -15,50 +15,89 @@ import restapi_app.exceptions
 import restapi_app.renderers
 import restapi_app.utils.helpers
 
-import data_browser.serializers
+import schema.serializers
 import data_browser.renderers
+import data_browser.views
 
 # import fidia.exceptions
 # from fidia.traits import Trait, TraitProperty, TraitRegistry
 
 
-class SchemaViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SchemaViewSet(data_browser.views.DataBrowserViewSet):
 
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/root.html'
 
     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    # breadcrumb_list = []
 
-    def list(self, request, pk=None, sample_pk=None, format=None):
+    def list(self, request, pk=None, format=None):
+        # Request available samples from FIDIA
+        samples = ["sami", "gama"]
 
-        # TODO Get FIDIA list of available samples (surveys).
-
-        return Response({"samples": ['sami', 'gama']})
+        serializer_class = schema.serializers.SchemaSerializer
+        serializer = serializer_class(
+            many=False, instance=sami_dr1_sample,
+            context={'request': request, 'samples': samples},
+        )
+        return Response(serializer.data)
 
 
 class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
-    class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+    """
+    Viewset for Sample route. Provides List view only.
+    """
+    class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/sample.html'
 
-    renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, format=None):
 
-        SampleViewSet.breadcrumb_list.extend([sample_pk.upper()])
+        SampleViewSet.breadcrumb_list.extend([str(sample_pk).upper()])
 
-        # Get FIDIA list of available samples (surveys).
+        if sample_pk == 'gama':
+            return Response({"sample": "gama", "in_progress": True})
 
-        # try:
-        #     sami_dr1_sample
-        # except KeyError:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-        # except ValueError:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                # TODO ask FIDIA what it's got for for sample_pk
+                sami_dr1_sample
+            except KeyError:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            except ValueError:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"sample": sample_pk, "aos": ['9874', '9874']})
+            serializer_class = schema.serializers.SampleSerializer
+            serializer = serializer_class(
+                instance=sami_dr1_sample, many=False,
+                context={'request': request, 'sample': sample_pk},
+            )
+            return Response(serializer.data)
+
+
+# class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+#
+#     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+#         template = 'schema/sample.html'
+#
+#     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+#     breadcrumb_list = []
+#
+#     def list(self, request, pk=None, sample_pk=None, format=None):
+#
+#         SampleViewSet.breadcrumb_list.extend([sample_pk.upper()])
+#
+#         # Get FIDIA list of available samples (surveys).
+#
+#         # try:
+#         #     sami_dr1_sample
+#         # except KeyError:
+#         #     return Response(status=status.HTTP_404_NOT_FOUND)
+#         # except ValueError:
+#         #     return Response(status=status.HTTP_400_BAD_REQUEST)
+#
+#         return Response({"sample": sample_pk, "aos": ['9874', '9874']})
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

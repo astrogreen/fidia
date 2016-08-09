@@ -350,6 +350,9 @@ header user a > a {
 .useful_links {
   padding: 15px;
 }
+.useful_links ul li:last-child a {
+  padding-right: 0;
+}
 .useful_links .nav > li > a {
   line-height: 40px;
   text-transform: uppercase;
@@ -445,6 +448,12 @@ header user a > a {
 ++ GLOBAL STYLING
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.headline h2 {
+  margin-top: 0;
+}
+.headline .options {
+  line-height: 40px;
+}
 .readmore {
   overflow: hidden;
   max-height: 87px;
@@ -709,6 +718,16 @@ pre {
 */
 .popover {
   border-radius: 0;
+}
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ DROPDOWNS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus {
+  background-color: inherit;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

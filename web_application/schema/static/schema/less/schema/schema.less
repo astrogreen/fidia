@@ -38,11 +38,11 @@ table.table-overview {
     }
     a {
       display: block;
-      text-decoration:none;
+      text-decoration: none;
       img {
         display: inline-block;
         max-height: 40px;
-        margin:15px;
+        margin: 15px;
       }
       img.gama {
         max-height: 50px;
@@ -66,7 +66,9 @@ table.table-overview tr {
       display: inline-block;
       max-height: 30px;
     }
-    img.gama{max-height:45px;}
+    img.gama {
+      max-height: 45px;
+    }
   }
   > td:last-child {
     border-right: 0
@@ -99,7 +101,6 @@ h6 > a:nth-child(1) {
   margin-top: 0px;
 }
 
-
 .list-group {
   margin-top: 15px;
   .list-group-item {
@@ -115,72 +116,17 @@ h6 > a:nth-child(1) {
   line-height: 20px;
 }
 
-.trait_tabs{
-  .list-group{margin-top:0;}
-  .nav-tabs{margin-bottom:0;}
-  .panel-default{border-top:0px;}
-  .subheading{margin-top:10px;}
-
-}
-/*
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-++ MEDIA QUERIES
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-*/
-/*==========  Non-Mobile First Method  ==========*/
-.media-query-box {
-  height: 50px;
-  width: 50px;
-  border: dashed 1px black;
-  position: absolute;
-  top: 0;
-  left: 0
-}
-
-@media only screen and (min-width: 992px) {
-  .media-query-box {
-    border: solid 1px purple;
+.trait_tabs {
+  .list-group {
+    margin-top: 0;
   }
-
-}
-
-/* Large Devices, Wide Screens */
-@media only screen and (max-width: 1200px) {
-  .media-query-box {
-    border: solid 1px red;
+  .nav-tabs {
+    margin-bottom: 0;
   }
-}
-
-/* Medium Devices, Desktops */
-@media only screen and (max-width: 992px) {
-  .media-query-box {
-    border: solid 1px yellow;
+  .panel-default {
+    border-top: 0px;
   }
-}
-
-/* Small Devices, Tablets */
-@media only screen and (max-width: 768px) {
-  .media-query-box {
-    border: solid 1px blue;
+  .subheading {
+    margin-top: 10px;
   }
-
-  .table.table-overview {
-    table-layout: auto;
-  }
-}
-
-/* Extra Small Devices, Phones */
-@media only screen and (max-width: 480px) {
-  .media-query-box {
-    border: solid 1px green;
-  }
-
-}
-
-/* Custom, iPhone Retina */
-@media only screen and (max-width: 320px) {
-  .media-query-box {
-    border: solid 1px orange;
-  }
-
 }

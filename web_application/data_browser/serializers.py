@@ -82,12 +82,16 @@ class SampleSerializer(serializers.Serializer):
     def get_sample(self, obj):
         return self.context['sample']
 
-    def get_data_release_version(self, obj):
+    def get_version(self, obj):
         return '1.0'
+
+    def get_data_release_versions(self, obj):
+        return ['1.0']
 
     sample = serializers.SerializerMethodField()
     astro_objects = serializers.SerializerMethodField()
-    data_release_version = serializers.SerializerMethodField()
+    data_release_versions = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
 
 
 class AstroObjectSerializer(serializers.Serializer):

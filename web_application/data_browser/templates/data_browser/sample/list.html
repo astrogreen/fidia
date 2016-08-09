@@ -4,24 +4,55 @@
 {% load internal_extras %}
 {% block title %}{{response.data.sample | uppercase}}{% endblock %}
 {% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 {% endblock %}
 
 {% block page_title %}{{response.data.sample | uppercase}}{% endblock %}
 {% block useful_links %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <li role="presentation" ><a href="http://sami-survey.org/">sami-survey.org</a></li>
-
+<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
+{% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<div class="row headline">
+    <div class="col-xs-6 col-sm-4 options">
+        <h2>{{survey|uppercase}} DR {{response.data.version}}</h2>
+    </div>
+    <div class="text-right col-xs-6 col-sm-8 options">
+        <span class="branch_version">
+            <span class="sub-heading"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
+        </span>
 
+        <div class="btn-group" role="group" aria-label="...">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-map-marker"></i> Data Releases <i class="fa fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for i in response.data.data_release_versions %}
+                            {% if i == response.data.version %}
+                                <li class="disabled"><a href="{% url 'data_browser:sample-list' sample_pk=survey %}">{{response.data.version}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
+                            {% else %}
+                                <li><a href="{% url 'data_browser:sample-list' sample_pk=survey %}">{{i}}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for branch_name, branch_url in value.branches.items %}
+                        <li><a href="{{branch_url}}">{{branch_name}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+</div>
 
 <div class="row">
     <div class="col-xs-12">
-        <h2>{{survey|uppercase}}</h2>
         <div class="panel panel-default">
             <div class="panel-heading">
                 Overview
@@ -34,23 +65,23 @@
                         <td>{% with "data_browser/sample/survey/"|add:survey|add:"/pi.html" as template %}
                         {% include template %}
                         {% endwith %}</td>
-                        <td>{{response.data.data_release_version}}</td>
+                        <td>{{response.data.version}}</td>
                         <td>{{response.data.astro_objects | length}}</td>
-                        <td></td>
+                        <td><a href="{% url 'schema:sample-list' sample_pk=survey %}">{{survey|uppercase}} Schema <i class="fa fa-long-arrow-right"></i></a>
+                        </td>
                     </tr>
                     <tr>
                         <td>Survey</td>
                         <td>PI</td>
                         <td>Current Version</td>
                         <td>Number of Galaxies</td>
-                        <td>Total Observing hours</td>
+                        <td>Schema</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-
     {% if response.data.in_progress == True %}
         <div class="col-sm-12">
             <h2>Status</h2>
@@ -67,117 +98,88 @@
             </div>
         </div>
     {% else %}
-        <div class="col-sm-12">
-            <h2>Data</h2>
-        </div>
-        <div class="col-xs-12">
-            <ul class="nav nav-tabs" role="tablist" id="ao_tabs" style="margin-bottom:20px;">
-                <li role="presentation" class="active"><a href="#available_data" aria-controls="available_data" role="tab"
-                                           data-toggle="tab">Data</a>
-                </li>
-                <li role="presentation"><a href="#summary" aria-controls="summary" role="tab"
-                                                          data-toggle="tab">About</a>
-                </li>
-                <li role="presentation"><a href="#additional_info" aria-controls="additional_info" role="tab"
-                                           data-toggle="tab">Contact</a>
-                </li>
-            </ul>
-            <div class="tab-content">
-
-                <div role="tabpanel" class="tab-pane active" id="available_data">
-
-                    <div class="row">
-                        <div class="col-sm-8">
-
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            Data Release Details
-                                        </div>
-                                        <div class="panel-body">
-                                            <p>{% lorem 30 w %}</p><br>
-                                            <p>Download a list of available objects in {{survey_name}} <i class="fa fa-map-marker"></i> DR {{response.data.data_release_version}}</p>
-                                            <br>
-                                            {% if 'GET' in allowed_methods %}
-                                            <form id="get-form" class="form-inline">
-                                                <fieldset>
-                                                    {% if api_settings.URL_FORMAT_OVERRIDE %}
-                                                    <div class="btn-group  btn-block format-selection">
-                                                        <button class="btn btn-block btn-default dropdown-toggle js-tooltip"
-                                                                data-toggle="dropdown">
-                                                            <i class="fa fa-download"></i> Download {{survey|uppercase}} object list
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            {% for format in available_formats %}
-                                                            {% if format != 'api' %}
-                                                            <li>
-                                                                <a class="js-tooltip format-option"
-                                                                   href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                                                   rel="nofollow"
-                                                                   title="Download {{ name }} with the format set to `{{ format }}`">
-                                                                    {{ format }}</a>
-                                                            </li>
-                                                            {% endif %}
-                                                            {% endfor %}
-                                                        </ul>
-                                                    </div>
-                                                    {% else %}
-                                                    <a class="btn btn-default btn0sm js-tooltip"
-                                                       href="{{ request.get_full_path }}" rel="nofollow"
-                                                       title="View user {{user}}'s {{ name }}">GET</a>
-                                                    {% endif %}
-                                                </fieldset>
-                                            </form>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            Data Browser
-                                        </div>
-                                        <div class="panel-body">
-                                            <p>Browse the available {{survey_name}} data for each object. Search for an
-                                                object below by either typing in the input box, or click an option.
-                                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                                        data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
-                                        data-placement="top"><i class="fa fa-info-circle"></i></a>
-                                            </p>
-                                            <div class="half-br"></div>
-                                            <select type="text" class="searchbox selectized text-center"
-                                                    id="autocomplete-widget" placeholder="SEARCH">
-                                                <option value="" disabled selected>Select an object</option>
-                                                {% for key, value in response.data.astro_objects.items %}
-                                                <option value="{{value}}">{{key}}</option>
-                                                {% endfor %}
-                                            </select>
-                                            <a class="btn btn-block btn-primary" type="button" href="" disabled
-                                               id="autocomplete-button">GO</a>
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="col-sm-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Available Objects
+                </div>
+                <div class="panel-body">
+                    <p>Download a list (json format) of available objects in {{survey_name}} <i class="fa fa-map-marker"></i> DR {{response.data.version}}</p>
+                    <br>
+                    {% if 'GET' in allowed_methods %}
+                    <form id="get-form" class="form-inline">
+                        <fieldset>
+                            {% if api_settings.URL_FORMAT_OVERRIDE %}
+                            <div class="btn-group  btn-block format-selection">
+                                <button class="btn btn-block btn-default dropdown-toggle js-tooltip"
+                                        data-toggle="dropdown">
+                                    <i class="fa fa-download"></i> Download {{survey|uppercase}} object list
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% for format in available_formats %}
+                                    {% if format != 'api' %}
+                                    <li>
+                                        <a class="js-tooltip format-option"
+                                           href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                           rel="nofollow"
+                                           title="Download {{ name }} with the format set to `{{ format }}`">
+                                            {{ format }}</a>
+                                    </li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="summary">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            {% with "data_browser/sample/survey/"|add:survey|add:"/about.html" as template %}
-                            {% include template %}
-                            {% endwith %}
-                        </div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="additional_info">
-                    <div class="row">
-                        <div class="col-sm-8">
-                        </div>
-                    </div>
+                            {% else %}
+                            <a class="btn btn-default btn0sm js-tooltip"
+                               href="{{ request.get_full_path }}" rel="nofollow"
+                               title="View user {{user}}'s {{ name }}">GET</a>
+                            {% endif %}
+                        </fieldset>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Data Browser
+                </div>
+                <div class="panel-body">
+                    <p>Browse the available {{survey_name}} data for each object. Search for an
+                        object below by either typing in the input box, or click an option.
+                    <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
+                data-placement="top"><i class="fa fa-info-circle"></i></a>
+                    </p>
+                    <div class="half-br"></div>
+                    <select type="text" class="searchbox selectized text-center"
+                            id="autocomplete-widget" placeholder="SEARCH">
+                        <option value="" disabled selected>Select an object</option>
+                        {% for key, value in response.data.astro_objects.items %}
+                        <option value="{{value}}">{{key}}</option>
+                        {% endfor %}
+                    </select>
+                    <a class="btn btn-block btn-primary" type="button" href="" disabled
+                       id="autocomplete-button">GO</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            <h2>What's Included?</h2>
+        </div>
+        <div class="col-sm-8 col-xs-12">
+            <p>{% lorem 100 w %}</p>
+        </div>
+
+        <div class="col-sm-12">
+            <h2>About {{survey|uppercase}}</h2>
+        </div>
+        <div class="col-sm-8 col-xs-12">
+            {% with "data_browser/sample/survey/"|add:survey|add:"/about.html" as template %}
+                {% include template %}
+            {% endwith %}
         </div>
     {% endif %}
 </div>

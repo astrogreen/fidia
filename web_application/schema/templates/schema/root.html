@@ -16,10 +16,10 @@
 <li role="presentation" ><a href="#data-structure">Data Structure</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
+{% block content-test %}
 <div class="row">
     <div class="col-xs-12">
-        <h2>Survey Schemas</h2>
+        <h2>By Survey</h2>
     </div>
 </div>
 <div class="row schema-browser-root">
@@ -41,13 +41,13 @@
                     <div class="header-container">
                         <h3>{{sample | uppercase}}
                             <small>
-                                {% with "data_browser/data_browser_root/samples/object_count_"|add:sample|add:".html" as template %}
+                                {% with "data_browser/root/samples/object_count_"|add:sample|add:".html" as template %}
                                     {% include template %}
                                 {% endwith %}
                                 objects
                             </small>
                         </h3>
-                        {% with "data_browser/data_browser_root//samples/"|add:sample|add:".html" as template %}
+                        {% with "data_browser/root/samples/"|add:sample|add:".html" as template %}
                         {% include template %}
                         {% endwith %}
                     </div>
@@ -56,6 +56,20 @@
         </a>
     </div>
     {% endfor %}
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <h2>By Queryable Properties</h2>
+    </div>
+</div>
+<div class="row schema-browser-root">
+    <div class="col-xs-12">
+        <p>Astronomical object properties that can be queried using SQL will also appear in this Schema.</p>
+        <br>
+        <p>-- insert query builder schema here</p>
+    </div>
+
 </div>
 
 <div class="row" id="data-structure">
