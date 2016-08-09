@@ -9,6 +9,8 @@ from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework import serializers, mixins, status
+from rest_framework.reverse import reverse
 
 import restapi_app.permissions
 import restapi_app.exceptions
@@ -19,9 +21,8 @@ import schema.serializers
 import data_browser.renderers
 import data_browser.views
 
-# import fidia.exceptions
-# from fidia.traits import Trait, TraitProperty, TraitRegistry
-
+import fidia.exceptions
+from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey
 
 class SchemaViewSet(data_browser.views.DataBrowserViewSet):
 
@@ -76,30 +77,6 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return Response(serializer.data)
 
 
-# class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-#
-#     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-#         template = 'schema/sample.html'
-#
-#     renderer_classes = (SchemaRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-#     breadcrumb_list = []
-#
-#     def list(self, request, pk=None, sample_pk=None, format=None):
-#
-#         SampleViewSet.breadcrumb_list.extend([sample_pk.upper()])
-#
-#         # Get FIDIA list of available samples (surveys).
-#
-#         # try:
-#         #     sami_dr1_sample
-#         # except KeyError:
-#         #     return Response(status=status.HTTP_404_NOT_FOUND)
-#         # except ValueError:
-#         #     return Response(status=status.HTTP_400_BAD_REQUEST)
-#
-#         return Response({"sample": sample_pk, "aos": ['9874', '9874']})
-
-
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
@@ -110,18 +87,93 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
 
-        AstroObjectViewSet.breadcrumb_list.extend([sample_pk.upper(), astroobject_pk])
+        AstroObjectViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk])
+        try:
+            astro_object = sami_dr1_sample[astroobject_pk]
+            assert isinstance(astro_object, fidia.AstronomicalObject)
+        except fidia.exceptions.NotInSample:
+            message = 'Object ' + astroobject_pk + ' Not Found'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(data={}, status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get FIDIA list of available samples (surveys).
+        serializer_class = data_browser.serializers.AstroObjectSerializer
+        url_kwargs = {
+            'astroobject_pk': astroobject_pk,
+            'sample_pk': sample_pk,
+        }
+        astro_object_url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=request)
+        # Dict of available traits
+        trait_registry = ar.available_traits
+        trait_info = {}
+        for trait_type in trait_registry.get_trait_types():
 
-        # try:
-        #     sami_dr1_sample
-        # except KeyError:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-        # except ValueError:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+            # Get info for a trait_key (trait name) filtered by trait type
+            trait_info[trait_type] = {}
 
-        return Response({"sample": sample_pk, "astroobject": astroobject_pk, "traits": "from fidia"})
+            # Descriptions
+            trait_info[trait_type]["description"] = ""
+            trait_info[trait_type]["traits"] = {}
+
+            for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
+
+                default_trait_key = trait_registry.update_key_with_defaults(trait_name)
+                trait_class = trait_registry.retrieve_with_key(default_trait_key)
+
+                # url
+                url_kwargs = {
+                    'trait_pk': trait_name,
+                    'astroobject_pk': astroobject_pk,
+                    'sample_pk': sample_pk,
+                }
+                trait_name_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
+                trait_name_schema_url = reverse("schema:trait-list", kwargs=url_kwargs, request=request)
+
+                # Pretty Name
+                # - trait_type
+                trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
+
+                # - trait_name
+                trait_name_pretty_name = trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1])
+
+                # Descriptions
+                # - trait_type description
+                trait_info[trait_type]["description"] = trait_class.get_description()
+
+                # - trait_name description
+                trait_name_short_description = None
+
+                # Formats
+                trait_name_formats = []
+                for r in data_browser.views.TraitViewSet.renderer_classes:
+                    f = str(r.format)
+                    if f != "api": trait_name_formats.append(f)
+
+                # Branches
+                trait_name_branches = {str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))
+                                        for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+
+                trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
+                                                                "schema_url": trait_name_schema_url,
+                                                                "pretty_name": trait_name_pretty_name,
+                                                                "description": trait_name_short_description,
+                                                                "branches": trait_name_branches,
+                                                                "formats": trait_name_formats}
+
+        serializer = serializer_class(
+            instance=astro_object, many=False,
+            context={
+                'sample': sample_pk,
+                'astroobject': astroobject_pk,
+                'request': request,
+                'available_traits': trait_info
+            }
+        )
+        return Response(serializer.data)
+
+
 
 
 class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

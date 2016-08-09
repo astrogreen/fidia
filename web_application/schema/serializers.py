@@ -72,13 +72,6 @@ class SampleSerializer(serializers.Serializer):
 
 class AstroObjectSerializer(serializers.Serializer):
 
-    # def __init__(self, *args, **kwargs):
-    #     depth_limit = get_and_update_depth_limit(kwargs)
-    #     super().__init__(*args, **kwargs)
-    #
-    #     astro_object = self.instance
-    #     assert isinstance(astro_object, fidia.AstronomicalObject)
-
     def get_sample(self, obj):
         return self.context['sample']
 
