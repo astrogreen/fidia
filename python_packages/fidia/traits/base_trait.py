@@ -1,22 +1,28 @@
+
+# Standard Library Imports
 import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
 
 from contextlib import contextmanager
 
+# Other library imports
 from astropy.io import fits
 
-import astropy.coordinates
-import astropy.wcs
-
+# Internal package imports
 from .abstract_base_traits import *
 from ..exceptions import *
-from .utilities import TraitProperty, TraitKey, TRAIT_NAME_RE, \
+from .trait_property import TraitProperty
+from .trait_key import TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit
 from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
+# This makes available all of the usual parts of this package for use here.
+#
+# I think this will not cause a circular import because it is a module level import.
+# from . import meta_data_traits
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -60,8 +66,6 @@ def validate_trait_branches_versions_dict(branches_versions):
 
 class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
-    sub_traits = TraitRegistry()
-
     # The following are a required part of the Trait interface.
     # They must be set in sub-classes to avoid an error trying create a Trait.
     trait_type = None
@@ -97,7 +101,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                     # Create empty this sub-trait type:
                     schema[trait_name] = SchemaDictionary()
                     # Populate the dict with schema from each sub-type:
-                    for trait_class in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                    for trait_class in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
                         subtrait_schema = trait_class.schema()
                         try:
                             schema[trait_name].update(subtrait_schema)
@@ -123,7 +127,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                     trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
                     for trait_name in trait_names:
                         trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-                        for trait in cls.sub_traits.get_traits(trait_name_filter=trait_name):
+                        for trait in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
                             log.debug("        Attempting to add Trait class '%s'", trait)
                             trait_schema = trait.schema()
                             if trait_name not in schema[trait_type]:
@@ -137,25 +141,6 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                                 raise SchemaError("Schema mis-match in traits")
 
         return schema
-
-    # @classmethod
-    # def sub_traits(cls, trait_type_filter=None):
-    #     """Generate list of sub_traits.
-    #
-    #     :parameter trait_type_filter:
-    #         The list of trait_types that should be included in the results, or None for all Traits.
-    #
-    #     :returns:
-    #         The sub-trait classes (not instances!).
-    #
-    #     """
-    #
-    #     if trait_type_filter is None:
-    #         # Include all sub-traits
-    #         trait_type_filter = cls._sub_traits.get_trait_names()
-    #
-    #     for trait_class in cls._sub_traits.get_traits_for_type(trait_type_filter):
-    #         yield trait_class
 
     @classmethod
     def answers_to_trait_name(cls, trait_name):
@@ -202,7 +187,6 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             validate_trait_branches_versions_dict(cls.branches_versions)
         except AssertionError as e:
             raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
-
 
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
@@ -312,10 +296,36 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # Determine the version given the options
         self.version = validate_and_inherit(trait_key, self._parent_trait, valid_versions, 'version')
 
-
     @property
     def trait_name(self):
         return self.trait_key.trait_name
+
+    def get_all_branches_versions(self):
+        # type: () -> Set[TraitKey]
+        """Get all of the valid TraitKeys for Traits of this trait_name within the archive.
+
+        This function effectively "spans" not only this particular class, but
+        all other classes with the same trait_name in the current archive.
+
+        Therefore, this is the preferred way to get the other branches and versions, rather than
+        interrogating the value of `branches_versions`, which will not cover
+        other classes with the same trait_name.
+
+        """
+        # NOTE: this must be an instance method because the parent_trait and
+        # archive are not known by the class.
+
+        if self._parent_trait is None:
+            return self.archive.available_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
+        else:
+            return self._parent_trait.sub_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
+
+    #
+    #  __        __  ___  __         ___                    __               __
+    # /__` |  | |__)  |  |__)  /\  |  |     |__|  /\  |\ | |  \ |    | |\ | / _`
+    # .__/ \__/ |__)  |  |  \ /~~\ |  |     |  | /~~\ | \| |__/ |___ | | \| \__>
+
+    sub_traits = TraitRegistry()
 
     def get_sub_trait(self, trait_key):
         """Retrieve a subtrait for the TraitKey.
@@ -351,30 +361,33 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         return self._trait_cache[trait_key]
 
-    def get_all_branches_versions(self):
-        # type: () -> Set[TraitKey]
-        """Get all of the valid TraitKeys for Traits of this trait_name within the archive.
+    def get_all_subtraits(self, trait_type_filter=None):
+        # type: (str, str) -> Trait
+        """A generator which provides instantized subtraits of this Trait.
 
-        This function effectively "spans" not only this particular class, but
-        all other classes with the same trait_name in the current archive.
+        This is distnct from the `TraitRegistry`s get_trait_classes, which will
+        only return all of the classes, rather than actual Trait instances.
 
-        Therefore, this is the preferred way to get the other branches and versions, rather than
-        interrogating the value of `branches_versions`, which will not cover
-        other classes with the same trait_name.
-
+        Note that this explicitly does not consider the possibility of
+        sub-traits having branches and versions (other than that of this trait).
         """
-        # NOTE: this must be an instance method because the parent_trait and
-        # archive are not known by the class.
 
-        if self._parent_trait is None:
-            return self.archive.available_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
-        else:
-            return self._parent_trait.sub_traits.get_all_traitkeys(trait_name_filter=self.trait_name)
+        # Version of this which would support sub-trait branches and versions:
+        # for trait_key in self.sub_traits.get_all_traitkeys(trait_type_filter=trait_type_filter,
+        #                                                    trait_name_filter=trait_name_filter):
 
-    # @property
-    # def trait_name(self):
-    #     return self.trait_qualifier
+        for trait_name in self.sub_traits.get_trait_names(trait_type_filter=trait_type_filter):
+            trait = self.get_sub_trait(trait_name)
+            yield trait
 
+
+    #
+    #  __             __             __        ___  __   __     __   ___  __
+    # |__) |    |  | / _` | |\ |    /  \ \  / |__  |__) |__) | |  \ |__  /__`
+    # |    |___ \__/ \__> | | \|    \__/  \/  |___ |  \ |  \ | |__/ |___ .__/
+    #
+    # The following three functions are for the "plugin-writter" to override.
+    #
 
     def init(self):
         """Extra initialisations for a Trait.
@@ -403,6 +416,11 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         """
         pass
+
+    #
+    # ___  __         ___  __   __   __   __   ___  __  ___                        __               __
+    #  |  |__)  /\  |  |  |__) |__) /  \ |__) |__  |__)  |  \ /    |__|  /\  |\ | |  \ |    | |\ | / _`
+    #  |  |  \ /~~\ |  |  |    |  \ \__/ |    |___ |  \  |   |     |  | /~~\ | \| |__/ |___ | | \| \__>
 
     @classmethod
     def _trait_properties(cls, trait_property_types=None):
@@ -435,15 +453,6 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
                 if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
-
-    # def sub_traits(self):
-    #     """Generator which iterates over the sub-Traits of this Trait."""
-    #
-    #     for key in dir(type(self)):
-    #         obj = getattr(type(self), key)
-    #         if isinstance(obj, TraitProperty):
-    #             log.debug("Found trait property '{}'".format(key))
-    #             yield obj
 
     @classmethod
     def trait_property_dir(cls):
@@ -485,15 +494,6 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                     # the BoundTraitProperty: see `__get__` on `TraitProperty`)
                     yield getattr(self, attr)
 
-    # def sub_traits(self):
-    #     """Generator which iterates over the sub-Traits of this Trait."""
-    #
-    #     for key in dir(type(self)):
-    #         obj = getattr(type(self), key)
-    #         if isinstance(obj, TraitProperty):
-    #             log.debug("Found trait property '{}'".format(key))
-    #             yield obj
-
     def trait_property_values(self, trait_type=None):
         """Generator which returns the values of the TraitProperties of the given type.
 
@@ -503,6 +503,13 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         """
         for tp in self._trait_properties(trait_type):
             yield getattr(self, tp.name).value
+
+    #
+    #  __   __   ___       __        __          __
+    # |__) |__) |__  |    /  \  /\  |  \ | |\ | / _`
+    # |    |  \ |___ |___ \__/ /~~\ |__/ | | \| \__>
+    #
+    # Methods to handle loading the data associated with this Trait into memory.
 
     @contextmanager
     def preloaded_context(self):
@@ -523,8 +530,10 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         This function should be called prior to anything which requires calling
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
+
+        See also the `preloaded_context` function.
         """
-        log.debug("Incrementing preload for trait %s", self.trait_key)
+        log.vdebug("Incrementing preload for trait %s", self.trait_key)
         assert self._preload_count >= 0
         try:
             if self._preload_count == 0:
@@ -542,7 +551,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         TraitProperty loaders, typically only by the TraitProperty object
         itself.
         """
-        log.debug("Decrementing preload for trait %s", self.trait_key)
+        log.vdebug("Decrementing preload for trait %s", self.trait_key)
         assert self._preload_count > 0
         try:
             if self._preload_count == 1:
@@ -572,12 +581,30 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # Check and if necessary cleanup the trait.
         self._load_decr()
 
-    def as_bytes(self):
+    #  __       ___          ___      __   __   __  ___           ___ ___       __   __   __
+    # |  \  /\   |   /\     |__  \_/ |__) /  \ |__)  |      |\/| |__   |  |__| /  \ |  \ /__`
+    # |__/ /~~\  |  /~~\    |___ / \ |    \__/ |  \  |      |  | |___  |  |  | \__/ |__/ .__/
+    #
+    # Note: Only data export methods which make sense for *any* trait are
+    # defined here. Other export methods, such as FITS Export, are defined in
+    # mixin classes.
+
+    def as_pickled_bytes(self):
         """Return a representation of this TraitProperty as a serialized string of bytes"""
         dict_to_serialize = self._trait_dict
         with BytesIO() as byte_file:
             pickle.dump(dict_to_serialize, byte_file)
             return byte_file.getvalue()
+
+
+    def __getitem__(self, key):
+        # type: (TraitKey) -> Trait
+        """Provide dictionary-like retrieve of sub-traits"""
+        return self.get_sub_trait(key)
+
+
+# class FITSExportMixin:
+#     """A Trait Mixin class which adds FITS Export to the export options for a Trait."""
 
     def as_fits(self, file):
         """FITS Exporter
@@ -591,6 +618,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         """
 
+        assert isinstance(self, Trait)
+        if not hasattr(self, 'value'):
+            raise ExportException("Trait '%s' cannot be exported as FITS" % str(self))
 
         # Create a function holder which can be set to close the file if it is opened here
         file_cleanup = lambda: None
@@ -601,22 +631,53 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         hdulist = fits.HDUList()
 
+        # Check if a WCS is present as a SmartTrait:
+        try:
+            wcs_smarttrait = self['wcs']
+        except KeyError:
+            def add_wcs(hdu):
+                return hdu
+        else:
+            def add_wcs(hdu):
+                # type: (fits.PrimaryHDU) -> fits.PrimaryHDU
+                hdu.header.extend(wcs_smarttrait.to_header())
+                return hdu
+
         # Value should/will always be the first item in the FITS File (unless it cannot
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
         if type(self).value.type in ("float.array", "int.array"):
             primary_hdu = fits.PrimaryHDU(self.value())
-            hdulist.append(primary_hdu)
         elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value()])
-            hdulist.append(primary_hdu)
         else:
             log.error("Attempted to export trait with value type '%s'", type(self).value.type)
-            raise NotImplementedError("Cannot export this trait as FITS")
+            file_cleanup()
+            # @TODO: Delete the file (as it is invalid anyway)?
+            raise ExportException("Trait '%s' cannot be exported as FITS" % str(self))
+
+        # Add the newly created PrimaryHDU to the FITS file.
+        add_wcs(primary_hdu)
+        hdulist.append(primary_hdu)
 
         # Attach all "meta-data" Traits to Header of Primary HDU
-        # for trait in self.sub_traits(MetaDataTrait):
-        #     primary_hdu.header[trait.short_name] = (trait.value, trait.short_comment)
+        from . import meta_data_traits
+        for sub_trait in self.get_all_subtraits():
+            log.debug("Searching for metadata in subtrait '%s'...", sub_trait)
+            if not isinstance(sub_trait, meta_data_traits.MetadataTrait):
+                continue
+            log.debug("Adding metadata trait '%s'", sub_trait)
+            # MetadataTrait will have a bunch of Trait Properties which should
+            # be appended individually, so we iterate over each Trait's
+            # TraitProperties
+            for trait_property in sub_trait.trait_properties(['float', 'int', 'string']):
+                keyword_name = trait_property.get_short_name()
+                keyword_value = trait_property.value
+                keyword_comment = trait_property.get_description()
+                log.debug("Adding metadata TraitProperty '%s' to header", keyword_name)
+                primary_hdu.header[keyword_name] = (
+                    keyword_value,
+                    keyword_comment)
 
         # Attach all simple value Traits to header of Primary HDU:
         # for trait in self.get_sub_trait(Measurement):
@@ -626,22 +687,36 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # Create extensions for additional array-like values
         for trait_property in self.trait_properties(['float.array', 'int.array']):
             extension = fits.ImageHDU(trait_property.value)
-            extension.name = trait_property.name
+            extension.name = trait_property.get_short_name()
+            # Add the same WCS if appropriate
+            add_wcs(extension)
             hdulist.append(extension)
 
-        # Add single-value TraitProperties to the header:
-        for trait_property in self._trait_properties(['float', 'int']):
-            primary_hdu.header[trait_property.name] = (
-                getattr(self, trait_property.name),
-                trait_property.doc)
+        # Add single-numeric-value TraitProperties to the primary header:
+        for trait_property in self.trait_properties(['float', 'int']):
+            keyword_name = trait_property.get_short_name()
+            keyword_value = trait_property.value
+            keyword_comment = trait_property.get_description()
+            log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
+            primary_hdu.header[keyword_name] = (
+                keyword_value,
+                keyword_comment)
+        # del keyword_name, keyword_comment, keyword_value
 
-        for trait_property in self._trait_properties(['string']):
-            value = getattr(self, trait_property.name)
-            if len(value) >= 80:
+        # Add string value TraitProperties to the primary header
+        for trait_property in self.trait_properties(['string']):
+            keyword_name = trait_property.get_short_name()
+            keyword_value = trait_property.value
+            keyword_comment = trait_property.get_description()
+            if len(keyword_value) >= 80:
+                # This value won't fit, so skip it.
+                # @TODO: Issue a warning?
+                log.warning("TraitProperty '%s' skipped because it is to long to fit in header", trait_property)
                 continue
-            primary_hdu.header[trait_property.name] = (
-                value,
-                trait_property.doc)
+            log.debug("Adding string TraitProperty '%s' to header", keyword_name)
+            primary_hdu.header[keyword_name] = (
+                keyword_value,
+                keyword_comment)
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
         # for trait_property in self.trait_property_values('catalog'):
@@ -653,226 +728,3 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         # If necessary, close the open file handle.
         file_cleanup()
-
-    def __getitem__(self, key):
-        """Provide dictionary-like retrieve of sub-traits"""
-        return self.get_sub_trait(key)
-
-class Measurement(Trait, AbstractMeasurement): pass
-
-class Velocity(Measurement): pass
-
-class Map(Trait, AbstractBaseArrayTrait):
-    """Maps provide "relative spatial information", i.e. they add spatial
-    information to existing data, such as a set of spectra or classifications.
-    For relative spatial information to be meaningful, there must be at least
-    two pieces of information. Therefore, we define map as a list of other
-    objects which also have spatial information.
-
-    """
-
-
-    # A list of positions
-    @property
-    def spatial_information(self):
-        return self._spatial_information
-    
-    # The centre, starting point, or other canonical position information
-    @property
-    def nominal_position(self):
-        return self._nominal_position
-    
-
-class MetadataTrait(Trait):
-    def __init__(self, *args, **kwargs):
-        super(MetadataTrait, self).__init__(*args, **kwargs)
-
-
-
-
-class DetectorCharacteristics(MetadataTrait):
-    """
-
-    Trait Properties:
-
-        detector_id
-
-        detector_size
-
-        gain
-
-        read_noise
-
-
-    """
-
-    required_trait_properties = {
-        'detector_id': 'string',
-        'detector_size': 'string',
-        'gain': 'float',
-        'read_noise': 'float'
-    }
-
-class SpectrographCharacteristics(Trait):
-    """
-
-    Trait Properties:
-
-        instrument_name
-
-        arm
-
-        disperser_id
-
-        disperser_configuration
-
-        control_software
-
-    """
-
-    pass
-
-class OpticalTelescopeCharacteristics(Trait):
-    """
-
-    Trait Properties:
-
-        observatory_name
-
-        latitude
-
-        longitude
-
-        altitude
-
-        focus_configuration
-
-
-
-    """
-    pass
-
-
-class SmartTrait(Trait):
-    pass
-
-class SkyCoordinate(astropy.coordinates.SkyCoord, SmartTrait):
-
-    trait_type = 'sky_coordinate'
-
-    def __init__(self, *args, **kwargs):
-        SmartTrait.__init__(self, *args, **kwargs)
-        astropy.coordinates.SkyCoord.__init__(self, self._ra(), self._dec(), unit='deg', frame=self._ref_frame)
-
-    # @FIXME: explain why value is required here but not for WorldCoordinateSystem below.
-    @property
-    def value(self):
-        return None
-
-    @abstractproperty
-    def _ra(self):
-        return NotImplementedError
-
-    @abstractproperty
-    def _dec(self):
-        return NotImplementedError
-
-    @property
-    def _ref_frame(self):
-        return 'icrs'
-
-
-class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
-
-    # This could be implemented in one of two ways (I think):
-    #
-    # Way 1:
-    #
-    #     Override `__new__` and use it to return an object which is not of the
-    #     type of this class, i.e. a WCS object instead of this Trait. In a
-    #     similar vein, __new__ could be used to fiddle with the initialisation
-    #     order as I suggest below in Way 2.
-    #
-    # Way 2
-    #
-    #     Override `__init__`, and instead of calling super().__init__(), call the
-    #     superclass initialisations explicitly and separately, making it
-    #     possible to get the Trait part of the object set up first, and then
-    #     use that setup to initialize the WCS object.
-
-    # The second method is probably fairly easy to implement:
-    #     def __init__(self, *args, **kwargs):
-    #         SmartTrait.__init__(self, *args, **kwargs)
-    #         astropy.wcs.WCS.__init__(self, header=self._wcs_string)
-    #
-    # However, there are a few issues with this approach... (???)
-
-    trait_type = 'wcs'
-
-    def __init__(self, *args, **kwargs):
-        SmartTrait.__init__(self, *args, **kwargs)
-        header_string = self._wcs_string.value
-        log.debug("Initialising WCS object with %s containing %s", type(header_string), header_string)
-        astropy.wcs.WCS.__init__(self, header=header_string)
-
-    @abstractproperty
-    def _wcs_string(self):
-        return NotImplementedError
-
-    def as_fits(self, file):
-        # Not possible to create a FITS file for a WCS trait.
-        # TODO: See if this method can be hidden or deleted.
-        # TODO: Perhaps handle this by moving as_fits() off of the top level Trait class.
-        return None
-
-class Spectrum(Measurement, AbstractBaseArrayTrait): pass
-
-class Epoch(Measurement):
-
-    @property
-    def epoch(self):
-        return self
-
-
-class TimeSeries(Epoch, AbstractBaseArrayTrait): pass
-
-
-class Image(Map):
-
-    @property
-    def shape(self):
-        return self.value.value.shape
-
-
-class SpectralMap(Trait, AbstractBaseArrayTrait):
-    """
-
-    Required trait_properties:
-
-        value
-        variance
-        covariance
-        weight
-
-    """
-
-    @abstractproperty
-    def value(self): pass
-
-    @abstractproperty
-    def variance(self): pass
-
-    # @abstractproperty
-    # def covariance(self): pass
-    #
-    # @abstractproperty
-    # def weight(self): pass
-
-class Classification(Trait, AbstractBaseClassification): pass
-
-
-class ClassificationMap(Trait):
-
-    valid_classifications = None
-
-

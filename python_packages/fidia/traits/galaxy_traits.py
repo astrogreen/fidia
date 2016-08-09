@@ -1,4 +1,4 @@
-from .base_traits import *
+from . import *
 
 class StarFormationRate(Measurement): pass
 

@@ -18,6 +18,8 @@ class SchemaError(FIDIAException): pass
 
 class ValidationError(FIDIAException): pass
 
+class ExportException(ValidationError): pass
+
 class TraitValidationError(ValidationError): pass
 
 class ArchiveValidationError(ValidationError): pass

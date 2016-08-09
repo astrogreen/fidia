@@ -23,7 +23,7 @@ from ..utilities import WildcardDictionary, DefaultsRegistry, exclusive_file_loc
 
 #from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
 from fidia.traits import *
-from fidia.traits.utilities import trait_property_from_fits_header
+from fidia.traits.trait_property import trait_property_from_fits_header
 
 from .. import slogging
 log = slogging.getLogger(__name__)

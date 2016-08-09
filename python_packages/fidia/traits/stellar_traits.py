@@ -1,6 +1,4 @@
 
-from .abstract_base_traits import *
-from .base_traits import *
-
+from . import *
 
 class SurfaceGravity(Measurement): pass

@@ -4,13 +4,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pytest
 
 from fidia.traits.abstract_base_traits import *
-from fidia.traits.base_traits import Trait
-from fidia.traits import TraitProperty, trait_property, TraitKey, TraitRegistry
+from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
 
-from fidia.traits.utilities import validate_trait_name, validate_trait_type
+from fidia.traits import validate_trait_name, validate_trait_type
 
 def test_incomplete_trait_fails():
 
@@ -199,16 +198,36 @@ class TestTraitsInArchives:
     def example_archive(self):
         return example_archive.ExampleArchive()
 
+    @pytest.fixture
+    def example_sample(self, example_archive):
+        return example_archive.get_full_sample()
+
+    @pytest.fixture
+    def a_astro_object(self, example_sample):
+        return example_sample['Gal1']
+
+
     def test_trait_pretty_names(self, example_archive):
         # type: (example_archive.ExampleArchive) -> None
-        image_trait_classes = example_archive.available_traits.get_traits(trait_type_filter='image')
+        image_trait_classes = example_archive.available_traits.get_trait_classes(trait_type_filter='image')
         a_trait = image_trait_classes[0]
         assert issubclass(a_trait, Trait)
         assert a_trait.get_pretty_name() == 'Image'
 
+    def test_trait_short_names(self, a_astro_object):
+        # type: (example_archive.ExampleArchive) -> None
+        blue_image_trait = a_astro_object['image-blue']
+        assert isinstance(blue_image_trait, Trait)
+        assert blue_image_trait.get_short_name() == 'BLUEIMAGE'
+
+    def test_trait_property_short_names(self, a_astro_object):
+        # type: (example_archive.ExampleArchive) -> None
+        blue_image_trait = a_astro_object['image-blue']
+        assert blue_image_trait.value.get_short_name() == 'VALUE'
+
     def test_trait_qualifer_pretty_name(self, example_archive):
         # type: (example_archive.ExampleArchive) -> None
-        image_trait_classes = example_archive.available_traits.get_traits(trait_name_filter='image-red')
+        image_trait_classes = example_archive.available_traits.get_trait_classes(trait_name_filter='image-red')
         a_trait = image_trait_classes[0]
         assert issubclass(a_trait, Trait)
         assert issubclass(a_trait, TraitDescriptionsMixin)

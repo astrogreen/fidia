@@ -98,7 +98,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         # Get available traits (minus qualifier) for this archive's astro object
         # to provide groupings (line maps, velocity maps etc) in ao view.
-        available_trait_set = ar.available_traits.get_traits()
+        available_trait_set = ar.available_traits.get_trait_classes()
         trait_list = []
 
         for ty in available_trait_set:

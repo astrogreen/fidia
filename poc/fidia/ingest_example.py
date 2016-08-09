@@ -1,7 +1,7 @@
 import numpy as np
 
 import fidia
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait
 from fidia.archive.example_archive import ExampleArchive
 
 ar = ExampleArchive()

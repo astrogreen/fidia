@@ -17,7 +17,7 @@ from rest_framework.settings import api_settings
 
 from restapi_app.utils.breadcrumbs import get_breadcrumbs_by_viewname, get_object_name
 
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)

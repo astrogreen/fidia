@@ -68,6 +68,7 @@ class Sample(collections.MutableMapping):
     # Functions to create dictionary like behaviour
 
     def __getitem__(self, key):
+        # type: (Union[str, TraitKey]) -> AstronomicalObject
         """Function called on dict type read access"""
         if key in self._contents.keys():
             # Then the requested object has been created. Nothing to do.

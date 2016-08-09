@@ -3,7 +3,7 @@ import logging
 
 from rest_framework import renderers
 from rest_framework.exceptions import UnsupportedMediaType
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)

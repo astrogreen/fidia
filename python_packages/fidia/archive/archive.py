@@ -148,7 +148,7 @@ class Archive(BaseArchive):
             for trait_name in self.available_traits.get_trait_names():
                 log.debug("    Processing traits with trait_name '%s'", trait_name)
                 result[trait_name] = SchemaDictionary()
-                for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
+                for trait in self.available_traits.get_trait_classes(trait_name_filter=trait_name):
                     log.debug("        Attempting to add Trait class '%s'", trait)
                     trait_schema = trait.schema(by_trait_name=by_trait_name)
                     try:
@@ -176,7 +176,7 @@ class Archive(BaseArchive):
                 for trait_name in trait_names:
                     log.debug("        Processing traits with trait_name '%s'", trait_name)
                     trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-                    for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
+                    for trait in self.available_traits.get_trait_classes(trait_name_filter=trait_name):
                         log.debug("            Attempting to add Trait class '%s'", trait)
                         trait_schema = trait.schema(by_trait_name=by_trait_name)
                         if trait_qualifier not in result[trait_type]:

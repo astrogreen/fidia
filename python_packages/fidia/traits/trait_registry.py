@@ -1,8 +1,11 @@
+# Standard Library Imports
 from itertools import product
 
-from .utilities import TraitKey, validate_trait_name, validate_trait_type
-from ..utilities import SchemaDictionary, DefaultsRegistry, Inherit
+# Internal package imports
+from .trait_key import TraitKey, validate_trait_name, validate_trait_type
+from ..utilities import DefaultsRegistry
 
+# Logging import and setup
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
@@ -94,7 +97,8 @@ class TraitRegistry:
     # def __getitem__(self, trait_key):
     #     return self.retrieve_with_key(trait_key)
 
-    def get_traits(self, trait_type_filter=None, trait_name_filter=None):
+    def get_trait_classes(self, trait_type_filter=None, trait_name_filter=None):
+        # type: (str, str) -> List[Trait]
         """Return a list of all Trait classes, optionally filtering for a particular trait_type."""
 
         if trait_type_filter is not None and trait_name_filter is not None:
@@ -147,7 +151,7 @@ class TraitRegistry:
 
     def get_trait_types(self):
         # type: () -> Set[str]
-        return {t.trait_type for t in self.get_traits()}
+        return {t.trait_type for t in self.get_trait_classes()}
 
     def get_trait_names(self, trait_type_filter=None):
         # type: (str) -> Set[str]
