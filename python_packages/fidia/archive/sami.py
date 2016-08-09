@@ -21,7 +21,7 @@ from .archive import Archive
 
 from ..utilities import WildcardDictionary, DefaultsRegistry, exclusive_file_lock
 
-#from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
+#from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap, ClassificationMap
 from fidia.traits import *
 from fidia.traits.trait_property import trait_property_from_fits_header
 
@@ -690,6 +690,11 @@ class LZIFUOneComponentLineMap(Image):
         log.debug("Returning type: %s", type(sigma))
         variance = sigma**2
         return variance
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[0].header
+        return _wcs_string
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
