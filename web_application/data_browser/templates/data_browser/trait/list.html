@@ -131,7 +131,7 @@
                                     </div>
                                     <div id="{{s}}_nested_collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{r}}">
                                         <div class="panel-body">
-                                            <p class="readmore">{{ response.data|key:s|key:r }} </p>
+                                            <div class="readmore">{% autoescape off %}{{ response.data|key:s|key:r }}{% endautoescape %} </div>
                                         </div>
                                     </div>
                                 </div>

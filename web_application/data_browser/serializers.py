@@ -375,8 +375,19 @@ class TraitPropertySerializer(serializers.Serializer):
         return trait_property.get_pretty_name()
     def get_description(self, trait_property):
         return trait_property.get_description()
+
     def get_documentation(self, trait_property):
-        return trait_property.get_documentation()
+        # If API - return pre-formatted html, and replace $ with $$ for MathJax
+        if self.context['request'].accepted_renderer.format == 'api' or 'html':
+            if trait_property.get_documentation() is not None:
+                return trait_property.get_documentation('html').replace("$", "$$")
+            else:
+                return trait_property.get_documentation('html')
+        else:
+            return trait_property.get_documentation()
+
+    # def get_documentation(self, trait_property):
+    #     return trait_property.get_documentation()
 
     def get_value(self, trait_property):
         return self.get_url(trait_property)
