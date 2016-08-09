@@ -101,24 +101,11 @@ class TraitSerializer(serializers.Serializer):
         trait = self.instance
         assert isinstance(trait, Trait)
 
-        log.debug("Serializing trait '%s'", trait.trait_name)
-
-        # print(trait.trait_key)
-        # print(trait.branch)
-        # print(trait)
-        # print(vars(trait))
-        # print(trait.trait_type)
-        # print(type(trait))
-        # print(isinstance(trait, traits.Image))
-
         # If image type, send 2D values for display
-        depth_limit=1
+        depth_limit = 0
         log.debug("Adding Sub-traits")
         # define serializer type by instance type
         for sub_trait in trait.get_all_subtraits():
-
-            log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
-            # setattr(self, sub_trait.trait_name, None)
 
             self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait,
                                                                 context={
@@ -128,8 +115,6 @@ class TraitSerializer(serializers.Serializer):
                                                                     'trait': self.context['trait'],
                                                                     'trait_key': self.context['trait_key'],
                                                                 }, many=False)
-
-        log.debug("Adding Trait properties")
 
         for trait_property in trait.trait_properties():
             log.debug("Adding Trait Property '%s'", trait_property.name)

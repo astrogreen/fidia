@@ -6,7 +6,6 @@
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
@@ -78,16 +77,22 @@
                                                 </span>
                                                 <p class="heading"><strong>Data</strong>
                                                 </p>
-                                                <p class=""><a href="value.url">Go to {{value.pretty_name}} Data<i class="fa fa-long-arrow-right"></i></a></p>
+                                                <p style="margin-left:15px;"><a href="value.url">{{value.pretty_name}} Data </a></p>
                                                 <p class="heading"><strong>Description</strong>
                                                 </p>
-                                                <p class="readmore">{% autoescape off %}{{value.description}}{% endautoescape %}</p>
-                                                <p class="heading"><strong>Documentation</strong>
-                                                </p>
-                                                <p class=""><a href="{{value.schema_url}}">Go to {{value.pretty_name}} Documentation<i class="fa fa-long-arrow-right"></i></a></p>
+                                                <p class="readmore" style="margin-left:15px;">{% autoescape off %}{{value.description}}{% endautoescape %}</p>
+                                                <p class="heading"><strong>Documentation</strong></p>
+                                                <div class="panel-body" style="padding-top:0;padding-bottom:0">
+                                                    <p><strong><i class="fa fa-code-fork"></i> Default</strong></p>
+                                                    <p class=""><a href="{{value.schema_url}}">{{value.pretty_name}}</a></p>
+                                                    <p><strong><i class="fa fa-code-fork"></i> Other Branches</strong></p>
+                                                    {% for branch_name, branch_url in value.branches.items %}
+                                                        <a href="{{branch_url}}">{{branch_name}} Documentation</a><br>
+                                                    {% endfor %}
+                                                </div>
                                                 <p class="heading"><strong>Formats</strong>
                                                 </p>
-                                                <p>
+                                                <p style="margin-left:15px;">
                                                     {% for format in value.formats %}
                                                     {{format}}
                                                     {% endfor %}
@@ -106,19 +111,4 @@
 </div>
 {% endblock %}
 {% block footer-extra %}
-<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
-<script>
-    $(document).ready(function () {
-        $selector = $("#autocomplete-widget").selectize({
-            closeAfterSelect: true,
-            selectOnTab: true,
-            placeholder: "SEARCH...",
-            create: false,
-            maxItems: 1,
-            onChange: function (value) {
-                $('#autocomplete-button').attr('href', value).attr('disabled', false)
-            }
-        });
-    });
-</script>
 {% endblock %}

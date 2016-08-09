@@ -114,6 +114,10 @@ ul.paragraph-list li {
 p.lead {
   margin-bottom: 30px;
 }
+p.heading {
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
 ul.paragraph-list li {
   margin: 8px 0;
 }
