@@ -1,0 +1,29 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Schema | {{response.data.sample | uppercase }}{% endblock %}
+{% block head-extra %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'schema/css/schema/schema.min.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block page_title %}Schema : {{response.data.sample | uppercase }} {% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="#data-structure">Data Structure</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row">
+    <div class="col-xs-12">
+        <h2>SAMI AOs</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        {{response.data.aos}}
+    </div>
+</div>
+{% endblock %}

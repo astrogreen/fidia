@@ -8,7 +8,7 @@ from .utilities import classorinstancemethod
 
 from . import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.INFO)
 log.enable_console_logging()
 
 DEFAULT_FORMAT = 'markdown'
@@ -286,7 +286,7 @@ class TraitDescriptionsMixin(DescriptionsMixin):
             # This is a class and we've been given a valid qualifier to provide the pretty name for
             if hasattr(self, '_pretty_name_qualifiers') and qualifier in self._pretty_name_qualifiers:
                 # A pretty name has been explicilty defined
-                return self._pretty_name_qualifiers[self.trait_qualifier]
+                return self._pretty_name_qualifiers[qualifier]
             else:
                 # No pretty name defined, so prettify the qualifier
                 return prettify(qualifier)

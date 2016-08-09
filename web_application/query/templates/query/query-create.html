@@ -28,12 +28,7 @@
     td {
         overflow:hidden;white-space:nowrap;
     }
-    .nav-pagination{
-        background-color:transparent;
-        float:right;
-    }
     #SQL-ace-editor{border:solid 1px #eeeeee;}
-
 </style>
 {% block head-extra-extra%}{% endblock %}
 {% if response.status_code == 201 and response.data.title and response.data.created and response.data.url %}
@@ -225,8 +220,6 @@
                     // .submit event loop doesn't allow for repaint, so animate first, then submit.
                     $('#post-object-form form').submit();
                 }, 1000);
-
-
             });
         });
 </script>

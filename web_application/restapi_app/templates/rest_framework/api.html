@@ -9,7 +9,7 @@
   {% block overwrite_include %}
     {% include "restapi_app/header/header.html" %}
   {% endblock %}
-  <title>ASVO-AAT | {% block title %}Home{% endblock %}</title>
+  <title>AAODC | {% block title %}Home{% endblock %}</title>
   {% block head-extra %}
   {% endblock %}
 </head>
@@ -20,28 +20,7 @@
     {% block navbar %}
       {% include "restapi_app/header/navbar.html" %}
     {% endblock %}
-
-    <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
-      {% block breadcrumbs-outer %}
-
-        <ul class="breadcrumb container">
-          {% block breadcrumbs %}
-            {% if breadcrumblist %}
-              <li><a href="{% url 'index' %}">Home</a></li>
-              {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
-              {% if forloop.last %}
-              <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
-              {% else %}
-              <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
-              {% endif %}
-              {% endfor %}
-            {% endif %}
-          {% endblock %}
-        </ul>
-
-      {% endblock %}
-    </div>
-{% block page_title_banner %}
+    {% block page_title_banner %}
                 <div class="page_title_banner">
                   <div class="container">
                     <div class="row">
@@ -64,6 +43,28 @@
                     </div>
                 </div>
                 {% endblock page_title_banner %}
+
+    <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+      {% block breadcrumbs-outer %}
+
+        <ul class="breadcrumb container">
+          {% block breadcrumbs %}
+            {% if breadcrumblist %}
+              <li><a href="{% url 'index' %}">Home</a></li>
+              {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
+              {% if forloop.last %}
+              <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+              {% else %}
+              <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+              {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% endblock %}
+        </ul>
+
+      {% endblock %}
+    </div>
+
   <div class="wrapper">
     <div class="container" id="page-content">
       {% block content_and_status %}
@@ -79,6 +80,10 @@
             {% captureas http_status_detail %}{{response.data.detail}}{% endcaptureas %}
           {% elif response.detail %}
             {% captureas http_status_detail %}{{response.detail}}{% endcaptureas %}
+          {% elif response.data.non_field_errors %}
+            {% captureas http_status_detail %}{{response.data.non_field_errors}}{% endcaptureas %}
+          {% elif response.data %}
+            {% captureas http_status_detail %}{{response.data}}{% endcaptureas %}
           {% endif %}
 
           {% block http_status %}
@@ -92,7 +97,7 @@
             {% if  http_status_is_success == "True" %}
 
 
-
+              {% block content-test %}{% endblock %}
               {% block content_render %}
 
                 <!-- Content to Render -->
@@ -292,7 +297,6 @@
                   </div><!-- /.content main-->
                 {% endblock content-main %}
                 </div><!-- /.content_render -->
-
               {% endblock content_render %}
             {% endif %}
           {% endblock content %}
@@ -316,18 +320,27 @@
   <!--v2 jQuery sourced in header.html -->
   <script src="{% static 'rest_framework/js/jquery-1.11.3.min.js' %}"></script>
   {% endcomment %}
+  <script>
+    window.drf = {
+      csrfCookieName: "{{ csrf_cookie_name|default:'csrftoken' }}"
+    };
+  </script>
   <script src="{% static 'rest_framework/js/ajax-form.js' %}"></script>
   <script src="{% static 'rest_framework/js/csrf.js' %}"></script>
   <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
   <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
   <script src="{% static 'rest_framework/js/default.js' %}"></script>
-  <script src="{% static 'js/buttons/buttons.js' %}"></script>
+  <!--<script src="{% static 'js/buttons/buttons.js' %}"></script>-->
+  <script type="application/javascript" src="{% static 'restapi_app/js/readmore/readmore.js'%}"></script>
 
   <script>
       $(document).ready(function() {
           $('form').ajaxForm();
       });
 
+      $(document).ready(function(){
+          $('[data-toggle="popover"]').popover();
+      });
     $(".dropdown-menu li a").click(function(){
       $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
       $(this).parents(".dropdown").find('.btn').val($(this).data('value'));

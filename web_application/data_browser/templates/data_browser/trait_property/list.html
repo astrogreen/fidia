@@ -1,0 +1,126 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}{{astroobject}} | {{trait}} {% if subtrait %}|{% endif %} {{subtrait}} | {{response.data.pretty_name}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{astroobject}} | {{trait}} {% if subtrait %}|{% endif %} {{subtrait}} | {{response.data.pretty_name}}{% endblock %}
+{% block useful_links %}
+
+<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=sample %}>Back to
+    {{sample |uppercase}}</a></li>
+<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=sample astroobject_pk=astroobject %}>Back to
+    {{astroobject|uppercase}}</a></li>
+
+{% endblock useful_links %}
+
+
+{% block content-test %}
+{% captureas survey %}{{sample}}{% endcaptureas %}
+<div class="row">
+    <div class="col-xs-6 col-sm-4 options">
+        <h2>{{response.data.pretty_name}}</h2>
+    </div>
+    <div class="text-right col-xs-6 col-sm-8 options">
+        <span class="branch_version">
+            <span class="sub-heading"><i class="fa fa-level-up"></i><a href="{{trait_url}}">{{trait}}</a></span>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4 col-xs-12">
+        <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+            {% for r in side_bar_explicit_render %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
+                        {{r |capfirst}}
+                    </a>
+                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                </div>
+                <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
+                    <div class="panel-body">
+                        <div class="readmore">
+                        {% autoescape off %}{{ response.data|key:r }}{% endautoescape %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% with response.data as tpdata %}
+                {% with "None" as tp %}
+                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                {% endwith %}
+            {% endwith %}
+
+
+
+        </div>
+    </div>
+    {% if trait_2D_map == True %}
+        <div class="col-sm-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="{{trait_type}}_plotly_plot">
+                        <!--Dynamic plotly rendering based on Trait Type-->
+                        <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Plot Options
+                </div>
+                <div class="panel-body">
+                    <div id="{{trait_type}}_plotly_plot_options">
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-sm-8 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <p>In Progress... </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block footer-extra %}
+<script>
+    $('.panel-collapse').collapse('show');
+</script>
+
+{% if trait_2D_map == True %}
+    <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+    <script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+    <script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
+    <script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+            var trait_url = "{{request.build_absolute_uri}}?format=json";
+            var trait_name = "{{response.data.pretty_name}}";
+            var map_selector = "#{{trait_type}}_plotly_plot";
+            var options_selector = "#{{trait_type}}_plotly_plot_options";
+
+            trait_plot(trait_url, trait_name, map_selector, options_selector);
+
+        });
+    </script>
+{% endif %}
+
+{% endblock %}

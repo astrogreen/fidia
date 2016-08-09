@@ -1,29 +1,121 @@
-.sami {
-  background-color: #fff;
-  max-width: 115px;
-  position: relative;
-  top: 8px;
-  border-left: solid 15px #fff;
+
+.data-browser-root, .schema-browser-root {
+  a {
+    text-decoration: none;
+    cursor: hand;
+    background-color: #F7F8F8;
+  }
+  .panel-default {
+    border-color: #fff;
+
+    .panel-heading, .panel-footer {
+      background-color: #FFFFFF;
+      //background-color: #F7F8F8;
+    }
+    .panel-heading {
+      box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+      padding: 25px;
+      .media-container {
+        color: rgb(33, 171, 199);
+        cursor: auto;
+        display: block;
+        float: left;
+        font-family: "Open Sans", Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        height: 110px;
+        line-height: 24px;
+        margin-right: 20px;
+        text-align: left;
+        width: 110px;
+
+        .img-container {
+          margin-top: 5px;
+          height: 100px;
+          position: relative;
+          width: 100px;
+          margin-right: 15px;
+          vertical-align: middle;
+          border-radius: 50%;
+          background: rgba(57, 60, 68, 1);
+          padding: 10px;
+          overflow: hidden;
+
+          img {
+            max-width: 80px;
+            max-height: 80px;
+            left: 0;
+            right: 0;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+          }
+          .sami {
+          }
+          .gama {
+            max-width: 70px;
+            max-height: 70px;
+          }
+        }
+
+      }
+
+      .header-container {
+        cursor: auto;
+        display: table-cell;
+        height: 109.5px;
+        line-height: 24px;
+        text-align: left;
+        vertical-align: middle;
+        h3 {
+          margin-bottom: 6px;
+          border-bottom: 0;
+          margin-top: 6px;
+          font-size: 24px;
+          color: #4078C0;
+          line-height: 24px;
+        }
+        .sub-heading {
+          opacity: 0.87
+        }
+      }
+
+      &:hover {
+        background: #fafafa;
+      }
+    }
+
+  }
+
 }
 
-.sami_logo {
-  //width:120px;
-  //padding:10px 0px;
-  //min-width:100px;
-  padding: 15px;
-}
-
-.gama {
-  background-color: #fff;
-  max-width: 80px;
-  position: relative;
-  top: 0;
-  border-left: solid 15px #fff;
-}
-
-.gama_logo {
-  max-width: 150px;
-}
+//.sami {
+//  background-color: #fff;
+//  max-width: 115px;
+//  position: relative;
+//  top: 8px;
+//  border-left: solid 15px #fff;
+//}
+//
+//.sami_logo {
+//  //width:120px;
+//  //padding:10px 0px;
+//  //min-width:100px;
+//  padding: 15px;
+//}
+//
+//.gama {
+//  background-color: #fff;
+//  max-width: 80px;
+//  position: relative;
+//  top: 0;
+//  border-left: solid 15px #fff;
+//}
+//
+//.gama_logo {
+//  max-width: 150px;
+//}
 
 .raw-data {
   max-height: 300px;
@@ -118,36 +210,32 @@ h6 > a:nth-child(1) {
 }
 
 .nav-tabs {
-  margin: 15px 0 20px 0;
+  margin: 20px 0;
+  border-bottom: 1px solid #eee;
+
 }
 
-.nav-tabs:first-of-type {
-  margin-top: 0px;
+.nested-nav-tabs {
+  //margin:0;
+  //border:0;
 }
 
+span.version {
+  margin-left: 5px;
+}
 
-.list-group {
-  margin-top: 15px;
-  .list-group-item {
-    border-radius: 0;
+.table-astro-object {
+  a {
+    text-decoration: none;
+    h4 {
+      margin-bottom: 6px;
+    }
+  }
+  .options {
+    padding: 6px 15px;
   }
 }
 
-.subheading {
-  color: #707070;
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 20px;
-}
-
-.trait_tabs{
-  .list-group{margin-top:0;}
-  .nav-tabs{margin-bottom:0;}
-  .panel-default{border-top:0px;}
-  .subheading{margin-top:10px;}
-
-}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ MEDIA QUERIES

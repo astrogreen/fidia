@@ -1,0 +1,215 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}{{response.data.astroobject}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{response.data.astroobject}}{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
+    {{response.data.sample}}</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<div class="row">
+    <div class="col-xs-12">
+
+        <div class="tabbable" id="query-options">
+
+            <ul class="nav nav-tabs form-switcher">
+                <li class="active">
+                    <a name="raw-tab" href="#summary" data-toggle="tab" aria-expanded="true">Summary</a>
+                </li>
+                <li class="">
+                    <a name="html-tab" href="#available_data" data-toggle="tab" aria-expanded="false">Available Data</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="summary" class="tab-pane active">
+                    <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Overview
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <p>{% lorem %}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-overview">
+                            <tbody>
+                            <tr>
+                                <td><img class="img-responsive"
+                                         src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
+                                <td>{{objname}}</td>
+                                <td>test</td>
+                                <td>test</td>
+                                <td>test</td>
+                                <td>test</td>
+
+                            </tr>
+                            <tr>
+                                <td>Survey</td>
+                                <td>Survey ID</td>
+                                <td>IAU ID</td>
+                                <td>RA</td>
+                                <td>DEC</td>
+                                <td>Redshift</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Spectrum
+                            </div>
+                            <div class="panel-body">
+                                <img src="/static/restapi_app/img/sov_test/test_spectra.png" class="img-responsive">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                SDSS Image
+                            </div>
+                            <div class="panel-body">
+                                <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                     alt="..." class="img-responsive">
+                                <p class="text-justify">Colour composite image, 19.5 arcsec on a side. False colour, 512
+                                    × 512 pixel, 0.2
+                                    arcsec/pixel,
+                                    5-band composite from SDSS DR7.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                SAMI Flux
+                            </div>
+                            <div class="panel-body">
+                                <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                     alt="..." class="img-responsive">
+                                <p class="text-justify">Hα for emission-line systems (red), stellar continuum for
+                                    absorption-line galaxies
+                                    (blue).</p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                SAMI Velocity
+                            </div>
+                            <div class="panel-body text-justify">
+                                <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                     alt="..." class="img-responsive">
+                                <p class="text-justify">Hα emission (blue to red via yellow) or stellar absorption fit
+                                    (yellow to violet via blue).
+                                    The grey dot in the bottom left represents the extent of the seeing disk. In rare
+                                    cases
+                                    there isn't enough signal to plot unbinned maps.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+
+                <div class="tab-pane" id="available_data">
+                    <ul class="nav nav-tabs nested-nav-tabs" role="tablist" id="trait_tabs">
+                        {% for trait_type, trait_value in response.data.available_traits.items %}
+                        <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
+                            <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content ">
+                        {% for trait_type, trait_value in response.data.available_traits.items %}
+                            <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}"
+                             id="{{trait_type}}">
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        {{trait_value.description}}
+                                    </div>
+                                    <table class="table table-hover table-astro-object">
+                                        <tbody>
+                                        {% for trait, value in trait_value.traits.items %}
+                                            <tr>
+                                                <td>
+                                                    <div class="row">
+                                                        <div class="col-sm-8 col-xs-12">
+                                                            <a href="{{value.url}}">
+                                                                <h4 class="text-info" style="border:0"> {{value.pretty_name}}</h4>
+                                                            </a>
+                                                            <p>{% lorem 10 w %}{{value.description}}.
+                                                                <span class="version sub-heading"><i class="fa fa-map-marker"></i> 1.0 Release</span>
+                                                                <span class="version sub-heading"><i class="fa fa-code-fork"></i> Default</span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-sm-4 text-right col-xs-12 options">
+
+                                                            <div class="btn-group" role="group" aria-label="...">
+                                                                <div class="btn-group" role="group">
+                                                                    <button type="button" class="btn btn-default dropdown-toggle"
+                                                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                        <i class="fa fa-code-fork"></i> Branches <i class="fa fa-caret-down"></i>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu">
+                                                                        {% for branch_name, branch_url in value.branches.items %}
+                                                                        <li><a href="{{branch_url}}">{{branch_name}}</a></li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                                <add-download-button url='{{value.url}}' options='' formats='{{value.formats}}'></add-download-button>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block content-DRFs %}{% endblock %}
+{% block footer-extra %}
+<script type="application/javascript">
+    $('#ao_tabs a').click(function (e) {
+        e.preventDefault()
+        $(this).tab('show')
+    })
+</script>
+{% endblock %}
+
