@@ -30,6 +30,8 @@
 </div>
 <div class="row">
     <div class="col-xs-12">
+        <p>Select a data product from the list below. Select a specific type from the second list, which will provide
+            links to the documentation.</p><br>
         <div class="row">
             <div class="col-xs-3">
             <!-- Level1 -->
@@ -38,6 +40,8 @@
                     <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
                         <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="pill">{{trait_value.pretty_name}}</a>
                     </li>
+                    <li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_value.description}}</p></li>
+
                     {% endfor %}
                 </ul>
             </div>
@@ -53,50 +57,40 @@
                                         <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
                                             <a href="#nested_{{trait}}" aria-controls="{{trait}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>
                                         </li>
+                                        {% if value.description != None %}
+                                        <li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{value.description}}</p></li>
+                                        {% endif %}
                                         {% endfor %}
                                     </ul>
                                 </div>
                                 <div class="col-xs-8 tab-content">
                                     {% for trait, value in trait_value.traits.items %}
                                         <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %} " id="nested_{{trait}}">
-                                            <div class="panel-body" style="padding:0">
-                                                <span class="sub-heading pull-right">
-                                                    <div class="btn-group" role="group" aria-label="...">
-                                                        <div class="btn-group" role="group">
-                                                            <button type="button" class="btn btn-default dropdown-toggle"
-                                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                <i class="fa fa-code-fork"></i> Branches <i class="fa fa-caret-down"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu">
-                                                                {% for branch_name, branch_url in value.branches.items %}
-                                                                <li><a href="{{branch_url}}">{{branch_name}}</a></li>
-                                                                {% endfor %}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </span>
-                                                <p class="heading"><strong>Data</strong>
-                                                </p>
-                                                <p style="margin-left:15px;"><a href="value.url">{{value.pretty_name}} Data </a></p>
-                                                <p class="heading"><strong>Description</strong>
-                                                </p>
-                                                <p class="readmore" style="margin-left:15px;">{% autoescape off %}{{value.description}}{% endautoescape %}</p>
-                                                <p class="heading"><strong>Documentation</strong></p>
-                                                <div class="panel-body" style="padding-top:0;padding-bottom:0">
-                                                    <p><strong><i class="fa fa-code-fork"></i> Default</strong></p>
-                                                    <p class=""><a href="{{value.schema_url}}">{{value.pretty_name}}</a></p>
-                                                    <p><strong><i class="fa fa-code-fork"></i> Other Branches</strong></p>
-                                                    {% for branch_name, branch_url in value.branches.items %}
-                                                        <a href="{{branch_url}}">{{branch_name}} Documentation</a><br>
-                                                    {% endfor %}
-                                                </div>
-                                                <p class="heading"><strong>Formats</strong>
-                                                </p>
-                                                <p style="margin-left:15px;">
-                                                    {% for format in value.formats %}
-                                                    {{format}}
-                                                    {% endfor %}
-                                                </p>
+
+                                            <div class="well">
+                                                <table class="table table-overview">
+                                                    <thead>
+                                                    <tr>
+                                                        <td><strong>Documentation</strong></td>
+                                                        <td><strong>Formats</strong></td>
+                                                        <td><strong>Data</strong></td>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            {% for branch_name, branch_url in value.branches.items %}
+                                                            <a href="{{branch_url}}"><i class="fa fa-code-fork"></i> {{branch_name}}</a><br>
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>{% for format in value.formats %}
+                                                            {{format}}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td><a href="{{value.url}}">{{value.pretty_name}} </a></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     {% endfor %}

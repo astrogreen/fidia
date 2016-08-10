@@ -1,6 +1,5 @@
 import logging
-import json
-import os
+import json, os, re
 
 from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
@@ -163,18 +162,19 @@ class TraitSerializer(serializers.Serializer):
         log.debug("Adding Trait properties")
 
         for trait_property in trait.trait_properties():
-            log.debug("Adding Trait Property '%s'", trait_property.name)
-            traitproperty_type = trait_property.type
+            if not re.match("^[_]", str(trait_property.name)):
+                log.debug("Adding Trait Property '%s'", trait_property.name)
+                traitproperty_type = trait_property.type
 
-            # Recurse into trait properties
-            if 'array' in traitproperty_type:
-                # TraitProperty is an array, so display a URL for it's value
-                self.fields[trait_property.name] = TraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='url')
-            else:
-                # TraitProperty is not an array so we want it's actual value returned.
-                self.fields[trait_property.name] = TraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='value')
+                # Recurse into trait properties
+                if 'array' in traitproperty_type:
+                    # TraitProperty is an array, so display a URL for it's value
+                    self.fields[trait_property.name] = TraitPropertySerializer(
+                        instance=trait_property, depth_limit=depth_limit, data_display='url')
+                else:
+                    # TraitProperty is not an array so we want it's actual value returned.
+                    self.fields[trait_property.name] = TraitPropertySerializer(
+                        instance=trait_property, depth_limit=depth_limit, data_display='value')
 
     def get_branch(self, trait):
         return trait.branch
@@ -203,7 +203,6 @@ class TraitSerializer(serializers.Serializer):
                 # Else add new branch
                 b_v_arr.append({"branch": str(i.branch), "url": this_url,
                                 "versions": [str(i.version)]})
-
         return b_v_arr
 
     def get_description(self, trait):
@@ -222,13 +221,6 @@ class TraitSerializer(serializers.Serializer):
                 return trait.get_documentation('html')
         else:
             return trait.get_documentation()
-
-    branch = serializers.SerializerMethodField()
-    version = serializers.SerializerMethodField()
-    all_branches_versions = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    pretty_name = serializers.SerializerMethodField()
-    documentation = serializers.SerializerMethodField()
 
     def get_sample(self, obj):
         return self.context['sample']
@@ -264,6 +256,13 @@ class TraitSerializer(serializers.Serializer):
         _url += subtrait_str
 
         return _url
+
+    branch = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+    all_branches_versions = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    pretty_name = serializers.SerializerMethodField()
+    documentation = serializers.SerializerMethodField()
 
     sample = serializers.SerializerMethodField()
     astroobject = serializers.SerializerMethodField()
@@ -307,28 +306,28 @@ class TraitSerializer(serializers.Serializer):
             raise type(exc)(msg)
 
 
-    # def to_representation(self, instance):
-    #     """
-    #     Object instance -> Dict of primitive datatypes.
-    #     """
-    #     ret = collections.OrderedDict()
-    #     fields = self._readable_fields
-    #
-    #     for field in fields:
-    #
-    #         try:
-    #             attribute = field.get_attribute(instance)
-    #         except SkipField:
-    #             continue
-    #
-    #         if attribute is None:
-    #             # We skip `to_representation` for `None` values so that
-    #             # fields do not have to explicitly deal with that case.
-    #             ret[field.field_name] = None
-    #         else:
-    #             ret[field.field_name] = field.to_representation(instance)
-    #
-        return ret
+    # # def to_representation(self, instance):
+    # #     """
+    # #     Object instance -> Dict of primitive datatypes.
+    # #     """
+    # #     ret = collections.OrderedDict()
+    # #     fields = self._readable_fields
+    # #
+    # #     for field in fields:
+    # #
+    # #         try:
+    # #             attribute = field.get_attribute(instance)
+    # #         except SkipField:
+    # #             continue
+    # #
+    # #         if attribute is None:
+    # #             # We skip `to_representation` for `None` values so that
+    # #             # fields do not have to explicitly deal with that case.
+    # #             ret[field.field_name] = None
+    # #         else:
+    # #             ret[field.field_name] = field.to_representation(instance)
+    # #
+    #     return ret
 
 
 class TraitPropertySerializer(serializers.Serializer):

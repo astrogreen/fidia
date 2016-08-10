@@ -29,13 +29,32 @@
 </div>
 <div class="row">
     <div class="col-xs-12">
-        <h3>Description</h3>
-        <p>{{response.data.description}}</p>
+        <p class="lead">{{response.data.description}}</p>
         <h3>Documentation</h3>
         <p>
         {% autoescape off %}{{response.data.documentation}}{% endautoescape %}
         </p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <h3>Properties</h3>
+        {% for s in sub_traits %}
+        {{s}}
+        {% endfor %}
 
+        {% for t in trait_properties %}
+        {{t}}
+        {% endfor %}
+
+        {% with response.data as tpdata %}
+        {% for tp in tpdata %}
+            {% if tp in reserved_keywords %}
+            {% else %}
+                {{tp}}
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
     </div>
 </div>
 {% endblock %}

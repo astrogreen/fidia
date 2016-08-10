@@ -104,7 +104,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             'astroobject_pk': astroobject_pk,
             'sample_pk': sample_pk,
         }
-        
+
         astro_object_schema_url = reverse("schema:astroobject-list", kwargs=url_kwargs, request=request)
         # Dict of available traits
         trait_registry = ar.available_traits
@@ -143,6 +143,10 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 # - trait_type description
                 trait_info[trait_type]["description"] = trait_class.get_description()
 
+                # Version
+                # print(self.trait_class.get_all_branches_versions())
+                # trait_info[trait_type]["version"] = trait_class.get_version()
+
                 # - trait_name description
                 trait_name_short_description = None
 
@@ -161,6 +165,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                                                                 "pretty_name": trait_name_pretty_name,
                                                                 "description": trait_name_short_description,
                                                                 "branches": trait_name_branches,
+                                                                "version": None,
                                                                 "formats": trait_name_formats}
 
         serializer = serializer_class(
@@ -251,7 +256,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = data_browser.serializers.TraitSerializer
+        serializer_class = schema.serializers.TraitSerializer
 
         serializer = serializer_class(
             instance=trait, many=False,
