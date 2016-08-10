@@ -44,6 +44,7 @@ class AstronomicalObject(collections.MutableMapping):
     #     These are required as part of the collections.MutableMapping class.
 
     def __getitem__(self, key):
+        # type: (Union[str, TraitKey]) -> Trait
         """Function called on dict type read access"""
 
         if isinstance(key, list):

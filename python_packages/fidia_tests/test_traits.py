@@ -223,7 +223,7 @@ class TestTraitsInArchives:
     def test_trait_property_short_names(self, a_astro_object):
         # type: (example_archive.ExampleArchive) -> None
         blue_image_trait = a_astro_object['image-blue']
-        assert blue_image_trait.value.get_short_name() == 'BLUEIMAGE'
+        assert blue_image_trait.value.get_short_name() == 'VALUE'
 
     def test_trait_qualifer_pretty_name(self, example_archive):
         # type: (example_archive.ExampleArchive) -> None

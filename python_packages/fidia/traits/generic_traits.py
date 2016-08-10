@@ -34,16 +34,74 @@ class Map(Trait, AbstractBaseArrayTrait):
     def nominal_position(self):
         return self._nominal_position
 
-
-class Redshift(Measurement): pass
-
-
-class Magnitude(Measurement): pass
+class MetadataTrait(Trait):
+    def __init__(self, *args, **kwargs):
+        super(MetadataTrait, self).__init__(*args, **kwargs)
 
 
-class Position(AbstractBaseArrayTrait): pass
-# Should position be an array? Or some kind of "tuple"
 
+
+class DetectorCharacteristics(MetadataTrait):
+    """
+
+    Trait Properties:
+
+        detector_id
+
+        detector_size
+
+        gain
+
+        read_noise
+
+
+    """
+
+    required_trait_properties = {
+        'detector_id': 'string',
+        'detector_size': 'string',
+        'gain': 'float',
+        'read_noise': 'float'
+    }
+
+class SpectrographCharacteristics(Trait):
+    """
+
+    Trait Properties:
+
+        instrument_name
+
+        arm
+
+        disperser_id
+
+        disperser_configuration
+
+        control_software
+
+    """
+
+    pass
+
+class OpticalTelescopeCharacteristics(Trait):
+    """
+
+    Trait Properties:
+
+        observatory_name
+
+        latitude
+
+        longitude
+
+        altitude
+
+        focus_configuration
+
+
+
+    """
+    pass
 
 
 
@@ -92,4 +150,8 @@ class SpectralMap(Trait, AbstractBaseArrayTrait):
 
 class Classification(Trait, AbstractBaseClassification): pass
 
+
+class ClassificationMap(Trait):
+
+    valid_classifications = None
 

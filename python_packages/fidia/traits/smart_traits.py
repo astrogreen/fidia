@@ -89,4 +89,5 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
         # TODO: See if this method can be hidden or deleted.
         # TODO: Perhaps handle this by moving as_fits() off of the top level Trait class.
         return None
-
+WorldCoordinateSystem.set_pretty_name("World Coordinate System")
+WorldCoordinateSystem.set_short_name("WCS")
