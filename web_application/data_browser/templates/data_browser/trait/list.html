@@ -31,12 +31,22 @@
                 <span class="sub-heading"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
             </span>
 
+            {% for f in formats %}
+            <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+                <span class="fa-custom-stack">
+                  <i class="fa fa-file-o"></i>
+                    <span class="fa-custom-filetype">{{f}}</span>
+                </span>{{f}}
+            </a>
+            {% endfor %}
+
+
             <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}'></add-download-button>
             <div class="btn-group" role="group" aria-label="...">
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-code-fork"></i> Other Branches <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-code-fork"></i> Branches <i class="fa fa-caret-down"></i>
                     </button>
                     <ul class="dropdown-menu">
                         {% for i in response.data.all_branches_versions %}
@@ -51,7 +61,7 @@
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-map-marker"></i> Other Versions <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-map-marker"></i> Versions <i class="fa fa-caret-down"></i>
                     </button>
                     <ul class="dropdown-menu">
                         {% for i in response.data.all_branches_versions %}

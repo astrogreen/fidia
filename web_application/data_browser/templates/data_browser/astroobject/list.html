@@ -156,18 +156,27 @@
                                             <tr>
                                                 <td>
                                                     <div class="row">
-                                                        <div class="col-sm-8 col-xs-12">
+                                                        <div class="col-sm-6 col-xs-12">
                                                             <a href="{{value.url}}">
                                                                 <h4 class="text-info" style="border:0"> {{value.pretty_name}}</h4>
                                                             </a>
-                                                            <p>{% lorem 10 w %}{{value.description}}.
+                                                            <p>{% if value.description != None %}{{value.description}}{%endif%}</p>
+                                                            <p>
                                                                 <span class="version sub-heading"><i class="fa fa-map-marker"></i> 1.0 Release</span>
                                                                 <span class="version sub-heading"><i class="fa fa-code-fork"></i> Default</span>
                                                             </p>
                                                         </div>
-                                                        <div class="col-sm-4 text-right col-xs-12 options">
-
-                                                            <div class="btn-group" role="group" aria-label="...">
+                                                        <div class="col-sm-6 text-right col-xs-12 options">
+                                                            {% for f in value.formats %}
+                                                                <a href="{{value.url}}?format={{f}}" class="btn btn-default">
+                                                                    <span class="fa-custom-stack">
+                                                                      <i class="fa fa-file-o"></i>
+                                                                        <span class="fa-custom-filetype">{{f}}</span>
+                                                                    </span>{{f}}
+                                                                </a>
+                                                            {% endfor %}
+                                                            <add-download-button url='{{value.url}}' options='' formats='{{value.formats}}'></add-download-button>
+                                                            <div class="btn-group" role="group">
                                                                 <div class="btn-group" role="group">
                                                                     <button type="button" class="btn btn-default dropdown-toggle"
                                                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -179,7 +188,6 @@
                                                                         {% endfor %}
                                                                     </ul>
                                                                 </div>
-                                                                <add-download-button url='{{value.url}}' options='' formats='{{value.formats}}'></add-download-button>
                                                             </div>
 
                                                         </div>
