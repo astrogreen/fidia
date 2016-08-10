@@ -95,6 +95,7 @@
                                             <a role="button" data-toggle="collapse" href="#{{s}}_nested_collapse{{t}}"
                                                {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{t}}">
                                                 {{t |capfirst}}
+                                                <i class="fa fa-caret-down"></i>
                                             </a>
                                             <span class="sub-heading pull-right">trait_property  <a href="{{ response.data|key:s|key:t |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
                                         </div>

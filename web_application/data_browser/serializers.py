@@ -146,7 +146,6 @@ class TraitSerializer(serializers.Serializer):
         log.debug("Adding Sub-traits")
         # define serializer type by instance type
         for sub_trait in trait.get_all_subtraits():
-
             log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
             # setattr(self, sub_trait.trait_name, None)
 
@@ -216,7 +215,8 @@ class TraitSerializer(serializers.Serializer):
 
         if self.context['request'].accepted_renderer.format == 'api' or 'html':
             if trait.get_documentation() is not None:
-                return trait.get_documentation('html').replace("$", "$$")
+                # return trait.get_documentation('html').replace("$", "$$")
+                return trait.get_documentation('html')
             else:
                 return trait.get_documentation('html')
         else:
@@ -306,30 +306,6 @@ class TraitSerializer(serializers.Serializer):
             raise type(exc)(msg)
 
 
-    # # def to_representation(self, instance):
-    # #     """
-    # #     Object instance -> Dict of primitive datatypes.
-    # #     """
-    # #     ret = collections.OrderedDict()
-    # #     fields = self._readable_fields
-    # #
-    # #     for field in fields:
-    # #
-    # #         try:
-    # #             attribute = field.get_attribute(instance)
-    # #         except SkipField:
-    # #             continue
-    # #
-    # #         if attribute is None:
-    # #             # We skip `to_representation` for `None` values so that
-    # #             # fields do not have to explicitly deal with that case.
-    # #             ret[field.field_name] = None
-    # #         else:
-    # #             ret[field.field_name] = field.to_representation(instance)
-    # #
-    #     return ret
-
-
 class TraitPropertySerializer(serializers.Serializer):
     """
     Trait Properties have the following:
@@ -383,7 +359,8 @@ class TraitPropertySerializer(serializers.Serializer):
         # If API - return pre-formatted html, and replace $ with $$ for MathJax
         if self.context['request'].accepted_renderer.format == 'api' or 'html':
             if trait_property.get_documentation() is not None:
-                return trait_property.get_documentation('html').replace("$", "$$")
+                # return trait_property.get_documentation('html').replace("$", "$$")
+                return trait_property.get_documentation('html')
             else:
                 return trait_property.get_documentation('html')
         else:

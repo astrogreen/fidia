@@ -458,6 +458,10 @@ header user a > a {
 .headline .options {
   line-height: 40px;
 }
+p.breakword {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
 .readmore {
   overflow: hidden;
   max-height: 87px;
