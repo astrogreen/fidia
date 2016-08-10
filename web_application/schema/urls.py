@@ -44,8 +44,8 @@ urlpatterns = [
     url(r'^(?i)', include(astroobject_nested_router.urls)),
     url(r'^(?i)', include(trait_nested_router.urls)),
     # url(r'^(?i)', include(traitprop_nested_router.urls)),
-    url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
-    url(r'^(?i)', include(traitprop_nested_router.urls)),
+    # url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
+    # url(r'^(?i)', include(traitprop_nested_router.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
