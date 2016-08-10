@@ -3,6 +3,7 @@ from fidia.archive.sami import SAMITeamArchive, SAMIDR1PublicArchive
 from fidia.traits.base_traits import Trait
 from fidia.utilities import SchemaDictionary
 #from fidia.ingest.ingest_utility import *
+from fidia.exceptions import *
 import traceback
 
 from avro.datafile import DataFileWriter
@@ -39,6 +40,11 @@ def get_traitproperty_data(trait):
         trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
         try:
             trait_property_data[trait_property_name] = getattr(trait, trait_property_name).value
+        except DataNotAvailable:
+            # No data for this particular TraitProperty, skip.
+            trait_property_type[trait_property_name] = None
+            trait_property_data[trait_property_name] = None
+            continue
         except:
             # Unable to retrieve the trait property for some reason. Skip for now.
             # TODO: Provide a warning
@@ -145,8 +151,10 @@ def main(args):
     field_map = schema_object.field_map
 
     writer = DataFileWriter(open(args.output_file, "wb"), DatumWriter(), schema_object)
+    startTime = time.clock()
     write_astro_objects(ar, trait_schema, writer)
-    astro_record = dict()
+    endTime = time.clock()
+    print('Time to ingest 3 Objects is ' + str(endTime - startTime))
 
 
 def removeIngestedObjects(sample, table):
@@ -174,7 +182,7 @@ def write_astro_objects(archive, schema, writer):
     try:
         count = 0
         for object_id in sample:
-            if count is 1:
+            if count is 3:
                 break
             astro_record = dict()
             astro_record['object_id'] = object_id
@@ -182,37 +190,46 @@ def write_astro_objects(archive, schema, writer):
 
             for trait_type in schema:
                 trait_type_schema = schema[trait_type]
+
                 trait_type_data = dict()
                 already_added = False
-                for type_key in trait_type_schema:        # type_key = HBeta, 00II3
-                    trait_schema = trait_type_schema[type_key]
+
+
+                for trait_qualifier in trait_type_schema:        # trait_qualifier = HBeta, 00II3
+                    trait_schema = trait_type_schema[trait_qualifier]
 
                     # get the trait for the key
                     versions = dict()
-                    if type_key is None:
-                        for trait_key in sample[object_id].keys():
-                            if trait_type in trait_key.trait_name:
+                    if trait_qualifier is None:
+                        # This is a map at this level
+
+                        for trait_key in archive.available_traits.get_all_traitkeys(trait_name_filter=trait_type):
+                            try:
                                 trait = sample[object_id][trait_key]
-                                if trait.branch is None:
-                                    branch_version = None
-                                else:
-                                    branch_version = trait.branch + '-' + trait.version
-                                trait_data = get_trait_data(trait)
-                                versions.update({branch_version: get_property_data(trait_schema, trait_data)})
+                            except DataNotAvailable:
+                                continue
+                            if trait.branch is None:
+                                branch_version = 'No_branch'
+                            else:
+                                branch_version = trait.branch + '-' + trait.version
+                            trait_data = get_trait_data(trait)
+                            versions.update({branch_version: get_record_data(trait_schema, trait_data)})
                         astro_record[trait_type] = versions
                         already_added = True
                     else:
-                        #for trait_key in archive.available_traits.get_all_traitkeys(trait_name_filter=trait_type + '-' + type_key):
-                        for trait_key in sample[object_id].keys():
-                            if trait_type + '-' + type_key in trait_key.trait_name:
+                        # This is a map that needs to be added to trait_type record
+                        for trait_key in archive.available_traits.get_all_traitkeys(trait_name_filter=trait_type + '-' + trait_qualifier):
+                            try:
                                 trait = sample[object_id][trait_key]   # what happens if there are more than 1 version?
-                                if trait.branch is None:
-                                    branch_version = None
-                                else:
-                                    branch_version = trait.branch + '-' + trait.version
-                                trait_data = get_trait_data(trait)
-                                versions.update({branch_version: get_property_data(trait_schema, trait_data)})
-                    trait_type_data[type_key] = versions
+                            except DataNotAvailable:
+                                continue
+                            if trait.branch is None:
+                                branch_version = 'No_branch'
+                            else:
+                                branch_version = trait.branch + '-' + trait.version
+                            trait_data = get_trait_data(trait)
+                            versions.update({branch_version: get_record_data(trait_schema, trait_data)})
+                    trait_type_data[trait_qualifier] = versions
                 if not already_added:
                     astro_record[trait_type] = trait_type_data
             writer.append(astro_record)
@@ -225,7 +242,7 @@ def write_astro_objects(archive, schema, writer):
 
     #return astro_obj_list
 
-def get_property_data(schema, trait_data):
+def get_record_data(schema, trait_data):
     data = dict()
     for key in schema:
         if isinstance(schema[key], SchemaDictionary):
@@ -235,205 +252,96 @@ def get_property_data(schema, trait_data):
             elif key not in trait_data['sub_trait_data']:
                 data[key] = None
                 continue
-            sub_trait_data = trait_data['sub_trait_data'][key]['trait_property_data']
-            sub_schema = schema[key]
-            data[key] = get_property_data(sub_schema, sub_trait_data)
+            sub_records = dict()
+            already_added = False
+            sub_trait_data = trait_data['sub_trait_data'][key]#['trait_property_data']
+            for sub_key in schema[key]:
+                sub_record = get_record_data(schema[key][sub_key], sub_trait_data)
+                if sub_key is None:
+                    data[key] = sub_record
+                    already_added = True
+                else:
+                    sub_records[sub_key] = sub_record
+            if not already_added:
+                data[key] = sub_records
         else:
             if key not in trait_data['trait_property_data']:
                 data[key] = None
             elif key is '_wcs_string':
-                data[key] = 'dummy_wcs_string'
+                data[key] = str(trait_data['trait_property_data'][key].ascard)
             else:
                 data[key] = trait_data['trait_property_data'][key]
     return data
 
 
 
-
-
-
-
 def get_avro_schema(schema):
-
     astro_record_fields = list()
-    astro_record_fields.append(Field(PrimitiveSchema(STRING), 'object_id', 0, False, names=Names()))
-    top_index = 0
-    for trait_type in schema:                               # trait_type = line_map
-        trait_type_schema = schema[trait_type]              # line_map dict. keys are - 00I0, HBeta etc.
+    astro_record_fields.append(Field(PrimitiveSchema(STRING), 'object_id', 0, False))
+    field_index = 1
+    for trait_type in schema:
+        trait_type_schema = schema[trait_type]
+        trait_type_field = process_trait_type_schema(trait_type_schema, trait_type, field_index, 'asvo.model', True)
+        astro_record_fields.append(trait_type_field)
+        field_index += 1
 
-        trait_type_avro_fields = list()
-        already_added = False
-        key_index = 0
-        for trait_key in trait_type_schema:                 # trait_key = OII3, HBeta etc.
-            trait_schema = trait_type_schema[trait_key]     # trait_schema dict
+    return RecordSchema('astroObject', 'asvo.model', astro_record_fields, names=Names())
 
-            trait_fields = list()
-            field_index = 0
-            for trait_property_key in trait_schema:         # comp_2_variance
-                trait_prop_type = trait_schema[trait_property_key]
-                if isinstance(trait_prop_type, SchemaDictionary):
-                    trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL),
-                                        RecordSchema(trait_property_key.capitalize(), 'au.gov.aao.asvo.model',
-                                                        get_subtraits(trait_prop_type), names=Names())]),
-                                        trait_property_key, field_index, False, names=Names())
 
-                    field_index += 1
-                else:
-                    dtypes = trait_prop_type.split('.')
-                    if 'array' in trait_prop_type:
-                        data_vals = Field(ArraySchema(PrimitiveSchema(dtypes[0])), 'dataValues', 0, False, names=Names())
-                        shape = Field(PrimitiveSchema(STRING), 'shape', 1, False, names=Names())
-                        trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL),
-                                            RecordSchema(trait_property_key.capitalize(), 'au.gov.aao.asvo.model',
-                                            [data_vals, shape], names=Names())]), trait_property_key,
-                                                 field_index, False, names=Names())
+def process_trait_type_schema(schema_dict, trait_type, index, namespace_prefix,
+                              include_branch_version=False):
+    key_fields = list()
+    key_index = 0
+    for key in schema_dict:
 
-                        field_index += 1
-                    else:
+        if key is None:
+            values = create_avro_record(schema_dict[key], trait_type, namespace_prefix + "." + trait_type)
+            if include_branch_version:
+                key_field = Field(UnionSchema([PrimitiveSchema(NULL), MapSchema(values)]), trait_type, index, False)
+            else:
+                key_field = Field(UnionSchema([PrimitiveSchema(NULL), values]), trait_type, index, False)
+            return key_field
+        else:
+            values = create_avro_record(schema_dict[key], key,
+                                        namespace_prefix + "." + trait_type + '.' + key)
+            if include_branch_version:
+                key_field = Field(UnionSchema([PrimitiveSchema(NULL), MapSchema(values)]), key, key_index, False)
+            else:
+                key_field = Field(UnionSchema([PrimitiveSchema(NULL), values]), key, key_index, False)
 
-                        trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(dtypes[0])]),
-                                                             trait_property_key, field_index, False, names=Names())
-                        field_index += 1
+            key_fields.append(key_field)
+            key_index += 1
 
+    return Field(RecordSchema(trait_type.capitalize(), namespace_prefix + '.' + trait_type,
+                              key_fields, names=Names()), trait_type, index, False)
+
+
+def create_avro_record(trait_schema, name, namespace):
+
+    trait_fields = list()
+    field_index = 0
+    for trait_prop_key in trait_schema:         # comp_2_variance
+        trait_prop_type = trait_schema[trait_prop_key]
+        if isinstance(trait_prop_type, SchemaDictionary):
+            trait_type_field = process_trait_type_schema(trait_prop_type, trait_prop_key, field_index, namespace)
+            trait_fields.append(trait_type_field)
+        else:
+            dtypes = trait_prop_type.split('.')
+            if 'array' in trait_prop_type:
+                data_vals = Field(ArraySchema(PrimitiveSchema(dtypes[0])), 'dataValues', 0, False)
+                shape = Field(PrimitiveSchema(STRING), 'shape', 1, False)
+                trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), RecordSchema(trait_prop_key.capitalize(),
+                                                                   namespace + "." + trait_prop_key, [data_vals, shape],
+                                                                   names=Names())]),
+                                         trait_prop_key, field_index, False)
                 trait_fields.append(trait_prop_field)
-
-            if trait_key is None:
-
-                astro_record_fields.append(Field(UnionSchema([PrimitiveSchema(NULL),
-                                                    MapSchema(RecordSchema(trait_type.capitalize(), 'au.gov.aao.asvo.model',
-                                                        trait_fields, names=Names()))]),trait_type, top_index, False, names=Names()))
-                already_added = True
-                top_index += 1
             else:
-                trait_type_avro_fields.append(Field(UnionSchema([PrimitiveSchema(NULL),
-                                                    MapSchema(RecordSchema(trait_key.capitalize(), 'au.gov.aao.asvo.model',
-                                                        trait_fields, names=Names()))]), trait_key, key_index, False, names=Names()))
-                already_added = False
-                key_index += 1
-        if not (already_added):
-            astro_record_fields.append(Field(UnionSchema([PrimitiveSchema(NULL),
-                                                          RecordSchema(trait_type.capitalize(), 'type_ns',
-                                                                       trait_type_avro_fields, names=Names())]),
-                                                                        trait_type, top_index, False, names=Names()))
-            top_index += 1
+                trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(dtypes[0])]),
+                                         trait_prop_key, field_index, False)
+                trait_fields.append(trait_prop_field)
+        field_index += 1
 
-    av_record_schema = RecordSchema('astroObject', 'au.gov.aao.asvo.model', astro_record_fields, names=Names())
-
-    return av_record_schema
-
-
-
-def get_subtraits(type):  # type = wcs dict - { None: {a: string, b: string} }
-
-    field_list = list()
-
-    for sub_key in type:                        # sub_key - None
-        #sub_schema = StructType()
-        sub_schema = list()
-        field_index = 0
-        sub_prop_schema = type[sub_key]         # sub_key = None.
-        for k in sub_prop_schema:
-            sub_prop_type = sub_prop_schema[k]
-            if isinstance(sub_prop_type, SchemaDictionary):
-                get_subtraits(sub_prop_type)
-            else:
-                sub_types = sub_prop_type.split('.')
-                if 'array' in sub_prop_type:
-
-                    data_vals = Field(ArraySchema(PrimitiveSchema(sub_types[0])), 'dataValues', 0, False)
-
-                    shape = Field(PrimitiveSchema(STRING), 'shape', 1, False)
-
-                    sub_prop_field = Field(UnionSchema([PrimitiveSchema(NULL),
-                                            RecordSchema(k.capitalize(), 'namesp', [data_vals, shape], names=Names())]),
-                                                k, field_index, False, names=Names())
-
-                    field_index += 1
-                else:
-                    sub_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(sub_types[0])]),
-                                                       k, field_index, False, names=Names())
-                    field_index += 1
-            sub_schema.append(sub_prop_field)
-
-        if sub_key is None:
-            return sub_schema
-        else:
-            #sub_trait_schema.add(sub_key, sub_schema)
-
-            # sub_key = 4, 5, 6
-            # sub_key = 4
-
-            #{ name:4, type:record, fields:[sub_schema{name:wcs_string, type=..}, {name=bla_str, ...}]}
-
-            # Is this a record? Yes.
-            # wcs has different versions
-            # we need to create a record with sub_schema fields. Then create a field from that and add it to the list
-
-            #sub_sch_record = RecordSchema(sub_key, 'namsp', sub_schema, names=Names())
-
-            #field_list.append(sub_sch_record)
-            pass
-    return field_list # should return a list of Fields
-
-
-def createSchema(schema):
-    sch = '''{
-                \"type\": \"record\",
-                \"namespace\": \"au.gov.aao.asvo.model\",
-                \"name\": \"astroObject\",
-                \"fields\": [
-                    {
-                        \"name\": \"object_id\",
-                        \"type\": \"string\"
-                    },'''
-    sch = doSubtraits(schema, sch, sub_trait=False)
-
-    sch = sch[:-1] + ']}'
-    return sch
-
-
-def doSubtraits(value, sch, sub_trait=True):
-    for k, v in value.items():
-        if(k=='sub_trait'):
-            continue
-        if(isinstance(v, dict)):
-            # if not sub_trait:
-            #     print("Schema processing '{}' as trait.".format(k))
-            # else:
-            #     print("Schema processing '{}' as sub-trait.".format(k))
-
-            sch += '''{
-                        \"name\": \"''' + k + '''\",
-                        \"type\": '''
-
-            if not sub_trait:
-                sch += '{\"type\": \"map\", \"values\": '
-
-            sch += '''{
-                            \"type\": \"record\",
-                            \"namespace\": \"au.gov.aao.asvo.model.''' + k + '''\",
-                            \"name\": \"''' + k.capitalize() + '''\",
-                            \"fields\": ['''
-            sch = doSubtraits(v, sch, sub_trait=True)
-            if not sub_trait:
-                sch += '}}},'
-            else:
-                sch += '}},'
-        else:
-            # print("Schema processing '{}' as trait property.".format(k))
-            vals = v.split('.')
-            if(len(vals) > 1 and vals[1] == 'array'):
-                t = '{\"type\": \"array\", \"items\": \"' + vals[0] + '\"}' #\"namespace\": \"au.gov.aao.asvo.model.''' + k + '''\",
-                type = '''{\"type\": \"record\",
-                            \"name\": \"''' + k + '''NDArray\",
-                            \"fields\": [{\"name\": \"shape\", \"type\": \"string\"},
-                                         {\"name\": \"dataValues\", \"type\": ''' + t + '}]}'
-            elif(len(vals) == 1):
-                type = '\"' + vals[0] + '\"'
-            sch += '{\"name\": \"' + k + '''\",
-                    \"type\": [\"null\", ''' + type + ']},'     #if null allowed, put union here ["null", type]
-    sch = sch[:-1] + ']'
-    return sch
+    return RecordSchema(name.capitalize(), namespace, trait_fields, names=Names())
 
 
 
