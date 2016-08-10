@@ -75,6 +75,7 @@
                                            {% endif %}
                                            aria-controls="{{s}}_nested_collapse{{r}}">
                                             {{r |capfirst}}
+                                            <i class="fa fa-caret-down"></i>
                                         </a>
                                         <span class="sub-heading pull-right">explicitly rendered attributes</span>
                                     </div>
@@ -133,9 +134,5 @@
 </div>
 {% endblock %}
 {% block footer-extra %}
-<script>
-    $( ".panel-group .panel-heading a" ).click(function() {
-        $( this ).find('i').toggleClass('fa-caret-up fa-caret-down');
-    });
-</script>
+<script type="application/javascript" src="{% static 'restapi_app/js/panel-toggle-caret/panel-toggle-caret.js' %}"></script>
 {% endblock %}

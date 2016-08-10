@@ -29,23 +29,11 @@ trait_nested_router = NestedExtendDefaultRouter(astroobject_nested_router, r'(?P
 trait_nested_router.register(r'(?P<trait_pk>[^/]+)', schema.views.TraitViewSet, base_name='trait')
 trait_nested_router.register(r'(?P<trait_pk>' + TRAIT_KEY_RE.pattern + ')', schema.views.TraitViewSet, base_name='trait')
 
-# traitprop_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/.]+)', lookup='trait')
-# traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/.]+)', data_browser.views.TraitPropertyViewSet, base_name='traitproperty')
-
-sub_traitprop_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/]+)', lookup='trait')
-sub_traitprop_nested_router.register(r'(?P<subtraitproperty_pk>[^/]+)', schema.views.SubTraitPropertyViewSet, base_name='subtraitproperty')
-
-traitprop_nested_router = NestedExtendDefaultRouter(sub_traitprop_nested_router, r'(?P<subtraitproperty_pk>[^/]+)', lookup='subtraitproperty')
-traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/]+)', schema.views.TraitPropertyViewSet, base_name='traitproperty')
-
 urlpatterns = [
     url(r'^(?i)', include(router.urls)),
     url(r'^(?i)', include(sample_nested_router.urls)),
     url(r'^(?i)', include(astroobject_nested_router.urls)),
     url(r'^(?i)', include(trait_nested_router.urls)),
-    # url(r'^(?i)', include(traitprop_nested_router.urls)),
-    # url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
-    # url(r'^(?i)', include(traitprop_nested_router.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

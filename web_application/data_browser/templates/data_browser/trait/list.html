@@ -83,6 +83,7 @@
                 <div class="panel-heading" role="tab" id="heading{{r}}">
                     <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
                         {{r |capfirst}}
+                        <i class="fa fa-caret-down"></i>
                     </a>
                     <span class="sub-heading pull-right">explicitly rendered attributes</span>
                 </div>
@@ -112,12 +113,13 @@
                     <div class="panel-heading" role="tab" id="heading{{s}}">
                         <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
                             {{ response.data|key:s |key:'pretty_name' }}
+                            <i class="fa fa-caret-down"></i>
                         </a>
                         <span class="sub-heading pull-right">sub-trait <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
                     </div>
                     <div id="collapse{{s}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{s}}">
                         <div class="panel-body nested-sidebar">
-                            <div class="panel-group" id="nested-sidebar{{s}}" role="tablist" aria-multiselectable="true">
+                            <div class="panel-group nested-panel-group" id="nested-sidebar{{s}}" role="tablist" aria-multiselectable="true">
                                 {% for r in side_bar_explicit_render %}
                                 <div class="panel panel-default">
                                     <div class="panel-heading" role="tab" id="{{s}}_nested_heading{{r}}">
@@ -128,6 +130,7 @@
                                            {% endif %}
                                            aria-controls="{{s}}_nested_collapse{{r}}">
                                             {{r |capfirst}}
+                                            <i class="fa fa-caret-down"></i>
                                         </a>
                                         <span class="sub-heading pull-right">explicitly rendered attributes</span>
                                     </div>
@@ -218,7 +221,7 @@
     })
 </script>
 
-
+<script type="application/javascript" src="{% static 'restapi_app/js/panel-toggle-caret/panel-toggle-caret.js' %}"></script>
 
 {% if trait_2D_map == True %}
     <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
