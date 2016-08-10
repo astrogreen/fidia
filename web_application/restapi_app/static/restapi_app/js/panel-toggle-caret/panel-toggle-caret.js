@@ -6,10 +6,13 @@ $(".panel-group .panel-heading a")
                 if ($(pointer).hasClass('in')) {
                     $(this).children('i.fa-caret-down').removeClass('fa-caret-down').addClass('fa-caret-up');
                 }
+                $(this).click(function () {
+                    $(this).find('i').toggleClass('fa-caret-up fa-caret-down');
+                });
             }
 
         })
-        .click(function () {
-
-            $(this).find('i').toggleClass('fa-caret-up fa-caret-down');
-        });
+        // .click(function () {
+        //
+        //     $(this).find('i').toggleClass('fa-caret-up fa-caret-down');
+        // });
