@@ -29,13 +29,6 @@
                 <!-- Level2 -->
                     <div class="tab-content">
                         <div role="tabpanel" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}' class="tab-pane" id="{{trait_type}}">
-                            <!--<div class="checkbox" ng-repeat="(trait_name, trait_value) in trait_type_value.traits track by $index">-->
-                                <!--<input type="checkbox" value="{{trait_name}}" ng-model="trait_value.selected" ng+checked="trait_value.selected" id="{{key}}_{{trait_name}}">-->
-                                <!--<label for="{{key}}_{{trait_name}}">-->
-                                    <!--{{trait_value.pretty_name}}-->
-                                    <!--{{trait_value.selected}}-->
-                                <!--</label>-->
-                            <!--</div>-->
                             <ul class="nav nav-pills nav-stacked" id="trait">
                                 <li role="presentation" ng-repeat="(trait_name, trait_value) in trait_type_value.traits track by $index" class="active">
                                     <a href="#nested_{{trait_name}}" aria-controls="{{trait_name}}" role="tab" data-toggle="pill">{{trait_value.pretty_name}}</a>
@@ -49,10 +42,8 @@
                                                 {{branch_value.name}}
                                             </label>
                                         </div>
-
-
                                         <p class="sub-heading"><strong>Documentation</strong>
-                                        <span ng-repeat="branch in trait_value.branches track by $index"><a href="{{branch.url}}"><i class="fa fa-code-fork"></i> {{branch.name}}</a><br></span>
+                                        <p ng-repeat="branch in trait_value.branches track by $index"><a href="{{branch.url}}"><i class="fa fa-code-fork"></i> {{branch.name}}</a><br></p>
                                         </p>
                                     </div>
 

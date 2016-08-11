@@ -10,7 +10,7 @@ console.log('availableproducts.controllers.js');
 
         // Set these on scope to allow two-way data binding
         $scope.availabledata = {};
-        $scope.selection = [];
+        $scope.selection = ['test'];
 
         try {
             ctrl.surveys = JSON.parse((ctrl.schemaurls).replace(/'/g, '"'));
@@ -21,7 +21,13 @@ console.log('availableproducts.controllers.js');
                     // Go through the data and add a selected property to each trait
                     angular.forEach(data.available_traits, function(v,k){
                         angular.forEach(v.traits, function(t,name){
-                            t["selected"]= false;
+                            t['branch_list'] = {};
+                            angular.forEach(t.branches, function(branch_url,branch_name){
+                                var temp = {name:branch_name, selected:false, url:branch_url};
+                                t['branch_list'][branch_name]=temp;
+                            });
+                            t['branches'] = t['branch_list'];
+                            delete t['branch_list'];
                         })
                     });
                     $scope.availabledata[survey] = data;
@@ -35,27 +41,25 @@ console.log('availableproducts.controllers.js');
             ctrl.error = true;
             ctrl.text = "Incorrect input to available products component. Must be JSON string of survey: url "
         }
-
-        ctrl.addProduct = function(trait_name){
-            // iterate through the available data and for those with selected, take out into this array
-            angular.forEach($scope.availabledata, function(schema,survey){
+        // watch the availabledata to see if any have been selected
+        $scope.$watch('availabledata', function(newVal, oldVal) {
+            $scope.selection={};
+            angular.forEach(newVal, function(schema,survey){
                 angular.forEach(schema.available_traits, function(v, k){
-                    angular.forEach(v.traits, function(t,name){
-                        if (name == trait_name){
-                            console.log('here')
-                            t.selected = true;
-                            if ($.inArray(name, ctrl.selection) < 0){
-                                ctrl.selection.push(name)
-                            }
-                        }
+                    angular.forEach(v.traits, function(t,trait_key){
+                        angular.forEach(t.branches, function(branch) {
+                            if (branch.selected == true) {
+                                // if (($.inArray(name, $scope.selection) < 0)&&(t.selected == true)){
+                                if (typeof $scope.selection[survey] == "undefined") {
+                                    $scope.selection[survey] = [];
+                                }
+                                $scope.selection[survey].push(trait_key+':'+branch.name)
+                            };
+                        });
                     })
                 })
             })
-            console.log(ctrl.selection);
-        };
-
-
-
+        }, true);
 
     });
 
