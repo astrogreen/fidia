@@ -1,9 +1,11 @@
 <div class="col-xs-12">
-    <available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>
+    <available-products
+            schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>
 </div>
 
 <div class="col-sm-8">
-    <hr><hr>
+    <hr>
+    <hr>
     <p>Select the products you wish to download for this sample and click the
         <strong>add to download</strong> button.</p>
 
@@ -22,55 +24,55 @@
             <div class="well">
 
                 <label class="checkbox-inline">
-  <input type="checkbox" id="inlineCheckbox1" value="option1"> 1
-</label>
-<label class="checkbox-inline">
-  <input type="checkbox" id="inlineCheckbox2" value="option2"> 2
-</label>
-<label class="checkbox-inline">
-  <input type="checkbox" id="inlineCheckbox3" value="option3"> 3
-</label>
+                    <input type="checkbox" id="inlineCheckbox1" value="option1"> 1
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" id="inlineCheckbox2" value="option2"> 2
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" id="inlineCheckbox3" value="option3"> 3
+                </label>
                 sami data
                 <div class="checkbox">
-                        <input id="checkbox1" type="checkbox">
-                        <label for="checkbox1">
-                            Default
-                        </label>
-                    </div>
-                    <div class="checkbox checkbox-primary">
-                        <input id="checkbox2" type="checkbox" checked="">
-                        <label for="checkbox2">
-                            Primary
-                        </label>
-                    </div>
-                    <div class="checkbox checkbox-success">
-                        <input id="checkbox3" type="checkbox">
-                        <label for="checkbox3">
-                            Success
-                        </label>
-                    </div>
-                    <div class="checkbox checkbox-info">
-                        <input id="checkbox4" type="checkbox">
-                        <label for="checkbox4">
-                            Info
-                        </label>
-                    </div>
-                    <div class="checkbox checkbox-warning">
-                        <input id="checkbox5" type="checkbox" checked="">
-                        <label for="checkbox5">
-                            Warning
-                        </label>
-                    </div>
-                    <div class="checkbox checkbox-danger">
-                        <input id="checkbox6" type="checkbox" checked="">
-                        <label for="checkbox6">
-                            Check me out
-                        </label>
-                    </div>
+                    <input id="checkbox1" type="checkbox">
+                    <label for="checkbox1">
+                        Default
+                    </label>
+                </div>
+                <div class="checkbox checkbox-primary">
+                    <input id="checkbox2" type="checkbox" checked="">
+                    <label for="checkbox2">
+                        Primary
+                    </label>
+                </div>
+                <div class="checkbox checkbox-success">
+                    <input id="checkbox3" type="checkbox">
+                    <label for="checkbox3">
+                        Success
+                    </label>
+                </div>
+                <div class="checkbox checkbox-info">
+                    <input id="checkbox4" type="checkbox">
+                    <label for="checkbox4">
+                        Info
+                    </label>
+                </div>
+                <div class="checkbox checkbox-warning">
+                    <input id="checkbox5" type="checkbox" checked="">
+                    <label for="checkbox5">
+                        Warning
+                    </label>
+                </div>
+                <div class="checkbox checkbox-danger">
+                    <input id="checkbox6" type="checkbox" checked="">
+                    <label for="checkbox6">
+                        Check me out
+                    </label>
+                </div>
             </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="gama">
-             <div class="well">
+            <div class="well">
                 gama data
             </div>
         </div>
@@ -100,8 +102,10 @@
             <strong class="text-uppercase">Note</strong>
             <p>
                 This selection tool displays all available types of data product hosted at AAODC.
-                However, not all data products are available for all objects (e.g., some GAMA galaxies will <strong>not</strong> have
-                SAMI data). Once you have made your selection, <a href="{% url 'download-create' %}">download the data</a> and check the resultant download package for products that do not exist.
+                However, not all data products are available for all objects (e.g., some GAMA galaxies will
+                <strong>not</strong> have
+                SAMI data). Once you have made your selection, <a href="{% url 'download-create' %}">download the
+                data</a> and check the resultant download package for products that do not exist.
 
             </p>
         </div>

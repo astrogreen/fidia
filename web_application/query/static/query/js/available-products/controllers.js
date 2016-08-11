@@ -38,6 +38,7 @@ console.log('availableproducts.controllers.js');
             angular.forEach(ctrl.surveys, function(url, survey){
                 AvailableProductsService.getProducts(url).then(function (data) {
                     ctrl.availabledata[survey] = data;
+                    console.log(ctrl.availabledata)
                 }).catch(function () {
                     ctrl.error = true;
                     ctrl.text = 'Unable to get schema at '+url;
