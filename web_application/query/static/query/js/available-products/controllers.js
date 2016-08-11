@@ -16,7 +16,7 @@ console.log('availableproducts.controllers.js');
         }).catch(function () {
             $scope.error = 'unable to get the ponies';
         });
-        
+
     });
 
     app.filter('isEmpty', [function(){
