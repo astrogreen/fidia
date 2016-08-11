@@ -5,40 +5,17 @@
 {% load internal_extras %}
 {% block title %}Query{% endblock %}
 {% block head-extra %}
-
-<script type="text/javascript">
-    //get url for available catalogues
-    urlCataloguesGlobal = "{% url "catalogues" %}"
-</script>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/ace/ace.css' %}"/>
 
 <link rel="stylesheet" type="text/css" href="{% static 'query/css/schema-browser/schema-browser.min.css' %}"/>
 <link rel="stylesheet" href="{% static 'query/css/query-builder/query-builder.min.css' %}" type="text/css"/>
 
+<script type="text/javascript" src="{% static 'query/js/available-products/controllers.js' %}"></script>
+<script type="text/javascript" src="{% static 'query/js/available-products/services.js' %}"></script>
+<script type="text/javascript" src="{% static 'query/js/available-products/components.js' %}"></script>
 
-<style type="text/css">
-    table{
-        table-layout: fixed;
-    }
-    table tr {
-        height:1em;
-    }
-    td {
-        overflow:hidden;white-space:nowrap;
-    }
-    .nav-pagination{
-        background-color:transparent;
-        float:right;
-    }
-    #SQL-ace-editor{border:solid 1px #eeeeee;}
-
-</style>
-{% block head-extra-extra%}{% endblock %}
 {% endblock %}
-
-{% block bodyclass %}{% endblock %}
-{% block breadcrumbclass %}{% endblock %}
 
 {% block page_title %}Query {{objname}}{% endblock %}
 {% block useful_links %}
@@ -49,12 +26,9 @@
 
 {% block content_render %}
 
-    {% comment %}
-    ------DATATABLES ------
-    {% endcomment %}
+    {# ------DATATABLES ------#}
 
     {% if response.data.queryResults %}
-
         <div class="row">
             <div class="col-sm-12">
                 <h2 class="headline"><span>Results</span> </h2>
@@ -78,22 +52,25 @@
                     {% if 'GET' in allowed_methods %}
                         <form id="download-list" class="custom-inline">
                             {% if api_settings.URL_FORMAT_OVERRIDE %}
-                            <span class="button-dropdown" data-buttons="dropdown">
-                                <button class="button button-small text-uppercase">
-                                   Download Sample <i class="fa fa-caret-down"></i>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-download"></i> Download Sample <i class="fa fa-caret-down"></i>
                                 </button>
-
-                                <ul class="button-dropdown-list button-dropdown-list-small">
-                                  {% for format in available_formats %}
-                                    {% if format != "api" %}
-                                        <li>
-                                            <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                               rel="nofollow" target="_blank"  title="Download query # {{ objname }} with the format set to `{{ format }}`">{{ format }}</a>
-                                        </li>
-                                    {% endif %}
+                                <ul class="dropdown-menu">
+                                    {% for format in available_formats %}
+                                        {% if format != "api" %}
+                                            <li>
+                                                <a class="js-tooltip"
+                                                   href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                                   rel="nofollow" target="_blank"
+                                                   title="Download query # {{ objname }} with the format set to `{{ format }}`">{{
+                                                    format }}</a>
+                                            </li>
+                                        {% endif %}
                                     {% endfor %}
                                 </ul>
-                              </span>
+                            </div>
                             {% else %}
                                 <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
                                    title="Download {{user}}'s query # {{objname}}">PERMANENT LINK</a>
@@ -129,16 +106,14 @@
                             <div class="" id="put-object-form">
                                 <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
                                       class="form-horizontal" novalidate>
-
-                                        {{ put_form }}
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <button class="button button-primary button-small js-tooltip pull-right"
-                                                        title="Overwrite Query {{objname}}" id="button-sql-update">UPDATE
-                                                </button>
-                                            </div>
+                                    {{ put_form }}
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <button class="button button-primary button-small js-tooltip pull-right"
+                                                    title="Overwrite Query {{objname}}" id="button-sql-update">UPDATE
+                                            </button>
                                         </div>
-
+                                    </div>
                                 </form>
                             </div>
                             {% endif %}
@@ -158,8 +133,6 @@
                         </div>
                     </div>
                 </div>
-
-
             {% endif %}
         {% endif %}
         {% block content-delete %}
@@ -204,8 +177,6 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             {% endif %}
 
@@ -216,7 +187,7 @@
 
 
 {% comment %}
------- ACE EDITOR FOR ANY SQL BOXES ------
+------ ACE EDITOR FOR ANY SQL INPUTS ------
 {% endcomment %}
 {% block footer-extra %}
 <script src="{% static "restapi_app/js/ace-min-noconflict/ace.js" %}"></script>
@@ -362,13 +333,10 @@
 
         };
     };
-
     {% endautoescape %}
 </script> 
 
-{% comment %}
------- CONFIRM RESOURCE DELETE ------
-{% endcomment %}
+{# ------ CONFIRM RESOURCE DELETE ------ #}
 <script>
     $('#DELETE_RESOURCE').on('click', function(e){
         var $form=$(this).closest('form');
