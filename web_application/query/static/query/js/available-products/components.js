@@ -6,7 +6,7 @@ console.log('availableproducts.components.js');
 
     app.component("availableProducts", {
         templateUrl:'/static/query/js/available-products/templates/availableProducts.html',
-        bindings:{data:'<'},
+        bindings:{data:'<', surveys:'@', schemaurls:'@'},
         controller: 'AvailableProductsController',
         controllerAs: 'apctrl'
     });

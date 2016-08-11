@@ -1,7 +1,5 @@
-<script>GLOBAL_URL = "{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}"</script>
 <div class="col-xs-12">
-    <!--<hello-world name="'John'"></hello-world>-->
-    <available-products data="'John'"></available-products>
+    <available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>
 </div>
 
 <div class="col-sm-8">

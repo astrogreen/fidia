@@ -1,80 +1,92 @@
-<div class="panel panel-default error" ng-if="apctrl.statuserror == true">
+<div class="panel panel-default error" ng-if="apctrl.error == true">
     <div class="panel-body"><strong class="text-uppercase">Error {{apctrl.status}}</strong>
-        <p>{{apctrl.statustext}}</p>
+        <p>{{apctrl.text}}</p>
     </div>
 </div>
 <div class="panel panel-default">
     <div class="panel-body">
-        <span class="sub-headling" ng-if="! apctrl.dataproducts">Fetching available data products, please wait ...<i class="fa fa-refresh fa-spin"></i></span>
-        <div ng-repeat="(key, value) in apctrl.dataproducts"> {{key}} </div>
-    </div>
-
-</div>
-{{apctrl.dataproducts}}
-<div ng-repeat="(key, value) in apctrl.dataproducts"> {{key}} </div>
-<div class="row">
-    <div class="col-xs-3">
-    <!-- Level1 -->
-        <ul class="nav nav-pills nav-stacked" id="trait_type">
-            <li role="presentation" class="active">
-                <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="pill">{{trait_value.pretty_name}}</a>
-            </li>
-            <li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_value.description}}</p></li>
+        <span class="sub-headling" ng-if="apctrl.availabledata | isEmpty">Fetching available data products, please wait ...<i
+                class="fa fa-refresh fa-spin"></i></span>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-repeat="(key, value) in apctrl.availabledata" ng-class='{active:$first}'><a href="#{{key}}" aria-controls="{{key}}" role="tab" data-toggle="tab">{{key}}</a></li>
         </ul>
-    </div>
-    <div class="col-xs-9">
-    <!-- Level2 -->
-        <!--<div class="tab-content">-->
-            <!--{% for trait_type, trait_value in response.data.available_traits.items %}-->
-                <!--<div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">-->
-                    <!--<div class="row">-->
-                        <!--<div class="col-xs-4">-->
-                            <!--<ul class="nav nav-pills nav-stacked" id="trait">-->
-                                <!--{% for trait, value in trait_value.traits.items %}-->
-                                <!--<li role="presentation" {% if forloop.first %}class="active" {% endif %}>-->
-                                    <!--<a href="#nested_{{trait}}" aria-controls="{{trait}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>-->
-                                <!--</li>-->
-                                <!--{% if value.description != None %}-->
-                                <!--<li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{value.description}}</p></li>-->
-                                <!--{% endif %}-->
-                                <!--{% endfor %}-->
-                            <!--</ul>-->
-                        <!--</div>-->
-                        <!--<div class="col-xs-8 tab-content">-->
-                            <!--{% for trait, value in trait_value.traits.items %}-->
-                                <!--<div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %} " id="nested_{{trait}}">-->
 
-                                    <!--<div class="well">-->
-                                        <!--<table class="table table-overview">-->
-                                            <!--<thead>-->
-                                            <!--<tr>-->
-                                                <!--<td><strong>Documentation</strong></td>-->
-                                                <!--<td><strong>Formats</strong></td>-->
-                                                <!--<td><strong>Data</strong></td>-->
-                                            <!--</tr>-->
-                                            <!--</thead>-->
-                                            <!--<tbody>-->
-                                            <!--<tr>-->
-                                                <!--<td>-->
-                                                    <!--{% for branch_name, branch_url in value.branches.items %}-->
-                                                    <!--<a href="{{branch_url}}"><i class="fa fa-code-fork"></i> {{branch_name}}</a><br>-->
-                                                    <!--{% endfor %}-->
-                                                <!--</td>-->
-                                                <!--<td>{% for format in value.formats %}-->
-                                                    <!--{{format}}{% if not forloop.last %},{% endif %}-->
-                                                    <!--{% endfor %}-->
-                                                <!--</td>-->
-                                                <!--<td><a href="{{value.url}}">{{value.pretty_name}} </a></td>-->
-                                            <!--</tr>-->
-                                            <!--</tbody>-->
-                                        <!--</table>-->
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" ng-repeat="(key, value) in apctrl.availabledata" ng-class='{active:$first}' id="{{key}}">
+                <div class="row">
+                    <div class="col-xs-3">
+                    <!-- Level1 -->
+                        <ul class="nav nav-pills nav-stacked" id="{{key}}_trait_type">
+                            <li role="presentation" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}'>
+                                <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
+                            </li>
+                            <li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_type_value.description}}</p></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-9">
+                    <!-- Level2 -->
+                        <!--<div class="tab-content">-->
+                            <!--{% for trait_type, trait_value in response.data.available_traits.items %}-->
+                                <!--<div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">-->
+                                    <!--<div class="row">-->
+                                        <!--<div class="col-xs-4">-->
+                                            <!--<ul class="nav nav-pills nav-stacked" id="trait">-->
+                                                <!--{% for trait, value in trait_value.traits.items %}-->
+                                                <!--<li role="presentation" {% if forloop.first %}class="active" {% endif %}>-->
+                                                    <!--<a href="#nested_{{trait}}" aria-controls="{{trait}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>-->
+                                                <!--</li>-->
+                                                <!--{% if value.description != None %}-->
+                                                <!--<li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{value.description}}</p></li>-->
+                                                <!--{% endif %}-->
+                                                <!--{% endfor %}-->
+                                            <!--</ul>-->
+                                        <!--</div>-->
+                                        <!--<div class="col-xs-8 tab-content">-->
+                                            <!--{% for trait, value in trait_value.traits.items %}-->
+                                                <!--<div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %} " id="nested_{{trait}}">-->
+
+                                                    <!--<div class="well">-->
+                                                        <!--<table class="table table-overview">-->
+                                                            <!--<thead>-->
+                                                            <!--<tr>-->
+                                                                <!--<td><strong>Documentation</strong></td>-->
+                                                                <!--<td><strong>Formats</strong></td>-->
+                                                                <!--<td><strong>Data</strong></td>-->
+                                                            <!--</tr>-->
+                                                            <!--</thead>-->
+                                                            <!--<tbody>-->
+                                                            <!--<tr>-->
+                                                                <!--<td>-->
+                                                                    <!--{% for branch_name, branch_url in value.branches.items %}-->
+                                                                    <!--<a href="{{branch_url}}"><i class="fa fa-code-fork"></i> {{branch_name}}</a><br>-->
+                                                                    <!--{% endfor %}-->
+                                                                <!--</td>-->
+                                                                <!--<td>{% for format in value.formats %}-->
+                                                                    <!--{{format}}{% if not forloop.last %},{% endif %}-->
+                                                                    <!--{% endfor %}-->
+                                                                <!--</td>-->
+                                                                <!--<td><a href="{{value.url}}">{{value.pretty_name}} </a></td>-->
+                                                            <!--</tr>-->
+                                                            <!--</tbody>-->
+                                                        <!--</table>-->
+                                                    <!--</div>-->
+                                                <!--</div>-->
+                                            <!--{% endfor %}-->
+                                        <!--</div>-->
                                     <!--</div>-->
                                 <!--</div>-->
                             <!--{% endfor %}-->
                         <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--{% endfor %}-->
-        <!--</div>-->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
+
 </div>
+
+
