@@ -9,20 +9,10 @@
     // Get Available trait data from json endpoint
     app.factory('AvailableProductsService', function($http){
 
-        // var getProducts = function() {
-        //     // then() returns a new promise. We return that new promise.
-        //     // that new promise is resolved via response.data, i.e. the ponies
-        //
-        //     return $http.get(url).then(function (response) {
-        //         return response.data;
-        //     });
-        // };
-
         return {
-            // getProducts: getProducts
             getProducts: function(url) {
-                // then() returns a new promise. We return that new promise.
-                // that new promise is resolved via response.data, i.e. the ponies
+                // then returns a new promise, which we return - the new promise is resolved
+                // via response.data
 
                 return $http.get(url).then(function (response) {
                     return response.data;
