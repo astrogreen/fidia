@@ -5,17 +5,25 @@ console.log('availableproducts.controllers.js');
     var app = angular.module('DCApp');
 
     app.controller('AvailableProductsController', function($scope, AvailableProductsService, DownloadService, $window){
+
         var ctrl = this; // create alias to this to avoid closure issues
+
+        // Constants on ctrl scope
         ctrl.surveys = {};
         ctrl.sample_url = $window.location.pathname;
         ctrl.download_url = DOWNLOAD_URL;
+        ctrl.temporary = {};
+
         // Set these on scope to allow two-way data binding
         $scope.availabledata = {};
         $scope.selection = {};
         $scope.download = {};
-        $scope.isDisabled=false;
-        $scope.isSubmitted=false;
-        $scope.getPreviousState=false;
+
+        $scope.isDisabled={};
+        $scope.isDisabled.state=false;
+        $scope.isSubmitted={};
+        $scope.isSubmitted.state=false;
+        console.log('controller')
 
         try {
             ctrl.surveys = JSON.parse((ctrl.schemaurls).replace(/'/g, '"'));
@@ -46,6 +54,7 @@ console.log('availableproducts.controllers.js');
             ctrl.error = true;
             ctrl.text = "Incorrect input to available products component. Must be JSON string of survey: url "
         }
+
         // watch the availabledata to see if any have been selected
         $scope.$watch('availabledata', function(newVal, oldVal) {
             $scope.selection={};
@@ -68,45 +77,55 @@ console.log('availableproducts.controllers.js');
                                     branch: branch.name
                                 });
 
-                                $scope.download[survey].push({trait_key:trait_name+':'+branch.name, pretty_name:t.pretty_name, branch: branch.name})
+                                $scope.download[survey].push({
+                                    pretty_name: t.pretty_name,
+                                    trait_name: trait_name,
+                                    trait_key: trait_name + ':' + branch.name,
+                                    trait_type: k,
+                                    branch: branch.name
+                                })
                             };
                         });
                     })
                 })
-            })
+            });
         }, true);
-
-        // if getPreviousState == true, then fetch data that's been submitted and reinstate that state
-        $scope.$watch('getPreviousState', function(newVal, oldVal) {
-            var items = DownloadService.getItems()
-            console.log(items)
-            // find this object for this sample/url/id
-            angular.forEach(items, function(data,id){
-                console.log(id)
-                console.log(ctrl.sample_url)
-                if (id == ctrl.sample_url){
-                    console.log('here')
-                    console.log(data.options)
-
-                    // angular.forEach(data.options, function(value,key){
-                    //     console.log(key)
-                    //     console.log(data)
-                    //     // $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = false;
-                    // });
-                }
-
-            })
-
-        });
 
         ctrl.uncheckProduct = function(survey, trait_type, trait_name, trait_key, branch) {
             // console.log(survey, trait_type, trait_name, trait_key, branch);
 
             // console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected']);
             $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = false;
-        }
+        };
         ctrl.emptyList = function(){
             $scope.download = {};
+        };
+
+        ctrl.reapplyState = function(){
+            var items = DownloadService.getItems();
+
+            // Go through the cookie items and get the trait_type, trait_name and branches that have been previously selected.
+            // Switch their selected property to 'true'
+            angular.forEach(items, function (data, id) {
+                if (id == ctrl.sample_url) {
+                    angular.forEach(data.options, function (product, survey) {
+                        angular.forEach(product, function (value, key) {
+                            var trait_type = value.trait_type;
+                            var trait_name = value.trait_name;
+                            var branch = value.branch;
+                            // console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'])
+                            $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = true;
+                        });
+                    });
+                }
+            });
+
+            // Allow submitting again
+            $scope.isDisabled.state=false;
+            $scope.isSubmitted.state=false;
+
+            $('#available-products').html('<i class="fa fa-download"></i> Update Download');
+
         }
 
     });

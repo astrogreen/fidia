@@ -170,14 +170,15 @@ console.log('directives.js');
         return{
             // Create in an isolated scope
             scope:{},
-            transclude:true,
+            // scope:{bind:"=isDisabled"},
+            // transclude:true,
             restrict: 'AE',
             replace: true,
             template: '<button class="btn btn-default" id="available-products" ng-click="addItem()"><i class="fa fa-download"></i> Add to Download</button>',
             // templateUrl: '/static/download/js/templates/add-sample-data-products-to-download-button.html',
             link: function(scope, elem, attr){
+                scope.isDisabled = {};
 
-                scope.isDisabled = false;
                 scope.constructItem = function() {
                     // DO THIS ONLY ONCE ON DOWNLOAD
 
@@ -215,8 +216,7 @@ console.log('directives.js');
                         for (var i = 0; i < saved_items.length; i++) {
                             if (saved_items[i] == attr.url){
                                 $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
-                                scope.$parent.isDisabled = true;
-                                scope.$parent.getPreviousState = true;
+                                scope.$parent.isDisabled.state = true;
                                 scope.$apply();
                             }
                         }
@@ -224,7 +224,21 @@ console.log('directives.js');
                 });
 
                 scope.addItem = function(){
+
                     scope.constructItem();
+
+                    var items = DownloadService.getItems();
+
+                    // If pre-existing sample item, copy into temporary variable
+                    angular.forEach(items, function (data, id) {
+                        if (id == scope.item.id) {
+                            var temporary = items[scope.item.id];
+                            // Now remove the previous item from the cookie
+                            DownloadService.removeItem(scope.item.id);
+                        }
+                    });
+
+
                     // Pass the item into the addItem method of DownloadService
                     // populate the items obj for this particular view before start writing in to the cookie
                     DownloadService.getItems();
@@ -237,9 +251,10 @@ console.log('directives.js');
                         });
                     $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
                     // Parent scope has access to the state of this directive should it wish to change states after submit
-                    scope.$parent.isSubmitted = true;
-                    scope.$parent.isDisabled = true;
+                    scope.$parent.isSubmitted.state = true;
+                    scope.$parent.isDisabled.state = true;
                 };
+
             }
         };
     });

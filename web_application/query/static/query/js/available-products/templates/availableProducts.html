@@ -70,18 +70,18 @@
                     <div class="helper step step5">Finished adding data products? Click the <i class="fa fa-download"></i>
                         Add to Download button to add your selection to the <a href="{{apctrl.download_url}}">Download</a>.
                     </div>
-                    <div class="panel panel-default warning" ng-if="(isDisabled && !isSubmitted)">
+                    <div class="panel panel-default warning" ng-if="(isDisabled.state && !isSubmitted.state)">
                         <div class="panel-body">
                             <p>You've already selected data products to download for this sample. Head over to the <a href="{{apctrl.download_url}}">Download</a>
-                                page to begin or click the <i class="fa fa-rotate-left text-error"></i> Start Over button below.</p>
+                                page to begin or click the <i class="fa fa-rotate-left"></i> Edit Selection button below.</p>
                         </div>
                     </div>
                     <p class="text-right">
-                        <button class="btn btn-default" ng-if="(isDisabled && !isSubmitted)"><i class="fa fa-rotate-left text-error"></i> Start Over?</button>
-                        <sample-download ng-disabled="(download | isEmpty) || isDisabled" url='{{apctrl.sample_url}}' options='{{download}}'></sample-download>
+                        <button class="btn btn-default" ng-if="(isDisabled.state && !isSubmitted.state)" ng-click="apctrl.reapplyState()"><i class="fa fa-rotate-left"></i> Edit Selection?</button>
+                        <sample-download ng-disabled="(download | isEmpty) || isDisabled.state" url='{{apctrl.sample_url}}' options='{{download}}'></sample-download>
                     </p>
                     <br>
-                    <div class="panel panel-default success" ng-if="(isDisabled && isSubmitted)">
+                    <div class="panel panel-default success" ng-if="(isDisabled.state && isSubmitted.state)">
                         <div class="panel-body">
                             <p>Your selection has been added! Head over to the <a href="{{apctrl.download_url}}">Download</a>
                                 page to begin the download.</p>
