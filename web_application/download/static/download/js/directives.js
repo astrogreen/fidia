@@ -15,7 +15,9 @@ console.log('directives.js');
             .addClass('disabled')
             .parent('li').addClass('disabled');
     }
-
+    if (!Date.now) {
+        Date.now = function() { return new Date().getTime(); }
+    }
     // DownloadDirective
     app.directive('miniDownload', function(DownloadService){
         return{
@@ -167,8 +169,8 @@ console.log('directives.js');
     app.directive('sampleDownload', function(DownloadService){
         return{
             // Create in an isolated scope
-            scope:{
-            },
+            scope:{},
+            transclude:true,
             restrict: 'AE',
             replace: true,
             template: '<button class="btn btn-default" id="available-products" ng-click="addItem()"><i class="fa fa-download"></i> Add to Download</button>',
@@ -188,12 +190,17 @@ console.log('directives.js');
                         if (lastChar != '/') {                  // If the last character is not a slash
                            attr.url = attr.url + '/';           // Append a slash to it.
                         }
+
                         scope.item['id'] = attr.url;
+                        // scope.item['id'] = attr.url+Date.now();
+                        // Here, we have to create a fake time-stamped id to track by, so that multiple samples at the same url can be downloaded
+
+                        scope.item['url'] = attr.url;
 
                         if (typeof attr.options !== 'undefined'){
                             scope.item['options'] = attr.options;
                         }
-                        // Shape of object is as: scope.item = {id: "http://127.0.0.1:8000/asvo/data-browser/sami/9352/spectral_map-red/?format=json", options: "blah"}
+                        // Shape of object is as: scope.item = {id: "http://127.0.0.1:8000/asvo/query-history/2", options: "blah"}
 
                     } else {
                         console.log('Error. Cannot find id (url) has been set for this sample-download-' +
@@ -202,16 +209,15 @@ console.log('directives.js');
                 };
 
                 angular.element(document).ready(function() {
-
                     var saved_items = DownloadService.checkItemInCookie();
                     // CHECK for this in cookie already and disable the button.
                     if (undefined != saved_items){
                         for (var i = 0; i < saved_items.length; i++) {
                             console.log(saved_items[i]);
                             if (saved_items[i] == attr.url){
-                                scope.isAlreadyInDownload = true;
-                                // $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
-                                // scope.isDisabled = true;
+                                $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
+                                scope.$parent.isDisabled = true;
+                                scope.$apply();
                             }
                         }
                     }
@@ -230,7 +236,6 @@ console.log('directives.js');
                             $('#mini-download').removeClass('bounce');
                         });
                     $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
-                    scope.isDisabled = true;
                 };
             }
         };

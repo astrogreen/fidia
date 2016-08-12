@@ -15,18 +15,21 @@
 {% endblock useful_links %}
 
 {% block content_render %}
-
+    <div class="row">
+        <div class="col-xs-12">
+            <p class="lead">Download Data from AAODC</p>
+        </div>
+    </div>
     <div class="row" ng-controller="DownloadController as ctrl3" id="downloadController">
         <div class="col-sm-8 download-options">
             {% verbatim %}
             <div class="panel panel-default panel-download">
                 <div class="panel-heading text-uppercase">
-                    Download
+                    Individual Data Products
                 </div>
-
-                <table class="table table-hover">
+                <table class="table">
                     <tbody>
-                        <tr ng-repeat="p in ctrl3.prettyCookie track by $index" ng-if="ctrl3.items | isNotEmpty">
+                        <tr ng-repeat="p in ctrl3.prettyCookie.objects track by $index" ng-if="ctrl3.items | isNotEmpty">
                             <td>
                                 <div class="row">
                                     <div class="col-sm-9 col-xs-12">
@@ -46,6 +49,58 @@
                                     <div class="col-sm-3 text-right col-xs-12 options">
                                         <a role="button" class="text-normal">
                                             <i class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(p.id)"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-if="ctrl3.items | isEmpty">
+                            <td>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                         <h4 style="border:0">
+                                            Download Empty!
+                                        </h4>
+                                        {% endverbatim %}
+                                        <p>Visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
+                                            Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a> to add
+                                                              data.</p>
+                                        {% verbatim %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel panel-default panel-download">
+                <div class="panel-heading text-uppercase">
+                    Data Products for Samples
+                </div>
+                <table class="table">
+                    <tbody>
+                        <tr ng-repeat="s in ctrl3.prettyCookie.samples track by $index" ng-if="ctrl3.items | isNotEmpty">
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm-9 col-xs-12">
+                                        <h4 class="text-info" style="border:0">
+                                            ID: <a href="{{s.url}}">{{s.sample_id}}</a>
+                                        </h4>
+                                        <p class="version">
+                                            <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
+                                        </p>
+                                        <p>{{s.options}}</p>
+                                        <!--<div ng-repeat="(survey, data) in s.options track by $index">-->
+                                            <!--<h5>{{survey}}</h5>-->
+                                            <!--&lt;!&ndash;<p ng-repeat="product in data track by $index">&ndash;&gt;-->
+                                                <!--&lt;!&ndash;{{product}}&ndash;&gt;-->
+                                            <!--&lt;!&ndash;</p>&ndash;&gt;-->
+                                        <!--</div>-->
+
+                                    </div>
+                                    <div class="col-sm-3 text-right col-xs-12 options">
+                                        <a role="button" class="text-normal">
+                                            <i class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(s.id)"></i>
                                         </a>
                                     </div>
                                 </div>

@@ -13,6 +13,7 @@ console.log('availableproducts.controllers.js');
         $scope.availabledata = {};
         $scope.selection = {};
         $scope.download = {};
+        $scope.isDisabled=false;
 
         try {
             ctrl.surveys = JSON.parse((ctrl.schemaurls).replace(/'/g, '"'));
@@ -79,6 +80,9 @@ console.log('availableproducts.controllers.js');
 
             // console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected']);
             $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = false;
+        }
+        ctrl.emptyList = function(){
+            $scope.download = {};
         }
 
     });

@@ -53,7 +53,7 @@
         }
 
         function cleanArray(array){
-            var remove_arr = [document.domain, document.domain+':'+location.port, location.protocol, 'asvo', "", '', 'data-browser', 'query-history', 'sov'];
+            var remove_arr = [document.domain, document.domain+':'+location.port, location.protocol, 'asvo', "", '', ];
             for(var j = 0; j < remove_arr.length; j++){
                 removeFromArray(array,remove_arr[j]);
             }
@@ -165,38 +165,52 @@
             prettifyCookie: function(items){
 
                 var prettyCookie = {};
+                prettyCookie["objects"] = {}, prettyCookie["samples"] = {};
                 // object, id: prettified array
                 angular.forEach(items, function(v, url){
-                    prettyCookie[url] = {};
-
                     // Clean the url, removing all excess info (protocol, domain etc) and split into arr
                     var url_arr = url.split("/");
                     cleanArray(url_arr);
-                    // Knowing that the 0 and 1 elements will always be sample and ao, we can
-                    // predefine these for the view.
-                    // Though this isn't actually asserted... it should be.
                     var data_obj = {}, temp = [];
 
-                    data_obj['url'] = url.split('?format=')[0];
-                    data_obj['sample'] = url_arr[0].toUpperCase();
-                    data_obj['ao'] = url_arr[1];
-                    data_obj['id'] = url;
-                    data_obj['options'] = v.options;
+                    // If the url has come from the data browser, this will be a single object.
+                    if (url.indexOf("data-browser") !== -1){
 
-                    if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
-                    // If a format exists on the last element of the array, pop it off
-                    // and prettify
-                        data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
-                        url_arr.pop();
-                    }
-                    // Collect the remaining data pieces below trait into one line
-                    for(var i = 2; i < url_arr.length; i++) {
-                        if(url_arr[i]!=="" && url_arr[i]!==''){
-                            temp.push(url_arr[i]);
+                        // Knowing that the 1 and 2 elements will always be sample and ao, we can
+                        // predefine these for the view.
+                        // Though this isn't actually asserted... it should be.
+                        data_obj['url'] = url.split('?format=')[0];
+
+                        data_obj['sample'] = url_arr[1].toUpperCase();
+                        data_obj['ao'] = url_arr[2];
+                        data_obj['id'] = url;
+                        data_obj['options'] = v.options;
+
+                        if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
+                        // If a format exists on the last element of the array, pop it off
+                        // and prettify
+                            data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
+                            url_arr.pop();
                         }
+                        // Collect the remaining data pieces below trait into one line
+                        for(var i = 3; i < url_arr.length; i++) {
+                            if(url_arr[i]!=="" && url_arr[i]!==''){
+                                temp.push(url_arr[i]);
+                            }
+                        }
+                        data_obj['trait'] = temp;
+                        prettyCookie["objects"][url] = data_obj;
+
+                    } else if (url.indexOf("query-history") !== -1){
+                        // If the url has come from the query builder - this will have options
+                        data_obj['url'] = url;
+                        data_obj['id'] = url;
+                        data_obj['sample_id'] = url.split("query-history/")[1].split("/")[0];
+                        data_obj['options'] = v.options;
+                        prettyCookie["samples"][url] = data_obj;
                     }
-                    data_obj['trait'] = temp;
-                    prettyCookie[url] = data_obj;
+
+
                 });
                 return prettyCookie;
             },
@@ -216,7 +230,7 @@
                 };
                 var itemsCookie = this.prettifyCookie(this.getItems());
 
-                angular.forEach(itemsCookie, function(val, key){
+                angular.forEach(itemsCookie.objects, function(val, key){
                     // bySample
                     var sample_str = val.sample;
 
@@ -251,7 +265,7 @@
 
             download: function(){
                 // TODO This function should create a valid json and save in user's download history
-                // Wrap up (pretty==more info attched) cookie and return a string of valid JSON
+                // Wrap up (pretty==more info attached) cookie and return a string of valid JSON
                 var download_arr = this.prettifyCookie(this.getItems());
                 console.log(download_arr);
                 return JSON.stringify(download_arr);

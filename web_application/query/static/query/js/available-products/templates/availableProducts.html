@@ -69,6 +69,13 @@
                     <div class="helper step step5">Finished adding data products? Click the <i class="fa fa-download"></i>
                         Add to Download button to add your selection to the <a href="{% url 'download-create'%}">Download</a>.
                     </div>
+                    <div class="panel panel-default warning" ng-if="isDisabled">
+                        <div class="panel-body">
+                            <p>You've already selected data products to download for this sample. The request has been added to the <a
+                                    href="{% url 'download-create'%}">Download</a>. Go ahead and submit it, or remove it
+                                on the <a href="{% url 'download-create'%}">Download</a> page.</p>
+                        </div>
+                    </div>
                     <p class="text-right">
                         <sample-download ng-disabled="(download | isEmpty) || isDisabled" url='{{apctrl.sample_url}}' options='{{download}}'></sample-download>
                     </p>
