@@ -256,6 +256,9 @@
     var SAMI_URL = "{% url 'data_browser:sample-list' sample_pk='sami' %}";
     var GAMA_URL = "{% url 'data_browser:sample-list' sample_pk='gama' %}";
     {% endcomment %}
+
+    var DOWNLOAD_URL = "{% url 'download-create'%}";
+
     data = JSON.parse("{{ content|escapejs }}");
 
     if (typeof data.queryResults !== 'undefined'){

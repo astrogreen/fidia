@@ -12,6 +12,8 @@
 
 {% block page_title %}Download{% endblock %}
 {% block useful_links %}
+<li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
+<li role="presentation" ><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
@@ -48,23 +50,22 @@
                                     </div>
                                     <div class="col-sm-3 text-right col-xs-12 options">
                                         <a role="button" class="text-normal">
-                                            <i class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(p.id)"></i>
+                                            <i class="fa fa-times text-error" ng-click="ctrl3.removeItem(p.id)"></i>
                                         </a>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        <tr ng-if="ctrl3.items | isEmpty">
+                        <tr ng-if="ctrl3.prettyCookie.objects | isEmpty">
                             <td>
                                 <div class="row">
                                     <div class="col-xs-12">
                                          <h4 style="border:0">
-                                            Download Empty!
+                                            No objects
                                         </h4>
                                         {% endverbatim %}
                                         <p>Visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
-                                            Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a> to add
-                                                              data.</p>
+                                            Browser</a> to add data products for individual objects.</p>
                                         {% verbatim %}
                                     </div>
                                 </div>
@@ -84,29 +85,30 @@
                                 <div class="row">
                                     <div class="col-sm-9 col-xs-12">
                                         <h4 class="text-info" style="border:0">
-                                            ID: <a href="{{s.url}}">{{s.sample_id}}</a>
+                                            <a href="{{s.url}}">SAMPLE ID: {{s.sample_id}}</a>
                                         </h4>
                                         <p class="version">
+                                            <span class="sub-heading">Link to sample: <a href="{{s.url}}">Query History {{s.sample_id}}</a> </span>
                                             <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
                                         </p>
-                                        <p>{{s.options}}</p>
-                                        <!--<div ng-repeat="(survey, data) in s.options track by $index">-->
-                                            <!--<h5>{{survey}}</h5>-->
-                                            <!--&lt;!&ndash;<p ng-repeat="product in data track by $index">&ndash;&gt;-->
-                                                <!--&lt;!&ndash;{{product}}&ndash;&gt;-->
-                                            <!--&lt;!&ndash;</p>&ndash;&gt;-->
-                                        <!--</div>-->
-
                                     </div>
                                     <div class="col-sm-3 text-right col-xs-12 options">
                                         <a role="button" class="text-normal">
-                                            <i class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(s.id)"></i>
+                                            <i class="fa fa-times text-error" ng-click="ctrl3.removeItem(s.id)"></i>
                                         </a>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <h4>Data Products</h4>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12" ng-repeat="(survey, data) in s.options track by $index">
+                                            <strong>{{survey}}</strong>
+                                            <p ng-repeat="product in data">{{product.pretty_name}} <i
+                                                    class="fa fa-code-fork"></i> {{product.branch}}&nbsp;</p>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        <tr ng-if="ctrl3.items | isEmpty">
+                        <tr ng-if="ctrl3.prettyCookie.samples | isEmpty">
                             <td>
                                 <div class="row">
                                     <div class="col-xs-12">
@@ -114,9 +116,8 @@
                                             Download Empty!
                                         </h4>
                                         {% endverbatim %}
-                                        <p>Visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
-                                            Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a> to add
-                                                              data.</p>
+                                        <p>Visit the <a href="{% url 'query-create-list' %}">Query Builder</a> to add
+                                                              data products for a sample of objects.</p>
                                         {% verbatim %}
                                     </div>
                                 </div>
@@ -128,6 +129,11 @@
             {% endverbatim %}
         </div>
         <div class="col-sm-4 download-options" ng-if="ctrl3.items | isNotEmpty">
+            <h4>Ready to Download?</h4>
+            <p>You can still add more data to the current download (visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
+                                            Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>), or if you're ready to download this selection of data,
+                        submit the form below to begin the download.</p>
+            <br>
             {% if post_form %}
                 <div id="post-object-form">
                     {% with form=post_form %}

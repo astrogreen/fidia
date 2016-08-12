@@ -206,6 +206,7 @@
                         data_obj['url'] = url;
                         data_obj['id'] = url;
                         data_obj['sample_id'] = url.split("query-history/")[1].split("/")[0];
+                        // data_obj['options'] = JSON.parse(v.options);
                         data_obj['options'] = v.options;
                         prettyCookie["samples"][url] = data_obj;
                     }

@@ -4,16 +4,18 @@ console.log('availableproducts.controllers.js');
 
     var app = angular.module('DCApp');
 
-    app.controller('AvailableProductsController', function($scope, AvailableProductsService, $window){
+    app.controller('AvailableProductsController', function($scope, AvailableProductsService, DownloadService, $window){
         var ctrl = this; // create alias to this to avoid closure issues
         ctrl.surveys = {};
         ctrl.sample_url = $window.location.pathname;
-
+        ctrl.download_url = DOWNLOAD_URL;
         // Set these on scope to allow two-way data binding
         $scope.availabledata = {};
         $scope.selection = {};
         $scope.download = {};
         $scope.isDisabled=false;
+        $scope.isSubmitted=false;
+        $scope.getPreviousState=false;
 
         try {
             ctrl.surveys = JSON.parse((ctrl.schemaurls).replace(/'/g, '"'));
@@ -53,7 +55,6 @@ console.log('availableproducts.controllers.js');
                     angular.forEach(v.traits, function(t,trait_name){
                         angular.forEach(t.branches, function(branch) {
                             if (branch.selected == true) {
-                                // if (($.inArray(name, $scope.selection) < 0)&&(t.selected == true)){
                                 if (typeof $scope.selection[survey] == "undefined") {
                                     $scope.selection[survey] = [];
                                     $scope.download[survey] = [];
@@ -67,13 +68,36 @@ console.log('availableproducts.controllers.js');
                                     branch: branch.name
                                 });
 
-                                $scope.download[survey].push(trait_name+':'+branch.name)
+                                $scope.download[survey].push({trait_key:trait_name+':'+branch.name, pretty_name:t.pretty_name, branch: branch.name})
                             };
                         });
                     })
                 })
             })
         }, true);
+
+        // if getPreviousState == true, then fetch data that's been submitted and reinstate that state
+        $scope.$watch('getPreviousState', function(newVal, oldVal) {
+            var items = DownloadService.getItems()
+            console.log(items)
+            // find this object for this sample/url/id
+            angular.forEach(items, function(data,id){
+                console.log(id)
+                console.log(ctrl.sample_url)
+                if (id == ctrl.sample_url){
+                    console.log('here')
+                    console.log(data.options)
+
+                    // angular.forEach(data.options, function(value,key){
+                    //     console.log(key)
+                    //     console.log(data)
+                    //     // $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = false;
+                    // });
+                }
+
+            })
+
+        });
 
         ctrl.uncheckProduct = function(survey, trait_type, trait_name, trait_key, branch) {
             // console.log(survey, trait_type, trait_name, trait_key, branch);

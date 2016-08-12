@@ -3,8 +3,9 @@
         <p>{{apctrl.text}}</p>
     </div>
 </div>
-<span class="sub-headling" ng-if="availabledata | isEmpty">Fetching available data products, please wait ...<i
-                class="fa fa-refresh fa-spin"></i></span>
+<span class="sub-headling" ng-if="availabledata | isEmpty">Fetching available data products, please wait ...
+    <i class="fa fa-refresh fa-spin"></i>
+</span>
 
 <!-- Nav tabs -->
 <div class="helper step step1">Select a survey tab to view the available data products.</div>
@@ -22,7 +23,7 @@
                 <!-- Level1 -->
                     <ul class="nav nav-pills nav-stacked" id="{{key}}_trait_type">
                         <li role="presentation" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}'>
-                            <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
+                            <a href="#{{key}}_{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
                             <p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_type_value.description}}</p>
                         </li>
                     </ul>
@@ -31,7 +32,7 @@
                 <!-- Level2 -->
                     <div class="helper step step3">Add or remove data products using the checkboxes. </div>
                     <div class="tab-content" style="max-height:500px;overflow: scroll">
-                        <div role="tabpanel" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}' class="tab-pane" id="{{trait_type}}">
+                        <div role="tabpanel" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}' class="tab-pane" id="{{key}}_{{trait_type}}">
                             <div class="" ng-repeat="(trait_name, trait_value) in trait_type_value.traits track by $index" >
                                 <p><strong>{{trait_value.pretty_name}}</strong></p>
                                 <p class="sub-heading">{{trait_value.description}}</p>
@@ -67,19 +68,26 @@
                 </div>
                 <div class="col-xs-6 col-sm-3">
                     <div class="helper step step5">Finished adding data products? Click the <i class="fa fa-download"></i>
-                        Add to Download button to add your selection to the <a href="{% url 'download-create'%}">Download</a>.
+                        Add to Download button to add your selection to the <a href="{{apctrl.download_url}}">Download</a>.
                     </div>
-                    <div class="panel panel-default warning" ng-if="isDisabled">
+                    <div class="panel panel-default warning" ng-if="(isDisabled && !isSubmitted)">
                         <div class="panel-body">
-                            <p>You've already selected data products to download for this sample. The request has been added to the <a
-                                    href="{% url 'download-create'%}">Download</a>. Go ahead and submit it, or remove it
-                                on the <a href="{% url 'download-create'%}">Download</a> page.</p>
+                            <p>You've already selected data products to download for this sample. Head over to the <a href="{{apctrl.download_url}}">Download</a>
+                                page to begin or click the <i class="fa fa-rotate-left text-error"></i> Start Over button below.</p>
                         </div>
                     </div>
                     <p class="text-right">
+                        <button class="btn btn-default" ng-if="(isDisabled && !isSubmitted)"><i class="fa fa-rotate-left text-error"></i> Start Over?</button>
                         <sample-download ng-disabled="(download | isEmpty) || isDisabled" url='{{apctrl.sample_url}}' options='{{download}}'></sample-download>
                     </p>
                     <br>
+                    <div class="panel panel-default success" ng-if="(isDisabled && isSubmitted)">
+                        <div class="panel-body">
+                            <p>Your selection has been added! Head over to the <a href="{{apctrl.download_url}}">Download</a>
+                                page to begin the download.</p>
+                        </div>
+                    </div>
+
                     <div class="panel panel-default info">
                         <div class="panel-body">
                             <strong class="text-uppercase">Note</strong>

@@ -198,7 +198,7 @@ console.log('directives.js');
                         scope.item['url'] = attr.url;
 
                         if (typeof attr.options !== 'undefined'){
-                            scope.item['options'] = attr.options;
+                            scope.item['options'] = JSON.parse(attr.options);
                         }
                         // Shape of object is as: scope.item = {id: "http://127.0.0.1:8000/asvo/query-history/2", options: "blah"}
 
@@ -213,10 +213,10 @@ console.log('directives.js');
                     // CHECK for this in cookie already and disable the button.
                     if (undefined != saved_items){
                         for (var i = 0; i < saved_items.length; i++) {
-                            console.log(saved_items[i]);
                             if (saved_items[i] == attr.url){
                                 $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
                                 scope.$parent.isDisabled = true;
+                                scope.$parent.getPreviousState = true;
                                 scope.$apply();
                             }
                         }
@@ -236,6 +236,9 @@ console.log('directives.js');
                             $('#mini-download').removeClass('bounce');
                         });
                     $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
+                    // Parent scope has access to the state of this directive should it wish to change states after submit
+                    scope.$parent.isSubmitted = true;
+                    scope.$parent.isDisabled = true;
                 };
             }
         };
