@@ -598,9 +598,9 @@ li {
   line-height: 1.6em;
   width: 1.6em;
   height: 1.6em;
-  top: 1.6em;
+  top: 1.4em;
   margin-right: 1.6em;
-  left: 1.0em;
+  left: 1.25em;
   text-align: center;
   content: "1";
   font-family: Monaco;
@@ -617,6 +617,12 @@ li {
 }
 .helper.step.step3:before {
   content: "3";
+}
+.helper.step.step4:before {
+  content: "4";
+}
+.helper.step.step5:before {
+  content: "5";
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -638,6 +644,9 @@ li {
 .nav-tabs {
   margin: 20px 0;
   border-bottom: 1px solid #eee;
+}
+.nav-tabs-with-well {
+  margin: 0;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

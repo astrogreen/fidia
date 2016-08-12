@@ -10,7 +10,8 @@ console.log('availableproducts.controllers.js');
 
         // Set these on scope to allow two-way data binding
         $scope.availabledata = {};
-        $scope.selection = ['test'];
+        $scope.selection = {};
+        $scope.download = {};
 
         try {
             ctrl.surveys = JSON.parse((ctrl.schemaurls).replace(/'/g, '"'));
@@ -44,6 +45,7 @@ console.log('availableproducts.controllers.js');
         // watch the availabledata to see if any have been selected
         $scope.$watch('availabledata', function(newVal, oldVal) {
             $scope.selection={};
+            $scope.download={};
             angular.forEach(newVal, function(schema,survey){
                 angular.forEach(schema.available_traits, function(v, k){
                     angular.forEach(v.traits, function(t,trait_key){
@@ -52,8 +54,11 @@ console.log('availableproducts.controllers.js');
                                 // if (($.inArray(name, $scope.selection) < 0)&&(t.selected == true)){
                                 if (typeof $scope.selection[survey] == "undefined") {
                                     $scope.selection[survey] = [];
+                                    $scope.download[survey] = [];
                                 }
-                                $scope.selection[survey].push(trait_key+':'+branch.name)
+                                //adds: {trait_key: "line_map-HALPHA:1_comp", pretty_name: "Line Map — Hα:1_comp"}
+                                $scope.selection[survey].push({trait_key:trait_key+':'+branch.name, pretty_name:t.pretty_name+':'+branch.name});
+                                $scope.download[survey].push(trait_key+':'+branch.name)
                             };
                         });
                     })
