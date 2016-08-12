@@ -48,7 +48,7 @@ console.log('availableproducts.controllers.js');
             $scope.download={};
             angular.forEach(newVal, function(schema,survey){
                 angular.forEach(schema.available_traits, function(v, k){
-                    angular.forEach(v.traits, function(t,trait_key){
+                    angular.forEach(v.traits, function(t,trait_name){
                         angular.forEach(t.branches, function(branch) {
                             if (branch.selected == true) {
                                 // if (($.inArray(name, $scope.selection) < 0)&&(t.selected == true)){
@@ -57,14 +57,27 @@ console.log('availableproducts.controllers.js');
                                     $scope.download[survey] = [];
                                 }
                                 //adds: {trait_key: "line_map-HALPHA:1_comp", pretty_name: "Line Map — Hα:1_comp"}
-                                $scope.selection[survey].push({trait_key:trait_key+':'+branch.name, pretty_name:t.pretty_name+':'+branch.name});
-                                $scope.download[survey].push(trait_key+':'+branch.name)
+                                $scope.selection[survey].push({
+                                    pretty_name: t.pretty_name + ':' + branch.name,
+                                    trait_name: trait_name,
+                                    trait_key: trait_name + ':' + branch.name,
+                                    trait_type: k,
+                                    branch: branch.name
+                                });
+                                $scope.download[survey].push(trait_name+':'+branch.name)
                             };
                         });
                     })
                 })
             })
         }, true);
+
+        ctrl.uncheckProduct = function(survey, trait_type, trait_name, trait_key, branch) {
+            console.log(survey, trait_type, trait_name, trait_key, branch);
+            console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]);
+            console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected']);
+            $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = false;
+        }
 
     });
 

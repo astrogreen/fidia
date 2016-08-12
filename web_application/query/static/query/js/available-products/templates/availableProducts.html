@@ -56,7 +56,7 @@
                     <div class="">
                         <div ng-repeat="(survey, value) in selection">
                             <h5>{{survey}}</h5>
-                            <p ng-repeat="product in value">{{product.pretty_name}}</p>
+                            <p ng-repeat="product in value">{{product.pretty_name}}<a class="pull-right" ng-click="apctrl.uncheckProduct(survey, product.trait_type, product.trait_name, product.trait_key, product.branch)"><i class="fa fa-times error"></i></a></p>
                         </div>
                     </div>
                 </div>
