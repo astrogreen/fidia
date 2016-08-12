@@ -96,7 +96,9 @@
                                   Download Items
                                 </label>
                                 {% verbatim %}
-                                <input name="downloaditems" class="form-control" value="{{ctrl3.download}}">
+                                <!--<input name="downloaditems" class="form-control" value="{{ctrl3.download}}">-->
+                                <input type="hidden" name="downloaditems" ng-value="ctrl3.download" />
+
                                 {% endverbatim %}
                             </div>
 

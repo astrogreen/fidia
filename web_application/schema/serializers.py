@@ -41,7 +41,7 @@ class SampleSerializer(serializers.Serializer):
                     'astroobject_pk': str(astro_object),
                     'sample_pk': self.context['sample']
                 }
-            url = reverse("schema:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
+            url = reverse("schema:astroobject-list", kwargs=url_kwargs)
 
             # self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
             self.astro_objects[astro_object] = url

@@ -163,6 +163,7 @@
             },
 
             prettifyCookie: function(items){
+
                 var prettyCookie = {};
                 // object, id: prettified array
                 angular.forEach(items, function(v, url){

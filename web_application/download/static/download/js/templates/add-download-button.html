@@ -2,13 +2,13 @@
     <div class="btn-group" >
       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
               aria-expanded="false">
-          <i class="fa fa-download"></i> Download</button>
-      <button type="button" class="btn btn-default dropdown-toggle add-to-download-caret" data-toggle="dropdown" aria-haspopup="true"
+          <i class="fa fa-download"></i> Add to Download</button>
+      <button type="button" class="btn btn-default dropdown-toggle add-to-download-caret" data-toggle="dropdown" aria-haspopup="true" ng-show="formats.length"
               aria-expanded="false">
          <i class="fa fa-caret-down"></i>
         <span class="sr-only">Toggle Dropdown</span>
       </button>
-      <ul class="dropdown-menu">
+      <ul class="dropdown-menu" ng-show="formats.length">
         <li ng-repeat="f in formats">
             <a ng-show="f" class="js-tooltip {{f}}" format-type="{{f}}" ng-click="addItem(f)" format="{{f}}" url="">{{ f }}</a>
         </li>

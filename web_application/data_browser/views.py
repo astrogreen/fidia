@@ -113,7 +113,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             'astroobject_pk': astroobject_pk,
             'sample_pk': sample_pk,
         }
-        astro_object_url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=request)
+        astro_object_url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
         # Dict of available traits
         trait_registry = ar.available_traits
         trait_info = {}
@@ -137,7 +137,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     'astroobject_pk': astroobject_pk,
                     'sample_pk': sample_pk,
                 }
-                trait_name_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
+                trait_name_url = reverse("data_browser:trait-list", kwargs=url_kwargs)
 
                 # Pretty Name
                 # - trait_type
@@ -442,7 +442,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             'sample_pk': sample_pk,
             'trait_pk': trait_pk
         }
-        self.trait_url = reverse("data_browser:trait-list", kwargs=url_kwargs, request=request)
+        self.trait_url = reverse("data_browser:trait-list", kwargs=url_kwargs)
 
         return Response(serializer.data)
 

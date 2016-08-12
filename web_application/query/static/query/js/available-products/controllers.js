@@ -4,9 +4,10 @@ console.log('availableproducts.controllers.js');
 
     var app = angular.module('DCApp');
 
-    app.controller('AvailableProductsController', function($scope, AvailableProductsService){
+    app.controller('AvailableProductsController', function($scope, AvailableProductsService, $window){
         var ctrl = this; // create alias to this to avoid closure issues
         ctrl.surveys = {};
+        ctrl.sample_url = $window.location.pathname;
 
         // Set these on scope to allow two-way data binding
         $scope.availabledata = {};
@@ -58,12 +59,13 @@ console.log('availableproducts.controllers.js');
                                 }
                                 //adds: {trait_key: "line_map-HALPHA:1_comp", pretty_name: "Line Map — Hα:1_comp"}
                                 $scope.selection[survey].push({
-                                    pretty_name: t.pretty_name + ':' + branch.name,
+                                    pretty_name: t.pretty_name,
                                     trait_name: trait_name,
                                     trait_key: trait_name + ':' + branch.name,
                                     trait_type: k,
                                     branch: branch.name
                                 });
+
                                 $scope.download[survey].push(trait_name+':'+branch.name)
                             };
                         });
@@ -73,9 +75,9 @@ console.log('availableproducts.controllers.js');
         }, true);
 
         ctrl.uncheckProduct = function(survey, trait_type, trait_name, trait_key, branch) {
-            console.log(survey, trait_type, trait_name, trait_key, branch);
-            console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]);
-            console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected']);
+            // console.log(survey, trait_type, trait_name, trait_key, branch);
+
+            // console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected']);
             $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = false;
         }
 

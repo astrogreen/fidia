@@ -33,9 +33,9 @@
                     <div class="tab-content" style="max-height:500px;overflow: scroll">
                         <div role="tabpanel" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}' class="tab-pane" id="{{trait_type}}">
                             <div class="" ng-repeat="(trait_name, trait_value) in trait_type_value.traits track by $index" >
-                                <h5>{{trait_value.pretty_name}}</h5>
+                                <p><strong>{{trait_value.pretty_name}}</strong></p>
                                 <p class="sub-heading">{{trait_value.description}}</p>
-                                <p class="sub-heading"><strong>Branches</strong></p>
+                                <p class="sub-heading">Branches</p>
                                     <div class="checkbox"
                                          ng-repeat="(branch_key, branch_value) in trait_value.branches track by $index">
                                         <input type="checkbox" value="{{branch_value.name}}"
@@ -47,6 +47,7 @@
                                         </label>
                                         &nbsp; &nbsp;<a href="{{branch_value.url}}" target="_blank">Docs</a>
                                     </div>
+                                <hr>
                             </div>
                         </div>
                     </div>
@@ -56,12 +57,22 @@
                     <div class="">
                         <div ng-repeat="(survey, value) in selection">
                             <h5>{{survey}}</h5>
-                            <p ng-repeat="product in value">{{product.pretty_name}}<a class="pull-right" ng-click="apctrl.uncheckProduct(survey, product.trait_type, product.trait_name, product.trait_key, product.branch)"><i class="fa fa-times error"></i></a></p>
+                            <p ng-repeat="product in value">{{product.pretty_name}} <i class="fa fa-code-fork"></i> {{product.branch}}&nbsp;<a ng-click="apctrl.uncheckProduct(survey, product.trait_type, product.trait_name, product.trait_key, product.branch)"><i class="fa fa-times text-error"></i></a></p>
+                        </div>
+                        <div ng-if="selection | isEmpty">
+                            <p class="sub-heading">You've not added any data products. Follow the prompts to get started.</p>
+
                         </div>
                     </div>
                 </div>
                 <div class="col-xs-6 col-sm-3">
-                    <div class="helper step step5">Finished adding data products? Click the download button to add your selection to the <a href="{% url 'download-create'%}">Download</a>.</div>
+                    <div class="helper step step5">Finished adding data products? Click the <i class="fa fa-download"></i>
+                        Add to Download button to add your selection to the <a href="{% url 'download-create'%}">Download</a>.
+                    </div>
+                    <p class="text-right">
+                        <sample-download ng-disabled="(download | isEmpty) || isDisabled" url='{{apctrl.sample_url}}' options='{{download}}'></sample-download>
+                    </p>
+                    <br>
                     <div class="panel panel-default info">
                         <div class="panel-body">
                             <strong class="text-uppercase">Note</strong>
@@ -69,12 +80,12 @@
                                 This selection tool displays all available types of data product hosted at AAODC.
                                 However, not all data products are available for all objects (e.g., some GAMA galaxies will
                                 <strong>not</strong> have
-                                SAMI data). Once you have made your selection, <a href="{% url 'download-create' %}">download the
-                                data</a> and check the resultant download package for products that do not exist.
-
+                                SAMI data). Once you have made your selection and downloaded the data, check the download package for
+                                details on unavailable products.
                             </p>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

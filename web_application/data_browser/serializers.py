@@ -68,7 +68,8 @@ class SampleSerializer(serializers.Serializer):
                     'astroobject_pk': str(astro_object),
                     'sample_pk': self.context['sample']
                 }
-            url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
+            url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
+            # url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
 
             # self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
             self.astro_objects[astro_object] = url
@@ -187,7 +188,9 @@ class TraitSerializer(serializers.Serializer):
             'astroobject_pk': self.context['astroobject'],
             'sample_pk': self.context['sample']
         }
-        url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
+        # url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
+        # removing request also removes the protocol etc.
+        url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
 
         for i in trait.get_all_branches_versions():
             if i.branch != None:
