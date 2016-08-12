@@ -567,6 +567,59 @@ li {
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ HELPER
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+.helper {
+  color: rgba(0, 0, 0, 0.3);
+  padding-left: 1em;
+  margin: 1em;
+}
+.helper:before {
+  color: #d9534f;
+  content: "\f05a";
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+  /*--adjust as necessary--*/
+  font-size: 18px;
+  position: absolute;
+  top: 1em;
+  left: 1em;
+}
+.helper.step:before {
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+  border-radius: 50%;
+  position: absolute;
+  font-size: 12px;
+  line-height: 1.6em;
+  width: 1.6em;
+  height: 1.6em;
+  top: 1.6em;
+  margin-right: 1.6em;
+  left: 1.0em;
+  text-align: center;
+  content: "1";
+  font-family: Monaco;
+  color: #ffffff;
+  background-color: #d9534f;
+  padding-left: 1px;
+  padding-right: -1px;
+}
+.helper.step.step1:before {
+  content: "1";
+}
+.helper.step.step2:before {
+  content: "2";
+}
+.helper.step.step3:before {
+  content: "3";
+}
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ TABS
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
