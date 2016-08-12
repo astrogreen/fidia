@@ -12,97 +12,100 @@
 <ul class="nav nav-tabs nav-tabs-with-well" role="tablist">
     <li role="presentation" ng-repeat="(key, value) in availabledata" ng-class='{active:$first}'><a href="#{{key}}" aria-controls="{{key}}" role="tab" data-toggle="tab">{{key}}</a></li>
 </ul>
-
-<!-- Tab panes -->
-<div class="tab-content">
-    <div role="tabpanel" class="tab-pane" ng-repeat="(key, value) in availabledata" ng-class='{active:$first}' id="{{key}}">
-        <div class="well">
-            <div class="row">
-                <div class="col-xs-6 col-sm-3">
-                    <div class="helper step step2">Select a type of data product from the list below.</div>
-                <!-- Level1 -->
-                    <ul class="nav nav-pills nav-stacked" id="{{key}}_trait_type">
-                        <li role="presentation" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}'>
-                            <a href="#{{key}}_{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
-                            <p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_type_value.description}}</p>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-xs-6 col-sm-3">
-                <!-- Level2 -->
-                    <div class="helper step step3">Add or remove data products using the checkboxes. </div>
-                    <div class="tab-content" style="max-height:500px;overflow: scroll">
-                        <div role="tabpanel" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}' class="tab-pane" id="{{key}}_{{trait_type}}">
-                            <div class="" ng-repeat="(trait_name, trait_value) in trait_type_value.traits track by $index" >
-                                <p><strong>{{trait_value.pretty_name}}</strong></p>
-                                <p class="sub-heading">{{trait_value.description}}</p>
-                                <p class="sub-heading">Branches</p>
-                                    <div class="checkbox"
-                                         ng-repeat="(branch_key, branch_value) in trait_value.branches track by $index">
-                                        <input type="checkbox" value="{{branch_value.name}}"
-                                               ng-model="branch_value.selected"
-                                               ng+checked="branch_value.selected"
-                                               id="{{key}}_{{trait_name}}:{{branch_value.name}}">
-                                        <label for="{{key}}_{{trait_name}}:{{branch_value.name}}">
-                                            <i class="fa fa-code-fork"></i> {{branch_value.name}}
-                                        </label>
-                                        &nbsp; &nbsp;<a href="{{branch_value.url}}" target="_blank">Docs</a>
+<div class="well">
+    <div class="row">
+        <div class="col-sm-6 col-xs-12">
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane" ng-repeat="(key, value) in availabledata" ng-class='{active:$first}' id="{{key}}">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="helper step step2">Select a type of data product from the list below.</div>
+                        <!-- Level1 -->
+                            <ul class="nav nav-pills nav-stacked" id="{{key}}_trait_type">
+                                <li role="presentation" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}'>
+                                    <a href="#{{key}}_{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
+                                    <p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_type_value.description}}</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-6">
+                        <!-- Level2 -->
+                            <div class="helper step step3">Add or remove data products using the checkboxes. </div>
+                            <div class="tab-content" style="max-height:500px;overflow: scroll">
+                                <div role="tabpanel" ng-repeat="(trait_type, trait_type_value) in value.available_traits" ng-class='{active:$first}' class="tab-pane" id="{{key}}_{{trait_type}}">
+                                    <div class="" ng-repeat="(trait_name, trait_value) in trait_type_value.traits track by $index" >
+                                        <p><strong>{{trait_value.pretty_name}}</strong></p>
+                                        <p class="sub-heading">{{trait_value.description}}</p>
+                                        <p class="sub-heading">Branches</p>
+                                            <div class="checkbox"
+                                                 ng-repeat="(branch_key, branch_value) in trait_value.branches track by $index">
+                                                <input type="checkbox" value="{{branch_value.name}}"
+                                                       ng-model="branch_value.selected"
+                                                       ng+checked="branch_value.selected"
+                                                       id="{{key}}_{{trait_name}}:{{branch_value.name}}">
+                                                <label for="{{key}}_{{trait_name}}:{{branch_value.name}}">
+                                                    <i class="fa fa-code-fork"></i> {{branch_value.name}}
+                                                </label>
+                                                &nbsp; &nbsp;<a href="{{branch_value.url}}" target="_blank">Docs</a>
+                                            </div>
+                                        <hr>
                                     </div>
-                                <hr>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-6 col-sm-3">
-                    <div class="helper step step4">This is the list of data products you've chosen to download for your sample. </div>
-                    <div class="">
-                        <div ng-repeat="(survey, value) in selection">
-                            <h5>{{survey}}</h5>
-                            <p ng-repeat="product in value">{{product.pretty_name}} <i class="fa fa-code-fork"></i> {{product.branch}}&nbsp;<a ng-click="apctrl.uncheckProduct(survey, product.trait_type, product.trait_name, product.trait_key, product.branch)"><i class="fa fa-times text-error"></i></a></p>
-                        </div>
-                        <div ng-if="selection | isEmpty">
-                            <p class="sub-heading">You've not added any data products. Follow the prompts to get started.</p>
-
-                        </div>
-                    </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-3">
+            <div class="helper step step4">This is the list of data products you've chosen to download for your sample. </div>
+            <div class="">
+                <div ng-repeat="(survey, value) in selection">
+                    <h5>{{survey}}</h5>
+                    <p ng-repeat="product in value">{{product.pretty_name}} <i class="fa fa-code-fork"></i> {{product.branch}}&nbsp;<a ng-click="apctrl.uncheckProduct(survey, product.trait_type, product.trait_name, product.trait_key, product.branch)"><i class="fa fa-times text-error"></i></a></p>
                 </div>
-                <div class="col-xs-6 col-sm-3">
-                    <div class="helper step step5">Finished adding data products? Click the <i class="fa fa-download"></i>
-                        Add to Download button to add your selection to the <a href="{{apctrl.download_url}}">Download</a>.
-                    </div>
-                    <div class="panel panel-default warning" ng-if="(isDisabled.state && !isSubmitted.state)">
-                        <div class="panel-body">
-                            <p>You've already selected data products to download for this sample. Head over to the <a href="{{apctrl.download_url}}">Download</a>
-                                page to begin or click the <i class="fa fa-rotate-left"></i> Edit Selection button below.</p>
-                        </div>
-                    </div>
-                    <p class="text-right">
-                        <button class="btn btn-default" ng-if="(isDisabled.state && !isSubmitted.state)" ng-click="apctrl.reapplyState()"><i class="fa fa-rotate-left"></i> Edit Selection?</button>
-                        <sample-download ng-disabled="(download | isEmpty) || isDisabled.state" url='{{apctrl.sample_url}}' options='{{download}}'></sample-download>
-                    </p>
-                    <br>
-                    <div class="panel panel-default success" ng-if="(isDisabled.state && isSubmitted.state)">
-                        <div class="panel-body">
-                            <p>Your selection has been added! Head over to the <a href="{{apctrl.download_url}}">Download</a>
-                                page to begin the download.</p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default info">
-                        <div class="panel-body">
-                            <strong class="text-uppercase">Note</strong>
-                            <p>
-                                This selection tool displays all available types of data product hosted at AAODC.
-                                However, not all data products are available for all objects (e.g., some GAMA galaxies will
-                                <strong>not</strong> have
-                                SAMI data). Once you have made your selection and downloaded the data, check the download package for
-                                details on unavailable products.
-                            </p>
-                        </div>
-                    </div>
+                <div ng-if="selection | isEmpty">
+                    <p class="sub-heading">You've not added any data products. Follow the prompts to get started.</p>
 
                 </div>
             </div>
+        </div>
+        <div class="col-xs-6 col-sm-3">
+            <div class="helper step step5">Finished adding data products? Click the <i class="fa fa-download"></i>
+                Add to Download button to add your selection to the <a href="{{apctrl.download_url}}">Download</a>.
+            </div>
+            <div class="panel panel-default warning" ng-if="(isDisabled.state && !isSubmitted.state)">
+                <div class="panel-body">
+                    <p>You've already selected data products to download for this sample. Head over to the <a href="{{apctrl.download_url}}">Download</a>
+                        page to begin or click the <i class="fa fa-rotate-left"></i> Edit Selection button below.</p>
+                </div>
+            </div>
+            <p class="text-right">
+                <button class="btn btn-default" ng-if="(isDisabled.state && !isSubmitted.state)" ng-click="apctrl.reapplyState()"><i class="fa fa-rotate-left"></i> Edit Selection?</button>
+                <sample-download ng-disabled="(download | isEmpty) || isDisabled.state" url='{{apctrl.sample_url}}' options='{{download}}'></sample-download>
+            </p>
+            <br>
+            <div class="panel panel-default success" ng-if="(isDisabled.state && isSubmitted.state)">
+                <div class="panel-body">
+                    <p>Your selection has been added! Head over to the <a href="{{apctrl.download_url}}">Download</a>
+                        page to begin the download.</p>
+                </div>
+            </div>
+
+            <div class="panel panel-default info">
+                <div class="panel-body">
+                    <strong class="text-uppercase">Note</strong>
+                    <p>
+                        This selection tool displays all available types of data product hosted at AAODC.
+                        However, not all data products are available for all objects (e.g., some GAMA galaxies will
+                        <strong>not</strong> have
+                        SAMI data). Once you have made your selection and downloaded the data, check the download package for
+                        details on unavailable products.
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

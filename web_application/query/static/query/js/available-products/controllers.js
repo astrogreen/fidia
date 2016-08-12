@@ -23,7 +23,6 @@ console.log('availableproducts.controllers.js');
         $scope.isDisabled.state=false;
         $scope.isSubmitted={};
         $scope.isSubmitted.state=false;
-        console.log('controller')
 
         try {
             ctrl.surveys = JSON.parse((ctrl.schemaurls).replace(/'/g, '"'));
