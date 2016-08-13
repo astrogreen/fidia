@@ -55,11 +55,16 @@ console.log('controllers.js');
             ctrl.summary = DownloadService.getSummary();
         };
 
-        // NEW STORAGE METHOD
+        // NEW STORAGE METHOD - - - - - - - - -
         // ctrl.items ==>
+        ctrl.addItem = function(item){
+            // Pass the item into the addItem method of the DownloadService
+            DownloadService.addItem(item);
+        };
+
         ctrl.getItems = function(){
             var deferred = $q.defer();
-            var url = '/asvo/storage/1/'
+            var url = '/asvo/storage/1/';
 
             StorageService.getStorageContents(url).then(function (data) {
                 deferred.resolve(data);
@@ -73,13 +78,12 @@ console.log('controllers.js');
             return deferred.promise;
         };
 
-        ctrl.getSummary = function(){
-            StorageService.getSummary();
-        }
-
         ctrl.prettyData = function(){
+            /**
+             * Resolves a promise from the getItems Service for the data from /storage/
+             * then provides a prettified version for the download template.
+             */
             ctrl.getItems().then(function(data){
-                console.log(data)
                 StorageService.prettifyData(data);
             }).catch(function(){
                 console.log('Data could not be prettified.')
@@ -87,17 +91,28 @@ console.log('controllers.js');
         };
 
         ctrl.getSummary = function(){
+            /**
+             * Resolves a promise from the getItems Service for the data from /storage/
+             * then provides a summarized version for the template
+             */
             ctrl.getItems().then(function(data){
-                console.log('Resolved Promise')
-                console.log(data);
                 StorageService.getSummary(data);
             }).catch(function(){
                 console.log('Data could not be summarized.')
             })
         };
 
-        ctrl.getSummary();
-
+        ctrl.PrepareDownload = function(){
+            /**
+             * Resolves a promise from the getItems Service for the data from /storage/
+             * then provides a summarized version for the template
+             */
+            ctrl.getItems().then(function(data){
+                return StorageService.prepareDownload(data);
+            }).catch(function(){
+                console.log('Data could not be prepared for Download.')
+            })
+        };
 
     });
 

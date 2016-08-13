@@ -331,12 +331,42 @@
           });
         }
 
+        function updateStorage(){
+            /**
+             * Make an update request to storage/1/ with the new data
+             */
+            console.log('updateStorage: ', items);
+            var url = '/asvo/storage/1/';
 
+            if(items.length) {
+                // Initialize an object that will be saved as a cookie
+                var items_for_storage = {};
+                // Loop through the items in the download
+                angular.forEach(items, function(item, key){
+                    // Add each item to the items cookie,
+                    // using the id as the identifier
+                    items_for_storage[key] = item;
+                });
+                var data = {
+                    "storage_data": items_for_storage
+                }
+                // then returns a new promise, which we return - the new promise is resolved
+                // via response.data
+                return $http.patch(url, data).then(function (response) {
+                    console.log('Updated');
+                });
+            }
+        }
         // Angular factories return service objects
         return {
 
             getStorageContents: function(url) {
-                // Check if scope items is empty, if not - populate the current service with the storage data
+                /**
+                 * Check if scope items is empty, if not - populate the current service with the storage data
+                 * then returns a new promise, which we return - the new promise is resolved via response.data
+                 * @param {String} url
+                 * @return {Object} items - this is the main object containing all current data.
+                 */
                 if(!items.length) {
                     // then returns a new promise, which we return - the new promise is resolved
                     // via response.data
@@ -358,29 +388,6 @@
                 return items;
             },
 
-            // getItems: function() {
-            //     // Initialize the itemsCookie variable
-            //     var itemsCookie;
-            //
-            //     // checkCookie();
-            //
-            //     // Check if download is empty, if not - populate the current service with the cookie items
-            //     if(!items.length) {
-            //         // Get the items cookie
-            //         itemsCookie = $cookieStore.get('items');
-            //         // Check if the item cookie exists
-            //         if(itemsCookie) {
-            //             // Loop through the items in the cookie
-            //             angular.forEach(itemsCookie, function(item, key) {
-            //                 // Get the product details from the ProductService using the guid
-            //                 items[item.id] = item;
-            //             });
-            //         }
-            //     }
-            //     // Returns items object
-            //     return items;
-            // },
-            //
             // checkItemInCookie: function(){
             //     // share data between services
             //     if (undefined != $cookieStore){
@@ -392,22 +399,23 @@
             //     }
             // },
             //
-            // addItem: function(item){
-            //     // Check if item already exists
-            //     // If exists - don't add
-            //     // Else, push the item onto the items array, at the relevant astronomical object key
-            //     if (!items[item.id]){
-            //         // TODO strip the item.id field once added as already present in key - this might affect other services
-            //         items[item.id] = item;
-            //
-            //     } else {
-            //         // nothing - we don't need to update quantity - but this will need altering to cope with AO structure
-            //     }
-            //     // Update cookie
-            //     updateItemsCookie();
-            //     // Update angular summary obj
-            //     this.getSummary();
-            // },
+            addItem: function(item){
+                /**
+                 * Check if item exists in local item object, if already exists, don't add it.
+                 * Else, push the item onto the items obj, at the relevant key==id
+                 * Then call updateStorage to push items onto storage/1/
+                 */
+                if (!items[item.id]){
+                    items[item.id] = item;
+
+                } else {
+                    // nothing - we don't need to update quantity - but this will need altering to cope with AO structure
+                }
+                // Update Storage
+                updateStorage();
+                // Update angular summary obj
+                this.getSummary(items);
+            },
             //
             // removeItem: function(id){
             //     // Remove an item from the items object
@@ -509,7 +517,13 @@
                 return prettyData;
             },
 
-            getSummary: function(data){
+            getSummary: function(items){
+
+                /**
+                 * Takes items object and returns the summary for download template render
+                 * @param {Object} items
+                 * @return {Object} summary
+                 */
 
                 var summary = {
                     "bySample": [
@@ -523,7 +537,7 @@
                         ],
                 };
 
-                var pretty_data = this.prettifyData(data);
+                var pretty_data = this.prettifyData(items);
 
                 angular.forEach(pretty_data.objects, function(val, key){
                     // bySample
@@ -554,20 +568,19 @@
                         summary.byObject.push({"ao": object_str, "count": 1})
                     }
                 });
-                console.log(angular.toJson(summary));
                 return summary;
             },
-            //
-            // download: function(){
-            //     // TODO This function should create a valid json and save in user's download history
-            //     // Wrap up (pretty==more info attached) cookie and return a string of valid JSON
-            //     var download_arr = this.prettifyCookie(this.getItems());
-            //     console.log(download_arr);
-            //     return JSON.stringify(download_arr);
-            // }
-            //
-            // // user clicks button format appended to url.
 
+            prepareDownload: function(items){
+                /**
+                 * Wrap up (prettified==more info attached) data and return a string of valid JSON to submit
+                 * to the download/ route
+                 * @param {Object} items
+                 * @return {String} JSON stringified prettified items
+                 */
+                var download_arr = this.prettifyData(items);
+                return JSON.stringify(download_arr);
+            }
 
         }
     })
