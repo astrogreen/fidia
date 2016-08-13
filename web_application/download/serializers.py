@@ -46,3 +46,21 @@ class DownloadSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = download.models.Download
         fields = ('title', 'downloaditems', 'owner', 'url', 'created', 'updated', 'downloadlink', 'size', 'total_size')
+
+
+class StorageSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Storage serializer
+    """
+    owner = serializers.ReadOnlyField(source='owner.username')
+    updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    storage_data = serializers.CharField(required=True, allow_null=False)
+
+    class Meta:
+        model = download.models.Storage
+        fields = ('storage_data', 'owner', 'url', 'created', 'updated')
+
+
+
+

@@ -15,3 +15,10 @@ class Download(models.Model):
     class Meta:
         ordering = ('created',)
 
+
+class Storage(models.Model):
+    storage_data = JSONField(default="", blank=False)
+    owner = models.ForeignKey('auth.User', related_name='storage')
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+    updated = models.DateTimeField(auto_now=True, editable=False)
+

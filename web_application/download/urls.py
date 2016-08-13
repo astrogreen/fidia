@@ -10,17 +10,10 @@ import download.views
 router = rest_framework.routers.SimpleRouter()
 
 # router.register(r'download-history', download.views.DownloadView, base_name='download')
+router.register(r'storage', download.views.StorageViewSet, base_name='storage')
 
 urlpatterns = [
     url(r'', include(router.urls)),
-
-    # url(r'download/$',
-    #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='download/download.html'),
-    #     name='download'),
-    # url(r'download/dummy-item/$',
-    #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='download/dummy_item.html'),
-    #     name='dummy-item'),
-
 
     url(r'^download/$', download.views.DownloadCreateView.as_view(), name='download-create'),
     url(r'^download-history/$', download.views.DownloadListView.as_view(), name='download-list'),

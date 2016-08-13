@@ -99,6 +99,32 @@ class DownloadRetrieveDestroyView(generics.RetrieveDestroyAPIView):
         return download.models.Download.objects.filter(owner=user).order_by('-updated')
 
 
+class StorageViewSet(viewsets.GenericViewSet,
+                     mixins.CreateModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.ListModelMixin,
+                     mixins.UpdateModelMixin):
+    """
+    This is the temporary storage we can use to push items to (using a Service on the angular download
+    - switch getItems from cookie to this)
+    The download is currently writing large amounts of data into the cookie to manage AND prettify it.
+     Move this over to sessions once we allow non-authenticated users to make queries and download data
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    serializer_class = download.serializers.StorageSerializer
+
+    def get_queryset(self):
+        """
+        Returns:
+        """
+        user = self.request.user
+        return download.models.Storage.objects.filter(owner=user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 # class DownloadItem(object):
 #     def __init__(self, id=None, url_list=None, **kwargs):
 #         self.id = id
