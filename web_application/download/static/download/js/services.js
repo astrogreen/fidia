@@ -339,27 +339,29 @@
                 return items;
             },
 
-            addItemToStorage: function(item){
+            addItemToStorage: function(item, overwrite){
                 /**
                  * Update storage at url. DOES NOT update the local items obj
                  */
                 var url = this.storageURL();
+                if (typeof overwrite === 'undefined') { overwrite = false; }
 
                 return this.getStorageContents(url).then(function(data){
 
                     // the items object has been updated with the server version.
                     // Check if this ID is already present
                     // If storage data doesn't contain this id:
-                    if (!data[item.id]){
+
+                    if (!data[item.id] || overwrite == true){
 
                         // Initialize request data
                         var items_for_storage = {};
 
                         // Loop through the storage data
-                        angular.forEach(data, function(item, key){
-                            // Add each item to the items cookie,
+                        angular.forEach(data, function(temp_item, temp_id){
+                            // Add each item to the items to be stored
                             // using the id as the identifier
-                            items_for_storage[key] = item;
+                            items_for_storage[temp_id] = temp_item;
                         });
 
                         // Add the new item
@@ -384,8 +386,9 @@
 
                     } else {
                         // nothing - we don't need to update quantity
-                        console.log(item.id + ' already in basket')
+                        console.log(item.id + ' already in basket and overwrite is set to false in StorageService:addItemToStorage().')
                     }
+
 
                 }).catch(function(){
                     console.log('Data could not be updated: ' + item)

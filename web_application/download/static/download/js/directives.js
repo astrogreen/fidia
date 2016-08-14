@@ -121,7 +121,7 @@ console.log('directives.js');
                     var deferred = $q.defer();
 
                     StorageService.getStorageContents().then(function (storage_data) {
-                        console.log(storage_data)
+
                         // CHECK for this in stored data already and disable the button.
                         angular.forEach(storage_data, function(storage_value, id){
                             if (undefined != scope.formats){
@@ -147,8 +147,6 @@ console.log('directives.js');
                         ctrl.status = data.status;
                     });
 
-                    var saved_items = DownloadService.checkItemInCookie();
-
                 });
 
                 scope.addItem = function(f){
@@ -160,6 +158,22 @@ console.log('directives.js');
                     StorageService.addItemToStorage(scope.item).then(function () {
                         // Update local items object with that from storage
                         StorageService.getStorageContents()
+
+                        $('#mini-download').addClass('bounce')
+                        .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                            $('#mini-download').removeClass('bounce');
+                        });
+
+                        // Change button states
+                        caretToTick(scope.caret_button);
+
+                        scope.format_dropdown = angular.element(elem[0].querySelector("ul.dropdown-menu li ."+f));
+
+                        disableFormat(scope.format_dropdown, f);
+
+                        angular.element(elem[0].querySelector(".dropdown-menu ul li ."+f))
+                            .html('added')
+
                         deferred.resolve();
                     }).catch(function () {
                         deferred.reject(data);
@@ -170,28 +184,6 @@ console.log('directives.js');
 
                     return deferred.promise;
 
-                    // // Pass the item into the addItem method of DownloadService
-                    // // populate the items obj for this particular view before start writing in to the cookie
-                    // DownloadService.getItems();
-                    // DownloadService.addItem(scope.item);
-                    // DownloadService.getItemCount();
-                    //
-                    // $('#mini-download').addClass('bounce')
-                    //     .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                    //         $('#mini-download').removeClass('bounce');
-                    //     });
-                    //
-                    // // Change button states
-                    // // disableAddButton(scope.add_button);
-                    // // disableFormatDropdown(scope.format_dropdown_button);
-                    // caretToTick(scope.caret_button);
-                    //
-                    // scope.format_dropdown = angular.element(elem[0].querySelector("ul.dropdown-menu li ."+f));
-                    //
-                    // disableFormat(scope.format_dropdown, f);
-
-                    // angular.element(elem[0].querySelector(".dropdown-menu ul li ."+f))
-                    //     .html('added')
                 };
 
                 scope.chooseFormat = function(f){
@@ -204,7 +196,7 @@ console.log('directives.js');
     });
 
     // DownloadDirective
-    app.directive('sampleDownload', function(DownloadService){
+    app.directive('sampleDownload', function(StorageService, $q){
         return{
             // Create in an isolated scope
             scope:{},
@@ -248,49 +240,98 @@ console.log('directives.js');
                 };
 
                 angular.element(document).ready(function() {
-                    var saved_items = DownloadService.checkItemInCookie();
-                    // CHECK for this in cookie already and disable the button.
-                    if (undefined != saved_items){
-                        for (var i = 0; i < saved_items.length; i++) {
-                            if (saved_items[i] == attr.url){
+
+
+                    var deferred = $q.defer();
+
+                    StorageService.getStorageContents().then(function (storage_data) {
+
+                        // CHECK for this in stored data already and disable the button.
+                        angular.forEach(storage_data, function(storage_value, id){
+                            if (id == attr.url){
                                 $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
                                 scope.$parent.isDisabled.state = true;
-                                scope.$apply();
                             }
-                        }
-                    }
-                });
-
-                scope.addItem = function(){
-
-                    scope.constructItem();
-
-                    var items = DownloadService.getItems();
-
-                    // If pre-existing sample item, copy into temporary variable
-                    angular.forEach(items, function (data, id) {
-                        if (id == scope.item.id) {
-                            var temporary = items[scope.item.id];
-                            // Now remove the previous item from the cookie
-                            DownloadService.removeItem(scope.item.id);
-                        }
+                        });
+                        deferred.resolve();
+                    }).catch(function () {
+                        deferred.reject(data);
+                        ctrl.error = true;
+                        ctrl.text = 'Unable to get stored data';
+                        ctrl.status = data.status;
                     });
 
+                });
 
-                    // Pass the item into the addItem method of DownloadService
-                    // populate the items obj for this particular view before start writing in to the cookie
-                    DownloadService.getItems();
-                    DownloadService.addItem(scope.item);
-                    DownloadService.getItemCount();
+                // scope.addItem = function(){
+                //
+                //     scope.constructItem();
+                //
+                //     var items = DownloadService.getItems();
+                //
+                //     // If pre-existing sample item, copy into temporary variable
+                //     angular.forEach(items, function (data, id) {
+                //         if (id == scope.item.id) {
+                //             var temporary = items[scope.item.id];
+                //             // Now remove the previous item from the cookie
+                //             DownloadService.removeItem(scope.item.id);
+                //         }
+                //     });
+                //
+                //
+                //     // Pass the item into the addItem method of DownloadService
+                //     // populate the items obj for this particular view before start writing in to the cookie
+                //     DownloadService.getItems();
+                //     DownloadService.addItem(scope.item);
+                //     DownloadService.getItemCount();
+                //
+                //     $('#mini-download').addClass('bounce')
+                //         .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                //             $('#mini-download').removeClass('bounce');
+                //         });
+                //     $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
+                //     // Parent scope has access to the state of this directive should it wish to change states after submit
+                //     scope.$parent.isSubmitted.state = true;
+                //     scope.$parent.isDisabled.state = true;
+                // };
 
-                    $('#mini-download').addClass('bounce')
-                        .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                            $('#mini-download').removeClass('bounce');
-                        });
-                    $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
-                    // Parent scope has access to the state of this directive should it wish to change states after submit
-                    scope.$parent.isSubmitted.state = true;
-                    scope.$parent.isDisabled.state = true;
+                scope.addItem = function(){
+                    /**
+                     *  Add the sample to the storage/ route
+                     *  If this id already exists, remove it from the storage array and re-submit
+                     *  This function is unique, as it allows data to be written
+                     */
+
+                    scope.constructItem();
+                    var deferred = $q.defer();
+
+                    StorageService.addItemToStorage(scope.item, true).then(function () {
+                        // Update local items object with that from storage
+                        StorageService.getStorageContents()
+
+                        $('#mini-download').addClass('bounce')
+                            .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                                $('#mini-download').removeClass('bounce');
+                            });
+                        $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
+                        // Parent scope has access to the state of this directive should it wish to change states after submit
+                        scope.$parent.isSubmitted.state = true;
+                        scope.$parent.isDisabled.state = true;
+
+                        deferred.resolve();
+                    }).catch(function () {
+                        deferred.reject(data);
+                        ctrl.error = true;
+                        ctrl.text = 'Unable to get stored data at ' + url;
+                        ctrl.status = data.status;
+                    });
+
+                    return deferred.promise;
+
+                };
+
+                scope.updateItem = function(){
+
                 };
 
             }

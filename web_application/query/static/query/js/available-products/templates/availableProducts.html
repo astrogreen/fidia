@@ -18,6 +18,8 @@
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane" ng-repeat="(key, value) in availabledata" ng-class='{active:$first}' id="{{key}}">
+                    <!--<fieldset ng-disabled="(isDisabled.state && isSubmitted.state)">-->
+                    <fieldset ng-disabled="(isDisabled.state && !isSubmitted.state)">
                     <div class="row">
                         <div class="col-xs-6">
                             <div class="helper step step2">Select a type of data product from the list below.</div>
@@ -55,6 +57,7 @@
                             </div>
                         </div>
                     </div>
+                    </fieldset>
                 </div>
             </div>
         </div>
