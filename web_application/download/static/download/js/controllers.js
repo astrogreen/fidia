@@ -55,11 +55,12 @@ console.log('controllers.js');
             ctrl.summary = DownloadService.getSummary();
         };
 
+
         // NEW STORAGE METHOD - - - - - - - - -
         // ctrl.items ==>
-        ctrl.addItem = function(item){
+        ctrl.addItemToStorage = function(item){
             // Pass the item into the addItem method of the DownloadService
-            DownloadService.addItem(item);
+            StorageService.addItemToStorage(item);
         };
 
         ctrl.getItems = function(){
@@ -74,8 +75,19 @@ console.log('controllers.js');
                 ctrl.text = 'Unable to get stored data at ' + url;
                 ctrl.status = data.status;
             });
-
             return deferred.promise;
+        };
+
+        ctrl.getStorageItemCount = function(){
+            /**
+             * Resolves a promise from the getItems Service for the data from /storage/
+             * then provides the count of objects
+             */
+            ctrl.getItems().then(function(data){
+                StorageService.getItemCount(data);
+            }).catch(function(){
+                console.log('Data could not be counted.')
+            })
         };
 
         ctrl.prettyData = function(){
@@ -113,6 +125,10 @@ console.log('controllers.js');
                 console.log('Data could not be prepared for Download.')
             })
         };
+
+        ctrl.getItemCount = function(){
+            return StorageService.getItemCount(ctrl.items);
+        }
 
     });
 

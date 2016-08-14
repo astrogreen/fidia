@@ -73,8 +73,6 @@
                 // Initialize the itemsCookie variable
                 var itemsCookie;
 
-                // checkCookie();
-
                 // Check if download is empty, if not - populate the current service with the cookie items
                 if(!items.length) {
                     // Get the items cookie
@@ -331,92 +329,122 @@
           });
         }
 
-        function updateStorage(){
-            /**
-             * Make an update request to storage/1/ with the new data
-             */
-            console.log('updateStorage: ', items);
-            var url = '/asvo/storage/1/';
+        // function updateStorage(){
+        //     /**
+        //      * Make an update request to storage/1/ with the new data
+        //      */
+        //     console.log('updateStorage: ', items);
+        //     var url = '/asvo/storage/1/';
+        //     // get current value
+        //
+        //
+        //     if(items.length) {
+        //         // Initialize an object that will be saved as a cookie
+        //         var items_for_storage = {};
+        //         // Loop through the items in the download
+        //         angular.forEach(items, function(item, key){
+        //             // Add each item to the items cookie,
+        //             // using the id as the identifier
+        //             items_for_storage[key] = item;
+        //         });
+        //         var data = {
+        //             "storage_data": items_for_storage
+        //         }
+        //         // then returns a new promise, which we return - the new promise is resolved
+        //         // via response.data
+        //         return $http.patch(url, data).then(function (response) {
+        //             console.log('Updated');
+        //             this.getItemCount(response.data.storage_data);
+        //         });
+        //     }
+        // }
 
-            if(items.length) {
-                // Initialize an object that will be saved as a cookie
-                var items_for_storage = {};
-                // Loop through the items in the download
-                angular.forEach(items, function(item, key){
-                    // Add each item to the items cookie,
-                    // using the id as the identifier
-                    items_for_storage[key] = item;
-                });
-                var data = {
-                    "storage_data": items_for_storage
-                }
-                // then returns a new promise, which we return - the new promise is resolved
-                // via response.data
-                return $http.patch(url, data).then(function (response) {
-                    console.log('Updated');
-                });
-            }
-        }
-        // Angular factories return service objects
+
         return {
 
             getStorageContents: function(url) {
                 /**
-                 * Check if scope items is empty, if not - populate the current service with the storage data
+                 * Populate the current service with the storage data
                  * then returns a new promise, which we return - the new promise is resolved via response.data
                  * @param {String} url
                  * @return {Object} items - this is the main object containing all current data.
                  */
-                if(!items.length) {
-                    // then returns a new promise, which we return - the new promise is resolved
-                    // via response.data
-                    return $http.get(url).then(function (response) {
-                        // Check if the item cookie exists
-                        if(response.data.storage_data) {
-                            var storage_data = JSON.parse(response.data.storage_data);
-                            // Loop through the items in the cookie
-                            angular.forEach(storage_data, function(item, key) {
-                                // everything is stored by unique ID
-                                items[item.id] = item;
-                            });
-                        }
-                        return items;
-                        // return response.data;
-                    });
-                }
+                // if(!items.length) {
+                //
+                //
+                // }
+                // then returns a new promise, which we return - the new promise is resolved
+                // via response.data
+                return $http.get(url).then(function (response) {
+                    // Check if the item cookie exists
+                    console.log(response.data)
+                    if(response.data.storage_data) {
+                        var storage_data = response.data.storage_data;
+                        // Loop through the items in the storage and get into local items object
+                        angular.forEach(storage_data, function(item, key) {
+                            // everything is stored by unique ID
+                            items[item.id] = item;
+                        });
+                    }
+                    return items;
+                    // return response.data;
+                });
                 // Returns items object
+                console.log(items)
                 return items;
             },
 
-            // checkItemInCookie: function(){
-            //     // share data between services
-            //     if (undefined != $cookieStore){
-            //         var saved_items = [];
-            //         angular.forEach($cookieStore.get('items'), function(cookieitem){
-            //             saved_items.push(cookieitem.id);
-            //         });
-            //         return saved_items;
-            //     }
-            // },
-            //
-            addItem: function(item){
+            addItemToStorage: function(item){
                 /**
-                 * Check if item exists in local item object, if already exists, don't add it.
-                 * Else, push the item onto the items obj, at the relevant key==id
-                 * Then call updateStorage to push items onto storage/1/
+                 * Update storage at url. DOES NOT update the local items obj
                  */
-                if (!items[item.id]){
-                    items[item.id] = item;
+                var url = '/asvo/storage/1/';
 
-                } else {
-                    // nothing - we don't need to update quantity - but this will need altering to cope with AO structure
-                }
-                // Update Storage
-                updateStorage();
-                // Update angular summary obj
-                this.getSummary(items);
+                return this.getStorageContents(url).then(function(data){
+
+                    // the items object has been updated with the server version.
+                    // Check if this ID is already present
+                    // If storage data doesn't contain this id:
+                    if (!data[item.id]){
+
+                        // Initialize request data
+                        var items_for_storage = {};
+
+                        // Loop through the storage data
+                        angular.forEach(data.storage_data, function(item, key){
+                            // Add each item to the items cookie,
+                            // using the id as the identifier
+                            items_for_storage[key] = item;
+                        });
+
+                        // Add the new item
+                        items_for_storage[item.id] = item
+
+                        var data_to_be_patched = {
+                            "storage_data": items_for_storage
+                        }
+
+                        // then returns a new promise, which we return - the new promise is resolved
+                        // via response.data
+                        return $http.patch(url, data_to_be_patched).then(function () {
+                            console.log('Updated');
+                            // this.getItemCount(response.data.storage_data);
+                        })
+                        .catch(function (response) {
+                            console.log('Hmmm something went wrong: ' + angular.toJson(response.data))
+                        });
+
+                    } else {
+                        // nothing - we don't need to update quantity
+                        console.log(item.id + ' already in basket')
+                    }
+
+                }).catch(function(){
+                    console.log('Data could not be updated: ' + item)
+                })
+                // this.getSummary(items);
             },
-            //
+
             // removeItem: function(id){
             //     // Remove an item from the items object
             //     delete items[id];
@@ -439,26 +467,21 @@
             //     // checkCookie();
             // },
             //
-            // getItemCount: function(){
-            //     // Initialize total counter
-            //     var total = 0;
-            //     // Loop through items and increment the total - also count by survey and unique objects
-            //     // angular.forEach(items, function(item){
-            //     //     // total += parseInt(item.quantity)
-            //     //     total += 1;
-            //     // })
-            //     // console.log('getItemCount ', total)
-            //
-            //     // NO! Best to use the updated cookie here - so the directive can use this method (directive doesn't have access to controller scope)
-            //     if (undefined != $cookieStore){
-            //         angular.forEach($cookieStore.get('items'), function(item){
-            //             // total += parseInt(item.quantity)
-            //             total += 1;
-            //         })
-            //     }
-            //     return total;
-            // },
-            //
+            getItemCount: function(data){
+                /**
+                 * Returns the count of items in storage
+                 * @type {number} total
+                 */
+                // Initialize total counter
+                var total = 0;
+
+                angular.forEach(data, function(item){
+                    total += 1;
+                })
+
+                return total;
+            },
+
 
             prettifyData: function(items){
                 /**

@@ -55,7 +55,7 @@ class StorageSerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
-    storage_data = serializers.CharField(required=True, allow_null=False)
+    storage_data = serializers.JSONField(required=True, allow_null=False)
 
     class Meta:
         model = download.models.Storage

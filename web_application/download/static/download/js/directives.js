@@ -36,7 +36,7 @@ console.log('directives.js');
         };
     });
 
-    app.directive('addDownloadButton', function(DownloadService){
+    app.directive('addDownloadButton', function(DownloadService, StorageService, $q){
         return {
             // E for Element
             // A for Attribute
@@ -118,7 +118,6 @@ console.log('directives.js');
                                         caretToTick(scope.caret_button);
                                         scope.format_dropdown = angular.element(elem[0].querySelector("ul.dropdown-menu li ."+format));
                                         disableFormat(scope.format_dropdown, format);
-
                                     } else {
 
                                     }
@@ -132,25 +131,42 @@ console.log('directives.js');
                     // Get clicked item from scope.items by format
                     scope.item = scope.items[f];
 
-                    // Pass the item into the addItem method of DownloadService
-                    // populate the items obj for this particular view before start writing in to the cookie
-                    DownloadService.getItems();
-                    DownloadService.addItem(scope.item);
-                    DownloadService.getItemCount();
+                    var deferred = $q.defer();
+                    var url = '/asvo/storage/1/';
+                    // StorageService.addItemToStorage(scope.item)
 
-                    $('#mini-download').addClass('bounce')
-                        .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                            $('#mini-download').removeClass('bounce');
-                        });
+                    StorageService.addItemToStorage(scope.item).then(function () {
+                        // Update local items object with that from storage
+                        StorageService.getStorageContents(url)
+                        deferred.resolve();
+                    }).catch(function () {
+                        deferred.reject(data);
+                        ctrl.error = true;
+                        ctrl.text = 'Unable to get stored data at ' + url;
+                        ctrl.status = data.status;
+                    });
 
-                    // Change button states
-                    // disableAddButton(scope.add_button);
-                    // disableFormatDropdown(scope.format_dropdown_button);
-                    caretToTick(scope.caret_button);
+                    return deferred.promise;
 
-                    scope.format_dropdown = angular.element(elem[0].querySelector("ul.dropdown-menu li ."+f));
-
-                    disableFormat(scope.format_dropdown, f);
+                    // // Pass the item into the addItem method of DownloadService
+                    // // populate the items obj for this particular view before start writing in to the cookie
+                    // DownloadService.getItems();
+                    // DownloadService.addItem(scope.item);
+                    // DownloadService.getItemCount();
+                    //
+                    // $('#mini-download').addClass('bounce')
+                    //     .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                    //         $('#mini-download').removeClass('bounce');
+                    //     });
+                    //
+                    // // Change button states
+                    // // disableAddButton(scope.add_button);
+                    // // disableFormatDropdown(scope.format_dropdown_button);
+                    // caretToTick(scope.caret_button);
+                    //
+                    // scope.format_dropdown = angular.element(elem[0].querySelector("ul.dropdown-menu li ."+f));
+                    //
+                    // disableFormat(scope.format_dropdown, f);
 
                     // angular.element(elem[0].querySelector(".dropdown-menu ul li ."+f))
                     //     .html('added')
