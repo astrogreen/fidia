@@ -276,7 +276,7 @@
         }
     })
 
-    app.factory('StorageService', function($http, $q){
+    app.factory('StorageService', function($http, $q, $rootScope){
 
         // Private items object
         var items = {};
@@ -413,23 +413,27 @@
                         var items_for_storage = {};
 
                         // Loop through the storage data
-                        angular.forEach(data.storage_data, function(item, key){
+                        angular.forEach(data, function(item, key){
                             // Add each item to the items cookie,
                             // using the id as the identifier
                             items_for_storage[key] = item;
                         });
 
                         // Add the new item
-                        items_for_storage[item.id] = item
+                        items_for_storage[item.id] = item;
 
                         var data_to_be_patched = {
                             "storage_data": items_for_storage
-                        }
+                        };
 
                         // then returns a new promise, which we return - the new promise is resolved
                         // via response.data
                         return $http.patch(url, data_to_be_patched).then(function () {
                             console.log('Updated');
+
+                            // Broadcast the event to rootScope such that all directives can access
+                            $rootScope.$broadcast('storageUpdated', [1,2,3])
+
                             // this.getItemCount(response.data.storage_data);
                         })
                         .catch(function (response) {
@@ -443,7 +447,7 @@
 
                 }).catch(function(){
                     console.log('Data could not be updated: ' + item)
-                })
+                });
                 // this.getSummary(items);
             },
 
@@ -474,13 +478,17 @@
                  * Returns the count of items in storage
                  * @type {number} total
                  */
+
                 // Initialize total counter
                 var total = 0;
 
-                angular.forEach(data, function(item){
-                    total += 1;
-                })
-
+                if (Object.keys(data).length === 0 && data.constructor === Object){
+                    // Empty object - no need to tally
+                } else {
+                    angular.forEach(data, function (item) {
+                        total += 1;
+                    });
+                }
                 return total;
             },
 

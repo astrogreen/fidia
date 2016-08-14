@@ -30,15 +30,24 @@ console.log('directives.js');
             link: function(scope, elem, attr){
                 scope.item_count = 0;
 
-                var deferred = $q.defer();
-                StorageService.getStorageContents().then(function (data) {
-                    scope.item_count = StorageService.getItemCount(data)
-                    deferred.resolve(data);
-                }).catch(function () {
-                    deferred.reject(data);
-                    ctrl.error = true;
-                    ctrl.status = data.status;
+                scope.$on('storageUpdated', function (event, mass) {
+                    console.log(mass);
+                    getItemCount();
                 });
+
+                function getItemCount(){
+                    var deferred = $q.defer();
+                    StorageService.getStorageContents().then(function (data) {
+                        scope.item_count = StorageService.getItemCount(data)
+                        deferred.resolve(data);
+                    }).catch(function () {
+                        deferred.reject(data);
+                        ctrl.error = true;
+                        ctrl.status = data.status;
+                    });
+                };
+                getItemCount();
+
             }
         };
     });

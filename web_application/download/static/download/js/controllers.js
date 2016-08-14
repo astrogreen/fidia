@@ -89,6 +89,7 @@ console.log('controllers.js');
         };
 
         ctrl.getItems();
+        // StorageService.emitUpdate();
 
         ctrl.addItemToStorage = function(item){
             // Pass the item into the addItem method of the DownloadService
