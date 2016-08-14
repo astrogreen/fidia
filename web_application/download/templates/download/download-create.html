@@ -24,7 +24,7 @@
 
         </div>
     </div>
-    <div class="row" ng-controller="DownloadController as ctrl3" id="downloadController">
+    <div class="row" ng-controller="DownloadController as ctrl" id="downloadController">
         <div class="col-sm-8 download-options">
             {% verbatim %}
             <div class="panel panel-default panel-download">
@@ -33,7 +33,7 @@
                 </div>
                 <table class="table">
                     <tbody>
-                        <tr ng-repeat="p in ctrl3.prettyCookie.objects track by $index" ng-if="ctrl3.items | isNotEmpty">
+                        <tr ng-repeat="p in ctrl.pretty_data.objects track by $index" ng-if="ctrl.items | isNotEmpty">
                             <td>
                                 <div class="row">
                                     <div class="col-sm-9 col-xs-12">
@@ -52,13 +52,13 @@
                                     </div>
                                     <div class="col-sm-3 text-right col-xs-12 options">
                                         <a role="button" class="text-normal">
-                                            <i class="fa fa-times text-error" ng-click="ctrl3.removeItem(p.id)"></i>
+                                            <i class="fa fa-times text-error" ng-click="ctrl.removeItem(p.id)"></i>
                                         </a>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        <tr ng-if="ctrl3.prettyCookie.objects | isEmpty">
+                        <tr ng-if="ctrl.pretty_data.objects | isEmpty">
                             <td>
                                 <div class="row">
                                     <div class="col-xs-12">
@@ -82,7 +82,7 @@
                 </div>
                 <table class="table">
                     <tbody>
-                        <tr ng-repeat="s in ctrl3.prettyCookie.samples track by $index" ng-if="ctrl3.items | isNotEmpty">
+                        <tr ng-repeat="s in ctrl.pretty_data.samples track by $index" ng-if="ctrl.items | isNotEmpty">
                             <td>
                                 <div class="row">
                                     <div class="col-sm-9 col-xs-12">
@@ -96,7 +96,7 @@
                                     </div>
                                     <div class="col-sm-3 text-right col-xs-12 options">
                                         <a role="button" class="text-normal">
-                                            <i class="fa fa-times text-error" ng-click="ctrl3.removeItem(s.id)"></i>
+                                            <i class="fa fa-times text-error" ng-click="ctrl.removeItem(s.id)"></i>
                                         </a>
                                     </div>
                                     <div class="col-xs-12">
@@ -110,7 +110,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr ng-if="ctrl3.prettyCookie.samples | isEmpty">
+                        <tr ng-if="ctrl.pretty_data.samples | isEmpty">
                             <td>
                                 <div class="row">
                                     <div class="col-xs-12">
@@ -130,7 +130,7 @@
             </div>
             {% endverbatim %}
         </div>
-        <div class="col-sm-4 download-options" ng-if="ctrl3.items | isNotEmpty">
+        <div class="col-sm-4 download-options" ng-if="ctrl.items | isNotEmpty">
             <h4>Ready to Download?</h4>
             <p>You can still add more data to the current download (visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
                                             Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>), or if you're ready to download this selection of data,
@@ -159,8 +159,8 @@
                                   Download Items
                                 </label>
                                 {% verbatim %}
-                                <!--<input name="downloaditems" class="form-control" value="{{ctrl3.download}}">-->
-                                <input type="hidden" name="downloaditems" ng-value="ctrl3.download" />
+                                <!--<input name="downloaditems" class="form-control" value="{{ctrl.download}}">-->
+                                <input type="hidden" name="downloaditems" ng-value="ctrl.download" />
 
                                 {% endverbatim %}
                             </div>
@@ -184,7 +184,7 @@
 
             <hr>
 
-            <div class="panel panel-default" ng-if="ctrl3.items | isNotEmpty">
+            <div class="panel panel-default" ng-if="ctrl.items | isNotEmpty">
                 <div class="panel-body">
                     <span class="text-uppercase">Summary</span>
                 </div>
@@ -192,12 +192,12 @@
                 <!-- List group -->
                 <ul class="list-group">
                     <li class="list-group-item"><strong>Total</strong></li>
-                    <li class="list-group-item list-group-sub-item">Data <span class="badge" ng-bind="ctrl3.getItemCount()"></span>
+                    <li class="list-group-item list-group-sub-item">Data <span class="badge">{{ctrl.item_count}}</span>
                     </li>
                     <li class="list-group-item"><strong>Per Object</strong></li>
-                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.byObject">{{obj.ao}} <span class="badge">{{obj.count}}</span></li>
+                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl.summary.byObject">{{obj.ao}} <span class="badge">{{obj.count}}</span></li>
                     <li class="list-group-item"><strong>Per Survey</strong></li>
-                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.bySample">{{obj.sample}} <span class="badge">{{obj.count}}</span></li>
+                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl.summary.bySample">{{obj.sample}} <span class="badge">{{obj.count}}</span></li>
                     <li class="list-group-item">Estimated Download Size <span class="badge">5MB</span></li>
 
                 </ul>
@@ -217,7 +217,7 @@
                             {% verbatim %}
                                 <button class="btn btn-error btn-sm text-uppercase"
                                         title="Delete all items in the download" id="checkout-empty"  data-dismiss="modal"
-                                        ng-click="ctrl3.emptyDownload()"> Empty
+                                        ng-click="ctrl.emptyDownload()"> Empty
                                 </button>
                             {% endverbatim %}
                         </div>
@@ -239,7 +239,7 @@
                         Re-visit and re-run previous downloads in your <a href="{% url 'download-list' %}">Download History</a>.</p>
                 </div>
             </div>
-            <div ng-click="ctrl3.emptyDownload()" id="success-empty-download"></div>
+            <div ng-click="ctrl.emptyDownload()" id="success-empty-download"></div>
             <!-- If successful, empty the Download -->
             <script>
                 $(function(){

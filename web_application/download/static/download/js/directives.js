@@ -19,19 +19,26 @@ console.log('directives.js');
         Date.now = function() { return new Date().getTime(); }
     }
     // DownloadDirective
-    app.directive('miniDownload', function(DownloadService){
+    app.directive('miniDownload', function(DownloadService, StorageService, $q){
         return{
             // Create in an isolated scope
-            scope:{
-            },
+            scope:{},
             restrict: 'AE',
             replace: true,
-            templateUrl: '/static/download/js/templates/mini-download.html',
+            template: '<span class="badge animated">{{ item_count }}</span>',
+            // templateUrl: '/static/download/js/templates/mini-download.html',
             link: function(scope, elem, attr){
-                scope.getItemCount = function(){
-                    // Returns the item count from the Download Service
-                    return DownloadService.getItemCount();
-                }
+                scope.item_count = 0;
+
+                var deferred = $q.defer();
+                StorageService.getStorageContents().then(function (data) {
+                    scope.item_count = StorageService.getItemCount(data)
+                    deferred.resolve(data);
+                }).catch(function () {
+                    deferred.reject(data);
+                    ctrl.error = true;
+                    ctrl.status = data.status;
+                });
             }
         };
     });
@@ -132,12 +139,10 @@ console.log('directives.js');
                     scope.item = scope.items[f];
 
                     var deferred = $q.defer();
-                    var url = '/asvo/storage/1/';
-                    // StorageService.addItemToStorage(scope.item)
 
                     StorageService.addItemToStorage(scope.item).then(function () {
                         // Update local items object with that from storage
-                        StorageService.getStorageContents(url)
+                        StorageService.getStorageContents()
                         deferred.resolve();
                     }).catch(function () {
                         deferred.reject(data);

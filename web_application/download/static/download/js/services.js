@@ -276,10 +276,12 @@
         }
     })
 
-    app.factory('StorageService', function($http){
+    app.factory('StorageService', function($http, $q){
 
         // Private items object
         var items = {};
+
+        var total_item_count = 0;
 
         function checkStorage(){
             console.log('- - CHECK - - - - ');
@@ -359,10 +361,11 @@
         //     }
         // }
 
+        // Define service methods
 
         return {
 
-            getStorageContents: function(url) {
+            getStorageContents: function() {
                 /**
                  * Populate the current service with the storage data
                  * then returns a new promise, which we return - the new promise is resolved via response.data
@@ -375,9 +378,10 @@
                 // }
                 // then returns a new promise, which we return - the new promise is resolved
                 // via response.data
+                var url = '/asvo/storage/1/';
+
                 return $http.get(url).then(function (response) {
-                    // Check if the item cookie exists
-                    console.log(response.data)
+
                     if(response.data.storage_data) {
                         var storage_data = response.data.storage_data;
                         // Loop through the items in the storage and get into local items object
@@ -389,8 +393,6 @@
                     return items;
                     // return response.data;
                 });
-                // Returns items object
-                console.log(items)
                 return items;
             },
 
@@ -481,7 +483,6 @@
 
                 return total;
             },
-
 
             prettifyData: function(items){
                 /**
