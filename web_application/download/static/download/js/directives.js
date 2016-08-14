@@ -118,16 +118,16 @@ console.log('directives.js');
                     scope.populateDropdown();
                     scope.constructItem();
 
-                    var saved_items = DownloadService.checkItemInCookie();
+                    var deferred = $q.defer();
 
-                    // CHECK for this in cookie already and disable the button.
-                    if (undefined != saved_items){
-                        for (var i = 0; i < saved_items.length; i++) {
-                            // console.log(saved_items[i]);
+                    StorageService.getStorageContents().then(function (storage_data) {
+                        console.log(storage_data)
+                        // CHECK for this in stored data already and disable the button.
+                        angular.forEach(storage_data, function(storage_value, id){
                             if (undefined != scope.formats){
                                 angular.forEach(scope.items, function(v, k){
                                     var temp = v['id'];
-                                    if (saved_items[i] == temp){
+                                    if (id == temp){
                                         // Already in cart, disable this element
                                         var format = v['format'];
                                         caretToTick(scope.caret_button);
@@ -138,8 +138,17 @@ console.log('directives.js');
                                     }
                                 });
                             }
-                        }
-                    }
+                        });
+                        deferred.resolve();
+                    }).catch(function () {
+                        deferred.reject(data);
+                        ctrl.error = true;
+                        ctrl.text = 'Unable to get stored data';
+                        ctrl.status = data.status;
+                    });
+
+                    var saved_items = DownloadService.checkItemInCookie();
+
                 });
 
                 scope.addItem = function(f){
