@@ -281,37 +281,6 @@
         // Private items object
         var items = {};
 
-        var total_item_count = 0;
-
-        function checkStorage(){
-            console.log('- - CHECK - - - - ');
-            if(items.length) {
-                console.log('- - Items: ', items)
-            }
-            if (undefined != $cookieStore){
-                    console.log('- - Cookie: ', $cookieStore.get('items'));
-            } else {
-                console.log('- - Cookie Empty!')
-            }
-        }
-
-        // Update cookies
-        function updateItemsCookie(){
-            console.log('updateItemsCookie: ', items);
-            // checkCookie();
-            // Initialize an object that will be saved as a cookie
-            var itemsCookie = {};
-            // Loop through the items in the download
-            angular.forEach(items, function(item, key){
-                // Add each item to the items cookie,
-                // using the id as the identifier
-                itemsCookie[key] = item;
-            });
-            // Use the $cookieStore service to persist the itemsCookie object to the cookie named 'items'
-            $cookieStore.put('items', itemsCookie);
-            checkCookie();
-        }
-
         function removeFromArray(array, elem){
             for(var i = array.length-1; i--;){
                 if (array[i] === elem) array.splice(i, 1);
@@ -331,39 +300,13 @@
           });
         }
 
-        // function updateStorage(){
-        //     /**
-        //      * Make an update request to storage/1/ with the new data
-        //      */
-        //     console.log('updateStorage: ', items);
-        //     var url = '/asvo/storage/1/';
-        //     // get current value
-        //
-        //
-        //     if(items.length) {
-        //         // Initialize an object that will be saved as a cookie
-        //         var items_for_storage = {};
-        //         // Loop through the items in the download
-        //         angular.forEach(items, function(item, key){
-        //             // Add each item to the items cookie,
-        //             // using the id as the identifier
-        //             items_for_storage[key] = item;
-        //         });
-        //         var data = {
-        //             "storage_data": items_for_storage
-        //         }
-        //         // then returns a new promise, which we return - the new promise is resolved
-        //         // via response.data
-        //         return $http.patch(url, data).then(function (response) {
-        //             console.log('Updated');
-        //             this.getItemCount(response.data.storage_data);
-        //         });
-        //     }
-        // }
-
         // Define service methods
 
         return {
+
+            storageURL:function(){
+                return '/asvo/storage/1/'
+            },
 
             getStorageContents: function() {
                 /**
@@ -378,7 +321,7 @@
                 // }
                 // then returns a new promise, which we return - the new promise is resolved
                 // via response.data
-                var url = '/asvo/storage/1/';
+                var url = this.storageURL();
 
                 return $http.get(url).then(function (response) {
 
@@ -400,7 +343,7 @@
                 /**
                  * Update storage at url. DOES NOT update the local items obj
                  */
-                var url = '/asvo/storage/1/';
+                var url = this.storageURL();
 
                 return this.getStorageContents(url).then(function(data){
 
@@ -429,7 +372,6 @@
                         // then returns a new promise, which we return - the new promise is resolved
                         // via response.data
                         return $http.patch(url, data_to_be_patched).then(function () {
-                            console.log('Updated');
 
                             // Broadcast the event to rootScope such that all directives can access
                             $rootScope.$broadcast('storageUpdated', [1,2,3])
@@ -451,28 +393,97 @@
                 // this.getSummary(items);
             },
 
-            // removeItem: function(id){
-            //     // Remove an item from the items object
-            //     delete items[id];
-            //     // Update cookie
-            //     updateItemsCookie();
-            // },
-            //
-            // emptyDownload: function(){
-            //     // items = {};
-            //     // Can't re-initialize items object to an empty object, else break the reference and ng-repeat won't update
-            //     // Instead, loop and clear the items object
-            //
-            //     for (var prop in items){
-            //         delete items[prop]
-            //     }
-            //     // Remove items cookie using $cookieStore
-            //     $cookieStore.remove('items');
-            //
-            //     // updateItemsCookie();
-            //     // checkCookie();
-            // },
-            //
+            removeItem: function(id){
+                /**
+                 * Remove item from storage and local items object
+                 */
+
+                var url = this.storageURL();
+
+                return this.getStorageContents(url).then(function(data){
+
+                    // if storage data contains this id:
+                    if (data[id]){
+
+                        // Initialize request data variable
+                        var items_for_storage = {};
+
+                        // Loop through the storage data
+                        angular.forEach(data, function(item, key){
+                            // Add each item to the items cookie,
+                            // using the id as the identifier
+                            // Ignore if it's the id we're removing
+                            if (key !== id){
+                                items_for_storage[key] = item;
+                            }
+                        });
+
+                        if (items[id]){
+                            delete items[id];
+                        }
+
+                        var data_to_be_patched = {
+                            "storage_data": items_for_storage
+                        };
+
+                        // then returns a new promise, which we return - the new promise is resolved
+                        // via response.data
+                        return $http.patch(url, data_to_be_patched).then(function () {
+
+                            // Broadcast the event to rootScope such that all directives can access
+                            $rootScope.$broadcast('storageUpdated');
+
+                        })
+                        .catch(function (response) {
+                            console.log('Hmmm something went wrong, data removal failed: ' + angular.toJson(response.data))
+                        });
+
+                    } else {
+                        console.log('Could not remove: '+ id + ', was not found in storage')
+                    }
+
+                }).catch(function(){
+                    console.log('Data could not be updated: ' + item)
+                });
+            },
+
+            emptyDownload: function(){
+                /**
+                 * Set storage to blank
+                 */
+                var url = this.storageURL();
+
+                return this.getStorageContents(url).then(function(data){
+
+                    if (items) {
+                        // items = {}
+                        // Can't re-initialize items object to an empty object, else break the reference and ng-repeat won't update
+                        // Instead, loop and clear the items object
+
+                        for (var prop in items){
+                            delete items[prop]
+                        }
+                    }
+
+                    var data_to_be_patched = {
+                        "storage_data": ""
+                    };
+
+                    return $http.patch(url, data_to_be_patched).then(function () {
+                            console.log('Deleted');
+
+                            // Broadcast the event to rootScope such that all directives can access
+                            $rootScope.$broadcast('storageUpdated');
+                        })
+                        .catch(function (response) {
+                            console.log('Hmmm something went wrong, data removal failed: ' + angular.toJson(response.data))
+                        });
+
+                }).catch(function(){
+                    console.log('Data could not be updated: ' + item)
+                });
+            },
+
             getItemCount: function(data){
                 /**
                  * Returns the count of items in storage

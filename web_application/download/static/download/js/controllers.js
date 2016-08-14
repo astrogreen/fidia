@@ -77,7 +77,6 @@ console.log('controllers.js');
             StorageService.getStorageContents().then(function (data) {
                 // Set the local items object
                 ctrl.items = data
-
                 deferred.resolve(data);
             }).catch(function () {
                 deferred.reject(data);
@@ -89,16 +88,34 @@ console.log('controllers.js');
         };
 
         ctrl.getItems();
-        // StorageService.emitUpdate();
 
         ctrl.addItemToStorage = function(item){
             // Pass the item into the addItem method of the DownloadService
             StorageService.addItemToStorage(item);
         };
 
+        ctrl.removeItem = function(id){
+            // Pass item id into the removeItem method of DownloadService
+            StorageService.removeItem(id);
+        };
 
+        // ctrl.getStorageItemCount = function(){
+        //     /**
+        //      * Resolves a promise from the getItems Service for the data from /storage/
+        //      * then provides the count of objects
+        //      */
+        //     ctrl.getItems().then(function(data){
+        //         StorageService.getItemCount(data);
+        //     }).catch(function(){
+        //         console.log('Data could not be counted.')
+        //     })
+        // };
 
-        $scope.$watch('ctrl.items', function() {
+        ctrl.emptyDownload = function(){
+            StorageService.emptyDownload();
+        };
+
+        $scope.$watch('ctrl.items', function(newVal, oldVal) {
             /**
              * Watch the local items object - if it changes, prettify and update template
              * then provides a summarized version for the template
@@ -106,38 +123,25 @@ console.log('controllers.js');
             ctrl.pretty_data = StorageService.prettifyData(ctrl.items);
             ctrl.summary = StorageService.getSummary(ctrl.items);
             ctrl.item_count = StorageService.getItemCount(ctrl.items);
+            ctrl.download = StorageService.prepareDownload(ctrl.items);
+
+        }, true);
+
+        $scope.$on('storageUpdated', function (event) {
+            ctrl.getItems();
         });
 
-        // ctrl.getItemCount = function(){
-        //     return StorageService.getItemCount(ctrl.items);
-        // }
-
-
-
-
-        ctrl.getStorageItemCount = function(){
-            /**
-             * Resolves a promise from the getItems Service for the data from /storage/
-             * then provides the count of objects
-             */
-            ctrl.getItems().then(function(data){
-                StorageService.getItemCount(data);
-            }).catch(function(){
-                console.log('Data could not be counted.')
-            })
-        };
-
-        ctrl.PrepareDownload = function(){
-            /**
-             * Resolves a promise from the getItems Service for the data from /storage/
-             * then provides a summarized version for the template
-             */
-            ctrl.getItems().then(function(data){
-                return StorageService.prepareDownload(data);
-            }).catch(function(){
-                console.log('Data could not be prepared for Download.')
-            })
-        };
+        // ctrl.PrepareDownload = function(){
+        //     /**
+        //      * Resolves a promise from the getItems Service for the data from /storage/
+        //      * then provides a summarized version for the template
+        //      */
+        //     ctrl.getItems().then(function(data){
+        //         return StorageService.prepareDownload(data);
+        //     }).catch(function(){
+        //         console.log('Data could not be prepared for Download.')
+        //     })
+        // };
 
 
 

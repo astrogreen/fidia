@@ -30,8 +30,7 @@ console.log('directives.js');
             link: function(scope, elem, attr){
                 scope.item_count = 0;
 
-                scope.$on('storageUpdated', function (event, mass) {
-                    console.log(mass);
+                scope.$on('storageUpdated', function (event) {
                     getItemCount();
                 });
 
