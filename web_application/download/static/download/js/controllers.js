@@ -113,6 +113,10 @@ console.log('controllers.js');
 
         ctrl.emptyDownload = function(){
             StorageService.emptyDownload();
+
+            $('#your-modal-id').modal('hide');
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
         };
 
         $scope.$watch('ctrl.items', function(newVal, oldVal) {

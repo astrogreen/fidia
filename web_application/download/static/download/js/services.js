@@ -473,8 +473,6 @@
                     };
 
                     return $http.patch(url, data_to_be_patched).then(function () {
-                            console.log('Deleted');
-
                             // Broadcast the event to rootScope such that all directives can access
                             $rootScope.$broadcast('storageUpdated');
                         })

@@ -40,7 +40,8 @@
             <!-- If successful, empty the Download -->
             <script>
                 $(function(){
-                    angular.element('#downloadController').scope().ctrl.emptyDownload();
+                    var controller_by_id = document.getElementById("downloadController");
+                    angular.element(controller_by_id).scope().ctrl.emptyDownload();
                 })
             </script>
             {% endif %}
@@ -317,7 +318,7 @@
                 // Timeout is needed here for safari compatibility
                 // .submit event loop doesn't allow for repaint, so animate first, then submit.
                 $('#post-object-form form').submit();
-            }, 2000);
+            }, 1000);
         });
 
 
@@ -330,6 +331,8 @@
                     .append('<em><p class="loading">Processing <span>.</span><span>.</span><span>.</span></p></em><p> Please do not close this page, your download will begin automatically.</p>')
             }, 500)
         };
+
+        $('#empty-modal-sm').modal('toggle');
     });
 </script>
 
