@@ -97,11 +97,13 @@ console.log('directives.js');
                             var item ={};
                             var temp = attr.url;
                             // ?format=type
+
                             item['id']=temp+'?format='+scope.formats[f];
-                            console.log(attr)
-                            item['options'] = attr.options;
-                            item['prettyname'] = attr.prettyname;
                             item['format'] = scope.formats[f];
+
+                            if (attr.options){item['options'] = attr.options;};
+                            if (attr.prettyname){item['prettyname'] = attr.prettyname;};
+
                             // Shape of objects is as: scope.items ["json"] = item == {id: "http://127.0.0.1:8000/asvo/data-browser/sami/9352/spectral_map-red/?format=json", options: "", format: "json"}
                             scope.items[scope.formats[f]] = item;
                         }
