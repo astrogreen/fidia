@@ -162,19 +162,19 @@ class TraitSerializer(serializers.Serializer):
         log.debug("Adding Trait properties")
 
         for trait_property in trait.trait_properties():
-            if not re.match("^[_]", str(trait_property.name)):
-                log.debug("Adding Trait Property '%s'", trait_property.name)
-                traitproperty_type = trait_property.type
+            # if not re.match("^[_]", str(trait_property.name)):
+            #     log.debug("Adding Trait Property '%s'", trait_property.name)
+            traitproperty_type = trait_property.type
 
-                # Recurse into trait properties
-                if 'array' in traitproperty_type:
-                    # TraitProperty is an array, so display a URL for it's value
-                    self.fields[trait_property.name] = TraitPropertySerializer(
-                        instance=trait_property, depth_limit=depth_limit, data_display='url')
-                else:
-                    # TraitProperty is not an array so we want it's actual value returned.
-                    self.fields[trait_property.name] = TraitPropertySerializer(
-                        instance=trait_property, depth_limit=depth_limit, data_display='value')
+            # Recurse into trait properties
+            if 'array' in traitproperty_type:
+                # TraitProperty is an array, so display a URL for it's value
+                self.fields[trait_property.name] = TraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='url')
+            else:
+                # TraitProperty is not an array so we want it's actual value returned.
+                self.fields[trait_property.name] = TraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='value')
 
     def get_branch(self, trait):
         return trait.branch

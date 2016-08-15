@@ -57,9 +57,10 @@
                             <td>
                                 <div class="row">
                                     <div class="col-sm-9 col-xs-12">
-                                        <h4 class="text-info" style="border:0">
+                                        <h4 style="border:0">
                                             {{p.sample}} / {{p.ao}} /
-                                            <span ng-repeat="t in p.trait">
+                                            <a ng-href="{{p.url}}" ng-if="p.prettyname">{{p.prettyname}}</a>
+                                            <span ng-repeat="t in p.trait" ng-if="!p.prettyname">
                                                 <span ng-if="!$last">{{t}} /</span>
                                                 <a ng-if="$last" ng-href="{{p.url}}">{{t}}</a>
                                             </span>
@@ -83,7 +84,7 @@
                                 <div class="row">
                                     <div class="col-xs-12">
                                          <h4 style="border:0">
-                                            No objects
+                                            Empty!
                                         </h4>
                                         {% endverbatim %}
                                         <p>Visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
@@ -103,16 +104,18 @@
                 <table class="table">
                     <tbody>
                         <tr ng-repeat="s in ctrl.pretty_data.samples track by $index" ng-if="ctrl.items | isNotEmpty">
-                            <td>
+                            <td ng-if="!s.format">
                                 <div class="row">
                                     <div class="col-sm-9 col-xs-12">
-                                        <h4 class="text-info" style="border:0">
-                                            <a href="{{s.url}}">SAMPLE ID: {{s.sample_id}}</a>
+                                        <h4 style="border:0">
+                                            Data Products for Sample <a href="{{s.url}}"> {{s.sample_id}}</a>
                                         </h4>
                                         <p class="version">
                                             <span class="sub-heading">Link to sample: <a href="{{s.url}}">Query History {{s.sample_id}}</a> </span>
                                             <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
+                                            <a href="{{s.url}}#select_data_products" class="btn btn-default btn-xs"><i class="fa fa-rotate-left"></i> Edit Selection?</a>
                                         </p>
+
                                     </div>
                                     <div class="col-sm-3 text-right col-xs-12 options">
                                         <a role="button" class="text-normal">
@@ -120,12 +123,14 @@
                                         </a>
                                     </div>
                                     <div class="col-xs-12">
-                                        <h4>Data Products</h4>
+
                                     </div>
                                     <div class="col-sm-6 col-xs-12" ng-repeat="(survey, data) in s.options track by $index">
                                             <strong>{{survey}}</strong>
-                                            <p ng-repeat="product in data">{{product.pretty_name}} <i
-                                                    class="fa fa-code-fork"></i> {{product.branch}}&nbsp;</p>
+                                            <p ng-repeat="product in data">{{product.pretty_name}}
+                                                <span class="sub-heading"><i class="fa fa-code-fork"></i> {{product.branch}}
+                                                </span>
+                                                &nbsp;</p>
                                     </div>
                                 </div>
                             </td>
@@ -135,7 +140,52 @@
                                 <div class="row">
                                     <div class="col-xs-12">
                                          <h4 style="border:0">
-                                            Download Empty!
+                                            Empty!
+                                        </h4>
+                                        {% endverbatim %}
+                                        <p>Visit the <a href="{% url 'query-create-list' %}">Query Builder</a> to add
+                                                              data products for a sample of objects.</p>
+                                        {% verbatim %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel panel-default panel-download">
+                <div class="panel-heading text-uppercase">
+                    Query Samples
+                </div>
+                <table class="table">
+                    <tbody>
+                        <tr ng-repeat="s in ctrl.pretty_data.samples track by $index" ng-if="ctrl.items | isNotEmpty">
+                            <td ng-if="s.format && !s.options">
+                                <div class="row">
+                                    <div class="col-sm-9 col-xs-12">
+                                        <h4 class="text-info" style="border:0">
+                                            <a href="{{s.url}}">Sample {{s.sample_id}}</a>
+                                        </h4>
+                                        <p class="version">
+                                            <span class="sub-heading">Link to sample: <a href="{{s.url}}">Query History {{s.sample_id}}</a> </span>
+                                            <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{s.format}}</span>
+                                            <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-3 text-right col-xs-12 options">
+                                        <a role="button" class="text-normal">
+                                            <i class="fa fa-times text-error" ng-click="ctrl.removeItem(s.id)"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-if="ctrl.pretty_data.samples | isEmpty">
+                            <td>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                         <h4 style="border:0">
+                                             Empty!
                                         </h4>
                                         {% endverbatim %}
                                         <p>Visit the <a href="{% url 'query-create-list' %}">Query Builder</a> to add

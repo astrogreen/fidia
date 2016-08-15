@@ -41,7 +41,7 @@
             {% endfor %}
 
 
-            <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}'></add-download-button>
+            <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname ='{{response.data.pretty_name}}'></add-download-button>
             <div class="btn-group" role="group" aria-label="...">
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"

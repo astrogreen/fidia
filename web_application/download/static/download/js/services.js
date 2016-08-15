@@ -533,7 +533,14 @@
                         data_obj['sample'] = url_arr[1].toUpperCase();
                         data_obj['ao'] = url_arr[2];
                         data_obj['id'] = url;
-                        data_obj['options'] = v.options;
+
+                        if (v.options){
+                            data_obj['options'] = v.options;
+                        }
+
+                        if (v.prettyname){
+                            data_obj['prettyname'] = v.prettyname;
+                        }
 
                         if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
                         // If a format exists on the last element of the array, pop it off
@@ -541,6 +548,7 @@
                             data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
                             url_arr.pop();
                         }
+
                         // Collect the remaining data pieces below trait into one line
                         for(var i = 3; i < url_arr.length; i++) {
                             if(url_arr[i]!=="" && url_arr[i]!==''){
@@ -556,7 +564,20 @@
                         data_obj['id'] = url;
                         data_obj['sample_id'] = url.split("query-history/")[1].split("/")[0];
                         // data_obj['options'] = JSON.parse(v.options);
-                        data_obj['options'] = v.options;
+
+                        if (v.options){
+                            if (!(Object.keys(v.options).length === 0 && v.options.constructor === Object)) {
+                                // Check not empty
+                                data_obj['options'] = v.options;
+                            }
+                        }
+
+                        if (url_arr[url_arr.length-1].indexOf('?format=') > -1){
+                        // If a format exists on the last element of the array, pop it off
+                        // and prettify
+                            data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
+                            url_arr.pop();
+                        }
                         prettyData["samples"][url] = data_obj;
                     }
                 });
