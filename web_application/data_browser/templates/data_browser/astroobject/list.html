@@ -11,7 +11,7 @@
 
 {% block page_title %}{{response.data.astroobject}}{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
+<li role="presentation"><a href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}">Back to
     {{response.data.sample}}</a></li>
 {% endblock useful_links %}
 
@@ -34,103 +34,36 @@
             <div class="tab-content">
                 <div id="summary" class="tab-pane active">
                     <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Overview
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <p>{% lorem %}</p>
-
-                            </div>
+                        <div class="panel-heading">
+                            Overview
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-overview">
+                                <tbody>
+                                <tr>
+                                    <td><img class="img-responsive"
+                                             src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
+                                    <td>{{response.data.astroobject}}</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Survey</td>
+                                    <td>Survey ID</td>
+                                    <td>IAU ID</td>
+                                    <td>RA</td>
+                                    <td>DEC</td>
+                                    <td>Redshift</td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-overview">
-                            <tbody>
-                            <tr>
-                                <td><img class="img-responsive"
-                                         src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
-                                <td>{{objname}}</td>
-                                <td>test</td>
-                                <td>test</td>
-                                <td>test</td>
-                                <td>test</td>
-
-                            </tr>
-                            <tr>
-                                <td>Survey</td>
-                                <td>Survey ID</td>
-                                <td>IAU ID</td>
-                                <td>RA</td>
-                                <td>DEC</td>
-                                <td>Redshift</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                Spectrum
-                            </div>
-                            <div class="panel-body">
-                                <img src="/static/restapi_app/img/sov_test/test_spectra.png" class="img-responsive">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                SDSS Image
-                            </div>
-                            <div class="panel-body">
-                                <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
-                                     alt="..." class="img-responsive">
-                                <p class="text-justify">Colour composite image, 19.5 arcsec on a side. False colour, 512
-                                    × 512 pixel, 0.2
-                                    arcsec/pixel,
-                                    5-band composite from SDSS DR7.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                SAMI Flux
-                            </div>
-                            <div class="panel-body">
-                                <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
-                                     alt="..." class="img-responsive">
-                                <p class="text-justify">Hα for emission-line systems (red), stellar continuum for
-                                    absorption-line galaxies
-                                    (blue).</p>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                SAMI Velocity
-                            </div>
-                            <div class="panel-body text-justify">
-                                <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
-                                     alt="..." class="img-responsive">
-                                <p class="text-justify">Hα emission (blue to red via yellow) or stellar absorption fit
-                                    (yellow to violet via blue).
-                                    The grey dot in the bottom left represents the extent of the seeing disk. In rare
-                                    cases
-                                    there isn't enough signal to plot unbinned maps.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                    {% with "data_browser/astroobject/survey/"|add:survey|add:".html" as template %}
+                        {% include template %}
+                    {% endwith %}
                 </div>
 
                 <div class="tab-pane" id="available_data">
@@ -219,5 +152,17 @@
         $(this).tab('show')
     })
 </script>
+
+
+
+
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>
+
+
+
+
 {% endblock %}
 

@@ -93,7 +93,7 @@
                 <div class="panel-heading" role="tab" id="heading{{r}}">
                     <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
                         {{r |capfirst}}
-                        <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-caret-down sub-heading"></i>
                     </a>
                     <span class="sub-heading pull-right">explicitly rendered attributes</span>
                 </div>
@@ -123,7 +123,7 @@
                     <div class="panel-heading" role="tab" id="heading{{s}}">
                         <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
                             {{ response.data|key:s |key:'pretty_name' }}
-                            <i class="fa fa-caret-down"></i>
+                            <i class="fa fa-caret-down sub-heading"></i>
                         </a>
                         <span class="sub-heading pull-right">sub-trait <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
                     </div>
@@ -140,7 +140,7 @@
                                            {% endif %}
                                            aria-controls="{{s}}_nested_collapse{{r}}">
                                             {{r |capfirst}}
-                                            <i class="fa fa-caret-down"></i>
+                                            <i class="fa fa-caret-down sub-heading"></i>
                                         </a>
                                         <span class="sub-heading pull-right">explicitly rendered attributes</span>
                                     </div>

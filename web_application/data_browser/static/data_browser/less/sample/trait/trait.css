@@ -21,9 +21,10 @@
 }
 .sub-trait-sidebar .nested-sidebar .panel-default .panel-heading {
   background-color: #f3f3f3;
+  padding-left: 30px;
 }
 .sub-trait-sidebar .nested-sidebar .panel-default .panel-body {
-  padding-left: 30px;
+  padding-left: 45px;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

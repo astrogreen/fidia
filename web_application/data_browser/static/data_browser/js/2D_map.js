@@ -164,8 +164,8 @@ function plot_map(name, data, selector){
         margin: {
             l: 0.04*elementWidth,
             r: 0.05*elementWidth,
-            b:0.04*elementWidth,
-            t: 0.02*elementWidth
+            b:0.06*elementWidth,
+            t: 0.03*elementWidth
         },
         // title: map_title
     };

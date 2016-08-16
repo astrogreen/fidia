@@ -24,7 +24,7 @@ from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey
 
 log = logging.getLogger(__name__)
 
-TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "extinction_map"]
+TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classification_map", "extinction_map"]
 
 class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
@@ -84,11 +84,11 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/astroobject/list.html'
 
-        # def get_context(self, data, accepted_media_type, renderer_context):
-        #     context = super().get_context(data, accepted_media_type, renderer_context)
-        #     context['trait_short_descriptions'] = renderer_context['view'].trait_short_descriptions
-        #     context['trait_pretty_names'] = renderer_context['view'].trait_pretty_names
-        #     return context
+        def get_context(self, data, accepted_media_type, renderer_context):
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['traits_to_render'] = {"sami": ['velocity_map', 'sfr_map']}
+
+            return context
 
 
     renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
@@ -176,7 +176,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'sample': sample_pk,
                 'astroobject': astroobject_pk,
                 'request': request,
-                'available_traits': trait_info
+                'available_traits': trait_info,
             }
         )
         return Response(serializer.data)
