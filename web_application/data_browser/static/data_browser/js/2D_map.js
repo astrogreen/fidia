@@ -78,8 +78,8 @@ function fGenerateColourScale(map_val){
 
     // 98 percentile clip, i.e. 0.01 to 0.99 of the actual values.
     var NumArrSort = NumArr.sort(function(a,b){return a - b});
-    var Zmin = NumArrSort[Math.floor(NumArr.length * 0.01) + 1];
-    var Zmax = NumArrSort[Math.floor(NumArr.length * 0.99)];
+    var Zmin = NumArrSort[Math.floor(NumArr.length * 0.08) + 1];
+    var Zmax = NumArrSort[Math.floor(NumArr.length * 0.92)];
 
     var Zscale = Zmax-Zmin;
     var tickvals = [];

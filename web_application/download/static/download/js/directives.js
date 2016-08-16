@@ -40,9 +40,7 @@ console.log('directives.js');
                         scope.item_count = StorageService.getItemCount(data)
                         deferred.resolve(data);
                     }).catch(function () {
-                        deferred.reject(data);
-                        ctrl.error = true;
-                        ctrl.status = data.status;
+                        deferred.reject();
                     });
                 };
                 getItemCount();
@@ -145,10 +143,7 @@ console.log('directives.js');
                         });
                         deferred.resolve();
                     }).catch(function () {
-                        deferred.reject(data);
-                        ctrl.error = true;
-                        ctrl.text = 'Unable to get stored data';
-                        ctrl.status = data.status;
+                        deferred.reject();
                     });
 
                 });
@@ -180,10 +175,7 @@ console.log('directives.js');
 
                         deferred.resolve();
                     }).catch(function () {
-                        deferred.reject(data);
-                        ctrl.error = true;
-                        ctrl.text = 'Unable to get stored data at ' + url;
-                        ctrl.status = data.status;
+                        deferred.reject();
                     });
 
                     return deferred.promise;
@@ -258,10 +250,7 @@ console.log('directives.js');
                         });
                         deferred.resolve();
                     }).catch(function () {
-                        deferred.reject(data);
-                        ctrl.error = true;
-                        ctrl.text = 'Unable to get stored data';
-                        ctrl.status = data.status;
+                        deferred.reject();
                     });
 
                 });
@@ -323,10 +312,7 @@ console.log('directives.js');
 
                         deferred.resolve();
                     }).catch(function () {
-                        deferred.reject(data);
-                        ctrl.error = true;
-                        ctrl.text = 'Unable to get stored data at ' + url;
-                        ctrl.status = data.status;
+                        deferred.reject();
                     });
 
                     return deferred.promise;

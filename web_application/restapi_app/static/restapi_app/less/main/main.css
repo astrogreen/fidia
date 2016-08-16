@@ -669,6 +669,10 @@ li {
 .panel .panel-heading a {
   color: #333;
 }
+.panel .panel-heading h3 {
+  border: none;
+  line-height: 1.2;
+}
 .panel .panel-icon {
   margin-top: 3px;
 }
