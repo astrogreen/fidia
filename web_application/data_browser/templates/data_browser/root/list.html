@@ -26,8 +26,8 @@
         <p>The Data Browser is a portal to all survey data hosted at AAODC. Each survey's components are organised into a
             tree-like structure, allowing you to discover the available data products. </p>
         <p>To view the
-            surveys currently hosted at AAODC, view the documentation pages. To view more information about a particular
-            component, visit the Schema. </p>
+            surveys currently hosted at AAODC, view the <a href="{% url 'documentation' %}">documentation</a> pages. To view more information about a particular
+            component, visit the <a href="{% url 'schema:schema-list' %}">schema</a>. </p>
         <br>
     </div>
     <div class="col-sm-6 col-xs-12">
@@ -59,8 +59,6 @@
         {% endfor %}
     </div>
 </div>
-
-
 {% endblock %}
 
 

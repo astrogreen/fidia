@@ -11,17 +11,15 @@
 
 {% block page_title %}{{response.data.astroobject}}{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}">Back to
-    {{response.data.sample}}</a></li>
+<li role="presentation"><a href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}">Back to {{response.data.sample}}</a></li>
+<li role="presentation"><a href="{% url 'schema:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}">Schema</a></li>
 {% endblock useful_links %}
 
 {% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12">
-
         <div class="tabbable" id="query-options">
-
             <ul class="nav nav-tabs form-switcher">
                 <li class="active">
                     <a name="raw-tab" href="#summary" data-toggle="tab" aria-expanded="true">Summary</a>
@@ -43,11 +41,11 @@
                                 <tr>
                                     <td><img class="img-responsive"
                                              src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
-                                    <td>{{response.data.astroobject}}</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
+                                    <td class="lead">{{response.data.astroobject}}</td>
+                                    <td class="lead">-</td>
+                                    <td class="lead">-</td>
+                                    <td class="lead">-</td>
+                                    <td class="lead">-</td>
                                 </tr>
                                 <tr>
                                     <td>Survey</td>
@@ -67,7 +65,7 @@
                 </div>
 
                 <div class="tab-pane" id="available_data">
-                    <ul class="nav nav-tabs nested-nav-tabs" role="tablist" id="trait_tabs">
+                    <ul class="nav nav-tabs nav-tabs-with-well" role="tablist" id="trait_tabs">
                         {% for trait_type, trait_value in response.data.available_traits.items %}
                         <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
                             <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}</a>
@@ -80,8 +78,8 @@
                              id="{{trait_type}}">
 
                                 <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        {{trait_value.description}}
+                                    <div class="panel-body">
+                                        <div class="p">{{trait_value.description}} <a href="{% url 'documentation-syntax' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What's a branch?</a> &nbsp;&nbsp;</div>
                                     </div>
                                     <table class="table table-hover table-astro-object">
                                         <tbody>
@@ -93,11 +91,11 @@
                                                             <a href="{{value.url}}">
                                                                 <h4 class="text-info" style="border:0"> {{value.pretty_name}}</h4>
                                                             </a>
-                                                            <p>{% if value.description != None %}{{value.description}}{%endif%}</p>
-                                                            <p>
+                                                            {% if value.description != None %}<div class="p">{{value.description}}</div>{%endif%}
+                                                            <div class="p">
                                                                 <span class="version sub-heading"><i class="fa fa-map-marker"></i> 1.0 Release</span>
                                                                 <span class="version sub-heading"><i class="fa fa-code-fork"></i> Default</span>
-                                                            </p>
+                                                            </div>
                                                         </div>
                                                         <div class="col-sm-6 text-right col-xs-12 options">
                                                             {% for f in value.formats %}

@@ -31,7 +31,7 @@ body {
   font-family: "Roboto", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 
   h1, h2, h3, h4, h5, h6 {
-    border-bottom: 1px solid #eee;
+    //border-bottom: 1px solid #eee;
 
   }
   h1 {
@@ -44,7 +44,9 @@ body {
     font-size: 24px;
     line-height: 40px;
     .header-link{line-height:40px;}
+    border-bottom: 1px solid #eee;
     margin-bottom: 20px !important;
+    &.no-border{border:0;}
   }
   h3 {
     font-size: 20px;
@@ -82,11 +84,17 @@ body {
     pointer-events: none;
   }
 
-  ul.bullet{
-    list-style-type:circle;
-    //list-style: url(green-square.png);
+  p, .p {
+    opacity: 0.87;
+    color: #333;
+    font-size: 16px;
+    font-weight: normal;
+    //line-height: 24px;
+    line-height: 1.6;}
+  p{
+    margin-bottom: 16px;
   }
-  p, .p{font-size:16px;}
+
   p.emphasis, .emphasis{font-size:18px;}
   p.lead{margin-bottom:30px;}
   p.heading {margin-bottom: 5px;margin-top: 5px;}
@@ -109,15 +117,7 @@ small, .sub-heading, a.sub-heading {
 .label-sub-heading{
   color:#767676;
 }
-p, ul.paragraph-list li {
-  opacity: 0.87;
-  color: #333;
-  font-size: 14px;
-  font-weight: normal;
-  //line-height: 24px;
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
+.sub-heading{font-size:14px;}
 
 
 
@@ -656,6 +656,16 @@ p.breakword {
 ++ HELPER
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.question {
+  color: rgba(0, 0, 0, 0.3) !important;
+  font-size:14px;
+  i.fa {
+    color: #d9534f;
+  }
+  &:hover{color: rgba(0, 0, 0, 0.5);}
+}
+.p > .pull-right.question{line-height:16px;margin-top:5px;}
+
 .helper {
   color: rgba(0, 0, 0, 0.3);
   padding-left: 1em;
@@ -750,7 +760,7 @@ p.breakword {
   //margin: 20px 0;
   border-bottom: 1px solid #eee;
 }
-.nav-tabs-with-well{margin:0;}
+.nav-tabs-with-well{margin:0 !important;border-bottom:0 !important;}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ PANELS
@@ -758,6 +768,8 @@ p.breakword {
 */
 .panel {
   border-radius: 0 !important;
+  &.panel-main-content{margin-top:20px;margin-bottom:20px}
+
   &.panel-default {
     border: 1px solid #E8E8E8;
   }

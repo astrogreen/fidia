@@ -14,7 +14,7 @@
 <li class="active">Syntax</li>
 {% endblock %}
 
-{% block page_title %}Syntax{% endblock %}
+{% block page_title %}Syntax <i class="fa fa-question-circle"></i>{% endblock %}
 {% block useful_links %}
 <li role="presentation" ><a href="{% url 'faq' %}">FAQs</a></li>
 <li role="presentation" ><a href="{% url 'support-contact' %}">Contact Us</a></li>
@@ -25,7 +25,7 @@
     <div class="col-xs-12">
         <p class="lead">AAODC uses some custom terminology to organise our data.
             Read more about the <a href="{% url 'support-contact' %}">data model</a> or view
-            <a href="{% url 'documentation-faq' %}">commonly asked questions</a>.  </p>
+            <a href="{% url 'faq' %}">commonly asked questions</a>.  </p>
     </div>
     <div class="col-xs-12">
         <h3><i class="fa fa-map-marker"></i> Data Releases</h3>

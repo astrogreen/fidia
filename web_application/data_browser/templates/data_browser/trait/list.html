@@ -4,23 +4,25 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
+{% block title %}{{response.data.sample |uppercase}} {{response.data.astroobject}} {{response.data.pretty_name}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}{{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
+{% block page_title %}{{response.data.sample|uppercase}} {{response.data.astroobject}} {% endblock %}
 {% block useful_links %}
 <li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
     {{response.data.sample}}</a></li>
 <li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}>Back to
     {{response.data.astroobject}}</a></li>
+<li role="presentation"><a href="{% url 'schema:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}">Schema</a></li>
 {% endblock useful_links %}
 
 {% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
+    <div class="col-xs-12 hidden-xs"><a href="{% url 'documentation-syntax' %}" class="question pull-right"><i class="fa fa-question-circle"></i> What are branches and versions?</a> &nbsp;&nbsp;</div>
     <div class="col-xs-12 col-sm-4">
         <h2>{{response.data.pretty_name}}</h2>
     </div>
@@ -28,7 +30,7 @@
         <div class="text-right options">
             <span class="branch_version">
                 <span class="sub-heading"><i class="fa fa-code-fork"></i>{{response.data.branch}}</span>
-                <span class="sub-heading"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
+                <span class="sub-heading"><i class="fa fa-map-pin"></i>{{response.data.version}}</span>
             </span>
 
             {% for f in formats %}
@@ -61,7 +63,7 @@
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-map-marker"></i> Versions <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-map-pin"></i> Versions <i class="fa fa-caret-down"></i>
                     </button>
                     <ul class="dropdown-menu">
                         {% for i in response.data.all_branches_versions %}

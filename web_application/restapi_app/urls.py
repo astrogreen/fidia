@@ -19,7 +19,7 @@ urlpatterns = [
 
 
 
-            url(r'^(?i)documentation/syntax/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/syntax.html'),
+            url(r'^(?i)documenation/syntax/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/syntax.html'),
                             name='documentation-syntax'),
 
 

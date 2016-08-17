@@ -20,10 +20,11 @@
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-6 col-sm-4 options">
-        <h2>{{survey|uppercase}} DR {{response.data.version}}</h2>
+        <h2 class="no-border">{{survey|uppercase}} DR {{response.data.version}}</h2>
     </div>
     <div class="text-right col-xs-6 col-sm-8 options">
         <span class="branch_version">
+            <a href="{% url 'documentation-syntax' %}" class="question"><i class="fa fa-question-circle"></i> What's a data release?</a> &nbsp;&nbsp;
             <span class="sub-heading" style="font-size:16px;"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
         </span>
 
@@ -114,7 +115,7 @@
     {% else %}
 
         <div class="col-sm-offset-3 col-sm-6 col-xs-12">
-            <div class="panel panel-default">
+            <div class="panel panel-default panel-main-content">
                 <div class="panel-heading">
                     <h3 class="panel-title">Data Browser</h3>
                 </div>
@@ -140,14 +141,14 @@
         </div>
 
         <div class="col-sm-8 col-xs-12">
-            <h2>What's Included?</h2>
+            <h3>What's Included?</h3>
         </div>
         <div class="col-sm-8 col-xs-12">
             <p>{% lorem 100 w %}</p>
         </div>
 
         <div class="col-sm-8 col-xs-12">
-            <h2>About {{survey|uppercase}}</h2>
+            <h3>About {{survey|uppercase}}</h3>
         </div>
         <div class="col-sm-8 col-xs-12">
             {% with "data_browser/sample/survey/"|add:survey|add:"/about.html" as template %}
