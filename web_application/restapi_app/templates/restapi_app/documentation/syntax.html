@@ -1,0 +1,43 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Syntax{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/about.min.css' %}"/>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active">Syntax</li>
+{% endblock %}
+
+{% block page_title %}Syntax{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'faq' %}">FAQs</a></li>
+<li role="presentation" ><a href="{% url 'support-contact' %}">Contact Us</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row">
+    <div class="col-xs-12">
+        <p class="lead">AAODC uses some custom terminology to organise our data.
+            Read more about the <a href="{% url 'support-contact' %}">data model</a> or view
+            <a href="{% url 'documentation-faq' %}">commonly asked questions</a>.  </p>
+    </div>
+    <div class="col-xs-12">
+        <h3><i class="fa fa-map-marker"></i> Data Releases</h3>
+        <p>{% lorem %}</p>
+        <h3><i class="fa fa-code-fork"></i> Branches</h3>
+        <p>{% lorem %}</p>
+        <h3><i class="fa fa-map-pin"></i> Versions</h3>
+        <p>{% lorem %}</p>
+
+    </div>
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

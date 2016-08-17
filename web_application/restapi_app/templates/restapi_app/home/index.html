@@ -52,7 +52,7 @@
                     <p>Query</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'under-construction'%}">
+                    <a href="{% url 'data_browser:data-browser-list'%}">
                         <div class="circle">
                             <i class="fa fa-database"></i>
                             <div class="line"></div>
@@ -61,30 +61,39 @@
                     <p>Data</p>
                 </div>
                 <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'under-construction'%}">
-                        <div class="circle">
+                    <a href="{% url 'under-construction'%}" class="disabled">
+                        <div class="circle disabled">
                             <i class="fa fa-map-signs"></i>
                             <div class="line"></div>
                         </div>
                     </a>
-                    <p>Explore</p>
+                    <p class="disabled">Explore</p>
                 </div>
-                <a href="{% url 'under-construction' %}">
-                    <div class="col col-md-3 col-sm-3">
-                        <div class="circle">
+
+                <div class="col col-md-3 col-sm-3">
+                    <a href="{% url 'under-construction' %}" class="disabled">
+                        <div class="circle disabled">
                             <i class="fa fa-code"></i>
                         </div>
-                        <p>Code</p>
-                    </div>
-                </a>
+                    </a>
+                    <p class="disabled">Code</p>
+                </div>
+
             </div>
 
             <div class="cta row">
-                <a href="{% url 'sov-list' %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>
-                <a type="button" title="View your previous queries." href="{% url 'under-construction' %}"
-                class="white-tooltip">My Account</a>
-                <a type="button" title="Browse current release documenation." href="{% url 'documentation' %}"
-                   class="white-tooltip">Documentation</a>
+                <!--<a href="{% url 'sov-list' %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>-->
+
+                <a type="button" title="View your previous queries."
+                   {% if user.is_authenticated %}
+                    href="{% url 'user-profile-detail' username=user %}"
+                   {% else %}
+                    href="{% url 'rest_framework:login' %}"
+                   {% endif %}
+                    class="white-tooltip">My Account</a>
+
+                <!--<a type="button" title="Browse current release documenation."-->
+                   <!--class="white-tooltip">Documentation</a>-->
             </div>
 
             <div class="note row">

@@ -64,6 +64,7 @@ section.welcome .container .content .infographic .circle {
   height: 112px;
   border: 2px solid #ffffff;
   border-radius: 112px;
+  transition: all 0.2s ease-in-out;
 }
 section.welcome .container .content .infographic .circle .line {
   position: absolute;
@@ -82,11 +83,26 @@ section.welcome .container .content .infographic .circle i {
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
 }
+section.welcome .container .content .infographic .circle.disabled {
+  opacity: 0.4;
+}
+section.welcome .container .content .infographic .circle.disabled:hover {
+  cursor: not-allowed;
+}
+section.welcome .container .content .infographic .circle:hover {
+  background-color: rgba(251, 251, 251, 0.2);
+}
 section.welcome .container .content .infographic p {
   font-weight: 600;
   color: #ffffff;
   text-align: center;
   text-transform: uppercase;
+}
+section.welcome .container .content .infographic p.disabled {
+  opacity: 0.4;
+}
+section.welcome .container .content .infographic p.disabled:hover {
+  cursor: not-allowed;
 }
 section.welcome .container .content .cta {
   margin-bottom: 60px;
@@ -108,6 +124,13 @@ section.welcome .container .content .note {
 }
 section.welcome .container .content .note p {
   color: #ffffff;
+}
+section.welcome .container .white-tooltip {
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+}
+section.welcome .container .white-tooltip:hover {
+  background-color: rgba(251, 251, 251, 0.2);
 }
 section.welcome .container .white-tooltip + .tooltip > .tooltip-inner {
   background-color: #67A8D5;

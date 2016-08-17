@@ -1,0 +1,43 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}FAQs{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/about.min.css' %}"/>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li><a href="{% url 'faq' %}">FAQs</a></li>
+<li class="active">My Account </li>
+{% endblock %}
+
+{% block page_title %}FAQs{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation-syntax' %}">Syntax</a></li>
+<li role="presentation"><a href="{% url 'support-contact' %}">Contact Us</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+
+<div class="row" id="top">
+    <div class="col-xs-12">
+        <p class="lead">Browse frequently asked questions. If you still can't solve your issue, <a
+                href="{% url 'support-contact' %}">contact us</a>.</p>
+    </div>
+
+    <div class="col-xs-12">
+        <h2 id="myaccount">My Account <small class="pull-right header-link"><a href="#top"><i class="fa fa-angle-up"></i> Back to top</a></small></h2>
+        <h3>What's my storage limit?</h3>
+        <p>{% lorem %}</p>
+        <h3>What's a <i class="fa fa-map-pin"></i> version?</h3>
+        <p>{% lorem %}</p>
+    </div>
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

@@ -83,12 +83,23 @@ section.welcome .container {
           left: 50%;
           transform: translateX(-50%) translateY(-50%);
         }
+        &.disabled {
+          opacity: 0.4;
+          &:hover {
+            cursor: not-allowed
+          }
+        }
+        &:hover {
+          background-color: rgba(251, 251, 251, 0.2)
+        }
+        transition: all 0.2s ease-in-out;
       }
       p {
         font-weight: 600;
         color: #ffffff;
         text-align: center;
         text-transform: uppercase;
+        &.disabled{opacity:0.4; &:hover{cursor:not-allowed}}
       }
 
     }
@@ -115,6 +126,14 @@ section.welcome .container {
       }
     }
   }
+  .white-tooltip {
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    &:hover {
+      background-color: rgba(251, 251, 251, 0.2)
+    }
+  }
+
   .white-tooltip + .tooltip > .tooltip-inner {
     background-color: #67A8D5;
   }
