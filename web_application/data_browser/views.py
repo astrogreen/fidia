@@ -236,17 +236,12 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             if trait.trait_type in TWO_D_PLOT_TYPES: context['trait_2D_map'] = True
 
-
-            # context['html_documentation'] = renderer_context['view'].documentation_html
-            # context['pretty_name'] = renderer_context['view'].pretty_name
             # context['short_description'] = renderer_context['view'].short_description
             return context
 
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
-
-        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pk]
 
         # Dict of available traits
         trait_registry = ar.available_traits
@@ -264,6 +259,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait.get_pretty_name()]
 
         serializer_class = data_browser.serializers.TraitSerializer
 
