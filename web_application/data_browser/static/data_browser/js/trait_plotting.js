@@ -1,5 +1,8 @@
 function trait_plot(trait_url, trait_name, map_selector, options_selector) {
-    function changePlotData(data, array_index) {
+    var zmin = 0.01;
+    var zmax = 0.99;
+
+    function changePlotData(data, array_index, zmin, zmax) {
         // If single component
         var trait_data = data;
         if (array_index != null) {
@@ -10,7 +13,9 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
             // Everything's good, clear the element
             $(map_selector).html('');
             // Call plotly
-            plot_map(trait_name, trait_data, map_selector);
+            plot_map(trait_name, trait_data, map_selector, zmin, zmax);
+
+            return trait_data;
         }
         else {
             return $(map_selector).html('Validation Fail: value array is irregular. Contact support. ');
@@ -26,6 +31,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
             // Parse NANs here
             var trait_value = JSON.parseMore(data);
 
+            // EXTENSIONS
             // Does value have multiple extensions? If so, add in plot options.
             if (typeof(trait_value.value[0][0][0]) != 'undefined') {
                 for (var a = 0; a < trait_value.value.length; a++) {
@@ -33,18 +39,44 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                     if (a == 0) {
                         checked = 'checked'
                     }
-                    $(options_selector).append('<div class="radio"> <label> <input type="radio" name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
+                    $(options_selector).append('<div class="radio"> <label> <input type="radio" disabled name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
                 }
-                changePlotData(trait_value.value, 0);
+                changePlotData(trait_value.value, 0, zmin, zmax);
 
-                $("input[name=optionsRadios]").click(function () {
-                    console.log($("input[name=optionsRadios]:checked").val());
-                    var array_index = Number($("input[name=optionsRadios]:checked").val());
-                    changePlotData(trait_value.value, array_index);
-                });
+                if ($("input[name=optionsRadios]").length > 0){
+                    $("input[name=optionsRadios]").click(function () {
+                        console.log($("input[name=optionsRadios]:checked").val());
+                        var array_index = Number($("input[name=optionsRadios]:checked").val());
+                        changePlotData(trait_value.value, array_index, zmin, zmax);
+                    });
+                }
+
+
             } else {
-                changePlotData(trait_value.value);
+                changePlotData(trait_value.value, null, zmin, zmax);
             }
+
+            // SLIDER
+            $("#slider-range").slider({
+                range: true,
+                min: 0.01,
+                max: 0.99,
+                step: 0.01,
+                values: [zmin, zmax],
+                slide: function (event, ui) {
+                    $("#amount").html( ui.values[0] + "\% - " + ui.values[1] + '\%');
+                },
+                stop: function(event, ui) {
+                    var array_index = null;
+                    // if multiple extensions, get the currently selected option.
+                    if ($("input[name=optionsRadios]").length > 0){
+                        array_index = Number($("input[name=optionsRadios]:checked").val());
+                    }
+                    changePlotData(trait_value.value, array_index, ui.values[0], ui.values[1]);
+                }
+            });
+            $("#amount").html( $("#slider-range").slider("values", 0) +
+                    "\% - " + $("#slider-range").slider("values", 1) + '\%');
         },
         error: function (jqXHR, exception) {
             alert("Error");

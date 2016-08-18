@@ -40,7 +40,7 @@ function average(data){
   return avg;
 }
 
-function fGenerateColourScale(map_val){
+function fGenerateColourScale(map_val, zmin_user, zmax_user){
 
     var colors=['rgb(165,0,38)','rgb(215,48,39)','rgb(244,109,67)','rgb(253,174,97)','rgb(254,224,144)','rgb(224,243,248)','rgb(171,217,233)','rgb(116,173,209)','rgb(69,117,180)','rgb(49,54,149)'];
     // red to white to blue -->
@@ -73,34 +73,41 @@ function fGenerateColourScale(map_val){
     var NumArr = bouncer(FlatArr);
 
     //ZMIN ZMAX (without sigma clip)
-    var Zmax_old = Math.max.apply(null, bouncer(FlatArr));
-    var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
+    // var Zmax_old = Math.max.apply(null, bouncer(FlatArr));
+    // var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
 
-    // 98 percentile clip, i.e. 0.01 to 0.99 of the actual values.
+    // X percentile clip, i.e. 0.01 to 0.99 of the actual values.
     var NumArrSort = NumArr.sort(function(a,b){return a - b});
-    var Zmin = NumArrSort[Math.floor(NumArr.length * 0.08) + 1];
-    var Zmax = NumArrSort[Math.floor(NumArr.length * 0.92)];
+    var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin_user) + 1];
+    var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user)];
+    // console.log(zmin_user, zmax_user);
+    // console.log(_Zmin, _Zmax);
 
-    var Zscale = Zmax-Zmin;
+    if ($('#data-range').length>0){
+        $("#data-range").html( _Zmin.toPrecision(8) + "  - " + _Zmax.toPrecision(8));
+    }
+
+    var Zscale = _Zmax-_Zmin;
+
     var tickvals = [];
 
     // Generate mapping between colours and colorbar, log or linear
     for (var i=0; i<numcolors; i++){
         colorscale[i] = [i/(numcolors-1), colors[i]];
-        tickvals[i] = Number((Zscale*i)/(numcolors-1)+Zmin).toPrecision(2);
+        tickvals[i] = Number((Zscale*i)/(numcolors-1)+_Zmin).toPrecision(2);
         // console.log(colorscale[i],tickvals[i]);
     }
 
     return {
         colorscale:colorscale,
         tickvals:tickvals,
-        Zmin:Zmin,
-        Zmax:Zmax
+        Zmin:_Zmin,
+        Zmax:_Zmax
     };
 };
 
 
-function plot_map(name, data, selector){
+function plot_map(name, data, selector, zmin, zmax){
 
     var map_title = name;
     var map_selector = selector;
@@ -122,7 +129,7 @@ function plot_map(name, data, selector){
 
     // - note that position is at center of pixel (rather than at origin left bottom)
     // - no normalization applied
-    var temp = fGenerateColourScale(map_val);
+    var temp = fGenerateColourScale(map_val, zmin, zmax);
     var colorscale = temp.colorscale;
     var tickvals = temp.tickvals;
     var Zmin = temp.Zmin;
@@ -173,7 +180,7 @@ function plot_map(name, data, selector){
     var raw_id = map_selector.replace("#","");
     var plotDiv = document.getElementById(raw_id);
 
-    Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false, displayModeBar:false});
+    Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false, displayModeBar:true});
 
 
     // RESPONSIVE TO CHANGING WINDOW SIZE
