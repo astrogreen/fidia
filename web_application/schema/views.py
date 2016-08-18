@@ -55,7 +55,7 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, format=None):
 
-        SampleViewSet.breadcrumb_list.extend([str(sample_pk).upper()])
+        self.breadcrumb_list = [str(sample_pk).upper()]
 
         if sample_pk == 'gama':
             return Response({"sample": "gama", "in_progress": True})
@@ -87,7 +87,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
 
-        AstroObjectViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk])
+        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk]
         try:
             astro_object = sami_dr1_sample[astroobject_pk]
             assert isinstance(astro_object, fidia.AstronomicalObject)
@@ -237,7 +237,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
-        TraitViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk, trait_pk])
+        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pk]
 
         # Dict of available traits
         trait_registry = ar.available_traits

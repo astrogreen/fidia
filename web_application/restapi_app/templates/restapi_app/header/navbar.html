@@ -33,26 +33,31 @@
                            aria-expanded="false">Browse</a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
+                            <li role="separator" class="divider"></li>
                             <li class="dropdown-header">by Survey</li>
-                            {% comment %}
-                            <li><a href="{% url 'sami-list' %}">SAMI</a></li>
-                            <li class=""><a href="{% url 'gama-list' %}">GAMA</a></li>
-                            {% endcomment %}
+                            <li><a href="{% url 'data_browser:sample-list' sample_pk='sami' %}">SAMI</a></li>
+                            <li><a href="{% url 'data_browser:sample-list' sample_pk='gama' %}">GAMA</a></li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">by Object</li>
-                            {% comment %}
-                            <li><a href="{% url 'sov-list' %}">SOV</a></li>
-                            {% endcomment %}
+                            <li><a href="{% url 'under-construction' %}">Search AAODC</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">Schema</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'schema:schema-list' %}">Data Browser</a></li>
 
+                            <li><a href="{% url 'documentation-schema-browser' %}">Query</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">Documentation</a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'schema:schema-list' %}">Schema</a></li>
-                            <li><a href="{% url 'documentation-query-builder' %}">Query Builder</a></li>
-                            <li><a href="{% url 'documentation-schema-browser' %}">Schema Browser</a></li>
+                            <li><a href="{% url 'under-construction' %}">Data Browser</a></li>
+                            <li><a href="{% url 'documentation-query-builder' %}">Query</a></li>
+                            <li><a href="{% url 'documentation-schema-browser' %}">Schema</a></li>
                             <!--<li><a href="{% url "documentation" %}">Accessing Data</a></li>-->
                             <!--<li><a href="{% url "documentation" %}#docs-examples">Examples</a></li>-->
                             <li role="separator" class="divider"></li>

@@ -47,14 +47,21 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
     add in get_astroobj name
     """
 
+    # def __init__(self, template='rest_framework/api.html'):
+    #     self.template = template  # instance variable unique to each instance
+
     def get_astro_object_name(self, request):
         """
         Return the astro object name
         """
         return get_object_name(request.path, request)
 
-    def get_breadcrumbs(self, request):
-        return get_breadcrumbs_by_viewname(request.path, request)
+    def get_breadcrumbs(self, request, view):
+        _breadcrumb_list = []
+
+        if hasattr(view, 'breadcrumb_list'):
+            _breadcrumb_list = view.breadcrumb_list
+        return get_breadcrumbs_by_viewname(request.path, request, _breadcrumb_list)
 
     def get_context(self, data, accepted_media_type, renderer_context):
         """
@@ -94,7 +101,7 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
             'objname': self.get_astro_object_name(request),
             'version': VERSION,
             'paginator': paginator,
-            'breadcrumblist': self.get_breadcrumbs(request),
+            'breadcrumblist': self.get_breadcrumbs(request, view),
             'allowed_methods': view.allowed_methods,
             'available_formats': [renderer_cls.format for renderer_cls in view.renderer_classes],
             'response_headers': response_headers,

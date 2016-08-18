@@ -170,8 +170,8 @@ function plot_map(name, data, selector, zmin, zmax){
         height:elementWidth,
         margin: {
             l: 0.04*elementWidth,
-            r: 0.05*elementWidth,
-            b:0.06*elementWidth,
+            r: 0.04*elementWidth,
+            b:0.05*elementWidth,
             t: 0.03*elementWidth
         },
         // title: map_title
@@ -180,7 +180,14 @@ function plot_map(name, data, selector, zmin, zmax){
     var raw_id = map_selector.replace("#","");
     var plotDiv = document.getElementById(raw_id);
 
-    Plotly.newPlot(plotDiv, map_data, layout, {modeBarButtonsToRemove: ['sendDataToCloud'], displaylogo:false, showLink: false, displayModeBar:true});
+    Plotly.newPlot(plotDiv, map_data, layout, {
+        modeBarButtonsToRemove: ['sendDataToCloud', 'zoom2d', 'pan2d', 'select2d',
+            'lasso2d', 'zoomIn2d', 'zoomOut2d', 'hoverCompareCartesian', 'hoverClosestCartesian', 'resetScale2d'],
+        displaylogo: false,
+        showLink: false,
+        displayModeBar: true,
+        scrollZoom: false
+    });
 
 
     // RESPONSIVE TO CHANGING WINDOW SIZE

@@ -26,7 +26,9 @@ log = logging.getLogger(__name__)
 
 TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classification_map", "extinction_map"]
 
+
 class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """ Viewset for DataBrowser API root. List View only. """
 
     class DataBrowserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/root/list.html'
@@ -35,6 +37,7 @@ class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
         samples = ["sami", "gama"]
+        self.template = 'data_browser/root/list.html'
 
         serializer_class = data_browser.serializers.DataBrowserSerializer
         serializer = serializer_class(
@@ -48,15 +51,15 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Viewset for Sample route. Provides List view only.
     """
+
     class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/sample/list.html'
 
     renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    breadcrumb_list = []
 
-    def list(self, request, pk=None, sample_pk=None, format=None):
+    def list(self, request, pk=None, sample_pk=None, format=None, extra_keyword=None):
 
-        SampleViewSet.breadcrumb_list.extend([str(sample_pk).upper()])
+        self.breadcrumb_list = [str(sample_pk).upper()]
 
         if sample_pk == 'gama':
             return Response({"sample": "gama", "in_progress": True})
@@ -90,13 +93,12 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             return context
 
-
     renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    breadcrumb_list = []
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
 
-        AstroObjectViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk])
+        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk]
+
         try:
             astro_object = sami_dr1_sample[astroobject_pk]
             assert isinstance(astro_object, fidia.AstronomicalObject)
@@ -189,8 +191,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def __init__(self, sub_trait_list=None, *args, **kwargs):
         self.sub_trait_list = sub_trait_list
-
-    breadcrumb_list = []
+        self.breadcrumb_list = []
 
     class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
@@ -245,7 +246,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
-        TraitViewSet.breadcrumb_list.extend([str(sample_pk).upper(), astroobject_pk, trait_pk])
+        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pk]
 
         # Dict of available traits
         trait_registry = ar.available_traits
@@ -307,10 +308,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sample = sample
         self.astroobject = astroobject
         self.trait = trait
-
         self.renderer_classes = (self.SubTraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
-
-    breadcrumb_list = []
 
     class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
@@ -324,7 +322,6 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['trait'] = renderer_context['view'].trait
             context['trait_url'] = renderer_context['view'].trait_url
             context['template'] = renderer_context['view'].template
-
 
             context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key']
             context['side_bar_explicit_render'] = ['description', 'documentation']
@@ -388,8 +385,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'trait_key': str(subtrait_pointer.trait_key),
                          })
             # Set Breadcrumbs for this method
-            SubTraitPropertyViewSet.breadcrumb_list.extend(
-                [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(), subtrait_pointer.get_pretty_name()])
+            self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(), subtrait_pointer.get_pretty_name()]
 
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
             self.template = 'data_browser/trait_property/list.html'
@@ -423,9 +419,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'subtraitproperty': subtraitproperty_pk,
                          })
             # Set Breadcrumbs for this method
-            SubTraitPropertyViewSet.breadcrumb_list.extend(
-                [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
-                 traitproperty_pointer.get_pretty_name()])
+            self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+                 traitproperty_pointer.get_pretty_name()]
 
         else:
             raise Exception("programming error")
@@ -459,8 +454,6 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.trait = trait
 
         self.renderer_classes = (self.TraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
-
-    breadcrumb_list = []
 
     class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
@@ -512,8 +505,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                      }
         )
 
-        TraitPropertyViewSet.breadcrumb_list.extend(
-            [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
-             subtrait_pointer.get_pretty_name(), elem.get_pretty_name()])
+        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+             subtrait_pointer.get_pretty_name(), elem.get_pretty_name()]
+
         return Response(serializer.data)
 

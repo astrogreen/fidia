@@ -57,26 +57,32 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
             }
 
             // SLIDER
-            $("#slider-range").slider({
-                range: true,
-                min: 0.01,
-                max: 0.99,
-                step: 0.01,
-                values: [zmin, zmax],
-                slide: function (event, ui) {
-                    $("#amount").html( ui.values[0] + "\% - " + ui.values[1] + '\%');
-                },
-                stop: function(event, ui) {
-                    var array_index = null;
-                    // if multiple extensions, get the currently selected option.
-                    if ($("input[name=optionsRadios]").length > 0){
-                        array_index = Number($("input[name=optionsRadios]:checked").val());
-                    }
-                    changePlotData(trait_value.value, array_index, ui.values[0], ui.values[1]);
-                }
-            });
-            $("#amount").html( $("#slider-range").slider("values", 0) +
-                    "\% - " + $("#slider-range").slider("values", 1) + '\%');
+            if ($("#slider-range").length > 0){
+                if (typeof $("#slider-range").slider === "function"){
+                    $("#slider-range").slider({
+                        range: true,
+                        min: 0.01,
+                        max: 0.99,
+                        step: 0.01,
+                        values: [zmin, zmax],
+                        slide: function (event, ui) {
+                            $("#amount").html( ui.values[0] + "\% - " + ui.values[1] + '\%');
+                        },
+                        stop: function(event, ui) {
+                            var array_index = null;
+                            // if multiple extensions, get the currently selected option.
+                            if ($("input[name=optionsRadios]").length > 0){
+                                array_index = Number($("input[name=optionsRadios]:checked").val());
+                            }
+                            changePlotData(trait_value.value, array_index, ui.values[0], ui.values[1]);
+                        }
+                    });
+                    $("#amount").html( $("#slider-range").slider("values", 0) +
+                            "\% - " + $("#slider-range").slider("values", 1) + '\%');
+                };
+            }
+
+
         },
         error: function (jqXHR, exception) {
             alert("Error");

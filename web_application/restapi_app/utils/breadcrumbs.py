@@ -43,7 +43,7 @@ def get_object_name(url, request=None):
     return name
 
 
-def get_breadcrumbs_by_viewname(url, request=None):
+def get_breadcrumbs_by_viewname(url, request=None, breadcrumb_list=None):
     """
     Given a url returns a list of breadcrumbs, which are each a
     tuple of (name, url).
@@ -56,17 +56,21 @@ def get_breadcrumbs_by_viewname(url, request=None):
 
     view_name_func = api_settings.VIEW_NAME_FUNCTION
 
-    # The breadcrumb list will override the view name from the last array to the first
-    try:
-        (view, unused_args, unused_kwargs) = resolve(url)
-    except Exception:
-        pass
-    else:
-        cls = getattr(view, 'cls', None)
-        breadcrumb_list_from_view = []
-        if hasattr(cls, 'breadcrumb_list'):
-            assert isinstance(cls.breadcrumb_list, list)
-            breadcrumb_list_from_view = cls.breadcrumb_list
+    if breadcrumb_list is not None:
+        assert isinstance(breadcrumb_list, list)
+        breadcrumb_list_from_view = breadcrumb_list
+
+    # # The breadcrumb list will override the view name from the last array to the first
+    # try:
+    #     (view, unused_args, unused_kwargs) = resolve(url)
+    # except Exception:
+    #     pass
+    # else:
+    #     cls = getattr(view, 'cls', None)
+    #     breadcrumb_list_from_view = []
+    #     if hasattr(cls, 'breadcrumb_list'):
+    #         assert isinstance(cls.breadcrumb_list, list)
+    #         breadcrumb_list_from_view = cls.breadcrumb_list
 
     def breadcrumbs_recursive(url, breadcrumbs_list, prefix, seen, breadcrumb_list_from_view):
         """
@@ -97,6 +101,7 @@ def get_breadcrumbs_by_viewname(url, request=None):
                     #     name = new_name
 
                     if breadcrumb_list_from_view:
+                        print(breadcrumb_list_from_view)
                         if breadcrumb_list_from_view.__len__() > 0:
                             name = breadcrumb_list_from_view.pop()
                     insert_url = preserve_builtin_query_params(prefix + url, request)

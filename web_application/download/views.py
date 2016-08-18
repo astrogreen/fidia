@@ -48,7 +48,7 @@ class DownloadCreateView(generics.CreateAPIView):
         """
         Return the blank form for a POST request
         """
-        DownloadCreateView.breadcrumb_list.extend(['Download'])
+        self.breadcrumb_list =['Download']
         return Response()
 
 
