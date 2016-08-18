@@ -4,18 +4,19 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
+{% block title %}{{response.data.sample|uppercase}} {{response.data.astroobject}} | {{response.data.pretty_name}}{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}{{astroobject}} | {{trait}} {% endblock %}
+{% block page_title %}{{response.data.sample|uppercase}} {{response.data.astroobject}} | {{trait}}{% endblock %}
 {% block useful_links %}
 <li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
     {{response.data.sample}}</a></li>
 <li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}>Back to
     {{response.data.astroobject}}</a></li>
+<li role="presentation"><a href="{% url 'schema:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}">Schema</a></li>
 {% endblock useful_links %}
 
 {% block content-test %}
@@ -44,9 +45,9 @@
             {% for r in side_bar_explicit_render %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="heading{{r}}">
-                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
+                    <a role="button" data-toggle="collapse" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}" class="panel-title">
                         {{r |capfirst}}
-                        <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-caret-down sub-heading"></i>
                     </a>
                     <span class="sub-heading pull-right">explicitly rendered attributes</span>
                 </div>
@@ -59,17 +60,30 @@
                 </div>
             </div>
             {% endfor %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="meta_data_group">
+                    <a role="button" data-toggle="collapse" href="#meta_data" aria-controls="meta_data" class="panel-title">
+                        Meta Data
+                        <i class="fa fa-caret-down sub-heading"></i>
+                    </a>
+                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                </div>
+                <div id="meta_data" class="panel-collapse collapse" role="tabpanel" aria-labelledby="meta_data">
+                    <div class="panel-body meta-data">
+                         <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
+                        {% with response.data as tpdata %}
+                            {% for tp in tpdata %}
+                                {% if tp in reserved_keywords %}
+                                {% else %}
+                                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
 
 
-            <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
-            {% with response.data as tpdata %}
-                {% for tp in tpdata %}
-                    {% if tp in reserved_keywords %}
-                    {% else %}
-                        {% include 'data_browser/trait/sidebar-trait-property.html' %}
-                    {% endif %}
-                {% endfor %}
-            {% endwith %}
 
         </div>
 
@@ -100,7 +114,7 @@
         <div class="col-sm-8 col-xs-12">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <p>In Progress... </p>
+                    <p>TBD </p>
                 </div>
             </div>
         </div>

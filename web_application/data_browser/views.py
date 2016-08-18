@@ -468,6 +468,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['subtrait'] = renderer_context['view'].subtrait
             context['template'] = renderer_context['view'].template
             context['trait_2D_map'] = renderer_context['view'].trait_2D_map
+            context['url_above'] = renderer_context['view'].url_above
 
             return context
 
@@ -489,6 +490,21 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sample = sample_pk
         self.trait = trait_pointer.get_pretty_name()
         self.subtrait = subtrait_pointer.get_pretty_name()
+
+        self.url_above = ''
+
+        url_kwargs = {
+            'trait_pk': trait_pk,
+            'astroobject_pk': astroobject_pk,
+            'sample_pk': sample_pk,
+        }
+        if subtraitproperty_pk is not None:
+            url_kwargs['subtraitproperty_pk'] = subtraitproperty_pk
+            self.url_above = reverse("data_browser:subtraitproperty-list", kwargs=url_kwargs)
+        else:
+            self.url_above = reverse("data_browser:trait-list", kwargs=url_kwargs)
+
+        print(self.url_above)
 
         self.type = subtrait_pointer.trait_type
         self.trait_2D_map = False
