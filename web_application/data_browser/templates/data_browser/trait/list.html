@@ -21,7 +21,7 @@
 <li role="presentation"><a href="{% url 'schema:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}">Schema</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 hidden-xs"><a href="{% url 'documentation-syntax' %}" class="question pull-right"><i class="fa fa-question-circle"></i> What are branches and versions?</a> &nbsp;&nbsp;</div>
@@ -99,7 +99,7 @@
                         {{r |capfirst}}
                         <i class="fa fa-caret-down sub-heading"></i>
                     </a>
-                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                    <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
                 </div>
                 <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
                     <div class="panel-body">
@@ -118,7 +118,7 @@
                         Meta Data
                         <i class="fa fa-caret-down sub-heading"></i>
                     </a>
-                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                    <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
                 </div>
                 <div id="meta_data" class="panel-collapse collapse" role="tabpanel" aria-labelledby="meta_data">
                     <div class="panel-body meta-data">
@@ -141,7 +141,7 @@
                                         {{ response.data|key:s |key:'pretty_name' }}
                                         <i class="fa fa-caret-down sub-heading"></i>
                                     </a>
-                                    <span class="sub-heading pull-right">sub-trait <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
+                                    <span class="sub-heading pull-right"><span class="testing">sub-trait</span> <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
                                 </div>
                                 <div id="collapse{{s}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{s}}">
                                     <div class="panel-body nested-sidebar">
@@ -158,7 +158,7 @@
                                                         {{r |capfirst}}
                                                         <i class="fa fa-caret-down sub-heading"></i>
                                                     </a>
-                                                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                                                    <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
                                                 </div>
                                                 <div id="{{s}}_nested_collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{r}}">
                                                     <div class="panel-body">
@@ -177,7 +177,7 @@
                                                            {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{t}}">
                                                             {{t |capfirst}}
                                                         </a>
-                                                        <span class="sub-heading pull-right">trait_property  <a href="{{ response.data|key:s|key:t |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
+                                                        <span class="sub-heading pull-right"><span class="testing">trait_property</span><a href="{{ response.data|key:s|key:t |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
                                                     </div>
                                                     <div id="{{s}}_nested_collapse{{t}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{t}}">
                                                         <div class="panel-body">

@@ -20,7 +20,7 @@
 {% endblock useful_links %}
 
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-6 col-sm-4">
@@ -42,7 +42,7 @@
                             {{r |capfirst}}
                             <i class="fa fa-caret-down sub-heading"></i>
                         </a>
-                        <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                        <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
                     </div>
                     <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
                         <div class="panel-body">
@@ -60,7 +60,7 @@
                         Meta Data
                         <i class="fa fa-caret-down sub-heading"></i>
                     </a>
-                    <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                    <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
                 </div>
                 <div id="meta_data" class="panel-collapse collapse" role="tabpanel" aria-labelledby="meta_data">
                     <div class="panel-body meta-data">

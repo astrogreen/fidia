@@ -29,11 +29,33 @@
     </div>
     <div class="col-xs-12">
         <h3><i class="fa fa-map-marker"></i> Data Releases</h3>
-        <p>{% lorem %}</p>
+        <p>A data release is marked by the <i class="fa fa-map-marker"></i> symbol, and represents a collection of data
+            products a survey team has made publicly available. Survey teams typically release new-and-improved data
+            products with each release,
+            but if you ran your analysis on a particular piece of data at a particular time, data releases allow you to
+            view a specific time-stamped version of the survey products.</p>
+        <p>
+            The <a href="{% url 'data_browser:data-browser-list'%}">Data Browser</a> will always show the most current
+            survey data,
+            but you can switch to view previous data releases using the <a type="button"
+                                                                           class="btn btn-default btn-xs dropdown-toggle"
+                                                                           data-toggle="dropdown" aria-haspopup="true"
+                                                                           aria-expanded="false">
+            <i class="fa fa-map-marker"></i> Data Releases <i class="fa fa-caret-down"></i>
+        </a> button once you have selected the survey.</p>
+
         <h3><i class="fa fa-code-fork"></i> Branches</h3>
-        <p>{% lorem %}</p>
+        <p>Branches represent different analysis pipelines for a particular data type. For example, a galaxy may have a
+            stellar mass value calculated using method X, and a value calculated using method Y. These properties both
+            belong to the galaxy's stellar mass property, and are contained within branches. Switching to a branch
+            allows you to view all subsequent meta data within that branch.</p>
+        <p>If a property has multiple branches, it will be marked by a <i class="fa fa-code-fork"></i> symbol.</p>
+
         <h3><i class="fa fa-map-pin"></i> Versions</h3>
-        <p>{% lorem %}</p>
+        <p>AAODC allows for astronomical object properties to be versioned, allowing team members to update a sub-set of
+            data products without issuing a full team relese. </p>
+
+        <p>If a property has multiple versions, it will be marked by a <i class="fa fa-map-pin"></i> symbol.</p>
 
     </div>
 </div>
