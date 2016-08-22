@@ -255,37 +255,6 @@ console.log('directives.js');
 
                 });
 
-                // scope.addItem = function(){
-                //
-                //     scope.constructItem();
-                //
-                //     var items = DownloadService.getItems();
-                //
-                //     // If pre-existing sample item, copy into temporary variable
-                //     angular.forEach(items, function (data, id) {
-                //         if (id == scope.item.id) {
-                //             var temporary = items[scope.item.id];
-                //             // Now remove the previous item from the cookie
-                //             DownloadService.removeItem(scope.item.id);
-                //         }
-                //     });
-                //
-                //
-                //     // Pass the item into the addItem method of DownloadService
-                //     // populate the items obj for this particular view before start writing in to the cookie
-                //     DownloadService.getItems();
-                //     DownloadService.addItem(scope.item);
-                //     DownloadService.getItemCount();
-                //
-                //     $('#mini-download').addClass('bounce')
-                //         .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                //             $('#mini-download').removeClass('bounce');
-                //         });
-                //     $('#available-products').html('<i class="fa fa-check text-success"></i> Added');
-                //     // Parent scope has access to the state of this directive should it wish to change states after submit
-                //     scope.$parent.isSubmitted.state = true;
-                //     scope.$parent.isDisabled.state = true;
-                // };
 
                 scope.addItem = function(){
                     /**

@@ -4,7 +4,7 @@ console.log('availableproducts.controllers.js');
 
     var app = angular.module('DCApp');
 
-    app.controller('AvailableProductsController', function($scope, AvailableProductsService, StorageService, $window, $q){
+    app.controller('AvailableProductsController', function($scope, AvailableProductsService, SessionService, $window, $q){
 
         var ctrl = this; // create alias to this to avoid closure issues
 
@@ -105,7 +105,7 @@ console.log('availableproducts.controllers.js');
 
             var deferred = $q.defer();
 
-            StorageService.getStorageContents().then(function (storage_data) {
+            SessionService.getStorageContents().then(function (storage_data) {
 
                 // Go through the cookie items and get the trait_type, trait_name and branches that have been previously selected.
                 // Switch their selected property to 'true'
