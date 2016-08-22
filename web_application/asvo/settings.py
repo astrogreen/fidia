@@ -97,13 +97,27 @@ WSGI_APPLICATION = 'asvo.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# DEVELOPMENT SQLite:
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
+# PRODUCTION PostgreSQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'aaodc',
+        # 'NAME': os.path.join(BASE_DIR, 'db.postgresql_psycopg2'),
+        'USER': 'root',
+        # 'PASSWORD': '',
+        # 'HOST': '127.0.0.1',
+        # 'PORT': '8000',
     }
 }
+
 
 
 CACHES = {

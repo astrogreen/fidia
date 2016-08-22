@@ -38,14 +38,14 @@ class DownloadSerializer(serializers.HyperlinkedModelSerializer):
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     downloaditems = serializers.JSONField(required=True, allow_null=False)
     downloadlink = serializers.URLField(max_length=150, read_only=True)
-    total_size = serializers.SerializerMethodField()
+    # total_size = serializers.SerializerMethodField()
 
-    def get_total_size(self, obj):
-        return download.models.Download.objects.aggregate(Sum('size'))
+    # def get_total_size(self, obj):
+    #     return download.models.Download.objects.aggregate(Sum('size'))
 
     class Meta:
         model = download.models.Download
-        fields = ('title', 'downloaditems', 'owner', 'url', 'created', 'updated', 'downloadlink', 'size', 'total_size')
+        fields = ('title', 'downloaditems', 'owner', 'url', 'created', 'updated', 'downloadlink', 'size')
 
 
 class StorageSerializer(serializers.HyperlinkedModelSerializer):
