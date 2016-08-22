@@ -125,33 +125,31 @@ class StorageViewSet(viewsets.GenericViewSet,
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-# class DownloadItem(object):
-#     def __init__(self, id=None, url_list=None, **kwargs):
-#         self.id = id
-#         self.url_list = self.get_url_list(url_list)
-#         self.ao = self.get_ao(url_list)
-#         # for field in ('id', 'url', 'ao', 'format'):
-#         #     setattr(self, field, kwargs.get(field, None))
-#
-#     def get_ao(self, url_list):
-#         j = url_list[0]
-#         return j.split('/asvo/sami/')[1].split('/')[0]
-#
-#     def get_url_list(self, url_list):
-#         url_dict = {}
-#         for url in url_list:
-#             url_dict[url] = self.get_format(url)
-#         return url_dict
-#         # return json.loads('{"urllist": {"url": "format"}}')
-#
-#     def get_format(self, url):
-#         """ Priority: format taken from url string then attempt to sniff best format to return """
-#         if len(url.split('?format=')) > 1:
-#             return url.split('?format=')[1]
-#         else:
-#             # TODO have to do some sniffing here to find available formats and send most appropriate
-#             return 'fits'
-#
+
+class SessionView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request, *args, **kwargs):
+        # Read data from the session and return it to user
+        session_data = {}
+
+        if "download_data" in request.session:
+            print(request.session['download_data'])
+            session_data = request.session['download_data']
+        else:
+            request.session['download_data'] = 'blue'
+
+        # return self.list(request, *args, **kwargs)
+        return Response({"session_data": session_data})
+
+    # def post(self, request, *args, **kwargs):
+    #
+    #     return Response({"test": "route"}, status=status.HTTP_201_CREATED)
+
+
+    # serializer_class =
+
 #
 # download_dict = {
 #     1: DownloadItem(id=1, url_list=['/asvo/sami/1234/trait/traitprop?format=json', '/asvo/sami/1234/trait/?format=csv']),

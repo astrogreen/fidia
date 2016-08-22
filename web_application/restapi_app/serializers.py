@@ -40,8 +40,7 @@ class ContactFormSerializer(serializers.Serializer):
         style={'placeholder': 'Message', 'base_template': 'textarea.html', 'rows': 6}
     )
 
-    def save(self):
+    def send(self):
         email = self.validated_data['email']
         message = self.validated_data['message']
-        send_mail('Subject here', message=message, from_email=email, recipient_list=['liz.ophiuchus@gmail.com'],
-                  fail_silently=False)
+        send_mail('AAODC Contact Form', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'], fail_silently=False)

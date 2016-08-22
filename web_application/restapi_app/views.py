@@ -45,7 +45,7 @@ class ContactForm(views.APIView):
 
         serializer = restapi_app.serializers.ContactFormSerializer
 
-        return Response({'serializer': serializer})
+        return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
 
@@ -53,7 +53,8 @@ class ContactForm(views.APIView):
         serializer.is_valid()
 
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+            serializer.send()
+            serializer_unbound = restapi_app.serializers.ContactFormSerializer
+            return Response({"email_status": "success", 'serializer': serializer_unbound}, status=status.HTTP_202_ACCEPTED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)

@@ -32,8 +32,7 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# TODO TURN THIS OFF IN PRODUCTION! DUMPS EMAILS IN CONSOLE
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # ALLOWED_HOSTS = ['*']
 
@@ -106,7 +105,18 @@ DATABASES = {
     }
 }
 
-# Spark
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+
+# TURN THIS OFF IN PRODUCTION! Dumps email in console for testing
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'comsrv.aao.gov.au'
+EMAIL_PORT = 25
 
 # spark
 SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
