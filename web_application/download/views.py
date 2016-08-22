@@ -126,29 +126,49 @@ class StorageViewSet(viewsets.GenericViewSet,
         serializer.save(owner=self.request.user)
 
 
-class SessionView(generics.ListAPIView):
-    permission_classes = [permissions.AllowAny]
-    renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+class SessionView(views.APIView):
+    """ A route for updating the user's session. This seems like the easiest and DRY-est way to
+    implement access to session storage throughout the site, without implmenting a
+    post-method per view. Instead, the session data is updated if it exists on the request object. """
 
-    def get(self, request, *args, **kwargs):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer, renderers.JSONRenderer)
+    serializer_class = download.serializers.SessionSerializer
+
+    def get(self, request, format=None):
         # Read data from the session and return it to user
         session_data = {}
 
         if "download_data" in request.session:
-            print(request.session['download_data'])
             session_data = request.session['download_data']
         else:
-            request.session['download_data'] = 'blue'
+            # set up the download_data obj for a new session
+            request.session['download_data'] = {}
 
-        # return self.list(request, *args, **kwargs)
+        # return the session data for sanity check now
         return Response({"session_data": session_data})
 
-    # def post(self, request, *args, **kwargs):
-    #
-    #     return Response({"test": "route"}, status=status.HTTP_201_CREATED)
+    def post(self, request, format=None):
+        if "download_data" in request.data:
+            print(request.data["download_data"])
+            serializer = download.serializers.SessionSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            print('hi')
+            print(serializer.validated_data['download_data'])
+
+            validated_data = serializer.validated_data['download_data']
+            # Even if the request session for download_data exists, overwrite it
+            # with the new data.
+            request.session['download_data'] = validated_data
+
+        return Response({"session_data": validated_data})
+        # serializer = self.get_serializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_create(serializer)
+        # headers = self.get_success_headers(serializer.data)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-    # serializer_class =
 
 #
 # download_dict = {

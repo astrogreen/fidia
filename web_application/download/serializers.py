@@ -57,10 +57,19 @@ class StorageSerializer(serializers.HyperlinkedModelSerializer):
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     storage_data = serializers.JSONField(required=False, allow_null=True)
 
+    def update_storage(self):
+        pass
+
     class Meta:
         model = download.models.Storage
         fields = ('storage_data', 'owner', 'url', 'created', 'updated')
 
+
+class SessionSerializer(serializers.Serializer):
+    """
+    Make use of the DRF serialization validation before writing data into session storage
+    """
+    download_data = serializers.JSONField(required=False, allow_null=True)
 
 
 
