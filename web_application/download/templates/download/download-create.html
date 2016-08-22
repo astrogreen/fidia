@@ -45,6 +45,18 @@
                 })
             </script>
             {% endif %}
+            
+            {% if response.status_code = 200 and response.data.download_link %}
+             <div class="panel panel-default">
+                <div class="panel-body success">
+                    <p><a href="{{response.data.download_link}}">Download {{response.data.download_link}}</a> was
+                        succesfully created. If your download doesn't begin automatically, click the link. </p>
+                    <p>
+                        To re-visit and re-run previous downloads, and download data products for samples of objects, <a
+                            href="{% url 'rest_framework:login' %}">Sign In</a>.</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
         <div class="col-sm-8 download-options">
             {% verbatim %}
@@ -206,25 +218,28 @@
             <p>You can still add more data to the current download (visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
                                             Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>), or if you're ready to download this selection of data,
                         submit the form below to begin the download.</p>
-            <br>
+
             {% if post_form %}
                 <div id="post-object-form">
                     {% with form=post_form %}
                     <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" novalidate>
                         <fieldset>
                             {% csrf_token %}
-                            <div class="form-group">
-                                <label class="control-label label-sub-heading">
-                                    Download Title
-                                    <span class="sub-heading" id="title_info">
-                                        <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
-                                           data-trigger="focus"
-                                           data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
-                                           data-placement="left"><i class="fa fa-info-circle"></i></a>
-                                    </span>
-                                </label>
-                                <input name="title" class="form-control" type="text" placeholder="My Download">
-                            </div>
+                            {% if user.is_authenticated %}
+                                <br>
+                                <div class="form-group">
+                                    <label class="control-label label-sub-heading">
+                                        Download Title
+                                        <span class="sub-heading" id="title_info">
+                                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                                               data-trigger="focus"
+                                               data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
+                                               data-placement="left"><i class="fa fa-info-circle"></i></a>
+                                        </span>
+                                    </label>
+                                    <input name="title" class="form-control" type="text" placeholder="My Download">
+                                </div>
+                            {% endif %}
                             <div class="form-group">
                                 <label class="control-label sr-only">
                                   Download Items

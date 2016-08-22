@@ -16,39 +16,87 @@ import download.serializers
 import download.models
 
 
-# Implement a list/retrieve?
-# saves previous downloaded list (json only). post to view implements the download.
-# get - single retrieve or list of previous downloads. Yup good stuff. data is json and reconstructed in the view.
-# create == cart
-# download history
+# class DownloadUnauthenticated(generics.CreateAPIView):
+#     """
+#     Download products for the data browser if user is unauthenticated (does not save)
+#     """
+#     class DownloadCreateRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+#         template = 'download/download-create.html'
+#     serializer_class = download.serializers.DownloadCreateSerializer
+#     permission_classes = [permissions.AllowAny]
+#     breadcrumb_list = []
+#     renderer_classes = (DownloadCreateRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+#
+#     def get_queryset(self):
+#         """
+#         Download queryset filtered by current user
+#         """
+#         user = self.request.user
+#         return download.models.Download.objects.filter(owner=user).order_by('-updated')
+#
+#     def perform_create(self, serializer):
+#         serializer.save(owner=self.request.user)
+#
+#     def get(self, request, format=None):
+#         """
+#         Return the blank form for a POST request
+#         """
+#         self.breadcrumb_list = ['Download']
+#         return Response()
+
 
 
 class DownloadCreateView(generics.CreateAPIView):
     """
-    Download Viewset. Create new download request, view download history, re-issue a download on a particular retrieve.
+    Download Viewset. Create new download request, view download history (if authenticated),
+    re-issue a download on a particular retrieve.
     """
     class DownloadCreateRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'download/download-create.html'
     serializer_class = download.serializers.DownloadCreateSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     breadcrumb_list = []
     renderer_classes = (DownloadCreateRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def create(self, request, *args, **kwargs):
+        # If logged in, save the serialized data
+        if self.request.auth is not None:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            download_data = serializer.validated_data
+            print(download_data)
+            return Response(data={"download_link": "/asvo/temporary/link/", "download_data": download_data}, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         """
         Download queryset filtered by current user
         """
-        user = self.request.user
-        return download.models.Download.objects.filter(owner=user).order_by('-updated')
+        if self.request.auth is not None:
+            print('authenticated')
+            user = self.request.user
+            return download.models.Download.objects.filter(owner=user).order_by('-updated')
+        else:
+            return download.models.Download.objects.none()
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        # If logged in, save the serialized data (either way, issue the download here)
+        # TODO combine with Andy's code for download
+        if self.request.auth is not None:
+            serializer.save(owner=self.request.user)
+        else:
+            raise Exception
 
     def get(self, request, format=None):
         """
         Return the blank form for a POST request
         """
-        self.breadcrumb_list =['Download']
+        self.breadcrumb_list = ['Download']
         return Response()
 
 
