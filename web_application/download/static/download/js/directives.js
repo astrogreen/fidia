@@ -19,7 +19,7 @@ console.log('directives.js');
         Date.now = function() { return new Date().getTime(); }
     }
     // DownloadDirective
-    app.directive('miniDownload', function(DownloadService, StorageService, $q){
+    app.directive('miniDownload', function(DownloadService, SessionService, $q){
         return{
             // Create in an isolated scope
             scope:{},
@@ -36,8 +36,8 @@ console.log('directives.js');
 
                 function getItemCount(){
                     var deferred = $q.defer();
-                    StorageService.getStorageContents().then(function (data) {
-                        scope.item_count = StorageService.getItemCount(data)
+                    SessionService.getStorageContents().then(function (data) {
+                        scope.item_count = SessionService.getItemCount(data)
                         deferred.resolve(data);
                     }).catch(function () {
                         deferred.reject();
@@ -49,7 +49,7 @@ console.log('directives.js');
         };
     });
 
-    app.directive('addDownloadButton', function(DownloadService, StorageService, $q){
+    app.directive('addDownloadButton', function(DownloadService, SessionService, $q){
         return {
             // E for Element
             // A for Attribute
@@ -122,7 +122,7 @@ console.log('directives.js');
 
                     var deferred = $q.defer();
 
-                    StorageService.getStorageContents().then(function (storage_data) {
+                    SessionService.getStorageContents().then(function (storage_data) {
 
                         // CHECK for this in stored data already and disable the button.
                         angular.forEach(storage_data, function(storage_value, id){
@@ -154,9 +154,9 @@ console.log('directives.js');
 
                     var deferred = $q.defer();
 
-                    StorageService.addItemToStorage(scope.item).then(function () {
+                    SessionService.addItemToStorage(scope.item).then(function () {
                         // Update local items object with that from storage
-                        StorageService.getStorageContents()
+                        SessionService.getStorageContents()
 
                         $('#mini-download').addClass('bounce')
                         .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
@@ -192,7 +192,7 @@ console.log('directives.js');
     });
 
     // DownloadDirective
-    app.directive('sampleDownload', function(StorageService, $q){
+    app.directive('sampleDownload', function(SessionService, $q){
         return{
             // Create in an isolated scope
             scope:{},
@@ -239,7 +239,7 @@ console.log('directives.js');
 
                     var deferred = $q.defer();
 
-                    StorageService.getStorageContents().then(function (storage_data) {
+                    SessionService.getStorageContents().then(function (storage_data) {
 
                         // CHECK for this in stored data already and disable the button.
                         angular.forEach(storage_data, function(storage_value, id){
@@ -297,9 +297,9 @@ console.log('directives.js');
                     scope.constructItem();
                     var deferred = $q.defer();
 
-                    StorageService.addItemToStorage(scope.item, true).then(function () {
+                    SessionService.addItemToStorage(scope.item, true).then(function () {
                         // Update local items object with that from storage
-                        StorageService.getStorageContents()
+                        SessionService.getStorageContents()
 
                         $('#mini-download').addClass('bounce')
                             .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){

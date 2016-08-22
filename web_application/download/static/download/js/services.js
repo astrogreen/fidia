@@ -276,7 +276,7 @@
         }
     })
 
-    app.factory('StorageService', function($http, $q, $rootScope){
+    app.factory('SessionService', function($http, $q, $rootScope){
 
         // Private items object
         var items = {};
@@ -305,7 +305,13 @@
         return {
 
             storageURL:function(){
-                return '/asvo/storage/1/'
+                return '/asvo/session/?format=json'
+            },
+            storageName: function(){
+                return 'data'
+            },
+            fieldName: function(){
+                return 'download_data'
             },
 
             getStorageContents: function() {
@@ -315,26 +321,24 @@
                  * @param {String} url
                  * @return {Object} items - this is the main object containing all current data.
                  */
-                // if(!items.length) {
-                //
-                //
-                // }
-                // then returns a new promise, which we return - the new promise is resolved
-                // via response.data
+
                 var url = this.storageURL();
+                var storage = this.storageName();
+                var field = this.fieldName();
 
                 return $http.get(url).then(function (response) {
 
-                    if(response.data.storage_data) {
-                        var storage_data = response.data.storage_data;
+                    if(response[storage][field]) {
+
+                        var session_data = response[storage][field];
+
                         // Loop through the items in the storage and get into local items object
-                        angular.forEach(storage_data, function(item, key) {
+                        angular.forEach(session_data, function(item, key) {
                             // everything is stored by unique ID
                             items[item.id] = item;
                         });
                     }
                     return items;
-                    // return response.data;
                 });
                 return items;
             },
@@ -367,16 +371,17 @@
                         // Add the new item
                         items_for_storage[item.id] = item;
 
-                        var data_to_be_patched = {
-                            "storage_data": items_for_storage
+                        var data_to_be_put = {
+                            "download_data": items_for_storage
                         };
+                        console.log(data_to_be_put);
 
                         // then returns a new promise, which we return - the new promise is resolved
                         // via response.data
-                        return $http.patch(url, data_to_be_patched).then(function () {
+                        return $http.put(url, data_to_be_put).then(function () {
 
                             // Broadcast the event to rootScope such that all directives can access
-                            $rootScope.$broadcast('storageUpdated', [1,2,3])
+                            $rootScope.$broadcast('storageUpdated', [1,2,3]);
 
                             // this.getItemCount(response.data.storage_data);
                         })
@@ -404,7 +409,7 @@
                 var url = this.storageURL();
 
                 return this.getStorageContents(url).then(function(data){
-
+                    console.log(data);
                     // if storage data contains this id:
                     if (data[id]){
 
@@ -425,13 +430,13 @@
                             delete items[id];
                         }
 
-                        var data_to_be_patched = {
-                            "storage_data": items_for_storage
+                        var data_to_be_put = {
+                            "download_data": items_for_storage
                         };
 
                         // then returns a new promise, which we return - the new promise is resolved
                         // via response.data
-                        return $http.patch(url, data_to_be_patched).then(function () {
+                        return $http.put(url, data_to_be_put).then(function () {
 
                             // Broadcast the event to rootScope such that all directives can access
                             $rootScope.$broadcast('storageUpdated');
@@ -468,11 +473,11 @@
                         }
                     }
 
-                    var data_to_be_patched = {
-                        "storage_data": ""
+                    var data_to_be_put = {
+                        "download_data": null
                     };
 
-                    return $http.patch(url, data_to_be_patched).then(function () {
+                    return $http.put(url, data_to_be_put).then(function () {
                             // Broadcast the event to rootScope such that all directives can access
                             $rootScope.$broadcast('storageUpdated');
                         })

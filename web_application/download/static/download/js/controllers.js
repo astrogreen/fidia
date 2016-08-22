@@ -14,7 +14,7 @@ console.log('controllers.js');
     });
 
     // Inject in the DownloadService
-    app.controller('DownloadController', function($scope, DownloadService, StorageService, $q){
+    app.controller('DownloadController', function($scope, DownloadService, SessionService, $q){
         // console.log('-------DownloadController------');
 
         var ctrl = this; // create alias to this to avoid closure issues
@@ -72,9 +72,8 @@ console.log('controllers.js');
              */
 
             var deferred = $q.defer();
-            var url = '/asvo/storage/1/';
 
-            StorageService.getStorageContents().then(function (data) {
+            SessionService.getStorageContents().then(function (data) {
                 // Set the local items object
                 ctrl.items = data
                 deferred.resolve(data);
@@ -91,12 +90,12 @@ console.log('controllers.js');
 
         ctrl.addItemToStorage = function(item){
             // Pass the item into the addItem method of the DownloadService
-            StorageService.addItemToStorage(item);
+            SessionService.addItemToStorage(item);
         };
 
         ctrl.removeItem = function(id){
             // Pass item id into the removeItem method of DownloadService
-            StorageService.removeItem(id);
+            SessionService.removeItem(id);
         };
 
         // ctrl.getStorageItemCount = function(){
@@ -105,14 +104,14 @@ console.log('controllers.js');
         //      * then provides the count of objects
         //      */
         //     ctrl.getItems().then(function(data){
-        //         StorageService.getItemCount(data);
+        //         SessionService.getItemCount(data);
         //     }).catch(function(){
         //         console.log('Data could not be counted.')
         //     })
         // };
 
         ctrl.emptyDownload = function(){
-            StorageService.emptyDownload();
+            SessionService.emptyDownload();
 
             // Resolve bootstrap jQuery modal issue - conflict with angular methodology, which updates rather
             // than injects
@@ -126,10 +125,10 @@ console.log('controllers.js');
              * Watch the local items object - if it changes, prettify and update template
              * then provides a summarized version for the template
              */
-            ctrl.pretty_data = StorageService.prettifyData(ctrl.items);
-            ctrl.summary = StorageService.getSummary(ctrl.items);
-            ctrl.item_count = StorageService.getItemCount(ctrl.items);
-            ctrl.download = StorageService.prepareDownload(ctrl.items);
+            ctrl.pretty_data = SessionService.prettifyData(ctrl.items);
+            ctrl.summary = SessionService.getSummary(ctrl.items);
+            ctrl.item_count = SessionService.getItemCount(ctrl.items);
+            ctrl.download = SessionService.prepareDownload(ctrl.items);
 
         }, true);
 
@@ -143,7 +142,7 @@ console.log('controllers.js');
         //      * then provides a summarized version for the template
         //      */
         //     ctrl.getItems().then(function(data){
-        //         return StorageService.prepareDownload(data);
+        //         return SessionService.prepareDownload(data);
         //     }).catch(function(){
         //         console.log('Data could not be prepared for Download.')
         //     })

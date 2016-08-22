@@ -137,18 +137,19 @@ class SessionView(views.APIView):
 
     def get(self, request, format=None):
         # Read data from the session and return it to user
-        session_data = {}
+        download_data = {}
 
         if "download_data" in request.session:
-            session_data = request.session['download_data']
+            download_data = request.session['download_data']
         else:
             # set up the download_data obj for a new session
             request.session['download_data'] = {}
 
         # return the session data for sanity check now
-        return Response({"session_data": session_data})
+        return Response({"download_data": download_data})
 
-    def post(self, request, format=None):
+    def put(self, request, format=None):
+
         if "download_data" in request.data:
             print(request.data["download_data"])
             serializer = download.serializers.SessionSerializer(data=request.data)
@@ -161,12 +162,9 @@ class SessionView(views.APIView):
             # with the new data.
             request.session['download_data'] = validated_data
 
-        return Response({"session_data": validated_data})
-        # serializer = self.get_serializer(data=request.data)
-        # serializer.is_valid(raise_exception=True)
-        # self.perform_create(serializer)
-        # headers = self.get_success_headers(serializer.data)
-        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            return Response({"download_data": validated_data})
+        else:
+            return Response({"download_data": {}})
 
 
 
