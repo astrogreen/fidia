@@ -1,0 +1,55 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Syntax{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/about.min.css' %}"/>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li><a href="{% url 'documentation' %}">Documentation</a></li>
+<li class="active">Download</li>
+{% endblock %}
+
+{% block page_title %}Documentation: Download{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation' %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'faq' %}">FAQs</a></li>
+<li role="presentation" ><a href="{% url 'support-contact' %}">Contact Us</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row">
+
+    <div class="col-xs-12">
+        <p class="lead">AAODC uses some custom terminology to organise data.
+            Read more about the <a href="{% url 'support-contact' %}">data model</a> or view
+            <a href="{% url 'faq' %}">frequently asked questions</a>.  </p>
+    </div>
+    <div class="col-xs-12">
+        <h2>What can I download?</h2>
+        <p>Data-types at the AAODC can be broadly split into (astronomical) objects and samples of astronomical objects. </p>
+        <h3>Objects</h3>
+        <p>Individual objects are single astronomical entities (stars, galaxies or groups of galaxies), all of which
+            contain a variety of properties appropriate to their type. A star, for example, may have a value for surface gravity (if
+            it has been calculated by a survey team), whereas a galaxy would not.</p>
+        <p>You can immediately download individual data products for an astronomical object from the Data Browser by clicking on the
+
+            <a href="" disabled class="btn btn-default btn-xs"> <span class="fa-custom-stack"><i class="fa fa-file-o"></i><span class="fa-custom-filetype">fits</span></span>fits</a>
+
+            (see the
+            documentation for more details).</p>
+        <h3>Samples</h3>
+        <p>Samples are constructed by making a query against the AAODC database, using either the Query Builder, or pure
+            SQL.</p>
+
+    </div>
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

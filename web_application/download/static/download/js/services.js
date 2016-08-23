@@ -517,7 +517,8 @@
                  */
 
                 var prettyData = {};
-                prettyData["objects"] = {}, prettyData["samples"] = {};
+                prettyData["objects"] = {}; prettyData["products"] = {}; prettyData["samples"] = {};
+
                 // object, id: prettified array
                 angular.forEach(items, function(v, url){
                     // Clean the url, removing all excess info (protocol, domain etc) and split into arr
@@ -581,7 +582,12 @@
                             data_obj['format'] = url_arr[url_arr.length-1].split('?format=')[1];
                             url_arr.pop();
                         }
-                        prettyData["samples"][url] = data_obj;
+                        if (v.options){
+                            prettyData["products"][url] = data_obj;
+                        } else {
+                            prettyData["sample"][url] = data_obj;
+                        }
+
                     }
                 });
                 return prettyData;

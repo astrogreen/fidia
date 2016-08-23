@@ -142,6 +142,7 @@ ul.paragraph-list li {
 }
 strong {
   color: inherit;
+  font-weight: 500;
 }
 .remove-style {
   -webkit-appearance: none;

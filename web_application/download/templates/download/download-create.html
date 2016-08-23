@@ -58,220 +58,23 @@
             </div>
             {% endif %}
         </div>
-        <div class="col-sm-8 download-options">
-            {% verbatim %}
-            <div class="panel panel-default panel-download">
-                <div class="panel-heading text-uppercase">
-                    Individual Object Data Products
-                </div>
-                <table class="table">
-                    <tbody>
-                        <tr ng-repeat="p in ctrl.pretty_data.objects track by $index" ng-if="ctrl.items | isNotEmpty">
-                            <td>
-                                <div class="row">
-                                    <div class="col-sm-9 col-xs-12">
-                                        <h4 style="border:0">
-                                            {{p.sample}} / {{p.ao}} /
-                                            <a ng-href="{{p.url}}" ng-if="p.prettyname">{{p.prettyname}}</a>
-                                            <span ng-repeat="t in p.trait" ng-if="!p.prettyname">
-                                                <span ng-if="!$last">{{t}} /</span>
-                                                <a ng-if="$last" ng-href="{{p.url}}">{{t}}</a>
-                                            </span>
-                                        </h4>
-                                        <p class="version">
-                                            <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{p.format}}</span>
-                                            <span class="sub-heading"><i class="fa fa-map-marker"></i> {{p.version}} V1.0</span>
-                                            <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
-                                        </p>
-                                    </div>
-                                    <div class="col-sm-3 text-right col-xs-12 options">
-                                        <a role="button" class="text-normal">
-                                            <i class="fa fa-times text-error" ng-click="ctrl.removeItem(p.id)"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr ng-if="ctrl.pretty_data.objects | isEmpty">
-                            <td>
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                         <h4 style="border:0">
-                                            Empty!
-                                        </h4>
-                                        {% endverbatim %}
-                                        <p>Visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
-                                            Browser</a> to add data products for individual objects.</p>
-                                        {% verbatim %}
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="panel panel-default panel-download">
-                <div class="panel-heading text-uppercase">
-                    Sample Data Products
-                </div>
-                <table class="table">
-                    <tbody>
-                        <tr ng-repeat="s in ctrl.pretty_data.samples track by $index" ng-if="ctrl.items | isNotEmpty">
-                            <td ng-if="!s.format">
-                                <div class="row">
-                                    <div class="col-sm-9 col-xs-12">
-                                        <h4 style="border:0">
-                                            Data Products for Sample <a href="{{s.url}}"> {{s.sample_id}}</a>
-                                        </h4>
-                                        <p class="version">
-                                            <span class="sub-heading">Link to sample: <a href="{{s.url}}">Query History {{s.sample_id}}</a> </span>
-                                            <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
-                                            <a href="{{s.url}}#select_data_products" class="btn btn-default btn-xs"><i class="fa fa-rotate-left"></i> Edit Selection?</a>
-                                        </p>
 
-                                    </div>
-                                    <div class="col-sm-3 text-right col-xs-12 options">
-                                        <a role="button" class="text-normal">
-                                            <i class="fa fa-times text-error" ng-click="ctrl.removeItem(s.id)"></i>
-                                        </a>
-                                    </div>
-                                    <div class="col-xs-12">
-
-                                    </div>
-                                    <div class="col-sm-6 col-xs-12" ng-repeat="(survey, data) in s.options track by $index">
-                                            <strong>{{survey}}</strong>
-                                            <p ng-repeat="product in data">{{product.pretty_name}}
-                                                <span class="sub-heading"><i class="fa fa-code-fork"></i> {{product.branch}}
-                                                </span>
-                                                &nbsp;</p>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr ng-if="ctrl.pretty_data.samples | isEmpty">
-                            <td>
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                         <h4 style="border:0">
-                                            Empty!
-                                        </h4>
-                                        {% endverbatim %}
-                                        <p>Visit the <a href="{% url 'query-create-list' %}">Query Builder</a> to add
-                                                              data products for a sample of objects.</p>
-                                        {% verbatim %}
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="panel panel-default panel-download">
-                <div class="panel-heading text-uppercase">
-                    Query Samples
-                </div>
-                <table class="table">
-                    <tbody>
-                        <tr ng-repeat="s in ctrl.pretty_data.samples track by $index" ng-if="ctrl.items | isNotEmpty">
-                            <td ng-if="s.format && !s.options">
-                                <div class="row">
-                                    <div class="col-sm-9 col-xs-12">
-                                        <h4 class="text-info" style="border:0">
-                                            <a href="{{s.url}}">Sample {{s.sample_id}}</a>
-                                        </h4>
-                                        <p class="version">
-                                            <span class="sub-heading">Link to sample: <a href="{{s.url}}">Query History {{s.sample_id}}</a> </span>
-                                            <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{s.format}}</span>
-                                            <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
-                                        </p>
-                                    </div>
-                                    <div class="col-sm-3 text-right col-xs-12 options">
-                                        <a role="button" class="text-normal">
-                                            <i class="fa fa-times text-error" ng-click="ctrl.removeItem(s.id)"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr ng-if="ctrl.pretty_data.samples | isEmpty">
-                            <td>
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                         <h4 style="border:0">
-                                             Empty!
-                                        </h4>
-                                        {% endverbatim %}
-                                        <p>Visit the <a href="{% url 'query-create-list' %}">Query Builder</a> to add
-                                                              data products for a sample of objects.</p>
-                                        {% verbatim %}
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            {% endverbatim %}
+        {% include 'download/download-template.html' %}
+        <div class="col-sm-4 col-sm-offset-1 col-x-s-12 download-options" ng-if="ctrl.items | isEmpty">
+            <h2>Empty!</h2>
+            <p>You've not selected any data products to download. If you're unsure about the types of data you can download, visit the <a href="{% url 'documentation-download' %}"> Documentation</a>.</p>
         </div>
-        <div class="col-sm-4 download-options" ng-if="ctrl.items | isNotEmpty">
-            <h4>Ready to Download?</h4>
-            <p>You can still add more data to the current download (visit the <a href="{% url 'data_browser:data-browser-list'%}">Data
-                                            Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>), or if you're ready to download this selection of data,
-                        submit the form below to begin the download.</p>
 
-            {% if post_form %}
-                <div id="post-object-form">
-                    {% with form=post_form %}
-                    <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" novalidate>
-                        <fieldset>
-                            {% csrf_token %}
-                            {% if user.is_authenticated %}
-                                <br>
-                                <div class="form-group">
-                                    <label class="control-label label-sub-heading">
-                                        Download Title
-                                        <span class="sub-heading" id="title_info">
-                                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
-                                               data-trigger="focus"
-                                               data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
-                                               data-placement="left"><i class="fa fa-info-circle"></i></a>
-                                        </span>
-                                    </label>
-                                    <input name="title" class="form-control" type="text" placeholder="My Download">
-                                </div>
-                            {% endif %}
-                            <div class="form-group">
-                                <label class="control-label sr-only">
-                                  Download Items
-                                </label>
-                                {% verbatim %}
-                                <input type="hidden" name="downloaditems" ng-value="ctrl.download" />
-                                {% endverbatim %}
-                            </div>
-
-                            <div class="form-actions">
-                                <button class="btn btn-primary btn-sm text-uppercase pull-right" type="button" title="Download data in the download" id="download-submit">
-                                    <i class="fa fa-download"></i> Download
-                                </button>
-                            </div>
-
-                            <a class="btn btn-default btn-sm text-uppercase"
-                                    title="Delete all items in the download" id="emptyDownload"  data-toggle="modal" href="#empty-modal-sm">
-                                <i class="fa fa-trash-o text-error"></i> Empty
-                            </a>
-
-                        </fieldset>
-                    </form>
-                    {% endwith %}
-
-                </div>
-            {% endif %}
-
-            <hr>
+        <div class="col-sm-4 col-sm-offset-1 col-x-s-12 download-options" ng-if="ctrl.items | isNotEmpty">
+            <h2>Ready to Download?</h2>
+            <p>You can still add more data via the <a href="{% url 'data_browser:data-browser-list'%}">Data
+                Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>, but if you're ready to
+                download this selection of data,
+                click the <i class="fa fa-download"></i> Download button below.</p>
 
             <div class="panel panel-default" ng-if="ctrl.items | isNotEmpty">
-                <div class="panel-body">
-                    <span class="text-uppercase">Summary</span>
+                <div class="panel-heading">
+                    <span class="panel-title text-uppercase">Summary</span>
                 </div>
                 {% verbatim %}
                 <!-- List group -->
@@ -283,11 +86,61 @@
                     <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl.summary.byObject">{{obj.ao}} <span class="badge">{{obj.count}}</span></li>
                     <li class="list-group-item"><strong>Per Survey</strong></li>
                     <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl.summary.bySample">{{obj.sample}} <span class="badge">{{obj.count}}</span></li>
-                    <li class="list-group-item">Estimated Download Size <span class="badge">5MB</span></li>
+                    <li class="list-group-item"><strong>Estimated Download Size </strong><span class="badge">5MB</span></li>
 
                 </ul>
                 {% endverbatim %}
             </div>
+
+            {% if post_form %}
+                <div id="post-object-form">
+                    {% with form=post_form %}
+                    <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" novalidate>
+                        <fieldset>
+                            {% csrf_token %}
+                            {% if user.is_authenticated %}
+                                <div class="form-group">
+                                    <p class="sub-heading">This download will be saved in your <a
+                                            href="{% url 'download-list' %}">Download History</a>. Give it
+                                        a meaningful name so you can revisit it later.</p>
+                                    <label class="control-label label-sub-heading sr-only">
+                                        Download Title
+                                        <span class="sub-heading" id="title_info">
+                                            <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                                               data-trigger="focus"
+                                               data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
+                                               data-placement="left"><i class="fa fa-info-circle"></i></a>
+                                        </span>
+                                    </label>
+                                    <input name="title" class="form-control" type="text" placeholder="My Download">
+
+                                </div>
+                            {% endif %}
+
+                            {% verbatim %}
+                                <input type="hidden" name="downloaditems" ng-value="ctrl.download" />
+                            {% endverbatim %}
+
+                            <div class="form-actions">
+                                <button class="btn btn-default text-uppercase pull-right" type="button" title="Download data in the download" id="download-submit">
+                                    <i class="fa fa-download"></i> Download
+                                </button>
+                            </div>
+
+                            <a class="btn btn-default text-uppercase"
+                                    title="Delete all items in the download" id="emptyDownload"  data-toggle="modal" href="#empty-modal-sm">
+                                <i class="fa fa-trash-o text-error"></i> Empty
+                            </a>
+
+                        </fieldset>
+                    </form>
+                    {% endwith %}
+
+                </div>
+            {% endif %}
+            <br>
+
+
 
             <!-- Confirmation modal -->
             <div class="modal fade" id="empty-modal-sm" tabindex="-1" role="dialog">

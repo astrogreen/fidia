@@ -21,6 +21,8 @@ urlpatterns = [
 
             url(r'^(?i)documenation/syntax/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/syntax.html'),
                             name='documentation-syntax'),
+            url(r'^(?i)documentation/download/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/download.html'),
+                            name='documentation-download'),
 
 
             url(r'^(?i)documentation/data-access/$',
