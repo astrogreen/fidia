@@ -3,102 +3,187 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-{% block title %}Download-History{% endblock %}
+{% block title %}Download History | {{response.data.title}} {% endblock %}
 
 {% block head-extra %}
 <script type="text/javascript" src="{% static 'download/js/controllers.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}Download History{% endblock %}
+{% block page_title %}Download History | {{response.data.title}} {% endblock %}
 {% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation-download' %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'download-list' %}">Back to Download History</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
-{% verbatim %}
-    <div class="row" ng-controller="DownloadController as ctrl3">
-        <div class="col-sm-8">
-            <div class="panel panel-default panel-download">
-                <div class="panel-heading text-uppercase">
-                    Download
-                    <i class="fa fa-download pull-right" style="margin-top:3px"></i>
-                </div>
-
-                <!--<table class="table table-hover">-->
-                    <!--<tbody>-->
-                        <!--<tr ng-repeat="p in ctrl3.prettyCookie track by $index">-->
-                            <!--<td>-->
-                                <!--<div class="row">-->
-                                    <!--<div class="col-sm-9 col-xs-12">-->
-
-                                        <!--<h4 class="text-info" style="border:0">-->
-                                            <!--{{p.sample}} / {{p.ao}} /-->
-                                            <!--<span ng-repeat="t in p.else">-->
-                                                <!--<span ng-if="!$last">{{t}} /</span>-->
-                                                <!--<a ng-if="$last" ng-href="{{p.url}}">{{t}}</a>-->
-                                            <!--</span>-->
-                                        <!--</h4>-->
-
-                                        <!--<p class="version">-->
-                                            <!--<span class="sub-heading"><i class="fa fa-file-code-o"></i> {{p.format}}</span>-->
-                                            <!--<span class="sub-heading"><i class="fa fa-map-pin"></i> {{p.version}} V1.0</span>-->
-                                            <!--<span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>-->
-                                        <!--</p>-->
-                                    <!--</div>-->
-                                    <!--<div class="col-sm-3 text-right col-xs-12 options">-->
-                                        <!--<a role="button" class="text-normal">-->
-                                            <!--<i class="fa fa-times remove-cross" ng-click="ctrl3.removeItem(p.id)"></i>-->
-                                        <!--</a>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-                            <!--</td>-->
-                        <!--</tr>-->
-                    <!--</tbody>-->
-                <!--</table>-->
+{% block content_render %}
+<div class="row">
+    <div class="col-sm-7 col-xs-12 download-options">
+        <h2>Selection</h2>
+        {% if response.data.downloaditems.objects %}
+        <div class="panel panel-default panel-download">
+            <div class="panel-heading">
+                <span class="panel-title text-uppercase">Individual Object Data Products</span>
+                <a href="{% url 'documentation-download' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Download Help?</a>
             </div>
+
+            <table class="table">
+                <tbody>
+                {% for k, o in response.data.downloaditems.objects.items %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-9 col-xs-12">
+                                    <div class="p">
+                                        {{o.sample}} / {{o.ao}} /
+                                        <a href="{{p.url}}">{{o.prettyname}}</a>
+                                    </div>
+                                    <div class="version p">
+                                        <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{o.format}}</span>&nbsp;
+                                        <span class="sub-heading"><i class="fa fa-map-marker"></i> {{o.version}} V1.0</span>&nbsp;
+                                        <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>&nbsp;
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <div class="col-sm-4">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <strong class="text-uppercase">Download Summary</strong>
-                </div>
+        {% endif %}
+        {% if response.data.downloaditems.products %}
+        <div class="panel panel-default panel-download">
+            <div class="panel-heading">
+                <span class="panel-title text-uppercase">Sample Data Products</span>
+            </div>
+            <table class="table">
+                <tbody>
+                    {% for k, p in response.data.downloaditems.products.items %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-9 col-xs-12">
+                                    <div class="p">
+                                        Data Products for Sample <a href="{{p.url}}"> {{s.sample_id}}</a>
+                                    </div>
+                                    <div class="version p">
+                                        <span class="sub-heading">Link to sample: <a href="{{p.url}}">Query History {{p.sample_id}}</a> </span>&nbsp;
+                                        <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>&nbsp;
+                                    </div>
+                                </div>
+                                {% for survey, data in p.options.items %}
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="p"><strong>{{survey}}</strong></div>
+                                    {% for product in data %}
+                                        <div class="">{{product.pretty_name}}
+                                            <span class="sub-heading"><i class="fa fa-code-fork"></i> {{product.branch}}
+                                            </span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if response.data.downloaditems.samples %}
+        <div class="panel panel-default panel-download">
+            <div class="panel-heading">
+                <span class="panel-title text-uppercase">Query Samples</span>
+            </div>
+            <table class="table">
+                <tbody>
+                    {% for k, s in response.data.downloaditems.products.items %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-9 col-xs-12">
+                                    <div class="p text-info">
+                                        <a href="{{s.url}}">Sample {{s.sample_id}}</a>
+                                    </div>
+                                    <div class="version p">
+                                        <span class="sub-heading">Link to sample: <a href="{{s.url}}">Query History {{s.sample_id}}</a> </span>
+                                        <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{s.format}}</span>
+                                        <span class="sub-heading"><i class="fa fa-database"></i> {{s.size}} XMB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-                <!-- List group -->
-                <ul class="list-group">
-                    <li class="list-group-item"><strong>Total</strong></li>
-                    <li class="list-group-item list-group-sub-item">Data <span class="badge" ng-bind="ctrl3.getItemCount()"></span>
-                    </li>
-                    <li class="list-group-item"><strong>Per Object</strong></li>
-                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.byObject">{{obj.ao}} <span class="badge">{{obj.count}}</span></li>
-                    <li class="list-group-item"><strong>Per Survey</strong></li>
-                    <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl3.summary.bySample">{{obj.sample}} <span class="badge">{{obj.count}}</span></li>
-                    <li class="list-group-item">Estimated Download Size <span class="badge">5MB</span></li>
-
-                </ul>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-sm-offset-1 col-sm-4 col-xs-12 download-options">
+        <h2>Summary</h2>
+        <div class="panel panel-default" ng-if="ctrl.items | isNotEmpty">
+            <div class="panel-body">
+                <strong class="text-uppercase">{{response.data.title}}</strong>
+                <i class="fa fa-pie-chart pull-right panel-icon"></i>
             </div>
 
-            <button class="btn btn-error btn-sm text-uppercase"
-                    title="Delete all items in the download" id="checkout-empty" ng-click="ctrl3.emptyDownload()"><i class="fa fa-trash-o"></i> Empty
-            </button>
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Download link</strong></li>
+                <li class="list-group-item list-group-sub-item">{{response.data.downloadlink}}</li>
+                <li class="list-group-item"><strong>Created</strong></li>
+                <li class="list-group-item list-group-sub-item">{{response.data.created}}</li>
+                <li class="list-group-item"><strong>Estimated Download Size </strong><span class="badge">{{response.data.size}}MB</span>
+                </li>
+            </ul>
+            <div class="panel-body">
+                <p class="sub-heading">Re-download this selection of data products and/or samples, or delete it from your Download History. </p>
+                <button class="btn btn-default pull-right"><i class="fa fa-download"> </i> Download</button>
+                <form class="custom-inline" action="{{ request.get_full_path }}"
+                      data-method="DELETE">
+                    <button type="button" class="btn btn-sm btn-default btn-error js-tooltip"
+                            title="DELETE this query" id="DELETE_RESOURCE"
+                            data-toggle="modal">DELETE
+                    </button>
+                </form>
+                <!-- Confirmation modal -->
+                <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <strong> ARE YOU SURE? </strong>
+                                <p>Deleting downloads is irreversible. </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">CANCEL</button>
+                                <button type="button" data-dismiss="modal" class="btn btn-sm btn-error" id="delete">DELETE
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <button class="btn btn-primary btn-sm text-uppercase pull-right" title="Download data in the download"
-                    id="checkout-download"><i class="fa fa-download"></i> Download
-            </button>
+            </div>
         </div>
     </div>
+</div>
 
-
-{% endverbatim %}
+{# ------ CONFIRM RESOURCE DELETE ------ #}
 <script>
+    $(document).ready(function () {
+        $('#DELETE_RESOURCE').on('click', function (e) {
+            console.log('click')
+            var $form = $(this).closest('form');
+            e.preventDefault();
+            $('#delete-modal-sm').modal({backdrop: 'static', keyboard: false})
+                    .one('click', '#delete', function (e) {
+                        $form.trigger('submit');
+                    });
+        });
+    });
 
-    $(function() {
-
-  $('.list-group-item').on('click', function() {
-    $('.fa', this)
-      .toggleClass('fa-chevron-right')
-      .toggleClass('fa-chevron-down');
-  });
-
-});
 </script>
 {% endblock %}

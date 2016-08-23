@@ -585,7 +585,7 @@
                         if (v.options){
                             prettyData["products"][url] = data_obj;
                         } else {
-                            prettyData["sample"][url] = data_obj;
+                            prettyData["samples"][url] = data_obj;
                         }
 
                     }

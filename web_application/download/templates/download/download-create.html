@@ -19,7 +19,7 @@
 {% block content_render %}
     <div class="row">
         <div class="col-xs-12">
-            <p class="lead">Download Data from AAODC</p>
+            <p class="lead">Download Data from AAODC. If you wish to re-download a previous collection of data, visit your <a href="{% url 'download-list' %}">Download History</a>.</p>
         </div>
     </div>
     <div class="row" ng-controller="DownloadController as ctrl" id="downloadController">
@@ -60,6 +60,7 @@
         </div>
 
         {% include 'download/download-template.html' %}
+
         <div class="col-sm-4 col-sm-offset-1 col-x-s-12 download-options" ng-if="ctrl.items | isEmpty">
             <h2>Empty!</h2>
             <p>You've not selected any data products to download. If you're unsure about the types of data you can download, visit the <a href="{% url 'documentation-download' %}"> Documentation</a>.</p>

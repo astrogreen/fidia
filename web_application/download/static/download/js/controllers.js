@@ -24,38 +24,6 @@ console.log('controllers.js');
         // Set the items on the scope to the items in the DownloadService using the getItems method
         ctrl.items = {};
 
-        // ctrl.items = DownloadService.getItems();
-        //
-        // ctrl.summary = DownloadService.getSummary();
-        //
-        // ctrl.prettyCookie = DownloadService.prettifyCookie(ctrl.items);
-        //
-        // ctrl.download = DownloadService.download();
-        //
-        // ctrl.addItem = function(item){
-        //     // Pass the item into the addItem method of the DownloadService
-        //     DownloadService.addItem(item);
-        // };
-        //
-        // ctrl.getItemCount = function(){
-        //     // Return the item count from the DownloadService
-        //     return DownloadService.getItemCount();
-        // };
-        //
-        // ctrl.removeItem = function(id){
-        //     // Pass item id into the removeItem method of DownloadService
-        //     DownloadService.removeItem(id);
-        //     ctrl.summary = DownloadService.getSummary();
-        //     ctrl.prettyCookie = DownloadService.prettifyCookie(ctrl.items);
-        //     ctrl.download = DownloadService.download();
-        // };
-        //
-        // ctrl.emptyDownload = function(){
-        //     DownloadService.emptyDownload($scope.items);
-        //     ctrl.summary = DownloadService.getSummary();
-        // };
-
-
         // NEW STORAGE METHOD - - - - - - - - -
         var ctrl = this; // create alias to this to avoid closure issues
         // Here, we've registered properties on $scope.ctrl rather than on $scope (all modules have global access
@@ -135,6 +103,15 @@ console.log('controllers.js');
         $scope.$on('storageUpdated', function (event) {
             ctrl.getItems();
         });
+
+        ctrl.pretty_resource = function(data){
+            /** Allows an existing resource to benefit from the prettification of
+             * data products in the session data.
+             */
+            console.log(data);
+            // console.log(SessionService.prettifyData(data));
+            // return SessionService.prettifyData(data);
+        };
 
         // ctrl.PrepareDownload = function(){
         //     /**

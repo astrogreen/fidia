@@ -16,36 +16,6 @@ import download.serializers
 import download.models
 
 
-# class DownloadUnauthenticated(generics.CreateAPIView):
-#     """
-#     Download products for the data browser if user is unauthenticated (does not save)
-#     """
-#     class DownloadCreateRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-#         template = 'download/download-create.html'
-#     serializer_class = download.serializers.DownloadCreateSerializer
-#     permission_classes = [permissions.AllowAny]
-#     breadcrumb_list = []
-#     renderer_classes = (DownloadCreateRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-#
-#     def get_queryset(self):
-#         """
-#         Download queryset filtered by current user
-#         """
-#         user = self.request.user
-#         return download.models.Download.objects.filter(owner=user).order_by('-updated')
-#
-#     def perform_create(self, serializer):
-#         serializer.save(owner=self.request.user)
-#
-#     def get(self, request, format=None):
-#         """
-#         Return the blank form for a POST request
-#         """
-#         self.breadcrumb_list = ['Download']
-#         return Response()
-
-
-
 class DownloadCreateView(generics.CreateAPIView):
     """
     Download Viewset. Create new download request, view download history (if authenticated),
@@ -58,9 +28,13 @@ class DownloadCreateView(generics.CreateAPIView):
     breadcrumb_list = []
     renderer_classes = (DownloadCreateRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
+    def has_permission(self, request):
+        return request.user and request.user.is_authenticated()
+
     def create(self, request, *args, **kwargs):
         # If logged in, save the serialized data
-        if self.request.auth is not None:
+
+        if self.has_permission(self.request):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
@@ -70,14 +44,13 @@ class DownloadCreateView(generics.CreateAPIView):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             download_data = serializer.validated_data
-            print(download_data)
             return Response(data={"download_link": "/asvo/temporary/link/", "download_data": download_data}, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         """
         Download queryset filtered by current user
         """
-        if self.request.auth is not None:
+        if self.has_permission(self.request):
             print('authenticated')
             user = self.request.user
             return download.models.Download.objects.filter(owner=user).order_by('-updated')
@@ -87,7 +60,7 @@ class DownloadCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         # If logged in, save the serialized data (either way, issue the download here)
         # TODO combine with Andy's code for download
-        if self.request.auth is not None:
+        if self.has_permission(self.request):
             serializer.save(owner=self.request.user)
         else:
             raise Exception
@@ -106,7 +79,6 @@ class DownloadListView(generics.ListAPIView):
     """
     serializer_class = download.serializers.DownloadSerializer
     permission_classes = [permissions.IsAuthenticated]
-    breadcrumb_list = ['Download History']
 
     class DownloadListRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'download/download-list.html'
@@ -125,6 +97,10 @@ class DownloadListView(generics.ListAPIView):
         user = self.request.user
         return download.models.Download.objects.filter(owner=user).order_by('-updated')
 
+    def get(self, request, *args, **kwargs):
+        self.breadcrumb_list = ['Download History']
+        return self.list(request, *args, **kwargs)
+
 
 class DownloadRetrieveDestroyView(generics.RetrieveDestroyAPIView):
     """
@@ -132,7 +108,6 @@ class DownloadRetrieveDestroyView(generics.RetrieveDestroyAPIView):
     """
     serializer_class = download.serializers.DownloadSerializer
     permission_classes = [permissions.IsAuthenticated]
-    breadcrumb_list = ['Download History', 'Download ']
 
     class DownloadRetrieveDestroyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'download/download-retrieve.html'
@@ -146,32 +121,38 @@ class DownloadRetrieveDestroyView(generics.RetrieveDestroyAPIView):
         user = self.request.user
         return download.models.Download.objects.filter(owner=user).order_by('-updated')
 
+    def get(self, request, pk=None, *args, **kwargs):
+        self.breadcrumb_list = ['Download History', pk]
+        return self.retrieve(request, *args, **kwargs)
 
-class StorageViewSet(viewsets.GenericViewSet,
-                     mixins.CreateModelMixin,
-                     mixins.RetrieveModelMixin,
-                     mixins.ListModelMixin,
-                     mixins.UpdateModelMixin):
-    """
-    This is the temporary storage we can use to push items to (using a Service on the angular download
-    - switch getItems from cookie to this)
-    The download is currently writing large amounts of data into the cookie to manage AND prettify it.
-     Move this over to sessions once we allow non-authenticated users to make queries and download data
-    """
 
-    permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    serializer_class = download.serializers.StorageSerializer
 
-    def get_queryset(self):
-        """
-        Returns:
-        """
-        user = self.request.user
-        return download.models.Storage.objects.filter(owner=user)
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+# class StorageViewSet(viewsets.GenericViewSet,
+#                      mixins.CreateModelMixin,
+#                      mixins.RetrieveModelMixin,
+#                      mixins.ListModelMixin,
+#                      mixins.UpdateModelMixin):
+#     """
+#     This is the temporary storage we can use to push items to (using a Service on the angular download
+#     - switch getItems from cookie to this)
+#     The download is currently writing large amounts of data into the cookie to manage AND prettify it.
+#      Move this over to sessions once we allow non-authenticated users to make queries and download data
+#     """
+#
+#     permission_classes = [permissions.IsAuthenticated]
+#     renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+#     serializer_class = download.serializers.StorageSerializer
+#
+#     def get_queryset(self):
+#         """
+#         Returns:
+#         """
+#         user = self.request.user
+#         return download.models.Storage.objects.filter(owner=user)
+#
+#     def perform_create(self, serializer):
+#         serializer.save(owner=self.request.user)
 
 
 class SessionView(views.APIView):

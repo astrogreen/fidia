@@ -9,8 +9,7 @@ import download.views
 
 router = rest_framework.routers.SimpleRouter()
 
-# router.register(r'download-history', download.views.DownloadView, base_name='download')
-router.register(r'storage', download.views.StorageViewSet, base_name='storage')
+# router.register(r'storage', download.views.StorageViewSet, base_name='storage')
 
 urlpatterns = [
     url(r'', include(router.urls)),

@@ -16,9 +16,9 @@ class Download(models.Model):
         ordering = ('created',)
 
 
-class Storage(models.Model):
-    storage_data = JSONField(default="", blank=True)
-    owner = models.ForeignKey('auth.User', related_name='storage')
-    created = models.DateTimeField(auto_now_add=True, editable=False)
-    updated = models.DateTimeField(auto_now=True, editable=False)
+# class Storage(models.Model):
+#     storage_data = JSONField(default="", blank=True)
+#     owner = models.ForeignKey('auth.User', related_name='storage')
+#     created = models.DateTimeField(auto_now_add=True, editable=False)
+#     updated = models.DateTimeField(auto_now=True, editable=False)
 
