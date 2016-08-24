@@ -17,159 +17,159 @@
 
 {% endblock %}
 
-{% block page_title %}Query {{objname}}{% endblock %}
+{% block page_title %}Query History{% endblock %}
 {% block useful_links %}
 <li role="presentation" ><a href="{% url 'documentation' %}" title="Query Documentation">Documentation</a></li>
-<li role="presentation" ><a href="{% url 'query-list' %}">Query History</a></li>
 <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
+    {% if response.data.queryResults %}
+    <div class="row">
+        <div class="col-xs-12">
+            <p class="lead">View the results of your query, <a href="#download">download</a> the table of results or additional data products for the returned objects. </p>
+
+        </div>
+        <div class="col-sm-offset-0 col-sm-8 col-xs-12">
+            <h2>{% if response.data.title %}{{response.data.title}}{% else %}Query{% endif %} <small class="pull-right sub-heading" style="margin-top:18px;">{{response.data.updated}}</small></h2>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="panel-title">Update</span>
+                    <a href="{% url 'documentation-download' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Query Help?</a>
+                </div>
+                <div class="panel-body">
+                    <p>Update the SQL for this query and re-run (if you change only the title, the SQL will not be re-run).
+                        Submitting this form will <strong>override</strong> the previous query and results.
+                        Alternatively, you can create a <a type="button" class="" href="{% url 'query-create-list' %}">New Query</a>.
+                    </p>
+                    {% if put_form %}
+                    <div class="" id="put-object-form">
+                        <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
+                              class="form-horizontal" novalidate>
+                            {{ put_form }}
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="text-right">
+                                        <button class="btn btn-default js-tooltip"
+                                                title="Overwrite Query {{objname}}" id="button-sql-update">UPDATE
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 col-xs-12">
+            <h2>Summary</h2>
+            <div class="panel panel-default" ng-if="ctrl.items | isNotEmpty">
+                <!-- List group -->
+                <ul class="list-group summary">
+                    <li class="list-group-item">Download ID <span class="badge">{{response.data.id}}</span></li>
+                    <li class="list-group-item">Updated<span class="badge">{{response.data.updated}}</span></li>
+                    <li class="list-group-item">Rows<span class="badge">-</span>
+                    </li>
+                </ul>
+                <div class="panel-body">
+                    <p class="sub-heading" style="margin-bottom:0;">Deleting a query is irreversible. Please be sure you wish to proceed.</p>
+                    <form class="custom-inline text-right" action="{{ request.get_full_path }}"
+                          data-method="DELETE">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="text-right">
+                                    <button type="button" class="btn btn-sm btn-default btn-error js-tooltip"
+                                            title="DELETE this query" id="DELETE_RESOURCE"
+                                            data-toggle="modal">DELETE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- Confirmation modal -->
+                    <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <strong> ARE YOU SURE? </strong>
+                                    <p>Deleting queries is irreversible. </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">CANCEL</button>
+                                    <button type="button" data-dismiss="modal" class="btn btn-sm btn-error" id="delete">DELETE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
     {# ------DATATABLES ------#}
 
-    {% if response.data.queryResults %}
-        <div class="row">
-            <div class="col-sm-12">
-                <h2 class="headline">Results <small class="text-uppercase"> {% if response.data.title %}{{response.data.title}}{% endif %} </small></h2>
-                <div id="TableResultsWarning"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
-            </div>
 
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>Result</h2>
+            <div id="TableResultsWarning"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
         </div>
 
-        <div class="row">
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="headline"><span>Download</span> </h2>
+            <h3 class="headline" id="download"><span>Catalogue Data</span> </h3>
+            <p>Download the results of you query in a variety of formats. If your preferred format isn't available, make a feature request.</p>
+            {% for f in available_formats %}
+                {% if f != "api" %}
+                    <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+                        <span class="fa-custom-stack">
+                          <i class="fa fa-file-o"></i>
+                            <span class="fa-custom-filetype">{{f}}</span>
+                        </span>{{f}}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            <add-download-button url='{{ request.get_full_path }}' formats='[{% for f in available_formats %}{% if f != "api" %}"{{f}}"{% endif %}{% if not forloop.last and f != "api" %},{% endif %}{%endfor%}]'></add-download-button>
+        </div>
+    </div>
+    <div class="row" id="select_data_products">
+        <div class="col-xs-12">
+            <h3 class="headline"><span>Additional Products</span> </h3>
+        </div>
+        <div class="col-xs-12">
+            <p>Download additional data products for the objects in this query.</p>
+            <div class="panel panel-default info">
+                <div class="panel-body">
+                    <strong class="text-uppercase">Note</strong>
+                    <p class="small">
+                        This selection tool displays all available types of data product hosted at AAODC.
+                        However, not all data products are available for all objects (e.g., some GAMA galaxies will
+                        <strong>not</strong> have
+                        SAMI data). Once you have made your selection and downloaded the data, check the download package for
+                        details on unavailable products.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% block data-download %}
             <div class="col-xs-12">
-                <h2 class="headline"><span>Download</span> </h2>
-                <h3 class="headline"><span>Catalogue Data</span> </h3>
-                Download the results of you query in a variety of formats. If your preferred format isn't available, make a feature request.
-                <br><br>
-                {% for f in available_formats %}
-                    {% if f != "api" %}
-                        <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
-                            <span class="fa-custom-stack">
-                              <i class="fa fa-file-o"></i>
-                                <span class="fa-custom-filetype">{{f}}</span>
-                            </span>{{f}}
-                        </a>
-                    {% endif %}
-                {% endfor %}
-
-                <add-download-button url='{{ request.get_full_path }}' formats='[{% for f in available_formats %}{% if f != "api" %}"{{f}}"{% endif %}{% if not forloop.last and f != "api" %},{% endif %}{%endfor%}]'></add-download-button>
+                <available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>
             </div>
-        </div>
-        <div class="row" id="select_data_products">
-            <div class="col-xs-12">
-                <h3 class="headline"><span>Additional Products</span> </h3>
-            </div>
-            <div class="col-xs-12">
-                <p>Download additional data products for the astronomical objects your query title.</p>
-            </div>
-            {% block data-download %}
-                <div class="col-xs-12">
-                    <available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>
-                </div>
-            {% endblock %}
-        </div>
-
-
-
-        {% if display_edit_forms %}
-        <!--UPDATE EXISTING REQUEST INSTANCE-->
-            {% if put_form or raw_data_put_form or raw_data_patch_form %}
-                <div class="row">
-                    <div class="col-xs-12">
-                        <h2 class="headline"><span>Update</span> </h2>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-8">
-                        <div class="well">
-                            {% if put_form %}
-                            <div class="" id="put-object-form">
-                                <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
-                                      class="form-horizontal" novalidate>
-                                    {{ put_form }}
-                                    <div class="row">
-                                        <div class="col-xs-12">
-                                            <button class="btn btn-primary btn-sm js-tooltip pull-right"
-                                                    title="Overwrite Query {{objname}}" id="button-sql-update">UPDATE
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="panel panel-default warning">
-                            <div class="panel-body">
-                                <strong class="text-uppercase">Warning</strong>
-                                <p>Submitting this form will override
-                                    the previous query and results.
-                                    Alternatively, you can create a
-                                    <a type="button" class=""
-                                       href="{% url 'query-create-list' %}">New Query</a>.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-        {% endif %}
-        {% block content-delete %}
-
-            {% if delete_form %}
-                <div class="row">
-                    <div class="col-xs-12">
-                        <h2 class="headline"><span>Delete</span> </h2>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="panel panel-default error">
-                            <div class="panel-body">
-                                <strong class="text-uppercase">Warning</strong>
-                                <p>Deleting a query is irreversible. Please be sure you wish to proceed.
-
-                                    <form class="custom-inline" action="{{ request.get_full_path }}"
-                                          data-method="DELETE">
-                                        <button type="button" class="btn btn-sm btn-default btn-error pull-right js-tooltip"
-                                                title="DELETE this query" id="DELETE_RESOURCE"
-                                                data-toggle="modal">DELETE
-                                        </button>
-                                    </form>
-                                    <!-- Confirmation modal -->
-                                    <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
-                                        <div class="modal-dialog modal-sm">
-                                            <div class="modal-content">
-                                                <div class="modal-body">
-                                                    <strong> ARE YOU SURE? </strong>
-                                                    <p>Deleting queries is irreversible. </p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">CANCEL</button>
-                                                    <button type="button" data-dismiss="modal" class="btn btn-sm btn-error" id="delete">DELETE
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-
         {% endblock %}
+    </div>
     {% endif %}
-
 {% endblock %}
 
 
@@ -177,7 +177,7 @@
 ------ ACE EDITOR FOR ANY SQL INPUTS ------
 {% endcomment %}
 {% block footer-extra %}
-<script src="{% static "restapi_app/js/ace-min-noconflict/ace.js" %}"></script>
+<script src="{% static 'restapi_app/js/ace-min-noconflict/ace.js' %}"></script>
 
 <script type="text/javascript">
         $(document).ready(function() {
@@ -201,8 +201,9 @@
                     var SQLAceEditor = ace.edit("SQL-ace-editor");
                     SQLAceEditor.$blockScrolling = Infinity;
                     SQLAceEditor.setTheme("ace/theme/crimson_editor");
-                    SQLAceEditor.setOption("maxLines", 20);
-                    SQLAceEditor.setOption("minLines", 10);
+                    SQLAceEditor.setOption("maxLines", 30);
+                    SQLAceEditor.setOption("minLines", 5);
+                    SQLAceEditor.setOption("wrap", 50);
                     SQLAceEditor.getSession().setMode("ace/mode/sql");
                     SQLAceEditor.getSession().setValue(textarea.val());
                     SQLAceEditor.getSession().on('change', function(){
@@ -248,7 +249,7 @@
         query_data_col_length = query_data.columns.length;
 
         if (data.flag != "") {
-            $('#TableResultsWarning').append('<div class="row"><div class="col-sm-12"><div class="panel panel-default warning"><div class="panel-body"><strong class="text-uppercase">Warning</strong><p>Displaying '+data.flag.new_query_results_rows+' out of '+data.flag.query_results_rows+' rows. Please download the CSV file to explore the full set of results.</p></div></div></div></div>');
+            $('#TableResultsWarning').append('<div class="row"><div class="col-sm-12"><div class="panel panel-default warning"><div class="panel-body"><strong class="text-uppercase">Warning</strong><p class="small">Displaying '+data.flag.new_query_results_rows+' out of '+data.flag.query_results_rows+' rows. Please download the CSV file to explore the full set of results.</p></div></div></div></div>');
             render_limit = data.flag.render_limit;
         }
 
@@ -328,19 +329,21 @@
 
 {# ------ CONFIRM RESOURCE DELETE ------ #}
 <script>
-    $('#DELETE_RESOURCE').on('click', function(e){
-        var $form=$(this).closest('form');
-        e.preventDefault();
-        $('#delete-modal-sm').modal({ backdrop: 'static', keyboard: false })
-        .one('click', '#delete', function (e) {
-            $form.trigger('submit');
+    $(document).ready(function(){
+        $('#DELETE_RESOURCE').on('click', function(e){
+            var $form=$(this).closest('form');
+            e.preventDefault();
+            $('#delete-modal-sm').modal({ backdrop: 'static', keyboard: false })
+            .one('click', '#delete', function (e) {
+                $form.trigger('submit');
+            });
         });
     });
+
 
     fTabSwitch = function(id){
         $('[href=#'+id+']').tab('show');
     }
-
 
 </script>
 {% endblock %}

@@ -18,10 +18,13 @@
 <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
 <div class="row">
     <div class="col-xs-12">
         <p class="lead">Re-visit, edit and update previous queries.</p>
+    </div>
+    <div class="col-sm-6 col-sm-offset-1 col-xs-12">
+        <h2>Previous Queries</h2>
         <div class="panel panel-default">
             <div class="panel-heading">
                 Query History
@@ -32,27 +35,21 @@
                     <tr>
                         <td>
                             <div class="row">
-                                <div class="col-sm-9 col-xs-12">
-                                    <a href="{{this.url}}">
-                                        <h4 class="text-info" style="border:0"> {{this.title}}</h4>
-                                    </a>
+                                <div class="col-xs-12">
+                                    <div class="p"><a href="{{this.url}}">{{this.title}}</a></div>
+                                    <!--<p>{{this.downloaditems}}</p>-->
                                     <p class="truncate">{{this.SQL}}{{this.SQL}}
                                         <span class="fake-ellipsis">...</span>
                                     </p>
-
-                                    <p><span class="version sub-heading"><i class="fa fa-clock-o"></i> {{this.updated}}</span>
-                                    </p>
+                                    <div class="version p">
+                                        <span class="sub-heading"><i class="fa fa-clock-o"></i> {{this.updated}}</span>
+                                        <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}}</span>
+                                    </div>
                                 </div>
                                 <div class="col-sm-3 text-right col-xs-12 options">
-                                    <div class="btn-dropdown">
-                                        <button type="button" class="btn btn-default dropdown-toggle"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa fa-download"></i> Actions <i class="fa fa-caret-down"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-
-                                        </ul>
-                                    </div>
+                                    <span class="{% if 'rogress' in this.downloadlink %}sub-heading{% elif 'xpired' in this.downloadlink %}text-error{% endif %}">
+                                        {{this.downloadlink}}
+                                    </span>
                                 </div>
                             </div>
                         </td>
@@ -61,32 +58,6 @@
                 </tbody>
             </table>
             </div>
-            {% block content-download %}
-                {% if 'GET' in allowed_methods %}
-                    <form id="download-list" class="custom-inline">
-                        {% if api_settings.URL_FORMAT_OVERRIDE %}
-                        <div class="btn-group pull-right">
-                              <button type="button" class="btn btn-primary btn-sm text-uppercase dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fa fa-download"></i> Download Query History <i class="fa fa-caret-down"></i>
-                              </button>
-                              <ul class="dropdown-menu">
-                                {% for format in available_formats %}
-                                {% if format != "api" %}
-                                    <li>
-                                        <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                           rel="nofollow" target="_blank"  title="Download your Query History with the format set to `{{ format }}`">{{ format }}</a>
-                                    </li>
-                                {% endif %}
-                                {% endfor %}
-                              </ul>
-                            </div>
-                        {% else %}
-                            <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
-                               title="Download {{user}}'s Query History">PERMANENT LINK</a>
-                        {% endif %}
-                    </form>
-                {% endif %}
-            {% endblock %}
 
         {% if paginator %}
         <nav class="nav-pagination">
@@ -94,9 +65,33 @@
         </nav>
         {% endif %}
     </div>
+    <div class="col-sm-4 col-xs-12">
+        <h2>Usage Summary</h2>
+        <div class="panel panel-default panel-statistics">
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item text-right">
+                    <div id="statistics"><!-- Plotly chart will be drawn inside this DIV --></div>
+                    <div class="sub-heading">
+                        <i class="fa fa-square text-warning"></i> Query
+                        <i class="fa fa-square text-error"></i> Downloads
+                        <i class="fa fa-square text-success"></i> Free
+                    </div>
+
+
+                </li>
+                <li class="list-group-item">Number of Downloads <span class="badge">{{response.data.count}}</span>
+                </li>
+                <li class="list-group-item">Download Storage Size
+                    <span class="badge">20MB</span>
+                </li>
+
+            </ul>
+        </div>
+    </div>
 </div>
-
-
+<script src="{% static 'restapi_app/js/plotly/plotly.latest.min.js' %}"></script>
+<script src="{% static 'restapi_app/js/plotly/custom/usage.js' %}"></script>
 {% endblock %}
 
 {% block status_block %}

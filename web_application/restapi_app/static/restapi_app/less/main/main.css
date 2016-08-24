@@ -101,6 +101,10 @@ body p.heading {
   margin-bottom: 5px;
   margin-top: 5px;
 }
+body p.small {
+  margin-bottom: 0;
+  font-size: 14px;
+}
 h2 {
   font-weight: 500;
 }

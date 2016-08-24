@@ -193,6 +193,9 @@ form.query-form #outputCatalogue0:before {
 .tab-content {
   margin-bottom: 20px;
 }
+#put-object-form > form > div:nth-child(2) > label {
+  text-transform: uppercase;
+}
 @keyframes border-pulsate {
   0% {
     border-color: #5aa8d8;

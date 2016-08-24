@@ -24,7 +24,7 @@
     </div>
     <div class="row" ng-controller="DownloadController as ctrl" id="downloadController">
         <!-- Successful Submit -->
-        <div class="col-sm-8 col-xs-12">
+        <div class="col-sm-6 col-sm-offset-1 col-xs-12">
             <div class="panel panel-default" style="display:none" id="progress-indicator">
                 <div class="panel-body success"></div>
             </div>
@@ -61,12 +61,12 @@
 
         {% include 'download/download-template.html' %}
 
-        <div class="col-sm-4 col-sm-offset-1 col-x-s-12 download-options" ng-if="ctrl.items | isEmpty">
+        <div class="col-sm-4 col-x-s-12 download-options" ng-if="ctrl.items | isEmpty">
             <h2>Empty!</h2>
             <p>You've not selected any data products to download. If you're unsure about the types of data you can download, visit the <a href="{% url 'documentation-download' %}"> Documentation</a>.</p>
         </div>
 
-        <div class="col-sm-4 col-sm-offset-1 col-x-s-12 download-options" ng-if="ctrl.items | isNotEmpty">
+        <div class="col-sm-4 col-x-s-12 download-options" ng-if="ctrl.items | isNotEmpty">
             <h2>Ready to Download?</h2>
             <p>You can still add more data via the <a href="{% url 'data_browser:data-browser-list'%}">Data
                 Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>, but if you're ready to

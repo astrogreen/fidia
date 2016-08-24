@@ -80,8 +80,8 @@
             </div>
             <div class="panel panel-default warning" ng-if="(isDisabled.state && !isSubmitted.state)">
                 <div class="panel-body">
-                    <p>You've already selected data products to download for this sample. Head over to the <a href="{{apctrl.download_url}}">Download</a>
-                        page to begin or click the <i class="fa fa-rotate-left"></i> Edit Selection button below.</p>
+                    <div class="p">You've already selected data products to download for this sample. Head over to the <a href="{{apctrl.download_url}}">Download</a>
+                        page to begin or click the <i class="fa fa-rotate-left"></i> Edit Selection button below.</div>
                 </div>
             </div>
             <p class="text-right">
@@ -91,21 +91,8 @@
             <br>
             <div class="panel panel-default success" ng-if="(isDisabled.state && isSubmitted.state)">
                 <div class="panel-body">
-                    <p>Your selection has been added! Head over to the <a href="{{apctrl.download_url}}">Download</a>
-                        page to begin the download.</p>
-                </div>
-            </div>
-
-            <div class="panel panel-default info">
-                <div class="panel-body">
-                    <strong class="text-uppercase">Note</strong>
-                    <p>
-                        This selection tool displays all available types of data product hosted at AAODC.
-                        However, not all data products are available for all objects (e.g., some GAMA galaxies will
-                        <strong>not</strong> have
-                        SAMI data). Once you have made your selection and downloaded the data, check the download package for
-                        details on unavailable products.
-                    </p>
+                    <div class="p">Your selection has been added! Head over to the <a href="{{apctrl.download_url}}">Download</a>
+                        page to begin the download.</div>
                 </div>
             </div>
 
