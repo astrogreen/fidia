@@ -39,3 +39,8 @@
 .list-group-item .fa {
   margin-right: 5px;
 }
+.download-options .summary .inverse-badge {
+  background-color: #fff;
+  font-weight: 400;
+  color: #9FAAAD;
+}

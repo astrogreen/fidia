@@ -204,6 +204,7 @@ code {
 }
 .text-error {
   color: #a94442;
+  color: #B54D48;
 }
 .text-warning {
   color: #f1cb76;
@@ -558,9 +559,9 @@ li {
   border-radius: 3px !important;
 }
 .btn-error {
-  background-color: #a94442;
+  background-color: #B54D48;
   color: #fff;
-  border: 1px solid #a94442;
+  border: 1px solid #B54D48;
 }
 .btn-error:hover {
   background-color: #d9534f;

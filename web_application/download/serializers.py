@@ -33,20 +33,21 @@ class DownloadSerializer(serializers.HyperlinkedModelSerializer):
     """
     Download List serializer
     """
+
     owner = serializers.ReadOnlyField(source='owner.username')
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     title = serializers.CharField(default='My Download', max_length=100)
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     downloaditems = serializers.JSONField(required=True, allow_null=False)
     downloadlink = serializers.URLField(max_length=150, read_only=True)
-    # total_size = serializers.SerializerMethodField()
+    id = serializers.IntegerField(label='ID', read_only=True)
 
     # def get_total_size(self, obj):
     #     return download.models.Download.objects.aggregate(Sum('size'))
 
     class Meta:
         model = download.models.Download
-        fields = ('title', 'downloaditems', 'owner', 'url', 'created', 'updated', 'downloadlink', 'size')
+        fields = ('title', 'downloaditems', 'owner', 'url', 'created', 'updated', 'downloadlink', 'size', 'id')
 
 
 class SessionSerializer(serializers.Serializer):

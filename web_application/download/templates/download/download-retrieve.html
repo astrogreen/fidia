@@ -10,16 +10,16 @@
 <link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}Download History | {{response.data.title}} {% endblock %}
+{% block page_title %}Download History</span>{% endblock %}
 {% block useful_links %}
+<!--<li role="presentation" ><a href="{% url 'download-list' %}"><i class="fa fa-reply"></i> Back to Download History</a></li>-->
 <li role="presentation" ><a href="{% url 'documentation-download' %}">Documentation</a></li>
-<li role="presentation" ><a href="{% url 'download-list' %}">Back to Download History</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
 <div class="row">
-    <div class="col-sm-7 col-xs-12 download-options">
-        <h2>Selection</h2>
+    <div class="col-sm-6 col-sm-offset-1 col-xs-12 download-options">
+        <h2>{{response.data.title}} <small class="pull-right sub-heading" style="margin-top:18px;">{{response.data.created}}</small></h2>
         {% if response.data.downloaditems.objects %}
         <div class="panel panel-default panel-download">
             <div class="panel-heading">
@@ -122,21 +122,15 @@
         </div>
         {% endif %}
     </div>
-    <div class="col-sm-offset-1 col-sm-4 col-xs-12 download-options">
+    <div class="col-sm-4 col-xs-12 download-options">
         <h2>Summary</h2>
         <div class="panel panel-default" ng-if="ctrl.items | isNotEmpty">
-            <div class="panel-body">
-                <strong class="text-uppercase">{{response.data.title}}</strong>
-                <i class="fa fa-pie-chart pull-right panel-icon"></i>
-            </div>
-
             <!-- List group -->
-            <ul class="list-group">
-                <li class="list-group-item"><strong>Download link</strong></li>
-                <li class="list-group-item list-group-sub-item">{{response.data.downloadlink}}</li>
-                <li class="list-group-item"><strong>Created</strong></li>
-                <li class="list-group-item list-group-sub-item">{{response.data.created}}</li>
-                <li class="list-group-item"><strong>Estimated Download Size </strong><span class="badge">{{response.data.size}}MB</span>
+            <ul class="list-group summary">
+                <li class="list-group-item">Download link <span class="pull-right sub-heading">{{response.data.downloadlink}}</span></li>
+                <li class="list-group-item">Download ID <span class="badge">{{response.data.id}}</span></li>
+                <li class="list-group-item">Created<span class="badge">{{response.data.created}}</span></li>
+                <li class="list-group-item">Estimated Download Size<span class="badge">{{response.data.size}}MB</span>
                 </li>
             </ul>
             <div class="panel-body">

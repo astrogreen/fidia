@@ -16,14 +16,16 @@
 
 {% block page_title %}Download History{% endblock %}
 {% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation-download' %}">Documentation</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-12">
-        <p class="lead">Re-download data from your Download History. </p>
+        <p class="lead">Re-download previous selections of data products and manage your storage. </p>
     </div>
-    <div class="col-xs-12 col-sm-8">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-1">
+        <h2>Download History</h2>
         <div class="panel panel-default">
             <div class="panel-heading">
                 Download History
@@ -40,21 +42,17 @@
                         <td>
                             <div class="row">
                                 <div class="col-sm-9 col-xs-12">
-                                    <a href="{{this.url}}">
-                                        <h4 class="text-info" style="border:0"> {{this.title}}</h4>
-                                    </a>
+                                    <div class="p"><a href="{{this.url}}">{{this.title}}</a></div>
                                     <!--<p>{{this.downloaditems}}</p>-->
-                                    <p class="version">
+                                    <div class="version p">
                                         <span class="sub-heading"><i class="fa fa-clock-o"></i> {{this.updated}}</span>
                                         <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}}</span>
-                                    </p>
+                                    </div>
                                 </div>
                                 <div class="col-sm-3 text-right col-xs-12 options">
-
-                                    <span class="text-capitalize {% if 'rogress' in this.downloadlink %}sub-heading{% elif 'xpired' in this.downloadlink %}text-error{% else %}textt-success{% endif %}">
-                                        <em>{{this.downloadlink}}</em>
+                                    <span class="{% if 'rogress' in this.downloadlink %}sub-heading{% elif 'xpired' in this.downloadlink %}text-error{% endif %}">
+                                        {{this.downloadlink}}
                                     </span>
-
                                 </div>
                             </div>
                         </td>
@@ -70,60 +68,56 @@
         {% endif %}
     </div>
 
-    <div class="col-sm-4">
+    <div class="col-sm-4 col-xs-12">
+        <h2>Usage Summary</h2>
         <div class="panel panel-default panel-statistics">
-            <div class="panel-body">
-                <strong class="text-uppercase">Usage Summary</strong>
-                <i class="fa fa-pie-chart pull-right panel-icon"></i>
-            </div>
-
             <!-- List group -->
             <ul class="list-group">
                 <li class="list-group-item text-right">
                     <div id="statistics"><!-- Plotly chart will be drawn inside this DIV --></div>
+                    <div class="sub-heading">
+                        <i class="fa fa-square text-warning"></i> Query
+                        <i class="fa fa-square text-error"></i> Downloads
+                        <i class="fa fa-square text-success"></i> Free
+                    </div>
 
-                    <i class="fa fa-square text-warning"></i> Query
-                    <i class="fa fa-square text-error"></i> Downloads
-                    <i class="fa fa-square text-success"></i> Free
 
                 </li>
-                <li class="list-group-item"><strong>Total</strong></li>
-                <li class="list-group-item list-group-sub-item">Downloads <span
-                        class="badge">{{response.data.count}}</span>
+                <li class="list-group-item">Number of Downloads <span class="badge">{{response.data.count}}</span>
                 </li>
-                <li class="list-group-item list-group-sub-item">Disk Usage
+                <li class="list-group-item">Download Storage Size
                     <span class="badge">20MB</span>
                 </li>
 
             </ul>
         </div>
 
-        {% block content-download %}
-            {% if 'GET' in allowed_methods %}
-                <form id="download-list" class="custom-inline">
-                    {% if api_settings.URL_FORMAT_OVERRIDE %}
-                    <div class="btn-group pull-right">
-                          <button type="button" class="btn btn-primary btn-sm text-uppercase dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-download"></i> Download History <i class="fa fa-caret-down"></i>
-                          </button>
-                          <ul class="dropdown-menu">
-                            {% for format in available_formats %}
-                            {% if format != "api" %}
-                                <li>
-                                    <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
-                                       rel="nofollow" target="_blank"  title="Download your Download History with the format set to `{{ format }}`">{{ format }}</a>
-                                </li>
-                            {% endif %}
-                            {% endfor %}
-                          </ul>
-                        </div>
-                    {% else %}
-                        <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
-                           title="Download {{user}}'s Download History">PERMANENT LINK</a>
-                    {% endif %}
-                </form>
-            {% endif %}
-        {% endblock %}
+        <!--{% block content-download %}-->
+            <!--{% if 'GET' in allowed_methods %}-->
+                <!--<form id="download-list" class="custom-inline">-->
+                    <!--{% if api_settings.URL_FORMAT_OVERRIDE %}-->
+                    <!--<div class="btn-group pull-right">-->
+                          <!--<button type="button" class="btn btn-primary btn-sm text-uppercase dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                            <!--<i class="fa fa-download"></i> Download History <i class="fa fa-caret-down"></i>-->
+                          <!--</button>-->
+                          <!--<ul class="dropdown-menu">-->
+                            <!--{% for format in available_formats %}-->
+                            <!--{% if format != "api" %}-->
+                                <!--<li>-->
+                                    <!--<a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"-->
+                                       <!--rel="nofollow" target="_blank"  title="Download your Download History with the format set to `{{ format }}`">{{ format }}</a>-->
+                                <!--</li>-->
+                            <!--{% endif %}-->
+                            <!--{% endfor %}-->
+                          <!--</ul>-->
+                        <!--</div>-->
+                    <!--{% else %}-->
+                        <!--<a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"-->
+                           <!--title="Download {{user}}'s Download History">PERMANENT LINK</a>-->
+                    <!--{% endif %}-->
+                <!--</form>-->
+            <!--{% endif %}-->
+        <!--{% endblock %}-->
     </div>
 </div>
 <script src="{% static 'restapi_app/js/plotly/plotly.latest.min.js' %}"></script>
@@ -212,7 +206,7 @@ var layout = {
         showticklabels: false,
         fixedrange: true
     },
-    height: 30,
+    height: 36,
     width: document.getElementById('statistics').offsetWidth,
     barmode: 'stack',
     showlegend: false
