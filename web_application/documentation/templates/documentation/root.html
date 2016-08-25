@@ -19,23 +19,27 @@
 <li role="presentation" ><a href="#">useful link</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
+{% block content-test %}
     <div class="row attention-seeker">
 
         <div class="col-xs-12">
             <p class="lead">Help Center.</p>
         </div>
         <div class="col-sm-3 col-xs-6">
-            <a href=""><div class="well"><h3>Using the Data Browser</h3><p>{% lorem 30 w %}</p></div></a>
+            <a href="">
+                <div class="well"><h3>Using the Data Browser</h3>
+                    <p>Documentation for the Data Browser, including how to download pieces of data and information on AAODC's data model.</p>
+                </div>
+            </a>
         </div>
         <div class="col-sm-3 col-xs-6">
-            <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 30 w %}</p></div></a>
+            <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 20 w %}</p></div></a>
         </div>
         <div class="col-sm-3 col-xs-6">
-            <a href=""><div class="well"><h3>AAODC Syntax</h3><p>{% lorem 30 w %}</p></div></a>
+            <a href=""><div class="well"><h3>AAODC Syntax</h3><p>{% lorem 20 w %}</p></div></a>
         </div>
         <div class="col-sm-3 col-xs-6">
-            <a href=""><div class="well"><h3>FAQ</h3><p>{% lorem 30 w %}</p></div></a>
+            <a href=""><div class="well"><h3>FAQ</h3><p>{% lorem 20 w %}</p></div></a>
         </div>
 
     </div>

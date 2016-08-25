@@ -7,11 +7,13 @@
 {% block head-extra %}
 {% endblock %}
 
-
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
 <li><a href="{% url 'documentation:root' %}"> Documentation</a></li>
-<li>SAMI</li>
+<li><a href="{% url route.reverse %}"> {{route.name}}</a></li>
+{% if response.data.title %}
+<li>{{response.data.title}}</li>
+{% endif %}
 {% endblock %}
 
 {% block page_title %} SAMI Documentation {% endblock %}
@@ -21,16 +23,38 @@
 {% endblock useful_links %}
 
 {% block content_render %}
-    {% if response.data.count %}
+    {% if not response.data.content %}
     <div class="row">
-        <div class="col-sm-offset-1 col-sm-10 col-xs-12"><h2>Topics</h2>
+        <div class="col-sm-offset-1 col-sm-10 col-xs-12"><h2>Articles</h2>
+            {% if response.data.results %}
             <ul class="p sub-heading">
                 {% for this in response.data.results %}
                 <li><a href="{{this.url}}">{{this.title}}</a></li>
                 {% endfor %}
             </ul>
+            {% else %}
+            <p>No articles have been added yet.</p>
+            {% endif %}
+            {% if post_form %}
+            <h2>New Article</h2>
+            {% with form=post_form %}
+                <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate onsubmit="submitForm()">
+                  <fieldset>
+                    {% csrf_token %}
+                    {{ post_form }}
+                    <div class="form-actions">
+                      <button class="btn btn-default pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
+                    </div>
+                  </fieldset>
+                </form>
+              {% endwith %}
+            {% endif %}
         </div>
     </div>
+    <div class="row">
+
+    </div>
+
     {% else %}
     <div class="row">
         <div class="col-sm-offset-1 col-sm-10 col-xs-12">
