@@ -20,6 +20,7 @@ from django.http import HttpResponseRedirect
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^asvo/', include('restapi_app.urls')),
+    url(r'^asvo/', include('documentation.urls', namespace='documentation')),
     url(r'^asvo/', include('download.urls')),
     url(r'^asvo/', include('data_browser.urls', namespace='data_browser')),
     url(r'^asvo/', include('query.urls')),

@@ -13,9 +13,9 @@ router = rest_framework.routers.SimpleRouter()
 urlpatterns = [
             url(r'^$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/home/index.html'), name='index'),
 
-            url(r'^(?i)documentation/$',
-                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/sub-menu.html'),
-                name='documentation'),
+            # url(r'^(?i)documentation/$',
+            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/sub-menu.html'),
+            #     name='documentation'),
 
 
 

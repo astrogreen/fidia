@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'astrospark',
     'bootstrap3',
+    'documentation',
     'download',
     'data_browser',
     'django_extensions',

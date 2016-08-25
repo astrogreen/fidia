@@ -1,0 +1,12 @@
+.attention-seeker a:hover,
+.attention-seeker a:focus {
+  text-decoration: none;
+}
+.attention-seeker .well {
+  transition: all 0.2s ease-in-out;
+}
+.attention-seeker .well:hover {
+  transform: scale(1.05);
+  background: #fafafa;
+  box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.13);
+}

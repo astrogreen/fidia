@@ -1,0 +1,118 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Documentation{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
+{% endblock %}
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li>Documentation</li>
+{% endblock %}
+
+{% block page_title %}Documentation{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="#">useful link</a></li>
+<li role="presentation" ><a href="#">useful link</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+    <div class="row attention-seeker">
+
+        <div class="col-xs-12">
+            <p class="lead">Help Center.</p>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <a href=""><div class="well"><h3>Using the Data Browser</h3><p>{% lorem 30 w %}</p></div></a>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 30 w %}</p></div></a>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <a href=""><div class="well"><h3>AAODC Syntax</h3><p>{% lorem 30 w %}</p></div></a>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <a href=""><div class="well"><h3>FAQ</h3><p>{% lorem 30 w %}</p></div></a>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-xs-12"><h2>My Account</h2>
+            <ul class="p sub-heading">
+                <li><a href="">&nbsp; Top Question</a></li>
+                <li><a href="">&nbsp; Another relevant question</a></li>
+                <li><a href="">&nbsp; Good question </a></li>
+            </ul>
+        </div>
+        <div class="col-xs-12"><h2>Data Browser</h2>
+            <ul class="p sub-heading">
+                <li><a href="">&nbsp; Top Question</a></li>
+                <li><a href="">&nbsp; Another relevant question</a></li>
+                <li><a href="">&nbsp; Good question </a></li>
+            </ul>
+        </div>
+        <div class="col-xs-12"><h2>Query Builder</h2>
+            <ul class="p sub-heading">
+                <li><a href="">&nbsp; Top Question</a></li>
+                <li><a href="">&nbsp; Another relevant question</a></li>
+                <li><a href="">&nbsp; Good question </a></li>
+            </ul>
+        </div>
+        <div class="col-xs-12"><h2>Schema</h2>
+            <ul class="p sub-heading">
+                <li><a href="">&nbsp; Top Question</a></li>
+                <li><a href="">&nbsp; Another relevant question</a></li>
+                <li><a href="">&nbsp; Good question </a></li>
+            </ul>
+        </div>
+        <div class="col-xs-12"><h2>Survey Teams</h2>
+            <ul class="p sub-heading">
+                <li><a href="">&nbsp; Top Question</a></li>
+                <li><a href="">&nbsp; Another relevant question</a></li>
+                <li><a href="">&nbsp; Good question </a></li>
+            </ul>
+        </div>
+    </div>
+
+
+
+    <!--<div class="row">-->
+        <!--<div class="col-xs-12">-->
+            <!--<h2 class="headline"><span>Search</span></h2>-->
+        <!--</div>-->
+        <!--<div class="col-sm-4 col-xs-12">-->
+            <!--<form class="inline-form" role="search">-->
+                <!--<div class="input-group">-->
+                    <!--<input type="text" class="form-control" placeholder="Search for...">-->
+                    <!--<span class="input-group-btn">-->
+                        <!--<button class="btn btn-default" type="button"><i class="fa fa-search fa-fw"></i></button>-->
+                    <!--</span>-->
+                <!--</div>-->
+            <!--</form>-->
+        <!--</div>-->
+        <!--<div class="col-sm-8 col-xs-12">-->
+            <!--<div class="panel panel-default ">-->
+                <!--<div class="panel-body fixed-panel">-->
+                    <!--<div class="search-result">-->
+                        <!--<ul>-->
+                            <!--<li>-->
+                                <!--<h4><a href="#">Result 1</a></h4>-->
+                                <!--<a href="">aao.gov.au/asvo/result1</a>-->
+                                <!--<p><em>relevant search info</em></p>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<h4><a href="#">Result 2</a></h4>-->
+                                <!--<a href="">aao.gov.au/asvo/result2</a>-->
+                                <!--<p><em>relevant search info</em></p>-->
+                            <!--</li>-->
+                        <!--</ul>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+{% endblock %}
