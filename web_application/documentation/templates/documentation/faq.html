@@ -1,0 +1,46 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}FAQs{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/about.min.css' %}"/>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active">FAQs</li>
+{% endblock %}
+
+{% block page_title %}FAQs{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation:root' %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'documentation-syntax' %}">Syntax</a></li>
+<li role="presentation" ><a href="{% url 'support-contact' %}">Contact Us</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+
+<div class="row" id="top">
+    <div class="col-xs-12">
+        <p class="lead">Browse frequently asked questions. If you still can't solve your issue, <a href="{% url 'support-contact' %}">contact us</a>.</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-offset-1 col-sm-10 col-xs-12">
+        <h2><a href="">Data Browser</a></h2>
+        <h4>What's a <i class="fa fa-code-fork"></i> branch?</h4>
+        <p>{% lorem  %}</p>
+        <h4>What's a <i class="fa fa-map-pin"></i> version?</h4>
+        <p>{% lorem  %}</p>
+    </div>
+
+</div>
+
+</div>
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

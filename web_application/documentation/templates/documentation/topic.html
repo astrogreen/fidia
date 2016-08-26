@@ -1,0 +1,109 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Documentation{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Documentation{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="#">useful link</a></li>
+<li role="presentation" ><a href="#">useful link</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+    {% if response.data.results %}
+        <div class="row attention-seeker">
+
+            <div class="col-xs-12">
+                <p class="lead">Help Center.</p>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href="">
+                    <div class="well"><h3>Using the Data Browser</h3>
+                        <p>Documentation for the Data Browser, including how to download pieces of data and information on AAODC's data model.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 20 w %}</p></div></a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href=""><div class="well"><h3>AAODC Syntax</h3><p>{% lorem 20 w %}</p></div></a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href="{% url 'documentation:faq' %}"><div class="well"><h3>FAQ</h3><p>{% lorem 20 w %}</p></div></a>
+            </div>
+
+        </div>
+        <div class="row">
+
+            <div class="col-sm-offset-1 col-sm-10 col-xs-12">
+                {% for topic in response.data.results %}
+                    <h2>{{topic.title}}
+                        <a href="{{topic.url}}">
+                            <small class="pull-right sub-heading" style="margin-top:16px;">All {{topic.title}} Articles <i
+                                    class="fa fa-arrow-circle-right"></i>
+                            </small>
+                        </a></h2>
+                    <ul class="p sub-heading">
+                        {% if topic.articles %}
+                            {# truncate the number shown here #}
+                            {% for article in topic.articles %}
+                                {% if forloop.counter < 10 %}
+                                    <li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p>No articles have been added yet.</p>
+                        {% endif %}
+                    </ul>
+                {% endfor %}
+                {% if post_form %}
+                <hr>
+                    <h2>New Topic</h2>
+                    <p>Add a new topic to the AAODC documentation. You can tag articles with your new topic in the <a href="{% url 'documentation:article-list' %}">articles</a> page.</p>
+                    {% with form=post_form %}
+                    <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data"
+                          class="form-horizontal" novalidate onsubmit="submitForm()">
+                        <fieldset>
+                            {% csrf_token %}
+                            {{ post_form }}
+                            <div class="form-actions">
+                                <button class="btn btn-default pull-right"
+                                        title="Make a POST request on the {{ name }} resource">SUBMIT
+                                </button>
+                            </div>
+                        </fieldset>
+                    </form>
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+
+    {% else %}
+
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10 col-xs-12">
+            <h2>{{response.data.title}}</h2>
+
+            <h3>All Articles</h3>
+            <ul class="p sub-heading">
+                {% if response.data.articles %}
+                    {% for article in response.data.articles %}
+                        <li><a href="{{article.url}}">&nbsp;{{article.title}}</a>
+                            <small class="sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
+                            </small>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <p>No articles have been added yet.</p>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

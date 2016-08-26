@@ -20,75 +20,74 @@
 {% endblock useful_links %}
 
 {% block content-test %}
-    <div class="row attention-seeker">
+    {% if response.data.results %}
+        <div class="row attention-seeker">
 
-        <div class="col-xs-12">
-            <p class="lead">Help Center.</p>
-        </div>
-        <div class="col-sm-3 col-xs-6">
-            <a href="">
-                <div class="well"><h3>Using the Data Browser</h3>
-                    <p>Documentation for the Data Browser, including how to download pieces of data and information on AAODC's data model.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-sm-3 col-xs-6">
-            <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 20 w %}</p></div></a>
-        </div>
-        <div class="col-sm-3 col-xs-6">
-            <a href=""><div class="well"><h3>AAODC Syntax</h3><p>{% lorem 20 w %}</p></div></a>
-        </div>
-        <div class="col-sm-3 col-xs-6">
-            <a href=""><div class="well"><h3>FAQ</h3><p>{% lorem 20 w %}</p></div></a>
-        </div>
+            <div class="col-xs-12">
+                <p class="lead">Help Center.</p>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href="">
+                    <div class="well"><h3>Using the Data Browser</h3>
+                        <p>Documentation for the Data Browser, including how to download pieces of data and information on AAODC's data model.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 20 w %}</p></div></a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href=""><div class="well"><h3>AAODC Syntax</h3><p>{% lorem 20 w %}</p></div></a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href=""><div class="well"><h3>FAQ</h3><p>{% lorem 20 w %}</p></div></a>
+            </div>
 
-    </div>
+        </div>
+        <div class="row">
+            {% for topic in response.data.results %}
+            <div class="col-xs-12"><h2>{{topic.title}}
+                <a href="{{topic.url}}"><small class="pull-right sub-heading" style="margin-top:16px;">All {{topic.title}} Articles <i class="fa fa-arrow-circle-right"></i>
+                </small></a></h2>
+                <ul class="p sub-heading">
+                    {% if topic.articles %}
+                    {# truncate the number shown here #}
+                        {% for article in topic.articles %}
+                            {% if forloop.counter < 10 %}
+                            <li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p>No articles have been added yet.</p>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+
     <div class="row">
-        {% for topic in response.data.topics %}
-        <div class="col-xs-12"><h2><a href="{% url topic.reverse %}">{{topic.name}}</a></h2>
-            <ul class="p sub-heading">
-                <li><a href="">&nbsp; Top Question</a></li>
-                <li><a href="">&nbsp; Another relevant question</a></li>
-                <li><a href="">&nbsp; Good question </a></li>
-            </ul>
+        <div class="col-xs-12">
+            <h2>{{response.data.title}}</h2>
         </div>
-        {% endfor %}
-
-        <div class="col-xs-12"><h2>My Account</h2>
-            <ul class="p sub-heading">
-                <li><a href="">&nbsp; Top Question</a></li>
-                <li><a href="">&nbsp; Another relevant question</a></li>
-                <li><a href="">&nbsp; Good question </a></li>
-            </ul>
-        </div>
-        <div class="col-xs-12"><h2>Data Browser</h2>
-            <ul class="p sub-heading">
-                <li><a href="">&nbsp; Top Question</a></li>
-                <li><a href="">&nbsp; Another relevant question</a></li>
-                <li><a href="">&nbsp; Good question </a></li>
-            </ul>
-        </div>
-        <div class="col-xs-12"><h2>Query Builder</h2>
-            <ul class="p sub-heading">
-                <li><a href="">&nbsp; Top Question</a></li>
-                <li><a href="">&nbsp; Another relevant question</a></li>
-                <li><a href="">&nbsp; Good question </a></li>
-            </ul>
-        </div>
-        <div class="col-xs-12"><h2>Schema</h2>
-            <ul class="p sub-heading">
-                <li><a href="">&nbsp; Top Question</a></li>
-                <li><a href="">&nbsp; Another relevant question</a></li>
-                <li><a href="">&nbsp; Good question </a></li>
-            </ul>
-        </div>
-        <div class="col-xs-12"><h2>Survey Teams</h2>
-            <ul class="p sub-heading">
-                <li><a href="">&nbsp; Top Question</a></li>
-                <li><a href="">&nbsp; Another relevant question</a></li>
-                <li><a href="">&nbsp; Good question </a></li>
-            </ul>
+        <div class="col-xs-12">
+            <h3>All Articles</h3>
         </div>
     </div>
-
+        <!--<div class="row">-->
+            <!--{% for article in response.data.article %}-->
+            <!--<div class="col-xs-12"><h2>{{topic.title}} <a href="{{topic.url}}"><i class="fa fa-arrow-circle-right sub-heading"></i></a></h2>-->
+                <!--<ul class="p sub-heading">-->
+                    <!--{% if topic.articles %}-->
+                        <!--{% for article in topic.articles %}-->
+                            <!--<li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>-->
+                        <!--{% endfor %}-->
+                    <!--{% else %}-->
+                        <!--<p>No articles have been added yet.</p>-->
+                    <!--{% endif %}-->
+                <!--</ul>-->
+            <!--</div>-->
+            <!--{% endfor %}-->
+        <!--</div>-->
+    {% endif %}
 {% endblock %}
