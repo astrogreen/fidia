@@ -25,7 +25,7 @@ class TopicViewset(viewsets.ModelViewSet):
     class TopicRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'documentation/topic.html'
 
-    renderer_classes = (TopicRenderer,)
+    renderer_classes = (TopicRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def retrieve(self, request, slug=None, *args, **kwargs):
         # Find the title corresponding to this slug
@@ -45,9 +45,9 @@ class ArticleViewset(viewsets.ModelViewSet):
     class ArticleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'documentation/article.html'
 
-    renderer_classes = (ArticleRenderer,)
+    renderer_classes = (ArticleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
-
+#
 #
 # class DocumentationRoot(generics.ListAPIView):
 #     """Declare all the models you wish the documentation route to trawl in the queryset"""

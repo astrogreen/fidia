@@ -14,7 +14,6 @@ class ArticleSerializer(serializers.ModelSerializer):
     topic_info = serializers.SerializerMethodField()
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
-    # topic = serializers.ChoiceField(choices="obj.topic.")
 
     def get_topic_info(self,obj):
         topic_info = {}
@@ -31,6 +30,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
+        ordering = ('updated',)
+
 
 
 

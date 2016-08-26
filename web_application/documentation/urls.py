@@ -10,7 +10,6 @@ router.register(r'docs/topics', documentation.views.TopicViewset, base_name="top
 router.register(r'docs/articles', documentation.views.ArticleViewset, base_name="article")
 
 urlpatterns = [
-    url(r'doc/$', documentation.views.TopicViewset, name='root'),
     url(r'', include(router.urls)),
 
     url(r'docs/faq/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='documentation/faq.html'), name='faq'),

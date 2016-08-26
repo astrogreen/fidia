@@ -2,38 +2,28 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %} SAMI Documentation {% endblock %}
+{% block title %} Documentation {% endblock %}
 
 {% block head-extra %}
 {% endblock %}
 
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
-<li><a href="{% url 'documentation:root' %}"> Documentation</a></li>
+<li><a href="{% url 'documentation:topic-list' %}"> Documentation</a></li>
 {% if response.data.title %}
 <li>{{response.data.title}}</li>
 {% endif %}
 {% endblock %}
 
-{% block page_title %} SAMI Documentation {% endblock %}
+{% block page_title %} Documentation {% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="#">useful link</a></li>
-<li role="presentation"><a href="#">useful link</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-list' %}"> Topics</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
     {% if not response.data.content %}
     <div class="row">
-        <div class="col-sm-offset-1 col-sm-10 col-xs-12"><h2>Articles</h2>
-            {% if response.data.results %}
-            <ul class="p sub-heading">
-                {% for this in response.data.results %}
-                <li><a href="{{this.url}}">{{this.title}}</a></li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p>No articles have been added yet.</p>
-            {% endif %}
+        <div class="col-sm-offset-1 col-sm-10 col-xs-12">
             {% if post_form %}
             <h2>New Article</h2>
             {% with form=post_form %}
@@ -48,18 +38,33 @@
                 </form>
               {% endwith %}
             {% endif %}
-        </div>
-    </div>
-    <div class="row">
 
+            <h2>All Articles</h2>
+            {% if response.data.results %}
+            <ul class="p sub-heading">
+                {% for this in response.data.results %}
+                <li>
+                    <a href="{{this.url}}">{{this.title}}</a>
+                    <p class=""><span class="sub-heading"> Last updated {{this.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=this.topic_info.slug %}">#{{this.topic_info.title}}</a></p>
+
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No articles have been added yet.</p>
+            {% endif %}
+
+        </div>
     </div>
 
     {% else %}
     <div class="row">
         <div class="col-sm-offset-1 col-sm-10 col-xs-12">
             <h2>{{response.data.title}}
-                <small class="pull-right sub-heading" style="margin-top:16px;">Last Updated: {{response.data.updated}}
+                <small class="pull-right sub-heading" style="margin-top:16px;">
+                    <span class="sub-heading"> Last updated {{response.data.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}">#{{response.data.topic_info.title}}</a>
                 </small>
+                <p class=""></p>
             </h2>
             {{response.data.content |safe}}
         </div>
