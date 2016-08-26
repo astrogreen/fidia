@@ -1,3 +1,5 @@
+from django.utils.text import slugify
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
@@ -32,35 +34,19 @@ class ArticleSerializer(serializers.ModelSerializer):
         }
 
 
-# class ArticleSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = documentation.models.Article
-#         fields = ('topic', 'title', 'article_slug')
-
 
 class TopicSerializer(serializers.ModelSerializer):
     articles = ArticleSerializer(many=True, read_only=True)
-
     url = serializers.HyperlinkedIdentityField(view_name="documentation:topic-detail", lookup_field='slug')
-    # articles = serializers.HyperlinkedRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     view_name='documentation:article-detail',
-    #     lookup_field='slug'
-    # )
+    # slug = serializers.SlugField(read_only=True, source="slug_generator")
 
     class Meta:
         model = documentation.models.Topic
-        fields = ('url', 'title', 'slug', 'articles')
+        fields = ('url', 'title', 'articles')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
-
-
-
-
-
 
 
 class RootSerializer(serializers.Serializer):
