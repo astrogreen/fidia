@@ -55,14 +55,14 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">Documentation</a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'documentation:root' %}">Documentation Home</a></li>
-                            <li><a href="{% url 'under-construction' %}">Data Browser</a></li>
-                            <li><a href="{% url 'documentation-query-builder' %}">Query</a></li>
-                            <li><a href="{% url 'documentation-schema-browser' %}">Schema</a></li>
-
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'documentation-syntax' %}">Syntax</a></li>
+                            <li><a href="{% url 'documentation:topic-list' %}">Topics</a></li>
+                            <li><a href="{% url 'documentation:syntax' %}">Syntax</a></li>
                             <li><a href="{% url 'documentation:faq' %}">FAQ</a></li>
+                            <!--<li><a href="{% url 'under-construction' %}">Data Browser</a></li>-->
+                            <!--<li><a href="{% url 'documentation-query-builder' %}">Query</a></li>-->
+                            <!--<li><a href="{% url 'documentation-schema-browser' %}">Schema</a></li>-->
+
+
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">About</li>
                             <li class="disabled"><a href="{% url 'under-construction' %}">RESTful API</a></li>
