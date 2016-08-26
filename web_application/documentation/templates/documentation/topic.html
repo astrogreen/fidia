@@ -10,8 +10,8 @@
 
 {% block page_title %}Documentation{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="#">useful link</a></li>
-<li role="presentation" ><a href="#">useful link</a></li>
+<li role="presentation" ><a href="{% url 'documentation:syntax' %}">Syntax</a></li>
+<li role="presentation" ><a href="{% url 'documentation:faq' %}">FAQ</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
@@ -32,10 +32,10 @@
                 <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 20 w %}</p></div></a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href=""><div class="well"><h3>AAODC Syntax</h3><p>{% lorem 20 w %}</p></div></a>
+                <a href=""><div class="well"><h3>Using the Schema</h3><p>{% lorem 20 w %}</p></div></a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:faq' %}"><div class="well"><h3>FAQ</h3><p>{% lorem 20 w %}</p></div></a>
+                <a href="{% url 'documentation:faq' %}"><div class="well"><h3>My Account</h3><p>{% lorem 20 w %}</p></div></a>
             </div>
 
         </div>

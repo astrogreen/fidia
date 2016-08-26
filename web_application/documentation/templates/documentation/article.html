@@ -46,7 +46,6 @@
                 <li>
                     <a href="{{this.url}}">{{this.title}}</a>
                     <p class=""><span class="sub-heading"> Last updated {{this.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=this.topic_info.slug %}">#{{this.topic_info.title}}</a></p>
-
                 </li>
                 {% endfor %}
             </ul>
