@@ -2,178 +2,110 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %}Schema | {{response.data.sample | uppercase }}{% endblock %}
+{% block title %} Schema | {{response.data.sample | uppercase }} {% endblock %}
 {% block head-extra %}
-
-<!--<link rel="stylesheet" type="text/css" href="{% static 'schema/css/schema/schema.min.css' %}"/>-->
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
 
 {% block page_title %}Schema {% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="#data-structure">Data Structure</a></li>
 <li role="presentation" ><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
 {% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<div class="row headline">
-    <div class="col-xs-6 col-sm-4 options">
-        <h2>Schema for {{survey|uppercase}} DR {{response.data.version}}</h2>
-    </div>
-    <div class="text-right col-xs-6 col-sm-8 options">
-        <span class="branch_version">
-            <span class="sub-heading"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
-        </span>
-
-        <div class="btn-group" role="group" aria-label="...">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-map-marker"></i> Data Releases <i class="fa fa-caret-down"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        {% for i in response.data.data_release_versions %}
-                            {% if i == response.data.version %}
-                                <li class="disabled"><a href="{% url 'data_browser:sample-list' sample_pk=survey %}">{{response.data.version}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
-                            {% else %}
-                                <li><a href="{% url 'data_browser:sample-list' sample_pk=survey %}">{{i}}</a></li>
-                            {% endif %}
-                        {% endfor %}
-
-                        {% for branch_name, branch_url in value.branches.items %}
-                        <li><a href="{{branch_url}}">{{branch_name}}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-</div>
 <div class="row">
     <div class="col-xs-12">
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Overview
+        <h2>Schema for {{survey|uppercase}}
+            <small class="right-helper">
+                <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                <div class="btn-group" role="group" style="margin-top:-15px;">
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR 1.0
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="disabled"><a href="">DR 1.0 &nbsp;
+                            <small class="sub-heading text-uppercase">Current</small>
+                        </a></li>
+                    </ul>
+                </div>
+            </small>
+        </h2>
+        <p>Select a data product from the list to view its documentation. </p>
+        <br>
+        <div class="row">
+            <div class="col-xs-3">
+            <!-- Level1 -->
+                <ul class="nav nav-pills nav-stacked" id="trait_type">
+                    {% for trait_type, trait_value in response.data.available_traits.items %}
+                        <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
+                            <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="pill">{{trait_value.pretty_name}}</a>
+                        </li>
+                        <!--<li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_value.description}}</p></li>-->
+                        {% for trait, value in trait_value.traits.items %}
+                            <li style="margin-left:30px" role="presentation" class="nested-pill">
+                                <a href="#nested_{{trait}}" aria-controls="{{trait}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>
+                            </li>
+                            <!--{% if value.description != None %}-->
+                            <!--<li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{value.description}}</p></li>-->
+                            <!--{% endif %}-->
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
             </div>
-            <div class="table-responsive">
-                <table class="table table-overview">
-                    <tbody>
-                    <tr>
-                        <td><img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
-                        <td>{% with "data_browser/sample/survey/"|add:survey|add:"/pi.html" as template %}
-                        {% include template %}
-                        {% endwith %}</td>
-                        <td>{{response.data.version}}</td>
-                        <td>{{response.data.astro_objects | length}}</td>
-                        <td><a href="{% url 'data_browser:sample-list' sample_pk=survey %}">{{survey|uppercase}} Data Browser <i class="fa fa-long-arrow-right"></i></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Survey</td>
-                        <td>PI</td>
-                        <td>Current Version</td>
-                        <td>Number of Galaxies</td>
-                        <td>Data Browser</td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="col-xs-9">
+            <!-- Level2 -->
+                <div class="tab-content">
+                    {% for trait_type, trait_value in response.data.available_traits.items %}
+                        <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    {% if value.description != None %}
+                                    <p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{value.description}}</p>
+                                    {% endif %}
+                                    <ul class="nav nav-tabs" style="margin-top:0;">
+                                        <li class="active"><a name="raw-tab" href="#documentation" data-toggle="tab" aria-expanded="true">Documentation</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="documentation" class="tab-pane active">{{trait_value.documentation|safe}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% for trait, value in trait_value.traits.items %}
+                            <div role="tabpanel" class="tab-pane" id="nested_{{trait}}">
+                                <ul class="nav nav-tabs" style="margin-top:0;">
+                                    <li class="active"><a name="raw-tab" href="#nested_{{trait}}_documentation" data-toggle="tab" aria-expanded="true">Documentation</a></li>
+                                    <li><a name="raw-tab" href="#nested_{{trait}}_properties" data-toggle="tab" aria-expanded="false">Properties</a></li>
+                                    <li><a name="raw-tab" href="#nested_{{trait}}_branches" data-toggle="tab" aria-expanded="false">Branches</a></li>
+                                    <li><a name="raw-tab" href="#nested_{{trait}}_formats" data-toggle="tab" aria-expanded="false">Formats</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="nested_{{trait}}_documentation" class="tab-pane active"><p>{{value.documentation|safe}}</p></div>
+                                    <div id="nested_{{trait}}_properties" class="tab-pane active"><p>properties</p></div>
+                                    <div id="nested_{{trait}}_branches" class="tab-pane">
+                                            {% for branch_name, branch_url in value.branches.items %}
+                                                <h4><i class="fa fa-code-fork"></i> {{branch_name}}</h4>
+                                                <p>branch description {% lorem 20 w %}</p>
+                                            {% endfor %}
+                                    </div>
+                                    <div id="nested_{{trait}}_formats" class="tab-pane">
+                                        {% for format in value.formats %}
+                                                <p>{{format}}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
-
-    {% if response.data.in_progress == True %}
-        <div class="col-sm-12">
-            <h2>Status</h2>
-        </div>
-        <div class="col-md-3 col-sm-3">
-            <div class="panel panel-default">
-                <div class="panel-heading text-uppercase">
-                    <strong>In Progress</strong>
-                    <i class="fa fa-refresh pull-right panel-icon"></i>
-                </div>
-                <div class="panel-body">
-                    <p>GAMA data ingestion is underway!</p>
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <div class="col-sm-6 col-xs-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    Schema Browser by Object
-                </div>
-                <div class="panel-body">
-                    <p>View the Schema for a particular object in {{survey|uppercase}}. Search for an
-                        object below by either typing in the input box, or click an option <a href=""
-                           data-toggle="popover"
-                           data-html="true"
-                           class="popover-anchor"
-                           data-trigger="focus"
-                           data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
-                           data-placement="top"><i
-                                class="fa fa-info-circle"></i></a>. </p>
-                    <p>
-                        <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                           data-content="<p>The schema for objects within any particular survey will always be identical. As the archive grows,
-                users will be able to create samples of astronomical objects from multiple surveys. Within a user-created sample,
-                objects (galaxies, stars) may have data from various surveys, and therefore different schemas. </p>"
-                           data-placement="top">
-                            <i class="fa fa-info-circle"></i> Does each object have a unique schema?</a>
-                    </p>
-
-                    <div class="half-br"></div>
-                    <select type="text" class="searchbox selectized text-center"
-                            id="autocomplete-widget" placeholder="SEARCH">
-                        <option value="" disabled selected>Select an object</option>
-                        {% for key, value in response.data.astro_objects.items %}
-                        <option value="{{value}}">{{key}}</option>
-                        {% endfor %}
-                    </select>
-                    <a class="btn btn-block btn-primary" type="button" href="" disabled
-                       id="autocomplete-button">GO</a>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="col-sm-12">
-            <h2>What's Included?</h2>
-        </div>
-        <div class="col-sm-8 col-xs-12">
-            <p>{% lorem 100 w %}</p>
-        </div>
-
-        <div class="col-sm-12">
-            <h2>About {{survey|uppercase}}</h2>
-        </div>
-        <div class="col-sm-8 col-xs-12">
-            {% with "data_browser/sample/survey/"|add:survey|add:"/about.html" as template %}
-                {% include template %}
-            {% endwith %}
-        </div>
-
-    {% endif %}
 </div>
 {% endblock %}
 {% block footer-extra %}
-<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
-<script>
-    $(document).ready(function () {
-        $selector = $("#autocomplete-widget").selectize({
-            closeAfterSelect: true,
-            selectOnTab: true,
-            placeholder: "SEARCH...",
-            create: false,
-            maxItems: 1,
-            onChange: function (value) {
-                $('#autocomplete-button').attr('href', value).attr('disabled', false)
-            }
-        });
-    });
-</script>
 {% endblock %}

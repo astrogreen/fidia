@@ -20,7 +20,7 @@ router.register(r'schema', schema.views.SchemaViewSet, base_name='schema')
 
 # Nested routes for sample ()
 sample_nested_router = NestedExtendDefaultRouter(router, r'schema', lookup='schema')
-sample_nested_router.register(r'(?P<sample_pk>[^/]+)', schema.views.SampleViewSet, base_name='sample')
+sample_nested_router.register(r'(?P<sample_pk>[^/]+)', schema.views.SurveyViewSet, base_name='sample')
 
 astroobject_nested_router = NestedExtendDefaultRouter(sample_nested_router, r'(?P<sample_pk>[^/]+)', lookup='sample')
 astroobject_nested_router.register(r'(?P<astroobject_pk>[^/]+)', schema.views.AstroObjectViewSet, base_name='astroobject')

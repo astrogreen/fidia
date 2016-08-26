@@ -1,0 +1,45 @@
+<div class="col-xs-12">
+    <h2>Data Structure</h2>
+    <p>Here at AAODC we've adopted an astronomical object-orientated data model.
+        Data are organised into samples containing astronomical objects,
+        such as stars and galaxies, with data members such as spectra, magnitudes and velocities.
+        By presenting the
+        properties and measurements of objects in this way, we simplify analysis and visualisation by providing a
+        uniform representation of an astrophysical object's characteristics.
+
+        This data model allows us to serve data at restful endpoints, providing an API to those wishing to access data without using
+        a web browser.
+
+        The top-level url is sample etc
+
+        This has the added advantage of data being self discoverable.
+
+
+        The url <a href="">/sami/9532/</a>
+        This means our data is self-discoverable. Visit the Data Browser to explore the data.
+
+    </p><p> You can read more on our methodology below.</p>
+
+    <h3>Data Model</h3>
+    <p>Surveys hosted at AAODC are are <code>samples</code> containing <code>astronomical
+        objects</code>.
+        You can read more about our middleware python package, FIDIA <a href="">here</a>. </p>
+    <h3>Why Object-Orientated?</h3>
+    <p>Our middleware Python package, FIDIA, interacts with data for astronomical objects in a consistent and intuitive
+        manner, regardless of the source or format of the data. Considerable past work has focused on standardised
+        formats and protocols for working with data. However, these tools are structured around images and tables,
+        not stars and galaxies. We take such work a step further by defining an interface to data on disk, on the
+        web, in a database, etc. that has a vocabulary (based in part on existing IVOA UCDs) for the physical
+        properties of astronomical objects. In our package, the primary objects are astronomical objects, such as
+        stars and galaxies, with data members such as spectra, magnitudes and velocities. By presenting the
+        properties and measurements of objects in this way, we simplify analysis and visualisation by providing a
+        uniform representation of an astrophysical object's characteristics. </p>
+    <p>The package accepts that data will always be available in a wide variety of formats and places, and therefore
+        it provides a formulaic way to connect to and import from new data sources with ease.
+        Cross matching is done between data sources as needed. Throughout, FIDIA has been designed to deliver
+        the most likely result in the face of ambiguity, such as multiple versions of data or
+        multiple potential cross-matches, but allow for arbitrary, repeatable reconfiguration.
+        Our aim with FIDIA is to provide a consistent and intiutive experience for all AAODC users, regardless of
+        astronomical knowledge, and to provide a scalable and something data model for connecting new data tools to our interface.
+    </p>
+</div>

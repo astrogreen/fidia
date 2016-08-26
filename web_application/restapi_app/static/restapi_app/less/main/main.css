@@ -111,7 +111,15 @@ body .tiny {
   color: #8ca1a6;
 }
 h2 {
+  position: relative;
   font-weight: 500;
+}
+h2 .right-helper {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-top: 14px;
 }
 h3,
 h4 {
@@ -428,6 +436,44 @@ header user a > a {
 }
 .pager .next {
   margin-left: 10px;
+}
+/*
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ PILLS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus {
+  background-color: #4078C0;
+  padding: 3px 10px 4px;
+  line-height: 22px;
+  border: 1px solid transparent;
+  color: #ffffff;
+}
+.nav-pills > li.active.nested-pill > a,
+.nav-pills > li.nested-pill.active > a:hover,
+.nav-pills > li.nested-pill.active > a:focus {
+  color: #ffffff;
+}
+.nav-pills > li > a {
+  position: relative;
+  display: block;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  color: #333;
+  text-decoration: none;
+  padding: 5px 10px 6px;
+  font-size: 15px;
+  line-height: 18px;
+  border: 1px solid transparent;
+}
+.nav-pills > li.nested-pill > a {
+  color: #2C2D30;
+}
+.nav-pills > li:hover a {
+  background-color: #ecf1f9;
+  border: 1px solid #dcf0fb;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
