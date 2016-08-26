@@ -1,3 +1,4 @@
+import itertools
 from rest_framework import views, generics, viewsets, renderers, permissions, mixins
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -11,27 +12,41 @@ import documentation.models
 import documentation.serializers
 
 
+
+class TopicViewset(viewsets.ModelViewSet):
+    serializer_class = documentation.serializers.TopicSerializer
+    queryset = documentation.models.Topic.objects.all()
+    lookup_field = 'slug'
+
+
+class ArticleViewset(viewsets.ModelViewSet):
+    serializer_class = documentation.serializers.ArticleSerializer
+    queryset = documentation.models.Article.objects.all()
+    lookup_field = 'slug'
+
+# class ArticleViewset(viewsets.ModelViewSet):
+#     serializer_class = documentation.serializers.ArticleSerializer
+#     def get_queryset(self):
+#         return documentation.models.Article.objects.filter(topic=self.kwargs['topic_pk'])
+
+
+
+
 class DocumentationRoot(generics.ListAPIView):
-    queryset = documentation.models.SAMI.objects.none()
+    """Declare all the models you wish the documentation route to trawl in the queryset"""
+    # queryset = list(itertools.chain(documentation.models.SAMI.objects.all(), documentation.models.GAMA.objects.all(),
+    #                                 documentation.models.AAODC.objects.all()))
+    queryset = documentation.models.SAMI.objects.all()
     serializer_class = documentation.serializers.RootSerializer
 
-    class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'documentation/root.html'
+    # class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+    #     template = 'documentation/root.html'
+    #
+    # renderer_classes = (RootRenderer, renderers.AdminRenderer,) + tuple(
+    #     api_settings.DEFAULT_RENDERER_CLASSES)
 
-    renderer_classes = (RootRenderer, renderers.AdminRenderer,) + tuple(
-        api_settings.DEFAULT_RENDERER_CLASSES)
 
-    def list(self, request, pk=None, format=None):
-        # Request available samples from FIDIA
-        topics = [{"name":"SAMI", "reverse":"documentation:sami-docs-list"}]
-        _dummy = object()
 
-        serializer_class = documentation.serializers.RootSerializer
-        serializer = serializer_class(
-            many=False, instance=_dummy,
-            context={'request': request, 'topics': topics},
-        )
-        return Response(serializer.data)
 
 
 
@@ -59,6 +74,7 @@ class SAMIDocumentation(viewsets.ModelViewSet):
     permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]
     queryset = documentation.models.SAMI.objects.all()
     serializer_class = documentation.serializers.SAMISerializer
+
     renderer_classes = (ArticleRenderer, renderers.AdminRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     lookup_field = 'slug'
     route = {"reverse": 'documentation:sami-docs-list', "name": 'SAMI'}

@@ -44,6 +44,16 @@
 
     </div>
     <div class="row">
+        {% for topic in response.data.topics %}
+        <div class="col-xs-12"><h2><a href="{% url topic.reverse %}">{{topic.name}}</a></h2>
+            <ul class="p sub-heading">
+                <li><a href="">&nbsp; Top Question</a></li>
+                <li><a href="">&nbsp; Another relevant question</a></li>
+                <li><a href="">&nbsp; Good question </a></li>
+            </ul>
+        </div>
+        {% endfor %}
+
         <div class="col-xs-12"><h2>My Account</h2>
             <ul class="p sub-heading">
                 <li><a href="">&nbsp; Top Question</a></li>
@@ -80,43 +90,5 @@
             </ul>
         </div>
     </div>
-
-
-
-    <!--<div class="row">-->
-        <!--<div class="col-xs-12">-->
-            <!--<h2 class="headline"><span>Search</span></h2>-->
-        <!--</div>-->
-        <!--<div class="col-sm-4 col-xs-12">-->
-            <!--<form class="inline-form" role="search">-->
-                <!--<div class="input-group">-->
-                    <!--<input type="text" class="form-control" placeholder="Search for...">-->
-                    <!--<span class="input-group-btn">-->
-                        <!--<button class="btn btn-default" type="button"><i class="fa fa-search fa-fw"></i></button>-->
-                    <!--</span>-->
-                <!--</div>-->
-            <!--</form>-->
-        <!--</div>-->
-        <!--<div class="col-sm-8 col-xs-12">-->
-            <!--<div class="panel panel-default ">-->
-                <!--<div class="panel-body fixed-panel">-->
-                    <!--<div class="search-result">-->
-                        <!--<ul>-->
-                            <!--<li>-->
-                                <!--<h4><a href="#">Result 1</a></h4>-->
-                                <!--<a href="">aao.gov.au/asvo/result1</a>-->
-                                <!--<p><em>relevant search info</em></p>-->
-                            <!--</li>-->
-                            <!--<li>-->
-                                <!--<h4><a href="#">Result 2</a></h4>-->
-                                <!--<a href="">aao.gov.au/asvo/result2</a>-->
-                                <!--<p><em>relevant search info</em></p>-->
-                            <!--</li>-->
-                        <!--</ul>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
 
 {% endblock %}
