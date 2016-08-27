@@ -55,6 +55,9 @@ body h3 {
 body h3 .header-link {
   line-height: 40px;
 }
+body h3.no-border {
+  border: 0;
+}
 body h4 {
   font-size: 18px;
   line-height: 20px;
@@ -442,21 +445,21 @@ header user a > a {
 ++ PILLS
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-.nav-pills > li.active > a,
-.nav-pills > li.active > a:hover,
-.nav-pills > li.active > a:focus {
+.schema .nav-pills > li.active > a,
+.schema .nav-pills > li.active > a:hover,
+.schema .nav-pills > li.active > a:focus {
   background-color: #4078C0;
   padding: 3px 10px 4px;
   line-height: 22px;
   border: 1px solid transparent;
   color: #ffffff;
 }
-.nav-pills > li.active.nested-pill > a,
-.nav-pills > li.nested-pill.active > a:hover,
-.nav-pills > li.nested-pill.active > a:focus {
+.schema .nav-pills > li.active.nested-pill > a,
+.schema .nav-pills > li.nested-pill.active > a:hover,
+.schema .nav-pills > li.nested-pill.active > a:focus {
   color: #ffffff;
 }
-.nav-pills > li > a {
+.schema .nav-pills > li > a {
   position: relative;
   display: block;
   border-radius: 4px;
@@ -468,10 +471,10 @@ header user a > a {
   line-height: 18px;
   border: 1px solid transparent;
 }
-.nav-pills > li.nested-pill > a {
+.schema .nav-pills > li.nested-pill > a {
   color: #2C2D30;
 }
-.nav-pills > li:hover a {
+.schema .nav-pills > li:hover a {
   background-color: #ecf1f9;
   border: 1px solid #dcf0fb;
 }
@@ -529,6 +532,9 @@ header user a > a {
 ++ GLOBAL STYLING
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.no-margin-top {
+  margin-top: 0;
+}
 .headline h2 {
   margin-top: 0;
 }
@@ -538,6 +544,18 @@ header user a > a {
 p.breakword {
   overflow-wrap: break-word;
   word-wrap: break-word;
+}
+.call-to-action {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  background-color: #F9F9F9;
+  background: -webkit-linear-gradient(#0B81B1, #34ABB3);
+  background: -webkit-linear-gradient(#0B81B1, #4078C0);
+  background: -webkit-linear-gradient(#396bac, #4078C0);
+  background: linear-gradient(#396bac, #4078C0);
+  margin-top: -30px;
+  margin-bottom: 45px;
+  padding-top: 45px;
+  padding-bottom: 45px;
 }
 .readmore {
   overflow: hidden;

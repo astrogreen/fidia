@@ -56,8 +56,6 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         self.breadcrumb_list = [str(sample_pk).upper()]
 
-        _dummy = object
-
         serializer_class = schema.serializers.SurveySerializer
 
         # Dict of available traits
@@ -117,9 +115,15 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                                                                 "version": None,
                                                                 "formats": trait_name_formats}
 
-
+        try:
+            sami_dr1_sample
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # _dummy = object
         serializer = serializer_class(
-            instance=_dummy, many=False,
+            instance=sami_dr1_sample, many=False,
             context={
                 'sample': sample_pk,
                 'request': request,

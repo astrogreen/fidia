@@ -21,28 +21,28 @@
       {% include "restapi_app/header/navbar.html" %}
     {% endblock %}
     {% block page_title_banner %}
-                <div class="page_title_banner">
-                  <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h1>{% block page_title %}{% endblock %}</h1>
-                        </div>
-                        <div class="col-sm-6 hidden-xs">
-                            <div class="useful_links pull-right">
-                              <ul class="nav nav-pills">
-                                {% block useful_links %}
-                                <!--<li role="presentation" ><a href="#">useful link</a></li>-->
-                                {% endblock useful_links %}
-                              </ul>
-                            </div>
-                        </div>
-                      <div class="col-xs-12">
-                        <!--<hr>-->
-                      </div>
-                    </div>
-                    </div>
-                </div>
-                {% endblock page_title_banner %}
+      <div class="page_title_banner">
+        <div class="container">
+          <div class="row">
+              <div class="col-sm-6">
+                  <h1>{% block page_title %}{% endblock %}</h1>
+              </div>
+              <div class="col-sm-6 hidden-xs">
+                  <div class="useful_links pull-right">
+                    <ul class="nav nav-pills">
+                      {% block useful_links %}
+                      <!--<li role="presentation" ><a href="#">useful link</a></li>-->
+                      {% endblock useful_links %}
+                    </ul>
+                  </div>
+              </div>
+            <div class="col-xs-12">
+              <!--<hr>-->
+            </div>
+          </div>
+          </div>
+      </div>
+      {% endblock page_title_banner %}
 
     <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
       {% block breadcrumbs-outer %}
@@ -66,6 +66,9 @@
     </div>
 
   <div class="wrapper">
+
+    {% block call-to-action %}{% endblock %}
+
     <div class="container" id="page-content">
       {% block content_and_status %}
         {% with "200" as http_status_code %}

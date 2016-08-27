@@ -6,6 +6,7 @@
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbclass %}{% endblock %}
@@ -15,9 +16,9 @@
 <li role="presentation" ><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<div class="row">
+<div class="row schema">
     <div class="col-xs-12">
         <h2>Schema for {{survey|uppercase}}
             <small class="right-helper">
@@ -106,6 +107,53 @@
         </div>
     </div>
 </div>
+{% comment %}
+<div class="row">
+    <div class="col-xs-12"><h2>Object-specific schema</h2></div>
+    <div class="col-xs-12 col-sm-4">
+        <p>View the Schema for a particular object in {{survey|uppercase}}. Search for an
+            object below by either typing in the input box, or click an option <a href=""
+               data-toggle="popover"
+               data-html="true"
+               class="popover-anchor"
+               data-trigger="focus"
+               data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
+               data-placement="top"><i
+                    class="fa fa-info-circle"></i></a>. </p>
+        <p>
+                    <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                           data-content="<p>The schema for objects within any particular survey will always be identical. As the archive grows,
+                users will be able to create samples of astronomical objects from multiple surveys. Within a user-created sample,
+                objects (galaxies, stars) may have data from various surveys, and therefore different schemas. </p>"
+                           data-placement="top">
+                            <i class="fa fa-info-circle"></i> Does each object have a unique schema?</a></p>
+        <select type="text" class="searchbox selectized text-center"
+                            id="autocomplete-widget" placeholder="SEARCH">
+                        <option value="" disabled selected>Select an object</option>
+                        {% for key, value in response.data.astro_objects.items %}
+                        <option value="{{value}}">{{key}}</option>
+                        {% endfor %}
+                    </select>
+                    <a class="btn btn-block btn-primary" type="button" href="" disabled
+                       id="autocomplete-button">GO</a>
+    </div>
+
+</div>
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $selector = $("#autocomplete-widget").selectize({
+            closeAfterSelect: true,
+            selectOnTab: true,
+            placeholder: "SEARCH...",
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                $('#autocomplete-button').attr('href', value).attr('disabled', false)
+            }
+        });
+    });
+</script>
+{% endcomment %}
 {% endblock %}
-{% block footer-extra %}
-{% endblock %}
+

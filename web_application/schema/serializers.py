@@ -27,6 +27,30 @@ class SchemaSerializer(serializers.Serializer):
 
 class SurveySerializer(serializers.Serializer):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        sample = self.instance
+        assert isinstance(sample, fidia.Sample), \
+            "SampleSerializer must have an instance of fidia.Sample, " +\
+            "not '%s': try SampleSerializer(instance=sample)" % sample
+
+        self.astro_objects = {}
+        for astro_object in sample:
+            url_kwargs = {
+                    'astroobject_pk': str(astro_object),
+                    'sample_pk': self.context['sample']
+                }
+            url = reverse("schema:astroobject-list", kwargs=url_kwargs)
+
+            # self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
+            self.astro_objects[astro_object] = url
+            # # Recurse displaying details at lower level (check depth_limit > 0)
+            # self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
+
+    def get_astro_objects(self, obj):
+        return self.astro_objects
+
     def get_sample(self, obj):
         return self.context['sample']
 
@@ -35,7 +59,7 @@ class SurveySerializer(serializers.Serializer):
 
     sample = serializers.SerializerMethodField()
     available_traits = serializers.SerializerMethodField()
-
+    astro_objects = serializers.SerializerMethodField()
 
 
 class SampleSerializer(serializers.Serializer):

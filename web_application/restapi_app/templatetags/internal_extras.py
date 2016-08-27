@@ -3,6 +3,7 @@ from __future__ import unicode_literals, absolute_import
 import re, json
 from django import template
 from django.template import Library
+from django.utils.text import slugify
 from django.core.urlresolvers import reverse, NoReverseMatch, reverse_lazy, resolve
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import QueryDict
@@ -337,3 +338,7 @@ def get_type(value):
 @register.filter
 def stringify(list):
     return json.dumps(str(list))
+
+@register.filter
+def slug(_str):
+    return slugify(_str)

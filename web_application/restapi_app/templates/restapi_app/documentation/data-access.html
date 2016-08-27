@@ -16,7 +16,7 @@
         {% block breadcrumbs %}
           <ul class="breadcrumb ">
             <li><a href="{% url 'index' %}">Home</a></li>
-            <li class="active"><a href="{% url 'documentation' %}">Documentation</a></li>
+            <li class="active"><a href="">Documentation</a></li>
           </ul>
         {% endblock %}
     {% endblock %}
@@ -131,7 +131,7 @@
                             <div class="panel-body">
                                 <h4>Survey Exploration</h4>
                                 <p>I want to browse the available data, data products, and meta-data for a particular survey.</p>
-                                <a href="{% url 'sami-list' %}" class="pull-right">Data Browser</a>
+                                <a href="" class="pull-right">Data Browser</a>
                             </div>
                         </div>
                   </div>
@@ -144,7 +144,7 @@
                                 <p>I know the object identifier according to the survey,
                                     e.g., GAMA object G65406. I want to explore and download the available
                                     node data on the object, in a range of formats.</p>
-                                <a href="{% url 'sov-list' %}" class="pull-right">Single Object Viewer</a>
+                                <a href="" class="pull-right">Single Object Viewer</a>
                             </div>
                         </div>
                   </div>
@@ -158,7 +158,7 @@
                             AAT-node survey (e.g., GAMA sources G65406, G106376). I wish to return
                             survey-derived parameters for those sources (e.g., redshifts from GAMA
                             catalogue SpecObjAll).</p>
-                                <a href="{% url 'query-list' %}" class="pull-right">SQL</a>
+                                <a href="" class="pull-right">SQL</a>
                             </div>
                         </div>
                   </div>
@@ -173,7 +173,7 @@
                                 available rows of objects across several catalogues. See
                                 examples <a href="#docs-UC1">Use Case 1</a> and
                                 <a href="#docs-UC2">Use Case 2</a>.</p>
-                                <a href="{% url 'query-list' %}" class="pull-right">Query Builder</a>
+                                <a href="" class="pull-right">Query Builder</a>
                             </div>
                         </div>
                   </div>
@@ -185,7 +185,7 @@
                                 <h4>Multiple Objects from different surveys</h4>
                                 <p>I want to view the closest sources to an uploaded list of RA, DEC coordinates
                             within some radius.</p>
-                                <a href="{% url 'sov-list' %}" class="pull-right"> SOV </a>&nbsp;
+                                <a href="" class="pull-right"> SOV </a>&nbsp;
                                 <a  class="disabled "> Position Search </a>
                             </div>
                         </div>
@@ -436,24 +436,24 @@
             <span>Browse</span>
           </h2>
           <div id="docs-survey-browser" class="subgroup">
-              <a href="{% url 'sami-list'%}"><h3>Survey Browser</h3></a>
+              <a href=""><h3>Survey Browser</h3></a>
                 <div class="row">
                     <div class="col-sm-6">
                       <p>Data are organised hierarchically. Each survey has the following link structure:  </p>
                       <dl class="">
                             <dt>survey/</dt>
-                            <dd style="margin-left:10px;">Available survey objects, products, schema browser etc. <br> e.g, <a href="{% url 'sami-list'%}">sami/</a></dd>
+                            <dd style="margin-left:10px;">Available survey objects, products, schema browser etc. <br> e.g, <a href="">sami/</a></dd>
                             <dt>survey/galaxy</dt>
-                            <dd style="margin-left:10px;">Available data for the object 'galaxy'.  <br> e.g, <a href="{% url 'sami-list'%}9352/">sami/9352/</a></dd>
+                            <dd style="margin-left:10px;">Available data for the object 'galaxy'.  <br> e.g, <a href="">sami/9352/</a></dd>
                             <dt>survey/galaxy/property/</dt>
                             <dd style="margin-left:10px;">
                                 Displays an on-the-fly rendering of the property (if sensible). Download in a variety of formats [fits, json, csv].
-                                <br> e.g, <a href="{% url 'sami-list'%}9352/velocity_map/">sami/9352/velocity_map/</a>
+                                <br> e.g, <a href="">sami/9352/velocity_map/</a>
                             </dd>
                             <dt>survey/galaxy/property/attribute</dt>
                             <dd style="margin-left:10px;">
                                 Displays a list of the attributes for the property.
-                                <br> e.g, <a href="{% url 'sami-list'%}9352/velocity_map/value/">sami/9352/velocity_map/value/</a>
+                                <br> e.g, <a href="">sami/9352/velocity_map/value/</a>
                             </dd>
                       </dl>
                   </div>
@@ -461,7 +461,7 @@
                       <div class="docs-example">
                         <img src="{% static 'restapi_app/img/documentation/browse.png' %}" class='img-responsive'
                            alt="Screen shot of query">
-                          <p>Available data for the SAMI object 273952 at <a href="{% url 'sami-list'%}273952/">sami/273952/</a></p>
+                          <p>Available data for the SAMI object 273952 at <a href="">sami/273952/</a></p>
                       </div>
                   </div>
                 </div>

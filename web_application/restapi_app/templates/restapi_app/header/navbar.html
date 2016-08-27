@@ -57,41 +57,44 @@
                             <!--<li><a href="{% url 'documentation-schema-browser' %}">Query</a></li>-->
                         </ul>
                     </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Documentation</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url 'documentation:topic-list' %}">Topics</a></li>
-                            <li><a href="{% url 'documentation:syntax' %}">Syntax</a></li>
-                            <li><a href="{% url 'documentation:faq' %}">FAQ</a></li>
-                            <!--<li><a href="{% url 'under-construction' %}">Data Browser</a></li>-->
-                            <!--<li><a href="{% url 'documentation-query-builder' %}">Query</a></li>-->
-                            <!--<li><a href="{% url 'documentation-schema-browser' %}">Schema</a></li>-->
+                    <li><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>
+                    <!--<li class="dropdown">-->
+                        <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"-->
+                           <!--aria-haspopup="true" aria-expanded="false">Documentation</a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a href="{% url 'documentation:topic-list' %}">Topics</a></li>-->
+                            <!--<li><a href="{% url 'documentation:syntax' %}">Syntax</a></li>-->
+                            <!--<li><a href="{% url 'documentation:faq' %}">FAQ</a></li>-->
+                            <!--&lt;!&ndash;<li><a href="{% url 'under-construction' %}">Data Browser</a></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li><a href="{% url 'documentation-query-builder' %}">Query</a></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li><a href="{% url 'documentation-schema-browser' %}">Schema</a></li>&ndash;&gt;-->
 
 
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">About</li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">RESTful API</a></li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">FIDIA</a></li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">AAODC Hadoop</a></li>
                             <!--<li role="separator" class="divider"></li>-->
                             <!--<li class="dropdown-header">About</li>-->
-                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Datasets</a></li>-->
-                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Facilities</a></li>-->
-                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Surveys</a></li>-->
-                        </ul>
-                    </li>
+                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">RESTful API</a></li>-->
+                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">FIDIA</a></li>-->
+                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">AAODC Hadoop</a></li>-->
+                            <!--&lt;!&ndash;<li role="separator" class="divider"></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="dropdown-header">About</li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="disabled"><a href="{% url 'under-construction' %}">Datasets</a></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="disabled"><a href="{% url 'under-construction' %}">Facilities</a></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="disabled"><a href="{% url 'under-construction' %}">Surveys</a></li>&ndash;&gt;-->
+                        <!--</ul>-->
+                    <!--</li>-->
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Support</a>
+                           aria-expanded="false">Surveys</a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'support-contact' %}">Contact</a></li>
+                            <!--<li><a href="{% url 'support-contact' %}">Contact</a></li>-->
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">About </a>
+
                         <ul class="dropdown-menu">
+                            <li><a href="{% url 'support-contact' %}">Contact</a></li>
                             <li class="disabled"><a href="{% url 'under-construction' %}">Referencing AAT</a>
                             </li>
                             <li class="disabled"><a href="{% url 'under-construction' %}">Publications</a></li>

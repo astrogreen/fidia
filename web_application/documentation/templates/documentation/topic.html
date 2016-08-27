@@ -6,6 +6,11 @@
 
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
+<style>
+.affix {
+  top: 20px;
+}
+</style>
 {% endblock %}
 
 {% block page_title %}Documentation{% endblock %}
@@ -14,41 +19,79 @@
 <li role="presentation" ><a href="{% url 'documentation:faq' %}">FAQ</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
-    {% if response.data.results %}
-        <div class="row attention-seeker">
 
-            <div class="col-xs-12">
-                <p class="lead">Help Center.</p>
-            </div>
+{% block call-to-action %}
+{% if response.data.results %}
+<div class="call-to-action">
+    <div class="container">
+        <div class="row attention-seeker">
             <div class="col-sm-3 col-xs-6">
                 <a href="">
-                    <div class="well"><h3>Using the Data Browser</h3>
-                        <p>Documentation for the Data Browser, including how to download pieces of data and information on AAODC's data model.</p>
+                    <div class="well"><h3>Browsing Data</h3>
+                        <p>Documentation for the Data Browser, including how to download pieces of data and information
+                            on AAODC's data model.</p>
                     </div>
                 </a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href=""><div class="well"><h3>Making Queries</h3><p>{% lorem 20 w %}</p></div></a>
+                <a href="">
+                    <div class="well"><h3>Making Queries</h3>
+                        <p>{% lorem 20 w %}</p></div>
+                </a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href=""><div class="well"><h3>Using the Schema</h3><p>{% lorem 20 w %}</p></div></a>
+                <a href="">
+                    <div class="well"><h3>Using the Schema</h3>
+                        <p>{% lorem 20 w %}</p></div>
+                </a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:faq' %}"><div class="well"><h3>My Account</h3><p>{% lorem 20 w %}</p></div></a>
+                <a href="{% url 'documentation:faq' %}">
+                    <div class="well"><h3>My Account</h3>
+                        <p>{% lorem 20 w %}</p></div>
+                </a>
             </div>
+        </div>
+    </div>
+</div>
 
+
+{% endif %}
+{% endblock %}
+
+{% block content_render %}
+    {% if response.data.results %}
+        <div class="row ">
+            <div class="col-xs-12">
+                <p class="lead">Help Center.</p>
+            </div>
         </div>
         <div class="row">
-
-            <div class="col-sm-offset-1 col-sm-10 col-xs-12">
+            <div class="col-sm-3 col-xs-12 schema">
+                <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+                    {% for topic in response.data.results %}
+                    <li role="presentation" {% if forloop.first %}class="active"{% endif %}>
+                        <a href="#{{topic.title|slug}}" class="scroll">{{topic.title}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-sm-9 col-xs-12">
                 {% for topic in response.data.results %}
-                    <h2>{{topic.title}}
+                    <h2 id="{{topic.title|slug}}" class="no-bordesr {% if forloop.first %}no-margin-top{% endif %}" >{{topic.title}}
                         <a href="{{topic.url}}">
-                            <small class="pull-right sub-heading" style="margin-top:16px;">All {{topic.title}} Articles <i
+                            <small class="pull-right question" style="margin-top:16px;">All {{topic.title}} Articles <i
                                     class="fa fa-arrow-circle-right"></i>
                             </small>
-                        </a></h2>
+                        </a>
+                    </h2>
+                    <!--<p id="{{topic.title|slug}}" class="lead no-bordesr {% if forloop.first %}no-margin-top{% endif %}" >{{topic.title}}-->
+                        <!--<a href="{{topic.url}}">-->
+                            <!--<small class="pull-right question" style="margin-top:16px;">All {{topic.title}} Articles <i-->
+                                    <!--class="fa fa-arrow-circle-right"></i>-->
+                            <!--</small>-->
+                        <!--</a>-->
+                    <!--</p>-->
                     <ul class="p sub-heading">
                         {% if topic.articles %}
                             {# truncate the number shown here #}
@@ -61,9 +104,9 @@
                             <p>No articles have been added yet.</p>
                         {% endif %}
                     </ul>
+                    <br><br>
                 {% endfor %}
                 {% if post_form %}
-                <hr>
                     <h2>New Topic</h2>
                     <p>Add a new topic to the AAODC documentation. You can tag articles with your new topic in the <a href="{% url 'documentation:article-list' %}">articles</a> page.</p>
                     {% with form=post_form %}
@@ -109,5 +152,51 @@
             </ul>
         </div>
     </div>
+    {% endif %}
+{% endblock %}
+{% block footer-extra %}
+    {% if response.data.results %}
+        <script>
+            $(document).ready(function () {
+                check_affix();
+
+                $(".scroll").click(function(event){
+                    // stop the hash being appended to the url, and scroll to the value
+                    event.preventDefault();
+                    $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
+                });
+            });
+
+            function check_affix(){
+                // destroy all affix events from the window
+                // turn affix() on (if page width is large enough)
+
+                $(window).off('.affix');
+                $("#docs-sidebar")
+                    .removeClass("affix affix-top affix-bottom")
+                    .removeData("bs.affix");
+
+                if ($(window).width() > 770){
+                    $('#docs-sidebar').affix({
+                        offset: {
+                            top: function () {
+                                return (this.top = $(".schema").offset().top)
+                            },
+                            bottom: function () {
+                                return (this.bottom = $('.footer').outerHeight(true))
+                            }
+                        }
+                    });
+                    $('#docs-sidebar').affix('checkPosition')
+                }
+            }
+
+            var _resizetimer;
+            window.onresize = function(){
+              clearTimeout(_resizetimer);
+              _resizetimer = setTimeout(check_affix, 100);
+            };
+
+        </script>
     {% endif %}
 {% endblock %}
