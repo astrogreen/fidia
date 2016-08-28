@@ -183,13 +183,17 @@ class DescriptionsMixin:
         self._documentation = value
         self._documentation_format = format
 
-    @classmethod
+    @classorinstancemethod
     def get_pretty_name(cls):
         if hasattr(cls, '_pretty_name'):
             return getattr(cls, '_pretty_name')
 
-        # No name explicitly provided, so we do our best with the class name.
-        return prettify(cls.__name__)
+        if hasattr(cls, 'name'):
+            # Instance description object have a name attribute (e.g. TraitProperties)
+            return prettify(cls.name)
+        else:
+            # No name explicitly provided, so we do our best with the class name.
+            return prettify(cls.__name__)
 
     @classmethod
     def set_pretty_name(cls, value):
