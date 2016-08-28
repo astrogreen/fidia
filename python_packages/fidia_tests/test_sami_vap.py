@@ -2,7 +2,8 @@ import pytest
 
 import numpy
 from fidia.archive import sami
-from fidia.traits import TraitKey, Trait
+from fidia.traits import TraitKey, Trait, WorldCoordinateSystem
+from fidia.astro_object import AstronomicalObject
 
 @pytest.fixture(scope='module')
 def sami_archive():
@@ -48,6 +49,14 @@ class TestSAMILZIFU:
         assert hasattr(themap, 'comp_1_flux')
         assert hasattr(themap, 'variance')
 
+    def test_wcs_on_both_branches(self, a_sami_galaxy):
+
+        for trait_key in a_sami_galaxy['line_map-HALPHA'].get_all_branches_versions():
+            trait = a_sami_galaxy[trait_key]
+            wcs_sub_trait = trait['wcs']
+            assert isinstance(wcs_sub_trait, WorldCoordinateSystem)
+
+
         # theoldmap = sami_sample['28860'][TraitKey('line_map', 'HALPHA', branch='1_comp', version='0.9')]
         #
         # assert not hasattr(themap, 'comp_1_flux')
@@ -92,3 +101,20 @@ class TestSAMISFRmaps:
 
     def test_extinction_map_present(self, a_sami_galaxy):
         assert isinstance(a_sami_galaxy['extinction_map'], Trait)
+
+    def test_emission_classification_maps_present(self, a_sami_galaxy):
+        # type: (AstronomicalObject) -> None
+
+
+        trait_list = (
+            a_sami_galaxy['emission_classification_map'],
+            a_sami_galaxy['emission_classification_map:1_comp'],
+            a_sami_galaxy['emission_classification_map:recom_comp']
+        )
+        for trait in trait_list:
+            assert isinstance(trait, Trait)
+            assert isinstance(trait.value(), numpy.ndarray)
+
+            # Check that the data is in the correct range (three classes)
+            assert numpy.min(trait.value()) == 0
+            assert numpy.max(trait.value()) == 2

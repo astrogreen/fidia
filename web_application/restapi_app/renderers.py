@@ -51,12 +51,6 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
         """
         Return the astro object name
         """
-        pass
-        # try:
-        #     (view, unused_args, unused_kwargs) = resolve(request.path)
-        # except Exception:
-        #     pass
-        # else:
         return get_object_name(request.path, request)
 
     def get_breadcrumbs(self, request):
@@ -122,11 +116,4 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
             'api_settings': api_settings
         }
         return context
-
-
-class APIRootRenderer(ExtendBrowsableAPIRenderer):
-    """
-    APIROOT Template (no longer needed...)
-    """
-    template = 'restapi_app/api-root/list.html'
 

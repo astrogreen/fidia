@@ -1,0 +1,8 @@
+{% load internal_extras %}
+<span class="sub-heading pull-right">{{tpdata|key:tp|key:"type"}}</span>
+<p class="heading"><strong>Description</strong>
+<p class="readmore">{{tpdata|key:tp|key:"description"}}</p>
+<p class="heading"><strong>Documentation</strong>
+<p class="readmore">{% autoescape off %}{{tpdata|key:tp|key:"documentation"}}{% endautoescape %}</p>
+<p class="heading"><strong>URL</strong>
+<p><a href="{{tpdata|key:tp|key:'url'}}">{{tpdata|key:tp|key:"url"}}</a></p>

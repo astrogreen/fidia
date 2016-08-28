@@ -5,6 +5,8 @@ import os.path
 import datetime
 import re
 
+import numpy as np
+
 from astropy import wcs
 from astropy.io import fits
 from astropy import units
@@ -19,7 +21,7 @@ from .archive import Archive
 
 from ..utilities import WildcardDictionary, DefaultsRegistry, exclusive_file_lock
 
-#from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap
+#from fidia.traits import TraitKey, trait_property, SpectralMap, Image, VelocityMap, ClassificationMap
 from fidia.traits import *
 from fidia.traits.trait_property import trait_property_from_fits_header
 
@@ -90,7 +92,7 @@ class TraitFromFitsFile(Trait):
         elif not os.path.exists(self._fits_file_path):
             raise DataNotAvailable(self._fits_file_path + " does not exist.")
 
-        super()._post_init()
+        super(TraitFromFitsFile, self)._post_init()
 
     def preload(self):
         self._hdu = fits.open(self._fits_file_path)
@@ -103,7 +105,7 @@ def trait_property_from_fits_data(extension_name, type, name):
     tp = TraitProperty(type=type, name=name)
 
     tp.fload = lambda self: self._hdu[extension_name].data
-    tp.short_name = extension_name
+    tp.set_short_name(extension_name)
 
     # # @TODO: Providence information can't get filename currently...
     # tp.providence = "!: FITS-Header {{file: '{filename}' extension: '{extension}' header: '{card_name}'}}".format(
@@ -492,25 +494,25 @@ class SAMISpectralCube(SpectralMap):
             del self._header
 
         detector_id = trait_property_from_fits_header('DETECTOR', 'string', 'detector_id')
-        detector_id.short_name = "DETECTOR"
+        # detector_id.set_short_name("DETECTOR")
 
         gain = trait_property_from_fits_header('RO_GAIN', 'string', 'gain')
-        gain.short_name = "RO_GAIN"
+        # gain.set_short_name("RO_GAIN")
 
         read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
-        read_noise.short_name = 'RO_NOISE'
+        # read_noise.set_short_name('RO_NOISE')
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
-        read_speed.short_name = 'SPEED'
+        # read_speed.set_short_name('SPEED')
 
         detector_control_software_date = trait_property_from_fits_header('DCT_DATE', 'string', 'detector_control_software_date')
-        detector_control_software_date.short_name = 'DCT_DATE'
+        # detector_control_software_date.set_short_name('DCT_DATE')
 
         detector_control_software_version = trait_property_from_fits_header('DCT_VER', 'string', 'detector_control_software_version')
-        detector_control_software_version.short_name = 'DCT_VER'
+        # detector_control_software_version.set_short_name('DCT_VER')
 
         read_amplifier = trait_property_from_fits_header('READAMP', 'string', 'read_amplifier')
-        read_amplifier.short_name = 'READAMP'
+        # read_amplifier.set_short_name('READAMP')
 
 
     @sub_traits.register
@@ -628,6 +630,9 @@ class LZIFUOneComponentLineMap(Image):
     branches_versions = {"1_comp": {"V02"}}
     defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
 
+    sub_traits = TraitRegistry()
+
+
     line_name_map = {
         'OII3726': 'OII3726',
         'OII3729': 'OII3729',
@@ -642,7 +647,6 @@ class LZIFUOneComponentLineMap(Image):
         'SII6731': 'SII6731'
     }
 
-    qualifier_required = True
     qualifiers = line_name_map.keys()
 
     def init(self):
@@ -652,8 +656,10 @@ class LZIFUOneComponentLineMap(Image):
             self.archive.vap_data_path,
             data_product_name,
             data_product_name + self.version,
-            "1_comp",
-            self.object_id + "_1_comp.fits"))
+            self.branch,
+            self.object_id + "_" + self.branch + ".fits"))
+
+        log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
 
         if not os.path.exists(self._lzifu_fits_file):
             if os.path.exists(self._lzifu_fits_file + ".gz"):
@@ -687,31 +693,27 @@ class LZIFUOneComponentLineMap(Image):
         variance = sigma**2
         return variance
 
-
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu[0].header
         return _wcs_string
 
-
+    @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
 
-
-    sub_traits = TraitRegistry()
-    sub_traits.register(LZIFUWCS)
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Map",
-    OII3726="[OII] (33726A)",
+    OII3726="[OII] (3726Å)",
     HBETA='Hβ',
-    OIII5007='[OIII] (5007A)',
-    OI6300='[OI] (6300A)',
+    OIII5007='[OIII] (5007Å)',
+    OI6300='[OI] (6300Å)',
     HALPHA='Hα',
-    NII6583='[NII] (6583)',
-    SII6716='[SII] (6716)',
-    SII6731='[SII] (6731)')
+    NII6583='[NII] (6583Å)',
+    SII6716='[SII] (6716Å)',
+    SII6731='[SII] (6731Å)')
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
@@ -720,31 +722,11 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     # Extends 'line_map', so no defaults:
     defaults = DefaultsRegistry(None, {'recom_comp': 'V02'})
 
-    def init(self):
-        data_product_name = "EmissionLineFits"
-
-        self._lzifu_fits_file = "/".join((
-            self.archive.vap_data_path,
-            data_product_name,
-            data_product_name + self.version,
-            self.branch,
-            self.object_id + "_" + self.branch + ".fits"))
-
-        if not os.path.exists(self._lzifu_fits_file):
-            if os.path.exists(self._lzifu_fits_file + ".gz"):
-                self._lzifu_fits_file += ".gz"
-            else:
-                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
-
-    qualifier_required = True
     qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
 
 
     def preload(self):
-        lzifu_fits_file = (self.archive._base_directory_path +
-                           "/lzifu_releasev" + self.version + "/recom_comp/" +
-                           self.object_id + "_recom_comp.fits.gz")
-        self._hdu = fits.open(lzifu_fits_file)
+        self._hdu = fits.open(self._lzifu_fits_file)
 
     @trait_property('float.array')
     def value(self):
@@ -792,19 +774,18 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         variance = sigma**2
         return variance
 
-    @trait_property('string')
-    def _wcs_string(self):
-        _wcs_string = self._hdu[0].header
-        return _wcs_string
+    #
+    # Sub Traits
+    #
+    sub_traits = TraitRegistry()
 
 
+    @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
 
-    sub_traits = TraitRegistry()
-    sub_traits.register(LZIFUWCS)
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
     "Line Map",
     OII3726="[OII] (3726Å)",
@@ -1008,17 +989,87 @@ class SFRMap(Image, TraitFromFitsFile):
 SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
-# class SFRClass(ClassificationMap):
-#
-#     trait_key = 'sfr_map'
-#
-#     def fits_file_path(self):
-#         return (self.archive._base_directory_path +
-#                                 "SFRmaps/" +
-#                                 self.object_id + "_SFR_" + self.branch + ".fits")
-#
-#     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
-#     variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
+class EmissionClass(ClassificationMap, TraitFromFitsFile):
+    """Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
+
+    We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
+    [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV01 to
+    determine whether the emission lines are dominated by photoionization from
+    HII regions or other sources like AGN or shocks, using the BPT/VO87
+    diagnostic diagrams and dividing lines from Kewley et al. 2006.  We only
+    classify spaxels with ratios that have a signal-to-noise ratio of at least
+    5.
+
+    We additionally add a likely classification of "star-forming" to spaxels
+    with $\log({\rm [NII]}/{\rm Hα}) <-0.4 $ without an [OIII] detection.
+
+    Classifications are stored in the map as an integer with the following definitions:
+
+    | Pixel Value | Classification |
+    | ------------|----------------|
+    |   0         |  No data       |
+    |   1         | star formation dominates the emission in all available line ratios |
+    |   2         | other ionization mechanisms dominate |
+
+    We note that these classifications are done only using the TOTAL EMISSION
+    LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
+    we classify the total emission in that spaxel, not the individual
+    components.
+
+    """
+
+    trait_type = 'emission_classification_map'
+
+    branches_versions = {
+        "1_comp": {'V02'},
+        "recom_comp": {'V02'}
+    }
+
+    defaults = DefaultsRegistry(
+        default_branch='recom_comp',
+        version_defaults={"1_comp": 'V02',
+                          "recom_comp": 'V02'}
+    )
+
+    class_remap = {
+        0: "No Data",
+        1: "Star formation",
+        2: "Other ionisation mechanisms"}
+
+    def fits_file_path(self):
+        data_product_name = "SFMasks"
+
+        return "/".join(
+            (self.archive.vap_data_path,
+             data_product_name,
+             data_product_name + self.version,
+             self.object_id + "_SFMask_" + self.branch + ".fits"))
+
+    @trait_property("int.array")
+    def value(self):
+        input_data = self._hdu[1].data
+
+        # Change the input array into an integer array for storage.
+        class_remap = {
+            np.nan: 0,
+            1.0: 1,
+            0.0: 2}
+        output_data = np.empty(input_data.shape, dtype=np.int)
+        output_data[:] = -1
+        for key in class_remap:
+            if key is np.nan:
+                # Must use alternate logic for nans
+                output_data[np.isnan(input_data)] = class_remap[key]
+            output_data[input_data == key] = class_remap[key]
+
+        if np.count_nonzero(output_data == -1) > 0:
+            # For some reason, not all pixels have matched the categories.
+            raise Exception("Data corruption in '%s'" % self)
+
+
+        return output_data
+
+EmissionClass.set_pretty_name("Emission Classification Map")
 
 def update_path(path):
     if path[-1] != "/":
@@ -1181,6 +1232,8 @@ class SAMIDR1PublicArchive(Archive):
 
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
+
+        self.available_traits.register(EmissionClass)
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")

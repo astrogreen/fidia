@@ -2,7 +2,7 @@ from .base_trait import Trait
 
 from .smart_traits import WorldCoordinateSystem, SkyCoordinate
 
-from .generic_traits import Measurement, TimeSeries, SpectralMap, Map, Image, Classification
+from .generic_traits import Measurement, TimeSeries, SpectralMap, Map, Image, Classification, ClassificationMap
 
 from .meta_data_traits import MetadataTrait, \
     OpticalTelescopeCharacteristics, DetectorCharacteristics, SpectrographCharacteristics

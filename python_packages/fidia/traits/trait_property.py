@@ -124,6 +124,9 @@ class BoundTraitProperty:
         if item not in ('loader',) and not item.startswith("_"):
             return getattr(self._trait_property, item)
 
+    def __str__(self):
+        return "<TraitProperty {} of {}>".format(self._trait_property.name, str(self._trait.trait_key))
+
     @property
     def name(self):
         return self._trait_property.name

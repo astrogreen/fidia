@@ -187,6 +187,12 @@ form.query-form #outputCatalogue0:before {
 ++ QUERY RESULTS
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.nav.nav-tabs {
+  margin-top: 20px;
+}
+.tab-content {
+  margin-bottom: 20px;
+}
 @keyframes border-pulsate {
   0% {
     border-color: #5aa8d8;

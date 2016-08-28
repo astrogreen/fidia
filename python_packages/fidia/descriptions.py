@@ -8,7 +8,7 @@ from .utilities import classorinstancemethod
 
 from . import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 DEFAULT_FORMAT = 'markdown'
@@ -195,9 +195,10 @@ class DescriptionsMixin:
     def set_pretty_name(cls, value):
         cls._pretty_name = value
 
-    @classmethod
+    @classorinstancemethod
     def get_description(cls):
         if hasattr(cls, '_short_description'):
+            log.debug("For object '%s', returning description from `_short_description` attribute.", cls)
             return getattr(cls, '_short_description')
         try:
             if hasattr(cls, 'doc') and cls.doc is not None:
@@ -213,9 +214,12 @@ class DescriptionsMixin:
         except:
             return None
 
-    @classmethod
-    def set_description(cls, value):
-        cls._short_description = value
+    @classorinstancemethod
+    def set_description(self, value):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
+
+        self._short_description = value
 
     @classorinstancemethod
     def get_short_name(self):
@@ -286,7 +290,7 @@ class TraitDescriptionsMixin(DescriptionsMixin):
             # This is a class and we've been given a valid qualifier to provide the pretty name for
             if hasattr(self, '_pretty_name_qualifiers') and qualifier in self._pretty_name_qualifiers:
                 # A pretty name has been explicilty defined
-                return self._pretty_name_qualifiers[self.trait_qualifier]
+                return self._pretty_name_qualifiers[qualifier]
             else:
                 # No pretty name defined, so prettify the qualifier
                 return prettify(qualifier)

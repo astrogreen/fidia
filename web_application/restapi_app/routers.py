@@ -11,8 +11,8 @@ from rest_framework.reverse import reverse
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework.renderers import TemplateHTMLRenderer, BrowsableAPIRenderer, JSONRenderer
 
-from restapi_app.renderers import APIRootRenderer
-
+# from restapi_app.renderers import APIRootRenderer
+from restapi_app.renderers import ExtendBrowsableAPIRenderer
 
 class ExtendDefaultRouter(SimpleRouter):
     """
@@ -43,7 +43,7 @@ class ExtendDefaultRouter(SimpleRouter):
 
         class DATA(views.APIView):
             # _ignore_model_permissions = True
-            renderer_classes = [APIRootRenderer, JSONRenderer]
+            renderer_classes = [ExtendBrowsableAPIRenderer, JSONRenderer]
 
             def get(self, request, *args, **kwargs):
                 ret = OrderedDict()

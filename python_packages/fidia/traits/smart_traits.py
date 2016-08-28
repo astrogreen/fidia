@@ -14,7 +14,7 @@ from .abstract_base_traits import *
 # Logging Import and setup
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 
@@ -89,4 +89,5 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
         # TODO: See if this method can be hidden or deleted.
         # TODO: Perhaps handle this by moving as_fits() off of the top level Trait class.
         return None
-
+WorldCoordinateSystem.set_pretty_name("World Coordinate System")
+WorldCoordinateSystem.set_short_name("WCS")
