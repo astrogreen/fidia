@@ -134,13 +134,107 @@ class Archive(BaseArchive):
     def can_provide(self, trait_key):
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
-    def schema(self, by_trait_name=False):
-        """Provide a list of trait_keys and classes this archive generally supports."""
+    def schema(self, by_trait_name=False, data_class='all'):
+        """Get the schema of this Archive.
+
+        The Schema is provided as a set of nested dictionaries. Generally, the
+        top level gives different trait_types, each of which is a dictionary.
+        For each trait_type, the dictionary keys are the names of the
+        TraitProperty or sub-Trait. Sub-traits have dictionaries as values,
+        which have the same structure. TraitProperties have the (string) type of
+        the TraitProperty as their value.
+
+        Example:
+
+            {
+                "redshift":
+                {
+                    "value": 'float',
+                    "variance": 'float'
+                },
+                "line_map-NII":
+                {
+                    "value": 'float.array',
+                    "variance": 'float.array',
+                    "source": 'string'
+                },
+                "line_map-Ha":
+                {
+                    "value": 'float.array',
+                    "variance": 'float.array',
+                    "source": 'string'
+                },
+                "velocity_map":
+                {
+                    "value": 'float.array',
+                    "systemic_redshift":
+                    {
+                        "value": 'float',
+                        "variance": 'float
+                    }
+                }
+            }
+
+        The keyword `by_trait_name` can be set to True to add an extra layer to
+        the hierarchy. That layer separates out the trait_type from the combined
+        trait_type + trait_qualifier, or trait_name. The above example becomes:
+
+            {
+                "redshift":
+                {
+                    None:
+                    {
+                        "value": 'float',
+                        "variance": 'float'
+                    },
+                },
+                "line_map":
+                {
+                    "NII":
+                    {
+                        "value": 'float.array',
+                        "variance": 'float.array',
+                        "source": 'string'
+                    },
+                    "Ha":
+                    {
+                        "value": 'float.array',
+                        "variance": 'float.array',
+                        "source": 'string'
+                    }
+
+                }
+                "velocity_map":
+                {
+                    "value": 'float.array',
+                    "systemic_redshift":
+                    {
+                        "value": 'float',
+                        "variance": 'float
+                    }
+                }
+            }
+
+        data_class:
+            One of 'all', 'catalog', or 'non-catalog'
+
+            'all' returns the full schema.
+
+            'catalog' returns only items which contain TraitProperties of catalog type.
+
+            'non-catalog' returns only items which contain TraitProperties of non-catalog type.
+
+            Both 'catalog' and 'non-catalog' will not include Traits that
+            consist only of TraitProperties not matching the request.
+
+
+        """
 
         def add_trait_schemas(dict_to_update, trait_classes):
+            # type: (SchemaDictionary, List[Trait]) -> None
             for trait in trait_classes:
                 log.debug("        Attempting to add Trait class '%s'", trait)
-                trait_schema = trait.schema(by_trait_name=by_trait_name)
+                trait_schema = trait.schema(by_trait_name=by_trait_name, data_class=data_class)
                 try:
                     dict_to_update.update(trait_schema)
                 except ValueError:

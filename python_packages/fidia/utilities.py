@@ -87,6 +87,21 @@ class SchemaDictionary(dict):
                 # Something's wrong, probably a type mis-match.
                 raise Exception("The SchemaDictionary %s can not be updated with %s" % (self, other_dict[key]))
 
+    def delete_empty(self):
+        """Remove any empty dictionaries in this and nested dictionaries."""
+
+        to_delete = set()
+
+        for key in self.keys():
+            if isinstance(self[key], SchemaDictionary):
+                if len(self[key].keys()) == 0:
+                    to_delete.add(key)
+                else:
+                    self[key].delete_empty()
+
+        for key in to_delete:
+            del self[key]
+
 class Inherit: pass
 
 class DefaultsRegistry:

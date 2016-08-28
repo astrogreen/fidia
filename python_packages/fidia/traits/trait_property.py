@@ -57,6 +57,18 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         'int.array'
     ]
 
+    catalog_types = [
+        'string',
+        'float',
+        'int'
+    ]
+
+    non_catalog_types = [
+        'string.array',
+        'float.array',
+        'int.array'
+    ]
+
     descriptions_allowed = 'instance'
 
     def __init__(self, fload=None, fset=None, fdel=None, doc=None, type=None, name=None):
