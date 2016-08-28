@@ -45,6 +45,7 @@ def run_sql_query(request_string):
 class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = query.serializers.QuerySerializerCreateUpdate
     permission_classes = [permissions.IsAuthenticated]
+    breadcrumb_list = []
 
     class QueryCreateRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         """
@@ -58,6 +59,7 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
         """
         Return the blank form for a POST request
         """
+        QueryCreateView.breadcrumb_list.extend(['New Query'])
         return Response()
 
     def create(self, request, *args, **kwargs):
@@ -65,6 +67,7 @@ class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):
         Create a model instance. Override CreateModelMixin create to catch the POST data for processing before save
         Return only the location of the new resource in data['url'] as per HTTP spec.
         """
+        QueryCreateView.breadcrumb_list.extend(['New Query'])
         saved_object = request.data
         # Raise error if SQL field is empty
         if "SQL" in saved_object:
@@ -99,6 +102,7 @@ class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListMod
                                          mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
     serializer_class = query.serializers.QuerySerializerList
     permission_classes = [permissions.IsAuthenticated]
+    breadcrumb_list = []
 
     # descriptor decorator
     @property
@@ -111,6 +115,7 @@ class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListMod
                 """
                 Read-only query history
                 """
+                QueryListRetrieveUpdateDestroyView.breadcrumb_list.extend(['Query History'])
                 template = 'query/query-list.html'
 
             return [QueryListRenderer, renderers.JSONRenderer, restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer]
@@ -191,6 +196,8 @@ class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListMod
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve a model instance. """
+        pk = request.parser_context['kwargs']['pk']
+        QueryListRetrieveUpdateDestroyView.breadcrumb_list.extend(['Query History', pk])
         instance = self.get_object()
         serializer = self.get_serializer(instance)
 
@@ -201,6 +208,8 @@ class QueryListRetrieveUpdateDestroyView(viewsets.GenericViewSet, mixins.ListMod
         """
         Update a model instance.
         """
+        pk = request.parser_context['kwargs']['pk']
+        QueryListRetrieveUpdateDestroyView.breadcrumb_list.extend(['Query History', pk])
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 

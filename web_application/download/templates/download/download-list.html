@@ -1,0 +1,223 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Download History{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
+{% endblock %}
+
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'index' %}">Home</a></li>
+<li>Download History</li>
+{% endblock %}
+
+{% block page_title %}Download History{% endblock %}
+{% block useful_links %}
+{% endblock useful_links %}
+
+{% block content-test %}
+<div class="row">
+    <div class="col-xs-12 col-sm-12">
+        <p class="lead">Re-download data from your Download History. </p>
+    </div>
+    <div class="col-xs-12 col-sm-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Download History
+                <span class="pull-right sub-heading">
+                    <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+                        data-content="<p>There are three stages of download:</p><dl><dt class='sub-heading'>In Progress</dt><dd><p>Your Download is underway.</p></dd><dt class='text-success'>Ready to Download</dt><dd><p>Your Download is ready, please download it within 7 days.</p></dd><dt class='text-error'>Expired</dt><dd><p>Your Download is no longer valid.</p></dd></dl>"
+                        data-placement="left"><i class="fa fa-info-circle"></i></a>
+                </span>
+            </div>
+            <table class="table table-hover">
+                <tbody>
+                {% for this in response.data.results %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm-9 col-xs-12">
+                                    <a href="{{this.url}}">
+                                        <h4 class="text-info" style="border:0"> {{this.title}}</h4>
+                                    </a>
+                                    <!--<p>{{this.downloaditems}}</p>-->
+                                    <p class="version">
+                                        <span class="sub-heading"><i class="fa fa-clock-o"></i> {{this.updated}}</span>
+                                        <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3 text-right col-xs-12 options">
+
+                                    <span class="text-capitalize {% if 'rogress' in this.downloadlink %}sub-heading{% elif 'xpired' in this.downloadlink %}text-error{% else %}textt-success{% endif %}">
+                                        <em>{{this.downloadlink}}</em>
+                                    </span>
+
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% if paginator %}
+        <nav class="nav-pagination">
+            {% get_pagination_html paginator %}
+        </nav>
+        {% endif %}
+    </div>
+
+    <div class="col-sm-4">
+        <div class="panel panel-default panel-statistics">
+            <div class="panel-body">
+                <strong class="text-uppercase">Usage Summary</strong>
+                <i class="fa fa-pie-chart pull-right panel-icon"></i>
+            </div>
+
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item text-right">
+                    <div id="statistics"><!-- Plotly chart will be drawn inside this DIV --></div>
+
+                    <i class="fa fa-square text-warning"></i> Query
+                    <i class="fa fa-square text-error"></i> Downloads
+                    <i class="fa fa-square text-success"></i> Free
+
+                </li>
+                <li class="list-group-item"><strong>Total</strong></li>
+                <li class="list-group-item list-group-sub-item">Downloads <span
+                        class="badge">{{response.data.count}}</span>
+                </li>
+                <li class="list-group-item list-group-sub-item">Disk Usage
+                    <span class="badge">20MB</span>
+                </li>
+
+            </ul>
+        </div>
+
+        {% block content-download %}
+            {% if 'GET' in allowed_methods %}
+                <form id="download-list" class="custom-inline">
+                    {% if api_settings.URL_FORMAT_OVERRIDE %}
+                    <div class="btn-group pull-right">
+                          <button type="button" class="btn btn-primary btn-sm text-uppercase dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-download"></i> Download History <i class="fa fa-caret-down"></i>
+                          </button>
+                          <ul class="dropdown-menu">
+                            {% for format in available_formats %}
+                            {% if format != "api" %}
+                                <li>
+                                    <a class="js-tooltip" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}"
+                                       rel="nofollow" target="_blank"  title="Download your Download History with the format set to `{{ format }}`">{{ format }}</a>
+                                </li>
+                            {% endif %}
+                            {% endfor %}
+                          </ul>
+                        </div>
+                    {% else %}
+                        <a class="btn btn-default btn-sm js-tooltip" href="{{ response.data.url }}" rel="nofollow"
+                           title="Download {{user}}'s Download History">PERMANENT LINK</a>
+                    {% endif %}
+                </form>
+            {% endif %}
+        {% endblock %}
+    </div>
+</div>
+<script src="{% static 'restapi_app/js/plotly/plotly.latest.min.js' %}"></script>
+<script>
+
+var trace1 = {
+    x: [30],
+    y: [1],
+    name: 'query',
+    orientation: 'h',
+    marker: {
+        color: '#f1cb76',
+        width: 1
+    },
+    type: 'bar',
+    hoverinfo: 'none',
+};
+
+var trace2 = {
+    x: [10],
+    y: [1],
+    name: 'downloads',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+        color: '#a94442',
+        width: 1
+    }, hoverinfo: 'none',
+};
+var trace3 = {
+    x: [60],
+    y: [1],
+    name: 'free',
+    orientation: 'h',
+    type: 'bar',
+    marker: {
+        color: '#4078C0',
+        width: 1
+    }, hoverinfo: 'none',
+};
+var data = [trace1, trace2, trace3];
+
+var annotationContent = [];
+var x_pos = 0;
+for (var i = 0; i < data.length; i++) {
+    x_pos += data[i]['x'][0];
+    var result = {
+        x: x_pos-data[i]['x'][0]/2,
+        y: 1,
+        text: data[i]['x'][0]+'%',
+        xanchor: 'center',
+        yanchor: 'center',
+        showarrow: false
+    };
+    annotationContent.push(result);
+}
+
+var layout = {
+    annotations: annotationContent,
+    margin: {
+        l: 0,
+        r: 0,
+        b: 0,
+        t: 0,
+        pad: 0
+    },
+    xaxis: {
+        autorange: false,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
+        autotick: true,
+        ticks: '',
+        fixedrange: true,
+        showticklabels: false,
+        range: [0,100],
+
+    },
+    yaxis: {
+        autorange: true,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
+        autotick: true,
+        ticks: '',
+        showticklabels: false,
+        fixedrange: true
+    },
+    height: 30,
+    width: document.getElementById('statistics').offsetWidth,
+    barmode: 'stack',
+    showlegend: false
+};
+
+Plotly.newPlot('statistics', data, layout, {displayModeBar: false});
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Dummy Item{% endblock %}
+
+{% block angular-ng-app-class %}ng-app="DCApp"{% endblock %}
+
+{% block head-extra %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
+
+<script type="text/javascript" src="{% static 'download/js/controllers.js' %}"></script>
+
+{% endblock %}
+
+{% block breadcrumbs-outer %}
+<ul class="breadcrumb ">
+    <li class="active"><a href="{% url 'index' %}">Home</a></li>
+    <li>Item</li>
+</ul>
+{% endblock %}
+
+{% block content_render %}
+{% verbatim %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="headline"><span>Dummy Items</span></h1>
+        </div>
+        <div ng-controller="DummyData">
+            <div class="col-md-6" ng-repeat="item in data">
+                <h6 ng-bind="item.id"></h6>
+                <p>options <span ng-bind="item.options"></span></p><br>
+
+                <add-download-button url='{{item.id}}' options='{{item.options}}' formats='["fits", "json"]'></add-download-button><br>
+                <br>
+                <hr>
+            </div>
+        </div>
+        <br>
+        <div class="col-xs-12">
+            <add-download-button url='http://datacentral.aao.gov.au/asvo/sami/gal1/thing' options='["terrific", "options"]' formats='["a","b","c"]'></add-download-button><br>
+            <add-download-button url='testurl' options='["terrific", "options"]' formats='["a","b","c"]'></add-download-button><br>
+            <add-download-button url='http://datacentral.aao.gov.au/asvo/sami/gal1/thing' options='["terrific", "options"]' formats='["a","d"]'></add-download-button><br>
+            <add-download-button url='test/this/url/secondary/thirdary' options formats='["a","b","c"]'></add-download-button>
+        </div>
+
+    </div>
+</div>
+{% endverbatim %}
+<script>
+
+</script>
+{% endblock %}

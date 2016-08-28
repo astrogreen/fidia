@@ -1,14 +1,34 @@
 import textwrap
 import re
+from inspect import isclass
 
 import pypandoc
 
+from .utilities import classorinstancemethod
+
 from . import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 DEFAULT_FORMAT = 'markdown'
+
+SHORT_NAME_RE = re.compile(
+    r"^[A-Z0-9_-]+$"
+)
+
+def prettify(string):
+    # type: (str) -> str
+    """Reformat a string to be more human readable."""
+
+    # @TODO: Add support for CamelCase.
+
+    # Change underscores to spaces
+    result = string.replace("_", " ")
+    # Make the first letters of each word capital.
+    result = result.title()
+
+    return result
 
 def parse_short_description_from_doc_string(doc_string):
     """Get a short description from the first line of a doc-string."""
@@ -26,18 +46,70 @@ def formatted(text, input_format, output_format=None):
         # Convert text to new format using Pandoc
         return pypandoc.convert_text(text, output_format, format=input_format)
 
+def instance_check(obj):
+    """Helper function to respect whether descriptions may be set on instances, classes or both.
+
+    """
+
+    if not hasattr(obj, 'descriptions_allowed'):
+        # The object's class does not explicitly define what kinds of descriptions are allowed, so assume both.
+        log.debug("Descriptions_allowed not set, class or instance are valid.")
+        return True
+    if isclass(obj) and obj.descriptions_allowed in ('both', 'class'):
+        log.debug("Operating on class object '%s' and allowed." % str(obj))
+        return True
+    if not isclass(obj) and obj.descriptions_allowed in ('both', 'instance'):
+        log.debug("Operating on instance object '%s' and allowed." % str(obj))
+        return True
+
+    # Otherwise, request to do something not allowed:
+    raise ValueError("Attempt to set description field on '%s' does not match `descriptions_allowed` of '%s'"
+                     % (str(obj), obj.descriptions_allowed))
+
+
 
 class DescriptionsMixin:
     """A mix-in class which provides descriptions functionality for any class.
 
     Basically, there are four types of descriptions we must support:
 
-        @TODO: Finish documentation
+    Pretty Name
+
+        A formatted version of the field's name. This can contain spaces,
+        retains case information, and can contain LaTeX Math (AMS) enclosed in $
+        symbols. Note that in many cases, this will already be defined by the
+        parent Trait class, in which case it should not be over-written.
+
+    Short Description
+
+        A brief description of the data, typically no more than 80 characters.
+        This description need not repeat information that should already be
+        obvious from the context (e.g. the name of the Trait or property), but
+        might clarify what it is or it's origin as appropriate. Examples:
+
+        - Spectroscopic redshift from GAMA Survey
+        - Zenith distance at start of exposure
+        - Stellar Pop. Syn. e-folding time for the exponentially declining SFH
+        - Short descriptions support LaTeX Math (AMS) when enclosed in $ symbols.
+
+    Long Description
+
+        An in-depth description of the data. This description can be as detailed
+        and extended as required. Github flavoured markdown is supported in full
+        (and it's use is encouraged to make the description more readable).
+        Additionally, LaTeX Math (AMS) is supported both for inline (when
+        enclosed in single $ symbols), and display mode (when enclosed in double
+        $$ symbols).
+
+    Short Name
+
+        A very short name (typically less than 8 charachters) suitable for use
+        in e.g. FITS headers.
 
     """
 
-    @classmethod
-    def _parse_doc_string(cls, doc_string):
+    @classorinstancemethod
+    def _parse_doc_string(self, doc_string):
         """Take a doc string and parse it for documentation."""
         log.debug("Parsing doc string: \n'''%s'''", doc_string)
 
@@ -51,11 +123,11 @@ class DescriptionsMixin:
         # Check for a format designator at the end.
         match = re.match(r"^\s*#+format: (?P<format>\w+)\s*$", doc_lines[-1])
         if match:
-            cls._documentation_format = match.group('format')
-            log.debug("Format designator found, format set to '%s'", cls._documentation_format)
+            documentation_format = match.group('format')
+            log.debug("Format designator found, format set to '%s'", documentation_format)
             del doc_lines[-1]
         else:
-            cls._documentation_format = DEFAULT_FORMAT
+            documentation_format = DEFAULT_FORMAT
             log.debug("No format descriptor found, candidate was: `%s`", doc_lines[-1])
 
         # Rejoin all but the first line:
@@ -67,56 +139,70 @@ class DescriptionsMixin:
         # Rejoin first line:
         documentation = "\n".join((doc_lines[0], documentation))
 
-        cls._documentation = documentation
-
-    @classmethod
-    def get_documentation(cls, format=None):
-        if hasattr(cls, '_documentation'):
-            log.info("Documentaiton found in cls._documentation")
-            return formatted(cls._documentation, cls._documentation_format, format)
+        # Update either the class or the instance as appropriate:
         try:
-            if hasattr(cls, 'doc') and cls.doc is not None:
+            instance_check(self)
+        except ValueError:
+            if isclass(self) and self.descriptions_allowed == 'instance':
+                # In this case, we probably have already had an error, but do nothing.
+                log.error("Cannot save parsed doc string as descriptions only allowed on instance" +
+                          " and have been given the class '%s'" % self)
+                pass
+            if not isclass(self) and self.descriptions_allowed == 'class':
+                # We have been given an instance, but descriptions are only allowed on classes, so set there.
+                type(self)._documentation = documentation
+                type(self)._documentation_format = documentation_format
+        else:
+            # In this case, the instance check passes, and it is safe to save
+            # the description data on the object we have (class or instance)
+            self._documentation = documentation
+            self._documentation_format = documentation_format
+
+    @classorinstancemethod
+    def get_documentation(self, format=None):
+        if hasattr(self, '_documentation'):
+            log.info("Documentaiton found in cls._documentation")
+            return formatted(self._documentation, self._documentation_format, format)
+        try:
+            if hasattr(self, 'doc') and self.doc is not None:
                 log.info("Documentation found in cls.doc")
-                cls._parse_doc_string(cls.doc)
-                return formatted(cls._documentation, cls._documentation_format, format)
-            if hasattr(cls, '__doc__') and cls.__doc__ is not None:
+                self._parse_doc_string(self.doc)
+                return formatted(self._documentation, self._documentation_format, format)
+            if hasattr(self, '__doc__') and self.__doc__ is not None:
                 log.info("Documentation found in cls.__doc__")
-                cls._parse_doc_string(cls.__doc__)
-                return formatted(cls._documentation, cls._documentation_format, format)
+                self._parse_doc_string(self.__doc__)
+                return formatted(self._documentation, self._documentation_format, format)
         except:
             return None
 
-    @classmethod
-    def set_documentation(cls, value, format=DEFAULT_FORMAT):
-        cls._documentation = value
-        cls._documentation_format = format
+    @classorinstancemethod
+    def set_documentation(self, value, format=DEFAULT_FORMAT):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
 
-    @classmethod
+        self._documentation = value
+        self._documentation_format = format
+
+    @classorinstancemethod
     def get_pretty_name(cls):
         if hasattr(cls, '_pretty_name'):
             return getattr(cls, '_pretty_name')
 
-        if hasattr(cls, 'trait_type'):
-            # This is a trait, and we can convert the trait_name to a nicely formatted name
-            name = getattr(cls, 'trait_type')
-            # assert isinstance(name, str)
-            # Change underscores to spaces
-            name = name.replace("_", " ")
-            # Make the first letters of each word capital.
-            name = name.title()
-
-            # Append the qualifier:
-            # @TODO: write this bit.
-            return name
-
+        if hasattr(cls, 'name'):
+            # Instance description object have a name attribute (e.g. TraitProperties)
+            return prettify(cls.name)
+        else:
+            # No name explicitly provided, so we do our best with the class name.
+            return prettify(cls.__name__)
 
     @classmethod
     def set_pretty_name(cls, value):
         cls._pretty_name = value
 
-    @classmethod
+    @classorinstancemethod
     def get_description(cls):
         if hasattr(cls, '_short_description'):
+            log.debug("For object '%s', returning description from `_short_description` attribute.", cls)
             return getattr(cls, '_short_description')
         try:
             if hasattr(cls, 'doc') and cls.doc is not None:
@@ -132,9 +218,44 @@ class DescriptionsMixin:
         except:
             return None
 
-    @classmethod
-    def set_description(cls, value):
-        cls._short_description = value
+    @classorinstancemethod
+    def set_description(self, value):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
+
+        self._short_description = value
+
+    @classorinstancemethod
+    def get_short_name(self):
+        if hasattr(self, '_short_name'):
+            return self._short_name
+        elif hasattr(self, 'name'):
+            # TraitProperties have a 'name' attribute
+            return self.name.upper()
+        elif hasattr(self, 'descriptions_allowed') and self.descriptions_allowed in ('both', 'class'):
+            # Use the name of the class as the short name, with munging to uppercase
+            if isclass(self):
+                name = self.__name__
+            else:
+                name = type(self).__name__
+            # Convert to upper case
+            name = name.upper()
+            return name
+        else:
+            # Cannot use the name of the class, no known name for the instance
+            return ""
+
+    @classorinstancemethod
+    def set_short_name(self, value):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
+
+        if not isinstance(value, str):
+            ValueError("Short name can only be set to a string.")
+        value_upper = value.upper()
+        if SHORT_NAME_RE.match(value_upper) is None:
+            raise ValueError("Invalid Short Name '%s': Short names can only consist of letters, numbers and underscores" % value)
+        self._short_name = value_upper
 
 class TraitDescriptionsMixin(DescriptionsMixin):
     """Extends Descriptions Mixin to include support for qualifiers on Traits
@@ -144,9 +265,48 @@ class TraitDescriptionsMixin(DescriptionsMixin):
 
      This mixin is only valid for Trait classes.
 
+     IMPLEMENTATION NOTES:
+
+        The functions of this mixin are designed to work on either a class or an
+        instance and behave sensibly in either case. Therefore this class uses
+        the non-built-in `classsorisntancemethod`, and then within each method
+        decides if it has been handed a class or an instance.
+
      """
 
-    def get_pretty_name(self):
+    @classorinstancemethod
+    def get_qualifier_pretty_name(self, qualifier=None):
+        """Return the pretty name for this Trait, building it from the Trait type and qualifier if necessary."""
+
+        # This function is designed to work on either a class or an instance.
+        #
+        # To reduce duplication of code, all of the work is implemented for the case
+        # that it has been called as a class method. If it is called as an
+        # instance method, then it simply calls the class method with the appropriate arguments.
+
+        if isclass(self) and qualifier is None:
+            raise ValueError("Must provide qualifier for which to return pretty name")
+
+        elif isclass(self) and qualifier not in self.qualifiers:
+            raise ValueError("Qualifier provided is not valid for Trait class '%s'" % str(self))
+
+        elif isclass(self):
+            # This is a class and we've been given a valid qualifier to provide the pretty name for
+            if hasattr(self, '_pretty_name_qualifiers') and qualifier in self._pretty_name_qualifiers:
+                # A pretty name has been explicilty defined
+                return self._pretty_name_qualifiers[qualifier]
+            else:
+                # No pretty name defined, so prettify the qualifier
+                return prettify(qualifier)
+
+        else:
+            # This is an instance of a Trait, so we know the qualifier.
+            # Therefore, call this function as a class method and explicitly
+            # provide the trait_qualifier
+            return type(self).get_qualifier_pretty_name(self.trait_qualifier)
+
+    @classorinstancemethod
+    def get_pretty_name(self, qualifier=None):
         """Return a pretty version of the Trait's name, including the qualifier if present.
 
         Note, this overrides a class method which would just return a pretty
@@ -154,23 +314,44 @@ class TraitDescriptionsMixin(DescriptionsMixin):
         class, one gets only that.
 
         """
-        if hasattr(self, '_pretty_name'):
-            name = getattr(self, '_pretty_name')
-        else:
-            # This is a trait, and we can convert the trait_name to a nicely formatted name
-            name = getattr(self, 'trait_type')
-            # Change underscores to spaces
-            name = name.replace("_", " ")
-            # Make the first letters of each word capital.
-            name = name.title()
 
-        if self.trait_qualifier is not None:
-            if hasattr(self, '_pretty_name_qualifiers') and self.trait_qualifier in self._pretty_name_qualifiers:
-                name += " — " + self._pretty_name_qualifiers[self.trait_qualifier]
+        # This function is designed to work on either a class or an instance.
+        #
+        # To reduce duplication of code, all of the work is implemented for the case
+        # that it has been called as a class method. If it is called as an
+        # instance method, then it simply calls the class method with the appropriate arguments.
+
+        if isclass(self) and qualifier is None:
+            # No qualifier is present/available
+            if hasattr(self, '_pretty_name'):
+                # Pretty name explicitly defined
+                return getattr(self, '_pretty_name')
             else:
-                name += " — " + self.trait_qualifier
+                # Pretty name not explicitly defined
+                # Because this is a trait, and we can convert the trait_type to a nicely formatted name
+                return prettify(getattr(self, 'trait_type'))
 
-        return name
+        elif isclass(self) and qualifier not in self.qualifiers:
+            # A qualifier has been provided, but isn't known to this class.
+            raise ValueError("Qualifier provided is not valid for Trait class '%s'" % str(self))
+
+        elif isclass(self):
+            # This is a class, and the trait_qualifier has been explicitly provided
+
+            # Get the pretty name for this Trait class without a qualifier:
+            name = self.get_pretty_name(None)
+
+            # Append the pretty name for the qualifier
+            name += " — " + self.get_qualifier_pretty_name(qualifier)
+
+            return name
+
+        else:
+            # This is an instance of a Trait, so we know the qualifier.
+            # Therefore, call this function as a class method and explicitly
+            # provide the trait_qualifier
+            return type(self).get_pretty_name(self.trait_qualifier)
+
 
     @classmethod
     def set_pretty_name(cls, value, **kwargs):

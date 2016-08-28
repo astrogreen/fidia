@@ -9,8 +9,7 @@ import pickle
 import fidia
 from fidia.archive import sami
 
-from fidia.traits.utilities import TraitKey
-from fidia.traits.abstract_base_traits import AbstractBaseTrait
+from fidia.traits import TraitKey
 
 
 class TestSAMISerialization:
@@ -32,7 +31,7 @@ class TestSAMISerialization:
     def test_spectral_cube_serialization(self, sami_sample):
         # Collect a trait and generate a serialized version
         t = sami_sample['23117']['spectral_map', 'red']
-        byte_data = t.as_bytes()
+        byte_data = t.as_pickled_bytes()
 
         with BytesIO(byte_data) as byte_file:
             test_dict = pickle.load(byte_file)

@@ -1,0 +1,68 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}Data Browser{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Data Browser{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema</a></li>
+<li role="presentation"><a href="{% url 'documentation' %}">Documentation</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row data-browser-root">
+    <div class="col-xs-12">
+        <p class="lead">Discover the data hosted at AAODC.</p>
+        <h2>Surveys</h2>
+        <p>The Data Browser is a portal to all survey data hosted at AAODC. Each survey's components are organised into a
+            tree-like structure, allowing you to discover the available data products. To view the
+            surveys currently hosted at AAODC, view the documentation pages. To view more information about a particular
+            component, visit the Schema. </p>
+        <br>
+
+    </div>
+    {% for sample in response.data.samples %}
+    <div class="col-sm-6">
+        <a href="{{sample}}/">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="media-container">
+                        <div class="img-container">
+                            <img class="img-responsive {{sample}}" src="/static/data_browser/img/logo-{{sample}}-dark.png">
+                        </div>
+                    </div>
+                    <div class="header-container">
+                        <h3>{{sample | uppercase}}</h3>
+                        <span class="sub-heading">
+                            {% with "data_browser/root/samples/object_count_"|add:sample|add:".html" as template %}
+                                {% include template %}
+                            {% endwith %}
+                            objects
+                            <span class="version"><i class="fa fa-map-marker"></i> 1.0 Release</span>
+                        </span>
+                        {% with "data_browser/root/samples/"|add:sample|add:".html" as template %}
+                        {% include template %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+
+    <div class="col-sm-6">
+
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+

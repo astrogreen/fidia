@@ -1,6 +1,6 @@
 from fidia.archive import example_archive
 from fidia.archive.sami import SAMITeamArchive
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait
 
 import traceback
 
