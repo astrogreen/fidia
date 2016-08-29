@@ -15,6 +15,10 @@
 .testing {
   display: none;
 }
+.vertical-align {
+  display: flex;
+  align-items: center;
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ RESETS
@@ -544,6 +548,9 @@ header user a > a {
 */
 .no-margin-top {
   margin-top: 0;
+}
+.no-margin-bottom {
+  margin-bottom: 0;
 }
 .headline h2 {
   margin-top: 0;

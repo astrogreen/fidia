@@ -13,8 +13,12 @@ router = rest_framework.routers.SimpleRouter()
 urlpatterns = [
             url(r'^$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/home/index.html'), name='index'),
 
-            # url(r'^surveys/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/data/surveys.html'), name='surveys'),
+
             url(r'^surveys/$', restapi_app.views.Surveys.as_view(), name='surveys'),
+            url(r'^tools/$', restapi_app.views.Tools.as_view(), name='tools'),
+
+
+
             # url(r'^(?i)documentation/$',
             #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/sub-menu.html'),
             #     name='documentation'),

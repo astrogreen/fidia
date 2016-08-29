@@ -17,6 +17,15 @@
 {% endblock %}
 
 {% block page_title_banner %} {% endblock page_title_banner %}
+{% block call-to-action %}
+<!--<div class="container-fluid">-->
+    <!--<div class="row">-->
+        <!--<div class="col-sm-12 col-xs-hidden">-->
+            <!--<span style="color:white;" class="pull-right"><i class="fa fa-question"></i> Not sure where to begin? </span>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+{% endblock %}
 
 {% block content_render %}
 <section class="welcome row">
@@ -40,11 +49,7 @@
 
                 </div>
             </div>
-            <div class="category row">
-                <div class="col-xs-12">
-                    <h2>Not sure where to begin? </h2>
-                </div>
-            </div>
+
             <div class="row cta">
                 <div class="col-xs-6">
                     <p><a type="button" title=""
@@ -53,7 +58,7 @@
                     <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at AAODC.</div>
                 </div>
                 <div class="col-xs-6">
-                    <p><a type="button" title="" aria-controls="telescope" role="tab" data-toggle="tab"
+                    <p><a type="button" title=""
                        class="white-tooltip disabled" href="#telescope" disabled="true">Observations</a></p>
                     <div class="disabled">View observations collected from
                     the AAT or Schmidt telescope.</div>
@@ -61,14 +66,14 @@
             </div>
             <div class="row cta">
                 <div class="col-xs-offset-3 col-xs-6">
-                    <p><a type="button" title="" aria-controls="telescope" role="tab" data-toggle="tab"
-                       class="white-tooltip disabled" href="#telescope" disabled="true">Tools</a></p>
-                    <div class="disabled">View the functionality available at AAODC.</div>
+                    <p><a type="button" title=""
+                       class="white-tooltip" href="{% url 'tools' %}" disabled="true">Tools</a></p>
+                    <div style="color:rgba(251,251,251,0.8)">View the functionality available at AAODC.</div>
                 </div>
             </div>
             <div class="category row">
                 <div class="col-xs-12">
-                    <h1>Survey Data</h1>
+                    <h1>Explore Survey Data</h1>
                 </div>
             </div>
             <div class="infographic row">
@@ -76,7 +81,7 @@
                 <div class="col col-md-3 col-sm-3">
                     <a href="{% url 'query-create-list'%}">
                         <div class="circle">
-                            <i class="fa fa-search"></i>
+                            <i class="fa fa-terminal"></i>
                             <div class="line"></div>
                         </div>
                     </a>
@@ -86,7 +91,7 @@
                 <div class="col col-md-3 col-sm-3">
                     <a href="{% url 'data_browser:data-browser-list'%}">
                         <div class="circle">
-                            <i class="fa fa-database"></i>
+                            <i class="fa fa-search"></i>
                             <div class="line"></div>
                         </div>
                     </a>
@@ -113,7 +118,6 @@
                     <p class="disabled">Code</p>
                     <span class="disabled">Coming soon.</span>
                 </div>
-
             </div>
 
 

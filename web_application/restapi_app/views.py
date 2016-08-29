@@ -11,6 +11,8 @@ import restapi_app.renderers
 import restapi_app.permissions
 import data_browser.serializers
 
+AVAILABLE_SURVEYS = ["sami", "gama"]
+
 class TemplateViewWithStatusCode(TemplateView):
     """
     Adds a status code to the mix. api.html (which all templates extend)
@@ -72,7 +74,7 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        samples = ["sami", "gama"]
+        samples = AVAILABLE_SURVEYS
 
         serializer_class = data_browser.serializers.DataBrowserSerializer
         _dummy = object
@@ -80,6 +82,29 @@ class Surveys(views.APIView):
             many=False, instance=_dummy,
             context={'request': request, 'samples': samples},
         )
-        print(serializer.data)
+
+        return Response(serializer.data)
+
+
+class Tools(views.APIView):
+    """
+    Available Surveys page
+    """
+    permission_classes = (permissions.AllowAny,)
+
+    class ToolRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'restapi_app/tools/tools.html'
+    renderer_classes = (ToolRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request):
+        samples = AVAILABLE_SURVEYS
+
+        serializer_class = data_browser.serializers.DataBrowserSerializer
+        _dummy = object
+        serializer = serializer_class(
+            many=False, instance=_dummy,
+            context={'request': request, 'samples': samples},
+        )
+
         return Response(serializer.data)
 
