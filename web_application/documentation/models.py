@@ -26,7 +26,7 @@ class Article(models.Model):
     updated = models.DateTimeField(auto_now=True, editable=False)
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
+        self.slug = self.topic.slug + '-' + slugify(self.title)
         super(Article, self).save(*args, **kwargs)
 
     class Meta:
