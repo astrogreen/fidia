@@ -270,6 +270,10 @@ class SimpleTrait(Trait):
         return 5.5
     value.description = "TheValue"
 
+    @trait_property('float.array')
+    def non_catalog_data(self):
+        return [1.1, 2.2, 3.3]
+
     @trait_property('string')
     def extra(self):
         return "Extra info"
@@ -290,6 +294,10 @@ class SimpleTraitWithSubtraits(Trait):
     @trait_property('float')
     def value(self):
         return 5.5
+
+    @trait_property('float.array')
+    def non_catalog_data(self):
+        return [1.1, 2.2, 3.3]
 
     @trait_property('string')
     def extra(self):
