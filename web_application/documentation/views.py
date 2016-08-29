@@ -18,7 +18,7 @@ class TopicViewset(viewsets.ModelViewSet):
         self.breadcrumb_list = ['Documentation']
 
     serializer_class = documentation.serializers.TopicSerializer
-    queryset = documentation.models.Topic.objects.all()
+    queryset = documentation.models.Topic.objects.all().order_by('id')
     permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]
     lookup_field = 'slug'
 

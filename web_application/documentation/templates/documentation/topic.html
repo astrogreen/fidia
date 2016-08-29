@@ -59,7 +59,7 @@
 {% endif %}
 {% endblock %}
 
-{% block content_render %}
+{% block content-test %}
     {% if response.data.results %}
         <div class="row ">
             <div class="col-xs-12">
@@ -78,20 +78,12 @@
             </div>
             <div class="col-sm-9 col-xs-12">
                 {% for topic in response.data.results %}
-                    <h2 id="{{topic.title|slug}}" class="no-bordesr {% if forloop.first %}no-margin-top{% endif %}" >{{topic.title}}
-                        <a href="{{topic.url}}">
-                            <small class="pull-right question" style="margin-top:16px;">All {{topic.title}} Articles <i
-                                    class="fa fa-arrow-circle-right"></i>
-                            </small>
-                        </a>
+                    <a href="{{topic.url}}" class="pull-right " style="margin-top:16px;">
+                        All {{topic.title}} Articles <i class="fa fa-arrow-circle-right"></i>
+                    </a>
+                    <h2 id="{{topic.title|slug}}" class="no-margin-top">
+                        {{topic.title}}
                     </h2>
-                    <!--<p id="{{topic.title|slug}}" class="lead no-bordesr {% if forloop.first %}no-margin-top{% endif %}" >{{topic.title}}-->
-                        <!--<a href="{{topic.url}}">-->
-                            <!--<small class="pull-right question" style="margin-top:16px;">All {{topic.title}} Articles <i-->
-                                    <!--class="fa fa-arrow-circle-right"></i>-->
-                            <!--</small>-->
-                        <!--</a>-->
-                    <!--</p>-->
                     <ul class="p sub-heading">
                         {% if topic.articles %}
                             {# truncate the number shown here #}
@@ -104,7 +96,7 @@
                             <p>No articles have been added yet.</p>
                         {% endif %}
                     </ul>
-                    <br><br>
+                    <br><br><br>
                 {% endfor %}
                 {% if post_form %}
                     <h2>New Topic</h2>

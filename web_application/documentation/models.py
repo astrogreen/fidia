@@ -3,7 +3,6 @@ from jsonfield import JSONField
 from django.utils.text import slugify
 
 
-
 class Topic(models.Model):
     title = models.CharField(max_length=200, default='topic title')
     slug = models.SlugField(max_length=100, blank=False, unique=True)
@@ -32,4 +31,3 @@ class Article(models.Model):
 
     class Meta:
         unique_together = ('topic', 'slug')
-
