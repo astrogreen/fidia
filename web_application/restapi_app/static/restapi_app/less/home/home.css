@@ -53,6 +53,13 @@ section.welcome .container .content .key-message .right p {
   line-height: 1.5;
   text-align: left;
 }
+section.welcome .container .content .category h1,
+section.welcome .container .content .category h2 {
+  color: #ffffff;
+}
+section.welcome .container .content .category p {
+  color: #ffffff;
+}
 section.welcome .container .content .infographic {
   margin-bottom: 60px;
   text-align: center;
@@ -119,6 +126,15 @@ section.welcome .container .content .cta a {
   border: 2px solid #ffffff;
   border-radius: 40px;
 }
+section.welcome .container .content .cta a.disabled {
+  opacity: 0.4;
+}
+section.welcome .container .content .cta a.disabled:hover {
+  cursor: not-allowed;
+}
+section.welcome .container .content .cta p {
+  color: #ffffff;
+}
 section.welcome .container .content .note {
   margin-bottom: 0px;
 }
@@ -137,6 +153,24 @@ section.welcome .container .white-tooltip + .tooltip > .tooltip-inner {
 }
 section.welcome .container .white-tooltip + .tooltip > .tooltip-arrow {
   border-right-color: #67A8D5;
+}
+section.welcome .container .nav-pills {
+  background-color: rgba(251, 251, 251, 0.2);
+  padding: 30px;
+}
+section.welcome .container .nav-pills > li > a {
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  border: 2px solid #ffffff;
+  border-radius: 40px;
+}
+section.welcome .container .nav-pills > li.active > a,
+section.welcome .container .nav-pills > li.active > a:hover,
+section.welcome .container .nav-pills > li.active > a:focus {
+  color: #fff;
+  background-color: rgba(251, 251, 251, 0.2);
 }
 @media (max-width: 767px) {
   section.welcome .container .content {

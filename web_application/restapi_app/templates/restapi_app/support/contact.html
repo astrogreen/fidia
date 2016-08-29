@@ -15,14 +15,14 @@
 
 {% block page_title %}Contact{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'faq' %}">FAQ</a></li>
-<li role="presentation" ><a href="{% url 'documentation' %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'documentation:faq' %}">FAQ</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
     <div class="row">
         <div class="col-xs-12">
-            <p class="lead">If you've a question about AAODC, you can check the <a href="{% url 'faq' %}">FAQ</a> or <a href="{% url 'documentation' %}">Documentation</a>
+            <p class="lead">If you've a question about AAODC, you can check the <a href="{% url 'documentation:faq' %}">FAQ</a> or <a href="{% url 'documentation:topic-list' %}">Documentation</a>
                 for answers. <br>Otherwise, fill in the form below and we'll get back to you as soon as possible!</p>
 
             {% if email_status == "success" %}
@@ -40,20 +40,14 @@
             </div>
             {% endif %}
         </div>
-        <div class="col-sm-6">
-            <h4>Email AAODC</h4>
+        <div class="col-sm-offset-3 col-sm-6 col-xs-12">
+            <h2>Contact Us</h2>
             <form action="{% url 'support-contact' %}" method="post" novalidate>
                 {% csrf_token %}
                 {% render_form serializer  %}
                 <button type="submit" class="btn btn-default pull-right" {% if email_status == "success" %}disabled="true"{% endif %}>Submit</button>
             </form>
-        </div>
-        <div class="col-sm-6">
-            <h4>Finding Us</h4>
-            <p>AAO Data Central is based at the <a href="https://www.aao.gov.au/" target="_blank">AAO</a> North Ryde.</p>
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3315.6156037094906!2d151.14305211520838!3d-33.79642338067633!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b08fe7877ced22f%3A0x3d98d19820feb711!2sAustralian+Astronomical+Observatory!5e0!3m2!1sen!2sau!4v1461113727378"
-                    width="100%" height="100%" class="google-maps" frameborder="0" style="border:0"
-                    allowfullscreen></iframe>
+            <br><br><hr>
         </div>
     </div>
 

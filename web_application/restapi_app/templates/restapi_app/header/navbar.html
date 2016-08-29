@@ -19,45 +19,71 @@
                 <ul class="nav navbar-nav">
                     <li><a href="{% url 'index' %}">Home</a></li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Query </a>
-                        <ul class="dropdown-menu">
-                            <li class="dropdown-header">New Query</li>
-                            {% url 'query-create-list' as the_url %}
-                            <li class="li-query"><a href="{{the_url}}">Query Builder</a></li>
-                            <li class="li-query"><a href="{{the_url}}#post-object-form">SQL</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Browse</a>
+                           aria-expanded="false">Data</a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-header">All Datasets</li>
-                            <li><a href="{% url 'data_browser:data-browser-list' %}">AAODC</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">by Survey</li>
-                            <li><a href="{% url 'data_browser:sample-list' sample_pk='sami' %}">SAMI</a></li>
-                            <li><a href="{% url 'data_browser:sample-list' sample_pk='gama' %}">GAMA</a></li>
-                            <!--<li role="separator" class="divider"></li>-->
-                            <!--<li class="dropdown-header">by Object</li>-->
-                            <!--<li><a href="{% url 'under-construction' %}">Search AAODC</a></li>-->
+                            <li><a href="{% url 'surveys' %}">Surveys</a></li>
+                            <li class="disabled"><a href="{% url 'under-construction' %}">Observations</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Schema</a>
+                           aria-haspopup="true" aria-expanded="false">Tools</a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-header">All Datasets</li>
-                            <li><a href="{% url 'schema:schema-list' %}">AAODC</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">by Survey</li>
-                            <li><a href="{% url 'schema:sample-list' sample_pk='sami' %}">SAMI</a></li>
-                            <li><a href="{% url 'schema:sample-list' sample_pk='gama' %}">GAMA</a></li>
-                            <!--<li class="dropdown-header">Queryable Properties Only</li>-->
-                            <!--<li><a href="{% url 'documentation-schema-browser' %}">Query</a></li>-->
+                            <li class="dropdown-header">Browse</li>
+                            <li><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
+
+                            <!--<li><a href="{% url 'data_browser:sample-list' sample_pk='sami' %}">SAMI</a></li>-->
+                            <!--<li class="disabled"><a href="{% url 'data_browser:sample-list' sample_pk='gama' %}">GAMA</a></li>-->
+                            <li class="dropdown-header">Query</li>
+                            {% url 'query-create-list' as the_url %}
+                            <li class="li-query"><a href="{{the_url}}">Query Builder (SQL)</a></li>
+                            <!--<li class="li-query"><a href="{{the_url}}#post-object-form">SQL</a></li>-->
+                            <li class="dropdown-header">Schema</li>
+                            <li><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
+                            <li class="dropdown-header">Download</li>
+                            <li><a href="{% url 'download-create' %}">Download Data</a></li>
+
+                            <li class="dropdown-header">Explore</li>
+                            <li class="disabled"><a>Data Explorer</a></li>
                         </ul>
                     </li>
-                    <li><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>
+                    <!--<li class="dropdown">-->
+                        <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"-->
+                           <!--aria-haspopup="true" aria-expanded="false">Query </a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li class="dropdown-header">New Query</li>-->
+                            <!--{% url 'query-create-list' as the_url %}-->
+                            <!--<li class="li-query"><a href="{{the_url}}">Query Builder</a></li>-->
+                            <!--<li class="li-query"><a href="{{the_url}}#post-object-form">SQL</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"-->
+                           <!--aria-expanded="false">Browse</a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li class="dropdown-header">All Datasets</li>-->
+                            <!--<li><a href="{% url 'data_browser:data-browser-list' %}">AAODC</a></li>-->
+                            <!--<li role="separator" class="divider"></li>-->
+                            <!--<li class="dropdown-header">by Survey</li>-->
+                            <!--<li><a href="{% url 'data_browser:sample-list' sample_pk='sami' %}">SAMI</a></li>-->
+                            <!--<li class="disabled"><a href="{% url 'data_browser:sample-list' sample_pk='gama' %}">GAMA</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"-->
+                           <!--aria-haspopup="true" aria-expanded="false">Schema</a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li class="dropdown-header">All Datasets</li>-->
+                            <!--<li><a href="{% url 'schema:schema-list' %}">AAODC</a></li>-->
+                            <!--<li role="separator" class="divider"></li>-->
+                            <!--<li class="dropdown-header">by Survey</li>-->
+                            <!--<li><a href="{% url 'schema:sample-list' sample_pk='sami' %}">SAMI</a></li>-->
+                            <!--<li class="disabled"><a href="{% url 'schema:sample-list' sample_pk='gama' %}">GAMA</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>-->
+
                     <!--<li class="dropdown">-->
                         <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"-->
                            <!--aria-haspopup="true" aria-expanded="false">Documentation</a>-->
@@ -84,22 +110,41 @@
                     <!--</li>-->
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Surveys</a>
+                           aria-expanded="false">Documentation </a>
+
                         <ul class="dropdown-menu">
-                            <!--<li><a href="{% url 'support-contact' %}">Contact</a></li>-->
+                            <li class="dropdown-header">AAODC</li>
+                            <li><a href="{% url 'documentation:topic-list' %}">Help Center</a></li>
+                            <li><a href="{% url 'documentation:syntax' %}">Syntax</a></li>
+                            <li><a href="{% url 'documentation:faq' %}">FAQ</a></li>
+                            <li class="disabled"><a href="">Examples</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Tools</li>
+                            <li><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser</a></li>
+                            <li><a href="{% url 'documentation:topic-detail' slug='query' %}">Query Builder (SQL)</a></li>
+                            <li><a href="{% url 'documentation:topic-detail' slug='schema' %}">Schema Browser</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Surveys</li>
+                            <li><a href="{% url 'documentation:topic-detail' slug='sami' %}">SAMI</a></li>
+                            <li><a href="{% url 'documentation:topic-detail' slug='gama' %}">GAMA</a></li>
+
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">About </a>
-
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'support-contact' %}">Contact</a></li>
+                            <li class="dropdown-header">Useful</li>
                             <li class="disabled"><a href="{% url 'under-construction' %}">Referencing AAT</a>
                             </li>
                             <li class="disabled"><a href="{% url 'under-construction' %}">Publications</a></li>
-                            <li role="separator" class="divider"></li>
                             <li><a href="{% url 'about-team' %}">Meet the Team</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Support</li>
+                            <li><a href="{% url 'support-contact' %}">Contact</a></li>
+                            <li class="disabled"><a href="">Report an issue</a></li>
+
                         </ul>
                     </li>
 

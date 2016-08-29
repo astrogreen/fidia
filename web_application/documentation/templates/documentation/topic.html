@@ -78,12 +78,16 @@
             </div>
             <div class="col-sm-9 col-xs-12">
                 {% for topic in response.data.results %}
-                    <a href="{{topic.url}}" class="pull-right " style="margin-top:16px;">
-                        All {{topic.title}} Articles <i class="fa fa-arrow-circle-right"></i>
-                    </a>
                     <h2 id="{{topic.title|slug}}" class="no-margin-top">
                         {{topic.title}}
+                        <p class="pull-right" style="margin-top:10px;">
+                            <a href="{{topic.url}}" >
+                                All {{topic.title}} Articles <i class="fa fa-arrow-circle-right"></i>
+                            </a>
+                        </p>
+
                     </h2>
+
                     <ul class="p sub-heading">
                         {% if topic.articles %}
                             {# truncate the number shown here #}

@@ -3,12 +3,13 @@ from django.views.generic import TemplateView
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 
 import restapi_app.exceptions
 import restapi_app.serializers
 import restapi_app.renderers
 import restapi_app.permissions
-
+import data_browser.serializers
 
 class TemplateViewWithStatusCode(TemplateView):
     """
@@ -58,3 +59,27 @@ class ContactForm(views.APIView):
             return Response({"email_status": "success", 'serializer': serializer_unbound}, status=status.HTTP_202_ACCEPTED)
 
         return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Surveys(views.APIView):
+    """
+    Available Surveys page
+    """
+    permission_classes = (permissions.AllowAny,)
+
+    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'restapi_app/data/surveys.html'
+    renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request):
+        samples = ["sami", "gama"]
+
+        serializer_class = data_browser.serializers.DataBrowserSerializer
+        _dummy = object
+        serializer = serializer_class(
+            many=False, instance=_dummy,
+            context={'request': request, 'samples': samples},
+        )
+        print(serializer.data)
+        return Response(serializer.data)
+

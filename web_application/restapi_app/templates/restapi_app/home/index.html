@@ -40,8 +40,39 @@
 
                 </div>
             </div>
+            <div class="category row">
+                <div class="col-xs-12">
+                    <h2>Not sure where to begin? </h2>
+                </div>
+            </div>
+            <div class="row cta">
+                <div class="col-xs-6">
+                    <p><a type="button" title=""
+                        class="white-tooltip" href="{% url 'surveys' %}">Surveys</a></p>
 
+                    <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at AAODC.</div>
+                </div>
+                <div class="col-xs-6">
+                    <p><a type="button" title="" aria-controls="telescope" role="tab" data-toggle="tab"
+                       class="white-tooltip disabled" href="#telescope" disabled="true">Observations</a></p>
+                    <div class="disabled">View observations collected from
+                    the AAT or Schmidt telescope.</div>
+                </div>
+            </div>
+            <div class="row cta">
+                <div class="col-xs-offset-3 col-xs-6">
+                    <p><a type="button" title="" aria-controls="telescope" role="tab" data-toggle="tab"
+                       class="white-tooltip disabled" href="#telescope" disabled="true">Tools</a></p>
+                    <div class="disabled">View the functionality available at AAODC.</div>
+                </div>
+            </div>
+            <div class="category row">
+                <div class="col-xs-12">
+                    <h1>Survey Data</h1>
+                </div>
+            </div>
             <div class="infographic row">
+
                 <div class="col col-md-3 col-sm-3">
                     <a href="{% url 'query-create-list'%}">
                         <div class="circle">
@@ -70,7 +101,7 @@
                         </div>
                     </a>
                     <p class="disabled">Explore</p>
-                    <span style="color:rgba(251,251,251,0.4)">Coming soon.</span>
+                    <span class="disabled">Coming soon.</span>
                 </div>
 
                 <div class="col col-md-3 col-sm-3">
@@ -80,10 +111,11 @@
                         </div>
                     </a>
                     <p class="disabled">Code</p>
-                    <span style="color:rgba(251,251,251,0.4)">Coming soon.</span>
+                    <span class="disabled">Coming soon.</span>
                 </div>
 
             </div>
+
 
             <div class="cta row">
                 <!--<a href="{% url 'sov-list' %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>-->

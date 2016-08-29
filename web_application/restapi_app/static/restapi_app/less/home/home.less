@@ -55,7 +55,14 @@ section.welcome .container {
         text-align: left;
       }
     }
-
+    .category {
+      h1, h2 {
+        color: #ffffff;
+      }
+      p {
+        color: #ffffff;
+      }
+    }
     .infographic {
       margin-bottom: 60px;
       text-align: center;
@@ -99,7 +106,12 @@ section.welcome .container {
         color: #ffffff;
         text-align: center;
         text-transform: uppercase;
-        &.disabled{opacity:0.4; &:hover{cursor:not-allowed}}
+        &.disabled {
+          opacity: 0.4;
+          &:hover {
+            cursor: not-allowed
+          }
+        }
       }
 
     }
@@ -117,6 +129,15 @@ section.welcome .container {
         text-transform: uppercase;
         border: 2px solid #ffffff;
         border-radius: 40px;
+        &.disabled {
+          opacity: 0.4;
+          &:hover {
+            cursor: not-allowed;
+          }
+        }
+      }
+      p {
+        color: #ffffff;
       }
     }
     .note {
@@ -141,7 +162,24 @@ section.welcome .container {
   .white-tooltip + .tooltip > .tooltip-arrow {
     border-right-color: #67A8D5;
   }
+  .nav-pills {
+    background-color: rgba(251, 251, 251, 0.2);
+    padding: 30px;
+  }
+  .nav-pills > li > a {
+    color: #fff;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    border: 2px solid #ffffff;
+    border-radius: 40px;
+  }
+  .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: #fff;
+    background-color: rgba(251, 251, 251, 0.2);
 
+  }
 }
 
 @media (max-width: 767px) {

@@ -93,7 +93,7 @@
     {% endif %}
 {% endblock %}
 {% block footer-extra %}
-<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+<script src="{% static 'restapi_app/js/tinymce/tinymce.min.js' %}"></script>
 <script>
 tinymce.init({selector: 'textarea'});
 function submitForm() {
