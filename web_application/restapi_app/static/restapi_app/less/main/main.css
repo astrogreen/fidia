@@ -129,7 +129,7 @@ body .tiny {
 }
 h2 {
   position: relative;
-  font-weight: 500;
+  font-weight: 400;
 }
 h2 .right-helper {
   display: inline-block;
@@ -642,6 +642,9 @@ li {
   color: #fff;
   background-color: #335f99;
   border-color: #335f99;
+}
+.btn-default {
+  background-color: #fafafa;
 }
 .btn-default-disabled {
   box-shadow: 0 3px 0 0 #2c83ba;

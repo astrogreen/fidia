@@ -67,6 +67,8 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                         values: [zmin, zmax],
                         slide: function (event, ui) {
                             $("#amount").html( ui.values[0] + "\% - " + ui.values[1] + '\%');
+                            // $("#uv").attr('value', ui.values[1]);
+                            // $("#lv").attr('value', ui.values[0]);
                         },
                         stop: function(event, ui) {
                             var array_index = null;
@@ -79,6 +81,8 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                     });
                     $("#amount").html( $("#slider-range").slider("values", 0) +
                             "\% - " + $("#slider-range").slider("values", 1) + '\%');
+                    // $("#uv").val($("#slider-range").slider("values", 0));
+                    // $("#lv").val($("#slider-range").slider("values", 1));
                 };
             }
 

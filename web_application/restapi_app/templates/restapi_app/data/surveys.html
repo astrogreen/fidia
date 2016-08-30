@@ -49,10 +49,10 @@
                     {% include template %}
                 {% endwith %}
                 <span>
-                    <a href="" class="btn btn-default">Documentation</a>
-                    <a href="" class="btn btn-default">Schema</a>
-                    <a href="" class="btn btn-default">Data</a>
-                    <a href="" class="btn btn-default">Query</a>
+                    <a href="{% url 'documentation:topic-detail' slug=sample %}" class="btn btn-default">Documentation</a>
+                    <a href="{% url 'data_browser:sample-list' sample_pk=sample %}" class="btn btn-default">Data</a>
+                    <a href="{% url 'schema:sample-list' sample_pk=sample %}" class="btn btn-default">Schema</a>
+                    <a href="{% url 'query-create-list' %}" class="btn btn-default">Query</a>
                 </span>
             </div>
         </div>

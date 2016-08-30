@@ -206,7 +206,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key']
 
-            context['side_bar_explicit_render'] = ['description', 'documentation']
+            # These are not looped over for the top-level trait view (but appear in the properties panel)
+            context['side_bar_explicit_render'] = ['documentation', 'description']
 
             # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
             context['trait_properties'] = ['value']
@@ -218,6 +219,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             context['sub_traits'] = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
 
+            # These are not looped over for the html rendering
             context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version', 'url',
                                             'all_branches_versions', ] + \
                                            context['side_bar_explicit_render'] + \

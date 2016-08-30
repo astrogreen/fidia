@@ -40,6 +40,10 @@
 .meta-data .panel-default .nested-sidebar .panel-default .panel-body {
   padding-left: 45px;
 }
+.interactive ul li strong {
+  display: inline-block;
+  margin-bottom: 5px;
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ PRETTIFY
