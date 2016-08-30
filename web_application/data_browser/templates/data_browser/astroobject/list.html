@@ -4,20 +4,24 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{response.data.astroobject}}{% endblock %}
+{% block title %}Data Browser{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}{{response.data.astroobject}}{% endblock %}
+{% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}">Back to {{response.data.sample}}</a></li>
-<li role="presentation"><a href="{% url 'schema:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}">Schema</a></li>
+<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<div class="row">
+<div class="row headline">
+    <div class="col-xs-12 col-sm-12">
+        <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}}</h2>
+        <a class="navigator options" href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
+    </div>
     <div class="col-xs-12">
         <div class="tabbable" id="query-options">
             <ul class="nav nav-tabs form-switcher">

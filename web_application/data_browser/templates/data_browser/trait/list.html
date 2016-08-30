@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{response.data.sample |uppercase}} {{response.data.astroobject}} {{response.data.pretty_name}}{% endblock %}
+{% block title %}Data Browser{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
@@ -13,24 +13,27 @@
 <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 {% endblock %}
 
-{% block page_title %}{{response.data.sample|uppercase}} {{response.data.astroobject}} {% endblock %}
+{% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
-    {{response.data.sample}}</a></li>
-<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}>Back to
-    {{response.data.astroobject}}</a></li>
+<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
-        <h2>{{response.data.pretty_name}}</h2>
+        <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}} {{response.data.pretty_name}}</h2>
+        <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}" class="navigator options"><i class="fa fa-reply"></i> Back to {{response.data.astroobject}}</a>
     </div>
     <div class="col-sm-12">
         <a href="{% url 'documentation:syntax' %}" class="question pull-right hidden-xs">
             <i class="fa fa-question-circle"></i> What are branches and versions?</a>
-        <p class="">{{ response.data.description}}</p>
+        {% if response.data.description %}
+        <p class="">
+            {{ response.data.description}}
+        </p>
+        {% endif %}
     </div>
     <div class="col-xs-12 col-sm-4">
         <div class="options text-left">

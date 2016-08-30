@@ -4,36 +4,35 @@
 {% load i18n %}
 {% load internal_extras %}
 {% load data_browser_tag %}
-{% block title %}{{astroobject}} | {{trait}} {% if subtrait %}|{% endif %} {{subtrait}} | {{response.data.pretty_name}}{% endblock %}
+{% block title %}Data Browser{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 {% endblock %}
 
-{% block page_title %}{{sample|uppercase}} {{astroobject}} | {{trait}} {% if subtrait %}|{% endif %} {{subtrait}}{% endblock %}
+{% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=sample %}>Back to
-    {{sample |uppercase}}</a></li>
-<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=sample astroobject_pk=astroobject %}>Back to
-    {{astroobject|uppercase}}</a></li>
-<li role="presentation"><a href="{% url 'schema:astroobject-list' sample_pk=sample astroobject_pk=astroobject %}">Schema</a></li>
+<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=sample %}">Schema</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=sample %}">Documentation</a></li>
 {% endblock useful_links %}
 
 
 {% block content_render %}
 {% captureas survey %}{{sample}}{% endcaptureas %}
 <div class="row headline">
-    <div class="col-xs-6 col-sm-4">
-        <h2>{{response.data.pretty_name}}</h2>
+    <div class="col-xs-12 col-sm-12">
+        <h2>{{sample|uppercase}} {{astroobject}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
+        <a href="{{url_above}}" class="navigator options"><i class="fa fa-reply"></i> Back to {% if subtrait %}{{subtrait}}{%else%}{{trait}}{% endif %} </a>
     </div>
-    <div class="text-right col-xs-6 col-sm-8 options">
-        <span class="branch_version">
-            <span class="sub-heading"><i class="fa fa-level-up"></i><a href="{{url_above}}">{% if subtrait %}{{subtrait}}{%else%}{{trait}}{% endif %} </a></span>
-        </span>
+    <div class="col-xs-12 col-sm-4">
+        <div class="options text-left">
+            <a class="btn btn-default" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema</a>
+            <a class="btn btn-default" href="{% url 'documentation:topic-detail' slug=survey %}"><i class="fa fa-file-o"></i> Documentation</a>
+        </div>
     </div>
-</div>
+</div><br>
 <div class="row">
-    <div class="col-sm-4 col-xs-12">
+    <div class="col-sm-3 col-xs-12">
         <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
             {% for r in side_bar_explicit_render %}
                 <div class="panel panel-default">
@@ -57,7 +56,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="meta_data_group">
                     <a role="button" data-toggle="collapse" href="#meta_data" aria-controls="meta_data" class="panel-title">
-                        Meta Data
+                        Properties
                         <i class="fa fa-caret-down sub-heading"></i>
                     </a>
                     <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
@@ -87,10 +86,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-2 col-xs-12">
+        <div class="col-sm-3 col-xs-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Plot Options
+                    <span class="panel-title">Interactive</span>
                 </div>
                 <div class="panel-body">
                     <div id="{{trait_type}}_plotly_plot_options">
@@ -99,10 +98,10 @@
             </div>
         </div>
     {% else %}
-        <div class="col-sm-8 col-xs-12">
+        <div class="col-sm-9 col-xs-12">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <p>In Progress... </p>
+                    <p>TBD</p>
                 </div>
             </div>
         </div>

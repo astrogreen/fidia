@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-
+from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 import restapi_app.exceptions
 import restapi_app.serializers
 import restapi_app.renderers
@@ -74,7 +74,9 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        samples = AVAILABLE_SURVEYS
+
+        samples = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
+                   {"survey": "gama", "count": 0, "current_version": 0}]
 
         serializer_class = data_browser.serializers.DataBrowserSerializer
         _dummy = object

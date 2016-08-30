@@ -63,21 +63,10 @@
             {% if not response.data.queryResults %}
 
                 <div class="row">
-                    <div class="col-sm-8">
-                        <p class="lead">Create a sample of astronomical objects - no coding necessary. </p>
-
-                        <p>Construct a sample of objects using the <a
-                                onclick="fTabSwitch('query-builder-form')"
-                                title="Create simple SQL queries with ease.">Query Builder</a>. Use the Schema
-                            Browser to view available properties and further information from the survey teams.
-                            Complicated queries can be constructed using the <a
-                                    onclick="fTabSwitch('post-object-form')"
-                                    title="Query the ASVO-AAT Node database.">SQL</a> form. Re-visit and manage
-                            your past queries in <a href="{% url 'query-list' %}"
-                                                    title="Re-visit previous queries.">Query History</a>. Check the
-                            <a href="{% url 'documentation-query-builder' %}">Documentation</a> for help and
-                            examples. </p>
+                    <div class="col-sm-12">
+                        <h1>Create a sample of astronomical objects - no coding necessary.</h1>
                     </div>
+
                 </div>
                 {% if response.status_code == 201 %}
                 <div class="row">
@@ -157,6 +146,21 @@
                         {% block schema-browser %}
                             {% include "query/schema-browser-module.html" %}
                         {% endblock %}
+                    </div>
+
+                    <div class="col-sm-12">
+                        <h3>What does the Query Builder do?</h3>
+                        <p>Construct a sample of objects using the <a
+                                onclick="fTabSwitch('query-builder-form')"
+                                title="Create simple SQL queries with ease.">Query Builder</a>. Use the Schema
+                            Browser to view available properties and further information from the survey teams.
+                            Complicated queries can be constructed using the <a
+                                    onclick="fTabSwitch('post-object-form')"
+                                    title="Query the ASVO-AAT Node database.">SQL</a> form. Re-visit and manage
+                            your past queries in <a href="{% url 'query-list' %}"
+                                                    title="Re-visit previous queries.">Query History</a>. Check the
+                            <a href="{% url 'documentation-query-builder' %}">Documentation</a> for help and
+                            examples. </p>
                     </div>
                 </div>
                 {% endif %}

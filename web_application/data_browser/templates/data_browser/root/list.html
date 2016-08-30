@@ -6,57 +6,65 @@
 {% load data_browser_tag %}
 {% block title %}Data Browser{% endblock %}
 {% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
 {% endblock %}
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
 <li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema</a></li>
-<li role="presentation"><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
-<div class="row data-browser-root">
+<div class="row">
     <div class="col-xs-12">
-        <p class="lead">Discover the data hosted at AAODC.</p>
-    </div>
-
-    <div class="col-sm-6 col-xs-12">
-        <h2>Surveys</h2>
-        <p>The Data Browser is a portal to all survey data hosted at AAODC. Each survey's components are organised into a
-            tree-like structure, allowing you to discover the available data products. </p>
-        <p>To view the
-            surveys currently hosted at AAODC, view the <a href="{% url 'documentation:topic-list' %}">documentation</a> pages. To view more information about a particular
-            component, visit the <a href="{% url 'schema:schema-list' %}">schema</a>. </p>
+        <h1>Discover the data hosted at AAODC.</h1>
+        <p class="lead">Choose a survey to get started.</p>
         <br>
     </div>
-    <div class="col-sm-6 col-xs-12">
-        {% for sample in response.data.samples %}
-            <a href="{{sample}}/">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <div class="media-container">
-                            <div class="img-container">
-                                <img class="img-responsive {{sample}}" src="/static/data_browser/img/logo-{{sample}}-dark.png">
-                            </div>
-                        </div>
-                        <div class="header-container">
-                            <h3>{{sample | uppercase}}</h3>
-                            <span class="sub-heading">
-                                {% with "data_browser/root/samples/object_count_"|add:sample|add:".html" as template %}
-                                    {% include template %}
-                                {% endwith %}
-                                objects
-                                <span class="version"><i class="fa fa-map-marker"></i> 1.0 Release</span>
-                            </span>
-                            {% with "data_browser/root/samples/"|add:sample|add:".html" as template %}
-                            {% include template %}
-                            {% endwith %}
-                        </div>
-                    </div>
+</div>
+<div class="row surveys">
+    {% for value in response.data.samples %}
+    <div class="col-xs-12 col-sm-6">
+        <a href="{{value.survey}}/">
+            <div class="media">
+                <div class="media-left">
+                    <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
                 </div>
-            </a>
-        {% endfor %}
+                <div class="media-body">
+                    <h3 class="media-heading no-margin-bottom">{{value.survey | uppercase}}</h3>
+                    <span class="sub-heading">
+                                    {{value.count}}
+                                    objects
+                                    <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
+                                </span>
+                    {% with "data_browser/root/samples/"|add:value.survey|add:".html" as template %}
+                    {% include template %}
+                    {% endwith %}
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <h3>What does the Data Browser do?</h3>
+        <p>The Data Browser is a portal to all survey data hosted at AAODC. Surveys are a collection of astronomical
+            objects. Each astronomical object's components are organised into a
+            tree-like structure, allowing you to discover derived properties and data products, along with any
+            associated meta-data.</p>
+
+        <p>For certain types of data product (e.g., line maps) you can interact with the data directly in your browser.
+            You can also download data products in fits format to work with offline using your favourite astronomy
+            visualization software.</p>
+
+        <p>For more information, including articles on Data Browser examples, head over to the <a
+                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>. To
+            view more information about a particular
+            survey's data products and derived properties, visit the <a href="{% url 'schema:schema-list' %}">Schema
+                Browser</a>.</p>
+    <hr>
     </div>
 </div>
 {% endblock %}

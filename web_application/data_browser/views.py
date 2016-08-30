@@ -36,7 +36,8 @@ class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
-        samples = ["sami", "gama"]
+        samples = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}, {"survey": "gama", "count": 0,  "current_version": 0}]
+
         self.template = 'data_browser/root/list.html'
 
         serializer_class = data_browser.serializers.DataBrowserSerializer
@@ -468,6 +469,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['template'] = renderer_context['view'].template
             context['trait_2D_map'] = renderer_context['view'].trait_2D_map
             context['url_above'] = renderer_context['view'].url_above
+            context['side_bar_explicit_render'] = ['documentation', 'description']
 
             return context
 

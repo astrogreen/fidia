@@ -19,7 +19,8 @@
 {% block content_render %}
     <div class="row">
         <div class="col-xs-12">
-            <p class="lead">Download Data from AAODC. If you wish to re-download a previous collection of data, visit your <a href="{% url 'download-list' %}">Download History</a>.</p>
+            <h1>Download Data from AAODC</p>
+            <p class="lead">If you wish to re-download a previous collection of data, visit your <a href="{% url 'download-list' %}">Download History</a>.</p>
         </div>
     </div>
     <div class="row" ng-controller="DownloadController as ctrl" id="downloadController">

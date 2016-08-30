@@ -34,7 +34,8 @@ class SchemaViewSet(data_browser.views.DataBrowserViewSet):
 
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
-        samples = ["sami", "gama"]
+        samples = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
+                   {"survey": "gama", "count": 0, "current_version": 0}]
 
         serializer_class = schema.serializers.SchemaSerializer
         serializer = serializer_class(
