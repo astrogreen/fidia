@@ -19,7 +19,7 @@
 
 {% block page_title %}Query History{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation:root' %}" title="Query Documentation">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='query' %}" title="Query Documentation">Documentation</a></li>
 <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
 {% endblock useful_links %}
 
@@ -165,7 +165,8 @@
         </div>
         {% block data-download %}
             <div class="col-xs-12">
-                <available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>
+                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
+                <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}"></available-products>
             </div>
         {% endblock %}
     </div>

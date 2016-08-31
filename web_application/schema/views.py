@@ -55,67 +55,71 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, sample_pk=None, format=None):
-
         self.breadcrumb_list = [str(sample_pk).upper()]
 
-        serializer_class = schema.serializers.SurveySerializer
+        if sample_pk == 'gama':
+            return Response({"sample": "gama", "in_progress": True})
 
-        # Dict of available traits
-        trait_registry = ar.available_traits
-        trait_info = {}
-        for trait_type in trait_registry.get_trait_types():
+        else:
 
-            # Get info for a trait_key (trait name) filtered by trait type
-            trait_info[trait_type] = {}
+            serializer_class = schema.serializers.SurveySerializer
 
-            # Descriptions
-            trait_info[trait_type]["description"] = ""
-            trait_info[trait_type]["traits"] = {}
+            # Dict of available traits
+            trait_registry = ar.available_traits
+            trait_info = {}
+            for trait_type in trait_registry.get_trait_types():
 
-            for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
-
-                default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                trait_class = trait_registry.retrieve_with_key(default_trait_key)
-
-                # Pretty Name
-                # - trait_type
-                trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
-
-                # - trait_name
-                trait_name_pretty_name = trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1])
+                # Get info for a trait_key (trait name) filtered by trait type
+                trait_info[trait_type] = {}
 
                 # Descriptions
-                trait_info[trait_type]["documentation"] = trait_class.get_documentation('html')
-                trait_info[trait_type]["description"] = trait_class.get_description()
+                trait_info[trait_type]["description"] = ""
+                trait_info[trait_type]["traits"] = {}
 
-                # Version
-                # print(self.trait_class.get_all_branches_versions())
-                # trait_info[trait_type]["version"] = trait_class.get_version()
+                for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
 
-                # - trait_name description
-                trait_name_short_description = None
-                trait_documentation = None
+                    default_trait_key = trait_registry.update_key_with_defaults(trait_name)
+                    trait_class = trait_registry.retrieve_with_key(default_trait_key)
 
-                # Formats
-                trait_name_formats = []
-                for r in data_browser.views.TraitViewSet.renderer_classes:
-                    f = str(r.format)
-                    if f != "api": trait_name_formats.append(f)
+                    # Pretty Name
+                    # - trait_type
+                    trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
 
-                # Branches
-                url_kwargs = {
-                    'sample_pk': sample_pk,
-                }
-                survey_schema_url = reverse("schema:sample-list", kwargs=url_kwargs)
-                trait_name_branches = {str(tk.branch).replace("None", "default"): survey_schema_url + str(tk.replace(version=None))
-                                        for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+                    # - trait_name
+                    trait_name_pretty_name = trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1])
 
-                trait_info[trait_type]["traits"][trait_name] = {"pretty_name": trait_name_pretty_name,
-                                                                "description": trait_name_short_description,
-                                                                "documentation": trait_documentation,
-                                                                "branches": trait_name_branches,
-                                                                "version": None,
-                                                                "formats": trait_name_formats}
+                    # Descriptions
+                    trait_info[trait_type]["documentation"] = trait_class.get_documentation('html')
+                    trait_info[trait_type]["description"] = trait_class.get_description()
+
+                    # Version
+                    # print(self.trait_class.get_all_branches_versions())
+                    # trait_info[trait_type]["version"] = trait_class.get_version()
+
+                    # - trait_name description
+                    trait_name_short_description = None
+                    trait_documentation = None
+
+                    # Formats
+                    trait_name_formats = []
+                    for r in data_browser.views.TraitViewSet.renderer_classes:
+                        f = str(r.format)
+                        if f != "api": trait_name_formats.append(f)
+
+                    # Branches
+                    url_kwargs = {
+                        'sample_pk': sample_pk,
+                    }
+                    survey_schema_url = reverse("schema:sample-list", kwargs=url_kwargs)
+                    trait_name_branches = {str(tk.branch).replace("None", "default"): survey_schema_url + str(tk.replace(version=None))
+                                            for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+
+                    trait_info[trait_type]["traits"][trait_name] = {"pretty_name": trait_name_pretty_name,
+                                                                    "description": trait_name_short_description,
+                                                                    "documentation": trait_documentation,
+                                                                    "branches": trait_name_branches,
+                                                                    "version": None,
+                                                                    "formats": trait_name_formats}
 
         try:
             sami_dr1_sample
@@ -133,40 +137,6 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             }
         )
         return Response(serializer.data)
-
-
-class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    Viewset for Sample route. Provides List view only.
-    """
-    class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'schema/sample.html'
-
-    renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    breadcrumb_list = []
-
-    def list(self, request, pk=None, sample_pk=None, format=None):
-
-        self.breadcrumb_list = [str(sample_pk).upper()]
-
-        if sample_pk == 'gama':
-            return Response({"sample": "gama", "in_progress": True})
-
-        else:
-            try:
-                # TODO ask FIDIA what it's got for for sample_pk
-                sami_dr1_sample
-            except KeyError:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            except ValueError:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            serializer_class = schema.serializers.SampleSerializer
-            serializer = serializer_class(
-                instance=sami_dr1_sample, many=False,
-                context={'request': request, 'sample': sample_pk},
-            )
-            return Response(serializer.data)
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

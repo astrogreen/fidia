@@ -14,7 +14,7 @@
 
 {% block page_title %}Query History{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation' %}" title="Query Documentation">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='query' %}" title="Query Documentation">Documentation</a></li>
 <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
 {% endblock useful_links %}
 
