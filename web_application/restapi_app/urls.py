@@ -18,22 +18,22 @@ urlpatterns = [
             url(r'^tools/$', restapi_app.views.Tools.as_view(), name='tools'),
 
 
-            url(r'^(?i)documentation/download/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/download.html'),
-                            name='documentation-download'),
+            # url(r'^(?i)documentation/download/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/download.html'),
+            #                 name='documentation-download'),
 
 
-            url(r'^(?i)documentation/data-access/$',
-                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/data-access.html'),
-                name='documentation-data-access'),
-            url(r'^(?i)documentation/query-builder/$',
-                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-builder.html'),
-                name='documentation-query-builder'),
-            url(r'^(?i)documentation/query-history/$',
-                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-history.html'),
-                name='documentation-query-history'),
-            url(r'^(?i)documentation/schema-browser/$',
-                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/schema-browser.html'),
-                name='documentation-schema-browser'),
+            # url(r'^(?i)documentation/data-access/$',
+            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/data-access.html'),
+            #     name='documentation-data-access'),
+            # url(r'^(?i)documentation/query-builder/$',
+            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-builder.html'),
+            #     name='documentation-query-builder'),
+            # url(r'^(?i)documentation/query-history/$',
+            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-history.html'),
+            #     name='documentation-query-history'),
+            # url(r'^(?i)documentation/schema-browser/$',
+            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/schema-browser.html'),
+            #     name='documentation-schema-browser'),
 
 
 
@@ -41,6 +41,7 @@ urlpatterns = [
             url(r'^(?i)under-construction/$',
                 restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/underconstruction.html'),
                 name='under-construction'),
+
             url(r'^(?i)about/team/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/about/team.html'),
                 name='about-team'),
 

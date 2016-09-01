@@ -30,22 +30,17 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">Tools</a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-header">Browse</li>
+                            <li class="dropdown-header">Data Access</li>
                             <li><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
-
-                            <!--<li><a href="{% url 'data_browser:sample-list' sample_pk='sami' %}">SAMI</a></li>-->
-                            <!--<li class="disabled"><a href="{% url 'data_browser:sample-list' sample_pk='gama' %}">GAMA</a></li>-->
-                            <li class="dropdown-header">Query</li>
-                            {% url 'query-create-list' as the_url %}
-                            <li class="li-query"><a href="{{the_url}}">Query Builder (SQL)</a></li>
-                            <!--<li class="li-query"><a href="{{the_url}}#post-object-form">SQL</a></li>-->
-                            <li class="dropdown-header">Schema</li>
-                            <li><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
-                            <li class="dropdown-header">Download</li>
+                            <li class="disabled"><a>Data Explorer</a></li>
+                            <li class="li-query"><a href="{% url 'query-create-list' %}">Query Builder (SQL)</a></li>
                             <li><a href="{% url 'download-create' %}">Download Data</a></li>
 
-                            <li class="dropdown-header">Explore</li>
-                            <li class="disabled"><a>Data Explorer</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Schema</li>
+                            <li><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
+
                         </ul>
                     </li>
 

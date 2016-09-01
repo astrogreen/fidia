@@ -15,14 +15,14 @@
 
 {% block page_title %}Contact{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation:faq' %}">FAQ</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
 <li role="presentation" ><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
     <div class="row">
         <div class="col-xs-12">
-            <p class="lead">If you've a question about AAODC, you can check the <a href="{% url 'documentation:faq' %}">FAQ</a> or <a href="{% url 'documentation:topic-list' %}">Documentation</a>
+            <p class="lead">If you've a question about AAODC, you can check the <a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a> or <a href="{% url 'documentation:topic-list' %}">Documentation</a>
                 for answers. <br>Otherwise, fill in the form below and we'll get back to you as soon as possible!</p>
 
             {% if email_status == "success" %}

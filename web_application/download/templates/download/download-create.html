@@ -67,7 +67,7 @@
 
         <div class="col-sm-4 col-x-s-12 download-options" ng-if="ctrl.items | isEmpty">
             <h2>Empty!</h2>
-            <p>You've not selected any data products to download. If you're unsure about the types of data you can download, visit the <a href="{% url 'documentation-download' %}"> Documentation</a>.</p>
+            <p>You've not selected any data products to download. If you're unsure about the types of data you can download, visit the <a href="{% url 'documentation:topic-detail' slug='downloading-data' %}"> Documentation</a>.</p>
         </div>
 
         <div class="col-sm-4 col-x-s-12 download-options" ng-if="ctrl.items | isNotEmpty">
