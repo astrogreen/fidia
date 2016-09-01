@@ -1,5 +1,6 @@
 from django.db import models
 from jsonfield import JSONField
+from django.db.models import Max
 from django.utils.text import slugify
 
 
@@ -8,8 +9,11 @@ class Topic(models.Model):
     slug = models.SlugField(max_length=100, blank=False, unique=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
     updated = models.DateTimeField(auto_now=True, editable=False)
+    ordering = models.IntegerField(unique=True)
 
     def save(self, *args, **kwargs):
+        self.ordering = Topic.objects.aggregate(Max('ordering'))['ordering__max'] + 1
+
         self.slug = slugify(self.title)
         super(Topic, self).save(*args, **kwargs)
 

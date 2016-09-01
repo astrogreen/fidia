@@ -124,8 +124,6 @@
 
 
             <div class="cta row">
-                <!--<a href="{% url 'sov-list' %}" title="Explore ASVO-AAT Node Single Object Viewer">SOV</a>-->
-
                 <a type="button" title="View your previous queries."
                    {% if user.is_authenticated %}
                     href="{% url 'user-profile-detail' username=user %}"

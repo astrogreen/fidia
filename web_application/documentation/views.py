@@ -21,6 +21,7 @@ class TopicViewset(viewsets.ModelViewSet):
     queryset = documentation.models.Topic.objects.all().order_by('id')
     permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]
     lookup_field = 'slug'
+    ordering = ('ordering',)
 
     class TopicRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'documentation/topic.html'

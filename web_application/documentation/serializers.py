@@ -43,4 +43,4 @@ class TopicSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
-        ordering = ('id',)
+        ordering = ('ordering',)
