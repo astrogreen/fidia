@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %}Documentation{% endblock %}
+{% block title %}Help Center{% endblock %}
 
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
@@ -13,10 +13,10 @@
 </style>
 {% endblock %}
 
-{% block page_title %}Documentation{% endblock %}
+{% block page_title %}Help Center{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation:syntax' %}">Syntax</a></li>
-<li role="presentation" ><a href="{% url 'documentation:faq' %}">FAQ</a></li>
+<li><a href="{% url 'documentation:syntax' %}">Syntax</a></li>
+<li><a href="{% url 'documentation:faq' %}">FAQ</a></li>
 {% endblock useful_links %}
 
 
@@ -26,29 +26,31 @@
     <div class="container">
         <div class="row attention-seeker">
             <div class="col-sm-3 col-xs-6">
-                <a href="">
+                <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">
                     <div class="well"><h3>Browsing Data</h3>
-                        <p>Documentation for the Data Browser, including how to download pieces of data and information
-                            on AAODC's data model.</p>
+                        <p>How to use the Data Browser to access and download data products, and information
+                            on AAODC's data model.<br><br></p>
                     </div>
                 </a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href="">
+                <a href="{% url 'documentation:topic-detail' slug='query-builder' %}">
                     <div class="well"><h3>Making Queries</h3>
-                        <p>{% lorem 20 w %}</p></div>
+                        <p>Find out everything you need to get started querying the data hosted at AAODC.<br><br><br></p>
+                    </div>
                 </a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href="">
+                <a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">
                     <div class="well"><h3>Using the Schema</h3>
-                        <p>{% lorem 20 w %}</p></div>
+                        <p>Articles on using the Schema Browser tool, the roadmap of data products hosted at AAODC.<br><br></p></div>
                 </a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:faq' %}">
+                <a href="{% url 'documentation:topic-detail' slug='my-account' %}">
                     <div class="well"><h3>My Account</h3>
-                        <p>{% lorem 20 w %}</p></div>
+                        <p>Questions about managing your account? View all help articles on registering, updating or deleting your profile.<br></p>
+                    </div>
                 </a>
             </div>
         </div>
@@ -63,7 +65,7 @@
     {% if response.data.results %}
         <div class="row ">
             <div class="col-xs-12">
-                <p class="lead">Help Center.</p>
+                <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
             </div>
         </div>
         <div class="row">

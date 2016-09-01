@@ -57,7 +57,7 @@ INSTALLED_APPS = (
     'restapi_app',
     'rest_framework',
     'schema',
-    'sov',
+    # 'sov',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -177,8 +177,12 @@ STATICFILES_DIRS = (
 )
 
 
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = (
+#     os.path.join(BASE_DIR, "media_root"), '/var/www/media/',)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
+
 
 # Query results cache
 

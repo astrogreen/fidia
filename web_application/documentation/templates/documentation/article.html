@@ -2,25 +2,39 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %} Documentation {% endblock %}
+{% block title %} Help Center {% endblock %}
 
 {% block head-extra %}
 {% endblock %}
 
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
-<li><a href="{% url 'documentation:topic-list' %}"> Documentation</a></li>
+<li><a href="{% url 'documentation:topic-list' %}"> Help Center</a></li>
 {% if response.data.title %}
-<li>{{response.data.title}}</li>
+<li><a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}">{{response.data.topic_info.title|capfirst}}</a></li>
+<li><a href="{{response.data.url}}"> {{response.data.title}}</a></li>
 {% endif %}
 {% endblock %}
 
-{% block page_title %} Documentation {% endblock %}
+{% block page_title %} Help Center {% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'documentation:topic-list' %}"> Topics</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-list' %}">Help Center</a></li>
+<li role="presentation" ><a href="{% url 'documentation:syntax' %}">Syntax</a></li>
+<li role="presentation" ><a href="{% url 'documentation:faq' %}">FAQ</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
+
+    {% if response.status_code == 201 %}
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10 col-xs-12">
+            <h2>New Article Created</h2>
+            <p>Your article entitled <em>{{response.data.title}}</em> was successfully created on <em>{{response.data.created}}</em>. Click the link to view: <a
+                    href="{{response.data.url}}">{{response.data.title}}</a>.</p>
+        </div>
+    </div>
+    {% endif %}
+
     {% if not response.data.content %}
     <div class="row">
         <div class="col-sm-offset-1 col-sm-10 col-xs-12">
@@ -65,6 +79,12 @@
                 </small>
                 <p class=""></p>
             </h2>
+            {% if response.data.image %}
+                <img src="{{response.data.image}}" class="img-responsive center-block">
+                {% if response.data.image_caption %}
+                    <div class="image-caption">{{response.data.image_caption}}</div>
+                {% endif %}
+            {% endif %}
             {{response.data.content |safe}}
         </div>
     </div>
@@ -74,7 +94,7 @@
             <div class="col-sm-offset-1 col-sm-10 col-xs-12">
                 <h2>Update</h2>
                 <div class="tab-pane" id="put-object-form">
-                    <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
+                    <form id="PUT_FORM" action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
                           class="form-horizontal" novalidate onsubmit="submitForm()">
                         <fieldset>
                             {{ put_form }}
@@ -89,16 +109,80 @@
             </div>
         </div>
 
+        <script>
+            $(document).ready(function(){
+                _selector = '#PUT_FORM input[type="file"]';
+                $(_selector).closest('.form-group .col-sm-10').append('<p class="tiny" id="current_file_info">Current file: '+$(_selector).attr('value')+' </p>');
+//                $(_selector).click(function(){
+//                    $('#current_file_info').html('<p class="tiny">Current file: '+$(this).attr('value')+' </p><p class="warning"><strong>Warning</strong> You are about to override the image on file.</p>');
+//                })
+            });
+
+        </script>
+
         {% endif %}
+
+        {% if request.user.is_superuser %}
+            <form class="custom-inline" action="{{ request.get_full_path }}"
+                  data-method="DELETE">
+                <button type="button" class="btn btn-sm btn-default btn-error js-tooltip"
+                        title="DELETE this query" id="DELETE_RESOURCE"
+                        data-toggle="modal">DELETE
+                </button>
+            </form>
+            <!-- Confirmation modal -->
+            <div class="modal fade" id="delete-modal-sm" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <strong> ARE YOU SURE? </strong>
+                            <p>Deleting articles is irreversible. </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">CANCEL</button>
+                            <button type="button" data-dismiss="modal" class="btn btn-sm btn-error" id="delete">DELETE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
     {% endif %}
 {% endblock %}
 {% block footer-extra %}
 <script src="{% static 'restapi_app/js/tinymce/tinymce.min.js' %}"></script>
 <script>
-tinymce.init({selector: 'textarea'});
+    tinymce.init({selector: 'textarea',height:500,
+    plugins: [
+    'advlist autolink lists link image charmap print preview anchor',
+    'searchreplace visualblocks code fullscreen',
+    'insertdatetime media table contextmenu paste code'
+  ],
+  toolbar: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link ',});
 function submitForm() {
     tinymce.triggerSave();
     document.forms[0].submit();
 }
 </script>
+
+{% if request.user.is_superuser %}
+
+{# ------ CONFIRM RESOURCE DELETE ------ #}
+<script>
+    $(document).ready(function () {
+        $('#DELETE_RESOURCE').on('click', function (e) {
+            console.log('click')
+            var $form = $(this).closest('form');
+            e.preventDefault();
+            $('#delete-modal-sm').modal({backdrop: 'static', keyboard: false})
+                    .one('click', '#delete', function (e) {
+                        $form.trigger('submit');
+                    });
+        });
+    });
+
+</script>
+
+{% endif %}
 {% endblock %}

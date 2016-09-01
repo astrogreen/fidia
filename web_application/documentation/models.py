@@ -24,6 +24,8 @@ class Article(models.Model):
     content = models.TextField(max_length=100000, blank=False, default="Content")
     created = models.DateTimeField(auto_now_add=True, editable=False)
     updated = models.DateTimeField(auto_now=True, editable=False)
+    image = models.ImageField(upload_to='articles/%Y/%m/%d', max_length=254, blank=True, null=True)
+    image_caption = models.CharField(max_length=300, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.slug = self.topic.slug + '-' + slugify(self.title)

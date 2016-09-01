@@ -15,7 +15,7 @@ import documentation.serializers
 class TopicViewset(viewsets.ModelViewSet):
     def __init__(self, slug=None, *args, **kwargs):
         # super(TopicViewset, self).__init__()
-        self.breadcrumb_list = ['Documentation']
+        self.breadcrumb_list = ['Help Center']
 
     serializer_class = documentation.serializers.TopicSerializer
     queryset = documentation.models.Topic.objects.all().order_by('id')
@@ -30,7 +30,7 @@ class TopicViewset(viewsets.ModelViewSet):
     def retrieve(self, request, slug=None, *args, **kwargs):
         # Find the title corresponding to this slug
         topic = documentation.models.Topic.objects.get(slug=slug)
-        self.breadcrumb_list = ['Documentation', topic.title]
+        self.breadcrumb_list = ['Help Center', topic.title]
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)

@@ -16,6 +16,8 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.http import HttpResponseRedirect
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -26,6 +28,6 @@ urlpatterns = [
     url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),
     url(r'^asvo/', include('schema.urls', namespace='schema')),
-    url(r'^asvo/', include('sov.urls')),
+    # url(r'^asvo/', include('sov.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

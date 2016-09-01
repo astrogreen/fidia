@@ -38,7 +38,14 @@
                             <h2>{{response.data.first_name | CapsSentence}}<br>
                                 {{response.data.last_name | CapsSentence}}</h2>
                             <h4>{{user}}
-                                <small><i class="fa fa-circle text-success"></i></small>
+                                <small>
+                                {% if request.user.is_superuser %}
+                                    <i class="fa fa-circle text-error"></i> <em>admin</em>
+                                    {% else %}
+                                    <i class="fa fa-circle text-success"></i>
+                                {% endif %}
+                                </small>
+
                                 <br>
                                 <small><em>{{response.data.email}}</em></small>
                             </h4>

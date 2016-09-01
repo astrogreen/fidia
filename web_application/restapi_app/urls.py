@@ -75,7 +75,7 @@ urlpatterns = [
             url(r'^(?i)data/catalogues/', restapi_app.views.AvailableTables.as_view(), name='catalogues'),
 
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 
 
 # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) allows

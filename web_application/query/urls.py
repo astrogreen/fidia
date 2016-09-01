@@ -15,8 +15,4 @@ router.register(r'query', query.views.QueryCreateView, base_name='query-create')
 
 urlpatterns = [
             url(r'', include(router.urls)),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) allows
-# Django to serve these files (without explicitly writing them out per view)
+]

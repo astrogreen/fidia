@@ -50,8 +50,4 @@ urlpatterns = [
     url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
     url(r'^(?i)', include(traitprop_nested_router.urls)),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) allows
-# Django to serve these files (without explicitly writing them out per view)
+]

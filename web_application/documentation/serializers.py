@@ -7,32 +7,27 @@ from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 import documentation.models
 
 
-
-
 class ArticleSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="documentation:article-detail", lookup_field='slug')
     topic_info = serializers.SerializerMethodField()
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
 
-    def get_topic_info(self,obj):
+    def get_topic_info(self, obj):
         topic_info = {}
         topic_info['slug'] = obj.topic.slug
-        topic_info['id'] = obj.topic.slug
-        topic_info['title'] = obj.topic.slug
+        topic_info['id'] = obj.topic.id
+        topic_info['title'] = obj.topic.title
         return topic_info
-
 
     class Meta:
         model = documentation.models.Article
-        fields = ('url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated')
+        fields = ('url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'image', 'image_caption')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
         ordering = ('updated',)
-
-
 
 
 class TopicSerializer(serializers.ModelSerializer):
