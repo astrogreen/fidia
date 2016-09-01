@@ -16,13 +16,16 @@
 <li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=sample %}">Documentation</a></li>
 {% endblock useful_links %}
 
+{% block content-navigator-help %}
+    <a href="{{url_above}}"><i class="fa fa-reply"></i> Back to {% if subtrait %}{{subtrait}}{%else%}{{trait}}{% endif %} </a>
+{% endblock %}
 
 {% block content_render %}
 {% captureas survey %}{{sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
         <h2>{{sample|uppercase}} {{astroobject}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
-        <a href="{{url_above}}" class="navigator options"><i class="fa fa-reply"></i> Back to {% if subtrait %}{{subtrait}}{%else%}{{trait}}{% endif %} </a>
+
     </div>
     <div class="col-xs-12 col-sm-4">
         <div class="options text-left">

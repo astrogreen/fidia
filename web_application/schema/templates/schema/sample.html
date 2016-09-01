@@ -16,6 +16,13 @@
 <li role="presentation" ><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
+
+
+{% block content-navigator-help %}
+    <a href="{% url 'schema:schema-list' %}" class=""><i class="fa fa-reply"></i> Back to Surveys</a>
+{% endblock %}
+
+
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row schema">

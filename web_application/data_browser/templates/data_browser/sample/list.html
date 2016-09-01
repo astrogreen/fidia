@@ -16,16 +16,20 @@
 <li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
 {% endblock useful_links %}
 
+{% block content-navigator-help %}
+    <a href="{% url 'data_browser:data-browser-list' %}"><i class="fa fa-reply"></i> Back to Surveys</a>
+{% endblock %}
+
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
          <h2>{{survey|uppercase}} <small><span><i class="fa fa-map-marker"></i> {{response.data.version}}</span></small></h2>
-        <a class="navigator options" href="{% url 'data_browser:data-browser-list' %}"><i class="fa fa-reply"></i> Back to all Surveys</a>
+        <!--<a class="navigator options" href="{% url 'data_browser:data-browser-list' %}"><i class="fa fa-reply"></i> Back to all Surveys</a>-->
     </div>
     <div class="text-right col-xs-12 col-sm-12 options">
         <span class="branch_version">
-            <a href="{% url 'documentation-syntax' %}" class="question"><i class="fa fa-question-circle"></i> What's a data release?</a> &nbsp;&nbsp;
+            <a href="{% url 'documentation:topic-detail' slug='data-central-syntax' %}" class="question"><i class="fa fa-question-circle"></i> What's a data release?</a> &nbsp;&nbsp;
             <span class="sub-heading" style="font-size:16px;"><i class="fa fa-map-marker"></i>{{response.data.version}}</span>
         </span>
 

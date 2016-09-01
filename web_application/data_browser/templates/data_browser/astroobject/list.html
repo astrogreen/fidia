@@ -15,12 +15,15 @@
 <li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
 {% endblock useful_links %}
 
+{% block content-navigator-help %}
+    <a href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
+{% endblock %}
+
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
         <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}}</h2>
-        <a class="navigator options" href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
     </div>
     <div class="col-xs-12">
         <div class="tabbable" id="query-options">
@@ -83,7 +86,7 @@
 
                                 <div class="panel panel-default">
                                     <div class="panel-body">
-                                        <div class="p">{{trait_value.description}} <a href="{% url 'documentation-syntax' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What's a branch?</a> &nbsp;&nbsp;</div>
+                                        <div class="p">{{trait_value.description}} <a href="{% url 'documentation:topic-detail' slug='branches' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What's a branch?</a> &nbsp;&nbsp;</div>
                                     </div>
                                     <table class="table table-hover table-astro-object">
                                         <tbody>

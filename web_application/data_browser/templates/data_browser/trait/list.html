@@ -19,16 +19,18 @@
 <li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
 {% endblock useful_links %}
 
+{% block content-navigator-help %}
+    <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-reply"></i> Back to {{response.data.astroobject}}</a>
+{% endblock %}
+
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
         <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}} {{response.data.pretty_name}}</h2>
-        <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}" class="navigator options"><i class="fa fa-reply"></i> Back to {{response.data.astroobject}}</a>
+        <a href="" class="navigator options question"><i class="fa fa-question-circle"></i> What are branches and versions?</a>
     </div>
     <div class="col-sm-12">
-        <a href="{% url 'documentation:syntax' %}" class="question pull-right hidden-xs">
-            <i class="fa fa-question-circle"></i> What are branches and versions?</a>
         {% if response.data.description %}
         <p class="">
             {{ response.data.description}}

@@ -13,7 +13,4 @@ router.register(r'docs/articles', documentation.views.ArticleViewset, base_name=
 
 urlpatterns = [
     url(r'', include(router.urls)),
-
-    url(r'docs/faq/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='documentation/faq.html'), name='faq'),
-    url(r'docs/syntax/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='documentation/syntax.html'), name='syntax'),
 ]

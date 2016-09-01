@@ -16,11 +16,14 @@
 <li role="presentation" ><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
+
+
 {% block content_render %}
     <div class="row">
         <div class="col-xs-12">
-            <h1>Download Data from AAODC</p>
+            <h1>Download Data from AAODC</h1>
             <p class="lead">If you wish to re-download a previous collection of data, visit your <a href="{% url 'download-list' %}">Download History</a>.</p>
+            <a href="{% url 'documentation:topic-detail' slug='download' %}" class="navigator question"><i class="fa fa-question-circle"></i> Need Download Help?</a>
         </div>
     </div>
     <div class="row" ng-controller="DownloadController as ctrl" id="downloadController">

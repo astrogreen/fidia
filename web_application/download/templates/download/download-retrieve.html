@@ -12,9 +12,13 @@
 
 {% block page_title %}Download History</span>{% endblock %}
 {% block useful_links %}
-<!--<li role="presentation" ><a href="{% url 'download-list' %}"><i class="fa fa-reply"></i> Back to Download History</a></li>-->
-<li role="presentation" ><a href="{% url 'documentation-download' %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='download' %}">Documentation</a></li>
 {% endblock useful_links %}
+
+
+{% block content-navigator-help %}
+    <a href="{% url 'download-list' %}" class=""><i class="fa fa-reply"></i> Back to Download History</a>
+{% endblock %}
 
 {% block content_render %}
 <div class="row">
@@ -24,7 +28,7 @@
         <div class="panel panel-default panel-download">
             <div class="panel-heading">
                 <span class="panel-title text-uppercase">Individual Object Data Products</span>
-                <a href="{% url 'documentation-download' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Download Help?</a>
+                <a href="{% url 'documentation:topic-detail' slug='download' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Download Help?</a>
             </div>
 
             <table class="table">

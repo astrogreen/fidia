@@ -23,19 +23,97 @@
 <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
 {% endblock useful_links %}
 
+{% block content-navigator-help %}
+    <a href="{% url 'query-list' %}" class=""><i class="fa fa-reply"></i> Back to Query History</a>
+{% endblock %}
+
 {% block content_render %}
     {% if response.data.queryResults %}
+    {# ------ ACTIONS ------#}
     <div class="row">
-        <div class="col-xs-12">
-            <p class="lead">View the results of your query, <a href="#download">download</a> the table of results or additional data products for the returned objects. </p>
-
+        <div class="col-xs-12"><br>
+            <div class="well">
+                <p class="lead no-margin-bottom">
+                    What can I do?
+                </p>
+                <ul class="p">
+                    <li>View the <a href="#result" class="scroll">result</a> of your query.</li>
+                    <li><a href="#download" class="scroll">Download</a> the table of results.</li>
+                    <li>If your query returned astronomical objects, you can <a href="#select_data_products" class="scroll">select</a> data products to download.</li>
+                    <li><a href="#update" class="scroll">Update or delete</a> the query from your Query History.</li>
+                </ul>
+            </div>
         </div>
+    </div>
+
+    {# ------RESULT ------#}
+    <div class="row" id="result">
+        <div class="col-sm-12">
+            <h2>Result</h2>
+            <div id="TableResultsWarning"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+        </div>
+    </div>
+
+    {# ------DOWNLOAD ------#}
+    <div class="row">
+        <div class="col-xs-12" id="download">
+            <h2 class="headline"><span>Download</span> </h2>
+            <h3 class="headline" id="download"><span>Catalogue Data</span> </h3>
+            <p>Download the results of you query in a variety of formats. If your preferred format isn't available, make a feature request.</p>
+            {% for f in available_formats %}
+                {% if f != "api" %}
+                    <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+                        <span class="fa-custom-stack">
+                          <i class="fa fa-file-o"></i>
+                            <span class="fa-custom-filetype">{{f}}</span>
+                        </span>{{f}}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            <add-download-button url='{{ request.get_full_path }}' formats='[{% for f in available_formats %}{% if f != "api" %}"{{f}}"{% endif %}{% if not forloop.last and f != "api" %},{% endif %}{%endfor%}]'></add-download-button>
+        </div>
+    </div>
+    <div class="row" id="select_data_products">
+        <div class="col-xs-12">
+            <h3 class="headline"><span>Additional Products</span> </h3>
+        </div>
+        <div class="col-xs-12">
+            <p>Download additional data products for the objects in this query.</p>
+            <div class="panel panel-default info">
+                <div class="panel-body">
+                    <strong class="text-uppercase">Note</strong>
+                    <p class="small">
+                        This selection tool displays all available types of data product hosted at AAODC.
+                        However, not all data products are available for all objects (e.g., some GAMA galaxies will
+                        <strong>not</strong> have
+                        SAMI data). Once you have made your selection and downloaded the data, check the download package for
+                        details on unavailable products.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% block data-download %}
+            <div class="col-xs-12">
+                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
+                <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}"></available-products>
+            </div>
+        {% endblock %}
+    </div>
+
+    {# ------UPDATE ------#}
+    <div class="row" id="update">
         <div class="col-sm-offset-0 col-sm-8 col-xs-12">
-            <h2>{% if response.data.title %}{{response.data.title}}{% else %}Query{% endif %} <small class="pull-right sub-heading" style="margin-top:18px;">{{response.data.updated}}</small></h2>
+            <h2>Update  <small class="pull-right sub-heading" style="margin-top:18px;">Last Updated: {{response.data.updated}}</small></h2>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <span class="panel-title">Update</span>
-                    <a href="{% url 'documentation-download' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Query Help?</a>
+                    <a href="{% url 'documentation:topic-detail' slug='query' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Query Help?</a>
                 </div>
                 <div class="panel-body">
                     <p>Update the SQL for this query and re-run (if you change only the title, the SQL will not be re-run).
@@ -103,72 +181,9 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
-    </div>
-
-    {# ------DATATABLES ------#}
-
-
-    <div class="row">
-        <div class="col-sm-12">
-            <h2>Result</h2>
-            <div id="TableResultsWarning"></div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
-        </div>
-
-    </div>
-
-    <div class="row">
-        <div class="col-xs-12">
-            <h2 class="headline"><span>Download</span> </h2>
-            <h3 class="headline" id="download"><span>Catalogue Data</span> </h3>
-            <p>Download the results of you query in a variety of formats. If your preferred format isn't available, make a feature request.</p>
-            {% for f in available_formats %}
-                {% if f != "api" %}
-                    <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
-                        <span class="fa-custom-stack">
-                          <i class="fa fa-file-o"></i>
-                            <span class="fa-custom-filetype">{{f}}</span>
-                        </span>{{f}}
-                    </a>
-                {% endif %}
-            {% endfor %}
-
-            <add-download-button url='{{ request.get_full_path }}' formats='[{% for f in available_formats %}{% if f != "api" %}"{{f}}"{% endif %}{% if not forloop.last and f != "api" %},{% endif %}{%endfor%}]'></add-download-button>
-        </div>
-    </div>
-    <div class="row" id="select_data_products">
-        <div class="col-xs-12">
-            <h3 class="headline"><span>Additional Products</span> </h3>
-        </div>
-        <div class="col-xs-12">
-            <p>Download additional data products for the objects in this query.</p>
-            <div class="panel panel-default info">
-                <div class="panel-body">
-                    <strong class="text-uppercase">Note</strong>
-                    <p class="small">
-                        This selection tool displays all available types of data product hosted at AAODC.
-                        However, not all data products are available for all objects (e.g., some GAMA galaxies will
-                        <strong>not</strong> have
-                        SAMI data). Once you have made your selection and downloaded the data, check the download package for
-                        details on unavailable products.
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% block data-download %}
-            <div class="col-xs-12">
-                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
-                <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}"></available-products>
-            </div>
-        {% endblock %}
     </div>
     {% endif %}
 {% endblock %}
@@ -346,6 +361,17 @@
         $('[href=#'+id+']').tab('show');
     }
 
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $(".scroll").click(function (event) {
+            // stop the hash being appended to the url, and scroll to the value
+            event.preventDefault();
+            $('html, body').animate({scrollTop: $(this.hash).offset().top}, 800);
+        });
+    });
 </script>
 {% endblock %}
 

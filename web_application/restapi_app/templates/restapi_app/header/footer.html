@@ -14,7 +14,7 @@
                         <td><h4><small><a class="text-uppercase" href="">Data Browser</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'documentation-schema-browser' %}">Schema</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'documentation-schema-browser' %}">Schema Browser</a></small></h4></td>
                     </tr>
                     </tbody>
                 </table>
@@ -29,7 +29,7 @@
                         <td><h4><small><a class="text-uppercase" href="{% url 'documentation:topic-list' %}">Documentation</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'documentation:faq' %}">FAQs</a></small></h4></td>
+                        <td><h4><small><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></small></h4></td>
                     </tr>
                     <tr>
                         <td><h4><small><a class="text-uppercase" href="mailto:asvo@aao.gov.au">Contact us</a></small></h4></td>

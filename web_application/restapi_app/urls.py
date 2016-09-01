@@ -18,15 +18,6 @@ urlpatterns = [
             url(r'^tools/$', restapi_app.views.Tools.as_view(), name='tools'),
 
 
-
-            # url(r'^(?i)documentation/$',
-            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/sub-menu.html'),
-            #     name='documentation'),
-
-
-
-            url(r'^(?i)documenation/syntax/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/syntax.html'),
-                            name='documentation-syntax'),
             url(r'^(?i)documentation/download/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/download.html'),
                             name='documentation-download'),
 
@@ -44,13 +35,6 @@ urlpatterns = [
                 restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/schema-browser.html'),
                 name='documentation-schema-browser'),
 
-
-            # url(r'^(?i)faq/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/faq/root.html'),
-            #                 name='faq'),
-            # url(r'^(?i)faq/data-browser/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/faq/data-browser.html'),
-            #                 name='faq-data-browser'),
-            # url(r'^(?i)faq/query/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/faq/query.html'),
-            #                 name='faq-query'),
 
 
 

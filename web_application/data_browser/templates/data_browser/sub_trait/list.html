@@ -16,13 +16,16 @@
 <li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
 {% endblock useful_links %}
 
+{% block content-navigator-help %}
+    <a href="{{trait_url}}"><i class="fa fa-reply"></i> Back to {{trait}} <span>[ <i class="fa fa-code-fork"></i>{{branch}}</span>
+            <span><i class="fa fa-map-marker"></i>{{version}} ]</span></a>
+{% endblock %}
+
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
         <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}} {{trait}} {{response.data.pretty_name}}</h2>
-        <a href="{{trait_url}}" class="navigator options"><i class="fa fa-reply"></i> Back to {{trait}} <span>[ <i class="fa fa-code-fork"></i>{{branch}}</span>
-            <span><i class="fa fa-map-marker"></i>{{version}} ]</span></a>
     </div>
     <div class="col-sm-12">
         {% if response.data.description %}
