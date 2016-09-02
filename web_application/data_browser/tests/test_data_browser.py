@@ -80,7 +80,6 @@ class DataBrowserTests(APITestCase):
             _test_response = self.client.get(url)
             self.assertTrue(status.is_success(_test_response.status_code))
 
-
     def test_route_options(self, urls=URLS):
         """ Test available route options (only in json as namespaced urls in the template cannot be parsed by the test APICLIENT for options... for some reason?)  """
         for url in urls:
@@ -144,7 +143,6 @@ class DataBrowserTests(APITestCase):
     def test_format(self, urls=URLS):
         """ Find available formats """
         for url in urls:
-
             _test_get = self.client.get(path=url, content_type='application/json', HTTP_ACCEPT='application/json',
                                         format='json')
             self.assertEqual(_test_get.accepted_media_type, 'application/json')
@@ -205,39 +203,41 @@ class RootTests(APITestCase):
 
 class SurveyTests(APITestCase):
     """ Test route is available """
-    url = reverse('data_browser:root-list')
+
+    url = reverse('data_browser:survey-list', kwargs=DataBrowserTests._survey_kwargs)
 
     def test_response_data(self):
         """ Ensure response json is as expected """
         _test_response = self.client.get(self.url)
-        self.assertIn('"surveys"', json.dumps(_test_response.data))
-        _surveys = _test_response.data['surveys']
-        self.assertEqual(len(_surveys), 2)
-        self.assertTrue(is_json(json.dumps(_surveys)))
+        self.assertIn('"survey"', json.dumps(_test_response.data))
+        self.assertIn('"astro_objects"', json.dumps(_test_response.data))
+        self.assertEqual(_test_response.data['survey'], DataBrowserTests._survey_kwargs['sample_pk'])
+        self.assertTrue(is_json(json.dumps(_test_response.data)))
 
     def test_html_template(self):
         """ Test html template contains correct information """
         _test_response = self.client.get(self.url)
-        self.assertTemplateUsed('data_browser/root/list.html')
-        self.assertIn("What does the Data Browser do?", str(_test_response.content))
+        self.assertTemplateUsed('data_browser/survey/list.html')
+        self.assertIn("Included?", str(_test_response.content))
 
     def test_route_options_formats(self):
         """ Test specific route options for Root """
-        _test_options = self.client.options(self.url)
-        self.assertIn("Root List", json.dumps(_test_options.data))
+        _test_options = self.client.options(self.url, HTTP_ACCEPT='application/json')
+        self.assertIn("Survey List", json.dumps(_test_options.data))
 
     def test_renderer(self):
         """ Check the appropriate renderer is being used as per request config """
         _test_get = self.client.get(path=self.url, format='api', HTTP_ACCEPT='text/html')
-        self.assertEqual(_test_get.accepted_renderer.__str__(), 'RootRenderer')
+        self.assertEqual(_test_get.accepted_renderer.__str__(), 'SurveyRenderer')
 
         _test_get = self.client.get(path=self.url, format='json', HTTP_ACCEPT='application/json')
-        self.assertNotEqual(_test_get.accepted_renderer.__str__(), 'RootRenderer')
+        self.assertNotEqual(_test_get.accepted_renderer.__str__(), 'SurveyRenderer')
 
     def test_renderer_context(self):
         """ Ensure html context is available """
         _response = self.client.get(path=self.url)
-        self.assertIn("What does the Data Browser do?", _response.content.decode('utf-8'))
+        _str = "About "+DataBrowserTests._survey_kwargs['sample_pk'].upper()
+        self.assertIn(_str, _response.content.decode('utf-8'))
 
     def test_caching(self):
         pass

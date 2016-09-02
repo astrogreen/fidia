@@ -64,7 +64,7 @@ class SurveySerializer(serializers.Serializer):
         for astro_object in sample:
             url_kwargs = {
                 'astroobject_pk': str(astro_object),
-                'sample_pk': self.context['sample']
+                'sample_pk': self.context['survey']
             }
             url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
             self.astro_objects[astro_object] = url
@@ -72,8 +72,8 @@ class SurveySerializer(serializers.Serializer):
     def get_astro_objects(self, obj):
         return self.astro_objects
 
-    def get_sample(self, obj):
-        return self.context['sample']
+    def get_survey(self, obj):
+        return self.context['survey']
 
     def get_version(self, obj):
         return '1.0'
@@ -81,7 +81,7 @@ class SurveySerializer(serializers.Serializer):
     def get_data_release_versions(self, obj):
         return ['1.0']
 
-    sample = serializers.SerializerMethodField()
+    survey = serializers.SerializerMethodField()
     astro_objects = serializers.SerializerMethodField()
     data_release_versions = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()

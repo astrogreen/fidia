@@ -31,13 +31,7 @@ TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classificat
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. List View only. """
 
-    class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/root/list.html'
-
-        def __repr__(self):
-            return 'RootRenderer'
-
-    renderer_classes = (RootRenderer, renderers.JSONRenderer)
+    renderer_classes = (data_browser.renderers.RootRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, format=None):
@@ -45,7 +39,7 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
                    {"survey": "gama", "count": 0, "current_version": 0}]
 
-        self.template = 'data_browser/root/list.html'
+        self.breadcrumb_list = ['Data Browser']
 
         serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
@@ -60,18 +54,15 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     Viewset for Sample route. Provides List view only.
     """
 
-    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/survey/list.html'
-
-    renderer_classes = (SurveyRenderer, renderers.JSONRenderer)
+    renderer_classes = (data_browser.renderers.SurveyRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, sample_pk=None, format=None, extra_keyword=None):
 
-        self.breadcrumb_list = [str(sample_pk).upper()]
+        self.breadcrumb_list = ['Data Browser', str(sample_pk).upper()]
 
         if sample_pk == 'gama':
-            return Response({"sample": "gama", "in_progress": True})
+            return Response({"survey": "gama", "in_progress": True})
 
         else:
             try:
@@ -85,27 +76,18 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             serializer_class = data_browser.serializers.SurveySerializer
             serializer = serializer_class(
                 instance=sami_dr1_sample, many=False,
-                context={'request': request, 'sample': sample_pk}
+                context={'request': request, 'survey': sample_pk}
             )
             return Response(serializer.data)
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/astroobject/list.html'
-
-        def get_context(self, data, accepted_media_type, renderer_context):
-            context = super().get_context(data, accepted_media_type, renderer_context)
-            context['traits_to_render'] = {"sami": ['velocity_map', 'sfr_map']}
-
-            return context
-
-    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer)
+    renderer_classes = (data_browser.renderers.AstroObjectRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
 
-        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk]
+        self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk]
 
         try:
             astro_object = sami_dr1_sample[astroobject_pk]
@@ -173,8 +155,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
                 # Branches
                 trait_name_branches = {
-                str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))
-                for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+                    str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))
+                    for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
 
                 trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
                                                                 "pretty_name": trait_name_pretty_name,
@@ -203,55 +185,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sub_trait_list = sub_trait_list
         self.breadcrumb_list = []
 
-    class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-
-        def __init__(self, sub_trait_list_extended=None, *args, **kwargs):
-            self.template = 'data_browser/trait/list.html'
-
-        def get_context(self, data, accepted_media_type, renderer_context):
-            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
-            they will be explicitly positioned. """
-
-            context = super().get_context(data, accepted_media_type, renderer_context)
-
-            context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key']
-
-            # These are not looped over for the top-level trait view (but appear in the properties panel)
-            context['side_bar_explicit_render'] = ['documentation', 'description']
-
-            # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
-            context['trait_properties'] = ['value']
-
-            context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation", "url",
-                                                  "name", "type", "value", ]
-
-            trait = sami_dr1_sample[data['astroobject']][data['trait']]
-
-            context['sub_traits'] = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
-
-            # These are not looped over for the html rendering
-            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version', 'url',
-                                            'all_branches_versions', ] + \
-                                           context['side_bar_explicit_render'] + \
-                                           context['fidia_keys'] + \
-                                           context['trait_properties'] + \
-                                           context['sub_traits']
-            # Formats
-            trait_name_formats = []
-            for r in TraitViewSet.renderer_classes:
-                f = str(r.format)
-                if f != "api": trait_name_formats.append(f)
-
-            context['formats'] = trait_name_formats
-
-            context['trait_type'] = trait.trait_type
-
-            if trait.trait_type in TWO_D_PLOT_TYPES: context['trait_2D_map'] = True
-
-            # context['short_description'] = renderer_context['view'].short_description
-            return context
-
-    renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+    renderer_classes = (
+        data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
@@ -275,7 +210,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait.get_pretty_name()]
+        self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk, trait.get_pretty_name()]
 
         serializer_class = data_browser.serializers.TraitSerializer
 
@@ -320,47 +255,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sample = sample
         self.astroobject = astroobject
         self.trait = trait
-        self.renderer_classes = (self.SubTraitPropertyRenderer, renderers.JSONRenderer)
+        self.renderer_classes = (data_browser.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer)
         self.permission_classes = [permissions.AllowAny]
-
-    class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-
-        def get_context(self, data, accepted_media_type, renderer_context):
-            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
-            they will be explicitly positioned. """
-
-            context = super().get_context(data, accepted_media_type, renderer_context)
-            context['sample'] = renderer_context['view'].sample
-            context['astroobject'] = renderer_context['view'].astroobject
-            context['trait'] = renderer_context['view'].trait
-            context['trait_url'] = renderer_context['view'].trait_url
-            context['template'] = renderer_context['view'].template
-
-            context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key']
-            context['side_bar_explicit_render'] = ['description', 'documentation']
-
-            context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation",
-                                                  "name", "type", "value", ]
-
-            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version', "url",
-                                            'all_branches_versions', ] + \
-                                           context['side_bar_explicit_render'] + \
-                                           context['fidia_keys']
-
-            context['type'] = renderer_context['view'].type
-            context['formats'] = renderer_context['view'].formats
-            context['branch'] = renderer_context['view'].branch
-            context['version'] = renderer_context['view'].version
-            context['trait_2D_map'] = renderer_context['view'].trait_2D_map
-
-            return context
-
-        @property
-        def template(self):
-            if hasattr(self.renderer_context['view'], "template"):
-                return self.renderer_context['view'].template
-            else:
-                return 'rest_framework/api.html'
 
     def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, format=None):
 
@@ -398,7 +294,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'trait_key': str(subtrait_pointer.trait_key),
                          })
             # Set Breadcrumbs for this method
-            self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+            self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk,
+                                    trait_pointer.get_pretty_name(),
                                     subtrait_pointer.get_pretty_name()]
 
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
@@ -433,7 +330,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'subtraitproperty': subtraitproperty_pk,
                          })
             # Set Breadcrumbs for this method
-            self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+            self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk,
+                                    trait_pointer.get_pretty_name(),
                                     traitproperty_pointer.get_pretty_name()]
 
         else:
@@ -467,32 +365,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.astroobject = astroobject
         self.trait = trait
         self.permission_classes = [permissions.AllowAny]
-        self.renderer_classes = (self.TraitPropertyRenderer, renderers.JSONRenderer)
+        self.renderer_classes = (data_browser.renderers.TraitPropertyRenderer, renderers.JSONRenderer)
 
-    class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-
-        def get_context(self, data, accepted_media_type, renderer_context):
-            """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
-            they will be explicitly positioned. """
-
-            context = super().get_context(data, accepted_media_type, renderer_context)
-            context['sample'] = renderer_context['view'].sample
-            context['astroobject'] = renderer_context['view'].astroobject
-            context['trait'] = renderer_context['view'].trait
-            context['subtrait'] = renderer_context['view'].subtrait
-            context['template'] = renderer_context['view'].template
-            context['trait_2D_map'] = renderer_context['view'].trait_2D_map
-            context['url_above'] = renderer_context['view'].url_above
-            context['side_bar_explicit_render'] = ['documentation', 'description']
-
-            return context
-
-        @property
-        def template(self):
-            if hasattr(self.renderer_context['view'], "template"):
-                return self.renderer_context['view'].template
-            else:
-                return 'rest_framework/api.html'
 
     def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None,
              traitproperty_pk=None, format=None):
@@ -535,7 +409,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                      }
         )
 
-        self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+        self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
                                 subtrait_pointer.get_pretty_name(), elem.get_pretty_name()]
 
         return Response(serializer.data)
