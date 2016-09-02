@@ -6,7 +6,8 @@ from django.http import HttpResponse
 
 from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
-from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
+from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions, \
+    renderers
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
@@ -27,36 +28,43 @@ log = logging.getLogger(__name__)
 TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classification_map", "extinction_map"]
 
 
-class DataBrowserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. List View only. """
 
-    class DataBrowserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+    class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/root/list.html'
-    renderer_classes = (DataBrowserRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+        def __repr__(self):
+            return 'RootRenderer'
+
+    renderer_classes = (RootRenderer, renderers.JSONRenderer)
+    permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
-        samples = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}, {"survey": "gama", "count": 0,  "current_version": 0}]
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
+                   {"survey": "gama", "count": 0, "current_version": 0}]
 
         self.template = 'data_browser/root/list.html'
 
-        serializer_class = data_browser.serializers.DataBrowserSerializer
+        serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
             many=False, instance=sami_dr1_sample,
-            context={'request': request, 'samples': samples},
+            context={'request': request, 'surveys': surveys},
         )
         return Response(serializer.data)
 
 
-class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Viewset for Sample route. Provides List view only.
     """
 
-    class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/sample/list.html'
+    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'data_browser/survey/list.html'
 
-    renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    renderer_classes = (SurveyRenderer, renderers.JSONRenderer)
+    permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, sample_pk=None, format=None, extra_keyword=None):
 
@@ -74,7 +82,7 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             except ValueError:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            serializer_class = data_browser.serializers.SampleSerializer
+            serializer_class = data_browser.serializers.SurveySerializer
             serializer = serializer_class(
                 instance=sami_dr1_sample, many=False,
                 context={'request': request, 'sample': sample_pk},
@@ -84,7 +92,6 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'data_browser/astroobject/list.html'
 
@@ -94,7 +101,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             return context
 
-    renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    renderer_classes = (AstroObjectRenderer, renderers.JSONRenderer)
+    permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
 
@@ -105,7 +113,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             assert isinstance(astro_object, fidia.AstronomicalObject)
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(data={}, status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -164,8 +173,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     if f != "api": trait_name_formats.append(f)
 
                 # Branches
-                trait_name_branches = {str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))
-                                        for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+                trait_name_branches = {
+                str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))
+                for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
 
                 trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
                                                                 "pretty_name": trait_name_pretty_name,
@@ -243,6 +253,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return context
 
     renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+    permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
@@ -254,10 +265,12 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except fidia.exceptions.UnknownTrait:
             message = 'Not found: Object ' + astroobject_pk + ' does not have property ' + trait_pk
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -308,7 +321,9 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sample = sample
         self.astroobject = astroobject
         self.trait = trait
-        self.renderer_classes = (self.SubTraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+        self.renderer_classes = (
+        self.SubTraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+        self.permission_classes = [permissions.AllowAny]
 
     class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
@@ -329,7 +344,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation",
                                                   "name", "type", "value", ]
 
-            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version',  "url",
+            context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version', "url",
                                             'all_branches_versions', ] + \
                                            context['side_bar_explicit_render'] + \
                                            context['fidia_keys']
@@ -385,7 +400,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'trait_key': str(subtrait_pointer.trait_key),
                          })
             # Set Breadcrumbs for this method
-            self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(), subtrait_pointer.get_pretty_name()]
+            self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+                                    subtrait_pointer.get_pretty_name()]
 
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
             self.template = 'data_browser/trait_property/list.html'
@@ -420,7 +436,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          })
             # Set Breadcrumbs for this method
             self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
-                 traitproperty_pointer.get_pretty_name()]
+                                    traitproperty_pointer.get_pretty_name()]
 
         else:
             raise Exception("programming error")
@@ -452,8 +468,9 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sample = sample
         self.astroobject = astroobject
         self.trait = trait
-
-        self.renderer_classes = (self.TraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+        self.permission_classes = [permissions.AllowAny]
+        self.renderer_classes = (
+        self.TraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
@@ -480,7 +497,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             else:
                 return 'rest_framework/api.html'
 
-    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, traitproperty_pk=None, format=None):
+    def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None,
+             traitproperty_pk=None, format=None):
 
         elem = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk], traitproperty_pk)
         trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
@@ -505,8 +523,6 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         else:
             self.url_above = reverse("data_browser:trait-list", kwargs=url_kwargs)
 
-        print(self.url_above)
-
         self.type = subtrait_pointer.trait_type
         self.trait_2D_map = False
         if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True;
@@ -523,7 +539,6 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
 
         self.breadcrumb_list = [str(sample_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
-             subtrait_pointer.get_pretty_name(), elem.get_pretty_name()]
+                                subtrait_pointer.get_pretty_name(), elem.get_pretty_name()]
 
         return Response(serializer.data)
-

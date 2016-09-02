@@ -17,7 +17,7 @@
 {% endblock useful_links %}
 
 {% block content-navigator-help %}
-    <a href="{% url 'data_browser:data-browser-list' %}"><i class="fa fa-reply"></i> Back to Surveys</a>
+    <a href="{% url 'data_browser:root-list' %}"><i class="fa fa-reply"></i> Back to Surveys</a>
 {% endblock %}
 
 {% block content_render %}
@@ -25,7 +25,6 @@
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
          <h2>{{survey|uppercase}} <small><span><i class="fa fa-map-marker"></i> {{response.data.version}}</span></small></h2>
-        <!--<a class="navigator options" href="{% url 'data_browser:data-browser-list' %}"><i class="fa fa-reply"></i> Back to all Surveys</a>-->
     </div>
     <div class="text-right col-xs-12 col-sm-12 options">
         <span class="branch_version">
@@ -42,9 +41,9 @@
                 <ul class="dropdown-menu">
                     {% for i in response.data.data_release_versions %}
                         {% if i == response.data.version %}
-                            <li class="disabled"><a href="{% url 'data_browser:sample-list' sample_pk=survey %}">{{response.data.version}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
+                            <li class="disabled"><a href="{% url 'data_browser:survey-list' sample_pk=survey %}">{{response.data.version}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
                         {% else %}
-                            <li><a href="{% url 'data_browser:sample-list' sample_pk=survey %}">{{i}}</a></li>
+                            <li><a href="{% url 'data_browser:survey-list' sample_pk=survey %}">{{i}}</a></li>
                         {% endif %}
                     {% endfor %}
 
@@ -68,7 +67,7 @@
                     <tbody>
                     <tr>
                         <td><img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png"></td>
-                        <td class="lead">{% with "data_browser/sample/survey/"|add:survey|add:"/pi.html" as template %}
+                        <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
                         {% include template %}
                         {% endwith %}</td>
                         <td class="lead">{{response.data.version}}</td>
@@ -156,7 +155,7 @@
             <h3>About {{survey|uppercase}}</h3>
         </div>
         <div class="col-sm-12 col-xs-12">
-            {% with "data_browser/sample/survey/"|add:survey|add:"/about.html" as template %}
+            {% with "data_browser/survey/survey/"|add:survey|add:"/about.html" as template %}
                 {% include template %}
             {% endwith %}
         </div>

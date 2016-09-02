@@ -42,15 +42,15 @@ class DocumentationHTMLField(serializers.Field):
         return obj.get_documentation(format='html')
 
 
-class DataBrowserSerializer(serializers.Serializer):
+class RootSerializer(serializers.Serializer):
 
-    def get_samples(self, obj):
-        return self.context['samples']
+    def get_surveys(self, obj):
+        return self.context['surveys']
 
-    samples = serializers.SerializerMethodField()
+    surveys = serializers.SerializerMethodField()
 
 
-class SampleSerializer(serializers.Serializer):
+class SurveySerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)

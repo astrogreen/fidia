@@ -15,7 +15,7 @@
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
+{% block content-test %}
 <div class="row">
     <div class="col-xs-12">
         <h1>Discover the data hosted at AAODC.</h1>
@@ -24,7 +24,7 @@
     </div>
 </div>
 <div class="row surveys">
-    {% for value in response.data.samples %}
+    {% for value in response.data.surveys %}
     <div class="col-xs-12 col-sm-6">
         <a href="{{value.survey}}/">
             <div class="media">
@@ -38,7 +38,7 @@
                                     objects
                                     <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
                                 </span>
-                    {% with "data_browser/root/samples/"|add:value.survey|add:".html" as template %}
+                    {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
                     {% include template %}
                     {% endwith %}
                 </div>

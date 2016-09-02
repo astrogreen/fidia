@@ -25,7 +25,7 @@ import fidia.exceptions
 from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey
 
 
-class SchemaViewSet(data_browser.views.DataBrowserViewSet):
+class SchemaViewSet(data_browser.views.RootViewSet):
 
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/root.html'

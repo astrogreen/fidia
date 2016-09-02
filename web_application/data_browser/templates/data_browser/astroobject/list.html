@@ -16,7 +16,7 @@
 {% endblock useful_links %}
 
 {% block content-navigator-help %}
-    <a href="{% url 'data_browser:sample-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
+    <a href="{% url 'data_browser:survey-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
 {% endblock %}
 
 {% block content_render %}
