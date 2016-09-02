@@ -11,9 +11,11 @@ from fidia.traits import Trait, TraitProperty
 from fidia import traits
 from fidia.descriptions import DescriptionsMixin
 from fidia.traits.trait_property import BoundTraitProperty
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 os.environ['PYPANDOC_PANDOC'] = '/usr/local/bin/pandoc'
+
 
 def get_and_update_depth_limit(kwargs):
     depth_limit = kwargs.pop('depth_limit', -1)
@@ -43,7 +45,6 @@ class DocumentationHTMLField(serializers.Field):
 
 
 class RootSerializer(serializers.Serializer):
-
     def get_surveys(self, obj):
         return self.context['surveys']
 
@@ -51,30 +52,22 @@ class RootSerializer(serializers.Serializer):
 
 
 class SurveySerializer(serializers.Serializer):
-
     def __init__(self, *args, **kwargs):
-        depth_limit = get_and_update_depth_limit(kwargs)
         super().__init__(*args, **kwargs)
 
         sample = self.instance
         assert isinstance(sample, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " +\
+            "SampleSerializer must have an instance of fidia.Sample, " + \
             "not '%s': try SampleSerializer(instance=sample)" % sample
 
-        # self.fields['astro_objects'] = serializers.DictField(child=serializers.CharField())
         self.astro_objects = {}
         for astro_object in sample:
             url_kwargs = {
-                    'astroobject_pk': str(astro_object),
-                    'sample_pk': self.context['sample']
-                }
+                'astroobject_pk': str(astro_object),
+                'sample_pk': self.context['sample']
+            }
             url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
-            # url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
-
-            # self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
             self.astro_objects[astro_object] = url
-            # # Recurse displaying details at lower level (check depth_limit > 0)
-            # self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
 
     def get_astro_objects(self, obj):
         return self.astro_objects
@@ -95,7 +88,6 @@ class SurveySerializer(serializers.Serializer):
 
 
 class AstroObjectSerializer(serializers.Serializer):
-
     # def __init__(self, *args, **kwargs):
     #     depth_limit = get_and_update_depth_limit(kwargs)
     #     super().__init__(*args, **kwargs)
@@ -254,7 +246,7 @@ class TraitSerializer(serializers.Serializer):
 
         if hasattr(trait, '_parent_trait'):
             if hasattr(trait._parent_trait, '_parent_trait'):
-                subtrait_str = str(trait.trait_key)+'/'
+                subtrait_str = str(trait.trait_key) + '/'
 
         _url += subtrait_str
 
@@ -273,7 +265,6 @@ class TraitSerializer(serializers.Serializer):
     trait_key = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
-
     def get_attribute(self, instance):
         """
         Given the *outgoing* object instance, return the primitive value
@@ -289,7 +280,7 @@ class TraitSerializer(serializers.Serializer):
                 # Use TraitProperty retrieval logic:
                 return getattr(instance, self.source_attrs[0])
 
-            # return serializers.get_attribute(instance, self.source_attrs)
+                # return serializers.get_attribute(instance, self.source_attrs)
         except (KeyError, AttributeError) as exc:
             if not self.required and self.default is serializers.empty:
                 raise serializers.SkipField()
@@ -353,8 +344,10 @@ class TraitPropertySerializer(serializers.Serializer):
 
     def get_short_name(self, trait_property):
         return trait_property.get_short_name()
+
     def get_pretty_name(self, trait_property):
         return trait_property.get_pretty_name()
+
     def get_description(self, trait_property):
         return trait_property.get_description()
 
@@ -397,7 +390,7 @@ class TraitPropertySerializer(serializers.Serializer):
         if hasattr(trait_property, '_trait'):
             if hasattr(trait_property._trait, '_parent_trait'):
                 if hasattr(trait_property._trait._parent_trait, '_parent_trait'):
-                    subtrait_str = str(trait_property._trait.trait_key)+'/'
+                    subtrait_str = str(trait_property._trait.trait_key) + '/'
 
         _url += subtrait_str + traitproperty_str
 

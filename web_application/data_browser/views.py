@@ -85,8 +85,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             serializer_class = data_browser.serializers.SurveySerializer
             serializer = serializer_class(
                 instance=sami_dr1_sample, many=False,
-                context={'request': request, 'sample': sample_pk},
-                depth_limit=0,
+                context={'request': request, 'sample': sample_pk}
             )
             return Response(serializer.data)
 
@@ -321,8 +320,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sample = sample
         self.astroobject = astroobject
         self.trait = trait
-        self.renderer_classes = (
-        self.SubTraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+        self.renderer_classes = (self.SubTraitPropertyRenderer, renderers.JSONRenderer)
         self.permission_classes = [permissions.AllowAny]
 
     class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
@@ -469,8 +467,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.astroobject = astroobject
         self.trait = trait
         self.permission_classes = [permissions.AllowAny]
-        self.renderer_classes = (
-        self.TraitPropertyRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+        self.renderer_classes = (self.TraitPropertyRenderer, renderers.JSONRenderer)
 
     class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
