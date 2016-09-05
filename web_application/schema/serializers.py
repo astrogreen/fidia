@@ -19,10 +19,10 @@ import data_browser.serializers
 
 class SchemaSerializer(serializers.Serializer):
 
-    def get_samples(self, obj):
-        return self.context['samples']
+    def get_surveys(self, obj):
+        return self.context['surveys']
 
-    samples = serializers.SerializerMethodField()
+    surveys = serializers.SerializerMethodField()
 
 
 class SurveySerializer(serializers.Serializer):

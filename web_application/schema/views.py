@@ -36,12 +36,12 @@ class SchemaViewSet(data_browser.views.RootViewSet):
         # Request available samples from FIDIA
         samples = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
                    {"survey": "gama", "count": 0, "current_version": 0}]
-        samples = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}]
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}]
 
         serializer_class = schema.serializers.SchemaSerializer
         serializer = serializer_class(
             many=False, instance=sami_dr1_sample,
-            context={'request': request, 'samples': samples},
+            context={'request': request, 'surveys': surveys},
         )
         return Response(serializer.data)
 
