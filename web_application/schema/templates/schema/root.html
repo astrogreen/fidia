@@ -24,7 +24,7 @@
     </div>
 </div>
 <div class="row surveys">
-    {% for value in response.data.samples %}
+    {% for value in response.data.surveys %}
     <div class="col-xs-12 col-sm-6">
         <a href="{{value.survey}}/">
             <div class="media">
@@ -38,7 +38,7 @@
                                     objects
                                     <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
                                 </span>
-                    {% with "data_browser/root/samples/"|add:value.survey|add:".html" as template %}
+                    {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
                     {% include template %}
                     {% endwith %}
                 </div>
@@ -50,7 +50,7 @@
 <div class="row">
     <div class="col-xs-12">
         <h3>What does the Schema Browser do?</h3>
-        <p>While the <a href="{% url 'data_browser:data-browser-list' %}"> Data Browser</a> provides a portal to the
+        <p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
             data products hosted at AAODC, the Schema Browser provides a map of those data products and derived
             properties. The Schema Browser displays an extensive description for each type of data product, along with
             any relevant analysis and publiction information.
@@ -60,7 +60,7 @@
 
         <p>For more information, including articles on Schema Browser examples, head over to the <a
                 href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. To
-            view the data a particular survey has to offer, check out the <a href="{% url 'data_browser:data-browser-list' %}"> Data Browser</a>.</p>
+            view the data a particular survey has to offer, check out the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a>.</p>
     <hr>
     </div>
 </div>
