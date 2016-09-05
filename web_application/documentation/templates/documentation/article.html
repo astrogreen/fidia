@@ -45,18 +45,18 @@
 
         <div class="col-sm-offset-1 col-sm-10 col-xs-12">
             {% if post_form %}
-            <h2>New Article</h2>
-            {% with form=post_form %}
-                <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate onsubmit="submitForm()">
-                  <fieldset>
-                    {% csrf_token %}
-                    {{ post_form }}
-                    <div class="form-actions">
-                      <button class="btn btn-default pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
-                    </div>
-                  </fieldset>
-                </form>
-              {% endwith %}
+                <h2>New Article</h2>
+                {% with form=post_form %}
+                    <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate onsubmit="submitForm()">
+                      <fieldset>
+                        {% csrf_token %}
+                        {{ post_form }}
+                        <div class="form-actions">
+                          <button class="btn btn-default pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
+                        </div>
+                      </fieldset>
+                    </form>
+                  {% endwith %}
             {% endif %}
 
             <h2>All Articles</h2>

@@ -1,5 +1,5 @@
 from django.db import models
-from jsonfield import JSONField
+from django.contrib.auth.models import Group
 from django.db.models import Max
 from django.utils.text import slugify
 
@@ -30,6 +30,7 @@ class Article(models.Model):
     updated = models.DateTimeField(auto_now=True, editable=False)
     image = models.ImageField(upload_to='articles/%Y/%m/%d', max_length=254, blank=True, null=True)
     image_caption = models.CharField(max_length=300, blank=True, null=True)
+    edit_group = models.ForeignKey(Group, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.slug = self.topic.slug + '-' + slugify(self.title)

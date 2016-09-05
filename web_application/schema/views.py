@@ -107,8 +107,6 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                             survey_registry['trait_types'][str(trait_type)]['trait_properties'].append(
                                 {p: 'tp description?'})
 
-
-
                     # Get Trait Name descriptions
                     for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
 
