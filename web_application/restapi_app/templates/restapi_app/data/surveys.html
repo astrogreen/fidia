@@ -20,7 +20,7 @@
 <li role="presentation"><a href="{% url 'tools' %}">Tools</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
+{% block content-test %}
 
 <div class="row vertical-align">
     <div class="col-xs-12">
@@ -29,7 +29,7 @@
     </div>
 </div>
 <div class="row surveys">
-    {% for value in response.data.samples %}
+    {% for value in response.data.surveys %}
     <div class="col-xs-12 col-sm-6">
 
         <div class="media">
@@ -43,12 +43,12 @@
                     objects
                     <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
                 </span>
-                {% with "data_browser/root/samples/"|add:value.survey|add:".html" as template %}
+                {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
                     {% include template %}
                 {% endwith %}
                 <span>
                     <a href="{% url 'documentation:topic-detail' slug=value.survey %}" class="btn btn-default">Documentation</a>
-                    <a href="{% url 'data_browser:sample-list' sample_pk=value.survey %}" class="btn btn-default">Data</a>
+                    <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}" class="btn btn-default">Data</a>
                     <a href="{% url 'schema:sample-list' sample_pk=value.survey %}" class="btn btn-default">Schema</a>
                     <a href="{% url 'query-create-list' %}" class="btn btn-default">Query</a>
                 </span>

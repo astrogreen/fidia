@@ -74,15 +74,14 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-
-        samples = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
                    {"survey": "gama", "count": 0, "current_version": 0}]
 
-        serializer_class = data_browser.serializers.DataBrowserSerializer
+        serializer_class = data_browser.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'samples': samples},
+            context={'request': request, 'surveys': surveys},
         )
 
         return Response(serializer.data)
@@ -101,11 +100,11 @@ class Tools(views.APIView):
     def get(self, request):
         samples = AVAILABLE_SURVEYS
 
-        serializer_class = data_browser.serializers.DataBrowserSerializer
+        serializer_class = data_browser.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'samples': samples},
+            context={'request': request, 'surveys': samples},
         )
 
         return Response(serializer.data)

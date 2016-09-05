@@ -45,6 +45,7 @@ class DocumentationHTMLField(serializers.Field):
 
 
 class RootSerializer(serializers.Serializer):
+
     def get_surveys(self, obj):
         return self.context['surveys']
 
