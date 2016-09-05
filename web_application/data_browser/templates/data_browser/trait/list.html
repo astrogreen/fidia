@@ -28,7 +28,7 @@
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
         <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}} {{response.data.pretty_name}}</h2>
-        <a href="" class="navigator options question"><i class="fa fa-question-circle"></i> What are branches and versions?</a>
+        <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}" class="navigator options question"><i class="fa fa-question-circle"></i> What is a branch?</a>
     </div>
     <div class="col-sm-12">
         {% if response.data.description %}

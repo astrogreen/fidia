@@ -26,7 +26,6 @@ from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey
 
 
 class SchemaViewSet(data_browser.views.RootViewSet):
-
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/root.html'
 
@@ -46,9 +45,7 @@ class SchemaViewSet(data_browser.views.RootViewSet):
         return Response(serializer.data)
 
 
-
 class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
     class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/sample.html'
 
@@ -66,6 +63,111 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             # Dict of available traits
             trait_registry = ar.available_traits
+
+            trait_info = {}
+
+            survey_registry = {'trait_types': {}}
+
+            # for trait_class in trait_registry._registry:
+            for trait_type in trait_registry.get_trait_types():
+                survey_registry['trait_types'][str(trait_type)] = {
+                    'trait_names': {},
+                    'documentation': {},
+                    'description': {},
+                    'pretty_name': {},
+                }
+                print('TRAIT TYPE: '+trait_type)
+
+                # print(trait_registry.get_trait_classes())
+
+                for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
+
+                    default_trait_key = trait_registry.update_key_with_defaults(trait_name)
+                    trait_class = trait_registry.retrieve_with_key(default_trait_key)
+                    survey_registry['trait_types'][str(trait_type)]['documentation'] = trait_class.get_documentation('html')
+                    survey_registry['trait_types'][str(trait_type)]['description'] = trait_class.get_description()
+                    survey_registry['trait_types'][str(trait_type)]['pretty_name'] = trait_class.get_pretty_name()
+                    survey_registry['trait_types'][str(trait_type)]['trait_properties'] = []
+                    survey_registry['trait_types'][str(trait_type)]['sub_traits'] = []
+
+                    print('    TRAIT NAME:   '+trait_name)
+                    survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)] = {
+                        'documentation': {},
+                        'description': {},
+                        'pretty_name': {},
+                        'branches': {str(tk.branch): {} for tk in
+                                       trait_registry.get_all_traitkeys(trait_name_filter=trait_name)},
+                    }
+
+                    # TODO this is a dummy method - FIDIA may have a method to retrieve all trait properties and sub-traits from the registry
+                    for p in dir(trait_class):
+                        if p.startswith('get') or p.startswith("_") or p.startswith('set') or p.__contains__('trait'):
+                            pass
+                        else:
+                            survey_registry['trait_types'][str(trait_type)]['trait_properties'].append(
+                                {p: 'tp description?'})
+
+
+
+                    # Get Trait Name descriptions
+                    for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
+
+                        # _tk_instance = trait_registry.retrieve_with_key(tk)
+                        survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)]['branches'][tk.branch] = {
+                            'trait_key': str(tk),
+                            'branch': tk.branch,
+                            'version': tk.version,
+                            'description': 'IN PROGRESS',
+                            'documentation': 'IN PROGRESS',
+                        }
+
+
+
+                        # for trait_property in _tk_instance.trait_properties(self):
+                        #     print(trait_property)
+
+
+
+                    # survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)]['description'] = trait_name
+
+                    # for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
+                    #     survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)] = {}
+                    #     survey_registry['trait_types'][str(trait_type)][str(trait_name)][str(tk)] = {}
+                    #     print(tk)
+
+
+
+                    # survey_registry[trait_type] = {
+                    #
+                    #     'pretty_name': trait_class.get_pretty_name(),
+                    #     'documentation': trait_class.get_documentation('html'),
+                    #     'description': trait_class.get_description(),
+                    #     'trait_keys': {}
+                    # }
+
+                    # survey_registry[trait_type]['trait_keys'] = {
+                    #     # 'trait_name': trait_name,
+                    #     'trait_keys': {str(tk): {} for tk in
+                    #                    trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+                    # }
+                    # Populate trait key schema:
+                    # for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
+                    #     _tk_instance = trait_registry.retrieve_with_key(tk)
+                    #     survey_registry[trait_type]['trait_keys'][str(tk)] = {
+                    #         'pretty_name': '',
+                    #         'documentation': '',
+                    #         'description': '',
+                    #         'trait_properties': '',
+                    #         'sub_traits': '',
+                    #     }
+                        # print(trait_registry.retrieve_with_key(tk))
+
+
+                        # for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
+                        #     # Get the trait key for a particular trait, populate accordingly
+                        #     print(tk)
+                        #     survey_registry[trait_type]['trait_keys'] =
+
             trait_info = {}
             for trait_type in trait_registry.get_trait_types():
 
@@ -92,6 +194,36 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     trait_info[trait_type]["documentation"] = trait_class.get_documentation('html')
                     trait_info[trait_type]["description"] = trait_class.get_description()
 
+                    # Trait Properties
+                    trait_info[trait_type]["trait_properties"] = ''
+
+                    # for trait_property in trait_class.trait_properties():
+                    #     print(trait_property)
+
+
+
+                    # for trait_property in trait_class:
+                    #     print(trait_property)
+
+                    # for trait_property in trait.trait_properties():
+                    #     # if not re.match("^[_]", str(trait_property.name)):
+                    #     #     log.debug("Adding Trait Property '%s'", trait_property.name)
+                    #     traitproperty_type = trait_property.type
+                    #
+                    #     # Recurse into trait properties
+                    #     if 'array' in traitproperty_type:
+                    #         # TraitProperty is an array, so display a URL for it's value
+                    #         self.fields[trait_property.name] = TraitPropertySerializer(
+                    #             instance=trait_property, depth_limit=depth_limit, data_display='url')
+                    #     else:
+                    #         # TraitProperty is not an array so we want it's actual value returned.
+                    #         self.fields[trait_property.name] = TraitPropertySerializer(
+                    #             instance=trait_property, depth_limit=depth_limit, data_display='value')
+
+
+                    # Sub Traits
+
+
                     # Version
                     # print(self.trait_class.get_all_branches_versions())
                     # trait_info[trait_type]["version"] = trait_class.get_version()
@@ -111,8 +243,9 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                         'sample_pk': sample_pk,
                     }
                     survey_schema_url = reverse("schema:sample-list", kwargs=url_kwargs)
-                    trait_name_branches = {str(tk.branch).replace("None", "default"): survey_schema_url + str(tk.replace(version=None))
-                                            for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+                    trait_name_branches = {
+                    str(tk.branch).replace("None", "default"): survey_schema_url + str(tk.replace(version=None))
+                    for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
 
                     trait_info[trait_type]["traits"][trait_name] = {"pretty_name": trait_name_pretty_name,
                                                                     "description": trait_name_short_description,
@@ -133,14 +266,15 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context={
                 'sample': sample_pk,
                 'request': request,
-                'available_traits': trait_info
+                'survey_registry': survey_registry,
+                'available_traits': trait_info,
+
             }
         )
         return Response(serializer.data)
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
     class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema/astroobject.html'
 
@@ -155,7 +289,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             assert isinstance(astro_object, fidia.AstronomicalObject)
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(data={}, status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -219,8 +354,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     if f != "api": trait_name_formats.append(f)
 
                 # Branches
-                trait_name_branches = {str(tk.branch).replace("None", "default"): astro_object_schema_url + str(tk.replace(version=None))
-                                        for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+                trait_name_branches = {
+                str(tk.branch).replace("None", "default"): astro_object_schema_url + str(tk.replace(version=None))
+                for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
 
                 trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
                                                                 "schema_url": trait_name_schema_url,
@@ -309,10 +445,12 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except fidia.exceptions.UnknownTrait:
             message = 'Not found: Object ' + astroobject_pk + ' does not have property ' + trait_pk
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -349,4 +487,3 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 trait=kwargs['trait_pk'])
             response['content-disposition'] = "attachment; filename=%s" % filename
         return response
-

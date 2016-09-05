@@ -11,6 +11,7 @@ from fidia.traits import Trait, TraitProperty
 from fidia import traits
 from fidia.descriptions import DescriptionsMixin
 from fidia.traits.trait_property import BoundTraitProperty
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
@@ -18,7 +19,6 @@ import data_browser.serializers
 
 
 class SchemaSerializer(serializers.Serializer):
-
     def get_surveys(self, obj):
         return self.context['surveys']
 
@@ -26,30 +26,13 @@ class SchemaSerializer(serializers.Serializer):
 
 
 class SurveySerializer(serializers.Serializer):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         sample = self.instance
         assert isinstance(sample, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " +\
+            "SampleSerializer must have an instance of fidia.Sample, " + \
             "not '%s': try SampleSerializer(instance=sample)" % sample
-
-        self.astro_objects = {}
-        for astro_object in sample:
-            url_kwargs = {
-                    'astroobject_pk': str(astro_object),
-                    'sample_pk': self.context['sample']
-                }
-            url = reverse("schema:astroobject-list", kwargs=url_kwargs)
-
-            # self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
-            self.astro_objects[astro_object] = url
-            # # Recurse displaying details at lower level (check depth_limit > 0)
-            # self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
-
-    def get_astro_objects(self, obj):
-        return self.astro_objects
 
     def get_sample(self, obj):
         return self.context['sample']
@@ -57,27 +40,30 @@ class SurveySerializer(serializers.Serializer):
     def get_available_traits(self, obj):
         return self.context['available_traits']
 
+    def get_survey_registry(self, obj):
+        return self.context['survey_registry']
+
     sample = serializers.SerializerMethodField()
     available_traits = serializers.SerializerMethodField()
-    astro_objects = serializers.SerializerMethodField()
+    survey_registry = serializers.SerializerMethodField()
+    # astro_objects = serializers.SerializerMethodField()
 
 
 class SampleSerializer(serializers.Serializer):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         sample = self.instance
         assert isinstance(sample, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " +\
+            "SampleSerializer must have an instance of fidia.Sample, " + \
             "not '%s': try SampleSerializer(instance=sample)" % sample
 
         self.astro_objects = {}
         for astro_object in sample:
             url_kwargs = {
-                    'astroobject_pk': str(astro_object),
-                    'sample_pk': self.context['sample']
-                }
+                'astroobject_pk': str(astro_object),
+                'sample_pk': self.context['sample']
+            }
             url = reverse("schema:astroobject-list", kwargs=url_kwargs)
 
             # self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
@@ -109,7 +95,6 @@ class SampleSerializer(serializers.Serializer):
 
 
 class AstroObjectSerializer(serializers.Serializer):
-
     def get_sample(self, obj):
         return self.context['sample']
 
@@ -123,45 +108,45 @@ class AstroObjectSerializer(serializers.Serializer):
     astroobject = serializers.SerializerMethodField()
     available_traits = serializers.SerializerMethodField()
 
-#
-#
-# class TraitSerializer(data_browser.serializers.TraitSerializer):
-#     """Schema Trait Serializer subclasses from the Data Browser,
-#     you can turn fields off by unsetting them
-#     """
-#     def __init__(self, *args, **kwargs):
-#
-#         super().__init__(*args, **kwargs)
-#
-#         trait = self.instance
-#         assert isinstance(trait, Trait)
-#
-#         for sub_trait in trait.get_all_subtraits():
-#             self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait,
-#                                                                 context={
-#                                                                     'request': self.context['request'],
-#                                                                     'sample': self.context['sample'],
-#                                                                     'astroobject': self.context['astroobject'],
-#                                                                     'trait': self.context['trait'],
-#                                                                     'trait_key': self.context['trait_key'],
-#                                                                 }, many=False)
-#
-#         # Set the field values to their urls (do not return data)
-#         for trait_property in trait.trait_properties():
-#             if not re.match("^[_]", str(trait_property.name)):
-#                 log.debug("Adding Trait Property '%s'", trait_property.name)
-#                 traitproperty_type = trait_property.type
-#                 self.fields[trait_property.name] = TraitPropertySerializer(
-#                     instance=trait_property, data_display='url')
-#
-#     # sample = serializers.SerializerMethodField()
-#     # astroobject = serializers.SerializerMethodField()
-#     # trait = serializers.SerializerMethodField()
-#     # trait_key = serializers.SerializerMethodField()
-#     # url = serializers.SerializerMethodField()
-#     # branch = serializers.SerializerMethodField()
-#     # version = serializers.SerializerMethodField()
-#     # all_branches_versions = serializers.SerializerMethodField()
-#     # description = serializers.SerializerMethodField()
-#     # pretty_name = serializers.SerializerMethodField()
-#     # documentation = serializers.SerializerMethodField()
+    #
+    #
+    # class TraitSerializer(data_browser.serializers.TraitSerializer):
+    #     """Schema Trait Serializer subclasses from the Data Browser,
+    #     you can turn fields off by unsetting them
+    #     """
+    #     def __init__(self, *args, **kwargs):
+    #
+    #         super().__init__(*args, **kwargs)
+    #
+    #         trait = self.instance
+    #         assert isinstance(trait, Trait)
+    #
+    #         for sub_trait in trait.get_all_subtraits():
+    #             self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait,
+    #                                                                 context={
+    #                                                                     'request': self.context['request'],
+    #                                                                     'sample': self.context['sample'],
+    #                                                                     'astroobject': self.context['astroobject'],
+    #                                                                     'trait': self.context['trait'],
+    #                                                                     'trait_key': self.context['trait_key'],
+    #                                                                 }, many=False)
+    #
+    #         # Set the field values to their urls (do not return data)
+    #         for trait_property in trait.trait_properties():
+    #             if not re.match("^[_]", str(trait_property.name)):
+    #                 log.debug("Adding Trait Property '%s'", trait_property.name)
+    #                 traitproperty_type = trait_property.type
+    #                 self.fields[trait_property.name] = TraitPropertySerializer(
+    #                     instance=trait_property, data_display='url')
+    #
+    #     # sample = serializers.SerializerMethodField()
+    #     # astroobject = serializers.SerializerMethodField()
+    #     # trait = serializers.SerializerMethodField()
+    #     # trait_key = serializers.SerializerMethodField()
+    #     # url = serializers.SerializerMethodField()
+    #     # branch = serializers.SerializerMethodField()
+    #     # version = serializers.SerializerMethodField()
+    #     # all_branches_versions = serializers.SerializerMethodField()
+    #     # description = serializers.SerializerMethodField()
+    #     # pretty_name = serializers.SerializerMethodField()
+    #     # documentation = serializers.SerializerMethodField()
