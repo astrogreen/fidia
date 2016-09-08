@@ -195,9 +195,12 @@ class DescriptionsMixin:
             # No name explicitly provided, so we do our best with the class name.
             return prettify(cls.__name__)
 
-    @classmethod
-    def set_pretty_name(cls, value):
-        cls._pretty_name = value
+    @classorinstancemethod
+    def set_pretty_name(self, value):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
+
+        self._pretty_name = value
 
     @classorinstancemethod
     def get_description(cls):
