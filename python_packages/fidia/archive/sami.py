@@ -574,8 +574,25 @@ class SAMISpectralCube(SpectralMap):
         dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
 
 
+class LZIFUDataMixin:
+    """Mixin class to provide extra properties common to all LZIFU Data."""
 
-class LZIFUVelocityMap(VelocityMap):
+    @trait_property('string')
+    def lzifu_version(self):
+        return self._hdu[0].header['LZIFUVER']
+    lzifu_version.set_short_name('LZIFUVER')
+    lzifu_version.set_description("The version of the LZIFU software used in processing.")
+    lzifu_version.set_pretty_name("LZIFU Software Version")
+
+    @trait_property('float')
+    def lzifu_input_redshift(self):
+        return self._hdu[0].header['Z_LZIFU']
+    lzifu_input_redshift.set_short_name('Z_LZIFU')
+    lzifu_input_redshift.set_description("The starting redshift provided to LZIFU.")
+    lzifu_input_redshift.set_pretty_name("LZIFU Input Redshift")
+
+
+class LZIFUVelocityMap(VelocityMap, LZIFUDataMixin):
 
     trait_type = "velocity_map"
 
@@ -623,7 +640,7 @@ class LZIFUVelocityMap(VelocityMap):
         return self._hdu['V_ERR'].data[1, :, :]
 
 
-class LZIFUOneComponentLineMap(Image):
+class LZIFUOneComponentLineMap(Image, LZIFUDataMixin):
 
     trait_type = 'line_map'
 
@@ -715,7 +732,7 @@ LZIFUOneComponentLineMap.set_pretty_name(
     SII6716='[SII] (6716Å)',
     SII6731='[SII] (6731Å)')
 
-class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
+class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap, LZIFUDataMixin):
 
     branches_versions ={'recom_comp': {"V02"}}
 
