@@ -51,7 +51,6 @@ INSTALLED_APPS = (
     'download',
     'data_browser',
     'django_extensions',
-    # 'guardian',
     'mathfilters',
     'query',
     'user',
@@ -93,7 +92,6 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend', # default
-    # 'guardian.backends.ObjectPermissionBackend',
 )
 
 LOGIN_REDIRECT_URL = 'index'
