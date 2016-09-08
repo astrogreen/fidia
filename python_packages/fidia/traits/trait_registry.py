@@ -16,7 +16,7 @@ class TraitRegistry:
     def __init__(self):
         self._registry = set()
         self._trait_lookup = dict()
-        self._trait_name_defaults = dict()
+        self._trait_name_defaults = dict()  # type: dict[str, DefaultsRegistry]
 
     def register(self, trait):
         log.debug("Registering Trait '%s'", trait)

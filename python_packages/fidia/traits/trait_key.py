@@ -2,6 +2,8 @@ import collections
 import re
 from operator import itemgetter
 
+from ..descriptions import DescriptionsMixin
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
@@ -174,3 +176,24 @@ class TraitKey(tuple):
     branch = property(itemgetter(2), doc='Branch')
 
     version = property(itemgetter(3), doc='Version')
+
+
+class Branch(DescriptionsMixin):
+
+    # This tells the DescriptionsMixin to provide separate descriptions for each instance of this class.
+    descriptions_allowed = 'instance'
+
+    def __init__(self, name, pretty_name=None, description=None, versions=None):
+        if description is not None:
+            self.set_description(description)
+        if pretty_name is not None:
+            self.set_pretty_name(pretty_name)
+        self.name = name
+
+        if versions is not None:
+            self.versions = set(versions)
+        else:
+            self.versions = {None}
+
+    def __str__(self):
+        return self.name

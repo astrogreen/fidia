@@ -49,7 +49,7 @@ log.enable_console_logging()
 #         return 0
 
 def validate_trait_branches_versions_dict(branches_versions):
-    # type: ([dict, None]) -> None
+    # type: (Union[dict, None]) -> None
     if branches_versions is None:
         return
     assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
