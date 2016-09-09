@@ -272,6 +272,27 @@ class TestTraits:
 
         assert test_trait.get_description() == "Description for SimpleTrait."
 
+    def test_trait_property_descriptions(self):
+
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+
+        # Check that a trait property has the necessary description attributes
+        assert hasattr(test_trait.value, 'get_pretty_name')
+        assert hasattr(test_trait.value, 'get_documentation')
+        assert hasattr(test_trait.value, 'get_description')
+        assert hasattr(test_trait.value, 'get_short_name')
+
+        # Check that descriptions are set correctly:
+        assert test_trait.value.get_description() == "TheValue"
+        assert test_trait.non_catalog_data.get_description() == "Some Non-catalog data"
+        assert test_trait.extra.get_description() == "ExtraInformation"
+
+        # Check that descriptions are set correctly:
+        assert test_trait.value.get_pretty_name() == "Value"
+        assert test_trait.non_catalog_data.get_pretty_name() == "Non-catalog Data"
+        assert test_trait.extra.get_pretty_name() == "Extra Info"
+
+
     def test_trait_documentation(self):
         test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
 
@@ -283,12 +304,6 @@ class TestTraits:
 
         assert "<strong>text</strong>" in test_trait.get_documentation('html')
 
-
-    def test_trait_property_description(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
-
-        assert test_trait.value.description == "TheValue"
-        assert test_trait.extra.description == "ExtraInformation"
 
 class TestTraitsInArchives:
 
