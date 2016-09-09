@@ -21,11 +21,12 @@ import data_browser.serializers
 import data_browser.renderers
 
 import fidia.exceptions
-from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey
+from fidia.traits import Trait, TraitProperty, TraitKey
+from fidia import traits
 
 log = logging.getLogger(__name__)
 
-TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classification_map", "extinction_map"]
+# TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classification_map", "extinction_map"]
 
 
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -257,6 +258,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.trait = trait
         self.renderer_classes = (data_browser.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer)
         self.permission_classes = [permissions.AllowAny]
+        self.trait_2D_map = False
 
     def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, format=None):
 
@@ -272,8 +274,9 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             subtrait_pointer = trait_pointer[subtraitproperty_pk]
 
             self.type = subtrait_pointer.trait_type
-            self.trait_2D_map = False
-            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True;
+
+            if isinstance(self.trait, traits.Map2D):
+                self.trait_2D_map = True
 
             # Formats
             formats = []
@@ -304,8 +307,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
 
             self.type = trait_pointer.trait_type
-            self.trait_2D_map = False
-            if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True;
+            # self.trait_2D_map = False
+            # if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True
 
             # Formats
             formats = []

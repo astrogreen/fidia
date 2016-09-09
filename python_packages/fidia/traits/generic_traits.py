@@ -38,6 +38,10 @@ class Map(Trait, AbstractBaseArrayTrait):
     def nominal_position(self):
         return self._nominal_position
 
+class Map2D(Map):
+    """A Trait who's value can be displayed as a contiguous 2D image of square pixels."""
+    pass
+
 class MetadataTrait(Trait):
     def __init__(self, *args, **kwargs):
         super(MetadataTrait, self).__init__(*args, **kwargs)
@@ -121,7 +125,7 @@ class Epoch(Measurement):
 class TimeSeries(Epoch, AbstractBaseArrayTrait): pass
 
 
-class Image(Map):
+class Image(Map2D):
 
     @property
     def shape(self):
@@ -155,11 +159,11 @@ class SpectralMap(Trait, AbstractBaseArrayTrait):
 class Classification(Trait, AbstractBaseClassification): pass
 
 
-class ClassificationMap(Trait):
+class ClassificationMap(Map2D):
 
     valid_classifications = None
 
-class FlagMap(Trait):
+class FlagMap(Map2D):
 
     valid_flags = None
 
@@ -167,6 +171,10 @@ class FlagMap(Trait):
     def flag_names(self):
         # type: () -> List
         return [i[0] for i in self.valid_flags]
+
+    @property
+    def shape(self):
+        return self.value().shape
 
     def mask(self, flag):
         """Return a numpy mask array that is true where the given flag is set."""
