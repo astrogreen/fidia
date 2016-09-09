@@ -123,7 +123,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
 
                 default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                trait_class = trait_registry.retrieve_with_key(default_trait_key)
+                trait_class = trait_registry.retrieve_with_key(default_trait_key)  # type: Trait
 
                 # url
                 url_kwargs = {
