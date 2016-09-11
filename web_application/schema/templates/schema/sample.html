@@ -4,12 +4,10 @@
 {% load internal_extras %}
 {% block title %} Schema Browser {% endblock %}
 {% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'schema/css/schema/schema.min.css' %}"/>
 {% endblock %}
-{% block bodyclass %}{% endblock %}
-{% block breadcrumbclass %}{% endblock %}
 
 {% block page_title %}Schema Browser{% endblock %}
 {% block useful_links %}
@@ -114,53 +112,180 @@
         </div>
     </div>
 </div>
-{% comment %}
-<div class="row">
-    <div class="col-xs-12"><h2>Object-specific schema</h2></div>
-    <div class="col-xs-12 col-sm-4">
-        <p>View the Schema for a particular object in {{survey|uppercase}}. Search for an
-            object below by either typing in the input box, or click an option <a href=""
-               data-toggle="popover"
-               data-html="true"
-               class="popover-anchor"
-               data-trigger="focus"
-               data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
-               data-placement="top"><i
-                    class="fa fa-info-circle"></i></a>. </p>
-        <p>
-                    <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                           data-content="<p>The schema for objects within any particular survey will always be identical. As the archive grows,
-                users will be able to create samples of astronomical objects from multiple surveys. Within a user-created sample,
-                objects (galaxies, stars) may have data from various surveys, and therefore different schemas. </p>"
-                           data-placement="top">
-                            <i class="fa fa-info-circle"></i> Does each object have a unique schema?</a></p>
-        <select type="text" class="searchbox selectized text-center"
-                            id="autocomplete-widget" placeholder="SEARCH">
-                        <option value="" disabled selected>Select an object</option>
-                        {% for key, value in response.data.astro_objects.items %}
-                        <option value="{{value}}">{{key}}</option>
-                        {% endfor %}
-                    </select>
-                    <a class="btn btn-block btn-primary" type="button" href="" disabled
-                       id="autocomplete-button">GO</a>
+<hr>
+<div class="row schema-browser">
+    <div class="col-sm-3 col-xs-12 schema">
+        <h3>Contents</h3>
+        <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+            {% for trait_type, trait_value in response.data.survey_registry.trait_types.items %}
+                <!--<li role="presentation" {% if forloop.first %}class="active no-margin-top" {% endif %}>-->
+                    <!--<a href="#trait_{{trait_type}}" aria-controls="#trait_{{trait_type}}" role="tab" data-toggle="pill" class="scroll">{{trait_value.pretty_name}}</a>-->
+                <!--</li>-->
+                <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">{{trait_value.pretty_name}}</li>
+                {% for trait_key, value in trait_value.trait_names.items %}
+                    <li style="" role="presentation">
+                        <a href="#nested_{{trait}}" aria-controls="nested_{{trait}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
     </div>
+    <div class="col-sm-9 col-xs-12">
+        <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended that you
+            also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the Schema Browser,
+            which contains a more comprehensive description of
+            pipeline reduction and analysis techniques. </p>
 
+        {% for trait_type, trait_value in response.data.survey_registry.trait_types.items %}
+            <!--<h2 id="trait_{{trait_type}}">-->
+                <!--{{trait_value.pretty_name}}-->
+            <!--</h2>-->
+            <!--<div class="p">-->
+                <!--{% if not trait_value.documentation %}-->
+                    <!--{{trait_value.description}}-->
+                <!--{% else %}-->
+                    <!--{{trait_value.documentation|safe}}-->
+                <!--{% endif %}-->
+            <!--</div>-->
+
+            {% for trait_key, value in trait_value.trait_names.items %}
+                <h2>{{value.pretty_name}}</h2>
+                <div class="well-ignore" style="margin-bottom:20px;">
+                    {% if not value.documentation %}
+                        {{value.description}}
+                    {% else %}
+                        {{value.documentation|safe}}
+                    {% endif %}
+                </div>
+
+
+
+                <!--{% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}-->
+                    <!--<h5><strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong></h5>-->
+
+                    <!--<div class="p">-->
+                        <!--{% if not trait_property_value.documentation %}-->
+                            <!--{{trait_property_value.description}}-->
+                        <!--{% else %}-->
+                            <!--{{trait_property_value.documentation|safe}}-->
+                        <!--{% endif %}-->
+                    <!--</div>-->
+                    <!--<hr>-->
+                <!--{% endfor %}-->
+                <div class="panel panel-default">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading"><span class="panel-title">Properties</span></div>
+                    <table class="table">
+                        {% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}
+                            <tr>
+                                <td>
+                                    <strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong>
+                                </td>
+                                <td>
+                                    {% if not trait_property_value.documentation %}
+                                        {% if not trait_property_value.description %}
+                                            <p>{{trait_property_value.description}}</p>
+                                        {% else %}
+                                            {{trait_property_value.description}}
+                                        {% endif %}
+                                    {% else %}
+                                        {{trait_property_value.documentation|safe}}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="panel panel-info">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading"><span class="panel-title"><i class="fa fa-branch"></i> Branches</span></div>
+                    <table class="table">
+                        {% for branch_key, branch_value in value.branches.items %}
+                            <tr>
+                                <td>
+                                    <strong class="text-uppercase">{{branch_value.branch}}</strong>
+                                </td>
+                                <td>
+                                    <div class="p">
+                                        {% if not trait_property_value.documentation %}
+                                            {{branch_value.description}}
+                                        {% else %}
+                                            {{branch_value.documentation|safe}}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>versions</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+
+
+                <!--<table class="table well">-->
+                    <!--<thead>-->
+                        <!--<tr>-->
+                            <!--<th>Property</th>-->
+                            <!--<th>Description</th>-->
+                        <!--</tr>-->
+                    <!--</thead>-->
+                    <!--<tbody>-->
+                        <!--{% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}-->
+                            <!--<tr>-->
+                                <!--<td>{{trait_property_value.pretty_name}}</td>-->
+                                <!--<td>{{trait_property_value.description}}</td>-->
+                            <!--</tr>-->
+                        <!--{% endfor %}-->
+                    <!--</tbody>-->
+                <!--</table>-->
+            {% endfor %}
+        {% endfor %}
+    </div>
 </div>
-<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
-<script>
-    $(document).ready(function () {
-        $selector = $("#autocomplete-widget").selectize({
-            closeAfterSelect: true,
-            selectOnTab: true,
-            placeholder: "SEARCH...",
-            create: false,
-            maxItems: 1,
-            onChange: function (value) {
-                $('#autocomplete-button').attr('href', value).attr('disabled', false)
+{% endblock %}
+{% block footer-extra %}
+    {% if response.data.results %}
+        <script>
+            $(document).ready(function () {
+                check_affix();
+
+                $(".scroll").click(function(event){
+                    // stop the hash being appended to the url, and scroll to the value
+                    event.preventDefault();
+                    $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
+                });
+            });
+
+            function check_affix(){
+                // destroy all affix events from the window
+                // turn affix() on (if page width is large enough)
+
+                $(window).off('.affix');
+                $("#docs-sidebar")
+                    .removeClass("affix affix-top affix-bottom")
+                    .removeData("bs.affix");
+
+                if ($(window).width() > 770){
+                    $('#docs-sidebar').affix({
+                        offset: {
+                            top: function () {
+                                return (this.top = $(".schema").offset().top)
+                            },
+                            bottom: function () {
+                                return (this.bottom = $('.footer').outerHeight(true))
+                            }
+                        }
+                    });
+                    $('#docs-sidebar').affix('checkPosition')
+                }
             }
-        });
-    });
-</script>
-{% endcomment %}
+
+            var _resizetimer;
+            window.onresize = function(){
+              clearTimeout(_resizetimer);
+              _resizetimer = setTimeout(check_affix, 100);
+            };
+
+        </script>
+    {% endif %}
 {% endblock %}
 

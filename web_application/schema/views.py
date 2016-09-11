@@ -72,42 +72,42 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             for trait_type in trait_registry.get_trait_types():
                 survey_registry['trait_types'][str(trait_type)] = {
                     'trait_names': {},
-                    'documentation': {},
-                    'description': {},
-                    'pretty_name': {},
+                    'documentation': '',
+                    'description': '',
+                    'pretty_name': '',
                 }
-                print('TRAIT TYPE: '+trait_type)
-
-                # print(trait_registry.get_trait_classes())
 
                 for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
 
                     default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                    trait_class = trait_registry.retrieve_with_key(default_trait_key)  # type: Trait
+                    trait_class = trait_registry.retrieve_with_key(default_trait_key)               # type: Trait
                     survey_registry['trait_types'][str(trait_type)]['documentation'] = trait_class.get_documentation('html')
                     survey_registry['trait_types'][str(trait_type)]['description'] = trait_class.get_description()
                     survey_registry['trait_types'][str(trait_type)]['pretty_name'] = trait_class.get_pretty_name()
-                    survey_registry['trait_types'][str(trait_type)]['trait_properties'] = []
+                    survey_registry['trait_types'][str(trait_type)]['trait_properties'] = dict()
                     survey_registry['trait_types'][str(trait_type)]['sub_traits'] = []
 
-                    print('    TRAIT NAME:   '+trait_name)
+                    # TRAIT PROPERTIES
+                    for trait_property_name in trait_class.trait_property_dir():
+                        trait_property = getattr(trait_class, trait_property_name)                  # type: TraitProperty
+                        survey_registry['trait_types'][str(trait_type)]['trait_properties'][trait_property_name] = {
+                            "pretty_name": trait_property.get_pretty_name(),
+                            "description": trait_property.get_description(),
+                            "documentation": trait_property.get_documentation('html'),
+                            "short_name": trait_property.get_short_name()
+                        }
+
+                    # TRAIT INSTANCES
+                    # TODO does the trait instance inherit the classes description, or will it have its own unique doc?
                     survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)] = {
-                        'documentation': {},
-                        'description': {},
-                        'pretty_name': {},
+                        'description': trait_class.get_description(),
+                        'documentation': trait_class.get_documentation('html'),
+                        'pretty_name': trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1]),
                         'branches': {str(tk.branch): {} for tk in
-                                       trait_registry.get_all_traitkeys(trait_name_filter=trait_name)},
+                                     trait_registry.get_all_traitkeys(trait_name_filter=trait_name)},
                     }
 
-                    # TODO this is a dummy method - FIDIA may have a method to retrieve all trait properties and sub-traits from the registry
-                    for p in dir(trait_class):
-                        if p.startswith('get') or p.startswith("_") or p.startswith('set') or p.__contains__('trait'):
-                            pass
-                        else:
-                            survey_registry['trait_types'][str(trait_type)]['trait_properties'].append(
-                                {p: 'tp description?'})
-
-                    # Get Trait Name descriptions
+                    # BRANCH ATTRIBUTES
                     for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
 
                         # _tk_instance = trait_registry.retrieve_with_key(tk)
@@ -121,50 +121,6 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 
-                        # for trait_property in _tk_instance.trait_properties(self):
-                        #     print(trait_property)
-
-
-
-                    # survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)]['description'] = trait_name
-
-                    # for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
-                    #     survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)] = {}
-                    #     survey_registry['trait_types'][str(trait_type)][str(trait_name)][str(tk)] = {}
-                    #     print(tk)
-
-
-
-                    # survey_registry[trait_type] = {
-                    #
-                    #     'pretty_name': trait_class.get_pretty_name(),
-                    #     'documentation': trait_class.get_documentation('html'),
-                    #     'description': trait_class.get_description(),
-                    #     'trait_keys': {}
-                    # }
-
-                    # survey_registry[trait_type]['trait_keys'] = {
-                    #     # 'trait_name': trait_name,
-                    #     'trait_keys': {str(tk): {} for tk in
-                    #                    trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
-                    # }
-                    # Populate trait key schema:
-                    # for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
-                    #     _tk_instance = trait_registry.retrieve_with_key(tk)
-                    #     survey_registry[trait_type]['trait_keys'][str(tk)] = {
-                    #         'pretty_name': '',
-                    #         'documentation': '',
-                    #         'description': '',
-                    #         'trait_properties': '',
-                    #         'sub_traits': '',
-                    #     }
-                        # print(trait_registry.retrieve_with_key(tk))
-
-
-                        # for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
-                        #     # Get the trait key for a particular trait, populate accordingly
-                        #     print(tk)
-                        #     survey_registry[trait_type]['trait_keys'] =
 
             trait_info = {}
             for trait_type in trait_registry.get_trait_types():
@@ -194,30 +150,6 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
                     # Trait Properties
                     trait_info[trait_type]["trait_properties"] = ''
-
-                    # for trait_property in trait_class.trait_properties():
-                    #     print(trait_property)
-
-
-
-                    # for trait_property in trait_class:
-                    #     print(trait_property)
-
-                    # for trait_property in trait.trait_properties():
-                    #     # if not re.match("^[_]", str(trait_property.name)):
-                    #     #     log.debug("Adding Trait Property '%s'", trait_property.name)
-                    #     traitproperty_type = trait_property.type
-                    #
-                    #     # Recurse into trait properties
-                    #     if 'array' in traitproperty_type:
-                    #         # TraitProperty is an array, so display a URL for it's value
-                    #         self.fields[trait_property.name] = TraitPropertySerializer(
-                    #             instance=trait_property, depth_limit=depth_limit, data_display='url')
-                    #     else:
-                    #         # TraitProperty is not an array so we want it's actual value returned.
-                    #         self.fields[trait_property.name] = TraitPropertySerializer(
-                    #             instance=trait_property, depth_limit=depth_limit, data_display='value')
-
 
                     # Sub Traits
 

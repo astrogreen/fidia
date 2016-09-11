@@ -1,3 +1,30 @@
+.schema-browser h2 {
+  font-size: 30px;
+  margin-top: 45px;
+}
+.schema-browser h3 {
+  margin-top: 30px;
+  font-size: 24px;
+}
+.schema-browser h4 {
+  margin-top: 10px;
+}
+.schema-browser .table tbody p {
+  margin-bottom: 0;
+}
+.schema-browser #docs-sidebar > li > a {
+  color: #8ca1a6;
+}
+.schema-browser #docs-sidebar > li > a.active {
+  color: #ffffff;
+}
+.schema-browser #docs-sidebar > li.heading {
+  margin-top: 20px;
+}
+.schema-browser #docs-sidebar > li.nested-la {
+  margin-left: 30px;
+  margin-top: 0;
+}
 .overflow {
   width: 20em;
   /**
