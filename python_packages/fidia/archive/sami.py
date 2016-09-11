@@ -574,25 +574,25 @@ class SAMISpectralCube(SpectralMap):
         dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
 
 
+#         __    ___          __       ___
+#    |     / | |__  |  |    |  \  /\   |   /\
+#    |___ /_ | |    \__/    |__/ /~~\  |  /~~\
+#
 
-class LZIFUVelocityMap(VelocityMap):
-
-    trait_type = "velocity_map"
-
-    branches_versions = {"lzifu": {"V02"}}
-
-    defaults = DefaultsRegistry(default_branch="lzifu", version_defaults={"lzifu": "V02"})
+class LZIFUDataMixin:
+    """Mixin class to provide extra properties common to all LZIFU Data."""
 
     def init(self):
-
         data_product_name = "EmissionLineFits"
 
         self._lzifu_fits_file = "/".join((
             self.archive.vap_data_path,
             data_product_name,
             data_product_name + self.version,
-            "1_comp",
-            self.object_id + "_1_comp.fits"))
+            self.branch,
+            self.object_id + "_" + self.branch + ".fits"))
+
+        log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
 
         if not os.path.exists(self._lzifu_fits_file):
             if os.path.exists(self._lzifu_fits_file + ".gz"):
@@ -605,6 +605,86 @@ class LZIFUVelocityMap(VelocityMap):
 
     def cleanup(self):
         self._hdu.close()
+
+    @trait_property('string')
+    def lzifu_version(self):
+        return self._hdu[0].header['LZIFUVER']
+    lzifu_version.set_short_name('LZIFUVER')
+    lzifu_version.set_description("The version of the LZIFU software used in processing.")
+    lzifu_version.set_pretty_name("LZIFU Software Version")
+
+    @trait_property('float')
+    def lzifu_input_redshift(self):
+        return self._hdu[0].header['Z_LZIFU']
+    lzifu_input_redshift.set_short_name('Z_LZIFU')
+    lzifu_input_redshift.set_description("The starting redshift provided to LZIFU.")
+    lzifu_input_redshift.set_pretty_name("LZIFU Input Redshift")
+
+
+class LZIFUFlag(LZIFUDataMixin, FlagMap):
+
+    trait_type = 'flags'
+
+    branches_versions = {
+        "1_comp": {'V02'},
+        "recom_comp": {'V02'}
+    }
+
+    defaults = DefaultsRegistry(
+        default_branch='recom_comp',
+        version_defaults={"1_comp": 'V02',
+                          "recom_comp": 'V02'}
+    )
+
+    valid_flags = [
+        ('BADSKY', "Bad Sky Subtraction"),
+        ('BADCONT', "Bad Continuum Fit"),
+        ('LOWBALM', "Low Balmer Decrement"),
+        ('HIGHBALM', "High Balmer Decrement"),
+        ('BADCOMP', "Unknown Number of Componenets"),
+        ('NODATA', "No Data")
+    ]
+
+    @trait_property("int.array")
+    def value(self):
+        input_data = self._hdu['QF_BINCODE'].data  # type: np.ndarray
+
+        # The array is stored as a unsigned integer array.
+        output_data = input_data.astype(np.uint64, casting='safe', copy=False)
+
+        return output_data
+
+
+class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
+
+    trait_type = "velocity_map"
+
+    branches_versions = {"1_comp": {"V02"}}
+
+    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
+
+    # def init(self):
+    #
+    #     data_product_name = "EmissionLineFits"
+    #
+    #     self._lzifu_fits_file = "/".join((
+    #         self.archive.vap_data_path,
+    #         data_product_name,
+    #         data_product_name + self.version,
+    #         "1_comp",
+    #         self.object_id + "_1_comp.fits"))
+    #
+    #     if not os.path.exists(self._lzifu_fits_file):
+    #         if os.path.exists(self._lzifu_fits_file + ".gz"):
+    #             self._lzifu_fits_file += ".gz"
+    #         else:
+    #             raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+    #
+    # def preload(self):
+    #     self._hdu = fits.open(self._lzifu_fits_file)
+    #
+    # def cleanup(self):
+    #     self._hdu.close()
 
     @property
     def shape(self):
@@ -622,8 +702,58 @@ class LZIFUVelocityMap(VelocityMap):
     def variance(self):
         return self._hdu['V_ERR'].data[1, :, :]
 
+    sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUFlag)
 
-class LZIFUOneComponentLineMap(Image):
+class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
+
+    trait_type = "velocity_dispersion_map"
+
+    branches_versions = {"1_comp": {"V02"}}
+
+    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
+
+    # def init(self):
+    #
+    #     data_product_name = "EmissionLineFits"
+    #
+    #     self._lzifu_fits_file = "/".join((
+    #         self.archive.vap_data_path,
+    #         data_product_name,
+    #         data_product_name + self.version,
+    #         "1_comp",
+    #         self.object_id + "_1_comp.fits"))
+    #
+    #     if not os.path.exists(self._lzifu_fits_file):
+    #         if os.path.exists(self._lzifu_fits_file + ".gz"):
+    #             self._lzifu_fits_file += ".gz"
+    #         else:
+    #             raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+    #
+    # def preload(self):
+    #     self._hdu = fits.open(self._lzifu_fits_file)
+    #
+    # def cleanup(self):
+    #     self._hdu.close()
+
+    @property
+    def shape(self):
+        return self.value().shape
+
+    @property
+    def unit(self):
+        return units.km / units.s
+
+    @trait_property('float.array')
+    def value(self):
+        return self._hdu['VDISP'].data[1, :, :]
+
+    @trait_property('float.array')
+    def variance(self):
+        return self._hdu['VDISP_ERR'].data[1, :, :]
+
+
+class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
 
     trait_type = 'line_map'
 
@@ -649,29 +779,29 @@ class LZIFUOneComponentLineMap(Image):
 
     qualifiers = line_name_map.keys()
 
-    def init(self):
-        data_product_name = "EmissionLineFits"
-
-        self._lzifu_fits_file = "/".join((
-            self.archive.vap_data_path,
-            data_product_name,
-            data_product_name + self.version,
-            self.branch,
-            self.object_id + "_" + self.branch + ".fits"))
-
-        log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
-
-        if not os.path.exists(self._lzifu_fits_file):
-            if os.path.exists(self._lzifu_fits_file + ".gz"):
-                self._lzifu_fits_file += ".gz"
-            else:
-                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
-
-    def preload(self):
-        self._hdu = fits.open(self._lzifu_fits_file)
-
-    def cleanup(self):
-        self._hdu.close()
+    # def init(self):
+    #     data_product_name = "EmissionLineFits"
+    #
+    #     self._lzifu_fits_file = "/".join((
+    #         self.archive.vap_data_path,
+    #         data_product_name,
+    #         data_product_name + self.version,
+    #         self.branch,
+    #         self.object_id + "_" + self.branch + ".fits"))
+    #
+    #     log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
+    #
+    #     if not os.path.exists(self._lzifu_fits_file):
+    #         if os.path.exists(self._lzifu_fits_file + ".gz"):
+    #             self._lzifu_fits_file += ".gz"
+    #         else:
+    #             raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+    #
+    # def preload(self):
+    #     self._hdu = fits.open(self._lzifu_fits_file)
+    #
+    # def cleanup(self):
+    #     self._hdu.close()
 
     @property
     def shape(self):
@@ -797,6 +927,58 @@ LZIFURecommendedMultiComponentLineMap.set_pretty_name(
     SII6716='[SII] (6716Å)',
     SII6731='[SII] (6731Å)')
 
+class LZIFUCombinedFit(SpectralMap):
+
+    trait_type = 'spectral_fit_cube'
+
+    qualifiers = {'red', 'blue'}
+
+    branches_versions = {"1_comp": {"V02"}, 'recom_comp': {"V02"}}
+    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02", 'recom_comp': 'V02'})
+
+    def init(self):
+        data_product_name = "EmissionLineFits"
+
+        self._lzifu_fits_file = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            self.branch,
+            self.object_id + "_" + self.branch + ".fits"))
+
+        log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
+
+        if not os.path.exists(self._lzifu_fits_file):
+            if os.path.exists(self._lzifu_fits_file + ".gz"):
+                self._lzifu_fits_file += ".gz"
+            else:
+                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+
+    def preload(self):
+        self._hdu = fits.open(self._lzifu_fits_file)
+
+    def cleanup(self):
+        self._hdu.close()
+
+    @property
+    def shape(self):
+        return self.value().shape
+
+    @trait_property('float.array')
+    def value(self):
+        # Determine which colour:
+        if self.trait_qualifier == "blue":
+            color = "B"
+        elif self.trait_qualifier == "red":
+            color = "R"
+        else:
+            raise ValueError("unknown trait name")
+        return self._hdu[color + '_CONTINUUM'].data + self._hdu[color + '_LINE'].data
+
+    @trait_property('float.array')
+    def variance(self):
+        return None
+
 class LZIFUContinuum(SpectralMap):
 
     trait_type = 'spectral_continuum_cube'
@@ -870,6 +1052,18 @@ class LZIFULineSpectrum(SpectralMap):
     @trait_property('float.array')
     def variance(self):
         return None
+
+
+#     __   ___  __                          ___          __   __
+#    /__` |__  |__)    \  /  /\  |    |  | |__      /\  |  \ |  \
+#    .__/ |    |  \     \/  /~~\ |___ \__/ |___    /~~\ |__/ |__/
+#
+#    Value added products from Anne's star-formation rate estimates.
+#
+#    There are three main products here:
+#       - SFR Maps
+#       - SF Classifications
+#       - Balmer Extinction estimates
 
 
 class BalmerExtinctionMap(Image, TraitFromFitsFile):
@@ -1071,6 +1265,9 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
 
 EmissionClass.set_pretty_name("Emission Classification Map")
 
+
+
+
 def update_path(path):
     if path[-1] != "/":
         path = path + "/"
@@ -1222,8 +1419,9 @@ class SAMIDR1PublicArchive(Archive):
         # LZIFU Items
 
         self.available_traits.register(LZIFUVelocityMap)
-
+        self.available_traits.register(LZIFUVelocityDispersionMap)
         self.available_traits.register(LZIFUOneComponentLineMap)
+        self.available_traits.register(LZIFUCombinedFit)
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
         self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
 

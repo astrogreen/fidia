@@ -83,7 +83,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
 
                     default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                    trait_class = trait_registry.retrieve_with_key(default_trait_key)
+                    trait_class = trait_registry.retrieve_with_key(default_trait_key)  # type: Trait
                     survey_registry['trait_types'][str(trait_type)]['documentation'] = trait_class.get_documentation('html')
                     survey_registry['trait_types'][str(trait_type)]['description'] = trait_class.get_description()
                     survey_registry['trait_types'][str(trait_type)]['pretty_name'] = trait_class.get_pretty_name()
@@ -178,8 +178,8 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
                 for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
 
-                    default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                    trait_class = trait_registry.retrieve_with_key(default_trait_key)
+                    default_trait_key = trait_registry.update_key_with_defaults(trait_name)  # type: TraitKey
+                    trait_class = trait_registry.retrieve_with_key(default_trait_key)  # type: Trait
 
                     # Pretty Name
                     # - trait_type
@@ -251,6 +251,16 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                                                                     "branches": trait_name_branches,
                                                                     "version": None,
                                                                     "formats": trait_name_formats}
+
+                    trait_info[trait_type]["traits"][trait_name]['trait_properties'] = dict()
+                    for trait_property_name in trait_class.trait_property_dir():
+                        trait_property = getattr(trait_class, trait_property_name)  # type: TraitProperty
+                        trait_info[trait_type]["traits"][trait_name]['trait_properties'][trait_property_name] = {
+                            "pretty_name": trait_property.get_pretty_name(),
+                            "description": trait_property.get_description(),
+                            "documentation": trait_property.get_documentation('html'),
+                            "short_name": trait_property.get_short_name()
+                        }
 
         try:
             sami_dr1_sample

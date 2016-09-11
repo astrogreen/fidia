@@ -5,7 +5,7 @@ from rest_framework import renderers
 from rest_framework.exceptions import UnsupportedMediaType
 
 from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
-from fidia.traits import Trait
+from fidia import traits
 
 import restapi_app.renderers
 
@@ -23,7 +23,7 @@ class FITSRenderer(renderers.BaseRenderer):
     def render(self, data, accepted_media_type=None, renderer_context=None):
         log.debug("Render response: %s" % renderer_context['response'])
         trait = data.serializer.instance
-        if not isinstance(trait, Trait):
+        if not isinstance(trait, traits.Trait):
             raise UnsupportedMediaType("Renderer doesn't support anything but Traits!")
 
         byte_file = BytesIO()
@@ -105,7 +105,8 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
         context['trait_type'] = trait.trait_type
 
-        if trait.trait_type in data_browser.views.TWO_D_PLOT_TYPES: context['trait_2D_map'] = True
+        if isinstance(trait, traits.Map2D):
+            context['trait_2D_map'] = True
 
         # context['short_description'] = renderer_context['view'].short_description
         return context
