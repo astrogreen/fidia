@@ -67,6 +67,15 @@
 .right-panel .schema-contents {
   padding: 30px;
 }
+.right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a,
+.right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a:hover,
+.right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a:focus {
+  color: inherit;
+  background-color: inherit;
+}
+.right-panel .schema-contents .branch_dropdown .nav > li > a {
+  padding: 6px 12px;
+}
 .breadcrumb-container {
   margin-bottom: 0 !important;
 }
