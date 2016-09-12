@@ -158,10 +158,13 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         {% for trait_branch_key, trait_branch_value in trait_qualifier_value.items %}
+                                            <li class="dropdown-header">
+                                                    <i class="fa fa-code-fork"></i> {{trait_branch_key}}
+                                            </li>
                                             {% for trait_version_key, trait_version_value in trait_branch_value.items %}
                                                 <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}">
-                                                    <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" data-toggle="tab" role="tab">
-                                                        <i class="fa fa-code-fork"></i> {{trait_branch_key}}_{{trait_version_key}}
+                                                    <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" data-toggle="tab" role="tab" style="padding-left:30px;">
+                                                         <i class="fa fa-map-pin"></i> {{trait_version_key}}
                                                     </a>
                                                 </li>
                                             {% endfor %}
@@ -192,8 +195,7 @@
                                                             <div class="panel-body">
                                                                 <div><em>{{trait_branch_key}}_{{trait_version_key}}</em> Branch description goes here.</div>
                                                                 <br>
-                                                                <div class="sub-heading">This document is for the {{value.pretty_name}} branch <em>branch
-                                                                    name</em>, which can be
+                                                                <div class="sub-heading">This document is for the {{value.pretty_name}} {{trait_qualifier_key|title}} branch <em>{{trait_branch_key}}</em>, which can be
                                                                     significantly different from other branches. To switch branches, use the
                                                                     branch selector floating in the top right corner of this panel. For more information
                                                                     on branches,
@@ -207,6 +209,7 @@
                                                         <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description">Description</h4>
                                                         <div class="well-ignore" style="margin-bottom:20px;">
                                                             {{value.html_documentation|safe}}
+                                                            <hr>
                                                         </div>
 
                                                         <!-- Properties-->
@@ -234,7 +237,6 @@
                                                             {% endfor %}
                                                             </tbody>
                                                         </table>
-
 
                                                         <!-- Versions -->
                                                         <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_versions">
