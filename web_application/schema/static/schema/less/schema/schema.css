@@ -9,6 +9,7 @@
 }
 .schema-browser h3 {
   margin-top: 5px;
+  margin-bottom: 0px;
   font-size: 24px;
 }
 .schema-browser .table tbody p {
@@ -66,6 +67,15 @@
 }
 .right-panel .schema-contents {
   padding: 30px;
+}
+.right-panel .schema-contents h4 {
+  font-size: 20px;
+  line-height: 20px;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+.right-panel .schema-contents h4 i {
+  font-size: 16px;
 }
 .right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a,
 .right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a:hover,

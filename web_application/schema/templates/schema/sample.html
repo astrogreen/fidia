@@ -93,7 +93,9 @@
                     <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
                         <a href="#{{trait_type_key}}_{{trait_qualifier_key}}"
                            aria-controls="{{trait_type_key}}_{{trait_qualifier_key}}" role="tab"
-                           data-toggle="pill">{{trait_qualifier_key|title}} <small>{{trait_type_key}}_{{trait_qualifier_key}}</small></a>
+                           data-toggle="pill">{{trait_qualifier_key|title}}
+                            <!--<small>{{trait_type_key}}_{{trait_qualifier_key}}</small>-->
+                        </a>
                     </li>
                 {% endfor %}
             {% endfor %}
@@ -159,7 +161,7 @@
                                             {% for trait_version_key, trait_version_value in trait_branch_value.items %}
                                                 <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}">
                                                     <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" data-toggle="tab" role="tab">
-                                                        {{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}
+                                                        <i class="fa fa-code-fork"></i> {{trait_branch_key}}_{{trait_version_key}}
                                                     </a>
                                                 </li>
                                             {% endfor %}
@@ -174,34 +176,21 @@
                                                  class="tab-pane {% if forloop.parentloop.first and forloop.first %}active{% endif %}">
                                                     {% with trait_version_value as value %}
 
-                                                        <h3>{{value.pretty_name}} {{trait_qualifier_key}} <small>{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}</small></h3>
-                                                        {% if value.description %}<p>{{value.description}}</p>{% endif %}
+                                                        <h3>{{value.pretty_name}} {{trait_qualifier_key|title}}
+                                                            <!--<small>{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}</small>-->
+                                                        </h3>
+                                                        <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
                                                         <ul class="p">
-                                                            <li><a href="#{{trait_key}}_description" class="scroll">Description</a></li>
-                                                            <li><a href="#{{trait_key}}_properties" class="scroll">Properties</a></li>
-                                                            <li><a href="#{{trait_key}}_versions" class="scroll">Versions</a></li>
-                                                            <li><a href="#{{trait_key}}_formats" class="scroll">Formats</a></li>
-                                                            <li><a href="#{{trait_key}}_branches" class="scroll">All Available Branches</a></li>
+                                                            <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description" class="scroll">Description</a></li>
+                                                            <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties" class="scroll">Properties</a></li>
+                                                            <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_versions" class="scroll">Versions</a></li>
+                                                            <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats" class="scroll">Formats</a></li>
+                                                            <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches" class="scroll">All Available Branches</a></li>
                                                         </ul>
                                                         <br>
                                                         <div class="panel panel-default success">
                                                             <div class="panel-body">
-                                                                <div class="pull-right" style="padding-left:15px;padding-bottom:5px;">
-                                                                    <div class="btn-group" role="group">
-                                                                        <button type="button" class="btn btn-default dropdown-toggle"
-                                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                            <i class="fa fa-code-fork"></i> Branch <i class="fa fa-caret-down"></i>
-                                                                        </button>
-                                                                        <ul class="dropdown-menu">
-                                                                            <li><a href="/asvo/data-browser/sami/24433/line_map-OII3726:recom_comp">recom_comp</a>
-                                                                            </li>
-                                                                            <li class="disabled"><a href="">1_comp &nbsp;
-                                                                                <small class="sub-heading text-uppercase">Current</small>
-                                                                            </a></li>
-                                                                        </ul>
-                                                                    </div>
-                                                                </div>
-                                                                <div>Branch description goes here. {% lorem 50 w %}</div>
+                                                                <div><em>{{trait_branch_key}}_{{trait_version_key}}</em> Branch description goes here.</div>
                                                                 <br>
                                                                 <div class="sub-heading">This document is for the {{value.pretty_name}} branch <em>branch
                                                                     name</em>, which can be
@@ -214,120 +203,122 @@
                                                             </div>
                                                         </div>
 
-
                                                         <!-- Documentation -->
-                                                        <h4 id="{{trait_key}}_description">Description</h4>
+                                                        <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description">Description</h4>
                                                         <div class="well-ignore" style="margin-bottom:20px;">
-                                                            {% if not value.documentation %}
-                                                            {{value.description}}
-                                                            {% else %}
-                                                            {{value.documentation|safe}}
-                                                            {% endif %}
+                                                            {{value.html_documentation|safe}}
                                                         </div>
 
                                                         <!-- Properties-->
-                                                        <div class="panel panel-default" id="{{trait_key}}_properties">
-                                                            <div class="panel-heading"><span class="panel-title">Properties</span></div>
-                                                            <table class="table">
-                                                                {% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}
-                                                                <tr>
-                                                                    <td>
-                                                                        <strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong>
-                                                                    </td>
-                                                                    <td>
-                                                                        {% if not trait_property_value.documentation %}
-                                                                        {% if not trait_property_value.description %}
-                                                                        <p>{{trait_property_value.description}}</p>
-                                                                        {% else %}
-                                                                        {{trait_property_value.description}}
-                                                                        {% endif %}
-                                                                        {% else %}
-                                                                        {{trait_property_value.documentation|safe}}
-                                                                        {% endif %}
-                                                                    </td>
+                                                        <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties">Properties</h4>
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr class="active panel-title">
+                                                                    <td>Name</td>
+                                                                    <td>Description</td>
+                                                                    <td>Type</td>
                                                                 </tr>
-                                                                {% endfor %}
-                                                            </table>
-                                                        </div>
+                                                            {% for trait_property_key, trait_property_value in value.trait_properties.items %}
+                                                            <tr>
+                                                                <td>
+                                                                    <strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong>
+                                                                </td>
+                                                                <td class="p">
+                                                                    {{trait_property_value.description}}
+                                                                    <a class="">read more...</a>
+                                                                </td>
+                                                                <td class="p">
+                                                                    {{trait_property_value.type}}
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+
 
                                                         <!-- Versions -->
-                                                        <div class="panel panel-warning" id="{{trait_key}}_versions">
-                                                            <div class="panel-heading"><span class="panel-title">
-                                                                <i class="fa fa-map-pin"></i> Versions</span></div>
-                                                            <table class="table">
-                                                                <!--{% for branch_key, branch_value in value.branches.items %}-->
-                                                                <!--<tr>-->
-                                                                    <!--<td>-->
-                                                                        <!--<strong class="text-uppercase">{{branch_value.branch}}</strong>-->
-                                                                    <!--</td>-->
-                                                                    <!--<td>-->
-                                                                        <!--<div class="p">-->
-                                                                            <!--{% if not trait_property_value.documentation %}-->
-                                                                            <!--{{branch_value.description}}-->
-                                                                            <!--{% else %}-->
-                                                                            <!--{{branch_value.documentation|safe}}-->
-                                                                            <!--{% endif %}-->
-                                                                        <!--</div>-->
-                                                                    <!--</td>-->
-                                                                    <!--<td>versions</td>-->
-                                                                <!--</tr>-->
-                                                                <!--{% endfor %}-->
-                                                            </table>
-                                                        </div>
+                                                        <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_versions">
+                                                            Versions</h4>
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr class="warning panel-title">
+                                                                    <td><i class="fa fa-map-pin"></i> Version</td>
+                                                                    <td>Description</td>
+                                                                    <td>Date</td>
+                                                                </tr>
+
+                                                                {% for trait_version_key, trait_version_value in trait_branch_value.items %}
+                                                                    <tr class="p">
+                                                                        <td>
+                                                                            {{trait_version_key}}
+                                                                        </td>
+                                                                        <td>
+                                                                            <em>version description</em>
+                                                                            <a class="">read more...</a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <em>version date</em>
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
 
                                                         <!-- Formats -->
-                                                        <div class="panel panel-success" id="{{trait_key}}_formats">
-                                                            <div class="panel-heading"><span class="panel-title">
-                                                                <span class="fa-custom-stack">
+                                                        <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats">
+                                                             Formats
+                                                        </h4>
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr class="success panel-title">
+                                                                    <td><span class="fa-custom-stack">
                                                                   <i class="fa fa-file-o"></i>
                                                                     <span class="fa-custom-filetype">fits</span>
-                                                                </span> Formats</span>
-                                                            </div>
-                                                            <table class="table">
-                                                                <!--{% for branch_key, branch_value in value.branches.items %}-->
-                                                                <!--<tr>-->
-                                                                    <!--<td>-->
-                                                                        <!--<strong class="text-uppercase">{{branch_value.branch}}</strong>-->
-                                                                    <!--</td>-->
-                                                                    <!--<td>-->
-                                                                        <!--<div class="p">-->
-                                                                            <!--{% if not trait_property_value.documentation %}-->
-                                                                            <!--{{branch_value.description}}-->
-                                                                            <!--{% else %}-->
-                                                                            <!--{{branch_value.documentation|safe}}-->
-                                                                            <!--{% endif %}-->
-                                                                        <!--</div>-->
-                                                                    <!--</td>-->
-                                                                    <!--<td>versions</td>-->
-                                                                <!--</tr>-->
-                                                                <!--{% endfor %}-->
-                                                            </table>
-                                                        </div>
+                                                                </span>
+                                                                        Format
+                                                                    </td>
+                                                                    <td>Description</td>
+                                                                </tr>
+
+                                                            {% for trait_version_key, trait_version_value in trait_branch_value.items %}
+                                                                    <tr>
+                                                                        <td></td>
+                                                                        <td></td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+
 
                                                         <!-- Branches -->
-                                                        <div class="panel panel-info" id="{{trait_key}}_branches">
-                                                            <div class="panel-heading"><span class="panel-title">
-                                                                <i class="fa fa-code-fork"></i> Branches</span></div>
-                                                            <table class="table">
-                                                                {% for branch_key, branch_value in value.branches.items %}
-                                                                <tr>
+                                                        <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches">
+                                                             Branches
+                                                        </h4>
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr class="info panel-title">
                                                                     <td>
-                                                                        <strong class="text-uppercase">{{branch_value.branch}}</strong>
+                                                                        <i class="fa fa-code-fork"></i> Branch
                                                                     </td>
-                                                                    <td>
-                                                                        <div class="p">
-                                                                            {% if not trait_property_value.documentation %}
-                                                                            {{branch_value.description}}
-                                                                            {% else %}
-                                                                            {{branch_value.documentation|safe}}
-                                                                            {% endif %}
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>versions</td>
+                                                                    <td>Description</td>
+                                                                    <td>Contact</td>
                                                                 </tr>
+
+                                                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.items %}
+                                                                    <tr>
+                                                                        <td>{{trait_branch_key}}</td>
+                                                                        <td>
+                                                                            <em>branch description</em>
+                                                                            <a class="">read more...</a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <em>author/contact</em>
+                                                                        </td>
+                                                                    </tr>
                                                                 {% endfor %}
-                                                            </table>
-                                                        </div>
+                                                            </tbody>
+                                                        </table>
+
                                                     {% endwith %}
 
                                             </div>
