@@ -13,7 +13,7 @@
 {% block page_title %}Download{% endblock %}
 {% block useful_links %}
 <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
-<li role="presentation" ><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
+<li role="presentation" ><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
 
@@ -72,7 +72,7 @@
 
         <div class="col-sm-4 col-x-s-12 download-options" ng-if="ctrl.items | isNotEmpty">
             <h2>Ready to Download?</h2>
-            <p>You can still add more data via the <a href="{% url 'data_browser:data-browser-list'%}">Data
+            <p>You can still add more data via the <a href="{% url 'data_browser:root-list'%}">Data
                 Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>, but if you're ready to
                 download this selection of data,
                 click the <i class="fa fa-download"></i> Download button below.</p>

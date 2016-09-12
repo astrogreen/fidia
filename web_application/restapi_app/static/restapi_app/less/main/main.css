@@ -351,6 +351,7 @@ header user a > a {
   background-color: #f2f2f2;
   min-height: 36px;
   margin-top: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.075);
 }
 .breadcrumb {
   margin-bottom: 0;
@@ -857,12 +858,13 @@ li {
 }
 .panel-info {
   border-color: #9fbbdf;
+  border-color: #d8e2f3;
 }
 .panel-info > .panel-heading {
-  color: #335f99;
   background-color: #d9edf7;
   background-color: #ecf1f9;
   border-color: #9fbbdf;
+  border-color: #d8e2f3;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

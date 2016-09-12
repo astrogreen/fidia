@@ -4,288 +4,256 @@
 {% load internal_extras %}
 {% block title %} Schema Browser {% endblock %}
 {% block head-extra %}
-    <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'schema/css/schema/schema.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'schema/css/schema/schema.min.css' %}"/>
 {% endblock %}
 
 {% block page_title %}Schema Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
+<li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
-
-
 {% block content-navigator-help %}
-    <a href="{% url 'schema:schema-list' %}" class=""><i class="fa fa-reply"></i> Back to Surveys</a>
+<a href="{% url 'schema:schema-list' %}" class=""><i class="fa fa-reply"></i> Back to Surveys</a>
 {% endblock %}
 
 
 {% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<div class="row schema">
-    <div class="col-xs-12">
-        <h2>Schema for {{survey|uppercase}}
-            <small class="right-helper">
-                <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                <div class="btn-group" role="group" style="margin-top:-15px;">
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR 1.0
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li class="disabled"><a href="">DR 1.0 &nbsp;
-                            <small class="sub-heading text-uppercase">Current</small>
-                        </a></li>
-                    </ul>
-                </div>
-            </small>
-        </h2>
-        <p>Select a data product from the list to view its documentation. </p>
-        <br>
+<div class="row schema-browser">
+    <div class="col-sm-3 col-xs-12 menu-nav schema">
+        <h4>Contents</h4>
+        <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+            {% for trait_type, trait_value in response.data.survey_registry.trait_types.items %}
+            <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}"><h6>
+                {{trait_value.pretty_name}}</h6></li>
+            {% for trait_key, value in trait_value.trait_names.items %}
+            <li {% if forloop.parentloop.first %}class="active" {% endif %} role="presentation">
+                <a href="#{{trait_key}}" aria-controls="{{trait_key}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>
+            </li>
+            {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-sm-9 col-xs-12 right-panel">
         <div class="row">
-            <div class="col-xs-3">
-            <!-- Level1 -->
-                <ul class="nav nav-pills nav-stacked" id="trait_type">
-                    {% for trait_type, trait_value in response.data.available_traits.items %}
-                        <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
-                            <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="pill">{{trait_value.pretty_name}}</a>
-                        </li>
-                        <!--<li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_value.description}}</p></li>-->
-                        {% for trait, value in trait_value.traits.items %}
-                            <li style="margin-left:30px" role="presentation" class="nested-pill">
-                                <a href="#nested_{{trait}}" aria-controls="{{trait}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>
-                            </li>
-                            <!--{% if value.description != None %}-->
-                            <!--<li><p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{value.description}}</p></li>-->
-                            <!--{% endif %}-->
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
+            <div class="col-xs-12">
+                <div class="title_info">
+                    <h2>Schema for {{survey|uppercase}}
+                        <small class="right-helper">
+                            <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                            <div class="btn-group" role="group" style="margin-top:-15px;">
+                                <button type="button" class="btn btn-default dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR
+                                    1.0
+                                    <i class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li class="disabled"><a href="">DR 1.0 &nbsp;
+                                        <small class="sub-heading text-uppercase">Current</small>
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </small>
+                    </h2>
+                    <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
+                        that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
+                        Schema
+                        Browser, which contains a more comprehensive description of pipeline reduction and analysis
+                        techniques.
+                    </p>
+                </div>
             </div>
-            <div class="col-xs-9">
-            <!-- Level2 -->
+            <div class="col-xs-12 schema-contents">
+
                 <div class="tab-content">
-                    {% for trait_type, trait_value in response.data.available_traits.items %}
-                        <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    {% if value.description != None %}
-                                    <p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{value.description}}</p>
-                                    {% endif %}
-                                    <ul class="nav nav-tabs" style="margin-top:0;">
-                                        <li class="active"><a name="raw-tab" href="#documentation" data-toggle="tab" aria-expanded="true">Documentation</a></li>
-                                    </ul>
-                                    <div class="tab-content">
-                                        <div id="documentation" class="tab-pane active">{{trait_value.documentation|safe}}</div>
+                    {% for trait_type, trait_value in response.data.survey_registry.trait_types.items %}
+                    {% for trait_key, value in trait_value.trait_names.items %}
+                    <div role="tabpanel" class="tab-pane {% if forloop.parentloop.first %}active{% endif %}"
+                         id="{{trait_key}}">
+
+                        <h3>{{value.pretty_name}}</h3>
+                        {% if value.description %}<p>{{value.description}}</p>{% endif %}
+                        <ul class="p">
+                            <li><a href="#{{trait_key}}_description" class="scroll">Description</a></li>
+                            <li><a href="#{{trait_key}}_properties" class="scroll">Properties</a></li>
+                            <li><a href="#{{trait_key}}_versions" class="scroll">Versions</a></li>
+                            <li><a href="#{{trait_key}}_formats" class="scroll">Formats</a></li>
+                            <li><a href="#{{trait_key}}_branches" class="scroll">All Available Branches</a></li>
+                        </ul>
+                        <br>
+                        <div class="panel panel-default success">
+                            <div class="panel-body">
+                                <div class="pull-right" style="padding-left:15px;padding-bottom:5px;">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-code-fork"></i> Branch <i class="fa fa-caret-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="/asvo/data-browser/sami/24433/line_map-OII3726:recom_comp">recom_comp</a>
+                                            </li>
+                                            <li class="disabled"><a href="">1_comp &nbsp;
+                                                <small class="sub-heading text-uppercase">Current</small>
+                                            </a></li>
+                                        </ul>
                                     </div>
+                                </div>
+                                <div>Branch description goes here. {% lorem 50 w %}</div>
+                                <br>
+                                <div class="sub-heading">This document is for the {{value.pretty_name}} branch <em>branch
+                                    name</em>, which can be
+                                    significantly different from other branches. To switch branches, use the
+                                    branch selector floating in the top right corner of this panel. For more information
+                                    on branches,
+                                    <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
+                                        view the documentation.</a>
                                 </div>
                             </div>
                         </div>
-                        {% for trait, value in trait_value.traits.items %}
-                            <div role="tabpanel" class="tab-pane" id="nested_{{trait}}">
-                                <ul class="nav nav-tabs" style="margin-top:0;">
-                                    <li class="active"><a name="raw-tab" href="#nested_{{trait}}_documentation" data-toggle="tab" aria-expanded="true">Documentation</a></li>
-                                    <li><a name="raw-tab" href="#nested_{{trait}}_properties" data-toggle="tab" aria-expanded="false">Properties</a></li>
-                                    <li><a name="raw-tab" href="#nested_{{trait}}_branches" data-toggle="tab" aria-expanded="false">Branches</a></li>
-                                    <li><a name="raw-tab" href="#nested_{{trait}}_formats" data-toggle="tab" aria-expanded="false">Formats</a></li>
-                                </ul>
-                                <div class="tab-content">
-                                    <div id="nested_{{trait}}_documentation" class="tab-pane active"><p>{{value.documentation|safe}}</p></div>
-                                    <div id="nested_{{trait}}_properties" class="tab-pane active"><p>properties</p></div>
-                                    <div id="nested_{{trait}}_branches" class="tab-pane">
-                                            {% for branch_name, branch_url in value.branches.items %}
-                                                <h4><i class="fa fa-code-fork"></i> {{branch_name}}</h4>
-                                                <p>branch description {% lorem 20 w %}</p>
-                                            {% endfor %}
-                                    </div>
-                                    <div id="nested_{{trait}}_formats" class="tab-pane">
-                                        {% for format in value.formats %}
-                                                <p>{{format}}</p>
-                                        {% endfor %}
-                                    </div>
-                                </div>
+
+
+                        <!-- Documentation -->
+                        <h4 id="{{trait_key}}_description">Description</h4>
+                        <div class="well-ignore" style="margin-bottom:20px;">
+                            {% if not value.documentation %}
+                            {{value.description}}
+                            {% else %}
+                            {{value.documentation|safe}}
+                            {% endif %}
+                        </div>
+
+                        <!-- Properties-->
+                        <div class="panel panel-default" id="{{trait_key}}_properties">
+                            <div class="panel-heading"><span class="panel-title">Properties</span></div>
+                            <table class="table">
+                                {% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong>
+                                    </td>
+                                    <td>
+                                        {% if not trait_property_value.documentation %}
+                                        {% if not trait_property_value.description %}
+                                        <p>{{trait_property_value.description}}</p>
+                                        {% else %}
+                                        {{trait_property_value.description}}
+                                        {% endif %}
+                                        {% else %}
+                                        {{trait_property_value.documentation|safe}}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+
+                        <!-- Versions -->
+                        <div class="panel panel-warning" id="{{trait_key}}_versions">
+                            <div class="panel-heading"><span class="panel-title">
+                                <i class="fa fa-map-pin"></i> Versions</span></div>
+                            <table class="table">
+                                <!--{% for branch_key, branch_value in value.branches.items %}-->
+                                <!--<tr>-->
+                                    <!--<td>-->
+                                        <!--<strong class="text-uppercase">{{branch_value.branch}}</strong>-->
+                                    <!--</td>-->
+                                    <!--<td>-->
+                                        <!--<div class="p">-->
+                                            <!--{% if not trait_property_value.documentation %}-->
+                                            <!--{{branch_value.description}}-->
+                                            <!--{% else %}-->
+                                            <!--{{branch_value.documentation|safe}}-->
+                                            <!--{% endif %}-->
+                                        <!--</div>-->
+                                    <!--</td>-->
+                                    <!--<td>versions</td>-->
+                                <!--</tr>-->
+                                <!--{% endfor %}-->
+                            </table>
+                        </div>
+
+                        <!-- Formats -->
+                        <div class="panel panel-success" id="{{trait_key}}_formats">
+                            <div class="panel-heading"><span class="panel-title">
+                                <span class="fa-custom-stack">
+                                  <i class="fa fa-file-o"></i>
+                                    <span class="fa-custom-filetype">fits</span>
+                                </span> Formats</span>
                             </div>
-                        {% endfor %}
+                            <table class="table">
+                                <!--{% for branch_key, branch_value in value.branches.items %}-->
+                                <!--<tr>-->
+                                    <!--<td>-->
+                                        <!--<strong class="text-uppercase">{{branch_value.branch}}</strong>-->
+                                    <!--</td>-->
+                                    <!--<td>-->
+                                        <!--<div class="p">-->
+                                            <!--{% if not trait_property_value.documentation %}-->
+                                            <!--{{branch_value.description}}-->
+                                            <!--{% else %}-->
+                                            <!--{{branch_value.documentation|safe}}-->
+                                            <!--{% endif %}-->
+                                        <!--</div>-->
+                                    <!--</td>-->
+                                    <!--<td>versions</td>-->
+                                <!--</tr>-->
+                                <!--{% endfor %}-->
+                            </table>
+                        </div>
+
+                        <!-- Branches -->
+                        <div class="panel panel-info" id="{{trait_key}}_branches">
+                            <div class="panel-heading"><span class="panel-title">
+                                <i class="fa fa-code-fork"></i> Branches</span></div>
+                            <table class="table">
+                                {% for branch_key, branch_value in value.branches.items %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-uppercase">{{branch_value.branch}}</strong>
+                                    </td>
+                                    <td>
+                                        <div class="p">
+                                            {% if not trait_property_value.documentation %}
+                                            {{branch_value.description}}
+                                            {% else %}
+                                            {{branch_value.documentation|safe}}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>versions</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
                     {% endfor %}
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<hr>
-<div class="row schema-browser">
-    <div class="col-sm-3 col-xs-12 schema">
-        <h3>Contents</h3>
-        <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
-            {% for trait_type, trait_value in response.data.survey_registry.trait_types.items %}
-                <!--<li role="presentation" {% if forloop.first %}class="active no-margin-top" {% endif %}>-->
-                    <!--<a href="#trait_{{trait_type}}" aria-controls="#trait_{{trait_type}}" role="tab" data-toggle="pill" class="scroll">{{trait_value.pretty_name}}</a>-->
-                <!--</li>-->
-                <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">{{trait_value.pretty_name}}</li>
-                {% for trait_key, value in trait_value.trait_names.items %}
-                    <li style="" role="presentation">
-                        <a href="#nested_{{trait}}" aria-controls="nested_{{trait}}" role="tab" data-toggle="pill">{{value.pretty_name}}</a>
-                    </li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="col-sm-9 col-xs-12">
-        <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended that you
-            also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the Schema Browser,
-            which contains a more comprehensive description of
-            pipeline reduction and analysis techniques. </p>
 
-        {% for trait_type, trait_value in response.data.survey_registry.trait_types.items %}
-            <!--<h2 id="trait_{{trait_type}}">-->
-                <!--{{trait_value.pretty_name}}-->
-            <!--</h2>-->
-            <!--<div class="p">-->
-                <!--{% if not trait_value.documentation %}-->
-                    <!--{{trait_value.description}}-->
-                <!--{% else %}-->
-                    <!--{{trait_value.documentation|safe}}-->
-                <!--{% endif %}-->
-            <!--</div>-->
-
-            {% for trait_key, value in trait_value.trait_names.items %}
-                <h2>{{value.pretty_name}}</h2>
-                <div class="well-ignore" style="margin-bottom:20px;">
-                    {% if not value.documentation %}
-                        {{value.description}}
-                    {% else %}
-                        {{value.documentation|safe}}
-                    {% endif %}
-                </div>
-
-
-
-                <!--{% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}-->
-                    <!--<h5><strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong></h5>-->
-
-                    <!--<div class="p">-->
-                        <!--{% if not trait_property_value.documentation %}-->
-                            <!--{{trait_property_value.description}}-->
-                        <!--{% else %}-->
-                            <!--{{trait_property_value.documentation|safe}}-->
-                        <!--{% endif %}-->
-                    <!--</div>-->
-                    <!--<hr>-->
-                <!--{% endfor %}-->
-                <div class="panel panel-default">
-                    <!-- Default panel contents -->
-                    <div class="panel-heading"><span class="panel-title">Properties</span></div>
-                    <table class="table">
-                        {% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}
-                            <tr>
-                                <td>
-                                    <strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong>
-                                </td>
-                                <td>
-                                    {% if not trait_property_value.documentation %}
-                                        {% if not trait_property_value.description %}
-                                            <p>{{trait_property_value.description}}</p>
-                                        {% else %}
-                                            {{trait_property_value.description}}
-                                        {% endif %}
-                                    {% else %}
-                                        {{trait_property_value.documentation|safe}}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="panel panel-info">
-                    <!-- Default panel contents -->
-                    <div class="panel-heading"><span class="panel-title"><i class="fa fa-branch"></i> Branches</span></div>
-                    <table class="table">
-                        {% for branch_key, branch_value in value.branches.items %}
-                            <tr>
-                                <td>
-                                    <strong class="text-uppercase">{{branch_value.branch}}</strong>
-                                </td>
-                                <td>
-                                    <div class="p">
-                                        {% if not trait_property_value.documentation %}
-                                            {{branch_value.description}}
-                                        {% else %}
-                                            {{branch_value.documentation|safe}}
-                                        {% endif %}
-                                    </div>
-                                </td>
-                                <td>versions</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-
-
-                <!--<table class="table well">-->
-                    <!--<thead>-->
-                        <!--<tr>-->
-                            <!--<th>Property</th>-->
-                            <!--<th>Description</th>-->
-                        <!--</tr>-->
-                    <!--</thead>-->
-                    <!--<tbody>-->
-                        <!--{% for trait_property_key, trait_property_value in trait_value.trait_properties.items %}-->
-                            <!--<tr>-->
-                                <!--<td>{{trait_property_value.pretty_name}}</td>-->
-                                <!--<td>{{trait_property_value.description}}</td>-->
-                            <!--</tr>-->
-                        <!--{% endfor %}-->
-                    <!--</tbody>-->
-                <!--</table>-->
-            {% endfor %}
-        {% endfor %}
     </div>
 </div>
 {% endblock %}
 {% block footer-extra %}
-    {% if response.data.results %}
-        <script>
-            $(document).ready(function () {
-                check_affix();
+<script>
 
-                $(".scroll").click(function(event){
-                    // stop the hash being appended to the url, and scroll to the value
-                    event.preventDefault();
-                    $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
-                });
-            });
+    $(window).on('resize, load', function () {
+        // Sidebar menu height is at least panel height
+        $('.menu-nav').height($('.right-panel').height() + 'px');
+    });
 
-            function check_affix(){
-                // destroy all affix events from the window
-                // turn affix() on (if page width is large enough)
 
-                $(window).off('.affix');
-                $("#docs-sidebar")
-                    .removeClass("affix affix-top affix-bottom")
-                    .removeData("bs.affix");
+    $(document).ready(function () {
+        $(".scroll").click(function(event){
+            // stop the hash being appended to the url, and scroll to the value
+            event.preventDefault();
+            $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
+        });
+    });
 
-                if ($(window).width() > 770){
-                    $('#docs-sidebar').affix({
-                        offset: {
-                            top: function () {
-                                return (this.top = $(".schema").offset().top)
-                            },
-                            bottom: function () {
-                                return (this.bottom = $('.footer').outerHeight(true))
-                            }
-                        }
-                    });
-                    $('#docs-sidebar').affix('checkPosition')
-                }
-            }
-
-            var _resizetimer;
-            window.onresize = function(){
-              clearTimeout(_resizetimer);
-              _resizetimer = setTimeout(check_affix, 100);
-            };
-
-        </script>
-    {% endif %}
+</script>
 {% endblock %}
-
