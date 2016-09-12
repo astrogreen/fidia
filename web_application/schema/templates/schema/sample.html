@@ -17,13 +17,77 @@
 {% block content-navigator-help %}
 <a href="{% url 'schema:schema-list' %}" class=""><i class="fa fa-reply"></i> Back to Surveys</a>
 {% endblock %}
-
+{% block call-to-action %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<div class="title_info">
+    <div class="container">
+        <div class="row ">
+            <div class="col-xs-12">
+                <h2>Schema for {{survey|uppercase}}
+                    <small class="right-helper">
+                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                        <div class="btn-group" role="group" style="margin-top:-15px;">
+                            <button type="button" class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR
+                                1.0
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="disabled"><a href="">DR 1.0 &nbsp;
+                                    <small class="sub-heading text-uppercase">Current</small>
+                                </a></li>
+                            </ul>
+                        </div>
+                    </small>
+                </h2>
+                <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
+                    that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
+                    Schema
+                    Browser, which contains a more comprehensive description of pipeline reduction and analysis
+                    techniques.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<!--<div class="row">-->
+    <!--<div class="col-xs-12">-->
+        <!--<div class="title_info">-->
+            <!--<h2>Schema for {{survey|uppercase}}-->
+                <!--<small class="right-helper">-->
+                    <!--&lt;!&ndash;<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;&ndash;&gt;-->
+                    <!--<div class="btn-group" role="group" style="margin-top:-15px;">-->
+                        <!--<button type="button" class="btn btn-default dropdown-toggle"-->
+                                <!--data-toggle="dropdown"-->
+                                <!--aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR-->
+                            <!--1.0-->
+                            <!--<i class="fa fa-caret-down"></i>-->
+                        <!--</button>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li class="disabled"><a href="">DR 1.0 &nbsp;-->
+                                <!--<small class="sub-heading text-uppercase">Current</small>-->
+                            <!--</a></li>-->
+                        <!--</ul>-->
+                    <!--</div>-->
+                <!--</small>-->
+            <!--</h2>-->
+            <!--<p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended-->
+                <!--that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the-->
+                <!--Schema-->
+                <!--Browser, which contains a more comprehensive description of pipeline reduction and analysis-->
+                <!--techniques.-->
+            <!--</p>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
 <div class="row schema-browser">
     <div class="col-sm-3 col-xs-12 menu-nav schema">
-        <h4>Contents</h4>
+        <h5>Contents</h5>
         <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
             {% for trait_type, trait_value in response.data.survey_registry.trait_types.items %}
             <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}"><h6>
@@ -38,34 +102,34 @@
     </div>
     <div class="col-sm-9 col-xs-12 right-panel">
         <div class="row">
-            <div class="col-xs-12">
-                <div class="title_info">
-                    <h2>Schema for {{survey|uppercase}}
-                        <small class="right-helper">
-                            <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                            <div class="btn-group" role="group" style="margin-top:-15px;">
-                                <button type="button" class="btn btn-default dropdown-toggle"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR
-                                    1.0
-                                    <i class="fa fa-caret-down"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li class="disabled"><a href="">DR 1.0 &nbsp;
-                                        <small class="sub-heading text-uppercase">Current</small>
-                                    </a></li>
-                                </ul>
-                            </div>
-                        </small>
-                    </h2>
-                    <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
-                        that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
-                        Schema
-                        Browser, which contains a more comprehensive description of pipeline reduction and analysis
-                        techniques.
-                    </p>
-                </div>
-            </div>
+            <!--<div class="col-xs-12">-->
+                <!--<div class="title_info">-->
+                    <!--<h2>Schema for {{survey|uppercase}}-->
+                        <!--<small class="right-helper">-->
+                            <!--&lt;!&ndash;<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;&ndash;&gt;-->
+                            <!--<div class="btn-group" role="group" style="margin-top:-15px;">-->
+                                <!--<button type="button" class="btn btn-default dropdown-toggle"-->
+                                        <!--data-toggle="dropdown"-->
+                                        <!--aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR-->
+                                    <!--1.0-->
+                                    <!--<i class="fa fa-caret-down"></i>-->
+                                <!--</button>-->
+                                <!--<ul class="dropdown-menu">-->
+                                    <!--<li class="disabled"><a href="">DR 1.0 &nbsp;-->
+                                        <!--<small class="sub-heading text-uppercase">Current</small>-->
+                                    <!--</a></li>-->
+                                <!--</ul>-->
+                            <!--</div>-->
+                        <!--</small>-->
+                    <!--</h2>-->
+                    <!--<p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended-->
+                        <!--that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the-->
+                        <!--Schema-->
+                        <!--Browser, which contains a more comprehensive description of pipeline reduction and analysis-->
+                        <!--techniques.-->
+                    <!--</p>-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="col-xs-12 schema-contents">
 
                 <div class="tab-content">
@@ -243,7 +307,9 @@
 
     $(window).on('resize, load', function () {
         // Sidebar menu height is at least panel height
-        $('.menu-nav').height($('.right-panel').height() + 'px');
+        if ($(window).width() > 770) {
+            $('.menu-nav').height($('.right-panel').height() + 'px');
+        } else {$('.menu-nav').height('auto')}
     });
 
 
