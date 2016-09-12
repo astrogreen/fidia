@@ -9,11 +9,20 @@ from fidia.archive import sami, example_archive
 # ar = sami.SAMITeamArchive("/home/agreen/sami_test_release/",
 #                           "/home/agreen/sami_test_release/" +
 #                           "sami_small_test_cat.fits")
-ar = sami.SAMITeamArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
-                          "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
+# ar = sami.SAMITeamArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
+#                           "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
 # ar = example_archive.ExampleArchive()
 
+ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
+	"dr1_catalog/dr1_20160720.txt")
+
 schema = ar.schema()
+
+# schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only')
+# schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('branch_version', ), verbosity='data_only')
+# schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('branch_version', ), verbosity='metadata')
+# schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='descriptions')
+# schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('branch_version',), verbosity='simple')
 
 # convert to nicely formatted JSON:
 json_string = json.dumps(schema, indent=4)

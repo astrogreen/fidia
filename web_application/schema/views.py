@@ -57,158 +57,18 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if sample_pk == 'gama':
             return Response({"sample": "gama", "in_progress": True})
 
-        else:
-
-            serializer_class = schema.serializers.SurveySerializer
-
-            # Dict of available traits
-            trait_registry = ar.available_traits
-
-            trait_info = {}
-
-            survey_registry = {'trait_types': {}}
-
-            # for trait_class in trait_registry._registry:
-            for trait_type in trait_registry.get_trait_types():
-                survey_registry['trait_types'][str(trait_type)] = {
-                    'trait_names': {},
-                    'documentation': '',
-                    'description': '',
-                    'pretty_name': '',
-                }
-
-                for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
-
-                    default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                    trait_class = trait_registry.retrieve_with_key(default_trait_key)               # type: Trait
-                    survey_registry['trait_types'][str(trait_type)]['documentation'] = trait_class.get_documentation('html')
-                    survey_registry['trait_types'][str(trait_type)]['description'] = trait_class.get_description()
-                    survey_registry['trait_types'][str(trait_type)]['pretty_name'] = trait_class.get_pretty_name()
-                    survey_registry['trait_types'][str(trait_type)]['trait_properties'] = dict()
-                    survey_registry['trait_types'][str(trait_type)]['sub_traits'] = []
-
-                    # TRAIT PROPERTIES
-                    for trait_property_name in trait_class.trait_property_dir():
-                        trait_property = getattr(trait_class, trait_property_name)                  # type: TraitProperty
-                        survey_registry['trait_types'][str(trait_type)]['trait_properties'][trait_property_name] = {
-                            "pretty_name": trait_property.get_pretty_name(),
-                            "description": trait_property.get_description(),
-                            "documentation": trait_property.get_documentation('html'),
-                            "short_name": trait_property.get_short_name()
-                        }
-
-                    # TRAIT INSTANCES
-                    # TODO does the trait instance inherit the classes description, or will it have its own unique doc?
-                    survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)] = {
-                        'description': trait_class.get_description(),
-                        'documentation': trait_class.get_documentation('html'),
-                        'pretty_name': trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1]),
-                        'branches': {str(tk.branch): {} for tk in
-                                     trait_registry.get_all_traitkeys(trait_name_filter=trait_name)},
-                    }
-
-                    # BRANCH ATTRIBUTES
-                    for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
-
-                        # _tk_instance = trait_registry.retrieve_with_key(tk)
-                        survey_registry['trait_types'][str(trait_type)]['trait_names'][str(trait_name)]['branches'][tk.branch] = {
-                            'trait_key': str(tk),
-                            'branch': tk.branch,
-                            'version': tk.version,
-                            'description': 'IN PROGRESS',
-                            'documentation': 'IN PROGRESS',
-                        }
-
-
-
-
-            trait_info = {}
-            for trait_type in trait_registry.get_trait_types():
-
-                # Get info for a trait_key (trait name) filtered by trait type
-                trait_info[trait_type] = {}
-
-                # Descriptions
-                trait_info[trait_type]["description"] = ""
-                trait_info[trait_type]["traits"] = {}
-
-                for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
-
-                    default_trait_key = trait_registry.update_key_with_defaults(trait_name)  # type: TraitKey
-                    trait_class = trait_registry.retrieve_with_key(default_trait_key)  # type: Trait
-
-                    # Pretty Name
-                    # - trait_type
-                    trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
-
-                    # - trait_name
-                    trait_name_pretty_name = trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1])
-
-                    # Descriptions
-                    trait_info[trait_type]["documentation"] = trait_class.get_documentation('html')
-                    trait_info[trait_type]["description"] = trait_class.get_description()
-
-                    # Trait Properties
-                    trait_info[trait_type]["trait_properties"] = ''
-
-                    # Sub Traits
-
-
-                    # Version
-                    # print(self.trait_class.get_all_branches_versions())
-                    # trait_info[trait_type]["version"] = trait_class.get_version()
-
-                    # - trait_name description
-                    trait_name_short_description = None
-                    trait_documentation = None
-
-                    # Formats
-                    trait_name_formats = []
-                    for r in data_browser.views.TraitViewSet.renderer_classes:
-                        f = str(r.format)
-                        if f != "api": trait_name_formats.append(f)
-
-                    # Branches
-                    url_kwargs = {
-                        'sample_pk': sample_pk,
-                    }
-                    survey_schema_url = reverse("schema:sample-list", kwargs=url_kwargs)
-                    trait_name_branches = {
-                    str(tk.branch).replace("None", "default"): survey_schema_url + str(tk.replace(version=None))
-                    for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
-
-                    trait_info[trait_type]["traits"][trait_name] = {"pretty_name": trait_name_pretty_name,
-                                                                    "description": trait_name_short_description,
-                                                                    "documentation": trait_documentation,
-                                                                    "branches": trait_name_branches,
-                                                                    "version": None,
-                                                                    "formats": trait_name_formats}
-
-                    trait_info[trait_type]["traits"][trait_name]['trait_properties'] = dict()
-                    for trait_property_name in trait_class.trait_property_dir():
-                        trait_property = getattr(trait_class, trait_property_name)  # type: TraitProperty
-                        trait_info[trait_type]["traits"][trait_name]['trait_properties'][trait_property_name] = {
-                            "pretty_name": trait_property.get_pretty_name(),
-                            "description": trait_property.get_description(),
-                            "documentation": trait_property.get_documentation('html'),
-                            "short_name": trait_property.get_short_name()
-                        }
-
         try:
-            sami_dr1_sample
+            ar
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # _dummy = object
-        serializer = serializer_class(
-            instance=sami_dr1_sample, many=False,
+
+        serializer = schema.serializers.SurveySerializer(
+            instance=ar, many=False,
             context={
                 'sample': sample_pk,
-                'request': request,
-                'survey_registry': survey_registry,
-                'available_traits': trait_info,
-
+                'request': request
             }
         )
         return Response(serializer.data)
