@@ -21,6 +21,9 @@
   border-right: solid 1px #eeeeee;
   padding: 30px;
 }
+.menu-nav h5 {
+  font-size: 16px;
+}
 .menu-nav h4 {
   margin-top: 10px;
   border-bottom: 1px solid #eeeeee;
