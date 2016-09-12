@@ -285,5 +285,20 @@ class Archive(BaseArchive):
                 self._schema['by_trait_type'] = result
         return result
 
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only'):
+
+        assert verbosity in ('data_only', 'metadata', 'descriptions')
+
+        if verbosity == 'descriptions':
+            if 'branches_versions' in combine_levels:
+                raise ValueError("Schema verbosity 'descriptions' requires that " +
+                                 "combine_levels not include branches_versions")
+
+        return cls.available_traits.schema(
+                include_subtraits=include_subtraits,
+                data_class=data_class,
+                combine_levels=combine_levels,
+                verbosity=verbosity)
+
     def define_available_traits(self):
         return NotImplementedError()

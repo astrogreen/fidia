@@ -3,7 +3,7 @@ from itertools import product
 
 # Internal package imports
 from .trait_key import TraitKey, validate_trait_name, validate_trait_type
-from ..utilities import DefaultsRegistry
+from ..utilities import DefaultsRegistry, SchemaDictionary
 
 # Logging import and setup
 from .. import slogging
@@ -173,3 +173,62 @@ class TraitRegistry:
             return all_names
 
 
+    def schema(self, include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only'):
+        """Construct the schema for all Trait classes registered.
+
+        The schema is constructed by calling the `schema` function on the class
+        responding to each TraitKey registered.
+
+        IMPLEMENTATION NOTE: Multiple TraitKeys can and often do point to the
+        same class. Currently, the schema function is called for every TraitKey,
+        regardless of whether it has already been called on that class. In
+        theory, this unnecessary repetition of the schema call could be
+        eliminated.
+
+        """
+
+        schema = SchemaDictionary()
+
+        def get_schema_element(trait_key):
+            # type: (TraitKey) -> SchemaDictionary
+            """A helper function that finds the appropriate schema element given the requests to combine levels.
+
+            This dramatically reduces the complexity of this part of the code.
+            Previously, there were different if/else branches for each option,
+            and lots of almost repetition.
+
+            Basically, depending on what "combine"ing of levels has been
+            requested, this creates all the necessary intervening levels of the
+            schema dictionary, and then return a pointer to the actual Schema
+            Dictionary that needs to have the schema data from the Trait added.
+
+            """
+
+            if 'trait_name' in combine_levels:
+                piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
+            else:
+                # Do not combine trait_type and trait_qualifer into trait_name
+                piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
+                piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
+
+            if 'branch_version' in combine_levels:
+                pass
+            # elif 'all' in combine_levels:
+            #     pass
+            else:
+                piece = piece.setdefault(trait_key.branch, SchemaDictionary())
+                piece = piece.setdefault(trait_key.version, SchemaDictionary())
+
+            return piece
+
+        for tk in self.get_all_traitkeys():
+            trait = self.retrieve_with_key(tk)
+            piece = get_schema_element(tk)
+            trait_schema = trait.full_schema(
+                include_subtraits=include_subtraits,
+                data_class=data_class,
+                combine_levels=combine_levels,
+                verbosity=verbosity)
+            piece.update(trait_schema)
+
+        return schema

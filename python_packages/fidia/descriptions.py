@@ -260,6 +260,23 @@ class DescriptionsMixin:
             raise ValueError("Invalid Short Name '%s': Short names can only consist of letters, numbers and underscores" % value)
         self._short_name = value_upper
 
+    @classorinstancemethod
+    def copy_descriptions_to_dictionary(self, other_dictionary):
+        # type: (dict) -> None
+        """Convenience function that handles copying all of the description data to a dictionary.
+
+        This is useful for e.g. Django where we are often copying all of this
+        information into a dictionary to be returned as JSON. This brings
+        together all of the work in one place and reduces duplication.
+
+        """
+
+        other_dictionary['short_name'] = self.get_short_name()
+        other_dictionary['pretty_name'] = self.get_pretty_name()
+        other_dictionary['description'] = self.get_description()
+        other_dictionary['html_documentation'] = self.get_documentation('html')
+
+
 class TraitDescriptionsMixin(DescriptionsMixin):
     """Extends Descriptions Mixin to include support for qualifiers on Traits
 
