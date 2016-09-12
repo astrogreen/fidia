@@ -237,10 +237,14 @@ class Archive(BaseArchive):
         else:
             return self.full_schema(combine_levels=('branch_version', ), verbosity='simple', data_class=data_class)
 
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only'):
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only'):
 
+        # Handle default combine_levels argument.
+        if combine_levels is None:
+            combine_levels = tuple()
+
+        # Validate verbosity arguments.
         assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
-
         if verbosity == 'descriptions':
             if 'branches_versions' in combine_levels:
                 raise ValueError("Schema verbosity 'descriptions' requires that " +

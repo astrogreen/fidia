@@ -173,7 +173,7 @@ class TraitRegistry:
             return all_names
 
 
-    def schema(self, include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only'):
+    def schema(self, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only'):
         """Construct the schema for all Trait classes registered.
 
         The schema is constructed by calling the `schema` function on the class
@@ -187,6 +187,8 @@ class TraitRegistry:
 
         """
 
+        if combine_levels is None:
+            combine_levels = tuple()
 
         for item in combine_levels:
             assert item in ('trait_name', 'branch_version')

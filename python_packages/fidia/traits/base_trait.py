@@ -192,7 +192,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
 
     @classmethod
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only'):
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only'):
 
         # Validate the verbosity option
         assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
@@ -212,7 +212,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # Add basic metadata about this trait, if requested
         if verbosity in ('metadata', 'descriptions'):
             schema['trait_type'] = cls.trait_type
-            schema['branches_versions'] = cls.branches_versions
+            # schema['branches_versions'] = cls.branches_versions
 
         # Add description information for this trait to the schema if requested
         if verbosity == 'descriptions':
