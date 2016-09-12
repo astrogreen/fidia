@@ -3,7 +3,7 @@ from itertools import product
 
 # Internal package imports
 from .trait_key import TraitKey, validate_trait_name, validate_trait_type
-from ..utilities import DefaultsRegistry, SchemaDictionary
+from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
 
 # Logging import and setup
 from .. import slogging
@@ -195,6 +195,27 @@ class TraitRegistry:
 
         schema = SchemaDictionary()
 
+        def add_description_data_for_levels(other_dictionary, trait_key,
+                                            levels=['trait_type', 'trait_qualifer', 'branch_version']):
+            # type: (SchemaDictionary, List[str]) -> None
+            """Helper function to populate description data for the given levels."""
+
+            # Do nothing if descriptions not requested.
+            if verbosity != 'descriptions':
+                return
+
+            if not is_list_or_set(levels):
+                levels = [levels]
+
+            trait = self.retrieve_with_key(tk)
+
+            if 'trait_type' in levels:
+                other_dictionary['trait_type-pretty_name'] = trait.get_pretty_name()
+            if 'trait_qualifier' in levels:
+                other_dictionary['trait_qualifer-pretty_name'] = trait.get_qualifier_pretty_name(
+                    trait_key.trait_qualifier)
+                other_dictionary['trait_name-pretty_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
+
         def get_schema_element(trait_key):
             # type: (TraitKey) -> SchemaDictionary
             """A helper function that finds the appropriate schema element given the requests to combine levels.
@@ -208,14 +229,21 @@ class TraitRegistry:
             schema dictionary, and then return a pointer to the actual Schema
             Dictionary that needs to have the schema data from the Trait added.
 
+            Additionally, if descriptions are requested, then it inserts all
+            relevant pretty names at each level (regardless of whether they are
+            combined or not).
+
             """
 
             if 'trait_name' in combine_levels:
                 piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
+                add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_name'])
             else:
                 # Do not combine trait_type and trait_qualifer into trait_name
                 piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
+                add_description_data_for_levels(piece, trait_key, ['trait_type'])
                 piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
+                add_description_data_for_levels(piece, trait_key, ['trait_name'])
 
             if 'branch_version' in combine_levels:
                 pass
