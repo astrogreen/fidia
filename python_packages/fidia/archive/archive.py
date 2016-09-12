@@ -230,64 +230,16 @@ class Archive(BaseArchive):
 
         """
 
-        def add_trait_schemas(dict_to_update, trait_classes):
-            # type: (SchemaDictionary, List[Trait]) -> None
-            for trait in trait_classes:
-                log.debug("        Attempting to add Trait class '%s'", trait)
-                trait_schema = trait.schema(by_trait_name=by_trait_name, data_class=data_class)
-                try:
-                    dict_to_update.update(trait_schema)
-                except ValueError:
-                    log.error("Schema mis-match in traits: trait '%s' cannot be added " +
-                              "to schema for '%s' containing: '%s'",
-                              trait, trait_name, result[trait_name])
-                    raise SchemaError("Schema mis-match in traits")
-
         if by_trait_name:
             # Produce a version of the schema which has trait_type and
             # trait_name combined on a single level.
-            if self._schema['by_trait_name']:
-                # Cached copy available, return that.
-                return self._schema['by_trait_name']
-            result = SchemaDictionary()
-            log.debug("Building a schema by_trait_name for archive '%s'", self)
-            for trait_name in self.available_traits.get_trait_names():
-                log.debug("    Processing traits with trait_name '%s'", trait_name)
-                result[trait_name] = SchemaDictionary()
-                add_trait_schemas(result[trait_name],
-                                  self.available_traits.get_trait_classes(trait_name_filter=trait_name))
-
-            self._schema['by_trait_name'] = result
-
+            return self.full_schema(combine_levels=('trait_name', 'branch_version'), verbosity='simple', data_class=data_class)
         else:
-            # Produce a version of the schema which has trait_type on one level,
-            # and trait_name on the next nested level.
-            if self._schema['by_trait_type']:
-                # Cached copy available, return that.
-                return self._schema['by_trait_type']
-            result = SchemaDictionary()
-            log.debug("Building a schema by_trait_type for archive '%s'", self)
-            trait_types = self.available_traits.get_trait_types()
-            for trait_type in trait_types:
-                log.debug("    Processing traits with trait_type '%s'", trait_type)
-                result[trait_type] = SchemaDictionary()
-                trait_names = self.available_traits.get_trait_names(trait_type_filter=trait_type)
-                for trait_name in trait_names:
-                    log.debug("        Processing traits with trait_name '%s'", trait_name)
-                    trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-
-                    if trait_qualifier not in result[trait_type]:
-                        result[trait_type][trait_qualifier] = SchemaDictionary()
-
-                    add_trait_schemas(result[trait_type][trait_qualifier],
-                                      self.available_traits.get_trait_classes(trait_name_filter=trait_name))
-
-                self._schema['by_trait_type'] = result
-        return result
+            return self.full_schema(combine_levels=('branch_version', ), verbosity='simple', data_class=data_class)
 
     def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only'):
 
-        assert verbosity in ('data_only', 'metadata', 'descriptions')
+        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
 
         if verbosity == 'descriptions':
             if 'branches_versions' in combine_levels:

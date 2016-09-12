@@ -187,6 +187,10 @@ class TraitRegistry:
 
         """
 
+
+        for item in combine_levels:
+            assert item in ('trait_name', 'branch_version')
+
         schema = SchemaDictionary()
 
         def get_schema_element(trait_key):

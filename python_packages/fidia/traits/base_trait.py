@@ -195,7 +195,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only'):
 
         # Validate the verbosity option
-        assert verbosity in ('data_only', 'metadata', 'descriptions')
+        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
         if verbosity == 'descriptions':
             if 'branches_versions' in combine_levels:
                 raise ValueError("Schema verbosity 'descriptions' requires that " +
@@ -209,28 +209,36 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # Create the empty schema for this Trait
         schema = SchemaDictionary()
 
-        # Add basic metadata about this trait:
-        schema['trait_type'] = cls.trait_type
-        schema['branches_versions'] = cls.branches_versions
+        # Add basic metadata about this trait, if requested
+        if verbosity in ('metadata', 'descriptions'):
+            schema['trait_type'] = cls.trait_type
+            schema['branches_versions'] = cls.branches_versions
 
         # Add description information for this trait to the schema if requested
-        if verbosity:
+        if verbosity == 'descriptions':
             cls.copy_descriptions_to_dictionary(schema)
 
         # Add TraitProperties of this Trait to the schema
-        schema['trait_properties'] = SchemaDictionary()
+        trait_properties_schema = SchemaDictionary()
         for trait_property in cls._trait_properties():
             if data_class == 'all' or \
                     (data_class == 'catalog' and trait_property.type in TraitProperty.catalog_types) or \
                     (data_class == 'non-catalog' and trait_property.type in TraitProperty.non_catalog_types):
-                trait_property_schema = SchemaDictionary(
-                    type=trait_property.type,
-                    name=trait_property.name
-                )
-                if verbosity:
+                if verbosity == 'simple':
+                    trait_property_schema = trait_property.type
+                else:
+                    trait_property_schema = SchemaDictionary(
+                        type=trait_property.type,
+                        name=trait_property.name
+                    )
+                if verbosity == 'descriptions':
                     trait_property.copy_descriptions_to_dictionary(trait_property_schema)
 
-                schema['trait_properties'][trait_property.name] = trait_property_schema
+                trait_properties_schema[trait_property.name] = trait_property_schema
+        if verbosity == 'simple':
+            schema.update(trait_properties_schema)
+        else:
+            schema['trait_properties'] = trait_properties_schema
 
         # Add sub-trait information to the schema.
         if include_subtraits:
@@ -241,11 +249,16 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 combine_levels += ('branch_version', )
 
             # Request the schema from the registry.
-            schema['sub_traits'] = cls.sub_traits.schema(
+            sub_traits_schema = cls.sub_traits.schema(
                 include_subtraits=include_subtraits,
                 data_class=data_class,
                 combine_levels=combine_levels,
                 verbosity=verbosity)
+
+            if verbosity == 'simple':
+                schema.update(sub_traits_schema)
+            else:
+                schema['sub_traits'] = sub_traits_schema
 
         if data_class != 'all':
             # Check for empty Trait schemas and remove (only necessary if there
