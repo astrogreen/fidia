@@ -11,6 +11,7 @@ from fidia.traits import Trait, TraitProperty
 from fidia import traits
 from fidia.descriptions import DescriptionsMixin
 from fidia.traits.trait_property import BoundTraitProperty
+from fidia.archive.archive import Archive
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -30,23 +31,27 @@ class SurveySerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
 
         sample = self.instance
-        assert isinstance(sample, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " + \
+        assert isinstance(sample, Archive), \
+            "SampleSerializer must have an instance of fidia.Archive, " + \
             "not '%s': try SampleSerializer(instance=sample)" % sample
 
     def get_sample(self, obj):
         return self.context['sample']
+    #
+    # def get_available_traits(self, obj):
+    #     return self.context['available_traits']
 
-    def get_available_traits(self, obj):
-        return self.context['available_traits']
+    # def get_survey_registry(self, obj):
+    #     return self.context['survey_registry']
 
-    def get_survey_registry(self, obj):
-        return self.context['survey_registry']
+    def get_schema(self, obj):
+        # type: (Archive) -> dict
+        schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions')
+        return schema
 
     sample = serializers.SerializerMethodField()
-    available_traits = serializers.SerializerMethodField()
-    survey_registry = serializers.SerializerMethodField()
-    # astro_objects = serializers.SerializerMethodField()
+
+    schema = serializers.SerializerMethodField()
 
 
 class SampleSerializer(serializers.Serializer):

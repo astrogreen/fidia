@@ -63,7 +63,7 @@ class SchemaDictionary(dict):
                 self[key] = self._convert_to_schema_dictionary(self[key])
 
 
-    def update(self, other_dict):
+    def update(self, other_dict, set_updates_allowed=True):
 
         if not hasattr(other_dict, 'keys'):
             raise TypeError("A SchemaDictionary can only be updated with a dict-like object.")
@@ -76,10 +76,13 @@ class SchemaDictionary(dict):
                 else:
                     to_add = deepcopy(other_dict[key])
                 self[key] = to_add
-            elif key in self and not isinstance(self[key], dict):
-                # Key already exists and is not a dictionary, so check that the value has not changed.
-                if self[key] != other_dict[key]:
-                    raise ValueError("Invalid attempt to change value at key '%s' in update" % key)
+            elif key in self and not isinstance(self[key], SchemaDictionary):
+                # Key already exists so see if we can either check it does not change or update it
+                if set_updates_allowed and hasattr(self[key], 'update'):
+                    self[key].update(other_dict[key])
+                else:
+                    if self[key] != other_dict[key]:
+                        raise ValueError("Invalid attempt to change value at key '%s' in update" % key)
             elif key in self and isinstance(self[key], dict) and isinstance(other_dict[key], dict):
                 # Key already exists and is a dictionary, so recurse the update.
                 self[key].update(other_dict[key])
