@@ -237,7 +237,8 @@ class Archive(BaseArchive):
         else:
             return self.full_schema(combine_levels=('branch_version', ), verbosity='simple', data_class=data_class)
 
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only'):
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
+                    separate_metadata=False):
 
         # Handle default combine_levels argument.
         if combine_levels is None:
@@ -250,11 +251,31 @@ class Archive(BaseArchive):
                 raise ValueError("Schema verbosity 'descriptions' requires that " +
                                  "combine_levels not include branches_versions")
 
-        return cls.available_traits.schema(
+        schema = SchemaDictionary()
+
+        # Add meta data about the archive, if requested
+        if verbosity == 'descriptions':
+            schema['archive_pretty_name'] = "Pretty Name for Archive"
+
+        if separate_metadata:
+            if 'trait_name' in combine_levels:
+                schema_piece = schema.setdefault('trait_names', SchemaDictionary())
+            else:
+                schema_piece = schema.setdefault('trait_types', SchemaDictionary())
+        else:
+            schema_piece = schema
+
+        available_traits_schema = cls.available_traits.schema(
                 include_subtraits=include_subtraits,
                 data_class=data_class,
                 combine_levels=combine_levels,
-                verbosity=verbosity)
+                verbosity=verbosity,
+                separate_metadata=separate_metadata
+            )
+
+        schema_piece.update(available_traits_schema)
+
+        return schema
 
     def define_available_traits(self):
         return NotImplementedError()
