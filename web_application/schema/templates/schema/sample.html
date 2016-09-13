@@ -25,16 +25,19 @@
     <div class="col-sm-3 col-xs-12 menu-nav schema" id="menu-nav">
         <h5>Contents</h5>
         <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
-            {% for trait_type_key, trait_type_value in response.data.schema.items %}
+            {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
             <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
                 <h6>{{trait_type_value.pretty_name}}</h6>
             </li>
-                {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.items %}
+                {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                     <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
                         <a href="#{{trait_type_key}}_{{trait_qualifier_key}}"
                            aria-controls="{{trait_type_key}}_{{trait_qualifier_key}}" role="tab"
-                           data-toggle="pill">{{trait_qualifier_key|title}}
-                            <!--<small>{{trait_type_key}}_{{trait_qualifier_key}}</small>-->
+                           data-toggle="pill">{{trait_qualifier_value.pretty_name}}
+                            {% if not trait_qualifier_value.pretty_name %}
+                                {{trait_type_value.pretty_name}}
+                            {% endif %}
+                            <small>{{trait_type_key}}_{{trait_qualifier_key}}</small>
                         </a>
                     </li>
                 {% endfor %}
@@ -73,11 +76,11 @@
             </div>
             <div class="col-xs-12 schema-contents">
                 {% comment %}
-                {% for trait_type_key, trait_type_value in response.data.schema.items %}
+                {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
                     {{trait_type_key}}
-                    {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.items %}
+                    {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                     &nbsp;{{trait_qualifier_key}}
-                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.items %}
+                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
                             &nbsp;&nbsp;{{trait_branch_key}}
                                 {% for trait_version_key, trait_version_value in trait_branch_value.items %}
                                     &nbsp;&nbsp;{{trait_version_key}}
@@ -88,40 +91,43 @@
                 {% endfor %}
                 {% endcomment %}
                 <div class="tab-content">
-                    {% for trait_type_key, trait_type_value in response.data.schema.items %}
-                        {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.items %}
+                    {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
+                        {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                             <div id="{{trait_type_key}}_{{trait_qualifier_key}}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
                                 <ul class="nav nav-pills pull-right">
-                                    <li class="dropdown-header">
-                                        Switch branches
-                                    </li>
-                                    <li role="separator" class="divider"></li>
+
                                     <li class="dropdown">
                                     <a class="btn btn-default" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                        <i class="fa fa-code-fork"></i> Branch <i class="fa fa-caret-down"></i>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.items %}
+
+                                        <li class="dropdown-header">
+                                            Switch branches
+                                        </li>
+
+                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
                                             <li class="dropdown-header">
-                                                    <i class="fa fa-code-fork"></i> {{trait_branch_key}}
+                                                    <i class="fa fa-code-fork"></i> {{trait_branch_value.pretty_name}}
                                             </li>
-                                            {% for trait_version_key, trait_version_value in trait_branch_value.items %}
+                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                                 <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}">
-                                                    <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" data-toggle="tab" role="tab" style="padding-left:30px;">
+                                                    <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" data-toggle="tab" role="tab">
                                                         {% if trait_branch_key == "default" %}
                                                         <strong><i class="fa fa-check"></i></strong>
                                                         {% endif %}
-                                                        <strong> {{trait_branch_key}}_{{trait_version_key}}</strong>
+                                                        <strong> <i class="fa map-marker"></i> {{trait_branch_key}}_{{trait_version_key}}</strong>
                                                     </a>
                                                 </li>
                                             {% endfor %}
+                                            <li role="separator" class="divider"></li>
                                         {% endfor %}
                                     </ul>
                                   </li>
                                 </ul>
                                 <div class="tab-content">
-                                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.items %}
-                                        {% for trait_version_key, trait_version_value in trait_branch_value.items %}
+                                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                        {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                             <div id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}"
                                                  class="tab-pane {% if forloop.parentloop.first and forloop.first %}active{% endif %}">
                                                     {% with trait_version_value as value %}

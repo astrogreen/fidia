@@ -46,7 +46,7 @@ class SurveySerializer(serializers.Serializer):
 
     def get_schema(self, obj):
         # type: (Archive) -> dict
-        schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions')
+        schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True)
         return schema
 
     sample = serializers.SerializerMethodField()
