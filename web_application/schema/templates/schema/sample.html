@@ -22,6 +22,38 @@
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
 <div class="row schema-browser">
+    <div class="col-xs-12">
+        <div class="title_info">
+            <h2>Schema for {{survey|uppercase}}
+                <small class="right-helper">
+                    <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                    <div class="btn-group" role="group" style="margin-top:-15px;">
+                        <button type="button" class="btn btn-default dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <span class="sub-heading">
+                                <i class="fa fa-map-marker"></i> Data Release:
+                            </span>
+                            <strong>1.0</strong>
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="disabled"><a href="">DR 1.0 &nbsp;
+                                <small class="sub-heading text-uppercase">Current</small>
+                            </a></li>
+                        </ul>
+                    </div>
+                </small>
+            </h2>
+            <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
+                that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
+                Schema
+                Browser, which contains a more comprehensive description of pipeline reduction and analysis
+                techniques.
+            </p>
+        </div>
+    </div>
+
     <div class="col-sm-3 col-xs-12 menu-nav schema" id="menu-nav">
         <h5>Contents</h5>
         <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
@@ -46,34 +78,34 @@
     </div>
     <div class="col-sm-9 col-xs-12 right-panel">
         <div class="row">
-            <div class="col-xs-12">
-                <div class="title_info">
-                    <h2>Schema for {{survey|uppercase}}
-                        <small class="right-helper">
-                            <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                            <div class="btn-group" role="group" style="margin-top:-15px;">
-                                <button type="button" class="btn btn-default dropdown-toggle"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR
-                                    1.0
-                                    <i class="fa fa-caret-down"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li class="disabled"><a href="">DR 1.0 &nbsp;
-                                        <small class="sub-heading text-uppercase">Current</small>
-                                    </a></li>
-                                </ul>
-                            </div>
-                        </small>
-                    </h2>
-                    <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
-                        that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
-                        Schema
-                        Browser, which contains a more comprehensive description of pipeline reduction and analysis
-                        techniques.
-                    </p>
-                </div>
-            </div>
+            <!--<div class="col-xs-12">-->
+                <!--<div class="title_info">-->
+                    <!--<h2>Schema for {{survey|uppercase}}-->
+                        <!--<small class="right-helper">-->
+                            <!--&lt;!&ndash;<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;&ndash;&gt;-->
+                            <!--<div class="btn-group" role="group" style="margin-top:-15px;">-->
+                                <!--<button type="button" class="btn btn-default dropdown-toggle"-->
+                                        <!--data-toggle="dropdown"-->
+                                        <!--aria-haspopup="true" aria-expanded="false"><i class="fa fa-map-marker"></i> DR-->
+                                    <!--1.0-->
+                                    <!--<i class="fa fa-caret-down"></i>-->
+                                <!--</button>-->
+                                <!--<ul class="dropdown-menu">-->
+                                    <!--<li class="disabled"><a href="">DR 1.0 &nbsp;-->
+                                        <!--<small class="sub-heading text-uppercase">Current</small>-->
+                                    <!--</a></li>-->
+                                <!--</ul>-->
+                            <!--</div>-->
+                        <!--</small>-->
+                    <!--</h2>-->
+                    <!--<p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended-->
+                        <!--that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the-->
+                        <!--Schema-->
+                        <!--Browser, which contains a more comprehensive description of pipeline reduction and analysis-->
+                        <!--techniques.-->
+                    <!--</p>-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="col-xs-12 schema-contents">
                 {% comment %}
                 {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
@@ -91,12 +123,11 @@
                 {% endfor %}
                 {% endcomment %}
                 <div class="tab-content">
+                    <!--<div class="pull-right sub-heading">Change branch or version</div><br>-->
                     {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
                         {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                             <div id="{{trait_type_key}}_{{trait_qualifier_key}}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
-
                                 <ul class="nav nav-pills pull-right">
-
                                     <li class="dropdown keep-open">
                                         <a class="btn btn-default" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                            <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch: </span>
@@ -159,28 +190,28 @@
                                                     {% with trait_version_value.trait as value %}
 
                                                         <h3>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
-                                                            <small>{{trait_branch_value.pretty_name}} {{trait_version_value.pretty_name}}</small>
+                                                            <!--<small>{{trait_branch_value.pretty_name}} {{trait_version_value.pretty_name}}</small>-->
                                                         </h3>
-                                                        <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
+                                                        <p><em>{% if value.description %}{{value.description}}{% endif %}</em></div>
+                                                        <h4>Branch & Version</h4>
+                                                        <p>You are currently viewing the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} Schema for
+                                                            branch <strong class="text-danger"> <em>{{trait_branch_value.pretty_name}}</em></strong>, version number <strong class="text-danger"><em>{{trait_version_value.pretty_name}}</em></strong>. </p>
+
+                                                        <dl class="p">
+                                                            <dt><span class="sub-heading"><i class="fa fa-code-fork"></i> Branch: </span><strong>{{trait_branch_value.pretty_name}}
+                                                                {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                                <small>[DEFAULT]</small>
+                                                                {% endif %}
+                                                            </strong></dt>
+                                                            <dd>Branch description ... {{trait_branch_value.description}}</dd>
+                                                            <dt><span class="sub-heading"><i class="fa fa-map-pin"></i> Version: </span><strong>{{trait_version_value.pretty_name}}</strong></dt>
+                                                            <dd>Version description ... {{trait_version_value.description}}</dd>
+                                                        </dl>
 
                                                         <div class="panel panel-default success">
                                                             <div class="panel-body">
-                                                                <div>
-                                                                    <em>
-                                                                        <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch: </span>
-                                                                        <strong>{{trait_branch_value.pretty_name}}</strong>
-                                                                    </em>
-                                                                </div>
-                                                                <p>Branch description ... {{trait_branch_value.description}}</p>
-                                                                <div>
-                                                                    <em>
-                                                                        <span class="sub-heading"><i class="fa fa-map-pin"></i> Version: </span>
-                                                                        <strong>{{trait_version_value.pretty_name}}</strong>
-                                                                    </em>
-                                                                </div>
-                                                                <p>Version description ... {{trait_version_value.description}}</p>
                                                                 <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
-                                                            branch <em>{{trait_branch_value.pretty_name}}</em>, version <em>{{trait_version_value.pretty_name}}</em>, which can be
+                                                            <strong> branch <em>{{trait_branch_value.pretty_name}}</em>, version <em>{{trait_version_value.pretty_name}}</em></strong>, which can be
                                                                     significantly different from other branches/versions. To switch branches/versions, use the
                                                                     selector floating in the top right corner of this panel. For more information
                                                                     on branches,
@@ -207,48 +238,44 @@
 
                                                         <!-- Properties-->
                                                         <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties">Properties</h4>
-                                                        <table class="table table-bordered">
-                                                            <tbody>
-                                                                <tr class="active panel-title">
-                                                                    <td>Name</td>
-                                                                    <td>Description</td>
-                                                                    <td>Type</td>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered table-striped">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Name</th>
+                                                                    <th>Type</th>
+                                                                    <th>Description</th>
+                                                                    <th>Documentation</th>
                                                                 </tr>
-                                                            {% for trait_property_key, trait_property_value in value.trait_properties.items %}
-                                                            <tr>
-                                                                <td>
-                                                                    <strong class="text-uppercase">{{trait_property_value.pretty_name}}</strong>
-                                                                </td>
-                                                                <td class="p">
-                                                                    {{trait_property_value.description}}
-                                                                    <a class="">read more...</a>
-                                                                </td>
-                                                                <td class="p">
-                                                                    {{trait_property_value.type}}
-                                                                </td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                            </tbody>
-                                                        </table>
+                                                                </thead>
+                                                                <tbody>
 
+                                                                {% for trait_property_key, trait_property_value in value.trait_properties.items %}
+                                                                    <tr>
+                                                                        <td>{{trait_property_value.pretty_name}}</td>
+                                                                        <td><code>{{trait_property_value.type}}</code></td>
+                                                                        <td><em>{{trait_property_value.description}}</em></td>
+                                                                        <td>{{trait_property_value.html_documentation}}</td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
 
                                                         <!-- Formats -->
                                                         <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats">
                                                              Formats
                                                         </h4>
-                                                        <table class="table table-bordered">
-                                                            <tbody>
-                                                                <tr class="success panel-title">
-                                                                    <td><span class="fa-custom-stack">
-                                                                  <i class="fa fa-file-o"></i>
-                                                                    <span class="fa-custom-filetype">fits</span>
-                                                                </span>
-                                                                        Format
-                                                                    </td>
-                                                                    <td>Description</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
+                                                        <p>
+                                                            <span class="fa-custom-stack">
+                                                              <i class="fa fa-file-o"></i>
+                                                                <span class="fa-custom-filetype">fits</span>
+                                                            </span>fits,
+                                                            <span class="fa-custom-stack">
+                                                              <i class="fa fa-file-o"></i>
+                                                                <span class="fa-custom-filetype">json</span>
+                                                            </span>json
+                                                        </p>
 
 
                                                         <!-- Branches -->
@@ -273,7 +300,7 @@
                                                                     {% if trait_qualifier_value.default_branch == trait_branch_key %}
                                                                         <small>DEFAULT</small>
                                                                     {% endif %}
-                                                                </em>
+                                                         divvvv     </em>
                                                                 <p>Branch description ... {{trait_branch_value.description}}</p>
                                                             </div>
 
@@ -319,8 +346,7 @@
                 $('.menu-nav').height($('.right-panel').height() + 'px');
             }
         } else {
-            $('.menu-nav').height('2000px');
-//            $('.menu-nav').height('auto');
+            $('.menu-nav').height('auto');
         }
     });
 
