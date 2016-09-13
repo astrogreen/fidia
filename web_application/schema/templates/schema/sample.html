@@ -104,7 +104,7 @@
                                             {% for trait_version_key, trait_version_value in trait_branch_value.items %}
                                                 <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}">
                                                     <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" data-toggle="tab" role="tab" style="padding-left:30px;">
-                                                         <i class="fa fa-map-pin"></i> {{trait_version_key}}
+                                                         <strong> {{trait_branch_key}}_{{trait_version_key}}</strong>
                                                     </a>
                                                 </li>
                                             {% endfor %}
@@ -234,32 +234,27 @@
 
                                                         <!-- Branches -->
                                                         <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches">
-                                                             Branches
+                                                             All Available Branches
                                                         </h4>
-                                                        <table class="table table-bordered">
-                                                            <tbody>
-                                                                <tr class="info panel-title">
-                                                                    <td>
-                                                                        <i class="fa fa-code-fork"></i> Branch
-                                                                    </td>
-                                                                    <td>Description</td>
-                                                                    <td>Contact</td>
-                                                                </tr>
+                                                        <p>{{trait_type_key}} {{trait_qualifier_key}} has X available branch(es).
 
-                                                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.items %}
-                                                                    <tr>
-                                                                        <td>{{trait_branch_key}}</td>
-                                                                        <td>
-                                                                            <em>branch description</em>
-                                                                            <a class="">read more...</a>
-                                                                        </td>
-                                                                        <td>
-                                                                            <em>author/contact</em>
-                                                                        </td>
-                                                                    </tr>
-                                                                {% endfor %}
-                                                            </tbody>
-                                                        </table>
+                                                            To switch branches, use the
+                                                            branch selector floating in the top right corner at the top
+                                                            of this document. For more information
+                                                            on branches,
+                                                            <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
+                                                                view the documentation</a>.
+                                                        </p>
+
+
+                                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.items %}
+                                                            <h5><i class="fa fa-code-fork"></i> {{trait_branch_key}}</h5>
+                                                            <p>branch description goes here</p>
+                                                            <h6>Versions:</h6>
+                                                            {% for trait_version_key, trait_version_value in trait_branch_value.items %}
+                                                                <em>{{trait_version_key}}</em>
+                                                            {% endfor %}
+                                                        {% endfor %}
 
                                                     {% endwith %}
 
@@ -295,18 +290,13 @@
             $(this).tab('show');
         });
         // Internally linked tab navigation (for branches and versions)
-//        $("a[href]").on('click', function() {
-//            var _tab = $(this).attr('data-tab-dest');
-//            $("#"+_tab).click();
-////            $("#"+_tab).tab('show');
-//        });
-//
-//        $('.branch_version a').click(function (e) {
-//            e.preventDefault();
-//            var _tab = $(this).attr('href');
-//            $(_tab).click();
-//        })
-
+         $('.branch_dropdown > ul > li > a').click(function(){
+             console.log('click');
+         });
+        // Change the text shown in the branch button.
+         $('.branch_dropdown ul.dropdown-menu > li > a').click(function(event){
+            $('.branch_dropdown > ul > li > a').html("<i class='fa fa-code-fork'></i> Branch: "+"<strong>"+$( this ).text()+"</strong>")
+         });
 
         $(".scroll").click(function(event){
             // stop the hash being appended to the url, and scroll to the value
