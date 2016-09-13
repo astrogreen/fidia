@@ -18,6 +18,7 @@
 .menu-nav {
   background-color: #fafafa;
   background-color: #f3f3f3;
+  background-color: #f5f5f5;
   border-right: solid 1px #eeeeee;
   padding: 30px;
 }
@@ -44,18 +45,6 @@
 }
 .menu-nav #docs-sidebar > li.nested-la {
   margin-left: 30px;
-  margin-top: 0;
-}
-.title_info {
-  background-color: #fafafa;
-  padding: 45px 30px 30px 30px;
-  border-bottom: solid 1px #eeeeee;
-}
-.title_info h2 {
-  font-size: 30px;
-  border-bottom: 0;
-}
-.title_info h2 {
   margin-top: 0;
 }
 .right-panel .title_info {
