@@ -3,7 +3,7 @@ from itertools import product
 
 # Internal package imports
 from .trait_key import TraitKey, validate_trait_name, validate_trait_type
-from ..utilities import DefaultsRegistry, SchemaDictionary
+from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
 
 # Logging import and setup
 from .. import slogging
@@ -16,7 +16,7 @@ class TraitRegistry:
     def __init__(self):
         self._registry = set()
         self._trait_lookup = dict()
-        self._trait_name_defaults = dict()
+        self._trait_name_defaults = dict() # type: dict[str, DefaultsRegistry]
 
     def register(self, trait):
         log.debug("Registering Trait '%s'", trait)
@@ -191,9 +191,44 @@ class TraitRegistry:
             combine_levels = tuple()
 
         for item in combine_levels:
-            assert item in ('trait_name', 'branch_version')
+            assert item in ('trait_name', 'branch_version', 'no_trait_qualifer')
 
         schema = SchemaDictionary()
+
+        def add_description_data_for_levels(other_dictionary, trait_key,
+                                            levels=['trait_type', 'trait_qualifer', 'branch_version']):
+            # type: (SchemaDictionary, List[str]) -> None
+            """Helper function to populate description data for the given levels."""
+
+            # Do nothing if descriptions not requested.
+            if verbosity != 'descriptions':
+                return
+
+            if not is_list_or_set(levels):
+                levels = [levels]
+
+            trait = self.retrieve_with_key(tk)
+
+            if 'trait_type' in levels:
+                other_dictionary['trait_type-pretty_name'] = trait.get_pretty_name()
+            if 'trait_qualifier' in levels:
+                other_dictionary['trait_qualifer-pretty_name'] = trait.get_qualifier_pretty_name(
+                    trait_key.trait_qualifier)
+                other_dictionary['trait_name-pretty_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
+
+        def add_default_branch_to_schema(trait_key, schema_piece):
+            """If descriptions are requested, add the default branch of this Trait."""
+            # TODO: Checking for 'branch_version' is not an authoritative way to determine sub-traits.
+            if verbosity != 'descriptions' or 'branch_version' in combine_levels:
+                return
+            schema_piece['default_branch'] = self._trait_name_defaults[trait_key.trait_name].branch
+
+        def add_default_version_to_schema(trait_key, schema_piece):
+            """If descriptions are requested, add the default version of this Trait for the current branch."""
+            # TODO: Checking for 'branch_version' is not an authoritative way to determine sub-traits.
+            if verbosity != 'descriptions' or 'branch_version' in combine_levels:
+                return
+            schema_piece['default_version'] = self._trait_name_defaults[trait_key.trait_name].version(trait_key.branch)
 
         def get_schema_element(trait_key):
             # type: (TraitKey) -> SchemaDictionary
@@ -208,22 +243,51 @@ class TraitRegistry:
             schema dictionary, and then return a pointer to the actual Schema
             Dictionary that needs to have the schema data from the Trait added.
 
+            Additionally, if descriptions are requested, then it inserts all
+            relevant pretty names at each level (regardless of whether they are
+            combined or not).
+
             """
 
             if 'trait_name' in combine_levels:
                 piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
+                add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_name'])
+            elif 'no_trait_qualifer' in combine_levels:
+                # For traits that do not support a trait qualifer, then don't
+                # add a level to the schema for the trait qualifier.
+                if trait_key.trait_qualifier is None:
+                    # Qualifiers not present: behave as for 'trait_name'
+                    piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
+                    add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_name'])
+                else:
+                    # Qualifiers present: behave as if 'trait_name' was not given
+                    piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
+                    add_description_data_for_levels(piece, trait_key, ['trait_type'])
+                    piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
+                    add_description_data_for_levels(piece, trait_key, ['trait_name'])
             else:
-                # Do not combine trait_type and trait_qualifer into trait_name
+                # Do not combine trait_type and trait_qualifier into trait_name
                 piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
+                add_description_data_for_levels(piece, trait_key, ['trait_type'])
                 piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
+                add_description_data_for_levels(piece, trait_key, ['trait_name'])
+
 
             if 'branch_version' in combine_levels:
+                # If branch and version are combined, then the version data will
+                # be overwritten. Lines below commented out. NOTE ALSO: branches
+                # and versions not relevant for sub-traits.
+
+                # add_default_branch_to_schema(trait_key, piece)
+                # add_default_version_to_schema(trait_key, piece)
                 pass
-            # elif 'all' in combine_levels:
-            #     pass
             else:
+                add_default_branch_to_schema(trait_key, piece)
                 piece = piece.setdefault(trait_key.branch, SchemaDictionary())
+                add_default_version_to_schema(trait_key, piece)
                 piece = piece.setdefault(trait_key.version, SchemaDictionary())
+
+                # Add the information on the default branch and version information
 
             return piece
 
