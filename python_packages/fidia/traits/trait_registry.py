@@ -227,12 +227,21 @@ class TraitRegistry:
             #   - At the trait_qualifier level, this is just the pretty version of qualifier
             #   - When type and qualifier are combined, this is the pretty version of the full trait_name
             #
-            if 'trait_type' in levels and 'trait_qualifier' in levels:
-                other_dictionary['pretty_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
-            elif 'trait_type' in levels:
-                other_dictionary['pretty_name'] = trait.get_pretty_name()
-            elif 'trait_qualifier' in levels:
-                other_dictionary['pretty_name'] = trait.get_qualifier_pretty_name(trait_key.trait_qualifier)
+            if 'branch_version' not in combine_levels:
+                # if branch and version are combined, then the pretty_name set here will clash with that set for the
+                # individual trait schema, so we skip this version.
+                if 'trait_type' in levels and 'trait_qualifier' in levels:
+                    # Set the pretty version of the full trait_name (type and qualifier)
+                    other_dictionary['pretty_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
+                elif 'trait_type' in levels:
+                    # Set the pretty version of just the trait_type
+                    other_dictionary['pretty_name'] = trait.get_pretty_name()
+                elif 'trait_qualifier' in levels:
+                    # set the pretty version of just the trait_qualifier, or empty string if no qualifier.
+                    if trait_key.trait_qualifier is not None:
+                        other_dictionary['pretty_name'] = trait.get_qualifier_pretty_name(trait_key.trait_qualifier)
+                    else:
+                        other_dictionary['pretty_name'] = ""
 
         def add_default_branch_to_schema(trait_key, schema_piece):
             """If descriptions are requested, add the default branch of this Trait."""
