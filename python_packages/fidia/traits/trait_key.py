@@ -2,6 +2,8 @@ import collections
 import re
 from operator import itemgetter
 
+from ..descriptions import DescriptionsMixin
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
@@ -174,3 +176,104 @@ class TraitKey(tuple):
     branch = property(itemgetter(2), doc='Branch')
 
     version = property(itemgetter(3), doc='Version')
+
+
+class BranchesVersions(dict):
+
+    def get_pretty_name(self, item):
+        key = self.get_full_key(item)
+        if isinstance(key, tuple) and len(key) > 1:
+            return key[1]
+        else:
+            return key[0]
+
+    def get_description(self, item):
+        key = self.get_full_key(item)
+        if isinstance(key, tuple) and len(key) > 2:
+            return key[2]
+        else:
+            return ""
+
+    def get_version_pretty_name(self, branch, version):
+        full_item = self.get_full_item(branch)
+        for version_tuple in full_item:
+            if isinstance(version_tuple, tuple) and version_tuple[0] == version:
+                if len(version_tuple) > 1:
+                    return version_tuple[1]
+                else:
+                    # Fall back to simply returning the version ID
+                    return version_tuple[0]
+            elif version_tuple == version:
+                return version_tuple
+        # Version not found in the set of all versions.
+        raise KeyError("Version '%s' not found" % version)
+
+
+    def get_version_description(self, branch, version):
+        full_item = self.get_full_item(branch)
+        for version_tuple in full_item:
+            if isinstance(version_tuple, tuple) and version_tuple[0] == version:
+                if len(version_tuple) > 2:
+                    return version_tuple[2]
+                else:
+                    # Return empty string if no description.
+                    return ""
+            elif version_tuple == version:
+                return ""
+        # Version not found in the set of all versions.
+        raise KeyError("Version '%s' not found")
+
+    def name_keys(self):
+        for key in self.keys():
+            if isinstance(key, tuple):
+                yield key[0]
+            else:
+                yield key
+
+    def get_full_key(self, branch):
+        if branch not in self.keys():
+            for key in self.keys():
+                if isinstance(key, tuple) and branch == key[0]:
+                    return key
+            # Have iterated through all keys and none matched.
+            raise KeyError("Branch '%s' not found" % branch)
+        else:
+            return branch
+
+    def get_full_item(self, item):
+        key = self.get_full_key(item)
+        return super(BranchesVersions, self).__getitem__(key)
+
+
+    def __getitem__(self, item):
+        full_item = self.get_full_item(item)
+        # The full item for a branch will be a set of either version identifiers
+        # or tuples with (verid, prettyname, desc)
+        # Return only the first items of each tuple.
+        return {(i[0] if isinstance(i, tuple) else i) for i in full_item }
+
+    def __contains__(self, item):
+        return item in self.name_keys()
+
+    def __iter__(self):
+        return self.name_keys()
+
+class Branch(DescriptionsMixin):
+
+    # This tells the DescriptionsMixin to provide separate descriptions for each instance of this class.
+    descriptions_allowed = 'instance'
+
+    def __init__(self, name, pretty_name=None, description=None, versions=None):
+        if description is not None:
+            self.set_description(description)
+        if pretty_name is not None:
+            self.set_pretty_name(pretty_name)
+        self.name = name
+
+        if versions is not None:
+            self.versions = set(versions)
+        else:
+            self.versions = {None}
+
+    def __str__(self):
+        return self.name
