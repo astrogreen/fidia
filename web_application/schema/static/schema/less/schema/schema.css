@@ -7,17 +7,14 @@
   line-height: 14px;
   background-color: #e6e6e6;
   border-bottom: solid 1px #cccccc;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 .branch_dropdown .dropdown-header-sub {
   color: #333;
   padding-top: 8px;
   padding-bottom: 8px;
 }
-.branch_dropdown li.dropdown-header > small.versions {
-  padding-left: 20px;
-}
-.branch_dropdown a.versions {
+.branch_dropdown .versions {
   padding-left: 45px;
 }
 .schema-browser {
@@ -31,11 +28,13 @@
 }
 .schema-browser h3 {
   margin-top: 5px;
-  margin-bottom: 0px;
   font-size: 24px;
 }
 .schema-browser .table tbody p {
   margin-bottom: 0;
+}
+.schema-browser h5 {
+  font-size: 16px;
 }
 .menu-nav {
   background-color: #fafafa;
