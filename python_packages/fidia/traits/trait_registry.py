@@ -191,7 +191,7 @@ class TraitRegistry:
             combine_levels = tuple()
 
         for item in combine_levels:
-            assert item in ('trait_name', 'branch_version')
+            assert item in ('trait_name', 'branch_version', 'no_trait_qualifer')
 
         schema = SchemaDictionary()
 
@@ -238,6 +238,19 @@ class TraitRegistry:
             if 'trait_name' in combine_levels:
                 piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
                 add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_name'])
+            elif 'no_trait_qualifer' in combine_levels:
+                # For traits that do not support a trait qualifer, then don't
+                # add a level to the schema for the trait qualifier.
+                if trait_key.trait_qualifier is None:
+                    # Qualifiers not present: behave as for 'trait_name'
+                    piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
+                    add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_name'])
+                else:
+                    # Qualifiers present: behave as if 'trait_name' was not given
+                    piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
+                    add_description_data_for_levels(piece, trait_key, ['trait_type'])
+                    piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
+                    add_description_data_for_levels(piece, trait_key, ['trait_name'])
             else:
                 # Do not combine trait_type and trait_qualifer into trait_name
                 piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
