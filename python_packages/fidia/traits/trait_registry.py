@@ -228,7 +228,7 @@ class TraitRegistry:
             #   - At the trait_qualifier level, this is just the pretty version of qualifier
             #   - When type and qualifier are combined, this is the pretty version of the full trait_name
             #
-            if 'branch_version' not in combine_levels:
+            if separate_metadata:
                 # if branch and version are combined, then the pretty_name set here will clash with that set for the
                 # individual trait schema, so we skip this version.
                 if 'trait_type' in levels and 'trait_qualifier' in levels:
@@ -268,11 +268,11 @@ class TraitRegistry:
             if trait_class.branches_versions is None:
                 # No branches or versions defined
                 # @TODO: Force branches and versions to be defined?
-                schema_piece['branch_pretty_name'] = "None"
-                schema_piece['branch_description'] = ""
+                schema_piece['pretty_name'] = "None"
+                schema_piece['description'] = ""
                 return
-            schema_piece['branch_pretty_name'] = trait_class.branches_versions.get_pretty_name(trait_key.branch)
-            schema_piece['branch_description'] = trait_class.branches_versions.get_description(trait_key.branch)
+            schema_piece['pretty_name'] = trait_class.branches_versions.get_pretty_name(trait_key.branch)
+            schema_piece['description'] = trait_class.branches_versions.get_description(trait_key.branch)
 
         def add_version_description_to_schema(trait_key, trait_class, schema_piece):
             if verbosity != 'descriptions':
@@ -284,12 +284,12 @@ class TraitRegistry:
             if trait_class.branches_versions is None:
                 # No branches or versions defined
                 # @TODO: Force branches and versions to be defined?
-                schema_piece['version_pretty_name'] = "None"
-                schema_piece['version_description'] = ""
+                schema_piece['pretty_name'] = "None"
+                schema_piece['description'] = ""
                 return
-            schema_piece['version_pretty_name'] = trait_class.branches_versions.get_version_pretty_name(
+            schema_piece['pretty_name'] = trait_class.branches_versions.get_version_pretty_name(
                 trait_key.branch, trait_key.version)
-            schema_piece['version_description'] = trait_class.branches_versions.get_version_description(
+            schema_piece['description'] = trait_class.branches_versions.get_version_description(
                 trait_key.branch, trait_key.version)
 
 

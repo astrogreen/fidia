@@ -255,7 +255,7 @@ class Archive(BaseArchive):
 
         # Add meta data about the archive, if requested
         if verbosity == 'descriptions':
-            schema['archive_pretty_name'] = "Pretty Name for Archive"
+            schema['pretty_name'] = "Pretty Name for Archive"
 
         if separate_metadata:
             if 'trait_name' in combine_levels:
