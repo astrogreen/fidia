@@ -296,7 +296,7 @@ class TraitDescriptionsMixin(DescriptionsMixin):
 
     @classorinstancemethod
     def get_qualifier_pretty_name(self, qualifier=None):
-        """Return the pretty name for this Trait, building it from the Trait type and qualifier if necessary."""
+        """Return a pretty version of the Trait's qualifier."""
 
         # This function is designed to work on either a class or an instance.
         #
