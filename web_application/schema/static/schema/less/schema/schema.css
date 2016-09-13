@@ -11,8 +11,9 @@
 }
 .branch_dropdown .dropdown-header-sub {
   color: #333;
-  padding-top: 8px;
-  padding-bottom: 8px;
+}
+.branch_dropdown .version {
+  padding-left: 35px;
 }
 .branch_dropdown .versions {
   padding-left: 45px;

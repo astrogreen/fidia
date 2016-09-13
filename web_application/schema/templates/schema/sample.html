@@ -118,22 +118,17 @@
                                         <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
 
                                             <li class="dropdown-header dropdown-header-bold">
-                                                Switch branch and/or version
+                                                Switch branch and version
                                             </li>
-                                            <li class="dropdown-header">
-                                                Available Branches
-                                            </li>
-                                            <li role="separator" class="divider"></li>
-
                                             {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
                                                 <li class="dropdown-header dropdown-header-sub">
-                                                        <strong><i class="fa fa-code-fork"></i> {{trait_branch_value.pretty_name}}</strong>
+                                                        <strong>Branch {{trait_branch_value.pretty_name}}</strong>
                                                         {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                            <small class="tiny pull-right">DEFAULT</small>
+                                                            <small>DEFAULT</small>
                                                         {% endif %}
                                                 </li>
-                                                <li class="dropdown-header versions">
-                                                    Versions
+                                                <li class="dropdown-header version">
+                                                     Versions
                                                 </li>
                                                 {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
 
@@ -141,15 +136,19 @@
                                                     <li class="{% if trait_qualifier_value.default_branch == trait_branch_key and trait_branch_value.default_version == trait_version_key %}active{% endif %}">
                                                         <a class="versions" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}"
                                                            data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}">
-                                                            <strong> <i class="fa fa-map-pin"></i> {{trait_version_value.pretty_name}}
+                                                            <i class="fa fa-level-up fa-rotate-90"></i>
+                                                            <strong> {{trait_version_value.pretty_name}}
                                                             {% if trait_branch_value.default_version == trait_version_key %}
-                                                                <small class="tiny pull-right" style="margin-top:2px;">LATEST</small>
+                                                                <small>LATEST</small>
                                                             {% endif %}
                                                             </strong>
                                                         </a>
                                                     </li>
                                                 {% endfor %}
-                                                <li role="separator" class="divider"></li>
+
+                                                {% if not forloop.last %}
+                                                    <li role="separator" class="divider"></li>
+                                                {% endif %}
                                             {% endfor %}
                                         </ul>
                                     </li>
@@ -173,18 +172,15 @@
                                                             branch <strong class="text-danger"> <em>{{trait_branch_value.pretty_name}}
                                                             </em></strong>, version number <strong class="text-danger">
                                                                 <em>{{trait_version_value.pretty_name}}</em></strong>.
+                                                            {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                                The {{trait_branch_value.pretty_name}} branch is the default branch for all {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} products.
+                                                            {% endif %}
                                                         </p>
-                                                        <p><span class="sub-heading">
-                                                                    <i class="fa fa-code-fork"></i> Branch: </span>
-                                                                <strong>{{trait_branch_value.pretty_name}}
-                                                                {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                                    <small>[DEFAULT]</small>
-                                                                {% endif %}
-                                                                </strong>:
-                                                        {{trait_branch_value.description}}
+                                                        <h5>{{trait_branch_value.pretty_name}} Description</h5>
+                                                        <p>{% if not trait_branch_value.description %} TBD {% endif %} {{trait_branch_value.description}}
                                                         </p>
-                                                        <p>
-                                                            <span class="sub-heading"><i class="fa fa-map-pin"></i> Version: </span><strong>{{trait_version_value.pretty_name}}</strong>
+                                                        <h5>{{trait_version_value.pretty_name}} Description</h5>
+                                                        <p>{% if not trait_version_value.description %} TBD {% endif %}
                                                             {{trait_version_value.description}}
                                                         </p>
 
@@ -345,7 +341,7 @@
             // note, currentTarget gets the element to which the event handler was attached to (rather than target, which gets the element on which the event occurred)
             var _anchor = $(event.currentTarget);
             // get nearest button
-            _anchor.closest('ul.branch-selector').find('a.branch_button').html("<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch: </span><strong>" + _anchor.attr('data-branch') + "</strong> <span class='sub-heading'><i class='fa fa-map-pin'></i> Version: </span><strong>" + _anchor.attr('data-version') + "</strong><i class='fa fa-caret-down'></i>");
+            _anchor.closest('ul.branch-selector').find('a.branch_button').html("<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch: </span><strong>" + _anchor.attr('data-branch') + "</strong> <span class='sub-heading'><i class='fa fa-map-pin'></i> Version: </span><strong>" + _anchor.attr('data-version') + "</strong> <i class='fa fa-caret-down'></i>");
         });
 
         $(".scroll").click(function(event){
