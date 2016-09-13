@@ -16,7 +16,7 @@ class TraitRegistry:
     def __init__(self):
         self._registry = set()
         self._trait_lookup = dict()
-        self._trait_name_defaults = dict()
+        self._trait_name_defaults = dict() # type: dict[str, DefaultsRegistry]
 
     def register(self, trait):
         log.debug("Registering Trait '%s'", trait)
@@ -216,6 +216,20 @@ class TraitRegistry:
                     trait_key.trait_qualifier)
                 other_dictionary['trait_name-pretty_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
 
+        def add_default_branch_to_schema(trait_key, schema_piece):
+            """If descriptions are requested, add the default branch of this Trait."""
+            # TODO: Checking for 'branch_version' is not an authoritative way to determine sub-traits.
+            if verbosity != 'descriptions' or 'branch_version' in combine_levels:
+                return
+            schema_piece['default_branch'] = self._trait_name_defaults[trait_key.trait_name].branch
+
+        def add_default_version_to_schema(trait_key, schema_piece):
+            """If descriptions are requested, add the default version of this Trait for the current branch."""
+            # TODO: Checking for 'branch_version' is not an authoritative way to determine sub-traits.
+            if verbosity != 'descriptions' or 'branch_version' in combine_levels:
+                return
+            schema_piece['default_version'] = self._trait_name_defaults[trait_key.trait_name].version(trait_key.branch)
+
         def get_schema_element(trait_key):
             # type: (TraitKey) -> SchemaDictionary
             """A helper function that finds the appropriate schema element given the requests to combine levels.
@@ -252,19 +266,28 @@ class TraitRegistry:
                     piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
                     add_description_data_for_levels(piece, trait_key, ['trait_name'])
             else:
-                # Do not combine trait_type and trait_qualifer into trait_name
+                # Do not combine trait_type and trait_qualifier into trait_name
                 piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
                 add_description_data_for_levels(piece, trait_key, ['trait_type'])
                 piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
                 add_description_data_for_levels(piece, trait_key, ['trait_name'])
 
+
             if 'branch_version' in combine_levels:
+                # If branch and version are combined, then the version data will
+                # be overwritten. Lines below commented out. NOTE ALSO: branches
+                # and versions not relevant for sub-traits.
+
+                # add_default_branch_to_schema(trait_key, piece)
+                # add_default_version_to_schema(trait_key, piece)
                 pass
-            # elif 'all' in combine_levels:
-            #     pass
             else:
+                add_default_branch_to_schema(trait_key, piece)
                 piece = piece.setdefault(trait_key.branch, SchemaDictionary())
+                add_default_version_to_schema(trait_key, piece)
                 piece = piece.setdefault(trait_key.version, SchemaDictionary())
+
+                # Add the information on the default branch and version information
 
             return piece
 
