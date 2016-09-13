@@ -22,12 +22,12 @@
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
 <div class="row schema-browser">
-    <div class="col-sm-3 col-xs-12 menu-nav schema">
+    <div class="col-sm-3 col-xs-12 menu-nav schema" id="menu-nav">
         <h5>Contents</h5>
         <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
             {% for trait_type_key, trait_type_value in response.data.schema.items %}
             <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
-                <h6>{{trait_type_key}}</h6>
+                <h6>{{trait_type_value.pretty_name}}</h6>
             </li>
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.items %}
                     <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
@@ -92,6 +92,10 @@
                         {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.items %}
                             <div id="{{trait_type_key}}_{{trait_qualifier_key}}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
                                 <ul class="nav nav-pills pull-right">
+                                    <li class="dropdown-header">
+                                        Switch branches
+                                    </li>
+                                    <li role="separator" class="divider"></li>
                                     <li class="dropdown">
                                     <a class="btn btn-default" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                        <i class="fa fa-code-fork"></i> Branch <i class="fa fa-caret-down"></i>
@@ -104,7 +108,10 @@
                                             {% for trait_version_key, trait_version_value in trait_branch_value.items %}
                                                 <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}">
                                                     <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" data-toggle="tab" role="tab" style="padding-left:30px;">
-                                                         <strong> {{trait_branch_key}}_{{trait_version_key}}</strong>
+                                                        {% if trait_branch_key == "default" %}
+                                                        <strong><i class="fa fa-check"></i></strong>
+                                                        {% endif %}
+                                                        <strong> {{trait_branch_key}}_{{trait_version_key}}</strong>
                                                     </a>
                                                 </li>
                                             {% endfor %}
@@ -280,7 +287,10 @@
             if ($('.menu-nav').height()<$('.right-panel').height()){
                 $('.menu-nav').height($('.right-panel').height() + 'px');
             }
-        } else {$('.menu-nav').height('auto')}
+        } else {
+            $('.menu-nav').height('2000px');
+//            $('.menu-nav').height('auto');
+        }
     });
 
 
@@ -304,6 +314,8 @@
             $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
         });
     });
+
+    
 
 </script>
 {% endblock %}
