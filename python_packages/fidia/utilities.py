@@ -82,7 +82,8 @@ class SchemaDictionary(dict):
                     self[key].update(other_dict[key])
                 else:
                     if self[key] != other_dict[key]:
-                        raise ValueError("Invalid attempt to change value at key '%s' in update" % key)
+                        raise ValueError("Invalid attempt to change value at key '%s' in update from '%s' to '%s'" %
+                                         (key, self[key], other_dict[key]))
             elif key in self and isinstance(self[key], dict) and isinstance(other_dict[key], dict):
                 # Key already exists and is a dictionary, so recurse the update.
                 self[key].update(other_dict[key])

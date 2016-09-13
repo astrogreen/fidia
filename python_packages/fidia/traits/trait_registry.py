@@ -86,6 +86,7 @@ class TraitRegistry:
         return tk
 
     def retrieve_with_key(self, trait_key):
+        # type: (TraitKey) -> Trait
         # Ensure we are working with a full TraitKey object (or convert if necessary)
         tk = TraitKey.as_traitkey(trait_key)
         log.debug("Retrieving trait for key %s", tk)
@@ -191,12 +192,12 @@ class TraitRegistry:
             combine_levels = tuple()
 
         for item in combine_levels:
-            assert item in ('trait_name', 'branch_version', 'no_trait_qualifer')
+            assert item in ('trait_name', 'branch_version', 'no_trait_qualifier')
 
         schema = SchemaDictionary()
 
         def add_description_data_for_levels(other_dictionary, trait_key,
-                                            levels=['trait_type', 'trait_qualifer', 'branch_version']):
+                                            levels=['trait_type', 'trait_qualifier', 'branch_version']):
             # type: (SchemaDictionary, List[str]) -> None
             """Helper function to populate description data for the given levels."""
 
@@ -204,17 +205,43 @@ class TraitRegistry:
             if verbosity != 'descriptions':
                 return
 
+            # Validate input
             if not is_list_or_set(levels):
                 levels = [levels]
+            for item in levels:
+                assert item in ('trait_type', 'trait_qualifier', 'branch_version'), "%s is not a valid level." % item
 
-            trait = self.retrieve_with_key(tk)
+            trait = self.retrieve_with_key(tk)  # type: Trait
 
             if 'trait_type' in levels:
-                other_dictionary['trait_type-pretty_name'] = trait.get_pretty_name()
+                other_dictionary['pretty_name-trait_type'] = trait.get_pretty_name()
             if 'trait_qualifier' in levels:
-                other_dictionary['trait_qualifer-pretty_name'] = trait.get_qualifier_pretty_name(
-                    trait_key.trait_qualifier)
-                other_dictionary['trait_name-pretty_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
+                if trait_key.trait_qualifier is not None:
+                    other_dictionary['pretty_name-trait_qualifier'] = trait.get_qualifier_pretty_name(
+                        trait_key.trait_qualifier)
+                other_dictionary['pretty_name-trait_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
+
+            # Add a generic 'pretty_name'
+            #
+            #   - At the trait_type level, this is just the pretty version of the trait_type
+            #   - At the trait_qualifier level, this is just the pretty version of qualifier
+            #   - When type and qualifier are combined, this is the pretty version of the full trait_name
+            #
+            if 'branch_version' not in combine_levels:
+                # if branch and version are combined, then the pretty_name set here will clash with that set for the
+                # individual trait schema, so we skip this version.
+                if 'trait_type' in levels and 'trait_qualifier' in levels:
+                    # Set the pretty version of the full trait_name (type and qualifier)
+                    other_dictionary['pretty_name'] = trait.get_pretty_name(trait_key.trait_qualifier)
+                elif 'trait_type' in levels:
+                    # Set the pretty version of just the trait_type
+                    other_dictionary['pretty_name'] = trait.get_pretty_name()
+                elif 'trait_qualifier' in levels:
+                    # set the pretty version of just the trait_qualifier, or empty string if no qualifier.
+                    if trait_key.trait_qualifier is not None:
+                        other_dictionary['pretty_name'] = trait.get_qualifier_pretty_name(trait_key.trait_qualifier)
+                    else:
+                        other_dictionary['pretty_name'] = ""
 
         def add_default_branch_to_schema(trait_key, schema_piece):
             """If descriptions are requested, add the default branch of this Trait."""
@@ -251,26 +278,26 @@ class TraitRegistry:
 
             if 'trait_name' in combine_levels:
                 piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
-                add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_name'])
-            elif 'no_trait_qualifer' in combine_levels:
-                # For traits that do not support a trait qualifer, then don't
+                add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_qualifier'])
+            elif 'no_trait_qualifier' in combine_levels:
+                # For traits that do not support a trait qualifier, then don't
                 # add a level to the schema for the trait qualifier.
                 if trait_key.trait_qualifier is None:
                     # Qualifiers not present: behave as for 'trait_name'
                     piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
-                    add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_name'])
+                    add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_qualifier'])
                 else:
                     # Qualifiers present: behave as if 'trait_name' was not given
                     piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
                     add_description_data_for_levels(piece, trait_key, ['trait_type'])
                     piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
-                    add_description_data_for_levels(piece, trait_key, ['trait_name'])
+                    add_description_data_for_levels(piece, trait_key, ['trait_qualifier'])
             else:
                 # Do not combine trait_type and trait_qualifier into trait_name
                 piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
                 add_description_data_for_levels(piece, trait_key, ['trait_type'])
                 piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
-                add_description_data_for_levels(piece, trait_key, ['trait_name'])
+                add_description_data_for_levels(piece, trait_key, ['trait_qualifier'])
 
 
             if 'branch_version' in combine_levels:
