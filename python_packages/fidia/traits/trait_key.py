@@ -182,10 +182,13 @@ class BranchesVersions(dict):
 
     def get_pretty_name(self, item):
         key = self.get_full_key(item)
-        if isinstance(key, tuple) and len(key) > 1:
-            return key[1]
+        if isinstance(key, tuple):
+            if len(key) > 1:
+                return key[1]
+            else:
+                return key[0]
         else:
-            return key[0]
+            return key
 
     def get_description(self, item):
         key = self.get_full_key(item)
