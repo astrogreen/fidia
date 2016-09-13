@@ -174,7 +174,8 @@ class TraitRegistry:
             return all_names
 
 
-    def schema(self, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only'):
+    def schema(self, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
+               separate_metadata=False):
         """Construct the schema for all Trait classes registered.
 
         The schema is constructed by calling the `schema` function on the class
@@ -279,6 +280,10 @@ class TraitRegistry:
             if 'trait_name' in combine_levels:
                 piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
                 add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_qualifier'])
+                if separate_metadata:
+                    # Add an additional level to separate metadata from schema
+                    piece = piece.setdefault('trait_names', SchemaDictionary())
+
             elif 'no_trait_qualifier' in combine_levels:
                 # For traits that do not support a trait qualifier, then don't
                 # add a level to the schema for the trait qualifier.
@@ -286,19 +291,26 @@ class TraitRegistry:
                     # Qualifiers not present: behave as for 'trait_name'
                     piece = schema.setdefault(trait_key.trait_name, SchemaDictionary())
                     add_description_data_for_levels(piece, trait_key, ['trait_type', 'trait_qualifier'])
+                    if separate_metadata:
+                        # Add an additional level to separate metadata from schema
+                        piece = piece.setdefault('trait_names', SchemaDictionary())
                 else:
                     # Qualifiers present: behave as if 'trait_name' was not given
                     piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
                     add_description_data_for_levels(piece, trait_key, ['trait_type'])
                     piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
                     add_description_data_for_levels(piece, trait_key, ['trait_qualifier'])
+
             else:
                 # Do not combine trait_type and trait_qualifier into trait_name
                 piece = schema.setdefault(trait_key.trait_type, SchemaDictionary())
                 add_description_data_for_levels(piece, trait_key, ['trait_type'])
+
+                if separate_metadata:
+                    # Add an additional level to separate metadata from schema
+                    piece = piece.setdefault('trait_qualifiers', SchemaDictionary())
                 piece = piece.setdefault(trait_key.trait_qualifier, SchemaDictionary())
                 add_description_data_for_levels(piece, trait_key, ['trait_qualifier'])
-
 
             if 'branch_version' in combine_levels:
                 # If branch and version are combined, then the version data will
@@ -310,11 +322,22 @@ class TraitRegistry:
                 pass
             else:
                 add_default_branch_to_schema(trait_key, piece)
+
+                if separate_metadata:
+                    # Add an additional level to separate metadata from schema
+                    piece = piece.setdefault('branches', SchemaDictionary())
                 piece = piece.setdefault(trait_key.branch, SchemaDictionary())
                 add_default_version_to_schema(trait_key, piece)
+                if separate_metadata:
+                    # Add an additional level to separate metadata from schema
+                    piece = piece.setdefault('versions', SchemaDictionary())
                 piece = piece.setdefault(trait_key.version, SchemaDictionary())
 
                 # Add the information on the default branch and version information
+
+            if separate_metadata:
+                # Add an additional level to separate metadata from schema
+                piece = piece.setdefault('trait', SchemaDictionary())
 
             return piece
 
@@ -325,7 +348,8 @@ class TraitRegistry:
                 include_subtraits=include_subtraits,
                 data_class=data_class,
                 combine_levels=combine_levels,
-                verbosity=verbosity)
+                verbosity=verbosity,
+                separate_metadata=separate_metadata)
             piece.update(trait_schema)
 
         return schema
