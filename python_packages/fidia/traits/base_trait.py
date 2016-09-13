@@ -14,7 +14,8 @@ from .abstract_base_traits import *
 from ..exceptions import *
 from .trait_property import TraitProperty
 from .trait_key import TraitKey, TRAIT_NAME_RE, \
-    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
+    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
+    BranchesVersions
 from .trait_registry import TraitRegistry
 from ..utilities import SchemaDictionary, is_list_or_set, Inherit
 from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
@@ -49,7 +50,7 @@ log.enable_console_logging()
 #         return 0
 
 def validate_trait_branches_versions_dict(branches_versions):
-    # type: ([dict, None]) -> None
+    # type: ([BranchesVersions, None]) -> None
     if branches_versions is None:
         return
     assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
@@ -192,7 +193,8 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
 
     @classmethod
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only'):
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
+                    separate_metadata=False):
 
         # Validate the verbosity option
         assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
@@ -253,7 +255,8 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 include_subtraits=include_subtraits,
                 data_class=data_class,
                 combine_levels=combine_levels,
-                verbosity=verbosity)
+                verbosity=verbosity,
+                separate_metadata=separate_metadata)
 
             if verbosity == 'simple':
                 schema.update(sub_traits_schema)
@@ -307,6 +310,8 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             assert getattr(cls, 'defaults', None) is not None, \
                 ("Trait class '%s' has branches_versions, but no defaults have been supplied." %
                  cls)
+            if not isinstance(cls.branches_versions, BranchesVersions):
+                cls.branches_versions = BranchesVersions(cls.branches_versions)
 
         try:
             validate_trait_branches_versions_dict(cls.branches_versions)

@@ -626,8 +626,8 @@ class LZIFUFlag(LZIFUDataMixin, FlagMap):
     trait_type = 'flags'
 
     branches_versions = {
-        "1_comp": {'V02'},
-        "recom_comp": {'V02'}
+        ("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component"): {'V02'},
+        ('recom_comp', "LZIFU multi component", "LZIFU fits using up to three components"): {'V02'}
     }
 
     defaults = DefaultsRegistry(
@@ -659,7 +659,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     trait_type = "velocity_map"
 
-    branches_versions = {"1_comp": {"V02"}}
+    branches_versions = {("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component"): {"V02"}}
 
     defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
 
@@ -756,8 +756,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
 class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
 
     trait_type = 'line_map'
-
-    branches_versions = {"1_comp": {"V02"}}
+    branches_versions = {("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component"): {"V02"}}
     defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
 
     sub_traits = TraitRegistry()
@@ -847,7 +846,7 @@ LZIFUOneComponentLineMap.set_pretty_name(
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
-    branches_versions ={'recom_comp': {"V02"}}
+    branches_versions ={('recom_comp', "LZIFU multi component", "LZIFU fits using up to three components"): {"V02"}}
 
     # Extends 'line_map', so no defaults:
     defaults = DefaultsRegistry(None, {'recom_comp': 'V02'})
@@ -1262,6 +1261,10 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
 
 
         return output_data
+
+    @property
+    def shape(self):
+        return self.value().shape
 
 EmissionClass.set_pretty_name("Emission Classification Map")
 
