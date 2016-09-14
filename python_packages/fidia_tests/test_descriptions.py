@@ -124,3 +124,27 @@ class TestDescriptions:
         split_doc = doc.splitlines()
 
         assert split_doc[2].startswith("We classify")
+
+    def test_description_removed_from_documentation_docstring(self):
+
+        class KlassWithDescription(DescriptionsMixin):
+            """The Description.
+
+            The documentation. And More!"""
+
+        assert KlassWithDescription.get_documentation().startswith("The documentation")
+
+    def test_multiline_description_from_docstring(self):
+
+        class KlassWithDescription(DescriptionsMixin):
+            """A very long description in a doc-string that happens to span
+            multiple lines because it has been wrapped in the original
+            sourcecode.
+
+            This kind of thing should be avoided!"""
+
+        print(KlassWithDescription.get_description())
+
+        assert KlassWithDescription.get_description() == "A very long description in a doc-string that happens to " \
+                                                         "span multiple lines because it has been wrapped in the " \
+                                                         "original sourcecode."

@@ -19,3 +19,5 @@ ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test
 sample = ar.get_full_sample()
 
 sfrmap = sample['9352']['sfr_map']
+
+cube = sample['24433']['spectral_map-red']

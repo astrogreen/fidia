@@ -581,6 +581,7 @@ class SAMISpectralCube(SpectralMap):
         """AAOmega Detector characteristics defined by FITS header
 
         Relevant section from the header:
+
             DCT_DATE= 'Sep 12 2014'        / DCT release date
             DCT_VER = 'r3_110_2_3'         / DCT version number
             DETECXE =                 2048 / Last column of detector

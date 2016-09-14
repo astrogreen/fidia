@@ -33,7 +33,21 @@ def prettify(string):
 def parse_short_description_from_doc_string(doc_string):
     """Get a short description from the first line of a doc-string."""
     if "\n" in doc_string:
-        return doc_string.split("\n")[0]
+        # Doc-string is multiple lines. Split the description either:
+        #    - at the first place there is a blank line.
+        #    - at the end of the first line if there are no blank lines
+        #    - at a maximum of 200 characters regardless.
+        match = re.match(r"\n[ \t]*\n", doc_string)
+        if match:
+            # A blank line was found.
+            description = doc_string[0:match.start()]
+        else:
+            description = doc_string.split("\n")[0]
+
+        # Now check length
+        if len(description) > 200:
+            description = description[:200]
+        return description
     else:
         return doc_string
 
@@ -139,6 +153,22 @@ class DescriptionsMixin:
         # Rejoin first line:
         documentation = "\n".join((doc_lines[0], documentation))
 
+        # Check if the documentation starts with the short description, and in
+        # that case remove the short description from the documentation. (This
+        # occurs because both the description and the documentation have been
+        # set from the doc-string.)
+        if documentation.startswith(self.get_description()):
+            log.debug("Removing duplicated description from start of documentation")
+            characters_to_trim = len(self.get_description())
+            documentation = documentation[characters_to_trim:]
+            doc_lines = documentation.splitlines()
+            # Strip blank lines at start
+            while re.match(r"^\s*$", doc_lines[0]) is not None:
+                log.debug("Removing line '%s' from start of doc", doc_lines[-1])
+                del doc_lines[0]
+            documentation = "\n".join(doc_lines)
+
+
         # Update either the class or the instance as appropriate:
         try:
             instance_check(self)
@@ -214,10 +244,7 @@ class DescriptionsMixin:
                 else:
                     return cls.doc
             if hasattr(cls, '__doc__') and cls.__doc__ is not None:
-                if "\n" in cls.__doc__:
-                    return cls.__doc__.split("\n")[0]
-                else:
-                    return cls.__doc__
+                return parse_short_description_from_doc_string(cls.__doc__)
         except:
             return None
 
