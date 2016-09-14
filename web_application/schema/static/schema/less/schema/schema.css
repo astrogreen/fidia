@@ -18,6 +18,10 @@
 .branch_dropdown .versions {
   padding-left: 45px;
 }
+.version-selector {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
 .schema-browser {
   border: solid 1px #eeeeee;
   border-top: 0;

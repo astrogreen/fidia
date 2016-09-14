@@ -63,7 +63,7 @@
             </li>
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                     <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
-                        <a href="#{{trait_type_key}}_{{trait_qualifier_key}}"
+                        <a href="#{{trait_type_key}}_{{trait_qualifier_key}}" class="trait_type_button"
                            aria-controls="{{trait_type_key}}_{{trait_qualifier_key}}" role="tab"
                            data-toggle="pill">{{trait_qualifier_value.pretty_name}}
                             {% if not trait_qualifier_value.pretty_name %}
@@ -94,12 +94,30 @@
                     {% endfor %}
                 {% endfor %}
                 {% endcomment %}
-                <div class="tab-content">
+                <div class="tab-content trait">
                     {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
                         {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                             <div id="{{trait_type_key}}_{{trait_qualifier_key}}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
 
-                                <ul class="nav nav-pills pull-right branch-selector">
+                                <h3>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
+                                    <!--<small>{{trait_branch_value.pretty_name}} {{trait_version_value.pretty_name}}</small>-->
+                                </h3>
+                                <p><em>{% if not trait_type_value.description %}trait type description tbd{% endif %} {{trait_type_value.description}}</em></p>
+
+                                <div class="panel panel-default success branch_warning">
+                                    <div class="panel-body">
+                                        <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
+                                    <strong> branch <em><span class="branch_warning-branch"></span></em>, version <em><span class="branch_warning-version"></span></em></strong>, which can be
+                                            significantly different from other branches/versions. To switch branches/versions, use the
+                                            selector floating in the top right corner of this panel. For more information
+                                            on branches,
+                                            <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
+                                                view the documentation.</a><br>
+                                            <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul class="nav nav-pills branch-selector">
                                     <li class="dropdown">
                                         <a class="btn btn-default branch_button" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                            <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch: </span>
@@ -145,16 +163,15 @@
                                     {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
 
                                         <div id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %} ">
-                                            <ul class="nav nav-pills pull-right branch-selector">
+                                            <ul class="nav nav-pills branch-selector version-selector">
                                                 <li class="dropdown">
                                                     <a class="btn btn-default branch_button" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
-                                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                                    <!--Default branch, and the default version for that branch, are set as active-->
-                                                                {% if trait_branch_value.default_version == trait_version_key %}
-                                                                    <span class="sub-heading"><i class="fa fa-map-pin"></i> Version: </span>  <strong> {{trait_version_value.pretty_name}}</strong>
-                                                                {% endif %}
-                                                            {% endfor %}
-
+                                                        {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                                                <!--Default branch, and the default version for that branch, are set as active-->
+                                                            {% if trait_branch_value.default_version == trait_version_key %}
+                                                                <span class="sub-heading"><i class="fa fa-map-pin"></i> Version: </span>  <strong> {{trait_version_value.pretty_name}}</strong>
+                                                            {% endif %}
+                                                        {% endfor %}
                                                         <i class="fa fa-caret-down"></i>
                                                     </a>
                                                     <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
@@ -189,24 +206,7 @@
 
                                                         {% with trait_version_value.trait as value %}
 
-                                                            <h3>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
-                                                                <!--<small>{{trait_branch_value.pretty_name}} {{trait_version_value.pretty_name}}</small>-->
-                                                            </h3>
-                                                            <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
-
-                                                            <div class="panel panel-default success branch_warning">
-                                                                <div class="panel-body">
-                                                                    <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
-                                                                <strong> branch <em>{{trait_branch_value.pretty_name}}</em>, version <em>{{trait_version_value.pretty_name}}</em></strong>, which can be
-                                                                        significantly different from other branches/versions. To switch branches/versions, use the
-                                                                        selector floating in the top right corner of this panel. For more information
-                                                                        on branches,
-                                                                        <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
-                                                                            view the documentation.</a><br>
-                                                                        <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                            <p>{% if value.description %}{{value.description}}{% endif %}</p>
 
                                                             <h4>Branch & Version</h4>
                                                             <p>You are currently viewing the {{trait_type_value.pretty_name}}
@@ -384,10 +384,36 @@
                 _anchor.closest('ul.branch-selector').find('a.branch_button').html(_branch)
             }
 
+            // Update the branch_warning message with this branch and version
+            _anchor.closest('.trait').find('span.branch_warning-branch').html(_anchor.attr('data-branch'));
+            _anchor.closest('.trait').find('span.branch_warning-version').html(_anchor.attr('data-version'));
 
-//            _anchor.closest('ul.branch-selector').find('a.branch_button').html("<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch: </span><strong>" + _anchor.attr('data-branch') + "</strong> <span class='sub-heading'><i class='fa fa-map-pin'></i> Version: </span><strong>" + _anchor.attr('data-version') + "</strong> <i class='fa fa-caret-down'></i>");
         });
 
+
+        update_branch_warning_message = function(){
+            /**
+             * Updates the branch warning message with the current branch and version
+             * @type {any}
+             * @private
+             */
+            var _data_branch = $('.trait > .active').find('ul.version-selector > li > ul > li.active a').attr('data-branch');
+            var _data_version = $('.trait > .active').find('ul.version-selector > li > ul > li.active a').attr('data-version');
+            $('.trait > .active').find('span.branch_warning-branch').html(_data_branch);
+            $('.trait > .active').find('span.branch_warning-version').html(_data_version);
+
+        };
+
+        // ON LOAD Find the branch_warning message and update with this branch and version
+        update_branch_warning_message();
+
+        // ON TRAIT TYPE SELECTION
+        $('.trait_type_button').click(function(){
+            update_branch_warning_message();
+        });
+
+
+        // Smooth scrolling
         $(".scroll").click(function(event){
             // stop the hash being appended to the url, and scroll to the value
             event.preventDefault();
