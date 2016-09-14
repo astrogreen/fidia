@@ -463,9 +463,9 @@
 <script>
 
     update_menu_nav_size = function(){
-        // Sidebar menu height is at least panel height
+        // Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
         if ($(window).width() > 770) {
-            if ($('.menu-nav').height()<$('.right-panel').height()){
+            if ($('.right-panel').height()>$('#docs-sidebar').height()){
                 $('.menu-nav').height($('.right-panel').height() + 'px');
             }
         } else {
@@ -477,7 +477,6 @@
         update_menu_nav_size();
     });
 
-
     $(document).ready(function () {
 
         // Activate a tab if the hash is in the url
@@ -487,21 +486,18 @@
 
         $("ul.nav-pills a.trait_type_button").click(function (e) {
             // add the has to the url once trait_type is selected
-            e.preventDefault();
-            $(this).tab('show');
             window.location.hash = this.hash;
         });
 
         $("ul.nav-pills a").click(function (e) {
-          e.preventDefault();
+            e.preventDefault();
             $(this).tab('show');
+            // update the menu size
+            update_menu_nav_size();
         });
 
         // Change the text shown in the branch button.
         $('.branch_dropdown ul.dropdown-menu > li > a').click(function (event) {
-
-            // update the menu size
-            update_menu_nav_size();
 
             // note, currentTarget gets the element to which the event handler was attached to (rather than target, which gets the element on which the event occurred)
             var _anchor = $(event.currentTarget);
