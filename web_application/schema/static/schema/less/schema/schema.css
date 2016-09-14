@@ -105,6 +105,10 @@ body {
 .schema-browser .right-panel .branch_warning {
   background-color: #fafafa;
 }
+.schema-browser .right-panel .version-selector {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
 .schema-browser .right-panel .schema-contents {
   padding: 30px;
   padding-top: 0px;
@@ -174,7 +178,61 @@ body {
 .schema-browser .branch_dropdown .versions {
   padding-left: 45px;
 }
-.version-selector {
-  margin-top: 15px;
-  margin-bottom: 15px;
+.documentation_fidia h1,
+.documentation_fidia h2,
+.documentation_fidia h3,
+.documentation_fidia h4,
+.documentation_fidia h5,
+.documentation_fidia h6 {
+  border: 0 !important;
+}
+.documentation_fidia .h1,
+.documentation_fidia .h2,
+.documentation_fidia .h3,
+.documentation_fidia h1,
+.documentation_fidia h2,
+.documentation_fidia h3 {
+  font-weight: 400;
+  margin-top: 20px !important;
+  margin-bottom: 10px !important;
+}
+.documentation_fidia .h4,
+.documentation_fidia .h5,
+.documentation_fidia .h6,
+.documentation_fidia h4,
+.documentation_fidia h5,
+.documentation_fidia h6 {
+  font-weight: 500;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+.documentation_fidia .h1,
+.documentation_fidia .h2,
+.documentation_fidia .h3,
+.documentation_fidia .h4,
+.documentation_fidia .h5,
+.documentation_fidia .h6,
+.documentation_fidia h1,
+.documentation_fidia h2,
+.documentation_fidia h3,
+.documentation_fidia h4,
+.documentation_fidia h5,
+.documentation_fidia h6 {
+  line-height: 1.1 !important;
+}
+.documentation_fidia h1 {
+  font-size: 24px !important;
+}
+.documentation_fidia h2 {
+  font-size: 20px !important;
+}
+.documentation_fidia h3 {
+  font-size: 18px !important;
+}
+.documentation_fidia h4 {
+  font-size: 14px !important;
+}
+.documentation_fidia h5,
+.documentation_fidia h6 {
+  font-size: 12px !important;
 }
