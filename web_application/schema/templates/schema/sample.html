@@ -15,10 +15,10 @@
 {% endblock useful_links %}
 
 {% block content-navigator-help %}
-<a href="{% url 'schema:schema-list' %}" class=""><i class="fa fa-reply"></i> Back to Surveys</a>
+<!--<a href="{% url 'schema:schema-list' %}" class=""><i class="fa fa-reply"></i> Back to Surveys</a>-->
 {% endblock %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
 <div class="row schema-browser">
@@ -99,9 +99,9 @@
                         {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                             <div id="{{trait_type_key}}_{{trait_qualifier_key}}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
 
-                                <h3>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
+                                <h2>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
                                     <!--<small>{{trait_branch_value.pretty_name}} {{trait_version_value.pretty_name}}</small>-->
-                                </h3>
+                                </h2>
                                 <p><em>{% if not trait_type_value.description %}trait type description tbd{% endif %} {{trait_type_value.description}}</em></p>
 
                                 <div class="panel panel-default success branch_warning">
@@ -209,7 +209,6 @@
 
                                                             <p>{% if value.description %}{{value.description}}{% endif %}</p>
 
-                                                            <h4>Branch & Version</h4>
                                                             <p>You are currently viewing the {{trait_type_value.pretty_name}}
                                                                 {{trait_qualifier_value.pretty_name}} Schema for
                                                                 branch <strong class="text-danger"><em>{{trait_branch_value.pretty_name}}
@@ -219,77 +218,191 @@
                                                                     The {{trait_branch_value.pretty_name}} branch is the default branch for all {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} products.
                                                                 {% endif %}
                                                             </p>
-                                                            <h5>{{trait_branch_value.pretty_name}} Description</h5>
-                                                            <p>{% if not trait_branch_value.description %} TBD {% endif %} {{trait_branch_value.description}}
-                                                            </p>
-                                                            <h5>{{trait_version_value.pretty_name}} Description</h5>
-                                                            <p>{% if not trait_version_value.description %} TBD {% endif %}
-                                                                {{trait_version_value.description}}
-                                                            </p>
 
-
-
-                                                            <h4>Contents</h4>
+                                                            <h3>Contents</h3>
                                                             <ul class="p">
                                                                 <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description" class="scroll">Description</a></li>
-                                                                <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties" class="scroll">Properties</a></li>
-                                                                <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats" class="scroll">Formats</a></li>
+                                                                <li>
+                                                                    <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties"
+                                                                       class="scroll">Properties</a>
+                                                                    <ul>
+                                                                        {% for trait_property_key, trait_property_value in value.trait_properties.items %}
+                                                                            <li><a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{trait_property_key}}">{{trait_property_value.pretty_name}} </a></li>
+                                                                        {% endfor %}
+                                                                        {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
+                                                                            <li><a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}">{{sub_trait_value.pretty_name}} </a></li>
+                                                                            {% comment %}
+                                                                                <!--<ul>-->
+                                                                                    <!--{% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}-->
+                                                                                        <!--{% if sub_trait_qualifier_value.pretty_name %}-->
+                                                                                            <!--&lt;!&ndash;Only add this level in if it exists&ndash;&gt;-->
+                                                                                            <!--<li>-->
+                                                                                                <!--<a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
+                                                                                            <!--</li>-->
+                                                                                            <!--<ul>-->
+                                                                                        <!--{% endif %}-->
+                                                                                        <!--&lt;!&ndash; here, can access the trait description, pretty name etc&ndash;&gt;-->
+                                                                                            <!--{% with sub_trait_qualifier_value.trait as sub_value %}-->
+                                                                                                <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
+                                                                                                    <!--&lt;!&ndash; Here, we can access the any description levels that may be apparent &ndash;&gt;-->
+                                                                                                    <!--<li><a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">{{sub_value.pretty_name}}</a></li>-->
+                                                                                                    <!--<ul>-->
+                                                                                                <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+                                                                                                    <!--{% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}-->
+                                                                                                        <!--<li><a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_property_key}}">{{sub_trait_property_value.pretty_name}} </a></li>-->
+                                                                                                    <!--{% endfor %}-->
+                                                                                                <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
+                                                                                                    <!--</ul>-->
+                                                                                                <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+                                                                                            <!--{% endwith %}-->
+                                                                                        <!--{% if sub_trait_qualifier_value.pretty_name %}-->
+                                                                                            <!--</ul>-->
+                                                                                        <!--{% endif %}-->
+                                                                                    <!--{% endfor %}-->
+                                                                                <!--</ul>-->
+                                                                            {% endcomment %}
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </li>
+                                                                <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats" class="scroll">Downloadable Formats</a></li>
                                                                 <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches" class="scroll">All Available Branches and Previous Versions</a></li>
                                                             </ul>
 
                                                             <!-- Documentation -->
-                                                            <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description">Description</h4>
+                                                            <h3 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description">Description</h3>
                                                             <div class="well-ignore" style="margin-bottom:20px;">
                                                                 {{value.html_documentation|safe}}
-                                                                <hr>
                                                             </div>
 
                                                             <!-- Properties-->
-                                                            <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties">Properties</h4>
-                                                            <div class="table-responsive">
-                                                                <table class="table table-bordered table-striped">
-                                                                    <thead>
-                                                                    <tr>
-                                                                        <th>Name</th>
-                                                                        <th>Type</th>
-                                                                        <th>Description</th>
-                                                                        <th>Documentation</th>
-                                                                    </tr>
-                                                                    </thead>
-                                                                    <tbody>
+                                                            <h3 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties">Properties</h3>
+                                                            <!--<div class="table-responsive">-->
+                                                                <!--<table class="table table-bordered table-striped">-->
+                                                                    <!--<thead>-->
+                                                                    <!--<tr>-->
+                                                                        <!--<th>Name</th>-->
+                                                                        <!--<th>Type</th>-->
+                                                                        <!--<th>Description</th>-->
+                                                                        <!--<th>Link</th>-->
+                                                                    <!--</tr>-->
+                                                                    <!--</thead>-->
+                                                                    <!--<tbody>-->
 
-                                                                    {% for trait_property_key, trait_property_value in value.trait_properties.items %}
-                                                                        <tr>
-                                                                            <td>{{trait_property_value.pretty_name}}</td>
-                                                                            <td><code>{{trait_property_value.type}}</code></td>
-                                                                            <td><em>{{trait_property_value.description}}</em></td>
-                                                                            <td>{{trait_property_value.html_documentation}}</td>
-                                                                        </tr>
-                                                                    {% endfor %}
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
+                                                                    <!--{% for trait_property_key, trait_property_value in value.trait_properties.items %}-->
+                                                                        <!--<tr>-->
+                                                                            <!--<td>{{trait_property_value.pretty_name}}</td>-->
+                                                                            <!--<td><code>{{trait_property_value.type}}</code></td>-->
+                                                                            <!--<td><em>{{trait_property_value.description}}</em></td>-->
+                                                                            <!--<td><a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{trait_property_key}}"> <i class="fa fa-link"></i> Read more </a></td>-->
+                                                                        <!--</tr>-->
+                                                                    <!--{% endfor %}-->
+                                                                    <!--</tbody>-->
+                                                                <!--</table>-->
+                                                            <!--</div>-->
+
+                                                            {% for trait_property_key, trait_property_value in value.trait_properties.items %}
+                                                                <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{trait_property_key}}">
+                                                                {{trait_property_value.pretty_name}} <small> <code>{{trait_property_value.type}}</code></small></h4>
+                                                                <div class="p">
+                                                                    {{trait_property_value.html_documentation|safe}}
+                                                                </div>
+                                                            {% endfor %}
+
+
+                                                            <!--Sub traits-->
+                                                            {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
+                                                                <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}">
+                                                                {{sub_trait_value.pretty_name}}</h4>
+                                                                <div class="p">
+                                                                    {{sub_trait_value.html_documentation|safe}}
+                                                                </div>
+
+                                                                {% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}
+
+                                                                    <!--{% if sub_trait_qualifier_value.pretty_name %}-->
+                                                                        <!--Only add this level in if it exists-->
+                                                                        <!--<li>-->
+                                                                            <!--<a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
+                                                                        <!--</li>-->
+                                                                    <!--{% endif %}-->
+                                                                    <!-- here, can access the trait description, pretty name etc-->
+                                                                        {% with sub_trait_qualifier_value.trait as sub_value %}
+                                                                            <!--{% if sub_value.description %}-->
+                                                                                <p><em>{{sub_value.description}}</em></p>
+                                                                            <!--{% endif %}-->
+                                                                            <!--{% if sub_value.html_documentation %}-->
+                                                                                <p>{{sub_value.html_documentation|safe}}</p>
+                                                                            <!--{% endif %}-->
+
+                                                                            <div style="padding-left:0px;">
+                                                                                <h5 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">
+                                                                                    &nbsp;&nbsp;<i class="fa fa-level-up fa-rotate-90"></i> {{sub_trait_value.pretty_name}} Properties</h5>
+                                                                                <!-- Here, we can access the any description levels that may be apparent -->
+                                                                                <p>{{sub_trait_value.html_documentation|safe}}</p>
+                                                                                    <div class="table-responsive" style="padding-left:15px;">
+                                                                                        <table class="table table-bordered table-striped">
+                                                                                            <colgroup>
+                                                                                                <col style="width:15%">
+                                                                                                <col style="width:5%">
+                                                                                                <col style="width:20%">
+                                                                                                <col style="width:50%">
+                                                                                            </colgroup>
+                                                                                            <thead>
+                                                                                            <tr>
+                                                                                                <th>Name</th>
+                                                                                                <th>Type</th>
+                                                                                                <th>Description</th>
+                                                                                                <th>Documentation</th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+
+                                                                                            {% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}
+                                                                                                <tr>
+                                                                                                    <td>{{sub_trait_property_value.pretty_name}}</td>
+                                                                                                    <td><code>{{sub_trait_property_value.type}}</code></td>
+                                                                                                    <td><em>{{sub_trait_property_value.description}}</em></td>
+                                                                                                    <td><em>{{sub_trait_property_value.html_documentation|safe}}</em></td>
+                                                                                                    <!--<td><a class="scroll" href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{trait_property_key}}"> <i class="fa fa-link"></i> Read more </a></td>-->
+                                                                                                </tr>
+                                                                                            {% endfor %}
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+
+
+                                                                            </div>
+
+                                                                        {% endwith %}
+
+                                                                {% endfor %}
+
+
+                                                            {% endfor %}
 
                                                             <!-- Formats -->
-                                                            <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats">
+                                                            <h3 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats">
                                                                  Formats
-                                                            </h4>
-                                                            <p>
+                                                            </h3>
+                                                            <div>
                                                                 <span class="fa-custom-stack">
                                                                   <i class="fa fa-file-o"></i>
                                                                     <span class="fa-custom-filetype">fits</span>
-                                                                </span>fits,
+                                                                </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
                                                                 <span class="fa-custom-stack">
                                                                   <i class="fa fa-file-o"></i>
                                                                     <span class="fa-custom-filetype">json</span>
-                                                                </span>json
+                                                                </span><i class="fa fa-check sub-heading"></i>
+                                                            </div>
+                                                            <p> You can download {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-type data products in fits and json formats.
+
                                                             </p>
 
 
                                                             <!-- Branches -->
-                                                            <h4 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches">
+                                                            <h3 id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches">
                                                                  All Available Branches and Previous Versions
-                                                            </h4>
+                                                            </h3>
                                                             <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} has {{trait_qualifier_value.branches |length }} available branch(es).
                                                                 In this section, you may find descriptions of each branch and version for reference.
 
@@ -349,7 +462,7 @@
 {% block footer-extra %}
 <script>
 
-    $(window).on('resize, load', function () {
+    update_menu_nav_size = function(){
         // Sidebar menu height is at least panel height
         if ($(window).width() > 770) {
             if ($('.menu-nav').height()<$('.right-panel').height()){
@@ -358,21 +471,38 @@
         } else {
             $('.menu-nav').height('auto');
         }
+    };
+
+    $(window).on('resize, load', function () {
+        update_menu_nav_size();
     });
 
 
     $(document).ready(function () {
+
+        // Activate a tab if the hash is in the url
+        if (window.location.hash.length > 0) {
+            $('ul.nav-pills > li > a.trait_type_button[href="' + window.location.hash + '"]').tab('show');
+        }
+
+        $("ul.nav-pills a.trait_type_button").click(function (e) {
+            // add the has to the url once trait_type is selected
+            e.preventDefault();
+            $(this).tab('show');
+            window.location.hash = this.hash;
+        });
+
         $("ul.nav-pills a").click(function (e) {
           e.preventDefault();
             $(this).tab('show');
         });
-        // Internally linked tab navigation (for branches and versions)
-         $('.branch_dropdown > ul > li > a').click(function(){
-             console.log('click');
-         });
 
         // Change the text shown in the branch button.
         $('.branch_dropdown ul.dropdown-menu > li > a').click(function (event) {
+
+            // update the menu size
+            update_menu_nav_size();
+
             // note, currentTarget gets the element to which the event handler was attached to (rather than target, which gets the element on which the event occurred)
             var _anchor = $(event.currentTarget);
             // get nearest button
@@ -391,7 +521,6 @@
 
         });
 
-
         update_branch_warning_message = function(){
             /**
              * Updates the branch warning message with the current branch and version
@@ -406,10 +535,12 @@
         };
 
         // ON LOAD Find the branch_warning message and update with this branch and version
+        update_menu_nav_size();
         update_branch_warning_message();
 
         // ON TRAIT TYPE SELECTION
         $('.trait_type_button').click(function(){
+            update_menu_nav_size();
             update_branch_warning_message();
         });
 

@@ -1,3 +1,6 @@
+.footer {
+  margin-top: 0;
+}
 .branch_dropdown .dropdown-header-bold {
   color: #333;
   padding-top: 8px;
@@ -41,6 +44,7 @@
 }
 .schema-browser h5 {
   font-size: 16px;
+  margin-top: 20px;
 }
 .menu-nav {
   background-color: #fafafa;
@@ -96,6 +100,19 @@
 }
 .right-panel .schema-contents {
   padding: 30px;
+}
+.right-panel .schema-contents h2 {
+  font-size: 28px;
+  padding-top: 10px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 0;
+}
+.right-panel .schema-contents h3 {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-size: 24px;
+  border-bottom: solid 1px #eeeeee;
 }
 .right-panel .schema-contents h4 {
   font-size: 20px;
