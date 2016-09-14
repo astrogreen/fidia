@@ -14,17 +14,13 @@
 <li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
 {% endblock useful_links %}
 
-{% block content-navigator-help %}
-<!--<a href="{% url 'schema:schema-list' %}" class=""><i class="fa fa-reply"></i> Back to Surveys</a>-->
-{% endblock %}
-
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
-<div class="row schema-browser">
+<div class="row schema-browser" id="top-of-page">
     <div class="col-xs-12">
         <div class="title_info">
-            <h2>Schema for {{survey|uppercase}}
+            <h2>Schema for {{survey|uppercase}} DR 1.0
                 <small class="right-helper">
                     <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
                     <div class="btn-group" role="group" style="margin-top:-15px;">
@@ -32,13 +28,13 @@
                                 data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
                             <span class="sub-heading">
-                                <i class="fa fa-map-marker"></i> Data Release:
+                                <i class="fa fa-map-marker"></i> Data Release
                             </span>
                             <strong>1.0</strong>
                             <i class="fa fa-caret-down"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            <li class="disabled"><a href="">DR 1.0 &nbsp;
+                            <li class="disabled"><a href="">Data Release 1.0 &nbsp;
                                 <small class="sub-heading text-uppercase">Current</small>
                             </a></li>
                         </ul>
@@ -53,6 +49,12 @@
             </p>
         </div>
     </div>
+
+
+    <a class="scroll" href="#top-of-page" id="back-to-top">
+        <i class="fa fa-angle-double-up"></i>
+        back to top
+    </a>
 
     <div class="col-sm-3 col-xs-12 menu-nav schema" id="menu-nav">
         <h5>Contents</h5>
@@ -469,11 +471,14 @@
                 $('.menu-nav').height($('.right-panel').height() + 'px');
             }
         } else {
-            $('.menu-nav').height('auto');
+            $('.menu-nav').height($('#docs-sidebar').height()+30+'px');
         }
     };
 
-    $(window).on('resize, load', function () {
+    $(window).load(function () {
+        update_menu_nav_size();
+    });
+    $(window).resize(function () {
         update_menu_nav_size();
     });
 
