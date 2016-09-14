@@ -174,7 +174,11 @@
                                                                     </strong>
                                                                 </a>
                                                             </li>
+                                                            {% if not forloop.last %}
+                                                                <li role="separator" class="divider"></li>
+                                                            {% endif %}
                                                         {% endfor %}
+                                                            <li role="separator" class="divider"></li>
                                                             <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>
                                                     </ul>
                                                 </li>
@@ -189,6 +193,21 @@
                                                                 <!--<small>{{trait_branch_value.pretty_name}} {{trait_version_value.pretty_name}}</small>-->
                                                             </h3>
                                                             <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
+
+                                                            <div class="panel panel-default success branch_warning">
+                                                                <div class="panel-body">
+                                                                    <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
+                                                                <strong> branch <em>{{trait_branch_value.pretty_name}}</em>, version <em>{{trait_version_value.pretty_name}}</em></strong>, which can be
+                                                                        significantly different from other branches/versions. To switch branches/versions, use the
+                                                                        selector floating in the top right corner of this panel. For more information
+                                                                        on branches,
+                                                                        <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
+                                                                            view the documentation.</a><br>
+                                                                        <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
                                                             <h4>Branch & Version</h4>
                                                             <p>You are currently viewing the {{trait_type_value.pretty_name}}
                                                                 {{trait_qualifier_value.pretty_name}} Schema for
@@ -207,18 +226,7 @@
                                                                 {{trait_version_value.description}}
                                                             </p>
 
-                                                            <div class="panel panel-default success">
-                                                                <div class="panel-body">
-                                                                    <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
-                                                                <strong> branch <em>{{trait_branch_value.pretty_name}}</em>, version <em>{{trait_version_value.pretty_name}}</em></strong>, which can be
-                                                                        significantly different from other branches/versions. To switch branches/versions, use the
-                                                                        selector floating in the top right corner of this panel. For more information
-                                                                        on branches,
-                                                                        <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
-                                                                            view the documentation.</a>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+
 
                                                             <h4>Contents</h4>
                                                             <ul class="p">
@@ -369,7 +377,7 @@
             // get nearest button
             var _branch = "<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch: </span><strong>" + _anchor.attr('data-branch') + "</strong> <i class='fa fa-caret-down'></i>";
             var _version = "<span class='sub-heading'><i class='fa fa-map-pin'></i> Version: </span><strong>" + _anchor.attr('data-version') + "</strong> <i class='fa fa-caret-down'></i>";
-            
+
             if (!!_anchor.attr('data-version')){
                 _anchor.closest('ul.branch-selector').find('a.branch_button').html(_version)
             } else {
@@ -384,6 +392,11 @@
             // stop the hash being appended to the url, and scroll to the value
             event.preventDefault();
             $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
+        });
+
+        // Hide branch warning message
+        $('.branch_warning_button').click(function(){
+            $('.branch_warning').hide();
         });
 
 
