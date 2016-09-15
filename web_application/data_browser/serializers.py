@@ -421,12 +421,12 @@ class TraitPropertySerializer(serializers.Serializer):
     documentation = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
-    survey = serializers.SerializerMethodField()
+    sample = serializers.SerializerMethodField()
     data_release = serializers.SerializerMethodField()
 
     def get_data_release(self,obj):
         return '1.0'
 
-    def get_survey(self, obj):
+    def get_sample(self, obj):
         return self.context['sample']
 

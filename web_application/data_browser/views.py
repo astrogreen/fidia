@@ -412,7 +412,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer = data_browser.serializers.TraitPropertySerializer(
             instance=elem, many=False,
             context={'request': request,
-                     'survey': sample_pk,
+                     'sample': sample_pk,
                      'astroobject': astroobject_pk,
                      'trait': trait_pk,
                      'subtraitproperty': subtraitproperty_pk,

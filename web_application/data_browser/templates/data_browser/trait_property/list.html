@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
         <div class="row">
@@ -55,7 +55,7 @@
 {% endblock page_title_banner %}
 
 {% block content_render %}
-{% captureas survey %}{{sample}}{% endcaptureas %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
@@ -64,6 +64,7 @@
             <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i
                     class="fa fa-file-o"></i> Documentation</a>
         </div>
+        <h5>Properties</h5>
     </div>
     <div class="col-xs-12 col-sm-9 main-content">
         <h2>{{sample|uppercase}} {{astroobject}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
