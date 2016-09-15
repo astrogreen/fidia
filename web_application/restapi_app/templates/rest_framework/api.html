@@ -15,13 +15,13 @@
 </head>
 
 {% block body %}
-<body class="{% block bodyclass %}{% endblock %}">
+<body class="{% block bodyclass %}{% endblock %}" id="top-of-page">
 
     {% block navbar %}
       {% include "restapi_app/header/navbar.html" %}
     {% endblock %}
     {% block page_title_banner %}
-      <div class="page_title_banner">
+      <div class="page_title_banner {% block page_title_banner_class%}{%endblock%}">
         <div class="container">
           <div class="row">
               <div class="col-sm-6">
@@ -36,13 +36,11 @@
                     </ul>
                   </div>
               </div>
-            <div class="col-xs-12">
-              <!--<hr>-->
-            </div>
+
           </div>
           </div>
       </div>
-      {% endblock page_title_banner %}
+    {% endblock page_title_banner %}
 
     <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
       {% block breadcrumbs-outer %}
@@ -66,7 +64,7 @@
       {% endblock %}
     </div>
 
-  <div class="wrapper">
+  <div class="wrapper {% block less-class %}{% endblock %}">
 
     {% block call-to-action %}{% endblock %}
 
@@ -99,7 +97,12 @@
           {% block content %}
             {% captureas http_status_is_success %}{% is_success http_status_code %}{% endcaptureas %}
             {% if  http_status_is_success == "True" %}
-
+              {% block scroll-to-top %}
+                <a class="scroll" href="#top-of-page" id="back-to-top">
+                    <i class="fa fa-angle-double-up"></i>
+                    back to top
+                </a>
+              {% endblock %}
 
               {% block content-test %}{% endblock %}
 

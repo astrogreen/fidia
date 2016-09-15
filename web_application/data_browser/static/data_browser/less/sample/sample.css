@@ -1,3 +1,21 @@
+/*
+ * Edits to pre-existing classes to ensure that the schema browser takes up the whole page space
+ */
+.content-navigator-help {
+  display: none;
+}
+#page-content {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.no-padding-left {
+  padding-left: 0 !important;
+}
+.no-padding-right {
+  padding-right: 0 !important;
+}
 .hosted-surveys a {
   text-decoration: none;
   cursor: hand;
@@ -231,19 +249,27 @@ table.table-summary > tbody > tr > td > strong {
 table.table-overview {
   table-layout: fixed;
 }
-table.table-overview tr > td {
-  padding: 15px 0px 0px 0px;
+table.table-overview tr.large > td,
+table.table-overview tr.medium > td {
+  padding: 15px 0px 15px 0px;
   text-align: center;
   vertical-align: middle;
   border-top: 0;
   border-right: 1px #eee solid;
 }
-table.table-overview tr > td img {
+table.table-overview tr.large > td img,
+table.table-overview tr.medium > td img {
   display: inline-block;
   max-height: 30px;
 }
-table.table-overview tr > td:last-child {
+table.table-overview tr.large > td:last-child,
+table.table-overview tr.medium > td:last-child {
   border-right: 0;
+}
+table.table-overview tr.medium > td {
+  padding: 15px;
+  padding-top: 0;
+  vertical-align: top;
 }
 table.table-overview tr:nth-child(2) td {
   color: #aaa;

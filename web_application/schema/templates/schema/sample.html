@@ -11,46 +11,50 @@
 {% endblock %}
 
 {% block page_title %}Schema Browser{% endblock %}
-{% block useful_links %}
-<li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
-{% endblock useful_links %}
+
+{% block page_title_banner %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<div class="title_info blue">
+    <div class="container">
+        <div class="row>">
+            <div class="col-xs-12">
+                <h1>Schema for {{survey|uppercase}} DR 1.0
+                    <small class="right-helper">
+                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                        <div class="btn-group" role="group" style="margin-top:-15px;">
+                            <button type="button" class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                    <span class="sub-heading">
+                        <i class="fa fa-map-marker"></i> Data Release
+                    </span>
+                                <strong>1.0</strong>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="disabled"><a href="">Data Release 1.0 &nbsp;
+                                    <small class="sub-heading text-uppercase">Current</small>
+                                </a></li>
+                            </ul>
+                        </div>
+                    </small>
+                </h1>
+                <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
+                    that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
+                    Schema
+                    Browser, which contains a more comprehensive description of pipeline reduction and analysis
+                    techniques.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_title_banner %}
 
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
 <div class="row schema-browser" id="top-of-page">
-    <div class="col-xs-12 no-padding-left no-padding-right">
-        <div class="title_info">
-            <h2>Schema for {{survey|uppercase}} DR 1.0
-                <small class="right-helper">
-                    <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                    <div class="btn-group" role="group" style="margin-top:-15px;">
-                        <button type="button" class="btn btn-default dropdown-toggle"
-                                data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                            <span class="sub-heading">
-                                <i class="fa fa-map-marker"></i> Data Release
-                            </span>
-                            <strong>1.0</strong>
-                            <i class="fa fa-caret-down"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li class="disabled"><a href="">Data Release 1.0 &nbsp;
-                                <small class="sub-heading text-uppercase">Current</small>
-                            </a></li>
-                        </ul>
-                    </div>
-                </small>
-            </h2>
-            <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
-                that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
-                Schema
-                Browser, which contains a more comprehensive description of pipeline reduction and analysis
-                techniques.
-            </p>
-        </div>
-    </div>
-
 
     <a class="scroll" href="#top-of-page" id="back-to-top">
         <i class="fa fa-angle-double-up"></i>
@@ -539,12 +543,7 @@
         });
 
 
-        // Smooth scrolling
-        $(".scroll").click(function(event){
-            // stop the hash being appended to the url, and scroll to the value
-            event.preventDefault();
-            $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
-        });
+
 
         // Hide branch warning message
         $('.branch_warning_button').click(function(){

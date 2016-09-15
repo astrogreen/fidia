@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <footer class="footer" id="footer" >
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-sm-3 col-xs-12 footer-block">
                 <h3>TOOLS</h3>
@@ -129,6 +129,32 @@
             if (footerTop < docHeight) {
                 $('#footer').css('margin-top', 10 + (docHeight - footerTop) + 'px');
             }
+        });
+
+        // Smooth scrolling
+        $(".scroll").click(function(event){
+            // stop the hash being appended to the url, and scroll to the value
+            event.preventDefault();
+            $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
+        });
+
+
+        update_sidebar_size = function(){
+        // Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
+            if ($(window).width() > 770) {
+                if ($('.main-content').height() > $('.sidebar > ul').height()) {
+                    $('.sidebar').height($('.main-content').height() + 'px');
+                }
+            } else {
+                $('.sidebar').height($('.sidebar > ul').height() + 100 + 'px');
+            }
+        };
+
+        $(window).load(function () {
+            update_sidebar_size();
+        });
+        $(window).resize(function () {
+            update_sidebar_size();
         });
     });
 </script>

@@ -5,9 +5,9 @@
 {% block title %}Tools {% endblock %}
 
 {% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
-{% endblock %}
 
+{% endblock %}
+{% block less-class %}tools{% endblock %}
 
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
@@ -22,108 +22,99 @@
 
 {% block content_render %}
 
-<div class="row hosted-surveys">
-    <div class="col-xs-12">
+
+
+<div class="row text-center">
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
         <h1>All AAODC tools in one place.</h1>
-        <p class="lead">AAODC offers a variety of tools to interact with available survey data products. </p>
-        <br>
+        <p class="lead">AAODC offers a variety of tools to interact with survey data products. Whether you want to
+            browse available data for a single astronomical source, create samples of objects from our archives, or
+            download data to your machine, our tools will help you get started.</p>
+        <hr>
     </div>
 </div>
-<div class="row vertical-align tools">
-    <div class="col-xs-12 col-sm-6">
-        <a href="{% url 'data_browser:root-list' %}">
-            <div class="media">
-                <div class="media-left">
-                    <img class="media-object" src="{% static 'restapi_app/img/documentation/data-browser.png'%}"
-                         alt="...">
-                </div>
-                <div class="media-body">
-                    <h3 class="media-heading no-margin-bottom">Data
-                        Browser</h3>
-                    <span class="sub-heading">
-                        Available for: {% for survey in response.data.samples %}{{survey|uppercase}} {% endfor %}
-                    </span>
-                    <p>Per survey, browse the available data products and meta-data for each object.
+<div class="row ">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+        <div class="row tool">
+            <div class="col-xs-4 vcenter">
+                <img src="{% static 'restapi_app/img/documentation/data-browser.png'%}" class="img-responsive">
+            </div><!--
+            --><div class="col-xs-8 vcenter">
+                <h2>Data Browser</h2>
+                <span class="sub-heading">
+                    Available for: {% for survey in response.data.surveys %}{{survey|uppercase}} {% endfor %}
+                </span>
+                <p>Per survey, browse the available data products and meta-data for each object.
                         Provides a quick-look at the data products for a particular object,
                         and download functionality for individual
                         data products in fits format. </p>
-                </div>
+                <a href="{% url 'data_browser:root-list' %}" class="text-uppercase"><strong>Go to Data Browser
+                    <i class="fa fa-angle-right"></i></strong></a>
             </div>
-        </a>
-    </div><!--
-    -->
-    <div class="col-xs-12 col-sm-6">
-        <a href="{% url 'query-create-list' %}">
-            <div class="media">
-                <div class="media-left">
-                    <img class="media-object" src="{% static 'restapi_app/img/documentation/query.png'%}"
-                         alt="...">
-                </div>
-                <div class="media-body">
-                    <h3 class="media-heading no-margin-bottom">Query Builder
-                    </h3>
-                    <span class="sub-heading">
-                        Available for: {% for survey in response.data.samples %}{{survey|uppercase}} {% endfor %}
-                    </span>
-                    <p>Create a sample of objects from all surveys, filtering on some parameter(s) and return
+        </div>
+    </div>
+</div>
+<div class="row ">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+        <div class="row tool">
+            <div class="col-xs-8 vcenter">
+                <h2>Query Builder</h2>
+                <span class="sub-heading">
+                    Available for: {% for survey in response.data.surveys %}{{survey|uppercase}} {% endfor %}
+                </span>
+               <p>Create a sample of objects from all surveys, filtering on some parameter(s) and return
                         available rows of objects. Select available products for bulk
                         download. Revisit previous queries in your Query History.</p>
-                </div>
+                <a href="{% url 'query-create-list' %}" class="text-uppercase"><strong>Go to Query Builder
+                    <i class="fa fa-angle-right"></i></strong></a>
+            </div><!--
+            --><div class="col-xs-4 vcenter text-right">
+                <img src="{% static 'restapi_app/img/documentation/query.png'%}" class="img-responsive">
             </div>
-        </a>
+        </div>
     </div>
-
 </div>
-<div class="row vertical-align tools">
-    <div class="col-xs-12 col-sm-6">
-        <a href="{% url 'schema:schema-list' %}">
-            <div class="media">
-                <div class="media-left">
-                    <img class="media-object" src="{% static 'restapi_app/img/documentation/schema-browser.png'%}"
-                         alt="...">
-                </div>
-                <div class="media-body">
-                    <h3 class="media-heading no-margin-bottom">Schema
-                        Browser
-                    </h3>
-                    <span class="sub-heading">
-                        Available for: {% for survey in response.data.samples %}{{survey|uppercase}} {% endfor %}
-                    </span>
-                    <p>The schema browser allows you to explore the types of data each survey team has released, how
+<div class="row ">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+        <div class="row tool">
+            <div class="col-xs-4 vcenter">
+                <img src="{% static 'restapi_app/img/documentation/schema-browser.png'%}" class="img-responsive">
+            </div><!--
+            --><div class="col-xs-8 vcenter">
+                <h2>Schema Browser</h2>
+                <span class="sub-heading">
+                    Available for: {% for survey in response.data.surveys %}{{survey|uppercase}} {% endfor %}
+                </span>
+                <p>The schema browser allows you to explore the types of data each survey team has released, how
                         each
                         was derived (reduction pipelines, analysis method etc), and any associated meta data. </p>
-
-                </div>
+                <a href="{% url 'schema:schema-list' %}" class="text-uppercase"><strong>Go to Schema Browser
+                    <i class="fa fa-angle-right"></i></strong></a>
             </div>
-        </a>
+        </div>
     </div>
-    <div class="col-xs-12 col-sm-6">
-        <a href="{% url 'schema:schema-list' %}">
-            <div class="media">
-                <div class="media-left">
-
-                    <img class="media-object" src="{% static 'restapi_app/img/documentation/download.png'%}"
-                         alt="...">
-
-                </div>
-                <div class="media-body">
-                    <h3 class="media-heading no-margin-bottom">Download
-                    </h3>
-                    <span class="sub-heading">
-                        Available for: {% for survey in response.data.samples %}{{survey|uppercase}} Query History {% endfor %}
-                    </span>
-                    <p>Download individual data products per source, samples of objects (in csv format) or data products
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+        <div class="row tool">
+            <div class="col-xs-8 vcenter">
+                <h2>Download</h2>
+                <span class="sub-heading">
+                    Available for: {% for survey in response.data.surveys %}{{survey|uppercase}} {% endfor %}
+                </span>
+                <p>Download individual data products per source, samples of objects (in csv format) or data products
                         for
                         a user-created sample. If you wish to re-download a previous collection of data, you can visit
                         your Download History.</p>
-
-                </div>
+                <a href="{% url 'download-create' %}" class="text-uppercase"><strong>Go to Download
+                    <i class="fa fa-angle-right"></i></strong></a>
+            </div><!--
+            --><div class="col-xs-4 vcenter">
+                <img src="{% static 'restapi_app/img/documentation/data-browser.png'%}" class="img-responsive">
             </div>
-        </a>
+        </div>
     </div>
-</div>
-
-
+</div><br><br>
 {% endblock %}
 {% block footer-extra %}
 

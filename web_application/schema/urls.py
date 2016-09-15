@@ -14,12 +14,12 @@ import schema.views
 router = rest_framework.routers.SimpleRouter()
 # router = ExtendDefaultRouter()
 
-router.register(r'schema', schema.views.SchemaViewSet, base_name='schema')
+router.register(r'tools/schema', schema.views.SchemaViewSet, base_name='schema')
 
 # router.register(r'testing/(?P<dynamic_pk>.+)', data_browser.views.TestingViewSet, base_name='testing')
 
 # Nested routes for sample ()
-sample_nested_router = NestedExtendDefaultRouter(router, r'schema', lookup='schema')
+sample_nested_router = NestedExtendDefaultRouter(router, r'tools/schema', lookup='schema')
 sample_nested_router.register(r'(?P<sample_pk>[^/]+)', schema.views.SurveyViewSet, base_name='sample')
 
 astroobject_nested_router = NestedExtendDefaultRouter(sample_nested_router, r'(?P<sample_pk>[^/]+)', lookup='sample')
@@ -34,7 +34,6 @@ urlpatterns = [
     url(r'^(?i)', include(sample_nested_router.urls)),
     url(r'^(?i)', include(astroobject_nested_router.urls)),
     url(r'^(?i)', include(trait_nested_router.urls)),
-
 ] 
 
 

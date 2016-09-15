@@ -104,11 +104,12 @@ class AstroObjectSerializer(serializers.Serializer):
 
     def get_available_traits(self, obj):
         return self.context['available_traits']
-
+    def get_version(self, obj):
+        return '1.0'
     sample = serializers.SerializerMethodField()
     astroobject = serializers.SerializerMethodField()
     available_traits = serializers.SerializerMethodField()
-
+    version = serializers.SerializerMethodField()
 
 class TraitSerializer(serializers.Serializer):
     """Serializer for the Trait level of the Data Browser"""

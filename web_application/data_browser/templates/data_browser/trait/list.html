@@ -15,20 +15,20 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema</a></li>
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema Browser</a></li>
+<!--<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}" >Documentation</a></li>-->
 {% endblock useful_links %}
 
 {% block content-navigator-help %}
     <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-reply"></i> Back to {{response.data.astroobject}}</a>
 {% endblock %}
 
-{% block content_render %}
+{% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row headline">
     <div class="col-xs-12 col-sm-12">
         <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}} {{response.data.pretty_name}}</h2>
-        <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}" class="navigator options question"><i class="fa fa-question-circle"></i> What is a branch?</a>
+        <!--<a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}" class="navigator options question"><i class="fa fa-question-circle"></i> What is a branch?</a>-->
     </div>
     <div class="col-sm-12">
         {% if response.data.description %}
@@ -39,8 +39,8 @@
     </div>
     <div class="col-xs-12 col-sm-4">
         <div class="options text-left">
-            <a class="btn btn-default" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema</a>
-            <a class="btn btn-default" href="{% url 'documentation:topic-detail' slug=survey %}"><i class="fa fa-file-o"></i> Documentation</a>
+            <a class="btn btn-default" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema Browser</a>
+            <a class="btn btn-default" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>
         </div>
     </div>
 
@@ -100,8 +100,7 @@
             </a>
             {% endfor %}
 
-            <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}'
-                                 prettyname='{{response.data.pretty_name}}'></add-download-button>
+            <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
         </div>
     </div>
 

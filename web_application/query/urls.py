@@ -11,7 +11,7 @@ from restapi_app.routers import ExtendDefaultRouter, NestedExtendDefaultRouter
 router = rest_framework.routers.SimpleRouter()
 
 router.register(r'query-history', query.views.QueryListRetrieveUpdateDestroyView, base_name='query')
-router.register(r'query', query.views.QueryCreateView, base_name='query-create')
+router.register(r'tools/query', query.views.QueryCreateView, base_name='query-create')
 
 urlpatterns = [
             url(r'', include(router.urls)),
