@@ -272,7 +272,88 @@ class SAMIRowStackedSpectra(SpectralMap):
 
 
 class SAMISpectralCube(SpectralMap):
-    """Load a SAMI Data cube."""
+    """Flux cubes from optical integral-field spectroscopy.
+
+
+    The data cubes
+    are taken from version 0.9 of the SAMI reduction pipeline (see [Sharp et al.
+    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy)
+    and [Allen et al. (2014)](http://sami-survey.org/paper/early-data-release)
+    for details).  There are two cubes for each galaxy, one in the blue, and a
+    second in the red.  Note that the red and blue cubes do not overlap in
+    wavelength coverage.  Some basic characteristics of the data are given
+    below:
+
+    - Blue cube covers ~3700-5700A with a resolution of $R\simeq 1750$ and a
+      dispersion of 1.0 Angstrom per pixel.
+    - Red cube covers ~6300-7400A with a resolution of $R\simeq 4500$ and a
+      dispersion of 0.57 Angstroms per pixel.
+    - The cubes are each $50\times 50$ spatial pixels by $2048$ spectral pixels
+      with the spatial sampling at 0.5 arcsec.
+    - Data are flux calibrated and corrected for telluric absorption to within
+      6% in relative flux.
+    - The included world coordinate system is centred on catalogue coordinates.
+      The acuracy of the astronometry is about 1-2 arcseconds (RMS).
+    - Primary HDU contains the data cube: $50\times50$ spatial elements, $2048$
+      spectral elements ($50\times50\times2048$).
+    - Variance cube ($50\times 50\times 2048$), weight-map cube ($50\times
+      50\times 2048$) and covariance hyper-cube ($50\times 50\times 5\times
+      5\times n$, where $n$ can vary) are included as extensions.  See below for
+      discussion of covariance.
+
+    # Variance and Covariance
+
+    During the reduction, SAMI hexabundles are dithered and resampled onto a regular
+    grid, which causes nearby output spaxels to have correlated noise in the spatial
+    dimension. This spatial covariance is included in the 'COVAR' extension of the
+    cube. (N.B. spectral covariance is small enough to be safely ignored, and is not
+    included). Full details of how covariance is handled in SAMI data is included in
+    [Sharp et al.
+    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
+
+    We leave the choice of how to apply (or otherwise) this covariance
+    information to subsequent analysis up to the user, but strongly encourage
+    users to read the description in [Sharp et al.
+    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy)
+    in detail.
+
+    # Acknowledgements and citations for using the data
+
+    If using SAMI data products, please include this acknowledgement:
+
+    > The SAMI Galaxy Survey is based on observations made at the
+    > Anglo-Australian Telescope. The Sydney-AAO Multi-object Integral field
+    > spectrograph (SAMI) was developed jointly by the University of Sydney and
+    > the Australian Astronomical Observatory. The SAMI input catalogue is based
+    > on data taken from the Sloan Digital Sky Survey, the GAMA Survey and the VST
+    > ATLAS Survey. The SAMI Galaxy Survey is funded by the Australian Research
+    > Council Centre of Excellence for All-sky Astrophysics (CAASTRO), through
+    > project number CE110001020, and other participating institutions. The SAMI
+    > Galaxy Survey website is http://sami-survey.org/ ."
+
+    Please also cite the following papers:
+
+    - ["The Sydney-AAO Multi-object Integral field spectrograph", Croom et al.
+    (2012), MNRAS, 421, 872](http://adsabs.harvard.edu/abs/2012MNRAS.421..872C).
+    Instrument description paper.
+    - ["The SAMI Galaxy Survey: Target selection and instrument specification",
+    Bryant et al., MNRAS 447, 2857 (2015)](http://sami-survey.org/paper/sami-survey-target-selection-and-instrument-specification). Details of survey target selection and revised
+    instrument description for upgraded SAMI instrument.
+    - ["The SAMI Galaxy Survey: Cubism and covariance, putting round pegs into
+    square holes", Sharp et al., MNRAS, 446, 1551
+    (2015)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
+     Data processing pipeline, including flux calibration and drizzle cubing.
+    - ["The SAMI Galaxy Survey: Early Data Release", Allen et al., MNRAS, 446, 1567
+    (2015)](http://sami-survey.org/paper/early-data-release).  Description of
+    early data release, including quality metrics and details of data products.
+
+    # Feedback
+
+    The SAMI Galaxy Survey team welcome feedback on this data release and the
+    products contained within it.  If you are actively using the data and/or
+    find issues, please contact us on feedback@sami-survey.org.
+
+    """
 
     sub_traits = TraitRegistry()
 
@@ -327,11 +408,44 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float.array')
     def variance(self):
+        """Variance of the flux measurements.
+
+        NOTE: The SAMI Drizzling process introduces considerable co-variance to
+        the flux information, which is stored separately.
+
+        """
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('VARIANCE')].data
 
     @trait_property('float.array')
     def covariance(self):
+        """Compressed description of the covariance introduced by the drizzling.
+
+        The full covariance matrix for a SAMI cube is both very large and highly
+        redundant. Therefore, we calculate and store the covariance only (i) at
+        a subset of wavelength slices, and (ii) over small spatial scales only.
+        Our testing shows that covariance is only significant over a ~2 spaxel
+        radius, therefore, a $5 \times 5$ covariance sub-array is sufficient to
+        record all of the covariance for a given pixel. The covariance varies
+        significantly along the spectral direction only when the resampling is
+        updated to account for the effects of chromatic differential atmospheric
+        refraction. Therefore we densely sample only these wavelength slices,
+        and sparsely sample slices in between.
+
+        The full $50\times 50 \times 5 \times 5 \times 2048$ covariance
+        hyper-cube can be reconstruced from the included covariance data as
+        described by [Sharp et al.
+        (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
+        Briefly, missing values in the full hyper-cube should be replaced with
+        the nearest measured value along the wavelength axis. Then, each of the
+        25 $50\times 50 \times 2048$ cubes (one per element of the $5 \times 5$
+        covariance sub-arrays) must be multiplied by the variance cube to
+        recover the full covariance. Our testing has shown that this approach
+        recovers $> 91\%$ of the covariance in the blue cubes, and $> 97\%$ in
+        the red cubes.
+
+        """
+
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('COVAR')].data
 
@@ -467,6 +581,7 @@ class SAMISpectralCube(SpectralMap):
         """AAOmega Detector characteristics defined by FITS header
 
         Relevant section from the header:
+
             DCT_DATE= 'Sep 12 2014'        / DCT release date
             DCT_VER = 'r3_110_2_3'         / DCT version number
             DETECXE =                 2048 / Last column of detector
@@ -835,7 +950,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
 
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Map",
-    OII3726="[OII] (3726Å)",
+    OII3729="[OII] (3729Å)",
     HBETA='Hβ',
     OIII5007='[OIII] (5007Å)',
     OI6300='[OI] (6300Å)',
@@ -918,6 +1033,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
     "Line Map",
     OII3726="[OII] (3726Å)",
+    OII3729="[OII] (3729Å)",
     HBETA='Hβ',
     OIII5007='[OIII] (5007Å)',
     OI6300='[OI] (6300Å)',
@@ -1066,7 +1182,7 @@ class LZIFULineSpectrum(SpectralMap):
 
 
 class BalmerExtinctionMap(Image, TraitFromFitsFile):
-    """Emission extinction map based on the Balmer decrement.
+    r"""Emission extinction map based on the Balmer decrement.
 
     Extinction maps are calculated using the EmissionLineFitsV01 (which includes
     Balmer flux errors incorporating continuum uncertainties) using the Balmer
@@ -1122,11 +1238,9 @@ class SFRMap(Image, TraitFromFitsFile):
     Star formation rate (SFR) map calculated using the EmissionLineFitsV01
     (which includes Balmer flux errors incorporating continuum uncertainties),
     ExtinctionCorrMapsV01, and SFMasksV01.  These are used to calculate star
-    formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$) and
-    star formation rate surface density maps (in $M_\odot\,\rm{yr}^{-1} \,
-    \rm{kpc}^2$) using the code below.  Note that we are using the
-    flow-corrected redshifts z_tonry_1 from the SAMI-matched GAMA catalog
-    (SAMITargetGAMAregionsV02) to calculate distances.
+    formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$).
+    Note that we are using the flow-corrected redshifts z_tonry_1 from the
+    SAMI-matched GAMA catalog (SAMITargetGAMAregionsV02) to calculate distances.
 
     ```
     H0 = 70.                                    ;; (km/s)/Mpc, SAMI official cosmology
@@ -1139,7 +1253,7 @@ class SFRMap(Image, TraitFromFitsFile):
     sfrsd = sfr / kpcperpix^2                   ;; this one in Msun/yr/kpc^2
     ```
 
-    Errors (1-sigma uncertainty) in SFR or SFRSD are included as a second extension in each file.
+    Errors (1-sigma uncertainty) in SFR are also included.
 
     A separate map is made for each set of LZIFU emission line fits for each
     galaxy: 1 Gaussian component (`*_1_comp.fits`), 2 Gaussian components
@@ -1178,12 +1292,15 @@ class SFRMap(Image, TraitFromFitsFile):
              self.object_id + "_SFR_" + self.branch + ".fits"))
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
-    variance = trait_property_from_fits_data('SFR_ERR', 'float.array', 'value')
+    value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
+    error = trait_property_from_fits_data('SFR_ERR', 'float.array', 'error')
+    error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
+
 SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
 class EmissionClass(ClassificationMap, TraitFromFitsFile):
-    """Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
+    r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
     [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV01 to
@@ -1194,7 +1311,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
     5.
 
     We additionally add a likely classification of "star-forming" to spaxels
-    with $\log({\rm [NII]}/{\rm Hα}) <-0.4 $ without an [OIII] detection.
+    with $\log(\rm{[NII]}/\rm{Hα}) < -0.4$ without an [OIII] detection.
 
     Classifications are stored in the map as an integer with the following definitions:
 
@@ -1204,8 +1321,8 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
     |   1         | star formation dominates the emission in all available line ratios |
     |   2         | other ionization mechanisms dominate |
 
-    We note that these classifications are done only using the TOTAL EMISSION
-    LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
+    We note that these classifications are done only using the *total emission
+    line flux* in a spectrum.  Thus, for spectra which contain 2 or 3 components,
     we classify the total emission in that spaxel, not the individual
     components.
 
