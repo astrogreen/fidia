@@ -295,6 +295,31 @@ code {
     padding: 30px;
   h5{border-bottom:rgba(168,59,58,0.2) dotted 1px;}
   h2{border-bottom:rgba(168,59,58,0.2) dotted 1px;font-weight:100;}
+  .panel-group {
+    margin-left: -30px;
+    margin-right: -30px;
+    .panel-heading{
+      padding-left:30px;
+      padding-right:30px;
+    }
+    .panel-body .panel-body{
+      padding-left:30px;
+      padding-right:30px;
+      .panel-group{
+        margin-left: -30px;
+    margin-right: -30px;
+      }
+    }
+
+    .panel-group {
+      margin-left: -15px;
+      margin-right: -15px;
+    }
+    .panel-default {
+      border: 0;
+      box-shadow:none;
+    }
+  }
 }
 .main-content{
   padding:30px;
@@ -316,7 +341,7 @@ code {
       }
 
       h4 {
-        font-size: 20px;
+        font-size: 18px;
         line-height: 20px;
         margin-top: 45px;
         margin-bottom: 20px;
@@ -571,7 +596,7 @@ header {
 }
 .title_info {
 
-  padding: 60px 30px 45px 30px;
+  padding: 60px 0px 45px 0px;
   border-bottom: solid 1px #eeeeee;
 
   h1 {

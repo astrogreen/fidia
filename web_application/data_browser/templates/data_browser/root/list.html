@@ -17,29 +17,31 @@
 
 {% block content_render %}
 <div class="row">
-    <div class="col-xs-12 col-sm-2 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar">
         <h5>All Tools</h5>
-        <ul class="nav nav-pills nav-stacked docs-sidebar">
-            <li class="text-uppercase heading no-margin-top">
-                <h6>Data Access</h6>
-            </li>
+        <div class="sidebar-contents">
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li class="text-uppercase heading no-margin-top">
+                    <h6>Data Access</h6>
+                </li>
 
-            <li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
-            <li role="presentation" class="disabled"><a class="sub-heading">Data Explorer</a></li>
-            <li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query
-                Builder
-                (SQL)</a></li>
-            <li role="presentation" class="disabled"><a href="{% url 'download-create' %}" class="sub-heading">Download
-                Data</a></li>
+                <li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
+                <li role="presentation" class="disabled"><a class="sub-heading">Data Explorer</a></li>
+                <li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query
+                    Builder
+                    (SQL)</a></li>
+                <li role="presentation" class="disabled"><a href="{% url 'download-create' %}" class="sub-heading">Download
+                    Data</a></li>
 
-            <li class="text-uppercase no-margin-top">
-                <h6>Schema</h6>
-            </li>
-            <li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
-        </ul>
+                <li class="text-uppercase no-margin-top">
+                    <h6>Schema</h6>
+                </li>
+                <li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
+            </ul>
+        </div>
     </div>
 
-    <div class="col-xs-12 col-sm-10 main-content">
+    <div class="col-xs-12 col-sm-9 main-content">
         <h1>Discover the survey data products hosted at AAODC.</h1>
 
         <p class="lead">Choose a survey from the list below to get started. To

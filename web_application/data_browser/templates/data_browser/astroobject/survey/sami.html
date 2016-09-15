@@ -10,26 +10,10 @@
             <!--</div>-->
         <!--</div>-->
     <!--</div>-->
-    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <span class="panel-title">SDSS Image</span>
-            </div>
-            <div class="panel-body">
-                <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
-                     alt="..." class="img-responsive">
-                <br>
-                <p class="text-justify">Colour composite image, 19.5 arcsec on a side. False colour, 512
-                    × 512 pixel, 0.2
-                    arcsec/pixel,
-                    5-band composite from SDSS DR7.</p>
-            </div>
-        </div>
-    </div>
-
+</div>
+<div class="row">
     {% with response.data.available_traits.velocity_map.traits.velocity_map as trait_path %}
-    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+    <div class="col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <span class="panel-title">
@@ -64,7 +48,7 @@
     </script>
     {% endwith %}
     {% with response.data.available_traits.sfr_map.traits.sfr_map as trait_path %}
-    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+    <div class="col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading">
                  <span class="panel-title">

@@ -20,9 +20,9 @@
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
-        <div class="row>">
+        <div class="row">
             <div class="col-xs-12">
-                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.version}}
+                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.data_release}}
                     <small class="right-helper">
                         <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
                         <div class="btn-group" role="group" style="margin-top:-15px;">
@@ -32,11 +32,11 @@
                     <span class="sub-heading">
                         <i class="fa fa-map-marker"></i> Data Release
                     </span>
-                                <strong>1.0</strong>
+                                <strong>{{response.data.data_release}}</strong>
                                 <i class="fa fa-caret-down"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li class="disabled"><a href="">Data Release 1.0 &nbsp;
+                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
                                     <small class="sub-heading text-uppercase">Current</small>
                                 </a></li>
                             </ul>
@@ -58,17 +58,19 @@
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
-        <h5>Contents</h5>
-        <ul class="nav nav-pills nav-stacked docs-sidebar">
-            <li class="text-uppercase heading no-margin-top">
-                <h6>Data Release {{response.data.version}}</h6>
-            </li>
+        <div class="sidebar-contents">
+            <h5>Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li class="text-uppercase heading no-margin-top">
+                    <h6>Data Release {{response.data.data_release}}</h6>
+                </li>
 
-            <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
-            <li role="presentation"><a class="scroll" href="#whats-included">What's included?</a></li>
-            <li role="presentation"><a class="scroll" href="#about">About {{survey|uppercase}}</a></li>
+                <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
+                <li role="presentation"><a class="scroll" href="#whats-included">What's included?</a></li>
+                <li role="presentation"><a class="scroll" href="#about">About {{survey|uppercase}}</a></li>
 
-        </ul>
+            </ul>
+        </div>
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
@@ -89,11 +91,10 @@
                     </div>
                 </div>
             {% else %}
-            <div class="col-sm-2 pull-right">
+            <div class="col-sm-2 col-xs-4 pull-right">
                 <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
             </div>
             <h2>Select an object</h2>
-
             <p>
                 Search for an
                 object below by either typing in the input box, or click an option from the dropdown.
@@ -129,7 +130,7 @@
                             <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
                             {% include template %}
                             {% endwith %}</td>
-                            <td class="lead">{{response.data.version}}</td>
+                            <td class="lead">{{response.data.data_release}}</td>
                             <td class="lead">{{response.data.astro_objects | length}}</td>
                             <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a>
                             </td>
@@ -149,7 +150,7 @@
                         </tr>
                         <tr class="large">
                             <td>PI </td>
-                            <td>Current Version </td>
+                            <td>Data Release Number </td>
                             <td>Number of Objects</td>
                             <td>Schema Browser </td>
                             <td>Available Objects </td>
@@ -167,7 +168,7 @@
                 </div>
             </div>
             <h3 id="whats-included">What's Included?</h3>
-            <p>{{survey|uppercase}} Data Release {{response.data.version}} contains {{response.data.astro_objects | length}} objects ... data release description provided by the team.</p>
+            <p>{{survey|uppercase}} Data Release {{response.data.data_release}} contains {{response.data.astro_objects | length}} objects ... data release description provided by the team.</p>
 
 
             <h3 id="about">About {{survey|uppercase}}</h3>

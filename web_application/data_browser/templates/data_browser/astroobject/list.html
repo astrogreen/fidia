@@ -19,9 +19,9 @@
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
-        <div class="row>">
+        <div class="row">
             <div class="col-xs-12">
-                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.version}}
+                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.data_release}}
                     <small class="right-helper">
                         <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
                         <div class="btn-group" role="group" style="margin-top:-15px;">
@@ -57,29 +57,47 @@
     <a href="{% url 'data_browser:survey-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
 {% endblock %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-2 sidebar">
-        <h5>Contents</h5>
-        <ul class="nav nav-pills nav-stacked docs-sidebar">
-            <li class="text-uppercase heading no-margin-top">
-                <h6>Data Release {{response.data.version}}</h6>
-            </li>
-            <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
-            <li role="presentation"><a class="scroll" href="#available-data">Available Data</a></li>
-        </ul>
+    <div class="col-xs-12 col-sm-3 sidebar">
+        <div class="sidebar-contents">
+            <h5>Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li class="text-uppercase heading no-margin-top">
+                    <h6>Data Release {{response.data.data_release}}</h6>
+                </li>
+                <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
+                <li role="presentation"><a class="scroll" href="#available-data">Available Data</a></li>
+            </ul>
+            <h5>Auxillary Data</h5>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="panel-title">SDSS Image</span>
+                </div>
+                <div class="panel-body">
+                    <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                         alt="..." class="img-responsive">
+                    <br>
+                    <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
+                        × 512 pixel, 0.2
+                        arcsec/pixel,
+                        5-band composite from SDSS DR7.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="col-xs-12 col-sm-10 main-content">
+    <div class="col-xs-12 col-sm-9 main-content">
         <div class="col-sm-2 pull-right">
             <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
         <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}}</h2>
-        <h3>Overview</h3>
+        <h3 id="overview">Overview</h3>
         <div class="panel panel-default">
             <div class="panel-heading">
-                Overview
+                <span class="panel-title">Object Properties</span>
             </div>
             <div class="table-responsive">
                 <table class="table table-overview">
@@ -106,32 +124,42 @@
             {% include template %}
         {% endwith %}
         <h3 id="available-data">Available Data</h3>
-        <ul class="nav nav-tabs nav-tabs-with-well" role="tablist" id="trait_tabs">
+        <p>Select a product-type from the list below to view the available data.</p><br>
+        <ul class="nav nav-pills" role="tablist" id="trait_tabs">
             {% for trait_type, trait_value in response.data.available_traits.items %}
             <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
                 <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}</a>
             </li>
             {% endfor %}
         </ul>
-        <div class="tab-content ">
+        <br>
+
+        <div class="tab-content">
             {% for trait_type, trait_value in response.data.available_traits.items %}
-                <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}"
-                 id="{{trait_type}}">
+                <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">
+                    <br>
+                    <div class="p">
+                        <em>{% if trait_value.description %}{{trait_value.description}}{% endif %}</em>
+                        <!--<a href="{% url 'documentation:topic-detail' slug='branches' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What's a branch?</a> &nbsp;&nbsp;-->
+                    </div><br>
 
                     <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div class="p">
-                                {% if trait_value.description %}{{trait_value.description}}{% endif %}
-                                <!--<a href="{% url 'documentation:topic-detail' slug='branches' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What's a branch?</a> &nbsp;&nbsp;-->
-                            </div>
-                        </div>
-                        <table class="table table-hover table-astro-object">
+                        <table class="table table-astro-object">
                             <tbody>
+                            <tr>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-sm-4 col-xs-12"><div class="sub-heading question"> View the default branch for this data product...</div></div>
+                                        <div class="col-sm-4 col-xs-12"><div class="sub-heading question">... or choose a specific branch from the dropdown. To find out more about the available branches, visit the <a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema Browser</a>.</div></div>
+                                        <div class="col-sm-4 col-xs-12"><span class="sub-heading "><i class="fa fa-download"></i> </span> <span class="question">Or, download this data product.</span></div>
+                                    </div>
+                                </td>
+                            </tr>
                             {% for trait, value in trait_value.traits.items %}
                                 <tr>
                                     <td>
                                         <div class="row">
-                                            <div class="col-sm-6 col-xs-12">
+                                            <div class="col-sm-4 col-xs-12">
                                                 <a href="{{value.url}}">
                                                     <h4 class="text-info" style="border:0"> {{value.pretty_name}}</h4>
                                                 </a>
@@ -141,7 +169,24 @@
                                                     <span class="version sub-heading"><i class="fa fa-code-fork"></i> Default</span>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6 text-right col-xs-12 options">
+                                            <div class="col-sm-4 col-xs-12 options">
+                                                <div class="btn-group" role="group">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <span class="sub-heading"><i class="fa fa-code-fork"></i> Choose a Branch</span> <i class="fa fa-caret-down"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            {% for branch_key, branch_value in value.branches.items %}
+                                                            <li><a href="{{branch_value.url}}">{{branch_value.pretty_name}}</a></li>
+                                                            <li class="dropdown-header"><i class="fa fa-level-up fa-rotate-90"></i> {{branch_value.description}}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-sm-4 col-xs-12 options">
                                                 {% for f in value.formats %}
                                                     <a href="{{value.url}}?format={{f}}" class="btn btn-default">
                                                         <span class="fa-custom-stack">
@@ -151,19 +196,6 @@
                                                     </a>
                                                 {% endfor %}
                                                 <!--<add-download-button url='{{value.url}}' options='' formats='{{value.formats}}' prettyname="{{value.pretty_name}}"></add-download-button>-->
-                                                <div class="btn-group" role="group">
-                                                    <div class="btn-group" role="group">
-                                                        <button type="button" class="btn btn-default dropdown-toggle"
-                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch</span> branchname <i class="fa fa-caret-down"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            {% for branch_name, branch_url in value.branches.items %}
-                                                            <li><a href="{{branch_url}}">{{branch_name}}</a></li>
-                                                            {% endfor %}
-                                                        </ul>
-                                                    </div>
-                                                </div>
 
                                             </div>
                                         </div>
@@ -176,6 +208,7 @@
                 </div>
             {% endfor %}
         </div>
+        <br><br><br>
     </div>
 </div>
 

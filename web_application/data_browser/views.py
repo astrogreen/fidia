@@ -155,9 +155,13 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     if f != "api": trait_name_formats.append(f)
 
                 # Branches
-                trait_name_branches = {
-                    str(tk.branch).replace("None", "default"): astro_object_url + str(tk.replace(version=None))
-                    for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name)}
+                trait_name_branches = {}
+                for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
+                    trait_name_branches[str(tk.branch)] = {
+                        "url": astro_object_url + str(tk.replace(version=None)),
+                        "description": "branch description",
+                        "pretty_name": tk.branch
+                    }
 
                 trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
                                                                 "pretty_name": trait_name_pretty_name,
@@ -222,7 +226,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'sample': sample_pk,
                 'astroobject': astroobject_pk,
                 'trait': trait_pk,
-                'trait_key': default_trait_key,
+                'trait_key': default_trait_key
             }
         )
 
