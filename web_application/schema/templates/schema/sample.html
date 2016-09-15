@@ -151,7 +151,7 @@
                                     {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
 
                                         <div id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %} ">
-                                            <ul class="nav nav-pills branch-selector version-selector">
+                                            <ul class="nav nav-pills version-selector">
                                                 <li class="dropdown">
                                                     <a class="btn btn-default branch_button" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                                         {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
@@ -183,8 +183,8 @@
                                                                 <li role="separator" class="divider"></li>
                                                             {% endif %}
                                                         {% endfor %}
-                                                            <li role="separator" class="divider"></li>
-                                                            <li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>
+                                                            <!--<li role="separator" class="divider"></li>-->
+                                                            <!--<li><a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>-->
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -426,9 +426,9 @@
                                                         {% endwith %}
                                                 </div>
                                                 {% endfor %}
-                                                <div id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy" class="tab-pane">
-                                                    {{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy
-                                                </div>
+                                                <!--<div id="{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy" class="tab-pane">-->
+                                                    <!--{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy-->
+                                                <!--</div>-->
                                             </div>
                                         </div>
                                     {% endfor %}
@@ -509,8 +509,12 @@
              * @type {any}
              * @private
              */
-            var _data_branch = $('.trait > .active').find('ul.version-selector > li > ul > li.active a').attr('data-branch');
+            var _data_branch = $('.trait > .active').find('ul.branch-selector > li > ul > li.active a').attr('data-branch');
             var _data_version = $('.trait > .active').find('ul.version-selector > li > ul > li.active a').attr('data-version');
+
+            console.log(_data_branch);
+            console.log(_data_version);
+
             $('.trait > .active').find('span.branch_warning-branch').html(_data_branch);
             $('.trait > .active').find('span.branch_warning-version').html(_data_version);
 
