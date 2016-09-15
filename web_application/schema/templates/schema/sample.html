@@ -89,7 +89,7 @@
                             <div id="{{trait_type_key}}_{{trait_qualifier_key}}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
 
                                 <h2>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}</h2>
-                                <p><em>{% if not trait_type_value.description %}trait type description tbd{% endif %} {{trait_type_value.description}}</em></p>
+                                <p><em>{{trait_type_value.description}}</em></p>
 
                                 <div class="panel panel-default success branch_warning">
                                     <div class="panel-body">
@@ -112,7 +112,7 @@
                                                     <!--Default branch, and the default version for that branch, are set as active-->
                                                     {% if trait_qualifier_value.default_branch == trait_branch_key %}
                                                         <strong>{{trait_branch_value.pretty_name}}:</strong>
-                                                        {% if not trait_branch_value.description %} TBD {% endif %} {{trait_branch_value.description}}
+                                                        {{trait_branch_value.description}}
                                                     {% endif %}
                                                 {% endfor %}
                                             <i class="fa fa-caret-down"></i>
@@ -128,7 +128,7 @@
                                                 <!--Default branch, and the default version for that branch, are set as active-->
                                                 <li class="{% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %}">
                                                     <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}"
-                                                       data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{% if not trait_branch_value.description %} TBD {% endif %} {{trait_branch_value.description}}">
+                                                       data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
                                                         <strong> {{trait_branch_value.pretty_name}}
                                                         {% if trait_qualifier_value.default_branch == trait_branch_key %}
                                                             <small>DEFAULT</small>
@@ -157,7 +157,7 @@
                                                         {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                                                 <!--Default branch, and the default version for that branch, are set as active-->
                                                             {% if trait_branch_value.default_version == trait_version_key %}
-                                                                <span class="sub-heading"><i class="fa fa-map-pin"></i> Version</span>  <strong> {{trait_version_value.pretty_name}}:</strong> {% if not trait_version_value.description %} TBD {% endif %} {{trait_version_value.description}}
+                                                                <span class="sub-heading"><i class="fa fa-map-pin"></i> Version</span>  <strong> {{trait_version_value.pretty_name}}{% if trait_version_value.description %}: {% endif %}</strong> {{trait_version_value.description}}
                                                             {% endif %}
                                                         {% endfor %}
                                                         <i class="fa fa-caret-down"></i>
@@ -171,7 +171,7 @@
                                                                 <!--Default branch, and the default version for that branch, are set as active-->
                                                             <li class="{% if trait_branch_value.default_version == trait_version_key %}active{% endif %}">
                                                                 <a href="#{{trait_type_key}}_{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}"
-                                                                   data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}" data-version-description="{% if not trait_version_value.description %} TBD {% endif %} {{trait_version_value.description}}">
+                                                                   data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}" data-version-description="{{trait_version_value.description}}">
                                                                     <strong> {{trait_version_value.pretty_name}}
                                                                     {% if trait_branch_value.default_version == trait_version_key %}
                                                                         <small>LATEST</small>
@@ -409,7 +409,7 @@
                                                                                                     <small>LATEST</small>
                                                                                                 {% endif %}
                                                                                             </span><br>
-                                                                                            <em>{% if not trait_version_value.description %} version description goes here {% endif %} {{trait_version_value.description}}</em>
+                                                                                            <em>{{trait_version_value.description}}</em>
                                                                                         </li>
 
                                                                                     {% endfor %}
@@ -488,8 +488,15 @@
             // note, currentTarget gets the element to which the event handler was attached to (rather than target, which gets the element on which the event occurred)
             var _anchor = $(event.currentTarget);
             // get nearest button
-            var _branch = "<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch </span><strong>" + _anchor.attr('data-branch') + ":</strong> " + _anchor.attr('data-branch-description') + " <i class='fa fa-caret-down'></i>";
-            var _version = "<span class='sub-heading'><i class='fa fa-map-pin'></i> Version </span><strong>" + _anchor.attr('data-version') + ":</strong> " + _anchor.attr('data-version-description') + " <i class='fa fa-caret-down'></i>";
+
+            // optional version description
+            var _vers_description_colon = '';
+            var _branch_description_colon = '';
+            if (!!_anchor.attr('data-version-description')){_vers_description_colon=':'}
+            if (!!_anchor.attr('data-branch-description')){_branch_description_colon=':'}
+
+            var _branch = "<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch </span><strong>" + _anchor.attr('data-branch') + _branch_description_colon + "</strong> " + _anchor.attr('data-branch-description') + " <i class='fa fa-caret-down'></i>";
+            var _version = "<span class='sub-heading'><i class='fa fa-map-pin'></i> Version </span><strong>" + _anchor.attr('data-version') + _vers_description_colon + "</strong> " + _anchor.attr('data-version-description') + " <i class='fa fa-caret-down'></i>";
 
             if (!!_anchor.attr('data-version')){
                 _anchor.closest('ul.branch-selector').find('a.branch_button').html(_version)
@@ -511,9 +518,6 @@
              */
             var _data_branch = $('.trait > .active').find('ul.branch-selector > li > ul > li.active a').attr('data-branch');
             var _data_version = $('.trait > .active').find('ul.version-selector > li > ul > li.active a').attr('data-version');
-
-            console.log(_data_branch);
-            console.log(_data_version);
 
             $('.trait > .active').find('span.branch_warning-branch').html(_data_branch);
             $('.trait > .active').find('span.branch_warning-version').html(_data_version);
