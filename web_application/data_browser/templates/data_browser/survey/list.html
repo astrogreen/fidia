@@ -60,16 +60,19 @@
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
             <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li class="text-uppercase heading no-margin-top">
-                    <h6>Data Release {{response.data.data_release}}</h6>
-                </li>
 
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+
+                <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
                 <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
                 <li role="presentation"><a class="scroll" href="#whats-included">What's included?</a></li>
                 <li role="presentation"><a class="scroll" href="#about">About {{survey|uppercase}}</a></li>
 
             </ul>
+            <h5>Quick Links</h5>
+            <a class="btn btn-default btn-sm" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema</a>
+            <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>
+            <br><br>
         </div>
     </div>
 
@@ -94,7 +97,7 @@
             <div class="col-sm-2 col-xs-4 pull-right">
                 <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
             </div>
-            <h2>Select an object</h2>
+            <h2 id="data-access">Data Access</h2>
             <p>
                 Search for an
                 object below by either typing in the input box, or click an option from the dropdown.
