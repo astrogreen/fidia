@@ -46,7 +46,7 @@
                 </span>
                 <p>Per survey, browse the available data products and meta-data for each object.
                         Provides a quick-look at the data products for a particular object,
-                        and download functionality for individual
+                        and allows you to download individual
                         data products in fits format. </p>
                 <a href="{% url 'data_browser:root-list' %}" class="text-uppercase"><strong>Go to Data Browser
                     <i class="fa fa-angle-right"></i></strong></a>
@@ -94,27 +94,28 @@
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
-        <div class="row tool">
-            <div class="col-xs-8 vcenter">
-                <h2>Download</h2>
-                <span class="sub-heading">
-                    Available for: {% for survey in response.data.surveys %}{{survey|uppercase}} {% endfor %}
-                </span>
-                <p>Download individual data products per source, samples of objects (in csv format) or data products
-                        for
-                        a user-created sample. If you wish to re-download a previous collection of data, you can visit
-                        your Download History.</p>
-                <a href="{% url 'download-create' %}" class="text-uppercase"><strong>Go to Download
-                    <i class="fa fa-angle-right"></i></strong></a>
-            </div><!--
-            --><div class="col-xs-4 vcenter">
-                <img src="{% static 'restapi_app/img/documentation/data-browser.png'%}" class="img-responsive">
-            </div>
-        </div>
-    </div>
-</div><br><br>
+<!--<div class="row">-->
+    <!--<div class="col-xs-12 col-sm-6 col-sm-offset-3">-->
+        <!--<div class="row tool">-->
+            <!--<div class="col-xs-8 vcenter">-->
+                <!--<h2>Download</h2>-->
+                <!--<span class="sub-heading">-->
+                    <!--Available for: {% for survey in response.data.surveys %}{{survey|uppercase}} {% endfor %}-->
+                <!--</span>-->
+                <!--<p>Download individual data products per source, samples of objects (in csv format) or data products-->
+                        <!--for-->
+                        <!--a user-created sample. If you wish to re-download a previous collection of data, you can visit-->
+                        <!--your Download History.</p>-->
+                <!--<a href="{% url 'download-create' %}" class="text-uppercase"><strong>Go to Download-->
+                    <!--<i class="fa fa-angle-right"></i></strong></a>-->
+            <!--</div>&lt;!&ndash;-->
+            <!--&ndash;&gt;<div class="col-xs-4 vcenter">-->
+                <!--<img src="{% static 'restapi_app/img/documentation/data-browser.png'%}" class="img-responsive">-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+<br><br>
 {% endblock %}
 {% block footer-extra %}
 

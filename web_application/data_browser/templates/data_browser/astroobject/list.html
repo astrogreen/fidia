@@ -62,11 +62,11 @@
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
-            <h5>Contents</h5>
+            <h5>Page Contents</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li class="text-uppercase heading no-margin-top">
-                    <h6>Data Release {{response.data.data_release}}</h6>
-                </li>
+                <!--<li class="text-uppercase heading no-margin-top">-->
+                    <!--<h6>Data Release {{response.data.data_release}}</h6>-->
+                <!--</li>-->
                 <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
                 <li role="presentation"><a class="scroll" href="#available-data">Available Data</a></li>
             </ul>
@@ -149,9 +149,30 @@
                             <tr>
                                 <td>
                                     <div class="row">
-                                        <div class="col-sm-4 col-xs-12"><div class="sub-heading question"> View the default branch for this data product...</div></div>
-                                        <div class="col-sm-4 col-xs-12"><div class="sub-heading question">... or choose a specific branch from the dropdown. To find out more about the available branches, visit the <a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema Browser</a>.</div></div>
-                                        <div class="col-sm-4 col-xs-12"><span class="sub-heading "><i class="fa fa-download"></i> </span> <span class="question">Or, download this data product.</span></div>
+                                        <div class="col-sm-4 col-xs-12">
+                                            <div class="sub-heading question">
+                                                <div class="helper step step1">View the default branch for this data
+                                                    product...
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 col-xs-12">
+
+                                            <div class="helper step step2"> ... or choose a specific branch from the
+                                                dropdown. To find out more
+                                                about the available branches, visit the <a
+                                                        href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema
+                                                    Browser</a>.
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 col-xs-12">
+
+                                            <div
+                                                class="helper step step3"><span class="sub-heading "> <i
+                                                class="fa fa-download"></i>  </span> Or, download this data product.
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

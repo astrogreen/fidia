@@ -63,7 +63,7 @@
 
     <div class="col-sm-3 col-xs-12 schema no-padding-left no-padding-right">
         <div class="menu-nav" id="menu-nav">
-            <h5>Contents</h5>
+            <h5>Page Contents</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
             {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
             <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
@@ -103,9 +103,9 @@
                                         <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
                                     <strong> branch <em><span class="branch_warning-branch"></span></em>, version <em><span class="branch_warning-version"></span></em></strong>, which can be
                                             significantly different from other branches/versions. To switch branches/versions, use the
-                                            selector floating in the top right corner of this panel. For more information
+                                            selectors below. For more information
                                             on branches,
-                                            <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
+                                            <a class="disabled" disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
                                                 view the documentation.</a><br>
                                             <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
                                         </div>

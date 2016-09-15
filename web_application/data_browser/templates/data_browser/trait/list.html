@@ -58,7 +58,7 @@
 {% endblock page_title_banner %}
 
 {% block content-navigator-help %}
-    <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-reply"></i> Back to {{response.data.astroobject}}</a>
+
 {% endblock %}
 
 {% block content_render %}
@@ -66,8 +66,16 @@
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation"><a href="#data" class="scroll">Data</a></li>
+            </ul>
+            <h5>Quick Links</h5>
             <a class="btn btn-default btn-sm" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema</a>
             <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>
+            <br><br>
+            <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-angle-left"></i> Back to {{response.data.astroobject}}</a>
+            <br><br>
             <h5>Properties</h5>
             <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true" style>
                 {% comment %}

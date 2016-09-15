@@ -22,6 +22,20 @@
 <div class="row">
 
 <div class="col-xs-12 col-sm-3 sidebar">
+        <h5>Page Contents</h5>
+        <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <li class="text-uppercase heading no-margin-top">
+                <h6>Schema Browser</h6>
+            </li>
+            <ul>
+                {% for value in response.data.surveys %}
+                <li role="presentation"><a href="{{value.survey}}/"><span>Browse {{value.survey|uppercase}} Schema
+                        <i class="fa fa-angle-right"></i></span></a></li>
+                {% endfor %}
+            </ul><br>
+            <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">What does the Schema Browser
+                do?</a></li>
+        </ul><br>
         <h5>All Tools</h5>
         <ul class="nav nav-pills nav-stacked docs-sidebar">
             <li class="text-uppercase heading no-margin-top">
@@ -33,8 +47,6 @@
             <li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query
                 Builder
                 (SQL)</a></li>
-            <li role="presentation" class="disabled"><a href="{% url 'download-create' %}" class="sub-heading">Download
-                Data</a></li>
 
             <li class="text-uppercase no-margin-top">
                 <h6>Schema</h6>
@@ -73,7 +85,7 @@
             {% endfor %}
         </div>
 
-        <h2>What does the Schema Browser do?</h2>
+        <h2 id="what-does-the-schema-browser-do">What does the Schema Browser do?</h2>
         <p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
             data products hosted at AAODC, the Schema Browser provides a map of those data products and derived
             properties. The Schema Browser displays an extensive description for each type of data product, along with
@@ -82,7 +94,7 @@
         <p>The Schema Browser reflects the tree-like organisational structure we've adopted here at AAODC. Each survey
             is a collection of astronomical objects with a certain set of properties, and the schema displays astronomical properties available <strong>only</strong> for the selected survey. </p>
 
-        <p>For more information, including articles on Schema Browser examples, head over to the <a
+        <p>For more information, including articles on Schema Browser examples, head over to the <a disabled class="disabled"
                     href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. </p>
         <hr>
 

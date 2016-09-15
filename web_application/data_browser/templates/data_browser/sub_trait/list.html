@@ -64,8 +64,16 @@
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation"><a href="#data" class="scroll">Data</a></li>
+            </ul>
+            <h5>Quick Links</h5>
             <a class="btn btn-default btn-sm" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema</a>
             <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>
+            <br><br><a href="{{trait_url}}"><i class="fa fa-reply"></i> Back to {{trait}} <span>[ <i class="fa fa-code-fork"></i>{{branch}}</span>
+            <span><i class="fa fa-map-marker"></i>{{version}} ]</span></a>
+            <br><br>
             <h5>Properties</h5>
 
             <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
@@ -90,6 +98,7 @@
         {% if response.data.description %}
         <em><p class="">{{ response.data.description}}</p></em>
         {% endif %}
+        <h3 id="data">Data</h3>
         <div class="row">
 
             {% if trait_2D_map == True %}

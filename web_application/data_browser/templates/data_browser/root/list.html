@@ -18,8 +18,33 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
-        <h5>All Tools</h5>
+        <h5>Page Contents</h5>
         <div class="sidebar-contents">
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li class="text-uppercase heading no-margin-top">
+                    <h6>Data Access</h6>
+                </li>
+                <ul>
+                    {% for value in response.data.surveys %}
+                    <li role="presentation"><a href="{{value.survey}}/"><span>Browse {{value.survey|uppercase}} Data
+                    <i class="fa fa-angle-right"></i></span></a></li>
+                    {% endfor %}
+                </ul><br>
+                <li role="presentation"><a href="#what-does-the-data-browser-do" class="scroll">What does the Data Browser do?</a></li>
+
+                <!--<li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>-->
+                <!--<li role="presentation" class="disabled"><a class="sub-heading">Data Explorer</a></li>-->
+                <!--<li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query-->
+                    <!--Builder-->
+                    <!--(SQL)</a></li>-->
+
+
+                <!--<li class="text-uppercase no-margin-top">-->
+                    <!--<h6>Schema</h6>-->
+                <!--</li>-->
+                <!--<li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>-->
+            </ul><br>
+            <h5>All Tools</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
                 <li class="text-uppercase heading no-margin-top">
                     <h6>Data Access</h6>
@@ -30,8 +55,6 @@
                 <li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query
                     Builder
                     (SQL)</a></li>
-                <li role="presentation" class="disabled"><a href="{% url 'download-create' %}" class="sub-heading">Download
-                    Data</a></li>
 
                 <li class="text-uppercase no-margin-top">
                     <h6>Schema</h6>
@@ -83,7 +106,7 @@
             You can also download data products in fits format to work with offline using your favourite astronomy
             visualization software.</p>
 
-        <p>For more information, including articles on Data Browser examples, head over to the <a
+        <p>For more information, including articles on Data Browser examples, head over to the <a disabled class="disabled"
                 href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
     </div>
 </div>
