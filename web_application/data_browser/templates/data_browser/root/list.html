@@ -18,38 +18,37 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12">
-        <h1>Discover the data hosted at AAODC.</h1>
-        <p class="lead">Choose a survey to get started.</p>
+        <h1>Discover the data hosted at AAODC.</h1><hr>
+        <p class="lead">Browse the astronomical objects for a particular survey, and explore its unique data products.</p>
         <br>
     </div>
 </div>
 <div class="row surveys">
     {% for value in response.data.surveys %}
-    <div class="col-xs-12 col-sm-6">
-        <a href="{{value.survey}}/">
-            <div class="media">
-                <div class="media-left">
-                    <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
-                </div>
-                <div class="media-body">
-                    <h3 class="media-heading no-margin-bottom">{{value.survey | uppercase}}</h3>
-                    <span class="sub-heading">
-                                    {{value.count}}
-                                    objects
-                                    <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
-                                </span>
-                    {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-                    {% include template %}
-                    {% endwith %}
-                </div>
-            </div>
-        </a>
-    </div>
+        <div class="col-xs-1">
+            <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
+        </div>
+        <div class="col-xs-11">
+            <h3 class="tool-header">{{value.survey | uppercase}}</h3>
+            <span class="sub-heading">
+                            {{value.count}}
+                            objects
+                            <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
+                        </span>
+            {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+            {% include template %}
+            {% endwith %}
+            <a href="{{value.survey}}/" class="text-uppercase"><strong>Go to {{value.survey|uppercase}} Data Browser <i class="fa fa-angle-right"></i></strong></a>
+        </div>
+        <div class="col-xs-12">
+            <br><br>
+        </div>
     {% endfor %}
+
 </div>
 <div class="row">
     <div class="col-xs-12">
-        <h3>What does the Data Browser do?</h3>
+        <h2>What does the Data Browser do?</h2>
         <p>The Data Browser is a portal to all survey data hosted at AAODC. Surveys are a collection of astronomical
             objects. Each astronomical object's components are organised into a
             tree-like structure, allowing you to discover derived properties and data products, along with any

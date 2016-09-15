@@ -17,39 +17,37 @@
 
 {% block content_render %}
 <div class="row row-padder">
-    <div class="col-xs-12 column-padder">
-        <h1>How was that derived?</h1>
-        <p class="lead">Choose a survey to get started.</p>
+    <div class="col-xs-12">
+        <h1>How was that derived?</h1><hr>
+        <p class="lead">Browse the schema for each survey's unique set of data products.</p>
         <br>
     </div>
 </div>
 <div class="row surveys">
     {% for value in response.data.surveys %}
-    <div class="col-xs-12 col-sm-6">
-        <a href="{{value.survey}}/">
-            <div class="media">
-                <div class="media-left">
-                    <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
-                </div>
-                <div class="media-body">
-                    <h3 class="media-heading no-margin-bottom">{{value.survey | uppercase}}</h3>
-                    <span class="sub-heading">
-                                    {{value.count}}
-                                    objects
-                                    <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
-                                </span>
-                    {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-                    {% include template %}
-                    {% endwith %}
-                </div>
-            </div>
-        </a>
+    <div class="col-xs-1">
+        <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
+    </div>
+    <div class="col-xs-11">
+        <h3 class="tool-header">{{value.survey | uppercase}}</h3>
+        <span class="sub-heading">
+                        {{value.count}}
+                        objects
+                        <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
+                    </span>
+        {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+        {% include template %}
+        {% endwith %}
+        <a href="{{value.survey}}/" class="text-uppercase"><strong>Go to {{value.survey|uppercase}} Schema <i class="fa fa-angle-right"></i></strong></a>
+    </div>
+    <div class="col-xs-12">
+        <br><br>
     </div>
     {% endfor %}
 </div>
-<div class="row">
+<div class="row"><br>
     <div class="col-xs-12">
-        <h3>What does the Schema Browser do?</h3>
+        <h2>What does the Schema Browser do?</h2>
         <p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
             data products hosted at AAODC, the Schema Browser provides a map of those data products and derived
             properties. The Schema Browser displays an extensive description for each type of data product, along with

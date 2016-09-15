@@ -172,7 +172,7 @@ body {
   background-color: rgba(241, 241, 241, 0.8);
 }
 #page-content {
-  padding: 30px;
+  padding: 45px;
   background-color: #ffffff;
   -webkit-box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.2), -2px 0 4px -2px rgba(0, 0, 0, 0.1);
   box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.2), -2px 0 4px -2px rgba(0, 0, 0, 0.1);
@@ -239,6 +239,11 @@ code {
   color: #4078C0;
   background-color: #f9f2f4;
   border-radius: 4px;
+}
+.tool-header {
+  margin-top: 0px;
+  line-height: 1.2;
+  margin-bottom: 5px;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -346,11 +351,11 @@ header .download-li .download-icon .badge {
   top: 5px;
 }
 header li.user,
-header user a {
+header .user a {
   min-width: 160px;
 }
 header li.user > a,
-header user a > a {
+header .user a > a {
   text-align: center;
 }
 /*
@@ -1223,6 +1228,9 @@ ol.linenums li {
   }
   header .breadcrumb-container {
     margin-top: 60px;
+  }
+  #page-content {
+    padding: 15px;
   }
 }
 /* Custom, iPhone Retina */
