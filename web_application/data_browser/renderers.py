@@ -142,6 +142,12 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         context['formats'] = renderer_context['view'].formats
         context['branch'] = renderer_context['view'].branch
         context['version'] = renderer_context['view'].version
+
+        # trait_property = sami_dr1_sample[data['astroobject']][data['trait'][data['trait_property']]]
+
+        # if isinstance(trait, traits.Map2D):
+        #     context['trait_2D_map'] = True
+
         context['trait_2D_map'] = renderer_context['view'].trait_2D_map
 
         return context

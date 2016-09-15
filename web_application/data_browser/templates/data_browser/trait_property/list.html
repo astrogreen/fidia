@@ -11,105 +11,105 @@
 {% endblock %}
 
 {% block page_title %}Data Browser{% endblock %}
-{% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=sample %}">Schema</a></li>
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=sample %}">Documentation</a></li>
-{% endblock useful_links %}
 
 {% block content-navigator-help %}
     <a href="{{url_above}}"><i class="fa fa-reply"></i> Back to {% if subtrait %}{{subtrait}}{%else%}{{trait}}{% endif %} </a>
 {% endblock %}
 
-{% block content_render %}
-{% captureas survey %}{{sample}}{% endcaptureas %}
-<div class="row headline">
-    <div class="col-xs-12 col-sm-12">
-        <h2>{{sample|uppercase}} {{astroobject}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
-
-    </div>
-    <div class="col-xs-12 col-sm-4">
-        <div class="options text-left">
-            <a class="btn btn-default" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema</a>
-            <a class="btn btn-default" href="{% url 'documentation:topic-detail' slug=survey %}"><i class="fa fa-file-o"></i> Documentation</a>
+{% block page_title_banner %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+<div class="title_info red">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.data_release}}
+                    <small class="right-helper">
+                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                        <div class="btn-group" role="group" style="margin-top:-15px;">
+                            <button type="button" class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                    <span class="sub-heading">
+                        <i class="fa fa-map-marker"></i> Data Release
+                    </span>
+                                <strong>{{response.data.data_release}}</strong>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
+                                    <small class="sub-heading text-uppercase">Current</small>
+                                </a></li>
+                            </ul>
+                        </div>
+                    </small>
+                </h1>
+                <p>Explore the available {{survey|uppercase}} data products for each object. It is recommended
+                    that you also use the SAMI Data Browser in conjunction with the
+                    <a  href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
+                    descriptions of the data products available.
+                </p>
+            </div>
         </div>
     </div>
-</div><br>
+</div>
+{% endblock page_title_banner %}
+
+{% block content_render %}
+{% captureas survey %}{{sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-sm-3 col-xs-12">
-        <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
-            {% for r in side_bar_explicit_render %}
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="heading{{r}}">
-                        <a role="button" data-toggle="collapse" class="panel-title" href="#collapse{{r}}" {% if forloop.first %} aria-expanded="true" {% endif %} aria-controls="collapse{{r}}">
-                            {{r |capfirst}}
-                            <i class="fa fa-caret-down sub-heading"></i>
-                        </a>
-                        <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
-                    </div>
-                    <div id="collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="heading{{r}}">
+    <div class="col-xs-12 col-sm-3 sidebar">
+        <div class="sidebar-contents">
+            <a class="btn btn-default btn-sm" href="{% url 'schema:sample-list' sample_pk=survey %}"><i
+                    class="fa fa-book"></i> Schema</a>
+            <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i
+                    class="fa fa-file-o"></i> Documentation</a>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-9 main-content">
+        <h2>{{sample|uppercase}} {{astroobject}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
+        {% with response.data as tpdata %}
+            {% with "None" as tp %}
+                {% include 'data_browser/trait/sidebar-trait-property-panel-body.html' %}
+            {% endwith %}
+        {% endwith %}
+
+        <div class="row">
+            {% if trait_2D_map == True %}
+                <div class="col-sm-6 col-xs-12">
+                    <div class="panel panel-default">
                         <div class="panel-body">
-                            <div class="readmore">
-                            {% autoescape off %}{{ response.data|key:r }}{% endautoescape %}
+                            <div id="{{trait_type}}_plotly_plot">
+                                <!--Dynamic plotly rendering based on Trait Type-->
+                                <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="meta_data_group">
-                    <a role="button" data-toggle="collapse" href="#meta_data" aria-controls="meta_data" class="panel-title">
-                        Properties
-                        <i class="fa fa-caret-down sub-heading"></i>
-                    </a>
-                    <span class="sub-heading pull-right testing">explicitly rendered attributes</span>
-                </div>
-                <div id="meta_data" class="panel-collapse collapse" role="tabpanel" aria-labelledby="meta_data">
-                    <div class="panel-body meta-data">
-                        <!--Iterate over this trait property values-->
-                        {% with response.data as tpdata %}
-                            {% with "None" as tp %}
-                                {% include 'data_browser/trait/sidebar-trait-property.html' %}
-                            {% endwith %}
-                        {% endwith %}
+                <div class="col-sm-3 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <span class="panel-title">Interactive</span>
+                        </div>
+                        <div class="panel-body">
+                            <div id="{{trait_type}}_plotly_plot_options">
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
+            {% else %}
+                <div class="col-sm-9 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>TBD</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
-    {% if trait_2D_map == True %}
-        <div class="col-sm-6 col-xs-12">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div id="{{trait_type}}_plotly_plot">
-                        <!--Dynamic plotly rendering based on Trait Type-->
-                        <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-3 col-xs-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <span class="panel-title">Interactive</span>
-                </div>
-                <div class="panel-body">
-                    <div id="{{trait_type}}_plotly_plot_options">
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <div class="col-sm-9 col-xs-12">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <p>TBD</p>
-                </div>
-            </div>
-        </div>
-    {% endif %}
 </div>
+
+
 
 {% endblock %}
 

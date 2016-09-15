@@ -311,8 +311,10 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
 
             self.type = trait_pointer.trait_type
-            # self.trait_2D_map = False
-            # if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True
+            self.trait_2D_map = False
+
+            if isinstance(self.trait, traits.Map2D):
+                self.trait_2D_map = True
 
             # Formats
             formats = []
@@ -403,12 +405,14 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         self.type = subtrait_pointer.trait_type
         self.trait_2D_map = False
-        if self.type in TWO_D_PLOT_TYPES: self.trait_2D_map = True;
+        if isinstance(self.trait, traits.Map2D):
+            self.trait_2D_map = True
+            print(self.trait_2D_map)
 
         serializer = data_browser.serializers.TraitPropertySerializer(
             instance=elem, many=False,
             context={'request': request,
-                     'sample': sample_pk,
+                     'survey': sample_pk,
                      'astroobject': astroobject_pk,
                      'trait': trait_pk,
                      'subtraitproperty': subtraitproperty_pk,

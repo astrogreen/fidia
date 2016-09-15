@@ -421,99 +421,12 @@ class TraitPropertySerializer(serializers.Serializer):
     documentation = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
+    survey = serializers.SerializerMethodField()
+    data_release = serializers.SerializerMethodField()
 
-class AttributeSerializer(serializers.Serializer):
-    """
-    This will be used if an endpoint is identified as an attribute on an instance of Trait or Trait property,
-    rather than either of the latter.
-    The call logic for this function will go in the Dynamic ViewSet (once I figure out how to call methods
-    dynamically (ie., get_<dynamic_pk> on <trait_pk or <trait_property_pk>
-    """
-    pass
+    def get_data_release(self,obj):
+        return '1.0'
 
-# class AstroObjectTraitPropertySerializer(serializers.Serializer):
-#
-#     # documentation = DocumentationHTMLField()
-#     # short_description = serializers.CharField(source='get_description')
-#     # pretty_name = serializers.CharField(source='get_pretty_name')
-#
-#     def __init__(self, *args, **kwargs):
-#         depth_limit = get_and_update_depth_limit(kwargs)
-#         data_display = kwargs.pop('data_display', 'include')
-#         # data_display = 'include'
-#         super().__init__(*args, **kwargs)
-#
-#         trait_property = self.instance
-#         assert isinstance(trait_property, TraitProperty)
-#
-#         self.fields['name'] = serializers.CharField(required=False)
-#         self.fields['type'] = serializers.CharField(required=False)
-#
-#         # Determine the appropriate serializer for the data
-#         if 'array' in trait_property.type:
-#             data_serializer = serializers.ListField(required=False)
-#         elif trait_property.type == 'float':
-#             data_serializer = serializers.FloatField(required=False)
-#         elif trait_property.type == 'int':
-#             data_serializer = serializers.IntegerField(required=False)
-#         elif trait_property.type == 'string':
-#             data_serializer = serializers.CharField(required=False)
-#
-#         if data_display == 'include':
-#             self.fields['value'] = data_serializer
+    def get_survey(self, obj):
+        return self.context['sample']
 
-
-
-# class DynamicPropertySerializer(serializers.Serializer):
-#     """
-#     Serializer to handle all types of data combos.
-#
-#     /asvo/data/astroobject_pk/trait/trait_property/
-#     /asvo/data/astroobject_pk/trait/sub-trait/
-#     /asvo/data/astroobject_pk/trait/sub-trait/trait_property/
-#     /asvo/data/astroobject_pk/trait/sub-trait/sub-trait2/
-#
-#     Here, pick serializer based on ST/TP instance type
-#     """
-#     def __init__(self, *args, **kwargs):
-#         depth_limit = get_and_update_depth_limit(kwargs)
-#         data_display = kwargs.pop('data_display', 'include')
-#         super().__init__(*args, **kwargs)
-#
-#         dynamic_property = self.instance
-#         assert isinstance(dynamic_property, TraitProperty) or isinstance(dynamic_property, SubTrait)
-#
-#         self.fields['name'] = serializers.CharField(required=False)
-#         self.fields['type'] = serializers.CharField(required=False)
-#
-#         # if sub-trait look for trait_properties?
-#         if isinstance(dynamic_property, SubTrait):
-#             depth_limit = 0
-#             for trait_property in dynamic_property.trait_properties():
-#                 # define serializer type by instance type
-#                 traitproperty_type = trait_property.type
-#
-#                 if depth_limit > 0:
-#                     # Recurse into trait properties
-#                     self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
-#                         instance=trait_property, depth_limit=depth_limit, data_display='include')
-#                 else:
-#                     # Simply show the trait types and descriptions
-#                     self.fields[trait_property.name] = AstroObjectTraitPropertySerializer(
-#                         instance=trait_property, depth_limit=depth_limit, data_display='exclude')
-#
-#         if isinstance(dynamic_property, TraitProperty):
-#             # if trait_property look for fields at this level
-#             # Determine the appropriate serializer field for the data
-#             if 'array' in dynamic_property.type:
-#                 data_serializer = serializers.ListField(required=False)
-#             elif dynamic_property.type == 'float':
-#                 data_serializer = serializers.FloatField(required=False)
-#             elif dynamic_property.type == 'int':
-#                 data_serializer = serializers.IntegerField(required=False)
-#             elif dynamic_property.type == 'string':
-#                 data_serializer = serializers.CharField(required=False)
-#
-#             # Decide if data will be included
-#             if data_display == 'include':
-#                 self.fields['value'] = data_serializer
