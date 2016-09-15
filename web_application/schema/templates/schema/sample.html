@@ -111,7 +111,7 @@
                                                 {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
                                                     <!--Default branch, and the default version for that branch, are set as active-->
                                                     {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                        <strong>{{trait_branch_value.pretty_name}}:</strong>
+                                                        <strong>{{trait_branch_value.pretty_name}}{% if trait_branch_value.description %}: {% endif %}</strong>
                                                         {{trait_branch_value.description}}
                                                     {% endif %}
                                                 {% endfor %}
@@ -499,7 +499,7 @@
             var _version = "<span class='sub-heading'><i class='fa fa-map-pin'></i> Version </span><strong>" + _anchor.attr('data-version') + _vers_description_colon + "</strong> " + _anchor.attr('data-version-description') + " <i class='fa fa-caret-down'></i>";
 
             if (!!_anchor.attr('data-version')){
-                _anchor.closest('ul.branch-selector').find('a.branch_button').html(_version)
+                _anchor.closest('ul.version-selector').find('a.branch_button').html(_version)
             } else {
                 _anchor.closest('ul.branch-selector').find('a.branch_button').html(_branch)
             }
