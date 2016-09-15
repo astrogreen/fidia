@@ -3,6 +3,11 @@
 ++ HOME
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+#page-content {
+  background-color: transparent !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
 .galaxy-dark {
   /*background: url('/static/img/galaxy-dark.jpg') no-repeat fixed center;*/
   background: #000000 url('../../img/aat.jpg') no-repeat fixed top center;

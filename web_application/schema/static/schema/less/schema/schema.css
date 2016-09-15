@@ -1,24 +1,26 @@
 /*
- * Edits to pre-existing classes
+ * Edits to pre-existing classes to ensure that the schema browser takes up the whole page space
  */
-body {
-  background-color: rgba(241, 241, 241, 0.8);
-}
 .content-navigator-help {
   display: none;
 }
-.footer {
-  margin-top: 0;
+#page-content {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
-.breadcrumb-container {
-  margin-bottom: 0 !important;
+.no-padding-left {
+  padding-left: 0 !important;
+}
+.no-padding-right {
+  padding-right: 0 !important;
 }
 /*
  * Schema browser styles
  */
 .schema-browser {
   border-top: 0;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
   background-color: #ffffff;
   /*
    * Title block styles
@@ -49,8 +51,6 @@ body {
   background: -webkit-linear-gradient(#0B81B1, #4078C0);
   background: -webkit-linear-gradient(#396bac, #4078C0);
   background: linear-gradient(#396bac, #4078C0);
-  margin-left: -15px;
-  margin-right: -15px;
   padding: 60px 30px 45px 30px;
   border-bottom: solid 1px #eeeeee;
 }
@@ -99,8 +99,7 @@ body {
 }
 .schema-browser .right-panel {
   background-color: #ffffff;
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding: 30px;
 }
 .schema-browser .right-panel .branch_warning {
   background-color: #fafafa;
@@ -108,10 +107,6 @@ body {
 .schema-browser .right-panel .version-selector {
   margin-top: 15px;
   margin-bottom: 15px;
-}
-.schema-browser .right-panel .schema-contents {
-  padding: 30px;
-  padding-top: 0px;
 }
 .schema-browser .right-panel .schema-contents h2 {
   font-size: 28px;
