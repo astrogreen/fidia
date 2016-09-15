@@ -12,23 +12,25 @@
 
 {% block page_title %}Schema Browser{% endblock %}
 {% block useful_links %}
-<!--<li role="presentation" ><a></a></li>-->
+<li role="presentation"><a href="{% url 'data_browser:root-list' %}"> Data Browser</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
-<div class="row row-padder">
-    <div class="col-xs-12">
-        <h1>How was that derived?</h1><hr>
-        <p class="lead">Browse the schema for each survey's unique set of data products.</p>
+<div class="row">
+    <div class="col-xs-12 col-sm-offset-1 col-sm-10">
+        <h1 class="tool-heading">How was that derived?</h1>
+        <p class="lead">Find detailed descriptions of the data products available in a survey. To
+            view the data a particular survey has to offer, check out the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a>.</p>
         <br>
     </div>
 </div>
 <div class="row surveys">
     {% for value in response.data.surveys %}
-    <div class="col-xs-1">
+    <div class="col-xs-1 col-sm-offset-1 col-sm-1">
         <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
     </div>
-    <div class="col-xs-11">
+    <div class="col-xs-11 col-sm-9">
         <h3 class="tool-header">{{value.survey | uppercase}}</h3>
         <span class="sub-heading">
                         {{value.count}}
@@ -46,7 +48,7 @@
     {% endfor %}
 </div>
 <div class="row"><br>
-    <div class="col-xs-12">
+    <div class="col-xs-12 col-sm-offset-1 col-sm-10">
         <h2>What does the Schema Browser do?</h2>
         <p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
             data products hosted at AAODC, the Schema Browser provides a map of those data products and derived
@@ -57,8 +59,7 @@
             is a collection of astronomical objects with a certain set of properties, and the schema displays astronomical properties available <strong>only</strong> for the selected survey. </p>
 
         <p>For more information, including articles on Schema Browser examples, head over to the <a
-                href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. To
-            view the data a particular survey has to offer, check out the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a>.</p>
+                href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. </p>
     <hr>
     </div>
 </div>

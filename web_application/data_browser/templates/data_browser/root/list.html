@@ -11,24 +11,30 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema</a></li>
+<li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
 <div class="row">
-    <div class="col-xs-12">
-        <h1>Discover the data hosted at AAODC.</h1><hr>
-        <p class="lead">Browse the astronomical objects for a particular survey, and explore its unique data products.</p>
+    <div class="col-xs-12 col-sm-offset-1 col-sm-10">
+        <h1 class="tool-heading">Discover the survey data products hosted at AAODC.</h1>
+
+        <p class="lead">Choose a survey from the list below to get started. To
+            view more information about each survey's data products and derived properties, visit the <a
+                    href="{% url 'schema:schema-list' %}">Schema
+                Browser</a>.</p>
         <br>
+
     </div>
 </div>
 <div class="row surveys">
+
     {% for value in response.data.surveys %}
-        <div class="col-xs-1">
+        <div class="col-xs-1 col-sm-offset-1 col-sm-1">
             <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
         </div>
-        <div class="col-xs-11">
+        <div class="col-xs-11 col-sm-9">
             <h3 class="tool-header">{{value.survey | uppercase}}</h3>
             <span class="sub-heading">
                             {{value.count}}
@@ -47,7 +53,7 @@
 
 </div>
 <div class="row">
-    <div class="col-xs-12">
+    <div class="col-xs-12 col-sm-offset-1 col-sm-10">
         <h2>What does the Data Browser do?</h2>
         <p>The Data Browser is a portal to all survey data hosted at AAODC. Surveys are a collection of astronomical
             objects. Each astronomical object's components are organised into a
@@ -59,10 +65,7 @@
             visualization software.</p>
 
         <p>For more information, including articles on Data Browser examples, head over to the <a
-                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>. To
-            view more information about a particular
-            survey's data products and derived properties, visit the <a href="{% url 'schema:schema-list' %}">Schema
-                Browser</a>.</p>
+                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
     <hr>
     </div>
 </div>
