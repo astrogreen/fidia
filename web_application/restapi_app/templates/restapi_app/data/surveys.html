@@ -20,18 +20,16 @@
 <li role="presentation"><a href="{% url 'tools' %}">Tools</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
 
-<div class="row vertical-align">
-    <div class="col-xs-12">
-        <h1>Survey data hosted at AAODC.</h1>
-        <p class="lead">AAODC currently hosts {{response.data.samples|length}} survey datasets.</p>
-    </div>
-</div>
+
 <div class="row surveys">
+    <div class="col-xs-12 text-center">
+        <h1>Survey data hosted at AAODC</h1>
+        <p class="lead">AAODC currently hosts {{response.data.surveys|length}} survey datasets.</p>
+    </div>
     {% for value in response.data.surveys %}
     <div class="col-xs-12 col-sm-6">
-
         <div class="media">
             <div class="media-left">
                 <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
@@ -47,14 +45,14 @@
                     {% include template %}
                 {% endwith %}
                 <span>
-                    <a href="{% url 'documentation:topic-detail' slug=value.survey %}" class="btn btn-default">Documentation</a>
+                    <a href="{% url 'documentation:topic-detail' slug=value.survey %}" disabled class="btn btn-default">Documentation</a>
                     <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}" class="btn btn-default">Data</a>
                     <a href="{% url 'schema:sample-list' sample_pk=value.survey %}" class="btn btn-default">Schema</a>
-                    <a href="{% url 'query-create-list' %}" class="btn btn-default">Query</a>
+                    <a href="{% url 'query-create-list' %}" class="btn btn-default" disabled>Query</a>
                 </span>
             </div>
         </div>
-
+    <br><br>
     </div>
     {% endfor %}
 </div>
