@@ -40,7 +40,9 @@ ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test
 # print(json_string)
 
 t = sample['24433']['sfr_map']
+t = sample['24433']['surface_brightness']
 
-schema = t.full_schema()
+# # schema = t.full_schema()
+# schema = t.full_schema()
 
-print(schema)
+# print(schema)

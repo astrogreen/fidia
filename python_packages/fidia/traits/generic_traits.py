@@ -13,11 +13,13 @@ log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
-class Measurement(Trait, AbstractMeasurement): pass
+# class Measurement(Trait, AbstractMeasurement): pass
+class Measurement(Trait): pass
 
 
 class Velocity(Measurement): pass
 
+class Redshift(Trait): pass
 
 class Map(Trait, AbstractBaseArrayTrait):
     """Maps provide "relative spatial information", i.e. they add spatial

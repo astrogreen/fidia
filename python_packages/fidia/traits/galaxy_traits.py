@@ -11,3 +11,5 @@ class Abundance(Measurement): pass
 class EmissionClassificationMap(Classification, Map): pass
 
 class PositionAngle(Measurement): pass
+
+class MorphologicalMeasurement(Measurement): pass

@@ -17,7 +17,7 @@ from .trait_key import TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set, Inherit
+from ..utilities import SchemaDictionary, is_list_or_set, Inherit, DefaultsRegistry
 from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 # This makes available all of the usual parts of this package for use here.
@@ -307,11 +307,18 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # assert cls.available_versions is not None
 
         if cls.branches_versions is not None:
-            assert getattr(cls, 'defaults', None) is not None, \
-                ("Trait class '%s' has branches_versions, but no defaults have been supplied." %
-                 cls)
             if not isinstance(cls.branches_versions, BranchesVersions):
                 cls.branches_versions = BranchesVersions(cls.branches_versions)
+            if getattr(cls, 'defaults', None) is None:
+                # Defaults not provided. See if only one branch/version are supplied
+                if cls.branches_versions.has_single_branch_and_version():
+                    # Set the defaults to be the only branch/version:
+                    cls.defaults = cls.branches_versions.as_defaults()  # type: DefaultsRegistry
+                    log.debug(cls.defaults._default_branch)
+                    log.debug(cls.defaults._version_defaults)
+                else:
+                    raise Exception("Trait class '%s' has branches_versions, but no defaults have been supplied." %
+                 cls)
 
         try:
             validate_trait_branches_versions_dict(cls.branches_versions)
@@ -858,3 +865,4 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         # If necessary, close the open file handle.
         file_cleanup()
+

@@ -4,6 +4,7 @@ from glob import glob
 import os.path
 import datetime
 import re
+from collections import OrderedDict
 
 import numpy as np
 
@@ -1439,7 +1440,9 @@ class SAMIDR1PublicArchive(Archive):
             self.tabular_data = pd.DataFrame.from_records(
                 fits_table.tolist(),
                 columns=map(lambda x: x.name, fits_table.columns))
+            self.tabular_data['CATID'] = self.tabular_data['CATID'].astype(str)
         self.tabular_data.set_index('CATID', inplace=True)
+        log.debug("tabular_data columns: %s", self.tabular_data.columns)
 
         # Local cache for traits
         self._trait_cache = dict()
@@ -1535,6 +1538,70 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(SAMISpectralCube)
         # Trait 'rss_map' (now a sub-trait of spectral_cube above.)
         # self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
+
+        # Catalog traits:
+        redshift = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_helio'])]))
+        redshift.branches_versions = {('helio', "Heliocentric", "Redshift in the heliocentric frame"): {"V02"}}
+        self.available_traits.register(redshift)
+
+        redshift_tonry = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_tonry'])]))
+        redshift_tonry.branches_versions = {('tonry', "Flow Corrected", "Flow corrected redshift using Tonry model"): {"V02"}}
+        self.available_traits.register(redshift_tonry)
+
+        self.available_traits.change_defaults('redshift', DefaultsRegistry(default_branch='helio'))
+
+        cat_coord = catalog_trait(SkyCoordinate, 'catalog_coordinate',
+                                  OrderedDict([('_ra', self.tabular_data['RA']),
+                                               ('_dec', self.tabular_data['Dec'])]))
+        self.available_traits.register(cat_coord)
+
+        # r_petro = catalog_trait(Redshift, 'r_petro', OrderedDict([('value', self.tabular_data['r_petro'])]))
+        # r_petro.branches_versions = {('tonry', "Petrosian radius", "Flow corrected redshift using Tonry model"): {"V02"}}
+        # self.available_traits.register(r_petro)
+
+        ellip = catalog_trait(MorphologicalMeasurement, 'ellip', OrderedDict([('value', self.tabular_data['ellip'])]))
+        # ellip.branches_versions = {('default', "default", ""): {"V02"}}
+        self.available_traits.register(ellip)
+
+        pa = catalog_trait(MorphologicalMeasurement, 'position_angle', OrderedDict([('value', self.tabular_data['PA'])]))
+        # pa.branches_versions = {('default', "default", ""): {"V02"}}
+        self.available_traits.register(pa)
+
+        stellar_mass = catalog_trait(Measurement, 'mass',
+                           OrderedDict([('value', self.tabular_data['logmstar_proxy'])]))
+        stellar_mass.branches_versions = {('proxy', "Stellar Mass Proxy", ""): {"V02"}}
+        self.available_traits.register(stellar_mass)
+        self.available_traits.change_defaults('mass', DefaultsRegistry(default_branch='proxy'))
+
+
+        g_i = catalog_trait(Measurement, 'g_i',
+                           OrderedDict([('value', self.tabular_data['g_i'])]))
+        # g_i.branches_versions = {('default', "default", ""): {"V02"}}
+        self.available_traits.register(g_i)
+
+        A_g = catalog_trait(Measurement, 'A_g',
+                            OrderedDict([('value', self.tabular_data['A_g'])]))
+        # A_g.branches_versions = {('default', "default", ""): {"V02"}}
+        self.available_traits.register(A_g)
+
+        surf_bright = catalog_trait(Measurement, 'surface_brightness',
+                            OrderedDict([('value', self.tabular_data['mu_within_1re'])]))
+        surf_bright.branches_versions = {('central', "Central", "Surface Brightness within $1R_e$"): {"V02"}}
+        self.available_traits.register(surf_bright)
+
+        surf_bright = catalog_trait(Measurement, 'surface_brightness',
+                            OrderedDict([('value', self.tabular_data['mu_1re'])]))
+        surf_bright.branches_versions = {('1re', "1R_e", "Surface Brightness at $1R_e$"): {"V02"}}
+        self.available_traits.register(surf_bright)
+
+        surf_bright = catalog_trait(Measurement, 'surface_brightness',
+                            OrderedDict([('value', self.tabular_data['mu_2re'])]))
+        surf_bright.branches_versions = {('2re', "2R_e", "Surface Brightness at $2R_e$"): {"V02"}}
+        self.available_traits.register(surf_bright)
+
+        log.debug("Setting surface_brightness default.")
+        self.available_traits.change_defaults('surface_brightness', DefaultsRegistry(default_branch='central'))
+        log.debug(self.available_traits._trait_name_defaults['surface_brightness']._default_branch)
 
         # LZIFU Items
 
