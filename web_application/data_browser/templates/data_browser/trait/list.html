@@ -76,8 +76,11 @@
             <br><br>
             <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-angle-left"></i> Back to {{response.data.astroobject}}</a>
             <br><br>
+
+            <a role="button" class="pull-right" style="margin-top:10px;" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
             <h5>Properties</h5>
-            <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true" style>
+
+            <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
                 {% comment %}
                 {% for r in side_bar_explicit_render %}
                 <div class="panel panel-default">
@@ -101,15 +104,8 @@
 
 
                 <div class="panel panel-default">
-                    <!--<div class="panel-heading" role="tab" id="meta_data_group">-->
-                        <!--<a role="button" data-toggle="collapse" href="#meta_data" aria-controls="meta_data" class="panel-title" aria-expanded="true">-->
-                            <!--Properties-->
-                            <!--<i class="fa fa-caret-down sub-heading"></i>-->
-                        <!--</a>-->
-                        <!--<span class="panel-title">Properties</span>-->
-                        <!--<span class="sub-heading pull-right testing">explicitly rendered attributes</span>-->
-                    <!--</div>-->
-                    <div id="meta_data" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="meta_data">
+
+                    <div id="meta_data" class="">
                         <div class="panel-body meta-data">
 
                             <!--Explicitly specifited trait properties will appear first-->
@@ -387,6 +383,10 @@
             // make ajax request to get data and save so can adjust with range slider
             trait_plot(trait_url, trait_name, map_selector, options_selector);
 
+            $('#collapse-all').click(function(){
+                // Emit the collapse event hidden.bs.collapse
+                $('#sidebar .panel-collapse').collapse('hide');
+            })
         });
 
     </script>

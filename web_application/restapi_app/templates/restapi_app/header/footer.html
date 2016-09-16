@@ -142,7 +142,6 @@
         update_sidebar_size = function(){
         // Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
             if ($(window).width() > 770) {
-                console.log($('.sidebar .sidebar-contents').height())
                 if ($('.main-content').height() > $('.sidebar .sidebar-contents').height()) {
                     $('.sidebar').height($('.main-content').height() + 'px');
                 } else {

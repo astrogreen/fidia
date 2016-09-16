@@ -165,12 +165,14 @@ class TraitSerializer(serializers.Serializer):
                     instance=trait_property, depth_limit=depth_limit, data_display='value')
 
     def get_branch(self, trait):
-        if trait.branch == None:
+        if trait.branch is None:
             return 'None'
         else:
             return trait.branch
 
     def get_version(self, trait):
+        if trait.version is None:
+            return 'None'
         return trait.version
 
     def get_all_branches_versions(self, trait):
