@@ -27,5 +27,4 @@ $(".panel-group .panel-heading a")
                     }
                 }.bind(_data))
             }
-
         });

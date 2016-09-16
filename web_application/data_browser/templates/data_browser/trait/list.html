@@ -71,13 +71,19 @@
                 <li role="presentation"><a href="#data" class="scroll">Data</a></li>
             </ul>
             <h5>Quick Links</h5>
-            <a class="btn btn-default btn-sm" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}"><i class="fa fa-book"></i> Schema</a>
-            <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>
-            <br><br>
-            <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-angle-left"></i> Back to {{response.data.astroobject}}</a>
-            <br><br>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}"> Schema Browser</a></li>
+                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+                {% if breadcrumblist %}
 
-            <a role="button" class="pull-right" style="margin-top:10px;" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
+                  {% with breadcrumblist|length|add:"-2" as b %}
+                    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
+                  {% endwith %}
+            {% endif %}
+            </ul>
+
+
+            <a role="button" class="pull-right sub-heading" style="margin-top:10px;" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
             <h5>Properties</h5>
 
             <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
@@ -269,7 +275,7 @@
 
         <!--<a disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}" class="options question pull-right disabled"><i class="fa fa-question-circle"></i> What is a branch?</a>-->
         <p style="margin-bottom:30px;"><br>You are currently viewing data and associated properties for {{response.data.pretty_name}} for branch {{response.data.branch}},
-                version {{response.data.version}}. To find out more about the available branches, visit the <a target="_blank" href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}">Schema Browser</a>.
+                version {{response.data.version}}. To find out more about the available branches, visit the <a target="_blank" href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}">Schema Browser</a>.
 
 
         </p>

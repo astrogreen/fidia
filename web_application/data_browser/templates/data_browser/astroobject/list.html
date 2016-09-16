@@ -70,6 +70,18 @@
                 <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
                 <li role="presentation"><a class="scroll" href="#available-data">Available Data</a></li>
             </ul>
+
+            <h5>Quick Links</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
+                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+                {% if breadcrumblist %}
+                  {% with breadcrumblist|length|add:"-2" as b %}
+                    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
+                  {% endwith %}
+            {% endif %}
+            </ul>
+
             <h5>Auxillary Data</h5>
 
             <div class="panel panel-default">
