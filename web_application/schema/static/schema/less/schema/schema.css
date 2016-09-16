@@ -19,16 +19,6 @@
 /*
  * Schema browser styles
  */
-.schema-browser {
-  border-top: 0;
-  background-color: #ffffff;
-  /*
-   * Title block styles
-   */
-  /*
-   * Sidebar contents menu
-   */
-}
 .schema-browser h2 {
   font-size: 30px;
   margin-top: 45px;
@@ -46,109 +36,43 @@
   font-size: 16px;
   margin-top: 20px;
 }
-.schema-browser .title_info {
-  background: -webkit-linear-gradient(#0B81B1, #34ABB3);
-  background: -webkit-linear-gradient(#0B81B1, #4078C0);
-  background: -webkit-linear-gradient(#396bac, #4078C0);
-  background: linear-gradient(#396bac, #4078C0);
-  padding: 60px 30px 45px 30px;
-  border-bottom: solid 1px #eeeeee;
-}
-.schema-browser .title_info h2 {
-  margin-top: 0;
-  color: #ffffff;
-}
-.schema-browser .title_info p {
-  color: rgba(251, 251, 251, 0.8);
-}
-.schema-browser .title_info a {
-  color: #ffffff;
-  border-bottom: 1px dotted #eeeeee;
-}
-.schema-browser .menu-nav {
-  min-height: 100%;
-  background-color: #fafafa;
-  background-color: #f3f3f3;
-  border-right: solid 1px #eeeeee;
-  padding: 30px;
-}
-.schema-browser .menu-nav h4 {
-  margin-top: 10px;
-  border-bottom: 1px solid #eeeeee;
-  line-height: 30px;
-  margin-bottom: 20px;
-}
-.schema-browser .menu-nav h3 {
-  margin-top: 5px;
-}
-.schema-browser .menu-nav #docs-sidebar > li > a {
-  color: #8ca1a6;
-}
-.schema-browser .menu-nav #docs-sidebar > li.active > a {
-  color: #ffffff;
-}
-.schema-browser .menu-nav #docs-sidebar > li.heading {
-  margin-top: 20px;
-}
-.schema-browser .menu-nav #docs-sidebar > li.nested-la {
-  margin-left: 30px;
-  margin-top: 0;
-}
-.schema-browser .right-panel {
-  background-color: #ffffff;
-  padding: 30px;
-}
-.schema-browser .right-panel .branch_warning {
+.schema-browser .schema-contents .branch_warning {
   background-color: #fafafa;
 }
-.schema-browser .right-panel .version-selector {
+.schema-browser .schema-contents .version-selector {
   margin-top: 15px;
   margin-bottom: 15px;
 }
-.schema-browser .right-panel .schema-contents h2 {
+.schema-browser .schema-contents h2 {
   font-size: 28px;
   padding-top: 10px;
   margin-top: 0;
   margin-bottom: 15px;
   border-bottom: 0;
 }
-.schema-browser .right-panel .schema-contents h3 {
+.schema-browser .schema-contents h3 {
   margin-top: 30px;
   margin-bottom: 15px;
   font-size: 24px;
   border-bottom: solid 1px #eeeeee;
 }
-.schema-browser .right-panel .schema-contents h4 {
+.schema-browser .schema-contents h4 {
   font-size: 20px;
   line-height: 20px;
   margin-top: 45px;
   margin-bottom: 20px;
 }
-.schema-browser .right-panel .schema-contents h4 i {
+.schema-browser .schema-contents h4 i {
   font-size: 16px;
 }
-.schema-browser .right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a,
-.schema-browser .right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a:hover,
-.schema-browser .right-panel .schema-contents .branch_dropdown .nav-pills > li.active > a:focus {
+.schema-browser .schema-contents .branch_dropdown .nav-pills > li.active > a,
+.schema-browser .schema-contents .branch_dropdown .nav-pills > li.active > a:hover,
+.schema-browser .schema-contents .branch_dropdown .nav-pills > li.active > a:focus {
   color: inherit;
   background-color: inherit;
 }
-.schema-browser .right-panel .schema-contents .branch_dropdown .nav > li > a {
+.schema-browser .schema-contents .branch_dropdown .nav > li > a {
   padding: 6px 12px;
-}
-.schema-browser #back-to-top {
-  position: fixed;
-  right: 15px;
-  bottom: 15px;
-  z-index: 1;
-  text-align: center;
-  background-color: #fcfcfc;
-  padding: 5px 10px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: all 200ms ease-in-out;
-}
-.schema-browser #back-to-top:hover {
-  bottom: 18px;
 }
 .schema-browser .branch_dropdown .dropdown-header-bold {
   color: #333;
