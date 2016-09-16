@@ -892,7 +892,7 @@ li {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 .question {
-  color: rgba(0, 0, 0, 0.3) !important;
+  color: rgba(0, 0, 0, 0.6) !important;
   font-size: 14px;
 }
 .question i.fa {
@@ -912,7 +912,7 @@ li {
   margin: 0px 15px;
 }
 .helper {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(0, 0, 0, 0.6);
   padding-left: 1em;
   margin: 1em;
 }

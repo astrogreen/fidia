@@ -112,10 +112,6 @@ class AstroObjectSerializer(serializers.Serializer):
 class TraitSerializer(serializers.Serializer):
     """Serializer for the Trait level of the Data Browser"""
 
-    # documentation = DocumentationHTMLField()
-    # short_description = serializers.CharField(source='get_description')
-    # pretty_name = serializers.CharField(source='get_pretty_name')
-
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         log.debug("depth_limit: %s", depth_limit)
@@ -169,7 +165,10 @@ class TraitSerializer(serializers.Serializer):
                     instance=trait_property, depth_limit=depth_limit, data_display='value')
 
     def get_branch(self, trait):
-        return trait.branch
+        if trait.branch == None:
+            return 'None'
+        else:
+            return trait.branch
 
     def get_version(self, trait):
         return trait.version
@@ -246,6 +245,9 @@ class TraitSerializer(serializers.Serializer):
     def get_trait_key(self, obj):
         return self.context['trait_key']
 
+    def get_trait_key_array(self, trait):
+        return trait.trait_key
+
     def get_url(self, trait):
         """Return URL for current instance (subtrait/tp or tp)"""
         # Need to inject the sub-trait url, so this probably needs getting by
@@ -282,6 +284,7 @@ class TraitSerializer(serializers.Serializer):
     astroobject = serializers.SerializerMethodField()
     trait = serializers.SerializerMethodField()
     trait_key = serializers.SerializerMethodField()
+    trait_key_array = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
     def get_attribute(self, instance):

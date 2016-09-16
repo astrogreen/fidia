@@ -15,7 +15,7 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema Browser</a></li>
+<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}">Schema Browser</a></li>
 <!--<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}" >Documentation</a></li>-->
 {% endblock useful_links %}
 
@@ -71,7 +71,7 @@
                 <li role="presentation"><a href="#data" class="scroll">Data</a></li>
             </ul>
             <h5>Quick Links</h5>
-            <a class="btn btn-default btn-sm" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema</a>
+            <a class="btn btn-default btn-sm" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}"><i class="fa fa-book"></i> Schema</a>
             <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>
             <br><br>
             <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-angle-left"></i> Back to {{response.data.astroobject}}</a>
@@ -273,12 +273,11 @@
 
         <!--<a disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}" class="options question pull-right disabled"><i class="fa fa-question-circle"></i> What is a branch?</a>-->
         <p style="margin-bottom:30px;"><br>You are currently viewing data and associated properties for {{response.data.pretty_name}} for branch {{response.data.branch}},
-                version {{response.data.version}}. To find out more about the available branches, visit the <a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema Browser</a>.
+                version {{response.data.version}}. To find out more about the available branches, visit the <a target="_blank" href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}">Schema Browser</a>.
+
+
         </p>
         <div class="options text-right pull-right">
-            <!--<a class="btn btn-default" href="{% url 'schema:sample-list' sample_pk=survey %}"><i class="fa fa-book"></i> Schema Browser</a>-->
-            <!--<a class="btn btn-default" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>-->
-
 
             {% for f in formats %}
             <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">

@@ -73,15 +73,15 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
         context = super().get_context(data, accepted_media_type, renderer_context)
 
-        context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key', 'data_release']
+        context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key', 'trait_key_array', 'data_release']
 
         # These are not looped over for the top-level trait view (but appear in the properties panel)
-        context['side_bar_explicit_render'] = ['documentation', 'description']
+        context['side_bar_explicit_render'] = [ 'description']
 
         # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
         context['trait_properties'] = ['value']
 
-        context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation", "url",
+        context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "url",
                                               "name", "type", "value", ]
 
         trait = sami_dr1_sample[data['astroobject']][data['trait']]
@@ -90,7 +90,7 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
         # These are not looped over for the html rendering
         context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version', 'url',
-                                        'all_branches_versions', ] + \
+                                        'all_branches_versions', 'documentation',] + \
                                        context['side_bar_explicit_render'] + \
                                        context['fidia_keys'] + \
                                        context['trait_properties'] + \
@@ -127,14 +127,14 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         context['trait_url'] = renderer_context['view'].trait_url
         context['template'] = renderer_context['view'].template
 
-        context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key', 'data_release']
-        context['side_bar_explicit_render'] = ['description', 'documentation']
+        context['fidia_keys'] = ['sample', 'astroobject', 'trait', 'trait_key','trait_key_array', 'data_release', ]
+        context['side_bar_explicit_render'] = ['description']
 
-        context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "documentation",
+        context['trait_property_keywords'] = ["short_name", "pretty_name", "description",
                                               "name", "type", "value", ]
 
         context['reserved_keywords'] = ['pretty_name', 'short_name', 'branch', 'version', "url",
-                                        'all_branches_versions', ] + \
+                                        'all_branches_versions', 'documentation' ] + \
                                        context['side_bar_explicit_render'] + \
                                        context['fidia_keys']
 
@@ -176,7 +176,7 @@ class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         context['template'] = renderer_context['view'].template
         context['trait_2D_map'] = renderer_context['view'].trait_2D_map
         context['url_above'] = renderer_context['view'].url_above
-        context['side_bar_explicit_render'] = ['documentation', 'description']
+        context['side_bar_explicit_render'] = ['description']
 
         return context
 
