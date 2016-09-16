@@ -138,7 +138,10 @@ class DefaultsRegistry:
         if branch is None:
             return None
         else:
-            return self._version_defaults[branch]
+            try:
+                return self._version_defaults[branch]
+            except KeyError:
+                raise KeyError("%s has no default for branch '%s'" % (self, branch))
 
     def set_default_branch(self, branch, override=False):
         # type: (str, bool) -> None
@@ -166,6 +169,10 @@ class DefaultsRegistry:
         self.set_default_branch(other_defaults._default_branch, override=override)
         self._version_defaults.update(other_defaults._version_defaults)
 
+    def __str__(self):
+        return "DefaultsRegistry(default_branch=%s, version_defaults=%s" % (
+            self._default_branch, self._version_defaults
+        )
 
 class Default: pass
 

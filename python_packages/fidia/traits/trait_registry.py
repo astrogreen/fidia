@@ -8,7 +8,7 @@ from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
 # Logging import and setup
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 class TraitRegistry:
@@ -63,6 +63,11 @@ class TraitRegistry:
 
         return trait
 
+    def change_defaults(self, trait_name, new_defaults):
+        log.debug("Updating trait branch and version defaults for '%s'" % trait_name)
+        self._trait_name_defaults[trait_name].update_defaults(new_defaults)
+        log.debug("New defaults: %s" % str(self._trait_name_defaults[trait_name]))
+
     def update_key_with_defaults(self, trait_key):
         """Return TraitKey with branch and version populated from defaults.
 
@@ -72,6 +77,8 @@ class TraitRegistry:
         """
         # Ensure we are working with a full TraitKey object (or convert if necessary)
         tk = TraitKey.as_traitkey(trait_key)
+
+        log.debug("Updating TraitKey '%s' with defaults" % str(trait_key))
 
         # If the branch has not been specified, get the default from the DefaultsRegistry for this trait_name
         if tk.branch is None:

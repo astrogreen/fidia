@@ -4,6 +4,8 @@ from operator import itemgetter
 
 from ..descriptions import DescriptionsMixin
 
+from ..utilities import DefaultsRegistry
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.enable_console_logging()
@@ -260,6 +262,36 @@ class BranchesVersions(dict):
 
     def __iter__(self):
         return self.name_keys()
+
+    def has_single_branch_and_version(self):
+        """Test if this branch version dictionary has only one branch and one version.
+
+        In this case, it is effectively its own default.
+
+        """
+
+        values = self.values()
+        # Check for single branch
+        res = len(values) == 1
+        # Check for single version
+        versions = list(values)
+        res = res and len(versions[0]) == 1
+
+        return res
+
+    def as_defaults(self):
+        """Return a copy of this as a DefaultsRegistry"""
+
+        if not self.has_single_branch_and_version():
+            return None
+
+        branch = list(self.name_keys())[0]
+
+        versions_set = list(self.values())[0]
+        version = list(versions_set)[0]
+
+        return DefaultsRegistry(version_defaults={branch: version})
+
 
 class Branch(DescriptionsMixin):
 

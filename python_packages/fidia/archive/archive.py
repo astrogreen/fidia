@@ -21,7 +21,7 @@ from ..exceptions import *
 class Archive(BaseArchive):
     def __init__(self):
         # Traits (or properties)
-        self.available_traits = TraitRegistry()
+        self.available_traits = TraitRegistry()  # type: TraitRegistry
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
