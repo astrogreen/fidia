@@ -560,7 +560,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     #  |  |  \ /~~\ |  |  |    |  \ \__/ |    |___ |  \  |   |     |  | /~~\ | \| |__/ |___ | | \| \__>
 
     @classmethod
-    def _trait_properties(cls, trait_property_types=None):
+    def _trait_properties(cls, trait_property_types=None, include_hidden=False):
         """Generator which iterates over the TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -587,6 +587,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
+                if obj.name.startswith("_") and not include_hidden:
+                    log.debug("Trait property '%s' ignored because it is hidden.", attr)
+                    continue
                 log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
                 if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
@@ -597,7 +600,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         for tp in cls._trait_properties():
             yield tp.name
 
-    def trait_properties(self, trait_property_types=None):
+    def trait_properties(self, trait_property_types=None, include_hidden=False):
         """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -625,6 +628,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         for attr in dir(cls):
             descriptor_obj = getattr(cls, attr)
             if isinstance(descriptor_obj, TraitProperty):
+                if descriptor_obj.name.startswith("_") and not include_hidden:
+                    log.debug("Trait property '%s' ignored because it is hidden.", attr)
+                    continue
                 log.debug("Found trait property '{}' of type '{}'".format(attr, descriptor_obj.type))
                 if (trait_property_types is None) or (descriptor_obj.type in trait_property_types):
                     # Retrieve the attribute for this object (which will create
