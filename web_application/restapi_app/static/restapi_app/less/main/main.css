@@ -169,10 +169,10 @@ h6,
 small,
 .sub-heading,
 a.sub-heading {
-  color: #8ca1a6 !important;
+  color: #7d959b !important;
 }
 .label-sub-heading {
-  color: #767676;
+  color: #6f8990;
 }
 .sub-heading {
   font-size: 14px;
@@ -653,21 +653,26 @@ header .user a > a {
   display: block;
   border-radius: 4px;
   margin-bottom: 4px;
-  color: #8ca1a6;
+  color: #6f8990;
   text-decoration: none;
   padding: 5px 10px 6px;
   font-size: 15px;
   line-height: 18px;
   border: 1px solid transparent;
+  transition: all 0.3s ease-in-out;
 }
 .schema .nav-pills > li.nested-pill > a,
 .sidebar .nav-pills > li.nested-pill > a {
   color: #2C2D30;
 }
+.schema .nav-pills > li,
+.sidebar .nav-pills > li {
+  transition: all 0.1s ease-in-out;
+}
 .schema .nav-pills > li:hover a,
 .sidebar .nav-pills > li:hover a {
-  background-color: #ecf1f9;
-  border: 1px solid #dcf0fb;
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #647b82;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
