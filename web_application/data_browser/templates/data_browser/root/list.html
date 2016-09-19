@@ -15,7 +15,7 @@
 <li role="presentation" class="disabled"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}" disabled>Documentation</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
+{% block content-test %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <h5>Page Contents</h5>
@@ -25,7 +25,7 @@
                     <h6>Data Access</h6>
                 </li>
                 <ul>
-                    {% for value in response.data.surveys %}
+                    {% for value in response.data.samples %}
                     <li role="presentation"><a href="{{value.survey}}/"><span>Browse {{value.survey|uppercase}} Data
                     <i class="fa fa-angle-right"></i></span></a></li>
                     {% endfor %}
@@ -73,7 +73,7 @@
                 Browser</a>.</p>
         <br>
         <div class="row">
-            {% for value in response.data.surveys %}
+            {% for value in response.data.samples %}
             <div class="col-xs-1 col-sm-offset-1 col-sm-1">
                 <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
             </div>

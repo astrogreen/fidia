@@ -11,13 +11,13 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a></li>
 <li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
         <div class="row">
@@ -54,8 +54,8 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content_render %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+{% block content-test %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">

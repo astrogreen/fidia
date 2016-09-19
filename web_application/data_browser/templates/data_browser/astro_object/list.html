@@ -57,7 +57,7 @@
     <a href="{% url 'data_browser:survey-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
 {% endblock %}
 
-{% block content_render %}
+{% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
@@ -105,7 +105,7 @@
         <div class="col-sm-2 pull-right">
             <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}}</h2>
+        <h2>{{response.data.sample|uppercase}} {{response.data.astro_object}}</h2>
         <h3 id="overview">Overview</h3>
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -115,7 +115,7 @@
                 <table class="table table-overview">
                     <tbody>
                     <tr class="large">
-                        <td class="lead">{{response.data.astroobject}}</td>
+                        <td class="lead">{{response.data.astro_object}}</td>
                         <td class="lead">-</td>
                         <td class="lead">-</td>
                         <td class="lead">-</td>
@@ -132,13 +132,13 @@
                 </table>
             </div>
         </div>
-        {% with "data_browser/astroobject/survey/"|add:survey|add:".html" as template %}
+        {% with "data_browser/astro_object/survey/"|add:survey|add:".html" as template %}
             {% include template %}
         {% endwith %}
         <h3 id="available-data">Available Data</h3>
         <p>Select a product-type from the list below to view the available data.</p><br>
         <ul class="nav nav-pills" role="tablist" id="trait_tabs">
-            {% for trait_type, trait_value in response.data.available_traits.items %}
+            {% for trait_type, trait_value in response.data.traits.items %}
             <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
                 <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}</a>
             </li>
@@ -147,7 +147,7 @@
         <br>
 
         <div class="tab-content">
-            {% for trait_type, trait_value in response.data.available_traits.items %}
+            {% for trait_type, trait_value in response.data.traits.items %}
                 <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">
                     <br>
                     <div class="p">
