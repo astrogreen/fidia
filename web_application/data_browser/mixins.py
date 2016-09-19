@@ -27,12 +27,16 @@ class AstronomicalObjectAttributesMixin(SampleAttributesMixin):
 class TraitAttributesMixin(AstronomicalObjectAttributesMixin):
     """ Adds in survey, astro_object, trait attributes to each view"""
 
+    trait_info = serializers.SerializerMethodField()
     branch = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
     all_branches_versions = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
     documentation = serializers.SerializerMethodField()
+
+    def get_trait_info(self, trait):
+        return self.context['trait_info']
 
     def get_branch(self, trait):
         if trait.branch is None:
@@ -100,3 +104,25 @@ class TraitAttributesMixin(AstronomicalObjectAttributesMixin):
                 return trait.get_documentation('html')
         else:
             return trait.get_documentation()
+
+    # branch = serializers.SerializerMethodField()
+    # version = serializers.SerializerMethodField()
+    # all_branches_versions = serializers.SerializerMethodField()
+    # description = serializers.SerializerMethodField()
+    # pretty_name = serializers.SerializerMethodField()
+    # documentation = serializers.SerializerMethodField()
+    #
+    # def get_branch(self, trait):
+    #     return self.context['trait_info']['branch']
+    #
+    # def get_version(self, trait):
+    #     return self.context['trait_info']['version']
+    #
+    # def get_all_branches_versions(self, trait):
+    #     return self.context['trait_info']['all_branches_versions']
+    #
+    # def get_description(self, trait):
+    #     return self.context['trait_info']['description']
+    #
+    # def get_pretty_name(self, trait):
+    #     return self.context['trait_info']['pretty_name']

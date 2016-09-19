@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import random, collections, logging, json, requests, zipfile, io
 import django.core.exceptions
 from django.contrib.auth.models import User
@@ -26,7 +27,68 @@ from fidia import traits
 
 log = logging.getLogger(__name__)
 
-# TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classification_map", "extinction_map"]
+
+def trait_helper(self, trait, ar, sample_pk, astroobject_pk, trait_pk, request):
+    """ Returns all the useful information about this particular trait """
+
+    trait_registry = ar.available_traits
+    default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
+
+    trait_info = {}
+
+    # Branch - replace with string NONE
+    if trait.branch is None:
+        trait_info['branch'] ='None'
+    else:
+        trait_info['branch'] = trait.branch
+
+    if trait.version is None:
+        trait_info['version'] ='None'
+    else:
+        trait_info['version'] = trait.version
+
+    trait_info['trait_key'] = trait.trait_key
+    trait_info['trait_key_str'] = default_trait_key
+    trait_info['description'] = trait.get_description()
+    trait_info['pretty_name'] = trait.get_pretty_name()
+
+    # If html/browsable api - return pre-formatted html
+    if request.accepted_renderer.format == 'api' or 'html':
+        trait_info['documentation'] = trait.get_documentation('html')
+    else:
+        trait_info['documentation'] = trait.get_documentation()
+
+    b_v_arr = []
+    branches = {}
+    url_kwargs = {
+        'sample_pk': sample_pk,
+        'astroobject_pk': astroobject_pk,
+    }
+
+    url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
+    for i in trait.get_all_branches_versions():
+        branches[str(i.branch)] = {
+            # "pretty_name": trait.branches_versions.get_pretty_name(str(i.branch)),
+            # "description": trait.branches_versions.get_description(str(i.branch)),
+            "pretty_name": "branch_pretty_name",
+            "description": "branch_description",
+            "versions": i.version
+        }
+
+        # Construct URL
+        this_url = url + str(i.trait_name) + ':' + str(i.branch)
+
+        # If already in array, append a version to that branch
+        for j in b_v_arr:
+            if j['branch'] == str(i.branch):
+                j['versions'].append(str.i.version)
+        # Else add new branch
+        b_v_arr.append({"branch": str(i.branch), "url": this_url,
+                        "versions": [str(i.version)]})
+
+    trait_info['all_branches_versions'] = b_v_arr
+
+    return trait_info
 
 
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -227,7 +289,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'sample': sample_pk,
                 'astro_object': astroobject_pk,
                 'trait': trait_pk,
-                'trait_key': default_trait_key
+                'trait_key': default_trait_key,
+                'trait_info': trait_helper(self, trait, ar, sample_pk, astroobject_pk, trait_pk, request)
             }
         )
 
@@ -307,6 +370,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'trait_key': str(trait_pointer.trait_key),
                          'subtraitproperty': subtraitproperty_pk,
                          'sub_trait_key': str(subtrait_pointer.trait_key),
+                         'trait_info': trait_helper(self, trait_pointer, ar, sample_pk, astroobject_pk, trait_pk, request)
                          })
             # Set Breadcrumbs for this method
             self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk,
@@ -423,7 +487,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                      'astro_object': astroobject_pk,
                      'trait': trait_pk,
                      'subtraitproperty': subtraitproperty_pk,
-                     'traitproperty': traitproperty_pk
+                     'traitproperty': traitproperty_pk,
+                     'trait_info': trait_helper(self, trait_pointer, ar, sample_pk, astroobject_pk, trait_pk, request)
                      }
         )
 
