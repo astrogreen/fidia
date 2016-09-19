@@ -447,24 +447,6 @@
 {% block footer-extra %}
 <script>
 
-//    update_menu_nav_size = function(){
-////        // Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
-////        if ($(window).width() > 770) {
-////            if ($('.right-panel').height()>$('#docs-sidebar').height()){
-////                $('.menu-nav').height($('.right-panel').height() + 'px');
-////            }
-////        } else {
-////            $('.menu-nav').height($('#docs-sidebar').height()+30+'px');
-////        }
-//    };
-//
-//    $(window).load(function () {
-//        update_menu_nav_size();
-//    });
-//    $(window).resize(function () {
-//        update_menu_nav_size();
-//    });
-
     $(document).ready(function () {
 
         // Activate a tab if the hash is in the url
@@ -480,8 +462,7 @@
         $("ul.nav-pills a").click(function (e) {
             e.preventDefault();
             $(this).tab('show');
-            // update the menu size
-            update_menu_nav_size();
+
         });
 
         // Change the text shown in the branch button.
@@ -527,12 +508,10 @@
         };
 
         // ON LOAD Find the branch_warning message and update with this branch and version
-//        update_menu_nav_size();
         update_branch_warning_message();
 
         // ON TRAIT TYPE SELECTION
         $('.trait_type_button').click(function(){
-//            update_menu_nav_size();
             update_branch_warning_message();
         });
 
