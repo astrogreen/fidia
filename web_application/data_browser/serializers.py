@@ -82,12 +82,6 @@ class SampleSerializer(data_browser.mixins.SampleAttributesMixin):
 
 class AstroObjectSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
     """ Returns list of available traits. """
-    # def __init__(self, *args, **kwargs):
-    #     depth_limit = get_and_update_depth_limit(kwargs)
-    #     super().__init__(*args, **kwargs)
-    #
-    #     astro_object = self.instance
-    #     assert isinstance(astro_object, fidia.AstronomicalObject)
 
     def get_traits(self, obj):
         return self.context['traits']
@@ -95,11 +89,16 @@ class AstroObjectSerializer(data_browser.mixins.AstronomicalObjectAttributesMixi
     traits = serializers.SerializerMethodField()
 
 
-class TraitSerializer(data_browser.mixins.TraitAttributesMixin):
+class TraitSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
     """Serializer for the Trait level of the Data Browser"""
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
+        parent_trait_display = kwargs.pop('parent_trait_display')
+
+        if parent_trait_display:
+            self.fields['parent_trait'] = serializers.SerializerMethodField()
+
         log.debug("depth_limit: %s", depth_limit)
         super().__init__(*args, **kwargs)
 
@@ -108,23 +107,14 @@ class TraitSerializer(data_browser.mixins.TraitAttributesMixin):
 
         log.debug("Serializing trait '%s'", trait.trait_name)
 
-        # print(trait.trait_key)
-        # print(trait.branch)
-        # print(trait)
-        # print(vars(trait))
-        # print(trait.trait_type)
-        # print(type(trait))
-        # print(isinstance(trait, traits.Image))
-
-        # If image type, send 2D values for display
-
         log.debug("Adding Sub-traits")
         # define serializer type by instance type
+
         for sub_trait in trait.get_all_subtraits():
             log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
             # setattr(self, sub_trait.trait_name, None)
-
-            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait,
+            # setattr(self, sub_trait.trait_name, None)
+            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait, parent_trait_display=False,
                                                                 context={
                                                                     'request': self.context['request'],
                                                                     'sample': self.context['sample'],
@@ -144,13 +134,72 @@ class TraitSerializer(data_browser.mixins.TraitAttributesMixin):
             if 'array' in traitproperty_type:
                 # TraitProperty is an array, so display a URL for it's value
                 self.fields[trait_property.name] = TraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='url')
+                    instance=trait_property, depth_limit=depth_limit, data_display='url', parent_trait_display=False, parent_sub_trait_display=False)
             else:
                 # TraitProperty is not an array so we want it's actual value returned.
                 self.fields[trait_property.name] = TraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='value')
+                    instance=trait_property, depth_limit=depth_limit, data_display='value', parent_trait_display=False, parent_sub_trait_display=False)
 
+    branch = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+    all_branches_versions = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    pretty_name = serializers.SerializerMethodField()
 
+    def get_branch(self, trait):
+        if trait.branch is None:
+            return 'None'
+        else:
+            return trait.branch
+
+    def get_version(self, trait):
+        if trait.version is None:
+            return 'None'
+        return trait.version
+
+    def get_all_branches_versions(self, trait):
+        b_v_arr = []
+        branches = {}
+        url_kwargs = {
+            'astroobject_pk': self.context['astro_object'],
+            'sample_pk': self.context['sample']
+        }
+        # url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
+        # removing request also removes the protocol etc.
+        url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
+
+        # trait.branches_versions.get_pretty_name(branch_name)
+
+        for i in trait.get_all_branches_versions():
+            # if i.branch != None:
+
+            branches[str(i.branch)] = {
+                "pretty_name": "tbd",
+                # "pretty_name":trait.branches_versions.get_pretty_name(str(i.branch)),
+                # "description":trait.branches_versions.get_description(str(i.branch)),
+                "description": "",
+                "versions": i.version
+            }
+
+            # Construct URL
+            this_url = url + str(i.trait_name) + ':' + str(i.branch)
+
+            # If already in array, append a version to that branch
+            for j in b_v_arr:
+                if j['branch'] == str(i.branch):
+                    j['versions'].append(str.i.version)
+            # Else add new branch
+            b_v_arr.append({"branch": str(i.branch), "url": this_url,
+                            "versions": [str(i.version)]})
+        # print(branches)
+        # print(b_v_arr)
+        return b_v_arr
+
+    def get_description(self, trait):
+        return trait.get_description()
+
+    def get_pretty_name(self, trait):
+        return trait.get_pretty_name()
 
     def get_trait(self, obj):
         return self.context['trait']
@@ -160,20 +209,14 @@ class TraitSerializer(data_browser.mixins.TraitAttributesMixin):
 
     def get_trait_key_array(self, trait):
         # if parent trait exists, this is a sub-trait and
-        print(issubclass(trait, Trait))
-
-        print(hasattr(trait, '_parent_trait'))
+        # print(issubclass(trait, Trait))
+        #
+        # print(hasattr(trait, '_parent_trait'))
         if issubclass(trait, Trait) and hasattr(trait, '_parent_trait'):
             # is sub-trait, return parent's trait_key
             return trait._pretty_name.trait_key
         else:
             return trait.trait_key
-
-    def get_sub_trait_key(self, obj):
-        if hasattr(self.context, 'sub_trait_key'):
-            return self.context['sub_trait_key']
-        else:
-            return None
 
     def get_url(self, trait):
         """Return URL for current instance (subtrait/tp or tp)"""
@@ -198,10 +241,11 @@ class TraitSerializer(data_browser.mixins.TraitAttributesMixin):
 
         return _url
 
+    def get_parent_trait(self, obj):
+        return self.context['parent_trait']
 
     trait = serializers.SerializerMethodField()
     trait_key = serializers.SerializerMethodField()
-    sub_trait_key = serializers.SerializerMethodField()
     trait_key_array = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
@@ -240,7 +284,7 @@ class TraitSerializer(data_browser.mixins.TraitAttributesMixin):
             raise type(exc)(msg)
 
 
-class TraitPropertySerializer(serializers.Serializer):
+class TraitPropertySerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
     """
     Trait Properties have the following:
 
@@ -251,14 +295,22 @@ class TraitPropertySerializer(serializers.Serializer):
              get_short_name
              get_pretty_name
              get_description
-             get_documentation
         (these are the 'standard' description fields, see fidia/descriptions.py)
+
+        parent_trait_display and parent_sub_trait_display flags used for views below Trait level.
     """
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         data_display = kwargs.pop('data_display', 'value')
-        # data_display = 'include'
+        parent_trait_display = kwargs.pop('parent_trait_display')
+        parent_sub_trait_display = kwargs.pop('parent_sub_trait_display')
+
+        if parent_trait_display:
+            self.fields['parent_trait'] = serializers.SerializerMethodField()
+        if parent_sub_trait_display:
+            self.fields['parent_sub_trait'] = serializers.SerializerMethodField()
+
         super().__init__(*args, **kwargs)
 
         if isinstance(self.instance, TraitProperty):
@@ -291,20 +343,6 @@ class TraitPropertySerializer(serializers.Serializer):
     def get_description(self, trait_property):
         return trait_property.get_description()
 
-    def get_documentation(self, trait_property):
-        # If API - return pre-formatted html, and replace $ with $$ for MathJax
-        if self.context['request'].accepted_renderer.format == 'api' or 'html':
-            if trait_property.get_documentation() is not None:
-                # return trait_property.get_documentation('html').replace("$", "$$")
-                return trait_property.get_documentation('html')
-            else:
-                return trait_property.get_documentation('html')
-        else:
-            return trait_property.get_documentation()
-
-    # def get_documentation(self, trait_property):
-    #     return trait_property.get_documentation()
-
     def get_value(self, trait_property):
         return self.get_url(trait_property)
 
@@ -336,18 +374,15 @@ class TraitPropertySerializer(serializers.Serializer):
 
         return _url
 
+    def get_parent_trait(self, obj):
+        return self.context['parent_trait']
+
+    def get_parent_sub_trait(self, obj):
+        return self.context['parent_sub_trait']
+
+
     short_name = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
-    documentation = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
-
-    sample = serializers.SerializerMethodField()
-    data_release = serializers.SerializerMethodField()
-
-    def get_data_release(self,obj):
-        return '1.0'
-
-    def get_sample(self, obj):
-        return self.context['sample']
 

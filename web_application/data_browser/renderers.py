@@ -17,7 +17,7 @@ log.setLevel(logging.DEBUG)
 CONTEXT = {}
 
 CONTEXT['reserved_keywords'] = ['sample', 'data_release', 'astro_object', 'trait', 'trait_key', 'trait_key_array',
-                                'trait_url', 'sub_trait_key', 'trait_info',
+                                'trait_url', 'sub_trait_key', 'parent_trait', 'trait_info', 'sub_traits',
                                 'pretty_name', 'short_name', 'branch', 'version', 'url', 'all_branches_versions',
                                 'documentation']
 
@@ -82,7 +82,7 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         context = super().get_context(data, accepted_media_type, renderer_context)
 
         # These are not looped over for the top-level trait view (but appear in the properties panel)
-        context['side_bar_explicit_render'] = [ 'description']
+        context['side_bar_explicit_render'] = ['description']
 
         # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
         context['trait_properties'] = ['value']
@@ -112,7 +112,6 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         if isinstance(trait, traits.Map2D):
             context['trait_2D_map'] = True
 
-        # context['short_description'] = renderer_context['view'].short_description
         return context
 
 
@@ -132,14 +131,13 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         context['template'] = renderer_context['view'].template
 
         context['fidia_keys'] = ['sample', 'astro_object', 'trait', 'trait_key', 'trait_key_array', 'sub_trait_key',
-                                 'data_release', ]
+                                 'data_release', 'documentation' ]
         context['side_bar_explicit_render'] = ['description']
 
         context['trait_property_keywords'] = ["short_name", "pretty_name", "description",
                                               "name", "type", "value", ]
 
-        context['reserved_keywords'] = CONTEXT['reserved_keywords'] + ['pretty_name', 'short_name', 'branch', 'version', "url",
-                                        'all_branches_versions', 'documentation' ] + \
+        context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
                                        context['side_bar_explicit_render'] + \
                                        context['fidia_keys']
 
