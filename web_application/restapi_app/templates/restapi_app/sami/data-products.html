@@ -70,12 +70,10 @@
             </ul>
             <h5>Quick Links</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a href="{% url 'sami' %}"> Data Release Description</a>
-                </li>
                 <li><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">
-                    Schema Browser</a></li>
+                    Schema Browser for {{response.data.survey|uppercase}}</a></li>
                 <li><a class="" href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}"> Data
-                    Browser</a></li>
+                    Browser for {{response.data.survey|uppercase}}</a></li>
                 <li><a class="" href="{% url 'query-create-list' %}"> Query Builder</a></li>
 
                 <li class="disabled"><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled>
@@ -97,7 +95,7 @@
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2 id="">Data Product Descriptions {{response.data.data_release}} </h2>
+        <h2 id="">Data Product Descriptions </h2>
         <p>{% lorem %}</p>
         <h3 id="available-data-products">Available Data</h3>
         <p>Select a product-type from the list below to view the associated description</p><br>

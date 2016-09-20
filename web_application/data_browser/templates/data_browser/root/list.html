@@ -39,10 +39,7 @@
                 </li>
 
                 <li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
-                <li role="presentation" class="disabled"><a class="sub-heading">Data Explorer</a></li>
-                <li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query
-                    Builder
-                    (SQL)</a></li>
+                <li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query</a></li>
 
                 <li class="text-uppercase no-margin-top">
                     <h6>Schema</h6>
@@ -54,11 +51,12 @@
 
     <div class="col-xs-12 col-sm-9 main-content">
         <h2>Discover the survey data products hosted at AAODC.</h2>
-        <h3 id="data-access">Data Access</h3>
-
         <p class="lead">Browse the available survey data products and meta-data on an object-by-object basis. Provides a quick-look at
             the data products for a particular object, and allows you to download individual data products in fits
             format.</p>
+        <h3 id="data-access">Data Access</h3>
+
+
         <p>Choose a survey from the list below to get started. To
             view more information about each survey's data products and derived properties, visit the <a
                     href="{% url 'schema:schema-list' %}">Schema

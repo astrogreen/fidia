@@ -22,7 +22,7 @@ urlpatterns = [
             url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
 
 
-            url(r'^gama/$', restapi_app.views.GAMA.as_view(), name='gama'),
+            url(r'^(?i)GAMA/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/underconstruction.html'), name='gama'),
 
 
 

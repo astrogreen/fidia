@@ -25,29 +25,39 @@
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
             <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
 
                 <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
                     <h6>{{trait_type_value.pretty_name}}</h6>
                 </li>
-                {% for value in response.data.samples %}
                 <li  role="presentation">
-                    <a href="#{{value.survey}}" class="scroll">{{value.survey |uppercase}}
-                    </a>
+                    <a href="#surveys" class="scroll">Survey data hosted at AAODC</a>
                 </li>
 
-                {% endfor %}
             </ul>
-
+            <h5>Quick Links</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            {% for value in response.data.samples %}
+                <li  role="presentation">
+                    <a href="{% url value.survey %}">{{value.survey |uppercase}}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>
 
         </div>
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content surveys">
-        <h2 class="">Survey data hosted at AAODC</h2>
-        <p class="">AAODC currently hosts {{response.data.samples|length}} survey datasets.</p>
+        <h2 id="surveys">Survey data hosted at AAODC</h2>
+        <p class="">AAODC currently hosts {{response.data.samples|length}} survey datasets. The AAODC <a href="{% url 'tools' %}">tools</a> provide a
+            portal to explore and interact with the data in each survey, and combine data across surveys to create new
+            and interesting samples of astronoical objects.
+
+            Below is a summary of each
+            survey, links to data release information and relevant data access tools.</p>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-striped">
                 <colgroup>
                     <col width="10%">
                     <col width="40%">
@@ -58,7 +68,8 @@
                 <tr>
                     <th>Survey</th>
                     <th>About</th>
-                    <th>Data Releases</th>
+                    <th><i class="fa fa-map-marker"></i> Data Releases <br>
+                    </th>
                     <th>Data Access</th>
                 </tr>
                 </thead>
@@ -79,17 +90,19 @@
                     </td>
                     <td>
                         {% for d in value.data_releases %}
-                            <a href="{% url value.survey %}"><strong>Go to Data Release {{d}} page <i
-                                    class="fa fa-angle-right"></i></strong></a>
+                            DR {{d}} <br>
+                            <a href="{% url value.survey %}"><strong>Go to {{value.survey|uppercase}} Survey page for Data Release {{d}} <i
+                                    class="fa fa-angle-right"></i></strong></a><hr>
 
                             {% endfor %}
                     </td>
                     <td>
 
-                        <a href="{% url 'documentation:topic-detail' slug=value.survey %}" disabled class="disabled">Documentation</a> <span class="tiny sub-heading">-</span><br>
+
                         <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}">Data Browser</a> <span class="tiny sub-heading">Browse data per {{value.survey|uppercase}} object.</span><br>
-                        <a href="{% url 'schema:sample-list' sample_pk=value.survey %}"  >Schema Browser</a> <span class="tiny sub-heading">Detailed descriptions of the data products in {{value.survey|uppercase}}</span><br>
+                        <a href="{% url 'schema:sample-list' sample_pk=value.survey %}"  >Schema Browser</a> <span class="tiny sub-heading">Detailed descriptions of the data products in {{value.survey|uppercase}}.</span><br>
                         <a href="{% url 'query-create-list' %}" disabled class="disabled">Query</a> <span class="tiny sub-heading">SQL access to the database.</span><br>
+                        <a href="{% url 'documentation:topic-detail' slug=value.survey %}" disabled class="disabled">Documentation</a> <span class="tiny sub-heading">Help Center.</span><br>
 
                     </td>
                 </tr>

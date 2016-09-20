@@ -38,8 +38,7 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
-        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
-                   {"survey": "gama", "count": 0, "current_version": 0}]
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}]
 
         self.breadcrumb_list = ['Data Browser']
 
@@ -63,24 +62,20 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         self.breadcrumb_list = ['Data Browser', str(sample_pk).upper()]
 
-        if sample_pk == 'gama':
-            return Response({"sample": "gama", "in_progress": True})
+        try:
+            # TODO ask FIDIA what it's got for sample_pk
+            sami_dr1_sample
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        else:
-            try:
-                # TODO ask FIDIA what it's got for sample_pk
-                sami_dr1_sample
-            except KeyError:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            except ValueError:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            serializer_class = data_browser.serializers.SampleSerializer
-            serializer = serializer_class(
-                instance=sami_dr1_sample, many=False,
-                context={'request': request, 'sample': sample_pk}
-            )
-            return Response(serializer.data)
+        serializer_class = data_browser.serializers.SampleSerializer
+        serializer = serializer_class(
+            instance=sami_dr1_sample, many=False,
+            context={'request': request, 'sample': sample_pk}
+        )
+        return Response(serializer.data)
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

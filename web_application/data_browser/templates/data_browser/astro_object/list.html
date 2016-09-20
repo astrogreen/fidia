@@ -57,7 +57,7 @@
     <a href="{% url 'data_browser:survey-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
 {% endblock %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
@@ -136,11 +136,13 @@
             {% include template %}
         {% endwith %}
         <h3 id="available-data">Available Data</h3>
-        <p>Select a product-type from the list below to view the available data.</p><br>
+        <p>Data products are grouped by their product-type (e.g., you can find the SAMI [OIII] (5007Å) and [NII] (6583Å) line maps under <em>Line Maps</em>).  </p>
+        <div class="p">Select a product type from the list below to view the available data.</div>
+        <h4>Product Types</h4>
         <ul class="nav nav-pills" role="tablist" id="trait_tabs">
             {% for trait_type, trait_value in response.data.traits.items %}
             <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
-                <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}</a>
+                <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}s</a>
             </li>
             {% endfor %}
         </ul>
@@ -149,20 +151,19 @@
         <div class="tab-content">
             {% for trait_type, trait_value in response.data.traits.items %}
                 <div role="tabpanel" class="tab-pane {% if forloop.first %}active{% endif %}" id="{{trait_type}}">
-                    <br>
-                    <div class="p">
-                        <em>{% if trait_value.description %}{{trait_value.description}}{% endif %}</em>
-                        <!--<a href="{% url 'documentation:topic-detail' slug='branches' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What's a branch?</a> &nbsp;&nbsp;-->
-                    </div><br>
-
-                    <div class="panel panel-default">
-                        <table class="table table-astro-object table-bordered">
+                    <table class="table table-astro-object table-bordered">
                             <colgroup>
                                 <col style="width:40%">
                                 <col style="width:30%">
                                 <col style="width:30%">
                             </colgroup>
                             <tbody>
+                            <tr>
+                                <td colspan="3">
+                                    <h4 class="no-margin-top">{{trait_value.pretty_name}}s</h4>
+                                    <em>{% if trait_value.description %}{{trait_value.description}}{% endif %}</em>
+                                </td>
+                            </tr>
                             <tr>
                                 <td>
                                     <div class="row">
@@ -252,7 +253,6 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                    </div>
                 </div>
             {% endfor %}
         </div>
