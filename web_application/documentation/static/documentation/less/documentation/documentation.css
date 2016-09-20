@@ -19,29 +19,25 @@
   text-decoration: none;
 }
 .tools .media,
-.surveys .media,
-.tools .row,
-.surveys .row {
+.surveys .media {
   padding: 30px;
   transition: all 0.3s ease-in-out;
 }
 .tools .media:hover,
-.surveys .media:hover,
-.tools .row:hover,
-.surveys .row:hover {
+.surveys .media:hover {
   transform: scale(1.05);
   cursor: hand;
   box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.13);
 }
 .tools .media .media-left img,
-.surveys .media .media-left img,
-.tools .row .media-left img,
-.surveys .row .media-left img {
+.surveys .media .media-left img {
   min-width: 100px;
 }
 .tools .media .media-body,
-.surveys .media .media-body,
-.tools .row .media-body,
-.surveys .row .media-body {
+.surveys .media .media-body {
   padding: 0px 15px;
+}
+.tools .table p,
+.surveys .table p {
+  font-size: 12px;
 }

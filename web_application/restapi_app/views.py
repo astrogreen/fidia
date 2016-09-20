@@ -74,8 +74,8 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
-                   {"survey": "gama", "count": 0, "current_version": 0}]
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, 'data_releases': [1.0, ]},
+                   {"survey": "gama", "count": 0, "current_version": 0, 'data_releases': []}]
 
         serializer_class = data_browser.serializers.RootSerializer
         _dummy = object

@@ -21,41 +21,85 @@
 {% endblock useful_links %}
 
 {% block content_render %}
+<div class="row">
+    <div class="col-xs-12 col-sm-3 sidebar">
+        <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+
+                <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
+                    <h6>{{trait_type_value.pretty_name}}</h6>
+                </li>
+                {% for value in response.data.samples %}
+                <li  role="presentation">
+                    <a href="#{{value.survey}}" class="scroll">{{value.survey |uppercase}}
+                    </a>
+                </li>
+
+                {% endfor %}
+            </ul>
 
 
-<div class="row surveys">
-    <div class="col-xs-12 text-center">
-        <h1>Survey data hosted at AAODC</h1>
-        <p class="lead">AAODC currently hosts {{response.data.samples|length}} survey datasets.</p>
-    </div>
-    {% for value in response.data.samples %}
-    <div class="col-xs-12 col-sm-10 col-sm-offset-1">
-        <div class="media">
-            <div class="media-left">
-                <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
-            </div>
-            <div class="media-body">
-                <h3 class="media-heading no-margin-bottom">{{value.survey | uppercase}}</h3>
-                <span class="sub-heading">
-                    Latest Data Release:
-                    {{value.count}}
-                    objects
-                    <span class="version"><i class="fa fa-map-marker"></i> DR {{value.current_version}}</span>
-                </span>
-                {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-                    {% include template %}
-                {% endwith %}
-                <span>
-                    <a href="{% url 'documentation:topic-detail' slug=value.survey %}" disabled class="btn btn-default">Documentation</a>
-                    <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}" class="btn btn-default">Data</a>
-                    <a href="{% url 'schema:sample-list' sample_pk=value.survey %}" class="btn btn-default">Schema</a>
-                    <a href="{% url 'query-create-list' %}" class="btn btn-default" disabled>Query</a>
-                </span>
-            </div>
         </div>
-    <br><br><hr>
     </div>
-    {% endfor %}
+
+    <div class="col-xs-12 col-sm-9 main-content surveys">
+        <h2 class="">Survey data hosted at AAODC</h2>
+        <p class="">AAODC currently hosts {{response.data.samples|length}} survey datasets.</p>
+        <div class="table-responsive">
+            <table class="table">
+                <colgroup>
+                    <col width="10%">
+                    <col width="40%">
+                    <col width="20%">
+                    <col width="30%">
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>Survey</th>
+                    <th>About</th>
+                    <th>Data Releases</th>
+                    <th>Data Access</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for value in response.data.samples %}
+                <tr>
+                    <td class="text-center"><img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png"><div class=half-br></div><strong>{{value.survey|uppercase}}</strong></td>
+                    <td class="small">
+                        {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+                            {% include template %}
+                        {% endwith %}
+                        <span class="sub-heading tiny">
+                            Latest Data Release:
+                            {{value.count}}
+                            objects
+                            <span class="version"><i class="fa fa-map-marker"></i> DR {{value.current_version}}</span>
+                            </span>
+                    </td>
+                    <td>
+                        {% for d in value.data_releases %}
+                            <a href="{% url value.survey %}"><strong>Go to Data Release {{d}} page <i
+                                    class="fa fa-angle-right"></i></strong></a>
+
+                            {% endfor %}
+                    </td>
+                    <td>
+
+                        <a href="{% url 'documentation:topic-detail' slug=value.survey %}" disabled class="disabled">Documentation</a> <span class="tiny sub-heading">-</span><br>
+                        <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}">Data Browser</a> <span class="tiny sub-heading">Browse data per {{value.survey|uppercase}} object.</span><br>
+                        <a href="{% url 'schema:sample-list' sample_pk=value.survey %}"  >Schema Browser</a> <span class="tiny sub-heading">Detailed descriptions of the data products in {{value.survey|uppercase}}</span><br>
+                        <a href="{% url 'query-create-list' %}" disabled class="disabled">Query</a> <span class="tiny sub-heading">SQL access to the database.</span><br>
+
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
 </div>
 
 {% endblock %}

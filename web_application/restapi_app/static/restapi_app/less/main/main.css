@@ -130,9 +130,8 @@ body a.small {
   color: #4078C0;
 }
 body .tiny {
+  font-size: 12px !important;
   margin-bottom: 0;
-  font-size: 12px;
-  color: #8ca1a6;
 }
 h1,
 h2 {
