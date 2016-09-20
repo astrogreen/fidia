@@ -63,9 +63,10 @@
             <h5>Page Contents</h5>
 
             <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation"><a class="scroll" href="#project-overview">Project Overview</a></li>
                 <li role="presentation"><a class="scroll" href="#data-release">Data Release {{response.data.data_release}}</a></li>
                 <li role="presentation"><a class="scroll" href="#whats-included">What's included?</a></li>
-                <li role="presentation"><a class="scroll" href="#project-overview">Project Overview</a></li>
+
                 <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
                 <ul class="nav-pills nav-stacked">
                     <li><a href="#data-access-data-browser" class="scroll"> Data Browser</a></li>
@@ -97,6 +98,8 @@
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
         <h2>Welcome to the SAMI archive at AAODC</h2>
+        <h3 id="project-overview">Project Overview</h3>
+        {% include "restapi_app/sami/about.html" %}
         <h3 id="data-release">Data Release {{response.data.data_release}} </h3>
         <p>{% lorem %}</p>
         <div class="panel panel-default" style="margin-top:20px;">
@@ -181,8 +184,7 @@
                 Schema Browser</a>.
         </p>
 
-        <h3 id="project-overview">Project Overview</h3>
-        {% include "restapi_app/sami/about.html" %}
+
 
         <h3 id="data-access"> Data Access</h3>
         <p>Data are accessible from AAODC in a variety of ways. Users can browse through each astronomical object's data
