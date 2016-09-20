@@ -355,10 +355,12 @@ code {
   bottom: 15px;
   z-index: 1;
   text-align: center;
-  background-color: #fcfcfc;
+  background-color: rgba(252, 252, 252, 0.6);
   padding: 5px 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   transition: all 200ms ease-in-out;
+  text-decoration: none;
+  text-transform: uppercase;
 }
 #back-to-top:hover {
   bottom: 18px;
@@ -1207,6 +1209,9 @@ pre {
   outline: 0;
   background-color: #e38582;
   background-color: #4078C0;
+}
+li.nested_dropdown > a {
+  padding-left: 35px !important;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

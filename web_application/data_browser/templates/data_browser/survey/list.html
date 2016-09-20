@@ -12,8 +12,8 @@
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a></li>
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block page_title_banner %}
@@ -43,10 +43,11 @@
                         </div>
                     </small>
                 </h1>
-                <p>Explore the available {{survey|uppercase}} data products for each object. It is recommended
-                    that you also use the SAMI Data Browser in conjunction with the
-                    <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
-                    descriptions of the data products available.
+                <p>Explore the available {{response.data.survey|uppercase}} data products and meta-data on an
+                    object-by-object
+                    basis. Provides a quick-look at the
+                    data products for a particular object, and allows users to download individual data products in fits
+                    format.
                 </p>
             </div>
         </div>
@@ -65,127 +66,160 @@
 
                 <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
                 <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
-                <li role="presentation"><a class="scroll" href="#whats-included">What's included?</a></li>
-                <li role="presentation"><a class="scroll" href="#about">About {{survey|uppercase}}</a></li>
+
             </ul>
             <h5>Quick Links</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
-                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
+                    Browser</a></li>
+                <li>
+                    {% with survey|add:"-data-products" as data_product_descriptions %}
+                    <a href="{% url data_product_descriptions %}"><span>
+            Data Product Descriptions</span></a>
+                    {% endwith %}
+                </li>
+
+
+                <!--<li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>-->
                 {% if breadcrumblist %}
-                  {% with breadcrumblist|length|add:"-2" as b %}
-                    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
-                  {% endwith %}
-            {% endif %}
+                {% with breadcrumblist|length|add:"-2" as b %}
+                <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+                    {{breadcrumblist|key:b|key:0}}</a></li>
+                {% endwith %}
+                {% endif %}
             </ul>
         </div>
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
 
-            {% if response.data.in_progress == True %}
-                <div class="col-sm-12">
-                    <h2>Status</h2>
+        {% if response.data.in_progress == True %}
+        <div class="col-sm-12">
+            <h2>Status</h2>
+        </div>
+        <div class="col-md-3 col-sm-3">
+            <div class="panel panel-default">
+                <div class="panel-heading text-uppercase">
+                    <strong>In Progress</strong>
+                    <i class="fa fa-refresh pull-right panel-icon"></i>
                 </div>
-                <div class="col-md-3 col-sm-3">
-                    <div class="panel panel-default">
-                        <div class="panel-heading text-uppercase">
-                            <strong>In Progress</strong>
-                            <i class="fa fa-refresh pull-right panel-icon"></i>
-                        </div>
-                        <div class="panel-body">
-                            <p>GAMA data ingestion is underway!</p>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-            <div class="col-sm-2 col-xs-4 pull-right">
-                <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-            </div>
-            <h2 id="data-access">Data Access</h2>
-            <p>
-                Search for an
-                object below by either typing in the input box, or click an option from the dropdown.
-                <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                   data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
-                   data-placement="top"><i class="fa fa-info-circle"></i></a>
-            </p>
-            <div class="row">
-                <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
-                    <select type="text" class="searchbox selectized text-center"
-                            id="autocomplete-widget" placeholder="SEARCH">
-                        <option value="" disabled selected>Select an object</option>
-                        {% for key, value in response.data.astro_objects.items %}
-                        <option value="{{value}}">{{key}}</option>
-                        {% endfor %}
-                    </select>
-                    <a class="btn btn-block btn-primary" type="button" href="" disabled
-                       id="autocomplete-button">GO</a>
-                    <br><br>
+                <div class="panel-body">
+                    <p>GAMA data ingestion is underway!</p>
                 </div>
             </div>
+        </div>
+        {% else %}
+        <div class="col-sm-2 col-xs-4 pull-right">
+            <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
+        </div>
+        <h2 id="data-access">Data Access</h2>
+        <p>The Data Browser allows users a quick-look at each astronomical object's data
+            products available in this data release, including visualizations, processing information and associated
+            properties.
+            Data products can be downloaded as multi-extension FITS files, with all relevant processing information
+            contained within the FITS header.
 
 
-            <h3 id="overview">Overview</h3>
-            <div class="panel panel-default" style="margin-top:20px;">
-                <div class="panel-heading">
-                    Overview
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-overview">
-                        <tbody>
-                        <tr class="large">
-                            <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
+        </p>
+        <p>It is recommended
+            that you also use the SAMI Data Browser in conjunction with the
+            <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
+            descriptions of the data products available.</p>
+
+        <p>
+            Search for an
+            object below by either typing in the input box, or click an option from the dropdown.
+            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+               data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
+               data-placement="top"><i class="fa fa-info-circle"></i></a>
+        </p>
+        <div class="row">
+            <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+                <select type="text" class="searchbox selectized text-center"
+                        id="autocomplete-widget" placeholder="SEARCH">
+                    <option value="" disabled selected>Select an object</option>
+                    {% for key, value in response.data.astro_objects.items %}
+                    <option value="{{value}}">{{key}}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-block btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">GO</a>
+                <br><br>
+            </div>
+        </div>
+
+
+        <h3 id="overview">Overview</h3>
+        <div class="panel panel-default" style="margin-top:20px;">
+            <div class="panel-heading">
+                Overview
+            </div>
+            <div class="table-responsive">
+                <table class="table table-overview">
+                    <tbody>
+                    <tr class="large">
+                        <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
                             {% include template %}
-                            {% endwith %}</td>
-                            <td class="lead">{{response.data.data_release}}</td>
-                            <td class="lead">{{response.data.astro_objects | length}}</td>
-                            <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a>
-                            </td>
-                            <td class="lead">
-                                {% for f in available_formats %}
-                                    {% if f != "api" %}
-                                        <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+                            {% endwith %}
+                        </td>
+                        <td class="lead">{{response.data.data_release}}</td>
+                        <td class="lead">{{response.data.astro_objects | length}}</td>
+                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a>
+                        </td>
+                        <td class="lead">
+                            {% for f in available_formats %}
+                            {% if f != "api" %}
+                            <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
                                             <span class="fa-custom-stack">
                                               <i class="fa fa-file-o"></i>
                                                 <span class="fa-custom-filetype">{{f}}</span>
                                             </span>
-                                        </a>
-                                    {% endif %}
-                                {% endfor %}
+                            </a>
+                            {% endif %}
+                            {% endfor %}
 
-                            </td>
-                        </tr>
-                        <tr class="large">
-                            <td>PI </td>
-                            <td>Data Release Number </td>
-                            <td>Number of Objects</td>
-                            <td>Schema Browser </td>
-                            <td>Available Objects </td>
-                        </tr>
-                        <tr class="medium">
+                        </td>
+                    </tr>
+                    <tr class="large">
+                        <td>PI</td>
+                        <td>Data Release Number</td>
+                        <td>Number of Objects</td>
+                        <td>Schema Browser</td>
+                        <td>Available Objects</td>
+                    </tr>
+                    <tr class="medium">
 
-                            <td><small>Principal Investigator for the {{survey|uppercase}} survey.</small></td>
-                            <td><small>This data release</small></td>
-                            <td><small>The total number of objects in this data release.</small></td>
-                            <td> <small>The Schema Browser describes the SAMI survey data products.</small></td>
-                            <td><small>View a json-formatted list of available objects in this data release.</small></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+                        <td>
+                            <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
+                        </td>
+                        <td>
+                            <small>This data release</small>
+                        </td>
+                        <td>
+                            <small>The total number of objects in this data release.</small>
+                        </td>
+                        <td>
+                            <small>The Schema Browser describes the SAMI survey data products.</small>
+                        </td>
+                        <td>
+                            <small>View a json-formatted list of available objects in this data release.</small>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <h3 id="whats-included">What's Included?</h3>
-            <p>{{survey|uppercase}} Data Release {{response.data.data_release}} contains {{response.data.astro_objects | length}} objects ... data release description provided by the team.</p>
+        </div>
+        <h3 id="whats-included">Documentation</h3>
+        <p>For detailed descriptions of a particular data product, visit the <a
+                href="{% url 'sami-data-products' %}"><span>{{response.data.survey|uppercase}}
+            Data Product Descriptions</span></a> page, or for in depth information/meta-data pertaining to a particular
+            data product, view the
+            <a href="{% url 'schema:sample-list' sample_pk=survey %}">{{response.data.survey|uppercase}}
+                Schema Browser</a>.
+        </p>
 
 
-            <h3 id="about">About {{survey|uppercase}}</h3>
-            {% with "data_browser/survey/survey/"|add:survey|add:"/about.html" as template %}
-                {% include template %}
-            {% endwith %}
-            <hr>
-
-            {% endif %}
+        {% endif %}
 
 
     </div>

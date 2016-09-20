@@ -15,35 +15,23 @@
 <li role="presentation" class="disabled"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}" disabled>Documentation</a></li>
 {% endblock useful_links %}
 
-{% block content-test %}
+{% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <h5>Page Contents</h5>
         <div class="sidebar-contents">
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li class="text-uppercase heading no-margin-top">
-                    <h6>Data Access</h6>
-                </li>
-                <ul>
-                    {% for value in response.data.samples %}
-                    <li role="presentation"><a href="{{value.survey}}/"><span>Browse {{value.survey|uppercase}} Data
-                    <i class="fa fa-angle-right"></i></span></a></li>
-                    {% endfor %}
-                </ul><br>
+                <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
                 <li role="presentation"><a href="#what-does-the-data-browser-do" class="scroll">What does the Data Browser do?</a></li>
-
-                <!--<li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>-->
-                <!--<li role="presentation" class="disabled"><a class="sub-heading">Data Explorer</a></li>-->
-                <!--<li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query-->
-                    <!--Builder-->
-                    <!--(SQL)</a></li>-->
-
-
-                <!--<li class="text-uppercase no-margin-top">-->
-                    <!--<h6>Schema</h6>-->
-                <!--</li>-->
-                <!--<li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>-->
             </ul><br>
+            <h5>Quick Links</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                {% for value in response.data.samples %}
+                <li role="presentation"><a href="{{value.survey}}/"><span>Browse {{value.survey|uppercase}} Data
+                <i class="fa fa-angle-right"></i></span></a></li>
+                {% endfor %}
+            </ul>
+            <br>
             <h5>All Tools</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
                 <li class="text-uppercase heading no-margin-top">
@@ -65,9 +53,13 @@
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
-        <h1>Discover the survey data products hosted at AAODC.</h1>
+        <h2>Discover the survey data products hosted at AAODC.</h2>
+        <h3 id="data-access">Data Access</h3>
 
-        <p class="lead">Choose a survey from the list below to get started. To
+        <p class="lead">Browse the available survey data products and meta-data on an object-by-object basis. Provides a quick-look at
+            the data products for a particular object, and allows you to download individual data products in fits
+            format.</p>
+        <p>Choose a survey from the list below to get started. To
             view more information about each survey's data products and derived properties, visit the <a
                     href="{% url 'schema:schema-list' %}">Schema
                 Browser</a>.</p>

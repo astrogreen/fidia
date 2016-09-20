@@ -26,10 +26,10 @@
 <div class="row surveys">
     <div class="col-xs-12 text-center">
         <h1>Survey data hosted at AAODC</h1>
-        <p class="lead">AAODC currently hosts {{response.data.surveys|length}} survey datasets.</p>
+        <p class="lead">AAODC currently hosts {{response.data.samples|length}} survey datasets.</p>
     </div>
-    {% for value in response.data.surveys %}
-    <div class="col-xs-12 col-sm-6">
+    {% for value in response.data.samples %}
+    <div class="col-xs-12 col-sm-10 col-sm-offset-1">
         <div class="media">
             <div class="media-left">
                 <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
@@ -37,9 +37,10 @@
             <div class="media-body">
                 <h3 class="media-heading no-margin-bottom">{{value.survey | uppercase}}</h3>
                 <span class="sub-heading">
+                    Latest Data Release:
                     {{value.count}}
                     objects
-                    <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span>
+                    <span class="version"><i class="fa fa-map-marker"></i> DR {{value.current_version}}</span>
                 </span>
                 {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
                     {% include template %}
@@ -52,7 +53,7 @@
                 </span>
             </div>
         </div>
-    <br><br>
+    <br><br><hr>
     </div>
     {% endfor %}
 </div>

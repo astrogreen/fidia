@@ -81,7 +81,91 @@ class Surveys(views.APIView):
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'surveys': surveys},
+            context={'request': request, 'samples': surveys},
+        )
+
+        return Response(serializer.data)
+
+
+class SAMI(views.APIView):
+    """
+    Available Surveys page
+    """
+    permission_classes = (permissions.AllowAny,)
+
+    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'restapi_app/sami/data-release.html'
+    renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request):
+        self.breadcrumb_list = ['SAMI']
+
+        serializer_class = restapi_app.serializers.SurveySerializer
+        _dummy = object
+        serializer = serializer_class(
+            many=False, instance=_dummy,
+            context={'request': request,
+                     "survey": "sami",
+                     "count": sami_dr1_sample.ids.__len__(),
+                     "data_release": 1.0},
+        )
+
+        return Response(serializer.data)
+
+
+class SAMIDataProducts(views.APIView):
+    """
+    Available Surveys page
+    """
+    permission_classes = (permissions.AllowAny,)
+
+    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        pass
+        template = 'restapi_app/sami/data-products.html'
+    renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request):
+        self.breadcrumb_list = ['SAMI', 'Data Products']
+
+        serializer_class = restapi_app.serializers.DataProductSerializer
+        _dummy = object
+        serializer = serializer_class(
+            many=False, instance=_dummy,
+            context={'request': request,
+                     "survey": "sami",
+                     "count": sami_dr1_sample.ids.__len__(),
+                     "data_release": 1.0,
+                     "products": {
+                         "product1": {
+                             "description": None,
+                             "pretty_name": "Product 1", },
+                         "product2": {
+                             "description": None,
+                             "pretty_name": "Product 2", }
+                     },
+                     }
+        )
+
+        return Response(serializer.data)
+
+
+class GAMA(views.APIView):
+    """
+    Available Surveys page
+    """
+    permission_classes = (permissions.AllowAny,)
+
+    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'restapi_app/sami/data-release.html'
+    renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request):
+
+        serializer_class = data_browser.serializers.RootSerializer
+        _dummy = object
+        serializer = serializer_class(
+            many=False, instance=_dummy,
+            context={'request': request, 'data': {"survey": "gama", "count": 0, "current_version": 0}},
         )
 
         return Response(serializer.data)
@@ -104,7 +188,7 @@ class Tools(views.APIView):
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'surveys': samples},
+            context={'request': request, 'samples': samples},
         )
 
         return Response(serializer.data)

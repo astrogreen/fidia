@@ -18,6 +18,14 @@ urlpatterns = [
             url(r'^tools/$', restapi_app.views.Tools.as_view(), name='tools'),
 
 
+            url(r'^(?i)SAMI/$', restapi_app.views.SAMI.as_view(), name='sami'),
+            url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
+
+
+            url(r'^gama/$', restapi_app.views.GAMA.as_view(), name='gama'),
+
+
+
             # url(r'^(?i)documentation/download/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/download.html'),
             #                 name='documentation-download'),
 

@@ -17,7 +17,7 @@ log.setLevel(logging.DEBUG)
 CONTEXT = {}
 
 CONTEXT['reserved_keywords'] = ['sample', 'data_release', 'astro_object', 'trait', 'trait_key', 'trait_key_array',
-                                'trait_url', 'sub_trait_key', 'parent_trait', 'trait_info', 'sub_traits',
+                                'trait_url', 'sub_trait_key', 'parent_trait', 'parent_sub_trait', 'sub_traits',
                                 'pretty_name', 'short_name', 'branch', 'version', 'url', 'all_branches_versions',
                                 'documentation']
 

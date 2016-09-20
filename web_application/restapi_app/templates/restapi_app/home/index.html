@@ -19,131 +19,174 @@
 {% block page_title_banner %} {% endblock page_title_banner %}
 {% block call-to-action %}
 <!--<div class="container-fluid">-->
-    <!--<div class="row">-->
-        <!--<div class="col-sm-12 col-xs-hidden">-->
-            <!--<span style="color:white;" class="pull-right"><i class="fa fa-question"></i> Not sure where to begin? </span>-->
-        <!--</div>-->
-    <!--</div>-->
+<!--<div class="row">-->
+<!--<div class="col-sm-12 col-xs-hidden">-->
+<!--<span style="color:white;" class="pull-right"><i class="fa fa-question"></i> Not sure where to begin? </span>-->
+<!--</div>-->
+<!--</div>-->
 <!--</div>-->
 {% endblock %}
 
 {% block content_render %}
 <section class="welcome row">
-    <div class="container">
-        <div class="content">
+    <div class="col-xs-12 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="">
+            <div class="content">
 
-            <div class="logo row">
-                <img src="{% static 'restapi_app/img/logo/asvo-small-white.png' %}" class=""
-                     alt="ASVO - All-Sky Virtual Observatory">
-                <span>ASVO - All-Sky Virtual Observatory</span>
-            </div>
+                <div class="logo row">
+                    <img src="{% static 'restapi_app/img/logo/asvo-small-white.png' %}" class=""
+                         alt="ASVO - All-Sky Virtual Observatory">
+                    <span>ASVO - All-Sky Virtual Observatory</span>
+                </div>
 
-            <div class="key-message row">
-                <div class="left col col-md-6">
-                    <p>Australian<br>Astronomical<br>Observatory</p>
-                </div>
-                <div class="right col col-md-6">
-                    <p style="margin-top:15px"><strong>Query Australian Astronomical Observatory Data Central (AAODC)</strong>
-                        and retrieve data from current and
-                        legacy surveys. Bring your code to the data.</p>
+                <div class="key-message row">
+                    <div class="left col col-md-6">
+                        <p>Australian<br>Astronomical<br>Observatory</p>
+                    </div>
+                    <div class="right col col-md-6">
+                        <p style="margin-top:15px"><strong>Query Australian Astronomical Observatory Data Central
+                            (AAODC)</strong>
+                            and retrieve data from current and
+                            legacy surveys. Bring your code to the data.</p>
 
+                    </div>
+                    <div class="col-xs-12">
+                        <h1 style="font-size:26px; color:#ffffff;opacity:0.87">GitHub-like tools for Astronomers</h1>
+                    </div>
                 </div>
-                 <div class="col-xs-12">
-                    <h1 style="font-size:26px; color:#ffffff;opacity:0.87">GitHub-like tools for Astronomers</h1>
-                </div>
-            </div>
-            <div class="row cta">
-                <div class="col-xs-6">
-                    <p><a type="button" title=""
-                        class="white-tooltip" href="{% url 'surveys' %}">Surveys</a></p>
+                <div class="row cta">
+                    <div class="col-xs-6">
+                        <p><a type="button" title=""
+                              class="white-tooltip" href="{% url 'surveys' %}">Surveys</a></p>
 
-                    <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at AAODC.</div>
-                </div>
-                <div class="col-xs-6">
-                    <p><a type="button" title=""
-                       class="white-tooltip disabled" href="#telescope" disabled="true">Raw Observations</a></p>
-                    <div class="disabled">View observations collected from
-                    the AAT or Schmidt telescope.</div>
-                </div>
-            </div>
-            <div class="row cta">
-                <div class="col-xs-offset-3 col-xs-6">
-                    <p><a type="button" title=""
-                       class="white-tooltip" href="{% url 'tools' %}" disabled="true">Tools</a></p>
-                    <div style="color:rgba(251,251,251,0.8)">View the functionality available at AAODC.</div>
-                </div>
-            </div>
-            <div class="category row">
-                <div class="col-xs-12">
-                    <h1 style="font-size:26px">Explore Survey Data</h1>
-                </div>
-            </div>
-            <div class="infographic row">
-
-                <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'query-create-list'%}">
-                        <div class="circle">
-                            <i class="fa fa-terminal"></i>
-                            <div class="line"></div>
+                        <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at AAODC.</div>
+                    </div>
+                    <div class="col-xs-6">
+                        <p><a type="button" title=""
+                              class="white-tooltip disabled" href="#telescope" disabled="true">Raw Observations</a></p>
+                        <div class="disabled">View observations collected from
+                            the AAT or Schmidt telescope.
                         </div>
-                    </a>
-                    <p>Query</p>
-                    <span style="color:rgba(251,251,251,0.8)">Query the surveys available at AAODC and return a sample of objects.</span>
+                    </div>
                 </div>
-                <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'data_browser:root-list'%}">
-                        <div class="circle">
-                            <i class="fa fa-search"></i>
-                            <div class="line"></div>
-                        </div>
-                    </a>
-                    <p>Browse</p>
-                    <span style="color:rgba(251,251,251,0.8)">Browse through survey data products for individual objects.</span>
+                <div class="row cta">
+                    <div class="col-xs-offset-3 col-xs-6">
+                        <p><a type="button" title=""
+                              class="white-tooltip" href="{% url 'tools' %}" disabled="true">Tools</a></p>
+                        <div style="color:rgba(251,251,251,0.8)">View the functionality available at AAODC.</div>
+                    </div>
                 </div>
-                <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'under-construction'%}" class="disabled">
-                        <div class="circle disabled">
-                            <i class="fa fa-map-signs"></i>
-                            <div class="line"></div>
-                        </div>
-                    </a>
-                    <p class="disabled">Explore</p>
-                    <span class="disabled">Coming soon.</span>
+                <div class="category row">
+                    <div class="col-xs-12">
+                        <h1 style="font-size:26px">Explore Survey Data</h1>
+                    </div>
+                </div>
+                <div class="infographic row">
+
+                    <div class="col col-md-3 col-sm-3">
+                        <a href="{% url 'query-create-list'%}">
+                            <div class="circle">
+                                <i class="fa fa-terminal"></i>
+                                <div class="line"></div>
+                            </div>
+                        </a>
+                        <p>Query</p>
+                        <span style="color:rgba(251,251,251,0.8)">Query the surveys available at AAODC and return a sample of objects.</span>
+                    </div>
+                    <div class="col col-md-3 col-sm-3">
+                        <a href="{% url 'data_browser:root-list'%}">
+                            <div class="circle">
+                                <i class="fa fa-search"></i>
+                                <div class="line"></div>
+                            </div>
+                        </a>
+                        <p>Browse</p>
+                        <span style="color:rgba(251,251,251,0.8)">Browse through survey data products for individual objects.</span>
+                    </div>
+                    <div class="col col-md-3 col-sm-3">
+                        <a href="{% url 'under-construction'%}" class="disabled">
+                            <div class="circle disabled">
+                                <i class="fa fa-map-signs"></i>
+                                <div class="line"></div>
+                            </div>
+                        </a>
+                        <p class="disabled">Explore</p>
+                        <span class="disabled">Coming soon.</span>
+                    </div>
+
+                    <div class="col col-md-3 col-sm-3">
+                        <a href="{% url 'under-construction' %}" class="disabled">
+                            <div class="circle disabled">
+                                <i class="fa fa-code"></i>
+                            </div>
+                        </a>
+                        <p class="disabled">Code</p>
+                        <span class="disabled">Coming soon.</span>
+                    </div>
                 </div>
 
-                <div class="col col-md-3 col-sm-3">
-                    <a href="{% url 'under-construction' %}" class="disabled">
-                        <div class="circle disabled">
-                            <i class="fa fa-code"></i>
-                        </div>
-                    </a>
-                    <p class="disabled">Code</p>
-                    <span class="disabled">Coming soon.</span>
+
+                <div class="cta row">
+                    <a type="button" title="View your previous queries."
+                       {% if user.is_authenticated %}
+                       href="{% url 'user-profile-detail' username=user %}"
+                       {% else %}
+                       href="{% url 'rest_framework:login' %}"
+                       {% endif %}
+                       class="white-tooltip">My Account</a>
+
+                    <a type="button" title="Browse current release documenation."
+                       class="white-tooltip" href="{% url 'documentation:topic-list' %}">Documentation</a>
                 </div>
+
+                <div class="note row">
+                    <p>* The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth
+                        Department
+                        of Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has
+                        coordinated with the Australian Astronomical Observatory (AAO), as the owners and operators of
+                        the
+                        AAT, to develop this ASVO Node. This is a 2 year project with completion expected by June
+                        2017.</p>
+                </div>
+
+
             </div>
-
-
-            <div class="cta row">
-                <a type="button" title="View your previous queries."
-                   {% if user.is_authenticated %}
-                    href="{% url 'user-profile-detail' username=user %}"
-                   {% else %}
-                    href="{% url 'rest_framework:login' %}"
-                   {% endif %}
-                    class="white-tooltip">My Account</a>
-
-                <a type="button" title="Browse current release documenation."
-                   class="white-tooltip" href="{% url 'documentation:topic-list' %}">Documentation</a>
-            </div>
-
-            <div class="note row">
-                <p>* The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth Department
-                    of Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has
-                    coordinated with the Australian Astronomical Observatory (AAO), as the owners and operators of the
-                    AAT, to develop this ASVO Node. This is a 2 year project with completion expected by June 2017.</p>
-            </div>
-
         </div>
     </div>
+    <div class="col-sm-6 col-sm-offset-3 col-md-3 col-xs-12 whats-new">
+        <div class="well text-left">
+            <h5 class="text-uppercase no-margin-top">What's New</h5>
+            <dl>
+                <dt>
+                    <a href="{% url 'sami' %}">SAMI DATA RELEASE 1.0
+                    </a>
+                </dt>
+                <dh class="text-justify">View the data release page <a href="{% url 'sami' %}">here</a>.
+                </dh>
+            </dl>
+            <h5 class="text-uppercase no-margin-top">Get Started</h5>
+            <dl>
+                <dt>
+                <div class="text-justify">
+                    <a href="{% url 'sami' %}">Query AAODC</a>
+                </div>
+                </dt>
+                <dh class="text-justify">{% lorem 10 w %}</dh>
+                <dt>
+                <div class="text-justify">
+                    <a href="{% url 'sami' %}">Browse by Survey object ID</a>
+                </div>
+                </dt>
+                <dh class="text-justify">{% lorem 10 w %}</dh>
+                <dt>
+                <div class="text-justify">
+                    <a href="{% url 'sami' %}">Examples</a>
+                </div>
+                </dt>
+                <dh class="text-justify">{% lorem 10 w %}</dh>
+            </dl>
+        </div>
+    </div>
+
 </section>
 {% endblock %}

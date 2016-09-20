@@ -22,8 +22,16 @@
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">Data</a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'surveys' %}">Surveys</a></li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">Raw Observations</a></li>
+
+                            <li class="dropdown-header">Survey Data</li>
+                            <li><a href="{% url 'surveys' %}">All Surveys</a></li>
+
+                            <li class="nested_dropdown"><a href="{% url 'sami' %}">SAMI</a></li>
+                            <li class="nested_dropdown disabled"><a href="{% url 'gama' %}" disabled>GAMA</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Raw Observations</li>
+                            <li class="disabled"><a href="{% url 'under-construction' %}">Access</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
