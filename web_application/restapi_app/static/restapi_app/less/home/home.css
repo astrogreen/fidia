@@ -183,7 +183,6 @@ section.welcome .nav-pills > li.active > a:focus {
   right: 0;
 }
 .whats-new .well {
-  border: 2px solid #fff;
   border: 0;
   border-radius: 8px;
   background-color: rgba(251, 251, 251, 0.6);
@@ -191,23 +190,14 @@ section.welcome .nav-pills > li.active > a:focus {
 .whats-new .well h5 {
   border-bottom: dotted 1px #a33731;
 }
-.whats-new dl {
-  padding: 0 5px;
-}
 .whats-new dl a {
   cursor: pointer;
 }
 .whats-new dl .sub-heading {
   font-size: 10px;
 }
-.whats-new dl .break {
-  height: 1px;
-  margin: 10px 0;
-  text-align: center;
-  font-size: 5px;
-  border-bottom: solid 1px rgba(118, 142, 148, 0.3);
-  width: 100%;
-  position: relative;
+.whats-new dl dh {
+  font-size: 12px;
 }
 #back-to-top {
   display: none;

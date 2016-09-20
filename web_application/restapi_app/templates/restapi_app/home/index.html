@@ -148,12 +148,12 @@
                         AAT, to develop this ASVO Node. This is a 2 year project with completion expected by June
                         2017.</p>
                 </div>
-
+                <br>
 
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-sm-offset-3 col-md-3 col-xs-12 whats-new">
+    <div class="col-sm-6 col-sm-offset-3 col-md-2 col-xs-12 whats-new">
         <div class="well text-left">
             <h5 class="text-uppercase no-margin-top">What's New</h5>
             <dl>
@@ -165,25 +165,27 @@
                 </dh>
             </dl>
             <h5 class="text-uppercase no-margin-top">Get Started</h5>
-            <dl>
+            <dl class="text-left">
                 <dt>
-                <div class="text-justify">
-                    <a href="{% url 'sami' %}">Query AAODC</a>
-                </div>
+                    <a href="{% url 'surveys' %}">Survey Overview</a>
                 </dt>
-                <dh class="text-justify">{% lorem 10 w %}</dh>
+                <dh class="text-justify">View all surveys hosted at AAODC.</dh>
                 <dt>
-                <div class="text-justify">
-                    <a href="{% url 'sami' %}">Browse by Survey object ID</a>
-                </div>
+                    <a href="{% url 'tools' %}">Tool Overview</a>
                 </dt>
-                <dh class="text-justify">{% lorem 10 w %}</dh>
+                <dh class="text-justify">Information about tools.</dh>
                 <dt>
-                <div class="text-justify">
-                    <a href="{% url 'sami' %}">Examples</a>
-                </div>
+                    <a href="{% url 'query-create-list' %}">Query AAODC</a>
                 </dt>
-                <dh class="text-justify">{% lorem 10 w %}</dh>
+                <dh class="text-justify">SQL access to the database.</dh>
+                <dt>
+                    <a href="{% url 'data_browser:root-list'%}">Data Browser</a>
+                </dt>
+                <dh class="text-justify">Browse data per Survey object.</dh>
+                <dt>
+                    <a href="{% url 'under-construction' %}">Examples</a>
+                </dt>
+                <dh class="text-justify">Help using AAODC.</dh>
             </dl>
         </div>
     </div>

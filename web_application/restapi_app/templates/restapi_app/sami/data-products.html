@@ -61,18 +61,18 @@
             <h5>Page Contents</h5>
 
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li role="presentation"><a class="scroll" href="#whats-included">Available Data</a></li>
+                <li role="presentation"><a class="scroll" href="#available-data-products">Available Data Products</a></li>
                 {% for product_key, product_value in response.data.products.items %}
                 <li role="presentation">
-                    <a href="#{{product_key}}" >{{product_value.pretty_name}}</a>
+                    <a href="#{{product_key}}" aria-controls="{{product_key}}" role="tab" data-toggle="tab">{{product_value.pretty_name}}</a>
                 </li>
                 {% endfor %}
             </ul>
             <h5>Quick Links</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a class="" target="_blank" href="{% url 'sami' %}"> Data Release Description</a>
+                <li><a href="{% url 'sami' %}"> Data Release Description</a>
                 </li>
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">
+                <li><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">
                     Schema Browser</a></li>
                 <li><a class="" href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}"> Data
                     Browser</a></li>
@@ -99,7 +99,7 @@
         </div>
         <h2 id="">Data Product Descriptions {{response.data.data_release}} </h2>
         <p>{% lorem %}</p>
-        <h3 id="available-data">Available Data</h3>
+        <h3 id="available-data-products">Available Data</h3>
         <p>Select a product-type from the list below to view the associated description</p><br>
         <ul class="nav nav-pills" role="tablist" id="trait_tabs">
             {% for product_key, product_value in response.data.products.items %}
@@ -139,19 +139,23 @@
 {% block footer-extra %}
 <script>
     $("ul.nav-pills a").click(function (e) {
+        if (!!$(this).attr('data-toggle')) {
+            e.preventDefault();
+            $(this).tab('show');
 
-        e.preventDefault();
-        $(this).tab('show');
+            // find all elements with href = this and set class to active (ie. the sidebar and the tab content)
+            var _anchor = $(event.currentTarget);
 
-        // find all elements with href = this and set class to active (ie. the sidebar and the tab content)
-        var _anchor = $(event.currentTarget);
+            $('ul.nav-pills a').each(function () {
 
-        $('ul.nav-pills a').each(function(){
-            $(this).parent('li').removeClass('active');
-            if ($(this).attr('href') == _anchor.attr('href')){
-                $(this).parent('li').addClass('active');
-            }
-        })
+                $(this).parent('li').removeClass('active');
+                if ($(this).attr('href') == _anchor.attr('href')) {
+                    $(this).parent('li').addClass('active');
+                }
+
+
+            })
+        }
 
     });
 
