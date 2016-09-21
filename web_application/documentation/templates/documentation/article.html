@@ -114,9 +114,10 @@
                 <div class="col-xs-12">
                     <h2>{{response.data.title}}
                         <small class="pull-right sub-heading" style="margin-top:16px;">
-                            <span class="sub-heading"> Last updated {{response.data.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}">#{{response.data.topic_info.title}}</a>
+                            <a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}">#{{response.data.topic_info.title}}</a>
                         </small>
-                        <p class=""></p>
+                        <p class="sub-heading">
+                                Last updated {{response.data.updated}}</p>
                     </h2>
                     {% if response.data.image %}
                         <img src="{{response.data.image}}" class="img-responsive center-block">

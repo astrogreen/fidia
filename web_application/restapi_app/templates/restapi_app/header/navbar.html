@@ -52,16 +52,15 @@
                         </ul>
                     </li>
 
-                    <li class="dropdown disabled">
+                    <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">Documentation </a>
 
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">AAODC</li>
                             <li><a href="{% url 'documentation:topic-list' %}">Help Center</a></li>
-                            <li><a href="{% url 'documentation:article-detail' slug='data-central-syntax' %}">Syntax</a></li>
+                            <li><a href="{% url 'documentation:topic-detail' slug='data-access' %}">Data Access</a></li>
                             <li><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
-                            <li class="disabled"><a href="">Examples</a></li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Tools</li>
                             <li><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser</a></li>

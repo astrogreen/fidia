@@ -18,7 +18,7 @@ class TopicViewset(viewsets.ModelViewSet):
         self.breadcrumb_list = ['Help Center']
 
     serializer_class = documentation.serializers.TopicSerializer
-    queryset = documentation.models.Topic.objects.all().order_by('id')
+    queryset = documentation.models.Topic.objects.all().order_by('ordering')
     permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]
     lookup_field = 'slug'
     ordering = ('ordering',)

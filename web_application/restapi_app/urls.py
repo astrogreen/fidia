@@ -30,9 +30,9 @@ urlpatterns = [
             #                 name='documentation-download'),
 
 
-            # url(r'^(?i)documentation/data-access/$',
-            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/data-access.html'),
-            #     name='documentation-data-access'),
+            url(r'^(?i)documentation/data-access/$',
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/data-access.html'),
+                name='documentation-data-access'),
             # url(r'^(?i)documentation/query-builder/$',
             #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-builder.html'),
             #     name='documentation-query-builder'),
