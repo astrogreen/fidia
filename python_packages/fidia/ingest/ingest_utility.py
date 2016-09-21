@@ -1,5 +1,6 @@
 import traceback
 
+from fidia.exceptions import *
 
 def get_traitproperty_data(trait):
     # type: (Trait) -> dict
@@ -11,6 +12,11 @@ def get_traitproperty_data(trait):
         trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
         try:
             trait_property_data[trait_property_name] = getattr(trait, trait_property_name).value
+        except DataNotAvailable:
+            # No data for this particular TraitProperty, skip.
+            trait_property_type[trait_property_name] = None
+            trait_property_data[trait_property_name] = None
+            continue
         except:
             # Unable to retrieve the trait property for some reason. Skip for now.
             # TODO: Provide a warning
@@ -18,8 +24,7 @@ def get_traitproperty_data(trait):
             print(tb)
             trait_property_type[trait_property_name] = None
             trait_property_data[trait_property_name] = None
-            continue
-        # Not sure what this statement achieves?
+            continue        # Not sure what this statement achieves?
         if trait_property_data is None:
             continue
         if 'array' in trait_property_type[trait_property_name]:
