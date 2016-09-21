@@ -41,7 +41,13 @@ class ArticleViewset(viewsets.ModelViewSet):
     serializer_class = documentation.serializers.ArticleSerializer
     queryset = documentation.models.Article.objects.all()
     lookup_field = 'slug'
-    permission_classes = [restapi_app.permissions.IsSurveyTeamOrAdminElseReadOnly]
+    # permission_classes = [restapi_app.permissions.IsSurveyTeamOrAdminElseReadOnly]
+    permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return documentation.serializers.ListArticleSerializer
+        return documentation.serializers.ArticleSerializer
 
     class ArticleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'documentation/article.html'

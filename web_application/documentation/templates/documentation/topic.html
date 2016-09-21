@@ -14,6 +14,48 @@
 {% endblock %}
 
 {% block page_title %}Help Center{% endblock %}
+{% block page_title_banner_class %}black{% endblock %}
+{% block page_title_banner %}
+
+<div class="title_info blue">
+    <div class="container">
+        <h1>Help Center</h1>
+        <div class="row attention-seeker">
+            <div class="col-sm-3 col-xs-6">
+                <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">
+                    <div class="well"><h4>Browsing Data</h4>
+                        <p>How to use the Data Browser to access and download data products, and information
+                            on AAODC's data model.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href="{% url 'documentation:topic-detail' slug='query-builder' %}">
+                    <div class="well"><h4>Making Queries</h4>
+                        <p>Find out everything you need to get started querying the data hosted at AAODC.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">
+                    <div class="well"><h4>Using the Schema</h4>
+                        <p>Articles on using the Schema Browser tool, the roadmap of data products hosted at AAODC.</div>
+                </a>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <a href="{% url 'documentation:topic-detail' slug='my-account' %}">
+                    <div class="well"><h4>My Account</h4>
+                        <p>Questions about managing your account? View all help articles on registering, updating or deleting your profile.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <p>Find out more about a particular topic. </p>
+    </div>
+</div>
+{% endblock page_title_banner %}
+
+
 {% block useful_links %}
 <li role="presentation"><a href="{% url 'documentation:article-detail' slug='data-central-syntax' %}">Syntax</a></li>
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
@@ -25,180 +67,146 @@
     {% endif %}
 {% endblock %}
 
-{% block call-to-action %}
-{% if response.data.results %}
-<div class="call-to-action">
-    <div class="container">
-        <div class="row attention-seeker">
-            <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">
-                    <div class="well"><h3>Browsing Data</h3>
-                        <p>How to use the Data Browser to access and download data products, and information
-                            on AAODC's data model.<br><br></p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='query-builder' %}">
-                    <div class="well"><h3>Making Queries</h3>
-                        <p>Find out everything you need to get started querying the data hosted at AAODC.<br><br><br></p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">
-                    <div class="well"><h3>Using the Schema</h3>
-                        <p>Articles on using the Schema Browser tool, the roadmap of data products hosted at AAODC.<br><br></p></div>
-                </a>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='my-account' %}">
-                    <div class="well"><h3>My Account</h3>
-                        <p>Questions about managing your account? View all help articles on registering, updating or deleting your profile.<br></p>
-                    </div>
-                </a>
-            </div>
+{% block content_render %}
+<div class="row">
+    <div class="col-xs-12 col-sm-3 sidebar">
+        <div class="sidebar-contents">
+            {% if response.data.results %}
+            <h5>Topics</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+                {% for topic in response.data.results %}
+                <li role="presentation">
+                    <a href="#{{topic.title|slug}}" class="scroll">{{topic.title}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if response.data.articles %}
+            <h5>{{response.data.title}} Articles</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                {% for article in response.data.articles %}
+                <li role="presentation">
+                    <a href="{{article.url}}">{{article.title}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
         </div>
     </div>
-</div>
-{% endif %}
-{% endblock %}
 
+    <div class="col-xs-12 col-sm-9 main-content">
+        <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
+         {% if response.data.results %}
+            {% for topic in response.data.results %}
+                <h2 id="{{topic.title|slug}}" class="no-margin-top">
+                    {{topic.title}}
+                    <p class="pull-right" style="margin-top:10px;">
+                        <a href="{{topic.url}}" >
+                            All {{topic.title}} Articles <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </p>
 
+                </h2>
 
-{% block content_render %}
-    {% if response.data.results %}
-        <div class="row ">
-            <div class="col-xs-12">
-                <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
-            </div>
-        </div>
+                <ul class="p sub-heading">
+                    {% if topic.articles %}
+                        {# truncate the number shown here #}
+                        {% for article in topic.articles %}
+                            {% if forloop.counter < 10 %}
+                                <li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p>No articles have been added yet.</p>
+                    {% endif %}
+                </ul>
+                <br><br><br>
+            {% endfor %}
+            {% if post_form %}
+                <h2>New Topic</h2>
+                <p>Add a new topic to the AAODC documentation. You can tag articles with your new topic in the <a href="{% url 'documentation:article-list' %}">articles</a> page.</p>
+                {% with form=post_form %}
+                <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data"
+                      class="form-horizontal" novalidate onsubmit="submitForm()">
+                    <fieldset>
+                        {% csrf_token %}
+                        {{ post_form }}
+                        <div class="form-actions">
+                            <button class="btn btn-default pull-right"
+                                    title="Make a POST request on the {{ name }} resource">SUBMIT
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+                {% endwith %}
+            {% endif %}
+        {% else %}
+
         <div class="row">
-            <div class="col-sm-3 col-xs-12 schema">
-                <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
-                    {% for topic in response.data.results %}
-                    <li role="presentation" {% if forloop.first %}class="active"{% endif %}>
-                        <a href="#{{topic.title|slug}}" class="scroll">{{topic.title}}</a>
-                    </li>
-                    {% endfor %}
+            <div class="col-xs-12">
+                <h2>{{response.data.title}}
+                    {% if request.user.is_superuser %}
+                <small class="right-helper"><a class="pull-right" href="{% url 'documentation:article-list' %}">Add New <i class="fa fa-plus"></i> </a></small>
+                    {% endif %}
+                </h2>
+
+                <h3>All Articles</h3>
+                <ul class="p sub-heading">
+                    {% if response.data.articles %}
+                        {% for article in response.data.articles %}
+                            <li><a href="{{article.url}}">&nbsp;{{article.title}}</a>
+                                <small class="sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
+                                </small>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <p>No articles have been added yet.</p>
+                    {% endif %}
                 </ul>
             </div>
-            <div class="col-sm-9 col-xs-12">
-                {% for topic in response.data.results %}
-                    <h2 id="{{topic.title|slug}}" class="no-margin-top">
-                        {{topic.title}}
-                        <p class="pull-right" style="margin-top:10px;">
-                            <a href="{{topic.url}}" >
-                                All {{topic.title}} Articles <i class="fa fa-arrow-circle-right"></i>
-                            </a>
-                        </p>
-
-                    </h2>
-
-                    <ul class="p sub-heading">
-                        {% if topic.articles %}
-                            {# truncate the number shown here #}
-                            {% for article in topic.articles %}
-                                {% if forloop.counter < 10 %}
-                                    <li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <p>No articles have been added yet.</p>
-                        {% endif %}
-                    </ul>
-                    <br><br><br>
-                {% endfor %}
-                {% if post_form %}
-                    <h2>New Topic</h2>
-                    <p>Add a new topic to the AAODC documentation. You can tag articles with your new topic in the <a href="{% url 'documentation:article-list' %}">articles</a> page.</p>
-                    {% with form=post_form %}
-                    <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data"
-                          class="form-horizontal" novalidate onsubmit="submitForm()">
-                        <fieldset>
-                            {% csrf_token %}
-                            {{ post_form }}
-                            <div class="form-actions">
-                                <button class="btn btn-default pull-right"
-                                        title="Make a POST request on the {{ name }} resource">SUBMIT
-                                </button>
-                            </div>
-                        </fieldset>
-                    </form>
-                    {% endwith %}
-                {% endif %}
-            </div>
         </div>
-
-    {% else %}
-
-    <div class="row">
-        <div class="col-xs-12">
-            <h2>{{response.data.title}}
-                {% if request.user.is_superuser %}
-            <small class="right-helper"><a class="pull-right" href="{% url 'documentation:article-list' %}">Add New <i class="fa fa-plus"></i> </a></small>
-                {% endif %}
-            </h2>
-
-            <h3>All Articles</h3>
-            <ul class="p sub-heading">
-                {% if response.data.articles %}
-                    {% for article in response.data.articles %}
-                        <li><a href="{{article.url}}">&nbsp;{{article.title}}</a>
-                            <small class="sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
-                            </small>
-                        </li>
-                    {% endfor %}
-                {% else %}
-                    <p>No articles have been added yet.</p>
-                {% endif %}
-            </ul>
-        </div>
+        {% endif %}
     </div>
-    {% endif %}
+</div>
+
 {% endblock %}
 {% block footer-extra %}
     {% if response.data.results %}
         <script>
-            $(document).ready(function () {
-                check_affix();
-
-                $(".scroll").click(function(event){
-                    // stop the hash being appended to the url, and scroll to the value
-                    event.preventDefault();
-                    $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
-                });
-            });
-
-            function check_affix(){
-                // destroy all affix events from the window
-                // turn affix() on (if page width is large enough)
-
-                $(window).off('.affix');
-                $("#docs-sidebar")
-                    .removeClass("affix affix-top affix-bottom")
-                    .removeData("bs.affix");
-
-                if ($(window).width() > 770){
-                    $('#docs-sidebar').affix({
-                        offset: {
-                            top: function () {
-                                return (this.top = $(".schema").offset().top)
-                            },
-                            bottom: function () {
-                                return (this.bottom = $('.footer').outerHeight(true))
-                            }
-                        }
-                    });
-                    $('#docs-sidebar').affix('checkPosition')
-                }
-            }
-
-            var _resizetimer;
-            window.onresize = function(){
-              clearTimeout(_resizetimer);
-              _resizetimer = setTimeout(check_affix, 100);
-            };
+//            $(document).ready(function () {
+//                check_affix();
+//            });
+//
+//            function check_affix(){
+//                // destroy all affix events from the window
+//                // turn affix() on (if page width is large enough)
+//
+//                $(window).off('.affix');
+//                $("#docs-sidebar")
+//                    .removeClass("affix affix-top affix-bottom")
+//                    .removeData("bs.affix");
+//
+//                if ($(window).width() > 770){
+//                    $('#docs-sidebar').affix({
+//                        offset: {
+//                            top: function () {
+//                                return (this.top = $(".schema").offset().top)
+//                            },
+//                            bottom: function () {
+//                                return (this.bottom = $('.footer').outerHeight(true))
+//                            }
+//                        }
+//                    });
+//                    $('#docs-sidebar').affix('checkPosition')
+//                }
+//            }
+//
+//            var _resizetimer;
+//            window.onresize = function(){
+//              clearTimeout(_resizetimer);
+//              _resizetimer = setTimeout(check_affix, 100);
+//            };
 
         </script>
     {% endif %}

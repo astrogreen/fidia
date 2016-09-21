@@ -1,12 +1,18 @@
+.attention-seeker {
+  color: #333;
+}
 .attention-seeker a:hover,
 .attention-seeker a:focus {
   text-decoration: none;
 }
 .attention-seeker .well {
   transition: all 0.2s ease-in-out;
-  margin: 0;
-  border-radius: 6px;
-  background: #ffffff;
+  border-radius: 8px;
+  border: 0;
+  background: rgba(251, 251, 251, 0.4);
+}
+.attention-seeker .well p {
+  color: #333;
 }
 .attention-seeker .well:hover {
   transform: scale(1.05);

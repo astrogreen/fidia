@@ -560,6 +560,10 @@ header .user a > a {
   background: -webkit-linear-gradient(#396bac, #4078C0);
   background: linear-gradient(#396bac, #4078C0);
 }
+.black {
+  background: -webkit-linear-gradient(#1F2325, #2e3538);
+  background: linear-gradient(#1F2325, #2e3538);
+}
 .title_info {
   padding: 60px 0px 45px 0px;
   border-bottom: solid 1px #eeeeee;
