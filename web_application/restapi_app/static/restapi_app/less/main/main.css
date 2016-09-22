@@ -561,6 +561,10 @@ header .user a > a {
   background: -webkit-linear-gradient(#1F2325, #2e3538);
   background: linear-gradient(#1F2325, #2e3538);
 }
+.yellow {
+  background: -webkit-linear-gradient(#d09516, #e9ae2f);
+  background: linear-gradient(#d09516, #e9ae2f);
+}
 .title_info {
   padding: 60px 0px 45px 0px;
   border-bottom: solid 1px #eeeeee;
@@ -773,6 +777,15 @@ header .user a > a {
 .headline .options {
   line-height: 40px;
 }
+.margin-top-eight-px {
+  margin-top: 8px;
+}
+.margin-top-ten-px {
+  margin-top: 10px;
+}
+.margin-top-twelve-px {
+  margin-top: 12px;
+}
 p.breakword {
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -961,6 +974,9 @@ li {
 }
 .helper.step.step1:before {
   content: "1";
+}
+.helper.step.step1b:before {
+  content: "1.1";
 }
 .helper.step.step2:before {
   content: "2";

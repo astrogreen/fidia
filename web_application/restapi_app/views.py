@@ -166,7 +166,7 @@ class SAMIDataProducts(views.APIView):
 
 
 
-class Tools(views.APIView):
+class DataAccess(views.APIView):
     """
     Available Surveys page
     """
