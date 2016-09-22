@@ -15,7 +15,7 @@ urlpatterns = [
 
 
             url(r'^surveys/$', restapi_app.views.Surveys.as_view(), name='surveys'),
-            url(r'^tools/$', restapi_app.views.Tools.as_view(), name='tools'),
+            url(r'^data-access/$', restapi_app.views.Tools.as_view(), name='data-access'),
 
 
             url(r'^(?i)SAMI/$', restapi_app.views.SAMI.as_view(), name='sami'),

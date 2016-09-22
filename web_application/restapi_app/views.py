@@ -70,7 +70,7 @@ class Surveys(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'restapi_app/data/surveys.html'
+        template = 'restapi_app/surveys/overview.html'
 
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
@@ -95,7 +95,7 @@ class SAMI(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'restapi_app/sami/data-release.html'
+        template = 'restapi_app/surveys/sami/home.html'
 
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
@@ -136,7 +136,7 @@ class SAMIDataProducts(views.APIView):
 
     class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         pass
-        template = 'restapi_app/sami/data-products.html'
+        template = 'restapi_app/surveys/sami/data-products.html'
 
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
@@ -173,18 +173,20 @@ class Tools(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     class ToolRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'restapi_app/tools/tools.html'
+        template = 'restapi_app/data-access/overview.html'
 
     renderer_classes = (ToolRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        samples = AVAILABLE_SURVEYS
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0,
+                    'data_releases': [1.0, ]}]
 
         serializer_class = data_browser.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'samples': samples},
+            context={'request': request, 'samples': surveys},
         )
 
         return Response(serializer.data)
+

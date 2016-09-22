@@ -20,27 +20,43 @@
                     <li><a href="{% url 'index' %}">Home</a></li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Data</a>
+                           aria-expanded="false">Surveys</a>
                         <ul class="dropdown-menu">
-
-                            <li class="dropdown-header">Survey Data</li>
-                            <li><a href="{% url 'surveys' %}">All Surveys</a></li>
-
-                            <li class="nested_dropdown"><a href="{% url 'sami' %}">SAMI</a></li>
-                            <li class="nested_dropdown disabled"><a href="{% url 'gama' %}" disabled>GAMA</a></li>
-
+                            <li class="dropdown-header">Surveys</li>
+                            <li><a href="{% url 'surveys' %}">Overview</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Raw Observations</li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">Access</a></li>
+                            <li class="dropdown-header">Extragalactic</li>
+                            <li><a href="{% url 'sami' %}">SAMI</a></li>
+                            <li class="disabled"><a href="{% url 'gama' %}" disabled>GAMA</a></li>
+
+                            <!--<li role="separator" class="divider"></li>-->
+                            <!--<li class="dropdown-header">Raw Observations</li>-->
+                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Access</a></li>-->
                         </ul>
                     </li>
+                    <!--<li class="dropdown disabled">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"-->
+                           <!--aria-expanded="false">Raw Observations</a>-->
+                        <!--<ul class="dropdown-menu">-->
+
+                            <!--<li class="dropdown-header">Survey Data</li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Tools</a>
+                           aria-haspopup="true" aria-expanded="false">Data Access</a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-header">Data Access</li>
+                            <li class="dropdown-header">Data Acccess</li>
+                            <li><a href="{% url 'data-access' %}">Overview</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">By Object</li>
                             <li><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Search</li>
                             <li class="disabled"><a>Data Explorer</a></li>
+                            <li class="disabled"><a>Position Search</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Query</li>
                             <li class="disabled"><a href="{% url 'query-create-list' %}">Query Builder (SQL)</a></li>
                             <!--<li class="disabled"><a href="{% url 'download-create' %}">Download Data</a></li>-->
 
@@ -74,11 +90,11 @@
 
                         </ul>
                     </li>
-                    <li class="dropdown disabled">
+                    <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">About </a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-header">Useful</li>
+                            <!--<li class="dropdown-header">Useful</li>-->
                             <li class="disabled"><a href="{% url 'under-construction' %}">Referencing AAT</a>
                             </li>
                             <li class="disabled"><a href="{% url 'under-construction' %}">Publications</a></li>

@@ -15,6 +15,26 @@
 <li role="presentation" class="disabled"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}" disabled>Documentation</a></li>
 {% endblock useful_links %}
 
+
+{% block page_title_banner %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<div class="title_info red">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Data Browser
+                </h1>
+                <p>
+                    The Data Browser provides a quick-look at survey-derived
+                    data products and associated meta-data on an
+                    object-by-object basis, and allows users to download individual data products in FITS file
+                    format.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_title_banner %}
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
@@ -32,28 +52,24 @@
                 {% endfor %}
             </ul>
             <br>
-            <h5>All Tools</h5>
+            <h5>All Data Access Tools</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li class="text-uppercase heading no-margin-top">
-                    <h6>Data Access</h6>
-                </li>
+                <!--<li class="text-uppercase heading no-margin-top"><h6>Data Access</h6></li>-->
 
                 <li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
                 <li role="presentation" class="disabled"><a class="sub-heading" href="{% url 'query-create-list' %}">Query</a></li>
 
-                <li class="text-uppercase no-margin-top">
-                    <h6>Schema</h6>
-                </li>
+                <!--<li class="text-uppercase no-margin-top">-->
+                    <!--<h6>Schema</h6>-->
+                <!--</li>-->
                 <li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
             </ul>
         </div>
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>Discover the survey data products hosted at AAODC.</h2>
-        <p class="lead">Browse the available survey data products and meta-data on an object-by-object basis. Provides a quick-look at
-            the data products for a particular object, and allows you to download individual data products in fits
-            format.</p>
+        <h2>Discover the survey data products hosted at ADC.</h2>
+        <p class="lead">Browse the available survey data products and meta-data on an object-by-object basis.</p>
         <h3 id="data-access">Data Access</h3>
 
 
@@ -87,8 +103,8 @@
         </div>
 
         <h2 id="what-does-the-data-browser-do">What does the Data Browser do?</h2>
-        <p>The Data Browser is a portal to all survey data hosted at AAODC. Surveys are a collection of astronomical
-            objects. Each astronomical object's components are organised into a
+        <p>The Data Browser is a portal to all survey data hosted at ADC. Surveys are a collection of astronomical
+            objects with some set of data products. Each astronomical object's components are organised into a
             tree-like structure, allowing you to discover derived properties and data products, along with any
             associated meta-data.</p>
 
@@ -96,7 +112,7 @@
             You can also download data products in fits format to work with offline using your favourite astronomy
             visualization software.</p>
 
-        <p>For more information, including articles on Data Browser examples, head over to the <a disabled class="disabled"
+        <p>For more information, including articles on Data Browser examples, head over to the <a
                 href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
     </div>
 </div>

@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %}Surveys{% endblock %}
+{% block title %}Surveys hosted at ADC{% endblock %}
 
 {% block head-extra %}
 <!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
@@ -12,12 +12,12 @@
 
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
-<li class="active"> Surveys</li>
+<li class="active"> Surveys hosted at ADC</li>
 {% endblock %}
 
-{% block page_title %} Surveys {% endblock %}
+{% block page_title %} Surveys hosted at ADC {% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'tools' %}">Tools</a></li>
+<li role="presentation"><a href="{% url 'data-access' %}">Data Access</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
@@ -31,31 +31,35 @@
                     <h6>{{trait_type_value.pretty_name}}</h6>
                 </li>
                 <li  role="presentation">
-                    <a href="#surveys" class="scroll">Survey data hosted at AAODC</a>
+                    <a href="#overview" class="scroll">Overview</a>
                 </li>
+                {% for value in response.data.samples %}
+                <li  role="presentation">
+                    <a href="#{{value.survey}}" class="scroll">{{value.survey |uppercase}}
+                    </a>
+                </li>
+            {% endfor %}
 
             </ul>
             <h5>Quick Links</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-            {% for value in response.data.samples %}
-                <li  role="presentation">
-                    <a href="{% url value.survey %}">{{value.survey |uppercase}}
-                    </a>
+                <li>
+                    <a href="{% url 'data-access' %}">Data Access</a>
                 </li>
-            {% endfor %}
+
             </ul>
 
         </div>
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content surveys">
-        <h2 id="surveys">Survey data hosted at AAODC</h2>
-        <p class="">AAODC currently hosts {{response.data.samples|length}} survey datasets. The AAODC <a href="{% url 'tools' %}">tools</a> provide a
-            portal to explore and interact with the data in each survey, and combine data across surveys to create new
-            and interesting samples of astronoical objects.
+        <h2 id="overview">Overview</h2>
+        <p class="">ADC currently hosts {{response.data.samples|length}} survey dataset(s). ADC offers a range of <a
+                href="{% url 'data-access' %}">data access tools</a> to explore and interact with the individual data
+            products provided by the survey teams, and tools to combine data across multiple surveys to create new
+            and interesting samples of astronomical objects.
 
-            Below is a summary of each
-            survey, links to data release information and relevant data access tools.</p>
+            Below is a summary of each survey, links to data release information and relevant data access tools.</p>
         <div class="table-responsive">
             <table class="table table-striped">
                 <colgroup>
@@ -75,7 +79,7 @@
                 </thead>
                 <tbody>
                 {% for value in response.data.samples %}
-                <tr>
+                <tr id="{{value.survey}}">
                     <td class="text-center"><img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png"><div class=half-br></div><strong>{{value.survey|uppercase}}</strong></td>
                     <td class="small">
                         {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}

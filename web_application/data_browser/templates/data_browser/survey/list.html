@@ -44,7 +44,7 @@
                     </small>
                 </h1>
                 <p>
-                    The Data Browser provides a quick-look at the
+                    The Data Browser provides a quick-look at survey-derived
                     data products and associated meta-data on an
                     object-by-object basis, and allows users to download individual data products in FITS file
                     format.
@@ -65,7 +65,9 @@
             <ul class="nav nav-pills nav-stacked docs-sidebar">
 
                 <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
-                <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
+                <li role="presentation"><a class="scroll" href="#overview">Data Release {{response.data.data_release}}
+                    Overview</a></li>
+                <li role="presentation"><a class="scroll" href="#help">Help</a></li>
 
             </ul>
             <h5>Quick Links</h5>
@@ -75,7 +77,7 @@
                 <li>
                     {% with survey|add:"-data-products" as data_product_descriptions %}
                     <a href="{% url data_product_descriptions %}"><span>
-            Data Product Descriptions</span></a>
+                        Data Product Descriptions</span></a>
                     {% endwith %}
                 </li>
 
@@ -103,23 +105,17 @@
             properties.
             Data products can be downloaded as multi-extension FITS files, with all relevant processing information
             contained within the FITS header.
-
-
         </p>
-        <p>It is recommended
-            that you also use the SAMI Data Browser in conjunction with the
-            <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
-            descriptions of the data products available.</p>
 
-        <p>
-            Search for an
+        <p class="well info success">
+            To begin, search for a {{survey|uppercase}}
             object below by either typing in the input box, or click an option from the dropdown.
             <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
                data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
                data-placement="top"><i class="fa fa-info-circle"></i></a>
         </p>
         <div class="row">
-            <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+            <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br>
                 <select type="text" class="searchbox selectized text-center"
                         id="autocomplete-widget" placeholder="SEARCH">
                     <option value="" disabled selected>Select an object</option>
@@ -132,9 +128,12 @@
                 <br><br>
             </div>
         </div>
+        <p>It is recommended
+            that you also use the SAMI Data Browser in conjunction with the
+            <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
+            descriptions of the data products available.</p>
 
-
-        <h3 id="overview">Overview</h3>
+        <h3 id="overview">Data Release {{response.data.data_release}} Overview</h3>
         <div class="panel panel-default" style="margin-top:20px;">
             <div class="panel-heading">
                 Overview
@@ -194,8 +193,9 @@
                 </table>
             </div>
         </div>
-        <h3 id="whats-included">Documentation</h3>
-        <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
+        <h3 id="help">Help</h3>
+        <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
+            {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
         <p>For detailed descriptions of a particular data product, visit the <a
                 href="{% url 'sami-data-products' %}"><span>{{response.data.survey|uppercase}}
             Data Product Descriptions</span></a> page, or for in depth information/meta-data pertaining to a particular
@@ -203,6 +203,8 @@
             <a href="{% url 'schema:sample-list' sample_pk=survey %}">{{response.data.survey|uppercase}}
                 Schema Browser</a>.
         </p>
+        <p>To learn more about the Data Browser, view the <a
+                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
 
     </div>
 

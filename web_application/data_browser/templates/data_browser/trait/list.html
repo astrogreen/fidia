@@ -46,10 +46,10 @@
                         </div>
                     </small>
                 </h1>
-                <p>Explore the available {{survey|uppercase}} data products for each object. It is recommended
-                    that you also use the SAMI Data Browser in conjunction with the
-                    <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
-                    descriptions of the data products available.
+                <p>The Data Browser provides a quick-look at survey-derived
+                    data products and associated meta-data on an
+                    object-by-object basis, and allows users to download individual data products in FITS file
+                    format.
                 </p>
             </div>
         </div>
@@ -83,9 +83,12 @@
             {% endif %}
             </ul>
 
-
             <a role="button" class="pull-right sub-heading" style="margin-top:10px;" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
-            <h5>Properties</h5>
+            <h5>Properties
+            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus" title="<span class='panel-title'>Properties Panel</span>"
+               data-content="<p>The properties panel contains meta-data (e.g., WCS information) or attributes that are associated with this data product (e.g,, units, errors).<br> To view a summary about any of the properties, expand the panel using the <i class='fa fa-caret-down'></i> symbol, or view more information click the <i class='fa fa-arrow-circle-right'></i> arrow.  </p>"
+               data-placement="top"><i class="fa fa-info-circle"></i></a>
+            </h5>
 
             <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
                 {% comment %}
@@ -273,8 +276,9 @@
                 </div>
         </div>
 
-        <!--<a disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}" class="options question pull-right disabled"><i class="fa fa-question-circle"></i> What is a branch?</a>-->
-        <p style="margin-bottom:30px;"><br>You are currently viewing data and associated properties for
+        <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="options question pull-right"><i class="fa fa-question-circle"></i> What is a branch?</a>
+        <br>
+        <p class="well">You are currently viewing data and associated properties for
             {{response.data.pretty_name}} for branch {{response.data.branch}},
             version {{response.data.version}}. To find out more about the available branches, visit the <a
                     target="_blank"
@@ -282,7 +286,7 @@
                 Browser</a>.
         </p>
         <h3 id="download">Download</h3>
-        <p>Download the {{response.data.sample|uppercase}} {{response.data.pretty_name}} for {{response.data.astro_object}} in FITS or JSON file format.</p>
+        <p>Download the {{response.data.pretty_name}} for {{response.data.sample|uppercase}} object {{response.data.astro_object}} in FITS or JSON file format.</p>
         {% for f in formats %}
         <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
             <span class="fa-custom-stack">
@@ -293,36 +297,38 @@
         {% endfor %}
         <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
 
-        <h3 id="data">Data</h3>
+        <h3 id="data">Data <small>
+            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+               data-content="<p>Inspect the data before download. Where available, data products that can be visualized and interacted with (e.g., line maps) will be shown here. </p>"
+               data-placement="top"><i class="fa fa-info-circle"></i></a>
+        </small></h3>
+
         <div class="row">
             <div class="col-sm-8 col-xs-12">
-                <div class="panel panel-default">
-
-                    <div class="panel-body">
-                        <div id="{{trait_type}}_plotly_plot">
-                            <!--Dynamic plotly rendering based on Trait Type-->
-                            <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
-                        </div>
+                <div class="well">
+                    <div id="{{trait_type}}_plotly_plot">
+                        <!--Dynamic plotly rendering based on Trait Type-->
+                        <p id="visualization_status"><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
                     </div>
                 </div>
+
             </div>
-            <div class="col-sm-4 col-xs-12">
+            <div class="col-sm-4 col-xs-12" id="interactive">
                 <div class="panel panel-default interactive">
                     <div class="panel-heading">
                         <p class="panel-title">Interactive</p>
                     </div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <span class="pull-right" id="title_info">
-                                        <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
+                    <div class="panel-heading" style="background-color:#e6e6e6">
+                        Clipping
+                         <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
                                            data-trigger="focus"
                                            data-content="<p>Apply percentile scaling to image. Clips minimum and maximum percentage of pixel values to bring out features in the image. </p>"
                                            data-placement="left"><i class="fa fa-info-circle"></i></a>
-                                        </span>
-                                    <strong>Clipping</strong>
-                                </div>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <div class="row">
+
                                 <div class="col-xs-12">
                                     <p class="sub-heading">By percentile </p>
                                     <div id="slider-range"></div>
@@ -345,10 +351,13 @@
                             </div>
 
                         </li>
+                    </ul>
+                    <div class="panel-heading" style="background-color:#e6e6e6">
+                        View Extensions <span class="sub-heading">(in development)</span></div>
+                    <ul class="list-group">
                         <li class="list-group-item">
                             <div class="row">
-                                <div class="col-xs-12"><strong>Extensions</strong></div>
-                                <div class="col-xs-12"><span class="sub-heading">(in development)</span>
+                                <div class="col-xs-12">
                                     <div id="{{trait_type}}_plotly_plot_options">
                                     </div>
                                 </div>
@@ -397,6 +406,13 @@
         });
 
     </script>
+{% else %}
+<script>
+$('#visualization_status').html('Visualization for {{response.data.pretty_name}} is in development.')
+$('#interactive').html("<div class='well'><p>Interactivity in development</p></div>");
+</script>
 {% endif %}
+
+
 
 {% endblock %}

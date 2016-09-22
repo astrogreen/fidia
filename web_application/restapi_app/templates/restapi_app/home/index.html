@@ -45,7 +45,7 @@
                     </div>
                     <div class="right col col-md-6">
                         <p style="margin-top:15px"><strong>Query Australian Astronomical Observatory Data Central
-                            (AAODC)</strong>
+                            (ADC)</strong>
                             and retrieve data from current and
                             legacy surveys. Bring your code to the data.</p>
 
@@ -59,7 +59,7 @@
                         <p><a type="button" title=""
                               class="white-tooltip" href="{% url 'surveys' %}">Surveys</a></p>
 
-                        <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at AAODC.</div>
+                        <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at ADC.</div>
                     </div>
                     <div class="col-xs-6">
                         <p><a type="button" title=""
@@ -72,8 +72,8 @@
                 <div class="row cta">
                     <div class="col-xs-offset-3 col-xs-6">
                         <p><a type="button" title=""
-                              class="white-tooltip" href="{% url 'tools' %}" disabled="true">Tools</a></p>
-                        <div style="color:rgba(251,251,251,0.8)">Query the AAODC database of survey-team dervived properties. Browse the data and download FITS-format products.</div>
+                              class="white-tooltip" href="{% url 'data-access' %}" disabled="true">Data Access</a></p>
+                        <div style="color:rgba(251,251,251,0.8)">Query the ADC database of survey-team dervived properties. Browse the data and download FITS-format products.</div>
                     </div>
                 </div>
                 <div class="category row">
@@ -91,7 +91,7 @@
                             </div>
                         </a>
                         <p>Query</p>
-                        <span style="color:rgba(251,251,251,0.8)">Query the surveys available at AAODC and return a sample of objects.</span>
+                        <span style="color:rgba(251,251,251,0.8)">Query the surveys available at ADC and return a sample of objects.</span>
                     </div>
                     <div class="col col-md-3 col-sm-3">
                         <a href="{% url 'data_browser:root-list'%}">
@@ -169,13 +169,13 @@
                 <dt>
                     <a href="{% url 'surveys' %}">Survey Overview</a>
                 </dt>
-                <dh class="text-justify">View all surveys hosted at AAODC.</dh>
+                <dh class="text-justify">View all surveys hosted at ADC.</dh>
                 <dt>
-                    <a href="{% url 'tools' %}">Tool Overview</a>
+                    <a href="{% url 'data-access' %}">Data Access Overview</a>
                 </dt>
-                <dh class="text-justify">Information about tools.</dh>
+                <dh class="text-justify">Information about accessing data at ADC.</dh>
                 <dt>
-                    <a href="{% url 'query-create-list' %}">Query AAODC</a>
+                    <a href="{% url 'query-create-list' %}">Query ADC</a>
                 </dt>
                 <dh class="text-justify">SQL access to the database.</dh>
                 <dt>
@@ -185,7 +185,7 @@
                 <dt>
                     <a href="{% url 'under-construction' %}">Examples</a>
                 </dt>
-                <dh class="text-justify">Help using AAODC.</dh>
+                <dh class="text-justify">Help using ADC.</dh>
             </dl>
         </div>
     </div>

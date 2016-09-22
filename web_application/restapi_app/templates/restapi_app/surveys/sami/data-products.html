@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %}{{response.data.survey|uppercase}}{% endblock %}
+{% block title %}{{response.data.survey|uppercase}} Data Products{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation-fidia/documentation-fidia.min.css' %}"/>
 {% endblock %}

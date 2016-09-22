@@ -45,7 +45,7 @@
                     </small>
                 </h1>
                 <p>
-                    {% with "data_browser/root/surveys/"|add:response.data.survey|add:".html" as template %}
+                    {% with "restapi_app/surveys/"|add:response.data.survey|add:"/blurb.html" as template %}
                     {% include template %}
                     {% endwith %}
                 </p>
@@ -71,11 +71,12 @@
                 <ul class="nav-pills nav-stacked">
                     <li><a href="#data-access-data-browser" class="scroll"> Data Browser</a></li>
                     <li><a href="#data-access-query-builder" class="scroll"> Query Builder</a></li>
+                    <li><a href="#data-access-schema-browser" class="scroll">Schema Browser</a></li>
                 </ul>
             </ul>
             <h5>Quick Links</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a class=""  href="{% url 'sami-data-products' %}"> Data Product Descriptions</a>
+                <li><a class=""  href="{% url 'sami-data-products' %}">{{response.data.survey|uppercase}} Data Product Descriptions</a>
                 </li>
                 <!--<li><a class=""  href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">-->
                     <!--Schema Browser</a></li>-->
@@ -97,9 +98,11 @@
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2>Welcome to the SAMI archive at AAODC</h2>
+        <h2>Welcome to the SAMI archive at ADC</h2>
         <h3 id="project-overview">Project Overview</h3>
-        {% include "restapi_app/sami/about.html" %}
+        {% with "restapi_app/surveys/"|add:response.data.survey|add:"/about.html" as template %}
+        {% include template %}
+        {% endwith %}
         <h3 id="data-release">Data Release {{response.data.data_release}} </h3>
         <p>{% lorem %}</p>
         <div class="panel panel-default" style="margin-top:20px;">
@@ -153,7 +156,7 @@
                         </td>
                         <td>
                             <small>This data release. <br><a href="" class="question">
-                                <small><i class="fa fa-question-circle"></i> AAODC Data Release Policy</small>
+                                <small><i class="fa fa-question-circle"></i> ADC Data Release Policy</small>
                             </a></small>
                         </td>
                         <td>
@@ -187,20 +190,11 @@
 
 
         <h3 id="data-access"> Data Access</h3>
-        <p>Data are accessible from AAODC in a variety of ways. Users can browse through each astronomical object's data
-            products available in this data release, including visualizations, processing information and associated
-            properties.
-            Data products can be downloaded as multi-extension FITS files, with all relevant processing information
-            contained within the FITS header.
+        <p>Data are accessible from ADC in a variety of ways. Whether you want to
+            browse the available data products for a single astronomical source, create samples of objects from multiple surveys, or
+            download data directly to your machine, our tools will help you get started.</p>
 
-
-        </p>
-        <p>
-            Alternatively, create samples of astronomical objects using the Query tool. The Query Builder interface
-            allows users to create samples of objects matching some criteria, displaying rows and columns of Results.
-            Want to download all the SAMI Velocity Maps for your sample of galaxies? The interface allows users to
-            select particular data products from any of the surveys hosted at AAODC to bundle into a downloadable
-            tarball.
+            View the <a href="{% url 'data-access' %}">Data Access</a> summary page for an overview.
         </p>
 
         <h4 id="data-access-data-browser">Data Browser</h4>
@@ -212,7 +206,7 @@
             SAMI Data
             <i class="fa fa-angle-right"></i></strong></a></p>
         <h4 id="data-access-query-builder">Query Builder</h4>
-        <p>Create a sample of objects from all the surveys hosted at AAODC using the Query Builder tool (or write
+        <p>Create a sample of objects from all the surveys hosted at ADC using the Query Builder tool (or write
             complicated queries in SQL), filtering on some parameter(s) and return available rows of
             objects.
             From the results, select available products from the {{response.data.survey|uppercase}} for bulk download.
@@ -220,10 +214,10 @@
         <p><a href="{% url 'query-create-list' %}" class="text-uppercase"><strong>Query {{response.data.survey}} data
             <i class="fa fa-angle-right"></i></strong></a></p>
 
-        <h4>Schema Browser</h4>
+        <h4 id="data-access-schema-browser">Schema Browser</h4>
         <p>The schema browser allows you to explore the types of product included in this release, how each was
             derived (reduction pipelines, analysis method etc), and any associated meta data.</p>
-        <p><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}" class="text-uppercase"><strong>Schema
+        <p><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}" class="text-uppercase"><strong>{{response.data.survey}} Schema
             Browser
             <i class="fa fa-angle-right"></i></strong></a></p>
 
