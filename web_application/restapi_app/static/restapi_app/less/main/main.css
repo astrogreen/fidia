@@ -195,9 +195,6 @@ body,
 .more-padding {
   padding: 30px;
 }
-.footer {
-  margin-top: 0 !important;
-}
 .breadcrumb-container {
   margin-bottom: 0 !important;
 }
@@ -717,7 +714,6 @@ header .user a > a {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 .footer {
-  margin-top: 30px;
   background-color: #292F31;
   padding: 45px 15px 15px 15px;
   bottom: 0;

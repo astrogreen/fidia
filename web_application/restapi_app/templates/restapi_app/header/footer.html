@@ -121,14 +121,27 @@
 
     $(document).ready(function () {
 
-        $(window).on("load resize scroll", function (e) {
+        footer_function = function(){
             var docHeight = $(window).height();
             var footerHeight = $('#footer').height();
-            var footerTop = $('#footer').position().top + footerHeight;
+            var footerTop = $('#footer').position().top;
+            if (footerTop < (docHeight-footerHeight)) {
+                $('#footer').css('margin-top', 10 + (docHeight - footerTop -footerHeight) + 'px');
+            };
+        }
+        $(window).on("load resize scroll", function (e) {
+            footer_function();
+        });
 
-            if (footerTop < docHeight) {
-                $('#footer').css('margin-top', 10 + (docHeight - footerTop) + 'px');
-            }
+        // check height on event panel collapse in out
+        $('.panel-collapse').on('hide.bs.collapse', function () {
+            footer_function();
+        });
+        $('.panel-collapse').on('hidden.bs.collapse', function () {
+            footer_function();
+        });
+        $('.panel-collapse').on('shown.bs.collapse', function () {
+            footer_function();
         });
 
         // Smooth scrolling

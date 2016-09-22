@@ -6,8 +6,9 @@
 
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/support/contact.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'user/css/user/user.min.css' %}"/>
 {% endblock %}
-
+{% block bodyclass %}aat_outer{% endblock %}
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
 <li class="active"><a href="">Contact</a></li>
@@ -15,14 +16,14 @@
 
 {% block page_title %}Contact{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
 <li role="presentation" ><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
-    <div class="row">
-        <div class="col-xs-12">
-            <p class="lead">If you've a question about AAODC, you can check the <a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a> or <a href="{% url 'documentation:topic-list' %}">Documentation</a>
+<div class="row">
+    <div class="col-xs-12 col-sm-12">
+        <br>
+        <p class="lead">If you've a question about ADC, visit the <a href="{% url 'documentation:topic-list' %}">Documentation</a>
                 for answers. <br>Otherwise, fill in the form below and we'll get back to you as soon as possible!</p>
 
             {% if email_status == "success" %}
@@ -39,17 +40,19 @@
                 </div>
             </div>
             {% endif %}
-        </div>
-        <div class="col-sm-offset-3 col-sm-6 col-xs-12">
-            <h2>Contact Us</h2>
-            <form action="{% url 'support-contact' %}" method="post" novalidate>
-                {% csrf_token %}
-                {% render_form serializer  %}
-                <button type="submit" class="btn btn-default pull-right" {% if email_status == "success" %}disabled="true"{% endif %}>Submit</button>
-            </form>
-            <br><br><hr>
-        </div>
+            <div class="row">
+                <div class="col-md-offset-4 col-sm-offset-3 col-sm-6 col-md-4 col-xs-12">
+                    <div class="panel panel-default ">
+                    <div class="panel-body">
+                    <form action="{% url 'support-contact' %}" method="post" novalidate>
+                    {% csrf_token %}
+                    {% render_form serializer  %}
+                    <button type="submit" class="btn text-uppercase btn-primary pull-right" {% if email_status == "success" %}disabled="true"{% endif %}>Submit</button>
+                </form>
+                    </div></div>
+                </div>
+            </div>
     </div>
-
+</div>
 {% endblock %}
 {% block footer-extra %}{% endblock %}
