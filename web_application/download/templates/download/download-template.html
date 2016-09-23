@@ -1,9 +1,9 @@
 <div class="col-sm-6 col-sm-offset-1 col-xs-12 download-options">
-    <h2>Selection</h2>
+    <h3>Selection</h3>
 
     <div class="panel panel-default panel-download">
         <div class="panel-heading">
-            <span class="panel-title text-uppercase">Individual Object Data Products</span>
+            <span class="panel-title text-uppercase">Data Products per source</span>
         </div>
         {% verbatim %}
         <table class="table">
@@ -38,7 +38,8 @@
                     <td>
                         <div class="row">
                             <div class="col-xs-12">
-                                 <h4 style="border:0">
+                                 <h4 class="no-margin-top" style="border:0">
+
                                     Empty!
                                 </h4>
                                 {% endverbatim %}
@@ -54,7 +55,7 @@
     </div>
     <div class="panel panel-default panel-download">
         <div class="panel-heading">
-            <span class="panel-title text-uppercase">Data Products for Query Results</span>
+            <span class="panel-title text-uppercase">Data Products for a sample of sources</span>
         </div>
         <table class="table">
             <tbody>
@@ -97,7 +98,7 @@
                                         <div class="p"><strong>Sign In Required</strong> <br>You must <a href="{% url 'rest_framework:login' %}">sign in</a> to use this feature.</div></div>
                                 </div>
                                 {% endif %}
-                                 <h4>
+                                 <h4 class="no-margin-top" >
                                      Empty!
                                 </h4>
 
@@ -149,7 +150,7 @@
                                         <div class="p"><strong>Sign In Required</strong> <br>You must <a href="{% url 'rest_framework:login' %}">sign in</a> to use this feature.</div></div>
                                 </div>
                                 {% endif %}
-                                 <h4>
+                                 <h4 class="no-margin-top" >
                                      Empty!
                                 </h4>
 
