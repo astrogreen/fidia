@@ -49,8 +49,8 @@
 {% block page_title_banner_class %}yellow{% endblock %}
 {% block page_title %}Query{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation:topic-list' %}" title="Query Documentation">Documentation</a></li>
-<li role="presentation" ><a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='query' %}">Documentation</a></li>
+
 {% endblock useful_links %}
 
 {% block content_render %}
@@ -80,6 +80,11 @@
                 </li>
                 <li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
             </ul>
+            <h5>Quick Links</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation" ><a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a></li>
+            </ul>
+
         </div>
     </div>
     <div class="col-sm-9 main-content">
