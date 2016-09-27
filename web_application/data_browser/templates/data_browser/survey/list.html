@@ -245,16 +245,14 @@
 {% autoescape off %}
  <script type="text/javascript">
 
-    var SAMI_URL = "{% url 'data_browser:survey-list' sample_pk='sami' %}";
-    var GAMA_URL = "{% url 'data_browser:survey-list' sample_pk='gama' %}";
-
-    var DOWNLOAD_URL = "{% url 'download-create'%}";
+    var SAMPLE_URL = "{% url 'data_browser:survey-list' sample_pk=survey %}";
 
     data = JSON.parse("{{ content|escapejs }}");
 
     if (typeof data.catalog !== 'undefined'){
         $('#data-table-container').html(' ')
-                .append('<div class=""><table id="returnTableResults" class="table table-responsive table-condensed"><thead><tr><th>Please wait, loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
+                .append('<div class=""><table id="returnTableResults" class="table table-responsive table-condensed">' +
+                        '<thead><tr><th>Please wait, loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
 
         render_limit = 10000;
         catalog = (data.catalog);
@@ -279,33 +277,17 @@
                         }
                     }
                 }
-                if (k.indexOf("data_browser_url") > -1){
+
+                if (k.indexOf("ID") > -1){
                     b = {
                         "title":k,
                         "render": function(data, type, row) {
-                            var temp_string = '<a href="'+data+'" target="_blank">'+data+'</a>';
+                            var temp_string = '<a href="'+SAMPLE_URL+data+'">'+data+'</a>';
                             return temp_string;
                         }
                     }
                 }
-                if (k.indexOf("sami_id") > -1){
-                    b = {
-                        "title":k,
-                        "render": function(data, type, row) {
-                            var temp_string = '<a href="'+SAMI_URL+data+'">'+data+'</a>';
-                            return temp_string;
-                        }
-                    }
-                }
-                if (k.indexOf("CATAID") > -1){
-                    b = {
-                        "title":k,
-                        "render": function(data, type, row) {
-                            var temp_string = '<a href="'+GAMA_URL+data+'">'+data+'</a>';
-                            return temp_string;
-                        }
-                    }
-                }
+                
                 th = '<th>'+k+'</th>';
                 columns.push(b);
                 $('#returnTableResults').find('thead > tr').append(th);
@@ -325,9 +307,13 @@
             $('#returnTableResults_filter input').unwrap().wrap("<div class='input-group' role='search'></div>")
                     .addClass('form-control')
                     .attr('placeholder', 'SEARCH...')
-                    .after('<span class="input-group-btn"> <button class="btn btn-default btn-sm" type="button"><i class="fa fa-search fa-fw"></i></button> </span>');
+                    .after('<span class="input-group-btn"> <button class="btn btn-default btn-sm" type="button">' +
+                            '<i class="fa fa-search fa-fw"></i></button> </span>');
             document.getElementById('returnTableResults_filter').firstChild.data = "";
-            $('#returnTableResults_length, #returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6');
+            $('#returnTableResults_length').parent('.col-sm-6').addClass('col-xs-6');
+            $('#returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6');
+            $('#returnTableResults_filter').parent('.col-sm-6').parent('.row').append('<div class="col-xs-12 col-sm-12 text-right">' +
+                    '<form class="form-inline"> <div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control" id="min" placeholder="Minimum"> </div><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"></select></div> <div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="Maximum"></div> </form>');
 
         };
     };

@@ -276,12 +276,12 @@ table.table-overview tr:nth-child(2) td {
   padding-top: 0;
   padding-bottom: 15px;
 }
-.table > thead > tr > th,
-.table > tbody > tr > th,
-.table > tfoot > tr > th,
-.table > thead > tr > td,
-.table > tbody > tr > td,
-.table > tfoot > tr > td {
+.table-overview.table > thead > tr > th,
+.table-overview .table > tbody > tr > th,
+.table-overview .table > tfoot > tr > th,
+.table-overview .table > thead > tr > td,
+.table-overview .table > tbody > tr > td,
+.table-overview .table > tfoot > tr > td {
   padding: 15px;
 }
 h4.list-group-item-text {
