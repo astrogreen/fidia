@@ -46,10 +46,10 @@
                         </div>
                     </small>
                 </h1>
-                <p>Explore the available {{survey|uppercase}} data products for each object. It is recommended
-                    that you also use the SAMI Data Browser in conjunction with the
-                    <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
-                    descriptions of the data products available.
+                <p>The Data Browser provides a quick-look at survey-derived
+                    data products and associated meta-data on an
+                    object-by-object basis, and allows users to download individual data products in FITS file
+                    format.
                 </p>
             </div>
         </div>
@@ -68,16 +68,29 @@
         <div class="sidebar-contents">
             <h5>Page Contents</h5>
             <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation"><a href="#download" class="scroll">Download</a></li>
                 <li role="presentation"><a href="#data" class="scroll">Data</a></li>
             </ul>
             <h5>Quick Links</h5>
-            <a class="btn btn-default btn-sm" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}"><i class="fa fa-book"></i> Schema</a>
-            <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i class="fa fa-file-o"></i> Documentation</a>
-            <br><br>
-            <a href="{% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}"><i class="fa fa-angle-left"></i> Back to {{response.data.astroobject}}</a>
-            <br><br>
-            <h5>Properties</h5>
-            <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true" style>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}"> Schema Browser</a></li>
+                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+                {% if breadcrumblist %}
+
+                  {% with breadcrumblist|length|add:"-2" as b %}
+                    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
+                  {% endwith %}
+            {% endif %}
+            </ul>
+
+            <a role="button" class="pull-right sub-heading" style="margin-top:10px;" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
+            <h5>Properties
+            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus" title="<span class='panel-title'>Properties Panel</span>"
+               data-content="<p>The properties panel contains meta-data (e.g., WCS information) or attributes that are associated with this data product (e.g,, units, errors).<br> To view a summary about any of the properties, expand the panel using the <i class='fa fa-caret-down'></i> symbol, or view more information click the <i class='fa fa-arrow-circle-right'></i> arrow.  </p>"
+               data-placement="top"><i class="fa fa-info-circle"></i></a>
+            </h5>
+
+            <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
                 {% comment %}
                 {% for r in side_bar_explicit_render %}
                 <div class="panel panel-default">
@@ -101,15 +114,8 @@
 
 
                 <div class="panel panel-default">
-                    <!--<div class="panel-heading" role="tab" id="meta_data_group">-->
-                        <!--<a role="button" data-toggle="collapse" href="#meta_data" aria-controls="meta_data" class="panel-title" aria-expanded="true">-->
-                            <!--Properties-->
-                            <!--<i class="fa fa-caret-down sub-heading"></i>-->
-                        <!--</a>-->
-                        <!--<span class="panel-title">Properties</span>-->
-                        <!--<span class="sub-heading pull-right testing">explicitly rendered attributes</span>-->
-                    <!--</div>-->
-                    <div id="meta_data" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="meta_data">
+
+                    <div id="meta_data" class="">
                         <div class="panel-body meta-data">
 
                             <!--Explicitly specifited trait properties will appear first-->
@@ -123,7 +129,6 @@
 
                             <!--Iterate over sub-traits-->
                             {% for s in sub_traits %}
-                                {% include 'data_browser/trait/sidebar-sub-trait.html' %}
                                 <div class="panel panel-default sub-trait-sidebar">
                                     <div class="panel-heading" role="tab" id="heading{{s}}">
                                         <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
@@ -205,7 +210,7 @@
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}} {{response.data.pretty_name}}
+        <h2>{{response.data.sample|uppercase}} {{response.data.astro_object}} {{response.data.pretty_name}}
             <small>
                 <span class="sub-heading"><i class="fa fa-code-fork"></i> {{response.data.branch}}</span>
                 <span class="sub-heading"><i class="fa fa-map-pin"></i> {{response.data.version}}</span>
@@ -271,55 +276,59 @@
                 </div>
         </div>
 
-        <!--<a disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}" class="options question pull-right disabled"><i class="fa fa-question-circle"></i> What is a branch?</a>-->
-        <p style="margin-bottom:30px;"><br>You are currently viewing data and associated properties for {{response.data.pretty_name}} for branch {{response.data.branch}},
-                version {{response.data.version}}. To find out more about the available branches, visit the <a target="_blank" href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}">Schema Browser</a>.
-
-
+        <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="options question pull-right"><i class="fa fa-question-circle"></i> What is a branch?</a>
+        <br>
+        <p class="well">You are currently viewing data and associated properties for
+            {{response.data.pretty_name}} for branch {{response.data.branch}},
+            version {{response.data.version}}. To find out more about the available branches, visit the <a
+                    target="_blank"
+                    href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}">Schema
+                Browser</a>.
         </p>
-        <div class="options text-right pull-right">
+        <h3 id="download">Download</h3>
+        <p>Download the {{response.data.pretty_name}} for {{response.data.sample|uppercase}} object {{response.data.astro_object}} in FITS or JSON file format. Alternatively, add it to the Download Bundle.</p>
+        {% for f in formats %}
+        <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+            <span class="fa-custom-stack">
+              <i class="fa fa-file-o"></i>
+                <span class="fa-custom-filetype">{{f}}</span>
+            </span>{{f}}
+        </a>
+        {% endfor %}
+        <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>
 
-            {% for f in formats %}
-            <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
-                <span class="fa-custom-stack">
-                  <i class="fa fa-file-o"></i>
-                    <span class="fa-custom-filetype">{{f}}</span>
-                </span>{{f}}
-            </a>
-            {% endfor %}
-                <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
+        <h3 id="data">Data <small>
+            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+               data-content="<p>Inspect the data before download. Where available, data products that can be visualized and interacted with (e.g., line maps) will be shown here. </p>"
+               data-placement="top"><i class="fa fa-info-circle"></i></a>
+        </small></h3>
 
-        </div>
-        <h3 id="data">Data</h3>
         <div class="row">
             <div class="col-sm-8 col-xs-12">
-                <div class="panel panel-default">
-
-                    <div class="panel-body">
-                        <div id="{{trait_type}}_plotly_plot">
-                            <!--Dynamic plotly rendering based on Trait Type-->
-                            <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
-                        </div>
+                <div class="well">
+                    <div id="{{trait_type}}_plotly_plot">
+                        <!--Dynamic plotly rendering based on Trait Type-->
+                        <p id="visualization_status"><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
                     </div>
                 </div>
+
             </div>
-            <div class="col-sm-4 col-xs-12">
+            <div class="col-sm-4 col-xs-12" id="interactive">
                 <div class="panel panel-default interactive">
                     <div class="panel-heading">
                         <p class="panel-title">Interactive</p>
                     </div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <span class="pull-right" id="title_info">
-                                        <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
+                    <div class="panel-heading" style="background-color:#e6e6e6">
+                        Clipping
+                         <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
                                            data-trigger="focus"
                                            data-content="<p>Apply percentile scaling to image. Clips minimum and maximum percentage of pixel values to bring out features in the image. </p>"
                                            data-placement="left"><i class="fa fa-info-circle"></i></a>
-                                        </span>
-                                    <strong>Clipping</strong>
-                                </div>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <div class="row">
+
                                 <div class="col-xs-12">
                                     <p class="sub-heading">By percentile </p>
                                     <div id="slider-range"></div>
@@ -342,10 +351,13 @@
                             </div>
 
                         </li>
+                    </ul>
+                    <div class="panel-heading" style="background-color:#e6e6e6">
+                        View Extensions <span class="sub-heading">(in development)</span></div>
+                    <ul class="list-group">
                         <li class="list-group-item">
                             <div class="row">
-                                <div class="col-xs-12"><strong>Extensions</strong></div>
-                                <div class="col-xs-12"><span class="sub-heading">(in development)</span>
+                                <div class="col-xs-12">
                                     <div id="{{trait_type}}_plotly_plot_options">
                                     </div>
                                 </div>
@@ -387,9 +399,20 @@
             // make ajax request to get data and save so can adjust with range slider
             trait_plot(trait_url, trait_name, map_selector, options_selector);
 
+            $('#collapse-all').click(function(){
+                // Emit the collapse event hidden.bs.collapse
+                $('#sidebar .panel-collapse').collapse('hide');
+            })
         });
 
     </script>
+{% else %}
+<script>
+$('#visualization_status').html('Visualization for {{response.data.pretty_name}} is in development.')
+$('#interactive').html("<div class='well'><p>Interactivity in development</p></div>");
+</script>
 {% endif %}
+
+
 
 {% endblock %}

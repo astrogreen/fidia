@@ -10,9 +10,10 @@
                 <!--SELECT-->
                 <div class="panel panel-default ">
                     <div class="panel-heading panel-background-grey">
-                        SELECT
-                        <a class=" black pull-right" href="" ng-click="fAddCatalogue()">
-                                    <i class="fa fa-plus fa-slim-line"></i></a>
+                        SELECT <a href="" data-toggle="popover" data-html="true" class="popover-anchor"   data-content="<p>Choose a catalogue, then select properties you wish to return. Add multiple catalogues and properties using the <i class='fa fa-plus'></i> button.</p>"    data-placement="top"><i class="fa fa-info-circle"></i></a>
+
+                        <a class="pull-right" href="" ng-click="fAddCatalogue()">
+                                    <i class="fa fa-plus  "></i></a>
                     </div>
                     <div class="panel-body">
                         <div ng-repeat="nodecat in inputCatalogues track by $index" class="clearfix false-row">
@@ -27,19 +28,24 @@
                                     button-label="name " item-label=" name " tick-property="ticked" class="floating-select"
                                     id="outputColumn{{$index}}" max-labels="5">
                                 </div>
-                                <button class="btn outline red pull-right btn-cat-remove" data-value="{{$index}}" href="" ng-click="fRemoveCatalogue($index)">
-                                    <i class="fa fa-times fa-slim-line"></i>
+                                <button class="btn btn-default text-error pull-right btn-cat-remove" style="border:0;background:none;" data-value="{{$index}}" href="" ng-click="fRemoveCatalogue($index)">
+                                    <i class="fa fa-times"></i>
                                 </button>
                                 <hr>
                             </div>
                         </div>
                     </div>
                 </div>
+                 <!--JOIN -->
+
                 <div class="panel panel-default" ng-show="inputJoins.length>0">
                     <div class="panel-heading panel-background-grey">
                         JOIN
-                        <a class=" black pull-right" href="" ng-click="fAddJoin()">
-                                    <i class="fa fa-plus fa-slim-line"></i></a>
+                        <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                           data-content="<p>If you have selected multiple catalogues, you must join them using this panel.</p>"
+                             data-placement="top"><i class="fa fa-info-circle"></i></a>
+                        <a class="    pull-right" href="" ng-click="fAddJoin()">
+                                    <i class="fa fa-plus  "></i></a>
                     </div>
                     <div class="panel-body">
                         <div ng-repeat="join in inputJoins track by $index" class="clearfix false-row">
@@ -60,18 +66,22 @@
                                      on-item-click="fJoinBClick(data)" id="outputJoinsB{{$index}}">
                                 </div>
                                 <button class="btn outline red pull-right btn-join-remove" href="" data-value="{{$index}}" ng-click="fRemoveJoin($index)">
-                                    <i class="fa fa-times fa-slim-line"></i>
+                                    <i class="fa fa-times"></i>
                                 </button>
                                 <hr>
                             </div>
                         </div>
                     </div>
                 </div>
+                 <!-- WHERE -->
+
                 <div class="panel panel-default">
                     <div class="panel-heading panel-background-grey">
-                        WHERE
-                        <a class=" black pull-right" href="" ng-click="fAddWhere()">
-                                    <i class="fa fa-plus fa-slim-line"></i></a>
+                        WHERE <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                           data-content="<p>Choose criteria to filter the selection by.</p>"
+                             data-placement="top"><i class="fa fa-info-circle"></i></a>
+                        <a class="    pull-right" href="" ng-click="fAddWhere()">
+                                    <i class="fa fa-plus "></i></a>
 
                     </div>
                     <div class="panel-body" ng-show="inputWheres.length>0">
@@ -96,16 +106,20 @@
                                        id="whereValue{{$index}}" ng-model="outputWhereValue[$index]" placeholder="value"
                                        on-item-click="fWhereValue()">
                                 <button class="btn outline red pull-right btn-where-remove" href="" data-value="{{$index}}" ng-click="fRemoveWhere($index)">
-                                    <i class="fa fa-times fa-slim-line"></i>
+                                    <i class="fa fa-times  "></i>
                                 </button>
                                 <hr>
                             </div>
                         </div>
                     </div>
                 </div>
+                 <!-- OUTPUT SQL -->
+
                 <div class="panel panel-default ">
                     <div class="panel-heading panel-background-grey">
-                        OUTPUT SQL
+                        OUTPUT SQL <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                           data-content="<p>Any warnings will show here. Once you've fixed them, view the generated SQL. (Optional) Copy-paste this into the SQL box below to edit your query.</p>"
+                             data-placement="top"><i class="fa fa-info-circle"></i></a>
                     </div>
                     <div id="query-form-errors">
                         <div class="panel-body error" ng-show="error.errorFlag == true">
@@ -127,14 +141,17 @@
                         </div>
                          <div class="panel-body success" ng-show="warning.warningFlag != true && error.errorFlag != true && outputSQL.length>0">
                          <!--<div class="panel-body success">-->
-                             <span>VALID</span>
+                             <div class="p">Query is <span class="text-success">VALID</span>. Submit this query, or view the SQL using the buttons below.
                              <i class="text-success pull-right fa fa-check"></i>
+                             </div>
+
                              <br>
                              <h5 class="headline"><span><a role="button" class="btn btn-xs btn-default text-uppercase" id="show-hide-sql">Show SQL</a></span></h5>
                                  <div ng-bind-html="outputSQL" id="output-SQL" style="display:none;" data-sql="{{outputSQL}}">{{ outputSQL }}</div>
                         </div>
                     </div>
                 </div>
+                <!-- SUBMIT -->
 
                  <div class="row">
                      <div  class="col-sm-12">
@@ -145,8 +162,11 @@
                          <button type="button"
                                  class="btn btn-default text-uppercase pull-right pulsing-button"
                                  ng-click="fValidate()" style="margin-right:5px;"
-                                 title="Check form is correctly populated" id="check-button">VALIDATE
+                                 title="Check form is correctly populated" id="check-button">CHECK FORM
                          </button>
+                         <a href="" data-toggle="popover" data-html="true" class="popover-anchor pull-right"  style="margin-right:15px;margin-top:8px;"
+                           data-content="<p>Check all fields are populated using the <button class='btn btn-default btn-xs'>CHECK FORM</button> button, resolve any issues, then submit your query!</p>"
+                             data-placement="top"><i class="fa fa-info-circle"></i></a>
                          <button class="btn btn-default pull-left text-uppercase" type="button"
                                  ng-click="fReset()"
                                  id="query-builder-reset">Reset

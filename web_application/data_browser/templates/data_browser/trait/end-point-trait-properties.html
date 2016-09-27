@@ -1,0 +1,13 @@
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+
+<span class="sub-heading pull-right" style="margin-top:5px;"><code >{{tpdata|key:tp|key:"type"}}</code></span>
+<p class="heading"><strong>Value</strong>
+</p>
+<p style="max-height:200px; overflow: scroll;" class="breakword">{{tpdata|key:tp|key:"value"}}</p>
+<p class="heading"><strong>Description</strong>
+<p class="readmore">{{tpdata|key:tp|key:"description"}}</p>
+<p class="heading"><strong>URL</strong>
+<p class="breakword"><a href="{{tpdata|key:tp|key:'url'}}">{{tpdata|key:tp|key:"url"}}</a></p>

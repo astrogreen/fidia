@@ -1,0 +1,233 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}{{response.data.survey|uppercase}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{response.data.survey|uppercase}}{% endblock %}
+{% block useful_links %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<li role="presentation"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
+{% endblock useful_links %}
+
+{% block page_title_banner %}
+{% captureas survey %}sami{% endcaptureas %}
+<div class="title_info red">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>{{survey|uppercase}}
+                    <small class="right-helper">
+
+                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                        <div class="btn-group" role="group" style="margin-top:-15px;">
+                            <button type="button" class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                    <span class="sub-heading">
+                        <i class="fa fa-map-marker"></i> Data Release
+                    </span>
+                                <strong>{{response.data.data_release}}</strong>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
+                                    <small class="sub-heading text-uppercase">Current</small>
+                                </a></li>
+                            </ul>
+                        </div>
+                    </small>
+                </h1>
+                <p>
+                    {% with "restapi_app/surveys/"|add:response.data.survey|add:"/blurb.html" as template %}
+                    {% include template %}
+                    {% endwith %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_title_banner %}
+
+{% block content_render %}
+{% captureas survey %}sami{% endcaptureas %}
+<div class="row">
+    <div class="col-xs-12 col-sm-3 sidebar">
+        <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation"><a class="scroll" href="#project-overview">Project Overview</a></li>
+                <li role="presentation"><a class="scroll" href="#data-release">Data Release {{response.data.data_release}}</a></li>
+                <li role="presentation"><a class="scroll" href="#whats-included">What's included?</a></li>
+
+                <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+                <ul class="nav-pills nav-stacked">
+                    <li><a href="#data-access-data-browser" class="scroll"> Data Browser</a></li>
+                    <li><a href="#data-access-query-builder" class="scroll"> Query Builder</a></li>
+                    <li><a href="#data-access-schema-browser" class="scroll">Schema Browser</a></li>
+                </ul>
+            </ul>
+            <h5>Quick Links</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a class=""  href="{% url 'sami-data-products' %}">{{response.data.survey|uppercase}} Data Product Descriptions</a>
+                </li>
+                <!--<li><a class=""  href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">-->
+                    <!--Schema Browser</a></li>-->
+                <!--<li><a class="" href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}"> Data-->
+                    <!--Browser</a></li>-->
+                <!--<li><a class="" href="{% url 'query-create-list' %}"> Query Builder</a></li>-->
+
+                <!--<li class="disabled"><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled>-->
+                    <!--Documentation</a></li>-->
+
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-9 main-content">
+
+
+        <div class="col-sm-2 col-xs-4 pull-right">
+            <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
+        </div>
+        <h2>Welcome to the SAMI archive at ADC</h2>
+        <h3 id="project-overview">Project Overview</h3>
+        {% with "restapi_app/surveys/"|add:response.data.survey|add:"/about.html" as template %}
+        {% include template %}
+        {% endwith %}
+        <h3 id="data-release">Data Release {{response.data.data_release}} </h3>
+        <p>{% lorem %}</p>
+        <div class="panel panel-default" style="margin-top:20px;">
+            <div class="panel-heading">
+                Overview
+            </div>
+            <div class="table-responsive">
+                <table class="table table-overview">
+                    <tbody>
+                    <tr class="large">
+                        <td class="lead">
+                            <a id="survey_pi">Scott Croom</a>
+                            <script>
+                                var person = 'scott.croom';
+                                var domain = 'sydney.edu.au';
+                                $('#survey_pi').attr('href', 'mailto:' + person + '@' + domain);
+
+                            </script>
+                        </td>
+                        <td class="lead">{{response.data.data_release}}</td>
+                        <td class="lead">{{response.data.count}}</td>
+                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a>
+                        </td>
+                        <td class="lead">dd/mm/yy</td>
+                        <!--<td class="lead">-->
+                        <!--{% for f in available_formats %}-->
+                        <!--{% if f != "api" %}-->
+                        <!--<a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">-->
+                        <!--<span class="fa-custom-stack">-->
+                        <!--<i class="fa fa-file-o"></i>-->
+                        <!--<span class="fa-custom-filetype">{{f}}</span>-->
+                        <!--</span>-->
+                        <!--</a>-->
+                        <!--{% endif %}-->
+                        <!--{% endfor %}-->
+
+                        <!--</td>-->
+                    </tr>
+                    <tr class="large">
+                        <td>PI</td>
+                        <td>Data Release Number</td>
+                        <td>Number of Objects</td>
+                        <td>Schema Browser</td>
+                        <td>Release Date</td>
+                        <!--<td>Available Objects</td>-->
+                    </tr>
+                    <tr class="medium">
+
+                        <td>
+                            <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
+                        </td>
+                        <td>
+                            <small>This data release. <br><a href="" class="question">
+                                <small><i class="fa fa-question-circle"></i> ADC Data Release Policy</small>
+                            </a></small>
+                        </td>
+                        <td>
+                            <small>The total number of objects in this data release.</small>
+                        </td>
+                        <td>
+                            <small>The Schema Browser describes the SAMI survey data products.</small>
+                        </td>
+                        <td>
+                            <small>The date of this data release.</small>
+                        </td>
+                        <!--<td>-->
+                        <!--<small>View a json-formatted list of available objects in this data release.</small>-->
+                        <!--</td>-->
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <h3 id="whats-included">What's Included?</h3>
+        <p>Data release description provided by the team.</p>
+        <p>{% lorem %}</p>
+        <p>For detailed descriptions of a particular data product, visit the <a
+                href="{% url 'sami-data-products' %}"><span>{{response.data.survey|uppercase}}
+            Data Product Descriptions</span></a> page, or for in depth information/meta-data pertaining to a particular
+            data product, view the
+            <a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">{{response.data.survey|uppercase}}
+                Schema Browser</a>.
+        </p>
+
+
+
+        <h3 id="data-access"> Data Access</h3>
+        <p>Data are accessible from ADC in a variety of ways. Whether you want to
+            browse the available data products for a single astronomical source, create samples of objects from multiple surveys, or
+            download data directly to your machine, our tools will help you get started.</p>
+
+            View the <a href="{% url 'data-access' %}">Data Access</a> summary page for an overview.
+        </p>
+
+        <h4 id="data-access-data-browser">Data Browser</h4>
+        <p>Browse the available {{response.data.survey|uppercase}} data products and meta-data on an object-by-object
+            basis. Provides a quick-look at the
+            data products for a particular object, and allows you to download individual data products in fits
+            format.</p>
+        <p><a href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}" class="text-uppercase"><strong>Browse
+            SAMI Data
+            <i class="fa fa-angle-right"></i></strong></a></p>
+        <h4 id="data-access-query-builder">Query Builder</h4>
+        <p>Create a sample of objects from all the surveys hosted at ADC using the Query Builder tool (or write
+            complicated queries in SQL), filtering on some parameter(s) and return available rows of
+            objects.
+            From the results, select available products from the {{response.data.survey|uppercase}} for bulk download.
+            Revisit previous queries in your Query History.</p>
+        <p><a href="{% url 'query-create-list' %}" class="text-uppercase"><strong>Query {{response.data.survey}} data
+            <i class="fa fa-angle-right"></i></strong></a></p>
+
+        <h4 id="data-access-schema-browser">Schema Browser</h4>
+        <p>The schema browser allows you to explore the types of product included in this release, how each was
+            derived (reduction pipelines, analysis method etc), and any associated meta data.</p>
+        <p><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}" class="text-uppercase"><strong>{{response.data.survey}} Schema
+            Browser
+            <i class="fa fa-angle-right"></i></strong></a></p>
+
+
+    </div>
+
+</div>
+
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}
+

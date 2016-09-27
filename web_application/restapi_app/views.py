@@ -13,19 +13,20 @@ import data_browser.serializers
 
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
+
 class TemplateViewWithStatusCode(TemplateView):
     """
     Adds a status code to the mix. api.html (which all templates extend)
     looks for a status code to determine content or status rendering
     (albeit lazily, if one isn't found it sets to HTTP_200_OK).
     """
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context, status=status.HTTP_200_OK)
 
 
 class AvailableTables(views.APIView):
-
     def get(self, request, format=None):
         """
         Return hardcoded response: json data of available tables
@@ -45,20 +46,19 @@ class ContactForm(views.APIView):
     template_name = 'restapi_app/support/contact.html'
 
     def get(self, request):
-
         serializer = restapi_app.serializers.ContactFormSerializer
 
         return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-
         serializer = restapi_app.serializers.ContactFormSerializer(data=request.data)
         serializer.is_valid()
 
         if serializer.is_valid():
             serializer.send()
             serializer_unbound = restapi_app.serializers.ContactFormSerializer
-            return Response({"email_status": "success", 'serializer': serializer_unbound}, status=status.HTTP_202_ACCEPTED)
+            return Response({"email_status": "success", 'serializer': serializer_unbound},
+                            status=status.HTTP_202_ACCEPTED)
 
         return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -70,41 +70,122 @@ class Surveys(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'restapi_app/data/surveys.html'
+        template = 'restapi_app/surveys/overview.html'
+
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
-                   {"survey": "gama", "count": 0, "current_version": 0}]
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0,
+                    'data_releases': [1.0, ]}]
 
         serializer_class = data_browser.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'surveys': surveys},
+            context={'request': request, 'samples': surveys},
         )
 
         return Response(serializer.data)
 
 
-class Tools(views.APIView):
+class SAMI(views.APIView):
+    """
+    Available Surveys page
+    """
+    permission_classes = (permissions.AllowAny,)
+
+    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        template = 'restapi_app/surveys/sami/home.html'
+
+    renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request):
+        self.breadcrumb_list = ['SAMI']
+
+        serializer_class = restapi_app.serializers.SurveySerializer
+        _dummy = object
+        serializer = serializer_class(
+            many=False, instance=_dummy,
+            context={'request': request,
+                     "survey": "sami",
+                     "count": sami_dr1_sample.ids.__len__(),
+                     "data_release": 1.0},
+        )
+
+        return Response(serializer.data)
+
+# TODO surveys as resources list.
+# class Survey(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+#     """
+#         Available Surveys page
+#         """
+#     permission_classes = (permissions.AllowAny,)
+#
+#     class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+#         template = 'restapi_app/sami/data-release.html'
+#
+#     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+
+
+class SAMIDataProducts(views.APIView):
+    """
+    Available Surveys page
+    """
+    permission_classes = (permissions.AllowAny,)
+
+    class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+        pass
+        template = 'restapi_app/surveys/sami/data-products.html'
+
+    renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+
+    def get(self, request):
+        self.breadcrumb_list = ['SAMI', 'Data Products']
+
+        serializer_class = restapi_app.serializers.DataProductSerializer
+        _dummy = object
+        serializer = serializer_class(
+            many=False, instance=_dummy,
+            context={'request': request,
+                     "survey": "sami",
+                     "count": sami_dr1_sample.ids.__len__(),
+                     "data_release": 1.0,
+                     "products": {
+                         "product1": {
+                             "description": None,
+                             "pretty_name": "Product 1", },
+                         "product2": {
+                             "description": None,
+                             "pretty_name": "Product 2", }
+                     },
+                     }
+        )
+
+        return Response(serializer.data)
+
+
+
+class DataAccess(views.APIView):
     """
     Available Surveys page
     """
     permission_classes = (permissions.AllowAny,)
 
     class ToolRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'restapi_app/tools/tools.html'
+        template = 'restapi_app/data-access/overview.html'
+
     renderer_classes = (ToolRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        samples = AVAILABLE_SURVEYS
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0,
+                    'data_releases': [1.0, ]}]
 
         serializer_class = data_browser.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'surveys': samples},
+            context={'request': request, 'samples': surveys},
         )
 
         return Response(serializer.data)

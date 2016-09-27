@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import random, collections, logging, json, requests, zipfile, io
 import django.core.exceptions
 from django.contrib.auth.models import User
@@ -19,14 +20,14 @@ import restapi_app.utils.helpers
 
 import data_browser.serializers
 import data_browser.renderers
+import data_browser.mixins
+import data_browser.helpers
 
 import fidia.exceptions
 from fidia.traits import Trait, TraitProperty, TraitKey
 from fidia import traits
 
 log = logging.getLogger(__name__)
-
-# TWO_D_PLOT_TYPES = ["line_map", "sfr_map", "velocity_map", "emission_classification_map", "extinction_map"]
 
 
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -37,49 +38,44 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
-        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
-                   {"survey": "gama", "count": 0, "current_version": 0}]
+        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}]
 
         self.breadcrumb_list = ['Data Browser']
 
         serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
             many=False, instance=sami_dr1_sample,
-            context={'request': request, 'surveys': surveys},
+            context={'request': request, 'samples': surveys},
         )
         return Response(serializer.data)
 
 
-class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Viewset for Sample route. Provides List view only.
     """
 
-    renderer_classes = (data_browser.renderers.SurveyRenderer, renderers.JSONRenderer)
+    renderer_classes = (data_browser.renderers.SampleRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, sample_pk=None, format=None, extra_keyword=None):
 
         self.breadcrumb_list = ['Data Browser', str(sample_pk).upper()]
 
-        if sample_pk == 'gama':
-            return Response({"survey": "gama", "in_progress": True})
+        try:
+            # TODO ask FIDIA what it's got for sample_pk
+            sami_dr1_sample
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        else:
-            try:
-                # TODO ask FIDIA what it's got for for sample_pk
-                sami_dr1_sample
-            except KeyError:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            except ValueError:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            serializer_class = data_browser.serializers.SurveySerializer
-            serializer = serializer_class(
-                instance=sami_dr1_sample, many=False,
-                context={'request': request, 'survey': sample_pk}
-            )
-            return Response(serializer.data)
+        serializer_class = data_browser.serializers.SampleSerializer
+        serializer = serializer_class(
+            instance=sami_dr1_sample, many=False,
+            context={'request': request, 'sample': sample_pk}
+        )
+        return Response(serializer.data)
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -152,7 +148,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 trait_name_formats = []
                 for r in TraitViewSet.renderer_classes:
                     f = str(r.format)
-                    if f != "api": trait_name_formats.append(f)
+                    if f != "api":
+                        trait_name_formats.append(f)
 
                 # Branches
                 trait_name_branches = {}
@@ -173,9 +170,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             instance=astro_object, many=False,
             context={
                 'sample': sample_pk,
-                'astroobject': astroobject_pk,
+                'astro_object': astroobject_pk,
                 'request': request,
-                'available_traits': trait_info,
+                'traits': trait_info,
             }
         )
         return Response(serializer.data)
@@ -220,13 +217,15 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer_class = data_browser.serializers.TraitSerializer
 
         serializer = serializer_class(
-            instance=trait, many=False,
+            instance=trait, many=False, parent_trait_display=False,
             context={
                 'request': request,
                 'sample': sample_pk,
-                'astroobject': astroobject_pk,
+                'astro_object': astroobject_pk,
                 'trait': trait_pk,
-                'trait_key': default_trait_key
+                'trait_pk': trait_pk,
+                'trait_key': default_trait_key,
+                'parent_trait': data_browser.helpers.trait_helper(self, trait, ar, sample_pk, astroobject_pk, trait_pk, request),
             }
         )
 
@@ -256,9 +255,9 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     This is only one level
     """
 
-    def __init__(self, sample=None, astroobject=None, trait=None, template=None, *args, **kwargs):
+    def __init__(self, sample=None, astro_object=None, trait=None, template=None, *args, **kwargs):
         self.sample = sample
-        self.astroobject = astroobject
+        self.astro_object = astro_object
         self.trait = trait
         self.renderer_classes = (data_browser.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer)
         self.permission_classes = [permissions.AllowAny]
@@ -286,19 +285,23 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             formats = []
             for r in TraitViewSet.renderer_classes:
                 f = str(r.format)
-                if f != "api": formats.append(f)
+                if f != "api":
+                    formats.append(f)
+
             self.formats = formats
             self.branch = trait_pointer.branch
             self.version = trait_pointer.version
 
             serializer = data_browser.serializers.TraitSerializer(
-                instance=subtrait_pointer, many=False,
+                instance=subtrait_pointer, many=False, parent_trait_display=True,
                 context={'request': request,
                          'sample': sample_pk,
-                         'astroobject': astroobject_pk,
+                         'astro_object': astroobject_pk,
                          'trait': trait_pk,
+                         'trait_key': str(trait_pointer.trait_key),
                          'subtraitproperty': subtraitproperty_pk,
-                         'trait_key': str(subtrait_pointer.trait_key),
+                         'parent_trait': data_browser.helpers.trait_helper(self, trait_pointer, ar, sample_pk, astroobject_pk, trait_pk,
+                                                      request)
                          })
             # Set Breadcrumbs for this method
             self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk,
@@ -325,18 +328,15 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             self.branch = trait_pointer.branch
             self.version = trait_pointer.version
 
-            # trait_pointer = sami_dr1_sample[astroobject_pk]
-            # for elem in path[:-1]:
-            #     trait_pointer = trait_pointer[elem]
-            # trait_property = getattr(trait_pointer, path[-1])
-
             serializer = data_browser.serializers.TraitPropertySerializer(
-                instance=traitproperty_pointer, many=False,
+                instance=traitproperty_pointer, many=False, parent_trait_display=True, parent_sub_trait_display=False,
                 context={'request': request,
                          'sample': sample_pk,
-                         'astroobject': astroobject_pk,
+                         'astro_object': astroobject_pk,
                          'trait': trait_pk,
                          'subtraitproperty': subtraitproperty_pk,
+                         'parent_trait': data_browser.helpers.trait_helper(self, trait_pointer, ar, sample_pk, astroobject_pk, trait_pk,
+                                                      request)
                          })
             # Set Breadcrumbs for this method
             self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk,
@@ -351,7 +351,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # (though that is possible, see the implementations of the Serializers)
 
         self.sample = sample_pk
-        self.astroobject = astroobject_pk
+        self.astro_object = astroobject_pk
         self.trait = trait_pointer.get_pretty_name()
         url_kwargs = {
             'astroobject_pk': astroobject_pk,
@@ -369,13 +369,12 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     Might not even need it - may be able to pass through SubTraitProperty Viewset with carefully managed pks
     """
 
-    def __init__(self, sample=None, astroobject=None, trait=None, template=None, *args, **kwargs):
+    def __init__(self, sample=None, astro_object=None, trait=None, template=None, *args, **kwargs):
         self.sample = sample
-        self.astroobject = astroobject
+        self.astro_object = astro_object
         self.trait = trait
         self.permission_classes = [permissions.AllowAny]
         self.renderer_classes = (data_browser.renderers.TraitPropertyRenderer, renderers.JSONRenderer)
-
 
     def list(self, request, sample_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None,
              traitproperty_pk=None, format=None):
@@ -385,7 +384,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         subtrait_pointer = sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk]
 
         self.template = 'data_browser/trait_property/list.html'
-        self.astroobject = astroobject_pk
+        self.astro_object = astroobject_pk
         self.sample = sample_pk
         self.trait = trait_pointer.get_pretty_name()
         self.subtrait = subtrait_pointer.get_pretty_name()
@@ -407,16 +406,17 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.trait_2D_map = False
         if isinstance(self.trait, traits.Map2D):
             self.trait_2D_map = True
-            print(self.trait_2D_map)
 
         serializer = data_browser.serializers.TraitPropertySerializer(
-            instance=elem, many=False,
+            instance=elem, many=False, parent_trait_display=True, parent_sub_trait_display=True,
             context={'request': request,
                      'sample': sample_pk,
-                     'astroobject': astroobject_pk,
+                     'astro_object': astroobject_pk,
                      'trait': trait_pk,
                      'subtraitproperty': subtraitproperty_pk,
-                     'traitproperty': traitproperty_pk
+                     'traitproperty': traitproperty_pk,
+                     'parent_trait': data_browser.helpers.trait_helper(self, trait_pointer, ar, sample_pk, astroobject_pk, trait_pk, request),
+                     'parent_sub_trait': data_browser.helpers.sub_trait_helper(self, trait_pointer, ar, sample_pk, astroobject_pk, trait_pk, request)
                      }
         )
 

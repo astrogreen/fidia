@@ -4,9 +4,9 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 #page-content {
-  background-color:transparent !important;
+  background-color: transparent !important;
   -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
 }
 
 .galaxy-dark {
@@ -31,7 +31,7 @@
 
 /* ++ WELCOME ++ */
 
-section.welcome .container {
+section.welcome {
   text-align: center;
   .content {
     display: inline-block;
@@ -188,14 +188,46 @@ section.welcome .container {
   }
 }
 
+
+.whats-new {
+  position: absolute;
+  top: 100px;
+  right: 0;
+  .well {
+
+    border:0;
+    border-radius:8px;
+    background-color: rgba(251, 251, 251, 0.6);
+    h5{
+      border-bottom:dotted 1px rgb(163,55,49);
+    }
+
+  }
+  dl {
+    a{cursor: pointer;}
+    .sub-heading {
+      font-size: 10px;
+    }
+    dh{
+      font-size:12px;
+    }
+  }
+
+}
+
+#back-to-top {
+  display: none
+}
+
+
 @media (max-width: 767px) {
-  section.welcome .container .content {
+  section.welcome  .content {
     width: 100%;
   }
 }
 
-@media (max-width: 960px) {
-  section.welcome .container .content .key-message .left {
+@media (max-width: 992px) {
+  section.welcome  .content .key-message .left {
     border-right: none;
     margin-bottom: 20px;
     text-align: center;
@@ -204,13 +236,13 @@ section.welcome .container {
     }
   }
 
-  section.welcome .container .content .key-message .right p {
+  section.welcome  .content .key-message .right p {
     text-align: center;
   }
 }
 
-@media (max-width: 960px) {
-  section.welcome .container .content .infographic {
+@media (max-width: 992px) {
+  section.welcome  .content .infographic {
     .col {
       margin-bottom: 20px;
     }
@@ -221,4 +253,8 @@ section.welcome .container {
       display: none;
     }
   }
+}
+
+@media (max-width: 992px) {
+  .whats-new{position:relative;top:auto;right:auto;}
 }

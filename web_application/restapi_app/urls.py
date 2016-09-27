@@ -15,16 +15,24 @@ urlpatterns = [
 
 
             url(r'^surveys/$', restapi_app.views.Surveys.as_view(), name='surveys'),
-            url(r'^tools/$', restapi_app.views.Tools.as_view(), name='tools'),
+            url(r'^data-access/$', restapi_app.views.DataAccess.as_view(), name='data-access'),
+
+
+            url(r'^(?i)SAMI/$', restapi_app.views.SAMI.as_view(), name='sami'),
+            url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
+
+
+            url(r'^(?i)GAMA/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/underconstruction.html'), name='gama'),
+
 
 
             # url(r'^(?i)documentation/download/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/download.html'),
             #                 name='documentation-download'),
 
 
-            # url(r'^(?i)documentation/data-access/$',
-            #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/data-access.html'),
-            #     name='documentation-data-access'),
+            url(r'^(?i)documentation/data-access/$',
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/data-access.html'),
+                name='documentation-data-access'),
             # url(r'^(?i)documentation/query-builder/$',
             #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/query-builder.html'),
             #     name='documentation-query-builder'),

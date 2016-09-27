@@ -25,24 +25,44 @@ console.log('availableproducts.controllers.js');
         $scope.isSubmitted.state=false;
 
         try {
+
             ctrl.surveys = JSON.parse((ctrl.schemaurls).replace(/'/g, '"'));
+
             angular.forEach(ctrl.surveys, function(url, survey){
                 $scope.availabledata[survey] = {};
                 AvailableProductsService.getProducts(url).then(function (data) {
-
                     // Go through the data and add a selected property to each trait
-                    angular.forEach(data.available_traits, function(v,k){
-                        angular.forEach(v.traits, function(t,name){
-                            t['branch_list'] = {};
-                            angular.forEach(t.branches, function(branch_url,branch_name){
-                                var temp = {name:branch_name, selected:false, url:branch_url};
-                                t['branch_list'][branch_name]=temp;
+
+                    angular.forEach(data.schema.trait_types, function(trait_type_value, trait_type_key){
+
+                        // console.log('---'+trait_type_key+'---');
+
+                        angular.forEach(trait_type_value.trait_qualifiers, function(trait_qualifier_value, trait_qualifier_key){
+                            // console.log('-'+trait_qualifier_key+'-');
+
+                            angular.forEach(trait_qualifier_value.branches, function(trait_branch_value,trait_branch_key){
+
+                                angular.forEach(trait_branch_value.versions, function(trait_version_value,trait_version_key){
+                                    trait_version_value['selected'] = false;
+
+                                    // If the trait qualifier can be collapsed, do so
+                                    var trait_key = '';
+                                    if (trait_qualifier_key != "null"){
+                                        trait_key = trait_type_key+'-'+trait_qualifier_key+':'+trait_branch_key+'('+trait_version_key+')';
+                                    } else {
+                                        trait_key = trait_type_key+':'+trait_branch_key+'('+trait_version_key+')';
+                                    }
+                                    trait_version_value['url'] = trait_key;
+                                    trait_version_value['trait_key'] = trait_key;
+                                });
+
+
                             });
-                            t['branches'] = t['branch_list'];
-                            delete t['branch_list'];
-                        })
+                        });
                     });
-                    $scope.availabledata[survey] = data;
+                    // availabledata["sami"] = object containing schema with :selected: attribute on branch + version
+                    $scope.availabledata[survey] = data.schema.trait_types;
+
                 }).catch(function () {
                     ctrl.error = true;
                     ctrl.text = 'Unable to get schema at '+url;
@@ -59,34 +79,42 @@ console.log('availableproducts.controllers.js');
             $scope.selection={};
             $scope.download={};
             angular.forEach(newVal, function(schema,survey){
-                angular.forEach(schema.available_traits, function(v, k){
-                    angular.forEach(v.traits, function(t,trait_name){
-                        angular.forEach(t.branches, function(branch) {
-                            if (branch.selected == true) {
-                                if (typeof $scope.selection[survey] == "undefined") {
-                                    $scope.selection[survey] = [];
-                                    $scope.download[survey] = [];
-                                }
-                                //adds: {trait_key: "line_map-HALPHA:1_comp", pretty_name: "Line Map — Hα:1_comp"}
-                                $scope.selection[survey].push({
-                                    pretty_name: t.pretty_name,
-                                    trait_name: trait_name,
-                                    trait_key: trait_name + ':' + branch.name,
-                                    trait_type: k,
-                                    branch: branch.name
-                                });
+                angular.forEach(schema, function (trait_type_value, trait_type_key) {
+                    angular.forEach(trait_type_value.trait_qualifiers, function (trait_qualifier_value, trait_qualifier_key) {
+                        angular.forEach(trait_qualifier_value.branches, function (trait_branch_value, trait_branch_key) {
+                            angular.forEach(trait_branch_value.versions, function (trait_version_value, trait_version_key) {
 
-                                $scope.download[survey].push({
-                                    pretty_name: t.pretty_name,
-                                    trait_name: trait_name,
-                                    trait_key: trait_name + ':' + branch.name,
-                                    trait_type: k,
-                                    branch: branch.name
-                                })
-                            };
+                                if (trait_version_value.selected == true) {
+                                    if (typeof $scope.selection[survey] == "undefined") {
+                                        $scope.selection[survey] = [];
+                                        $scope.download[survey] = [];
+                                    }
+                                    $scope.selection[survey].push({
+                                        trait_key: trait_version_value.trait_key,
+                                        pretty_names:{
+                                            'trait_type':trait_type_value.pretty_name,
+                                            'trait_qualifier':trait_qualifier_value.pretty_name,
+                                            'branch':trait_branch_value.pretty_name,
+                                            'version':trait_version_value.pretty_name
+                                        }
+                                    });
+
+                                    $scope.download[survey].push({
+                                        // pretty_name: t.pretty_name,
+                                        // trait_name: trait_name,
+                                        // trait_key: trait_name + ':' + branch.name,
+                                        // trait_type: k,
+                                        // branch: branch.name
+                                    })
+                                }
+
+                            });
+
+
                         });
-                    })
-                })
+                    });
+                });
+
             });
         }, true);
 
