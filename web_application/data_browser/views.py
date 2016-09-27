@@ -40,7 +40,7 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         # Request available samples from FIDIA
         surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}]
 
-        self.breadcrumb_list = ['Single Object Viewer']
+        self.breadcrumb_list = ['Data Browser']
 
         serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
