@@ -5,6 +5,7 @@ from operator import itemgetter
 from ..descriptions import DescriptionsMixin
 
 from ..utilities import DefaultsRegistry
+from .. import exceptions
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -330,18 +331,25 @@ class TraitPath(tuple):
         for elem in self:
             if hasattr(trait, 'sub_traits'):
                 # Looking at trait
-                trait = trait.sub_traits.retrieve_with_key(elem)
+                updated_tk = trait.sub_traits.update_key_with_defaults(elem)
+                trait = trait.sub_traits.retrieve_with_key(updated_tk)
             else:
                 # Looking at archive:
-                trait = trait.available_traits.retrieve_with_key(elem)
+                updated_tk = trait.available_traits.update_key_with_defaults(elem)
+                trait = trait.available_traits.retrieve_with_key(updated_tk)
         return trait
 
     def get_trait_property_for_archive(self, archive):
 
-        if self.trait_property_name is None:
-            raise Exception()
         trait_class = self.get_trait_class_for_archive(archive)
-        trait_property = getattr(trait_class, self.trait_property_name)
+        if self.trait_property_name is None:
+            if not hasattr(trait_class, 'value'):
+                raise exceptions.FIDIAException()
+            else:
+                tp_name = 'value'
+        else:
+            tp_name = self.trait_property_name
+        trait_property = getattr(trait_class, tp_name)
         return trait_property
 
     def get_trait_for_object(self, astro_object):
@@ -354,11 +362,16 @@ class TraitPath(tuple):
     def get_trait_property_for_object(self, astro_object):
         # type: (AstronomicalObject) -> Trait
 
-        if self.trait_property_name is None:
-            raise Exception()
 
         trait = self.get_trait_for_object(astro_object)
-        trait_property = getattr(trait, self.trait_property_name)
+        if self.trait_property_name is None:
+            if not hasattr(trait, 'value'):
+                raise exceptions.FIDIAException()
+            else:
+                tp_name = 'value'
+        else:
+            tp_name = self.trait_property_name
+        trait_property = getattr(trait, tp_name)
 
         return trait_property
 

@@ -1449,6 +1449,10 @@ class SAMIDR1PublicArchive(Archive):
 
         super(SAMIDR1PublicArchive, self).__init__()
 
+    feature_catalog_data = [
+        TraitPath("mass"),
+        TraitPath("redshift")
+    ]
 
     def _find_cubes(self):
 

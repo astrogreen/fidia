@@ -5,6 +5,7 @@ import numpy as np
 from fidia.archive import MemoryArchive, BaseArchive
 from fidia.archive.archive import Archive
 from fidia.traits import *
+from fidia import traits
 from fidia.exceptions import DataNotAvailable
 from fidia.archive.example_archive import ExampleArchive, ExampleSpectralMap, ExampleSpectralMapExtra
 
