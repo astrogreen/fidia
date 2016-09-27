@@ -67,3 +67,34 @@ class TestSample:
     #     assert writeable_sample['gal2'].redshift == 0.453
     #     writeable_sample['gal1'].redshift = 0.532
     #     assert writeable_sample['gal1'].redshift == 0.532
+
+    # Tests for feature data
+    def test_feature_data(self, example_archive_sample):
+        # type: (Sample) -> None
+
+        feature_data = example_archive_sample.get_feature_catalog_data()
+
+        # Validate the data part of the feature data
+        assert 'data' in feature_data
+        data = feature_data['data']
+        assert isinstance(data, list)
+        assert len(data) == len(example_archive_sample)
+        assert len(data[0]) == sum([len(a.feature_catalog_data) for a in example_archive_sample.archives]) + 1
+
+        # Check for specific values in the results:
+        index = {l[0]: i for i, l in enumerate(data)}
+        assert 'Gal1' in index
+
+    def test_feature_data_columns(self, example_archive_sample):
+        # type: (Sample) -> None
+
+        feature_data = example_archive_sample.get_feature_catalog_data()
+
+        assert 'column_names' in feature_data
+        column_names = feature_data['column_names']
+
+        assert isinstance(column_names, list)
+        assert len(column_names) == sum([len(a.feature_catalog_data) for a in example_archive_sample.archives])
+
+        # Check for specific column names
+        assert 'Redshift' in column_names

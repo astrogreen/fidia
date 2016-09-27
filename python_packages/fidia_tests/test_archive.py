@@ -148,6 +148,16 @@ class TestArchive:
         for trait_property, expected in zip(trait._trait_properties(), ('value', 'variance')):
             assert trait_property.name == expected
 
+    # Feature data functionality
+
+    def test_archive_has_feature_data(self, example_archive):
+        # type: (ExampleArchive) -> None
+        assert example_archive.feature_catalog_data is not None
+
+        for elem in example_archive.feature_catalog_data:
+            assert isinstance(elem, TraitPath)
+
+
     #
     # Schema related Tests
     #

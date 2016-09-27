@@ -329,6 +329,11 @@ class ExampleArchive(Archive):
     def name(self):
         return 'ExampleArchive'
 
+    feature_catalog_data = [
+        TraitPath('redshift', trait_property='value'),
+        TraitPath('simple_trait', trait_property='value'),
+        TraitPath('simple_trait', trait_property='extra')
+    ]
 
     def define_available_traits(self):
         self.available_traits.register(ExampleSpectralMap)

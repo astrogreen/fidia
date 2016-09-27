@@ -302,9 +302,9 @@ class TraitPath(tuple):
 
     """
 
-    __slots__ = ()
+    # __slots__ = ()
 
-    def __new__(cls, trait_path_tuple=None):
+    def __new__(cls, trait_path_tuple=None, trait_property=None):
 
         if isinstance(trait_path_tuple, str):
             trait_path_tuple = trait_path_tuple.split("/")
@@ -314,6 +314,10 @@ class TraitPath(tuple):
 
         validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
         return tuple.__new__(cls, validated_tk_path)
+
+    def __init__(self, *args, trait_property=None):
+        # super(TraitPath, self).__init__(*args)
+        self.trait_property_name = trait_property
 
     def as_traitpath(self, trait_path):
         if isinstance(trait_path, TraitPath):
@@ -332,12 +336,40 @@ class TraitPath(tuple):
                 trait = trait.available_traits.retrieve_with_key(elem)
         return trait
 
+    def get_trait_property_for_archive(self, archive):
+
+        if self.trait_property_name is None:
+            raise Exception()
+        trait_class = self.get_trait_class_for_archive(archive)
+        trait_property = getattr(trait_class, self.trait_property_name)
+        return trait_property
+
     def get_trait_for_object(self, astro_object):
         # type: (AstronomicalObject) -> Trait
         trait = astro_object
         for elem in self:
             trait = trait[elem]
         return trait
+
+    def get_trait_property_for_object(self, astro_object):
+        # type: (AstronomicalObject) -> Trait
+
+        if self.trait_property_name is None:
+            raise Exception()
+
+        trait = self.get_trait_for_object(astro_object)
+        trait_property = getattr(trait, self.trait_property_name)
+
+        return trait_property
+
+
+    def get_trait_property_value_for_object(self, astro_object):
+        # type: (AstronomicalObject) -> Trait
+
+        trait_property = self.get_trait_property_for_object(astro_object)
+
+        return trait_property.value
+
 
 class Branch(DescriptionsMixin):
 

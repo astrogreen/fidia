@@ -11,7 +11,7 @@ from collections import OrderedDict
 import pandas as pd
 
 from ..sample import Sample
-from ..traits import Trait, TraitKey, TraitProperty
+from ..traits import Trait, TraitKey, TraitProperty, TraitPath
 from ..traits import TraitRegistry
 from .base_archive import BaseArchive
 from ..cache import DummyCache
@@ -31,6 +31,11 @@ class Archive(BaseArchive):
 
         super(BaseArchive, self).__init__()
 
+    # This provides a space for an archive to set which catalog data to
+    # "feature". These properties are those that would be displayed e.g. when
+    # someone wants an overview of the data in the archive, or for a particular
+    # object.
+    feature_catalog_data = []  # type: list[TraitPath]
 
     def writeable(self):
         raise NotImplementedError("")

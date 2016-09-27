@@ -8,7 +8,7 @@ from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
 # Logging import and setup
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 class TraitRegistry:

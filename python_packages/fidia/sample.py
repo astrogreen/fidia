@@ -49,7 +49,7 @@ class Sample(collections.MutableMapping):
         self._contents = dict()
 
         # Set of archives this object is attached to:
-        self._archives = set()
+        self._archives = set()  # type: set[Archive]
 
         # The archive which recieves write requests
         self._write_archive = None
@@ -136,6 +136,44 @@ class Sample(collections.MutableMapping):
             reordered_dataframes.append(df)
         # Join the reordered archive data by (now the local sample) index
         return pd.concat(reordered_dataframes, axis=1)
+
+    def get_feature_catalog_data(self):
+        """(Construct) A table of featured data from each archive in this sample."""
+
+        first_row = True
+        trait_properties = []  # type: list[tuple[Trait, TraitProperty]]
+        trait_paths = []  # type: list[TraitPath]
+
+        for archive in self._archives:
+            data_table = []
+            for id in self:
+                row = [id]
+                for trait_property_path in archive.feature_catalog_data:
+                    row.append(trait_property_path.get_trait_property_value_for_object(self[id]))
+                    if first_row:
+                        trait_properties.append(
+                            (trait_property_path.get_trait_class_for_archive(archive),
+                             trait_property_path.get_trait_property_for_archive(archive))
+                        )
+                        trait_paths.append(trait_property_path)
+                data_table.append(row)
+                first_row = False
+
+        # Construct column names
+        column_names = []
+        for tp in trait_properties:
+            # Get the pretty name of the Trait
+            col_name = tp[0].get_pretty_name()
+            # Append the TraitProperty name only if it is not the default
+            if tp[1].name is not 'value':
+                col_name += " " + tp[1].get_pretty_name()
+            column_names.append(col_name)
+
+
+        return {'data': data_table,
+                'column_names': column_names,
+                'trait_paths': trait_paths}
+
 
     @property
     def ids(self):
