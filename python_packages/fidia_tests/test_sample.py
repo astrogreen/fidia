@@ -94,7 +94,7 @@ class TestSample:
         column_names = feature_data['column_names']
 
         assert isinstance(column_names, list)
-        assert len(column_names) == sum([len(a.feature_catalog_data) for a in example_archive_sample.archives])
+        assert len(column_names) == sum([len(a.feature_catalog_data) for a in example_archive_sample.archives]) + 1
 
         # Check for specific column names
         assert 'Redshift' in column_names
