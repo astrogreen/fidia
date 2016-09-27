@@ -72,13 +72,19 @@ class TraitRegistry:
         """Return TraitKey with branch and version populated from defaults.
 
         Check the provided trait key, and if either the branch or version
-        have not been provided (none), then return an updated version.
+        have not been provided (none), then return an updated version based on
+        the contents of the defaults registry (if possible)
 
         """
         # Ensure we are working with a full TraitKey object (or convert if necessary)
         tk = TraitKey.as_traitkey(trait_key)
 
         log.debug("Updating TraitKey '%s' with defaults" % str(trait_key))
+
+        if tk.trait_name not in self._trait_name_defaults:
+            # No defaults information for this trait_name, so nothing we can do.
+            log.warn("No Defaults information for TraitKey '%s' in registry.", tk)
+            return tk
 
         # If the branch has not been specified, get the default from the DefaultsRegistry for this trait_name
         if tk.branch is None:
@@ -87,6 +93,7 @@ class TraitRegistry:
 
         # If the version has not been specified, get the default from the DefaultsRegistry for this trait_name
         if tk.version is None:
+            # @TODO: Handle cases where this branch is not in the defaults registry.
             tk = tk.replace(version=self._trait_name_defaults[tk.trait_name].version(tk.branch))
             log.debug("Version not supplied for '%s', using default '%s'", tk.trait_name, tk.version)
 

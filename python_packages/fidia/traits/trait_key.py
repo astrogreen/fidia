@@ -293,6 +293,52 @@ class BranchesVersions(dict):
         return DefaultsRegistry(version_defaults={branch: version})
 
 
+class TraitPath(tuple):
+    """A class to handle full paths to Traits.
+
+    The idea is that a sequence of TraitKeys can uniquely identify a Trait
+    within an archive. This class provides a convenient way to bring such a
+    sequence of TraitKeys together, and manage such sequences.
+
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, trait_path_tuple=None):
+
+        if isinstance(trait_path_tuple, str):
+            trait_path_tuple = trait_path_tuple.split("/")
+
+        if trait_path_tuple is None or len(trait_path_tuple) == 0:
+            return tuple.__new__(cls, tuple())
+
+        validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
+        return tuple.__new__(cls, validated_tk_path)
+
+    def as_traitpath(self, trait_path):
+        if isinstance(trait_path, TraitPath):
+            return trait_path
+        else:
+            return TraitPath(trait_path)
+
+    def get_trait_class_for_archive(self, archive):
+        trait = archive
+        for elem in self:
+            if hasattr(trait, 'sub_traits'):
+                # Looking at trait
+                trait = trait.sub_traits.retrieve_with_key(elem)
+            else:
+                # Looking at archive:
+                trait = trait.available_traits.retrieve_with_key(elem)
+        return trait
+
+    def get_trait_for_object(self, astro_object):
+        # type: (AstronomicalObject) -> Trait
+        trait = astro_object
+        for elem in self:
+            trait = trait[elem]
+        return trait
+
 class Branch(DescriptionsMixin):
 
     # This tells the DescriptionsMixin to provide separate descriptions for each instance of this class.

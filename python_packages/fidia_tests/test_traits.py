@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pytest
 
 from fidia.traits.abstract_base_traits import *
-from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry
+from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry, TraitPath
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
@@ -299,7 +299,8 @@ class TestTraits:
         print(type(test_trait.get_documentation))
         print(test_trait.get_documentation())
         assert "Extended documentation" in test_trait.get_documentation()
-        assert "Description for SimpleTrait" in test_trait.get_documentation()
+        # The description should not be in the documentation
+        assert test_trait.get_description() not in test_trait.get_documentation()
         assert test_trait._documentation_format == 'markdown'
 
         assert "<strong>text</strong>" in test_trait.get_documentation('html')
@@ -496,4 +497,31 @@ class TestTraitRegistry:
     #
     #     TraitRegistry().register(SubTraitClass)
 
+
+class TestTraitPaths:
+
+    def test_trait_path_creation(self):
+
+        # Basic creation: elements are fully qualified TraitKeys
+        tp = TraitPath([TraitKey("my_type"), TraitKey("my_sub_type")])
+        assert isinstance(tp, TraitPath)
+        for i in tp:
+            assert isinstance(i, TraitKey)
+        assert len(tp) == 2
+
+
+        # creation from string trait_keys
+        tp = TraitPath(["image-r", "wcs"])
+        assert isinstance(tp, TraitPath)
+        for i in tp:
+            assert isinstance(i, TraitKey)
+        assert len(tp) == 2
+
+
+        # creation from path string
+        tp = TraitPath("image-r/wcs")
+        assert isinstance(tp, TraitPath)
+        for i in tp:
+            assert isinstance(i, TraitKey)
+        assert len(tp) == 2
 
