@@ -9,9 +9,9 @@
 
 {% endblock %}
 
-{% block page_title %}Data Browser{% endblock %}
+{% block page_title %}Single Object Viewer{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
 {% comment %}
@@ -21,10 +21,10 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-                <h1>Data Browser
+                <h1>Single Object Viewer
                 </h1>
                 <p>
-                    The Data Browser provides a quick-look at survey-derived
+                    The Single Object Viewer (SOV) provides a quick-look at survey-derived
                     data products and associated meta-data on an
                     object-by-object basis, and allows users to download individual data products in FITS file
                     format.
@@ -51,33 +51,24 @@
                 <i class="fa fa-angle-right"></i></span></a></li>
                 {% endfor %}
             </ul>
-            <br>
-            <h5>All Data Access Tools</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <!--<li class="text-uppercase heading no-margin-top"><h6>Data Access</h6></li>-->
-
-                <li role="presentation"><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
-                <li role="presentation"><a href="{% url 'query-create-list' %}">Query</a></li>
-
-                <!--<li class="text-uppercase no-margin-top">-->
-                    <!--<h6>Schema</h6>-->
-                <!--</li>-->
-                <li role="presentation"><a href="{% url 'schema:schema-list' %}">Schema Browser</a></li>
-            </ul>
         </div>
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
         <h2>Discover the survey data products hosted at ADC.</h2>
         <p class="lead">Browse the available survey data products and meta-data on an object-by-object basis.</p>
-        <h3 id="data-access">Data Access</h3>
 
 
+        <h3>By Object </h3>
+        <p class="well info success">
+            Search for an astronomical object by either its survey ID or ADC ID.
+        </p>
+
+        <h3 id="data-access">By Survey</h3>
         <p>Choose a survey from the list below to get started. To
             view more information about each survey's data products and derived properties, visit the <a
                     href="{% url 'schema:schema-list' %}">Schema
                 Browser</a>.</p><br><br>
-        <br>
         <div class="row">
             {% for value in response.data.samples %}
             <div class="col-xs-1 col-sm-offset-1 col-sm-1">

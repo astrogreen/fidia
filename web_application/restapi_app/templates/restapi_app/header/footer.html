@@ -8,7 +8,7 @@
                     <col width="100%">
                     <tbody>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'query-create-list' %}">Query Builder</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>Query Builder</a></small></h4></td>
                     </tr>
                     <tr>
                         <td><h4><small><a class="text-uppercase" href="">Data Browser</a></small></h4></td>
@@ -182,6 +182,11 @@
         }).on('hidden.bs.collapse', function () {
             update_sidebar_size();
         });
+
+        popoverClose = function(e){
+            console.log(e);
+            console.log(e.target);
+        }
 
     });
 </script>

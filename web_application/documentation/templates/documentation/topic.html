@@ -19,25 +19,25 @@
 
 <div class="title_info blue">
     <div class="container">
-        <h1>Help Center</h1>
+        <h1>Help Center <a href="{% url 'documentation:topic-list' %}" title="Help Center Home"><i class="fa fa-home"></i></a></h1>
         <div class="row attention-seeker">
             <div class="col-sm-3 col-xs-6">
                 <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">
-                    <div class="well"><h4>Browsing Data</h4>
+                    <div class="well"><h4>Browsing Single Object Data</h4>
                         <p>How to access and download survey-derived data products for a particular object.</p>
                     </div>
                 </a>
             </div>
             <div class="col-sm-3 col-xs-6">
                 <a href="{% url 'documentation:topic-detail' slug='query' %}">
-                    <div class="well"><h4>Making Queries</h4>
+                    <div class="well"><h4>Making Multi Object Queries</h4>
                         <p>Find out everything you need to get started querying the survey data hosted at AAODC.</p>
                     </div>
                 </a>
             </div>
             <div class="col-sm-3 col-xs-6">
                 <a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">
-                    <div class="well"><h4>Using the Schema</h4>
+                    <div class="well"><h4>Using the Schema Browser</h4>
                         <p>Articles on using the Schema Browser tool, the roadmap of survey data products hosted at AAODC.</div>
                 </a>
             </div>
@@ -95,8 +95,8 @@
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
-        <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
          {% if response.data.results %}
+            <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
             {% for topic in response.data.results %}
                 <h2 id="{{topic.title|slug}}" class="no-margin-top">
                     {{topic.title}}
@@ -144,13 +144,19 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <h2>{{response.data.title}}
+                <p class="lead">
+                    Articles tagged with the topic <em>{{response.data.title}}</em> are shown below.
+                    To view all articles in the Help Center, go back to the
+                    <a href="{% url 'documentation:topic-list' %}" title="Help Center Home">Help Center Home <i
+                        class="fa fa-home"></i></a>
+                </p>
+                <h2>All {{response.data.title}} Articles
                     {% if request.user.is_superuser %}
                 <small class="right-helper"><a class="pull-right" href="{% url 'documentation:article-list' %}">Add New <i class="fa fa-plus"></i> </a></small>
                     {% endif %}
                 </h2>
 
-                <h3>All Articles</h3>
+
                 <ul class="p sub-heading">
                     {% if response.data.articles %}
                         {% for article in response.data.articles %}

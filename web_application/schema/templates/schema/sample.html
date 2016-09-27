@@ -65,13 +65,12 @@
                 </li>
                     {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                         <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
-                            <a href="#{{trait_type_key}}-{{trait_qualifier_key}}" class="trait_type_button"
-                               aria-controls="{{trait_type_key}}-{{trait_qualifier_key}}" role="tab"
+                            <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_type_button"
+                               aria-controls="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" role="tab"
                                data-toggle="pill">{{trait_qualifier_value.pretty_name}}
                                 {% if not trait_qualifier_value.pretty_name %}
                                     {{trait_type_value.pretty_name}}
                                 {% endif %}
-                                <!--<small>{{trait_type_key}}-{{trait_qualifier_key}}</small>-->
                             </a>
                         </li>
                     {% endfor %}
@@ -88,7 +87,7 @@
                     <div class="tab-content trait">
                         {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
                             {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                                <div id="{{trait_type_key}}-{{trait_qualifier_key}}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
+                                <div id="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
 
                                     <h2>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}</h2>
                                     <p><em>{{trait_type_value.description}}</em></p>
@@ -108,7 +107,7 @@
                                     </div>
                                     <ul class="nav nav-pills branch-selector">
                                         <li class="dropdown">
-                                            <a class="btn btn-default branch_button" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                            <a class="btn btn-default branch_button" data-toggle="dropdown" href="" aria-haspopup="true" aria-expanded="false">
                                                <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch </span>
                                                     {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
                                                         <!--Default branch, and the default version for that branch, are set as active-->
@@ -129,7 +128,7 @@
 
                                                     <!--Default branch, and the default version for that branch, are set as active-->
                                                     <li class="{% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %}">
-                                                        <a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}"
+                                                        <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}"
                                                            data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
                                                             <strong> {{trait_branch_value.pretty_name}}
                                                             {% if trait_qualifier_value.default_branch == trait_branch_key %}
@@ -152,10 +151,10 @@
 
                                         {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
 
-                                            <div id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %} ">
+                                            <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %} ">
                                                 <ul class="nav nav-pills version-selector">
                                                     <li class="dropdown">
-                                                        <a class="btn btn-default branch_button" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                                        <a class="btn btn-default branch_button" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                             {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                                                     <!--Default branch, and the default version for that branch, are set as active-->
                                                                 {% if trait_branch_value.default_version == trait_version_key %}
@@ -172,7 +171,7 @@
                                                             {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                                                     <!--Default branch, and the default version for that branch, are set as active-->
                                                                 <li class="{% if trait_branch_value.default_version == trait_version_key %}active{% endif %}">
-                                                                    <a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}"
+                                                                    <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}"
                                                                        data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}" data-version-description="{{trait_version_value.description}}">
                                                                         <strong> {{trait_version_value.pretty_name}}
                                                                         {% if trait_branch_value.default_version == trait_version_key %}
@@ -186,13 +185,13 @@
                                                                 {% endif %}
                                                             {% endfor %}
                                                                 <!--<li role="separator" class="divider"></li>-->
-                                                                <!--<li><a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>-->
+                                                                <!--<li><a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>-->
                                                         </ul>
                                                     </li>
                                                 </ul>
                                                 <div class="tab-content">
                                                     {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                    <div id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}" class="tab-pane {% if trait_branch_value.default_version == trait_version_key %}active{% endif %} ">
+                                                    <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}" class="tab-pane {% if trait_branch_value.default_version == trait_version_key %}active{% endif %} ">
 
                                                             {% with trait_version_value.trait as value %}
 
@@ -210,23 +209,23 @@
 
                                                                 <h3>Contents</h3>
                                                                 <ul class="p">
-                                                                    <li><a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description" class="scroll">Description</a></li>
+                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_description" class="scroll">Description</a></li>
                                                                     <li>
-                                                                        <a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties"
+                                                                        <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_properties"
                                                                            class="scroll">Properties</a>
                                                                         <ul>
                                                                             {% for trait_property_key, trait_property_value in value.trait_properties.items %}
-                                                                                <li><a class="scroll" href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{trait_property_key}}">{{trait_property_value.pretty_name}} </a></li>
+                                                                                <li><a class="scroll" href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">{{trait_property_value.pretty_name}} </a></li>
                                                                             {% endfor %}
                                                                             {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
-                                                                                <li><a class="scroll" href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}">{{sub_trait_value.pretty_name}} </a></li>
+                                                                                <li><a class="scroll" href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}">{{sub_trait_value.pretty_name}} </a></li>
                                                                                 {% comment %}
                                                                                     <!--<ul>-->
                                                                                         <!--{% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}-->
                                                                                             <!--{% if sub_trait_qualifier_value.pretty_name %}-->
                                                                                                 <!--&lt;!&ndash;Only add this level in if it exists&ndash;&gt;-->
                                                                                                 <!--<li>-->
-                                                                                                    <!--<a class="scroll" href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
+                                                                                                    <!--<a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
                                                                                                 <!--</li>-->
                                                                                                 <!--<ul>-->
                                                                                             <!--{% endif %}-->
@@ -234,11 +233,11 @@
                                                                                                 <!--{% with sub_trait_qualifier_value.trait as sub_value %}-->
                                                                                                     <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
                                                                                                         <!--&lt;!&ndash; Here, we can access the any description levels that may be apparent &ndash;&gt;-->
-                                                                                                        <!--<li><a class="scroll" href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">{{sub_value.pretty_name}}</a></li>-->
+                                                                                                        <!--<li><a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">{{sub_value.pretty_name}}</a></li>-->
                                                                                                         <!--<ul>-->
                                                                                                     <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
                                                                                                         <!--{% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}-->
-                                                                                                            <!--<li><a class="scroll" href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_property_key}}">{{sub_trait_property_value.pretty_name}} </a></li>-->
+                                                                                                            <!--<li><a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_property_key}}">{{sub_trait_property_value.pretty_name}} </a></li>-->
                                                                                                         <!--{% endfor %}-->
                                                                                                     <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
                                                                                                         <!--</ul>-->
@@ -253,22 +252,22 @@
                                                                             {% endfor %}
                                                                         </ul>
                                                                     </li>
-                                                                    <li><a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats" class="scroll">Downloadable Formats</a></li>
-                                                                    <li><a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches" class="scroll">All Available Branches and Previous Versions</a></li>
+                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_formats" class="scroll">Downloadable Formats</a></li>
+                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_branches" class="scroll">All Available Branches and Previous Versions</a></li>
                                                                 </ul>
 
                                                                 <!-- Documentation -->
-                                                                <h3 id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_description">Description</h3>
+                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_description">Description</h3>
                                                                 <div class="documentation_fidia">
                                                                     {{value.html_documentation|safe}}
                                                                 </div>
 
                                                                 <!-- Properties-->
-                                                                <h3 id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_properties">Properties</h3>
+                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_properties">Properties</h3>
 
 
                                                                 {% for trait_property_key, trait_property_value in value.trait_properties.items %}
-                                                                    <h4 id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{trait_property_key}}">
+                                                                    <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">
                                                                     {{trait_property_value.pretty_name}} <small> <code>{{trait_property_value.type}}</code></small></h4>
                                                                     <div class="documentation_fidia">
                                                                         {{trait_property_value.html_documentation|safe}}
@@ -278,7 +277,7 @@
 
                                                                 <!--Sub traits-->
                                                                 {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
-                                                                    <h4 id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}">
+                                                                    <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}">
                                                                     {{sub_trait_value.pretty_name}}</h4>
                                                                     <div class="documentation_fidia">
                                                                         {{sub_trait_value.html_documentation|safe}}
@@ -289,7 +288,7 @@
                                                                         <!--{% if sub_trait_qualifier_value.pretty_name %}-->
                                                                             <!--Only add this level in if it exists-->
                                                                             <!--<li>-->
-                                                                                <!--<a class="scroll" href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
+                                                                                <!--<a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
                                                                             <!--</li>-->
                                                                         <!--{% endif %}-->
                                                                         <!-- here, can access the trait description, pretty name etc-->
@@ -302,7 +301,7 @@
                                                                                 <!--{% endif %}-->
 
                                                                                 <div>
-                                                                                    <h5 id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">
+                                                                                    <h5 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">
                                                                                         &nbsp;&nbsp;<i class="fa fa-level-up fa-rotate-90"></i> {{sub_trait_value.pretty_name}} Properties</h5>
                                                                                     <!-- Here, we can access the any description levels that may be apparent -->
                                                                                     <div class="documentation_fidia">{{sub_trait_value.html_documentation|safe}}</div>
@@ -330,7 +329,6 @@
                                                                                                         <td><code>{{sub_trait_property_value.type}}</code></td>
                                                                                                         <td><em>{{sub_trait_property_value.description}}</em></td>
                                                                                                         <td><span class="documentation_fidia">{{sub_trait_property_value.html_documentation|safe}}</span></td>
-                                                                                                        <!--<td><a class="scroll" href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_{{trait_property_key}}"> <i class="fa fa-link"></i> Read more </a></td>-->
                                                                                                     </tr>
                                                                                                 {% endfor %}
                                                                                                 </tbody>
@@ -346,7 +344,7 @@
                                                                 {% endfor %}
 
                                                                 <!-- Formats -->
-                                                                <h3 id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_formats">
+                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_formats">
                                                                      Formats
                                                                 </h3>
                                                                 <div>
@@ -365,7 +363,7 @@
 
 
                                                                 <!-- Branches -->
-                                                                <h3 id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_branches">
+                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_branches">
                                                                      All Available Branches and Previous Versions
                                                                 </h3>
                                                                 <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} data products have {{trait_qualifier_value.branches |length }} available branch(es).
@@ -428,9 +426,6 @@
                                                             {% endwith %}
                                                     </div>
                                                     {% endfor %}
-                                                    <!--<div id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy" class="tab-pane">-->
-                                                        <!--{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}_{{trait_version_key}}_dummy-->
-                                                    <!--</div>-->
                                                 </div>
                                             </div>
                                         {% endfor %}
@@ -449,20 +444,32 @@
 
     $(document).ready(function () {
 
-        // Activate a tab if the hash is in the url
-        if (window.location.hash.length > 0) {
-            $('ul.nav-pills > li > a.trait_type_button[href="' + window.location.hash + '"]').tab('show');
-        }
 
+        // Animate smooth scrolling of trait types
         $("ul.nav-pills a.trait_type_button").click(function (e) {
-            // add the has to the url once trait_type is selected
+            // prevent jump to hash
+            e.preventDefault();
+            // append to url
             window.location.hash = this.hash;
+            // scroll to top of .main-content
+            $('html, body').animate({scrollTop:$('.main-content').offset().top}, 400);
         });
 
-        $("ul.nav-pills a").click(function (e) {
+        // Don't animate to branch/version hash, as the selection buttons are near the panels anyway
+        $("ul.branch-selector ul.dropdown-menu > li > a, ul.version-selector ul.dropdown-menu > li > a").click(function (e) {
+            // prevent jump to hash
             e.preventDefault();
-            $(this).tab('show');
 
+            // add the has to the url once trait_type is selected (makes for easier copy-paste linking)
+            // if the hash contains other stuff, don't override
+            // console.log(window.location.hash);
+            // console.log(this.hash);
+
+            window.location.hash = this.hash;
+            // remove any nearby active classes
+            $(this).closest('ul').find('li').removeClass('active');
+
+            $(this).tab('show');
         });
 
         // Change the text shown in the branch button.
@@ -520,6 +527,68 @@
         $('.branch_warning_button').click(function(){
             $('.branch_warning').hide();
         });
+
+
+        // Activate a tab if the hash is in the url
+        if (window.location.hash.length > 0) {
+
+            var _trait_key_arr = window.location.hash.split('-');
+
+            // HYPHEN PATTERNS
+
+            // ALWAYS 0 or 1
+            // => SHOW panel id =#trait_type(-qualifier)
+
+            // 1 key: trait_type
+            // 2 keys: trait_type-trait_qualifier
+
+            var _trait_type = _trait_key_arr[0];
+            var _qualifier = "";
+
+            if (_trait_key_arr.length > 1 && window.location.hash.indexOf('--') == -1){
+                // qualifier found (no double hypen found)
+                _qualifier = '-'+_trait_key_arr[1];
+            } else {}
+
+
+            $('ul.nav-pills > li > a.trait_type_button[href="' + _trait_type + _qualifier + '"]').tab('show');
+
+            if (_trait_key_arr.length > 2) {
+                // Remove all active classes
+                $(_trait_type+_qualifier+" ul.branch-selector ul.dropdown-menu > li > a").each(function () {
+                    $(this).closest('li').removeClass("active");
+                });
+                var _branch = '-' + _trait_key_arr[2];
+
+                if (window.location.hash.indexOf('--') == -1) {
+                    // use qualifier as defined above (no double hypen found)
+                    // 3 keys: trait_type-qualifier-branch
+                    // 4 keys: trait_type-qualifier-branch-version
+                } else {
+                    // else replace qualifier with extra hash
+                    // 3 keys: trait_type--branch (trait_type--branch)
+                    // 4 keys: trait_type--branch-version (trait_type-null-branch-version)
+                    _qualifier = '-';
+                }
+
+                // show branch
+                // use click event rather than 'show' as bound button name change to click event above. This ensures you
+                // get the dropdown button name change functionality reflecting the branch name + description
+                $('ul.branch-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + '"]').click();
+                // $('ul.branch-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + '"]').tab('show');
+
+                // show version
+                if (!!_trait_key_arr[3]) {
+                    // Remove all active classes
+                    $(_trait_type+_qualifier+_branch+" ul.version-selector ul.dropdown-menu > li > a").each(function () {
+                        $(this).closest('li').removeClass("active");
+                    });
+                    var _version = '-' + _trait_key_arr[3];
+                    $('ul.version-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + _version + '"]').click();
+                    //  $('ul.version-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + _version + '"]').tab('show');
+                }
+            }
+        }
 
 
     });

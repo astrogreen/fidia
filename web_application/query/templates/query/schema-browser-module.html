@@ -4,6 +4,7 @@
     <div ng-repeat="row in inputSchema track by $index" class="clearfix schema-element"
          id="schema-element-{{$index}}">
         <div class="">
+            <strong ng-show="{{$index==1}}">Queriable Properties</strong>
             <div isteven-multi-select input-model="inputSchema[$index]" output-model="outputSchema[$index]"
                  selection-mode="single" on-item-click="fDropClick($index)"
                  button-label="name" item-label="name" tick-property="ticked" class="floating-select query-schema"
@@ -11,8 +12,10 @@
             </div>
         </div>
         <div class="information p">
-            <dl class="query-schema"></dl>
+            <dl class="query-schema">
+            </dl>
         </div>
+
     </div>
 
 </div>

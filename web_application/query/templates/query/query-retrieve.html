@@ -24,7 +24,7 @@
 {% block page_title_banner_class %}yellow{% endblock %}
 
 
-{% block content_render %}
+{% block content-test %}
 <div class="row">
     <div class="col-sm-2 col-xs-12 sidebar">
         <div class="sidebar-contents">
@@ -274,12 +274,10 @@
 
 {% autoescape off %}
  <script type="text/javascript">
-    var SAMI_URL = "";
-    var GAMA_URL = "";
-    {% comment %}
-    var SAMI_URL = "{% url 'data_browser:sample-list' sample_pk='sami' %}";
-    var GAMA_URL = "{% url 'data_browser:sample-list' sample_pk='gama' %}";
-    {% endcomment %}
+
+    var SAMI_URL = "{% url 'data_browser:survey-list' sample_pk='sami' %}";
+    var GAMA_URL = "{% url 'data_browser:survey-list' sample_pk='gama' %}";
+
 
     var DOWNLOAD_URL = "{% url 'download-create'%}";
 
@@ -402,6 +400,36 @@
             event.preventDefault();
             $('html, body').animate({scrollTop: $(this.hash).offset().top}, 800);
         });
+    });
+</script>
+
+{# ----- Change the text shown in the branch button. ----- #}
+<script>
+    $('.branch_dropdown ul.dropdown-menu > li > a').click(function (event) {
+        console.log(event);
+        // note, currentTarget gets the element to which the event handler was attached to (rather than target, which gets the element on which the event occurred)
+        var _anchor = $(event.currentTarget);
+        // get nearest button
+
+        // optional version description
+        var _vers_description_colon = '';
+        var _branch_description_colon = '';
+        if (!!_anchor.attr('data-version-description')){_vers_description_colon=':'}
+        if (!!_anchor.attr('data-branch-description')){_branch_description_colon=':'}
+
+        var _branch = "<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch </span><strong>" + _anchor.attr('data-branch') + _branch_description_colon + "</strong> " + _anchor.attr('data-branch-description') + " <i class='fa fa-caret-down'></i>";
+        var _version = "<span class='sub-heading'><i class='fa fa-map-pin'></i> Version </span><strong>" + _anchor.attr('data-version') + _vers_description_colon + "</strong> " + _anchor.attr('data-version-description') + " <i class='fa fa-caret-down'></i>";
+
+        if (!!_anchor.attr('data-version')){
+            _anchor.closest('ul.version-selector').find('a.branch_button').html(_version)
+        } else {
+            _anchor.closest('ul.branch-selector').find('a.branch_button').html(_branch)
+        }
+
+        // Update the branch_warning message with this branch and version
+        _anchor.closest('.trait').find('span.branch_warning-branch').html(_anchor.attr('data-branch'));
+        _anchor.closest('.trait').find('span.branch_warning-version').html(_anchor.attr('data-version'));
+
     });
 </script>
 {% endblock %}

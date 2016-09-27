@@ -315,6 +315,7 @@ code {
       box-shadow:none;
     }
   }
+  .nav-pills li a {font-size:12px;}
 }
 .main-content{
   padding:30px;
@@ -718,8 +719,8 @@ header {
       color: #6f8990;
       text-decoration: none;
       padding: 5px 10px 6px;
-      font-size: 15px;
-      line-height: 18px;
+      font-size: 13px;
+      line-height: 16px;
       border: 1px solid transparent;
       transition: all 0.3s ease-in-out;
     }
@@ -1187,7 +1188,7 @@ p.breakword {
   border-left: 3px solid #d9534f;
 }
 
-.panel.success, .panel-body.success {
+.panel.success, .panel-body.success, .well.success {
   border-left: 3px solid #4078C0;
 }
 
@@ -1350,7 +1351,15 @@ pre {
 li.nested_dropdown > a {
   padding-left: 35px !important;
 }
-
+.inert_dropdowns {
+  .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: inherit;
+    background-color: inherit;
+  }
+  .nav > li > a {
+    padding: 6px 12px;
+  }
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ IMAGES
@@ -1381,6 +1390,12 @@ li.nested_dropdown > a {
 .table a h4 {
   margin-top: 0px;
   margin-bottom: 6px;
+}
+
+/* position relative here ensures that dropdowns can be seen in the table cell,
+ if absolute, are obscured by edge of cell */
+.table-responsive .table .dropdown-menu {
+    position: relative;
 }
 
 .table {
