@@ -284,6 +284,9 @@ table.table-overview tr:nth-child(2) td {
 .table-overview .table > tfoot > tr > td {
   padding: 15px;
 }
+div.dataTables_wrapper div.dataTables_filter input {
+  width: 100%;
+}
 h4.list-group-item-text {
   margin-bottom: 10px;
 }

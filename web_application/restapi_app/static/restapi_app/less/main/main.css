@@ -774,6 +774,9 @@ header .user a > a {
 ++ GLOBAL STYLING
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.no-padding {
+  padding: 0 !important;
+}
 .no-margin-top {
   margin-top: 0 !important;
 }

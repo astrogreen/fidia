@@ -4,10 +4,10 @@
 {% load internal_extras %}
 {% block title %}Data Browser{% endblock %}
 {% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
+<!--<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>-->
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/js/DataTables/datatables.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 {% endblock %}
 
 {% block page_title %}Data Browser{% endblock %}
@@ -164,21 +164,38 @@
         <h3 id="data-access">Data Access</h3>
         <p>The Data Browser allows users a quick-look at each astronomical object's data
             products available in this data release, including visualizations, processing information and associated
-            properties.
-            Data products can be downloaded as multi-extension FITS files, with all relevant processing information
-            contained within the FITS header.
-        </p>
-        <p class="well info success">
-            To begin, search for a {{survey|uppercase}}
-            object below by either typing in the input box, or click an option from the dropdown.
-            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-               data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
-               data-placement="top"><i class="fa fa-info-circle"></i></a>
-        </p>
+            properties. Data products can be downloaded as multi-extension FITS files, with all relevant processing
+            information
+            contained within the FITS header.</p>
         <p>It is recommended
             that you also use the SAMI Data Browser in conjunction with the
             <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
             descriptions of the data products available.</p>
+        <p><strong>Single Object:</strong> Search for a specific {{survey|uppercase}}
+            object below by typing in the search box.<br>
+            <strong>Multiple Objects:</strong> Filter all rows using the search box or range inputs.
+        </p>
+        <p>For more information,
+            <a class="disabled" disabled="" href="/asvo/docs/articles/branches-what-is-a-branch/">
+                view the documentation.</a></p>
+
+
+        <table class="table table-bordered">
+            <colgroup>
+                 <col align="center" width="25%" />
+                 <col align="center" width="25%" />
+                 <col align="center" width="50%" />
+            </colgroup>
+            <tbody>
+            <tr>
+                <td style="vertical-align: bottom"><span class="sub-heading">Set the number of entries displayed on this page.</span></td>
+                <td style="vertical-align: bottom"><span class="sub-heading">Search all rows and columns.</span></td>
+                <td style="vertical-align: bottom"><span class="sub-heading">Search data in the selected column between two values.</span></td>
+
+            </tr>
+            </tbody>
+        </table>
+
         <div class="row">
             <div class="col-sm-12">
                 <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
@@ -209,6 +226,9 @@
 ------ TURN ON DATATABLES ------
 {% endcomment %}
 <script src="{% static 'restapi_app/js/data-tables/dataTables.js' %}"></script>
+<script src="{% static 'data_browser/js/DataTables/datatables.min.js' %}"></script>
+<script src="{% static 'data_browser/js/DataTables/pdfmake.min.js' %}"></script>
+<script src="{% static 'data_browser/js/DataTables/vfs_fonts.js' %}"></script>
 
 {% autoescape off %}
  <script type="text/javascript">
@@ -232,8 +252,18 @@
         if((typeof catalog !== 'undefined') && catalog.data.length < render_limit){
             var columns = [];
             var thead = '';
+
+            // ADD checkboxes to array (unshift appends to beginning of an array, whereas push appends to the end)
+//            for (var key in catalog.data) {
+//                astro_object = catalog.data[key][0];
+//                catalog.data[key].unshift('<input type="checkbox" value="'+astro_object+'">')
+//            }
+//            catalog.column_names.unshift('check');
+
             $('#returnTableResults').find('thead > tr').empty();
+            $('#returnTableResults').addClass("table-bordered cell-border");
             //APPEND COLUMN VALUES TO TABLE HEAD
+//            columns.push({title:'checkbox'});
             $.each(catalog.column_names, function(i,k){
                 var b = { title: k };
 
@@ -258,6 +288,7 @@
 
                 th = '<th>'+k+'</th>';
                 columns.push(b);
+
                 $('#returnTableResults').find('thead > tr').append(th);
             });
 
@@ -269,7 +300,11 @@
                 "deferRender": true,
                 "language": {
                     "loadingRecords": "Please wait - loading..."
+                },
+                select: {
+                    style: 'multi'
                 }
+
             });
 
             $('#returnTableResults_filter input').unwrap().wrap("<div class='input-group' role='search'></div>")
@@ -278,14 +313,20 @@
                     .after('<span class="input-group-btn"> <button class="btn btn-default btn-sm" type="button">' +
                             '<i class="fa fa-search fa-fw"></i></button> </span>');
             document.getElementById('returnTableResults_filter').firstChild.data = "";
-            $('#returnTableResults_length').parent('.col-sm-6').addClass('col-xs-6');
-            $('#returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6');
-            $('#returnTableResults_filter').parent('.col-sm-6').parent('.row').append('<div class="col-xs-12 col-sm-12 text-right">' +
-                    '<form class="form-inline"> <div class="form-group"> <label class="sr-only" for="min">Minimum</label> ' +
-                    '<input type="text" class="form-control minimum" id="min" placeholder="Minimum" disabled> </div>' +
-                    '<div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"><option value="" selected disabled>SELECT COLUMN</option></select></div> ' +
-                    '<div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="Maximum" disabled></div> </form>');
+            $('#returnTableResults_length').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
+            $('#returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
 
+
+
+            $('#returnTableResults_wrapper').prepend('<div class="col-xs-12 col-sm-6">' +
+                    '<form class=""><div class="row">' +
+                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum" id="min" placeholder="MINIMUM" disabled> </div></div>' +
+                    '<div class="col-xs-4 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
+                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="MAXIMUM" disabled></div></div>' +
+                    '</div> </form>');
+            $('#returnTableResults_wrapper').removeClass('form-inline');
+            $('#returnTableResults_filter > div > input').removeClass('input-sm');
+            $('#returnTableResults_filter > div > span > button').removeClass('btn-sm');
             // Append column options to the range select
             for (var k=0;k<columns.length;k++){
                 $('select#column').append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
@@ -344,6 +385,55 @@
                 } );
             } );
 
+            // Get the IDs of selected items
+            $('#returnTableResults').click(function(){
+                get_ids()
+            });
+
+            get_ids = function(){
+                /*
+                    Returns the list of ids (where id == arr element 0) that are currently selected
+                 */
+                var ids = $.map(table.rows({selected: true }).data(), function (item) {
+                    return item[0]
+                });
+                console.log(ids);
+                return ids
+            }
+
+
+            // obtain a jQuery object that holds the container element of the button set. Then can insert the element as per styling
+            new $.fn.dataTable.Buttons(table, {
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5', {
+                        text: 'Select all',
+                        action: function () {
+                            table.rows().select();
+                            get_ids();
+                        }
+                    },
+                    {
+                        text: 'Select none',
+                        action: function () {
+                            table.rows().deselect();
+                            get_ids();
+                        }
+                    },
+                    {
+                        text: 'Select filtered',
+                        action: function () {
+                            table.rows({search: 'applied'}).select();
+                            get_ids();
+                        }
+                    }
+                ]
+            });
+
+            table.buttons().container()
+                    .appendTo($('.col-sm-6:eq(0)', table.table().container()));
 
 
 
@@ -352,9 +442,5 @@
     };
 {% endautoescape %}
 </script>
-
-{% endblock %}
-{% block footer-extra %}
-<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
 {% endblock %}
 
