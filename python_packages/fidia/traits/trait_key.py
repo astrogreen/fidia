@@ -304,16 +304,22 @@ class TraitPath(tuple):
 
     __slots__ = ()
 
-    def __new__(_cls, trait_path_tuple=None):
+    def __new__(cls, trait_path_tuple=None):
 
         if isinstance(trait_path_tuple, str):
             trait_path_tuple = trait_path_tuple.split("/")
 
         if trait_path_tuple is None or len(trait_path_tuple) == 0:
-            return tuple.__new__(_cls, tuple())
+            return tuple.__new__(cls, tuple())
 
         validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
-        return tuple.__new__(_cls, validated_tk_path)
+        return tuple.__new__(cls, validated_tk_path)
+
+    def as_traitpath(self, trait_path):
+        if isinstance(trait_path, TraitPath):
+            return trait_path
+        else:
+            return TraitPath(trait_path)
 
     def get_trait_class_for_archive(self, archive):
         trait = archive
