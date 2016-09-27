@@ -56,7 +56,7 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
@@ -188,24 +188,6 @@
 
 
 
-
-        <!--<div class="row">-->
-            <!--<div class="col-sm-offset-4 col-sm-4 col-xs-12"><br>-->
-                <!--<select type="text" class="searchbox selectized text-center"-->
-                        <!--id="autocomplete-widget" placeholder="SEARCH">-->
-                    <!--<option value="" disabled selected>Select an object</option>-->
-                    <!--{% for key, value in response.data.astro_objects.items %}-->
-                    <!--<option value="{{value}}">{{key}}</option>-->
-                    <!--{% endfor %}-->
-                <!--</select>-->
-                <!--<a class="btn btn-block btn-primary" type="button" href="" disabled-->
-                   <!--id="autocomplete-button">GO</a>-->
-                <!--<br><br>-->
-            <!--</div>-->
-        <!--</div>-->
-
-
-
         <h3 id="help">Help</h3>
         <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
             {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
@@ -223,20 +205,6 @@
 
 </div>
 
-<!--<script>-->
-    <!--$(document).ready(function () {-->
-        <!--$selector = $("#autocomplete-widget").selectize({-->
-            <!--closeAfterSelect: true,-->
-            <!--selectOnTab: true,-->
-            <!--placeholder: "Search for a {{response.data.sample|uppercase}} object...",-->
-            <!--create: false,-->
-            <!--maxItems: 1,-->
-            <!--onChange: function (value) {-->
-                <!--$('#autocomplete-button').attr('href', value).attr('disabled', false)-->
-            <!--}-->
-        <!--});-->
-    <!--});-->
-<!--</script>-->
 {% comment %}
 ------ TURN ON DATATABLES ------
 {% endcomment %}
@@ -287,7 +255,7 @@
                         }
                     }
                 }
-                
+
                 th = '<th>'+k+'</th>';
                 columns.push(b);
                 $('#returnTableResults').find('thead > tr').append(th);
@@ -313,7 +281,72 @@
             $('#returnTableResults_length').parent('.col-sm-6').addClass('col-xs-6');
             $('#returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6');
             $('#returnTableResults_filter').parent('.col-sm-6').parent('.row').append('<div class="col-xs-12 col-sm-12 text-right">' +
-                    '<form class="form-inline"> <div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control" id="min" placeholder="Minimum"> </div><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"></select></div> <div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="Maximum"></div> </form>');
+                    '<form class="form-inline"> <div class="form-group"> <label class="sr-only" for="min">Minimum</label> ' +
+                    '<input type="text" class="form-control minimum" id="min" placeholder="Minimum" disabled> </div>' +
+                    '<div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"><option value="" selected disabled>SELECT COLUMN</option></select></div> ' +
+                    '<div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="Maximum" disabled></div> </form>');
+
+            // Append column options to the range select
+            for (var k=0;k<columns.length;k++){
+                $('select#column').append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
+            }
+
+
+            // Range initialization code
+            /* Custom filtering function which will search data in column four between two values */
+            // this needs to be re-initialized on each selection of the column
+
+
+
+            $('#column').on('change', function (e) {
+                // redraw table without any filtering
+                $.fn.dataTable.ext.search = [];
+                table.draw();
+
+                var selected_column = $(e.currentTarget).val();
+                console.log('selected '+selected_column);
+
+                $('#min, #max').val('').removeClass().addClass(selected_column).addClass('form-control').attr("disabled",false);
+                // find column index
+                for (var k=0;k<columns.length;k++){
+                    if (columns[k].title == selected_column){column_index = k;}
+                }
+                console.log('column index in data '+column_index);
+
+                data = catalog.data;
+
+                $.fn.dataTable.ext.search.push(
+                    function (settings, data, dataIndex) {
+
+                        var min = parseFloat($('#min.'+selected_column).val());
+                        var max = parseFloat($('#max.'+selected_column).val());
+
+                        // TODO find type of data if string...
+                        var field = parseFloat(data[column_index]) || 0; // use data for the selected column
+
+                        if (( isNaN(min) && isNaN(max) ) ||
+                                ( isNaN(min) && field <= max ) ||
+                                ( min <= field && isNaN(max) ) ||
+                                ( min <= field && field <= max )) {
+                            return true;
+                        }
+                        return false;
+                    }
+                );
+
+            });
+
+
+            $(document).ready(function() {
+                // Event listener to the two range filtering inputs to redraw on input
+                $('#min, #max').keyup( function() {
+                    table.draw();
+                } );
+            } );
+
+
+
+
 
         };
     };
