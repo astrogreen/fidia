@@ -4,6 +4,7 @@
 {% load internal_extras %}
 {% block title %}Data Browser{% endblock %}
 {% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
@@ -64,9 +65,10 @@
 
             <ul class="nav nav-pills nav-stacked docs-sidebar">
 
-                <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+
                 <li role="presentation"><a class="scroll" href="#overview">Data Release {{response.data.data_release}}
                     Overview</a></li>
+                <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
                 <li role="presentation"><a class="scroll" href="#help">Help</a></li>
 
             </ul>
@@ -99,41 +101,7 @@
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2 id="data-access">Data Access</h2>
-        <p>The Data Browser allows users a quick-look at each astronomical object's data
-            products available in this data release, including visualizations, processing information and associated
-            properties.
-            Data products can be downloaded as multi-extension FITS files, with all relevant processing information
-            contained within the FITS header.
-        </p>
-
-        <p class="well info success">
-            To begin, search for a {{survey|uppercase}}
-            object below by either typing in the input box, or click an option from the dropdown.
-            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-               data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
-               data-placement="top"><i class="fa fa-info-circle"></i></a>
-        </p>
-        <div class="row">
-            <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br>
-                <select type="text" class="searchbox selectized text-center"
-                        id="autocomplete-widget" placeholder="SEARCH">
-                    <option value="" disabled selected>Select an object</option>
-                    {% for key, value in response.data.astro_objects.items %}
-                    <option value="{{value}}">{{key}}</option>
-                    {% endfor %}
-                </select>
-                <a class="btn btn-block btn-primary" type="button" href="" disabled
-                   id="autocomplete-button">GO</a>
-                <br><br>
-            </div>
-        </div>
-        <p>It is recommended
-            that you also use the SAMI Data Browser in conjunction with the
-            <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
-            descriptions of the data products available.</p>
-
-        <h3 id="overview">Data Release {{response.data.data_release}} Overview</h3>
+        <h2 id="overview">Data Release {{response.data.data_release}} Overview</h2>
         <div class="panel panel-default" style="margin-top:20px;">
             <div class="panel-heading">
                 Overview
@@ -193,6 +161,51 @@
                 </table>
             </div>
         </div>
+        <h3 id="data-access">Data Access</h3>
+        <p>The Data Browser allows users a quick-look at each astronomical object's data
+            products available in this data release, including visualizations, processing information and associated
+            properties.
+            Data products can be downloaded as multi-extension FITS files, with all relevant processing information
+            contained within the FITS header.
+        </p>
+        <p class="well info success">
+            To begin, search for a {{survey|uppercase}}
+            object below by either typing in the input box, or click an option from the dropdown.
+            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
+               data-content="<p>When typing the name of a particular object, the search results will display matches to the first character of the expression, followed by substring matches.</p>"
+               data-placement="top"><i class="fa fa-info-circle"></i></a>
+        </p>
+        <p>It is recommended
+            that you also use the SAMI Data Browser in conjunction with the
+            <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
+            descriptions of the data products available.</p>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+            </div>
+        </div>
+
+
+
+
+
+        <!--<div class="row">-->
+            <!--<div class="col-sm-offset-4 col-sm-4 col-xs-12"><br>-->
+                <!--<select type="text" class="searchbox selectized text-center"-->
+                        <!--id="autocomplete-widget" placeholder="SEARCH">-->
+                    <!--<option value="" disabled selected>Select an object</option>-->
+                    <!--{% for key, value in response.data.astro_objects.items %}-->
+                    <!--<option value="{{value}}">{{key}}</option>-->
+                    <!--{% endfor %}-->
+                <!--</select>-->
+                <!--<a class="btn btn-block btn-primary" type="button" href="" disabled-->
+                   <!--id="autocomplete-button">GO</a>-->
+                <!--<br><br>-->
+            <!--</div>-->
+        <!--</div>-->
+
+
+
         <h3 id="help">Help</h3>
         <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
             {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
@@ -210,19 +223,115 @@
 
 </div>
 
-<script>
-    $(document).ready(function () {
-        $selector = $("#autocomplete-widget").selectize({
-            closeAfterSelect: true,
-            selectOnTab: true,
-            placeholder: "Search for a {{response.data.sample|uppercase}} object...",
-            create: false,
-            maxItems: 1,
-            onChange: function (value) {
-                $('#autocomplete-button').attr('href', value).attr('disabled', false)
-            }
-        });
-    });
+<!--<script>-->
+    <!--$(document).ready(function () {-->
+        <!--$selector = $("#autocomplete-widget").selectize({-->
+            <!--closeAfterSelect: true,-->
+            <!--selectOnTab: true,-->
+            <!--placeholder: "Search for a {{response.data.sample|uppercase}} object...",-->
+            <!--create: false,-->
+            <!--maxItems: 1,-->
+            <!--onChange: function (value) {-->
+                <!--$('#autocomplete-button').attr('href', value).attr('disabled', false)-->
+            <!--}-->
+        <!--});-->
+    <!--});-->
+<!--</script>-->
+{% comment %}
+------ TURN ON DATATABLES ------
+{% endcomment %}
+<script src="{% static 'restapi_app/js/data-tables/dataTables.js' %}"></script>
+
+{% autoescape off %}
+ <script type="text/javascript">
+
+    var SAMI_URL = "{% url 'data_browser:survey-list' sample_pk='sami' %}";
+    var GAMA_URL = "{% url 'data_browser:survey-list' sample_pk='gama' %}";
+
+    var DOWNLOAD_URL = "{% url 'download-create'%}";
+
+    data = JSON.parse("{{ content|escapejs }}");
+
+    if (typeof data.catalog !== 'undefined'){
+        $('#data-table-container').html(' ')
+                .append('<div class=""><table id="returnTableResults" class="table table-responsive table-condensed"><thead><tr><th>Please wait, loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
+
+        render_limit = 10000;
+        catalog = (data.catalog);
+
+        catalog_data_row_length = catalog.data.length;
+        catalog_data_col_length = catalog.column_names.length;
+
+
+        if((typeof catalog !== 'undefined') && catalog.data.length < render_limit){
+            var columns = [];
+            var thead = '';
+            $('#returnTableResults').find('thead > tr').empty();
+            //APPEND COLUMN VALUES TO TABLE HEAD
+            $.each(catalog.column_names, function(i,k){
+                var b = { title: k };
+
+                if (k.indexOf("url_img") > -1){
+                    b = {
+                        "title":k,
+                        "render": function(data, type, row) {
+                            return '<img class="img-responsive" style="max-width:70px" src="'+data+'" />';
+                        }
+                    }
+                }
+                if (k.indexOf("data_browser_url") > -1){
+                    b = {
+                        "title":k,
+                        "render": function(data, type, row) {
+                            var temp_string = '<a href="'+data+'" target="_blank">'+data+'</a>';
+                            return temp_string;
+                        }
+                    }
+                }
+                if (k.indexOf("sami_id") > -1){
+                    b = {
+                        "title":k,
+                        "render": function(data, type, row) {
+                            var temp_string = '<a href="'+SAMI_URL+data+'">'+data+'</a>';
+                            return temp_string;
+                        }
+                    }
+                }
+                if (k.indexOf("CATAID") > -1){
+                    b = {
+                        "title":k,
+                        "render": function(data, type, row) {
+                            var temp_string = '<a href="'+GAMA_URL+data+'">'+data+'</a>';
+                            return temp_string;
+                        }
+                    }
+                }
+                th = '<th>'+k+'</th>';
+                columns.push(b);
+                $('#returnTableResults').find('thead > tr').append(th);
+            });
+
+            var table = $('#returnTableResults').DataTable( {
+                data : catalog.data,
+                columns : columns,
+                "orderClasses": false,
+                "scrollX": true,
+                "deferRender": true,
+                "language": {
+                    "loadingRecords": "Please wait - loading..."
+                }
+            });
+
+            $('#returnTableResults_filter input').unwrap().wrap("<div class='input-group' role='search'></div>")
+                    .addClass('form-control')
+                    .attr('placeholder', 'SEARCH...')
+                    .after('<span class="input-group-btn"> <button class="btn btn-default btn-sm" type="button"><i class="fa fa-search fa-fw"></i></button> </span>');
+            document.getElementById('returnTableResults_filter').firstChild.data = "";
+            $('#returnTableResults_length, #returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6');
+
+        };
+    };
+{% endautoescape %}
 </script>
 
 {% endblock %}

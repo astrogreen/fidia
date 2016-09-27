@@ -77,6 +77,11 @@ class SampleSerializer(data_browser.mixins.SampleAttributesMixin):
     def get_astro_objects(self, obj):
         return self.astro_objects
 
+    def get_catalog(self, obj):
+        return obj.get_feature_catalog_data()
+
+    catalog = serializers.SerializerMethodField()
+
     astro_objects = serializers.SerializerMethodField()
 
 
