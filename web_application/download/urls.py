@@ -16,7 +16,7 @@ urlpatterns = [
 
     url(r'^session/$', download.views.SessionView.as_view(), name='session-list'),
 
-    url(r'^tools/download/$', download.views.DownloadCreateView.as_view(), name='download-create'),
+    url(r'^download/$', download.views.DownloadCreateView.as_view(), name='download-create'),
     url(r'^download-history/$', download.views.DownloadListView.as_view(), name='download-list'),
     url(r'^download-history/(?P<pk>[0-9]+)/$', download.views.DownloadRetrieveDestroyView.as_view(), name='download-detail')
 ]

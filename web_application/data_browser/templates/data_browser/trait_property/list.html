@@ -43,10 +43,10 @@
                         </div>
                     </small>
                 </h1>
-                <p>Explore the available {{survey|uppercase}} data products for each object. It is recommended
-                    that you also use the SAMI Data Browser in conjunction with the
-                    <a  href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
-                    descriptions of the data products available.
+                <p>The Data Browser provides a quick-look at survey-derived
+                    data products and associated meta-data on an
+                    object-by-object basis, and allows users to download individual data products in FITS file
+                    format.
                 </p>
             </div>
         </div>
@@ -64,56 +64,94 @@
                 <li role="presentation"><a href="#data" class="scroll">Data</a></li>
             </ul>
             <h5>Quick Links</h5>
-            <a class="btn btn-default btn-sm" href="{% url 'schema:sample-list' sample_pk=survey %}"><i
-                    class="fa fa-book"></i> Schema</a>
-            <a class="btn btn-default btn-sm" href="{% url 'documentation:topic-detail' slug=survey %}" disabled><i
-                    class="fa fa-file-o"></i> Documentation</a>
-            <br><br>
-            <a href="{{url_above}}"><i class="fa fa-angle-left"></i> Back to {% if subtrait %}{{subtrait}}{%else%}{{trait}}{% endif %} </a>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
+                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+                {% if breadcrumblist %}
+
+                  {% with breadcrumblist|length|add:"-2" as b %}
+                    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
+                  {% endwith %}
+            {% endif %}
+            </ul>
 
         </div>
 
     </div>
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>{{sample|uppercase}} {{astroobject}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
+        <h2>{{sample|uppercase}} {{astro_object}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
+
         {% with response.data as tpdata %}
             {% with "None" as tp %}
-                {% include 'data_browser/trait/sidebar-trait-property-panel-body.html' %}
+                {% include 'data_browser/trait/end-point-trait-properties.html' %}
             {% endwith %}
         {% endwith %}
 
+        <h3 id="data">Data</h3>
         <div class="row">
-            {% if trait_2D_map == True %}
-                <div class="col-sm-6 col-xs-12">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div id="{{trait_type}}_plotly_plot">
-                                <!--Dynamic plotly rendering based on Trait Type-->
-                                <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+
+            <div class="col-sm-8 col-xs-12">
+                <div class="well">
+                    <div id="{{trait_type}}_plotly_plot">
+                        <!--Dynamic plotly rendering based on Trait Type-->
+                        <p id="visualization_status"><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 col-xs-12" id="interactive">
+                <div class="panel panel-default interactive">
+                    <div class="panel-heading">
+                        <p class="panel-title">Interactive</p>
+                    </div>
+                    <div class="panel-heading" style="background-color:#e6e6e6">
+                        Clipping
+                         <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
+                                           data-trigger="focus"
+                                           data-content="<p>Apply percentile scaling to image. Clips minimum and maximum percentage of pixel values to bring out features in the image. </p>"
+                                           data-placement="left"><i class="fa fa-info-circle"></i></a>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <div class="row">
+
+                                <div class="col-xs-12">
+                                    <p class="sub-heading">By percentile </p>
+                                    <div id="slider-range"></div>
+                                    <div id="amount" class="text-center p small"></div>
+                                    <!--<div id="data-range" class="text-center sub-heading"></div>-->
+                                    <div class="half-br"></div>
+                                    <span class="sub-heading">By value (in development)</span>
+                                    <form id="data-range">
+                                        <div class="form-group">
+                                            <label for="lv">Lower</label>
+                                            <input type="text" id="lv" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="uv">Upper</label>
+                                            <input type="text" id="uv" class="form-control" readonly>
+                                        </div>
+                                        <button class="btn btn-default disabled">Clip</button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <span class="panel-title">Interactive</span>
-                        </div>
-                        <div class="panel-body">
-                            <div id="{{trait_type}}_plotly_plot_options">
+
+                        </li>
+                    </ul>
+                    <div class="panel-heading" style="background-color:#e6e6e6">
+                        View Extensions <span class="sub-heading">(in development)</span></div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div id="{{trait_type}}_plotly_plot_options">
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
                 </div>
-            {% else %}
-                <div class="col-sm-9 col-xs-12">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <p>TBD</p>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+            </div>
+
         </div>
     </div>
 </div>
@@ -145,6 +183,11 @@
 
         });
     </script>
+{% else %}
+<script>
+$('#visualization_status').html('Visualization for {{response.data.pretty_name}} is in development.')
+$('#interactive').html("<div class='well'><p>Interactivity in development</p></div>");
+</script>
 {% endif %}
 
 {% endblock %}

@@ -5,6 +5,7 @@ from operator import itemgetter
 from ..descriptions import DescriptionsMixin
 
 from ..utilities import DefaultsRegistry
+from .. import exceptions
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -291,6 +292,96 @@ class BranchesVersions(dict):
         version = list(versions_set)[0]
 
         return DefaultsRegistry(version_defaults={branch: version})
+
+
+class TraitPath(tuple):
+    """A class to handle full paths to Traits.
+
+    The idea is that a sequence of TraitKeys can uniquely identify a Trait
+    within an archive. This class provides a convenient way to bring such a
+    sequence of TraitKeys together, and manage such sequences.
+
+    """
+
+    # __slots__ = ()
+
+    def __new__(cls, trait_path_tuple=None, trait_property=None):
+
+        if isinstance(trait_path_tuple, str):
+            trait_path_tuple = trait_path_tuple.split("/")
+
+        if trait_path_tuple is None or len(trait_path_tuple) == 0:
+            return tuple.__new__(cls, tuple())
+
+        validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
+        return tuple.__new__(cls, validated_tk_path)
+
+    def __init__(self, *args, trait_property=None):
+        # super(TraitPath, self).__init__(*args)
+        self.trait_property_name = trait_property
+
+    def as_traitpath(self, trait_path):
+        if isinstance(trait_path, TraitPath):
+            return trait_path
+        else:
+            return TraitPath(trait_path)
+
+    def get_trait_class_for_archive(self, archive):
+        trait = archive
+        for elem in self:
+            if hasattr(trait, 'sub_traits'):
+                # Looking at trait
+                updated_tk = trait.sub_traits.update_key_with_defaults(elem)
+                trait = trait.sub_traits.retrieve_with_key(updated_tk)
+            else:
+                # Looking at archive:
+                updated_tk = trait.available_traits.update_key_with_defaults(elem)
+                trait = trait.available_traits.retrieve_with_key(updated_tk)
+        return trait
+
+    def get_trait_property_for_archive(self, archive):
+
+        trait_class = self.get_trait_class_for_archive(archive)
+        if self.trait_property_name is None:
+            if not hasattr(trait_class, 'value'):
+                raise exceptions.FIDIAException()
+            else:
+                tp_name = 'value'
+        else:
+            tp_name = self.trait_property_name
+        trait_property = getattr(trait_class, tp_name)
+        return trait_property
+
+    def get_trait_for_object(self, astro_object):
+        # type: (AstronomicalObject) -> Trait
+        trait = astro_object
+        for elem in self:
+            trait = trait[elem]
+        return trait
+
+    def get_trait_property_for_object(self, astro_object):
+        # type: (AstronomicalObject) -> Trait
+
+
+        trait = self.get_trait_for_object(astro_object)
+        if self.trait_property_name is None:
+            if not hasattr(trait, 'value'):
+                raise exceptions.FIDIAException()
+            else:
+                tp_name = 'value'
+        else:
+            tp_name = self.trait_property_name
+        trait_property = getattr(trait, tp_name)
+
+        return trait_property
+
+
+    def get_trait_property_value_for_object(self, astro_object):
+        # type: (AstronomicalObject) -> Trait
+
+        trait_property = self.get_trait_property_for_object(astro_object)
+
+        return trait_property.value
 
 
 class Branch(DescriptionsMixin):

@@ -8,7 +8,7 @@
                     <col width="100%">
                     <tbody>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'query-create-list' %}">Query Builder</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>Query Builder</a></small></h4></td>
                     </tr>
                     <tr>
                         <td><h4><small><a class="text-uppercase" href="">Data Browser</a></small></h4></td>
@@ -121,14 +121,27 @@
 
     $(document).ready(function () {
 
-        $(window).on("load resize scroll", function (e) {
+        footer_function = function(){
             var docHeight = $(window).height();
             var footerHeight = $('#footer').height();
-            var footerTop = $('#footer').position().top + footerHeight;
+            var footerTop = $('#footer').position().top;
+            if (footerTop < (docHeight-footerHeight)) {
+                $('#footer').css('margin-top', 10 + (docHeight - footerTop -footerHeight) + 'px');
+            };
+        }
+        $(window).on("load resize scroll", function (e) {
+            footer_function();
+        });
 
-            if (footerTop < docHeight) {
-                $('#footer').css('margin-top', 10 + (docHeight - footerTop) + 'px');
-            }
+        // check height on event panel collapse in out
+        $('.panel-collapse').on('hide.bs.collapse', function () {
+            footer_function();
+        });
+        $('.panel-collapse').on('hidden.bs.collapse', function () {
+            footer_function();
+        });
+        $('.panel-collapse').on('shown.bs.collapse', function () {
+            footer_function();
         });
 
         // Smooth scrolling
@@ -140,9 +153,10 @@
 
 
         update_sidebar_size = function(){
-        // Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
+         /*
+          * Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
+          */
             if ($(window).width() > 770) {
-                console.log($('.sidebar .sidebar-contents').height())
                 if ($('.main-content').height() > $('.sidebar .sidebar-contents').height()) {
                     $('.sidebar').height($('.main-content').height() + 'px');
                 } else {
@@ -168,6 +182,11 @@
         }).on('hidden.bs.collapse', function () {
             update_sidebar_size();
         });
+
+        popoverClose = function(e){
+            console.log(e);
+            console.log(e.target);
+        }
 
     });
 </script>

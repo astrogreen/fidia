@@ -259,8 +259,8 @@
         };
 
         function fMapColumnNames(data){
-            var description = ["name", "contact", "columns", "DMU", "description", "version", "catalogId", "dmu_description", "ticked", "columnid", "units", "tableid", "ucd" ];
-            var description_formatted = ["Name", "Contact", "Columns", "DMU", "Description", "Version", "Catalog ID", "DMU Description", "ticked", "Column ID", "Units", "Table ID", "UCD" ];
+            var description = ["name", "contact", "columns", "DMU", "description", "version", "catalogId", "dmu_description", "ticked", "columnid", "units", "tableid", "ucd", "properties" ];
+            var description_formatted = ["Name", "Contact", "Columns", "DMU", "Description", "Version", "Catalog ID", "DMU Description", "ticked", "Column ID", "Units", "Table ID", "UCD", "Queryable Properties" ];
             var description_string = data;
             description.forEach(function(val, i){
                // Update the description string if a value is found in the array above
@@ -294,6 +294,7 @@
                     // console.log('typeof obj['+keyb+'] ==  '+typeof valueb);
                     // Reminder: Javascript spec typeof(null) == obj (legacy standard)
                     if ((typeof valueb == 'object') && (valueb !== null)) {
+
                         var temp = Object.keys($scopeschemabrowser.inputSchema).length;
                         //delete inputschema beyond this click.
                         // iterate baackwardds over arr and stop deleting at this point.
@@ -304,8 +305,8 @@
                                 //console.log(angular.toJson($scopeschemabrowser.inputSchema))
                                 $scopeschemabrowser.inputSchema.splice(i,1);
                                 //clear previous rows
-                                $('#schema-element-' + i + '  .information dl').html('')
-                                $('#schema-element-' + i + '  .description').html('')
+                                $('#schema-element-' + i + '  .information dl').html('');
+                                $('#schema-element-' + i + '  .description').html('');
                             };
                         };
 
@@ -322,8 +323,9 @@
                     if (restricted_arr.indexOf(keyb) < 0) {
                         $('#schema-element-' + key + ' .information dl').append("<dt>" + fMapColumnNames(String(keyb)) + "</dt><dd>" + String(valueb) + " </dd>");
                     }
-                    // if (keyb == 'description') {
-                    //     $('#schema-element-' + key + ' p.description').append(String(valueb));
+
+                    // if (keyb == 'columns') {
+                    //     $('#schema-element-' + key + ' .information dl').append("<dt>" + fMapColumnNames(String(keyb)) + "</dt>");
                     // }
                     if (keyb == 'contact') {
                         var email = valueb.match("<(.*)>")[1];

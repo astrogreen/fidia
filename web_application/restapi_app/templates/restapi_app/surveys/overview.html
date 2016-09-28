@@ -1,0 +1,160 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Surveys hosted at ADC{% endblock %}
+
+{% block head-extra %}
+<!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
+<link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active"> Surveys hosted at ADC</li>
+{% endblock %}
+
+{% block page_title %} Surveys hosted at ADC {% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation:topic-list' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+{% block content_render %}
+<div class="row">
+    <div class="col-xs-12 col-sm-3 sidebar">
+        <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+
+                <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
+                    <h6>{{trait_type_value.pretty_name}}</h6>
+                </li>
+                <li  role="presentation">
+                    <a href="#overview" class="scroll">Overview</a>
+                </li>
+                {% for value in response.data.samples %}
+                <li  role="presentation">
+                    <a href="#{{value.survey}}" class="scroll">{{value.survey |uppercase}}
+                    </a>
+                </li>
+            {% endfor %}
+
+            </ul>
+            <h5>Quick Links</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li>
+                    <a href="{% url 'data-access' %}">Data Access</a>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-9 main-content surveys">
+        <h2 id="overview">Overview</h2>
+        <p class="">ADC offers a range of <a
+                href="{% url 'data-access' %}">data access tools</a> to explore and interact with the individual data
+            products provided by the survey teams, and tools to combine data across multiple surveys to create new
+            and interesting samples of astronomical objects.
+
+            Below is a summary of each survey, links to data release information and relevant data access tools.</p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <colgroup>
+                    <col width="10%">
+                    <col width="40%">
+                    <col width="20%">
+                    <col width="30%">
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>Survey</th>
+                    <th>About</th>
+                    <th><i class="fa fa-map-marker"></i> Data Releases <br>
+                    </th>
+                    <th>Data Access</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for value in response.data.samples %}
+                <tr id="{{value.survey}}">
+                    <td class="text-center"><img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png"><div class=half-br></div><strong>{{value.survey|uppercase}}</strong></td>
+                    <td class="small">
+                        {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+                            {% include template %}
+                        {% endwith %}
+                        <span class="sub-heading tiny">
+                            Latest Data Release:
+                            {{value.count}}
+                            objects
+                            <span class="version"><i class="fa fa-map-marker"></i> DR {{value.current_version}}</span>
+                            </span>
+                    </td>
+                    <td>
+                        {% for d in value.data_releases %}
+                            DR {{d}} <br>
+                            <a href="{% url value.survey %}"><strong>Go to {{value.survey|uppercase}} Survey page for Data Release {{d}} <i
+                                    class="fa fa-angle-right"></i></strong></a><hr>
+
+                            {% endfor %}
+                    </td>
+                    <td>
+                        <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}">Data Browser</a> <span class="tiny sub-heading">Browse data per {{value.survey|uppercase}} object.</span><br>
+                        <a href="{% url 'schema:sample-list' sample_pk=value.survey %}"  >Schema Browser</a> <span class="tiny sub-heading">Detailed descriptions of the data products in {{value.survey|uppercase}}.</span><br>
+                        <a href="{% url 'query-create-list' %}" disabled class="disabled">Query</a> <span class="tiny sub-heading">SQL access to the database.</span><br>
+                        <a href="{% url 'documentation:topic-detail' slug=value.survey %}" disabled class="disabled">Documentation</a> <span class="tiny sub-heading">Help Center.</span><br>
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr id="{{gama}}">
+                    <td class="text-center"><img class="img-responsive" src="/static/restapi_app/img/documentation/gama.png"><div class=half-br></div><strong>{{value.survey|uppercase}}</strong></td>
+                    <td class="small">
+                        {% with "data_browser/root/surveys/"|add:"gama"|add:".html" as template %}
+                            {% include template %}
+                        {% endwith %}
+                        <span class="sub-heading tiny">
+                            Latest Data Release:
+                            0
+                            objects
+                        </span>
+                    </td>
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        Coming soon.
+                    </td>
+                </tr>
+                <tr id="{{galah}}">
+                    <td class="text-center"><img class="img-responsive" src="/static/restapi_app/img/documentation/galah.png"><div class=half-br></div><strong>{{value.survey|uppercase}}</strong></td>
+                    <td class="small">
+                        {% with "data_browser/root/surveys/"|add:"galah"|add:".html" as template %}
+                            {% include template %}
+                        {% endwith %}
+                        <span class="sub-heading tiny">
+                            Latest Data Release:
+                            0
+                            objects
+                        </span>
+                    </td>
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        Coming soon.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+</div>
+
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

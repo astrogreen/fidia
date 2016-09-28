@@ -23,6 +23,28 @@ instead of primary key relationships.
 """
 
 
+class SurveySerializer(serializers.Serializer):
+    survey = serializers.SerializerMethodField()
+    data_release = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
+
+    def get_survey(self, obj):
+        return self.context['survey']
+
+    def get_data_release(self, obj):
+        return self.context['data_release']
+
+    def get_count(self, obj):
+        return self.context['count']
+
+
+class DataProductSerializer(SurveySerializer):
+    products = serializers.SerializerMethodField()
+
+    def get_products(self, obj):
+        return self.context['products']
+
+
 class ContactFormSerializer(serializers.Serializer):
     """
     Contact Form Serializer.

@@ -5,6 +5,7 @@ import numpy as np
 from fidia.archive import MemoryArchive, BaseArchive
 from fidia.archive.archive import Archive
 from fidia.traits import *
+from fidia import traits
 from fidia.exceptions import DataNotAvailable
 from fidia.archive.example_archive import ExampleArchive, ExampleSpectralMap, ExampleSpectralMapExtra
 
@@ -147,6 +148,16 @@ class TestArchive:
         trait = sample['Gal1']['spectral_map:other']
         for trait_property, expected in zip(trait._trait_properties(), ('value', 'variance')):
             assert trait_property.name == expected
+
+    # Feature data functionality
+
+    def test_archive_has_feature_data(self, example_archive):
+        # type: (ExampleArchive) -> None
+        assert example_archive.feature_catalog_data is not None
+
+        for elem in example_archive.feature_catalog_data:
+            assert isinstance(elem, TraitPath)
+
 
     #
     # Schema related Tests
