@@ -194,13 +194,18 @@
 
         <div id="filter_panel">
             <div class="row">
-                <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the buttons below to Select All/None or Select only the rows returned by the Filter methods below."><i class="fa fa-info-circle"></i></a></div>
+                <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
                 <div class="col-xs-9">
                     <div class="row">
-                        <div id="datatables_filter" class="col-xs-12 col-sm-6"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
-                        <div id="datatables_search" class="col-xs-12 col-sm-6"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                        <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
+                        <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
                         <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
                     </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-right">
+                    <span id="remove_filters"></span>
                 </div>
             </div>
         </div>
@@ -481,12 +486,6 @@
                 }
 
                 $('#select_button_text').html(_text);
-            }
-
-            remove_filters = function(){
-                $('#max').val('');
-                $('#min').val('');
-                $('#dataTables_filter input').val('');
             };
 
 
@@ -518,6 +517,7 @@
                                 });
 
                             } else {
+                                // select the filtered options
                                 var ids = $.map(table.rows({search: 'applied'}).data(), function (item) {
                                     return item[0]
                                 });
@@ -533,8 +533,24 @@
             table.buttons(1,null).container()
                     .appendTo($('#dataTableButtons_select', table.table().container()));
 
-
-
+            new $.fn.dataTable.Buttons(table, {
+                buttons: [
+                    {
+                        text: '<small>remove all filters</small>',
+                        action: function () {
+                            $('#max').val('');
+                            $('#min').val('');
+                            $('#returnTableResults_filter input').val('');
+//                            table.rows().deselect();
+                            table.search("").draw()
+                            update_button();
+                        }
+                    }
+                ]
+            });
+            table.buttons(2,null).container()
+                    .appendTo($('#remove_filters', table.table().container()));
+            $('#remove_filters .btn.btn-default').removeClass('btn btn-default')
 
 
         };
