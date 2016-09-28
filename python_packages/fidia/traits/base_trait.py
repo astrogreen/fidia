@@ -216,6 +216,12 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             schema['trait_type'] = cls.trait_type
             # schema['branches_versions'] = cls.branches_versions
 
+            # Available export formats (see ASVO-695)
+            export_formats = []
+            if hasattr(cls, 'as_fits'):
+                export_formats.append('FITS')
+            schema['export_formats'] = export_formats
+
         # Add description information for this trait to the schema if requested
         if verbosity == 'descriptions':
             cls.copy_descriptions_to_dictionary(schema)
