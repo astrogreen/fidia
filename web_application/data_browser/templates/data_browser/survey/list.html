@@ -183,21 +183,7 @@
             <a class="disabled" disabled="" href="/asvo/docs/articles/branches-what-is-a-branch/">
                 view the documentation.</a></p>
 
-        <!--<table class="table table-bordered">-->
-            <!--<colgroup>-->
-                 <!--<col align="center" width="25%" />-->
-                 <!--<col align="center" width="25%" />-->
-                 <!--<col align="center" width="50%" />-->
-            <!--</colgroup>-->
-            <!--<tbody>-->
-            <!--<tr>-->
-                <!--<td style="vertical-align: bottom"><span class="sub-heading">Set the number of entries displayed on this page.</span></td>-->
-                <!--<td style="vertical-align: bottom"><span class="sub-heading">Search all rows and columns.</span></td>-->
-                <!--<td style="vertical-align: bottom"><span class="sub-heading">Search data in the selected column between two values.</span></td>-->
 
-            <!--</tr>-->
-            <!--</tbody>-->
-        <!--</table>-->
 
         <h3 id="data-access">Data Access: {{survey|uppercase}} Objects</h3>
         <div class="row">
@@ -205,6 +191,20 @@
                 <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
             </div>
         </div>
+
+        <div id="filter_panel">
+            <div class="row">
+                <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the buttons below to Select All/None or Select only the rows returned by the Filter methods below."><i class="fa fa-info-circle"></i></a></div>
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div id="datatables_filter" class="col-xs-12 col-sm-6"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
+                        <div id="datatables_search" class="col-xs-12 col-sm-6"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                        <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <h3>Download Products for Selected Objects</h3>
         <div class="row">
@@ -264,17 +264,11 @@
             var columns = [];
             var thead = '';
 
-            // ADD checkboxes to array (unshift appends to beginning of an array, whereas push appends to the end)
-//            for (var key in catalog.data) {
-//                astro_object = catalog.data[key][0];
-//                catalog.data[key].unshift('<input type="checkbox" value="'+astro_object+'">')
-//            }
-//            catalog.column_names.unshift('check');
 
             $('#returnTableResults').find('thead > tr').empty();
             $('#returnTableResults').addClass("table-bordered cell-border");
+
             //APPEND COLUMN VALUES TO TABLE HEAD
-//            columns.push({title:'checkbox'});
             $.each(catalog.column_names, function(i,k){
                 var b = { title: k };
 
@@ -328,28 +322,43 @@
                             '<i class="fa fa-search fa-fw"></i></button> </span>');
             document.getElementById('returnTableResults_filter').firstChild.data = "";
 
-            $('#returnTableResults_filter').parent('.col-sm-6').parent('.row').append('<div id="dataTableButtons_range" class="col-xs-12 col-sm-6"><p class="bg-info">FILTER: Range <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></p></div>');
 
-            $('#returnTableResults_length').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
-            $('#returnTableResults_length').parent('.col-sm-3').prepend('<p class="bg-info">PAGINATION</p>');
-            $('#returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
-            $('#returnTableResults_filter').parent('.col-sm-3').prepend('<p class="bg-info">FILTER: Search <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></p>');
-;
-
-            $('#returnTableResults_wrapper').prepend(
-                    '<div class="row" style="margin-bottom:15px">' +
-                    '<div id="dataTableButtons_export" class="col-xs-12 col-sm-6 text-center"><p class="bg-info">EXPORT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Export all, or if a filter is applied, selected, rows."><i class="fa fa-info-circle"></i></a></p></div> ' +
-                    '<div id="dataTableButtons_select" class="col-xs-12 col-sm-6 text-center"><p class="bg-info">SELECT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the buttons below to Select All/None or Select only the rows returned by the Filter methods below."><i class="fa fa-info-circle"></i></a></p></div>' +
-                    '</div>'
-            )
+            $("#filter_panel")
+                    .prependTo("#returnTableResults_wrapper");
 
 
-            $('#dataTableButtons_range').append('<div class="">' +
+            $('#returnTableResults_wrapper').append('<div id="" class="row"><div class="col-xs-12 col-sm-6" id="datatables_export"></div><div class="col-xs-12 col-sm-6 text-right" id="datatables_pagination"><p class="bg-info">PAGINATION</p></div></div>');
+
+
+            // FILTER
+            $('#datatables_filter').append(
                     '<form class=""><div class="row">' +
                     '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum" id="min" placeholder="MINIMUM" disabled> </div></div>' +
                     '<div class="col-xs-4 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
                     '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="MAXIMUM" disabled></div></div>' +
                     '</div> </form>');
+
+
+            $("#returnTableResults_filter")
+                    .appendTo("#datatables_search");
+
+            // PAGINATION
+            $("#returnTableResults_length")
+                    .appendTo("#datatables_pagination");
+
+            //  EXPORT
+            $('#datatables_export').append(
+                    '<div id="dataTableButtons_export">' +
+                    '<p class="bg-info">EXPORT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Export all, or if a filter is applied, selected, rows."><i class="fa fa-info-circle"></i></a></p>' +
+                    '</div>'
+
+            );
+
+            // SELECT
+            $('#datatables_select').append(
+                    '<div id="dataTableButtons_select" class=""></div>'
+            )
+
             $('#returnTableResults_wrapper').removeClass('form-inline');
             $('#returnTableResults_filter > div > input').removeClass('input-sm');
             $('#returnTableResults_filter > div > span > button').removeClass('btn-sm');
@@ -408,7 +417,22 @@
                 // Event listener to the two range filtering inputs to redraw on input
                 $('#min, #max').keyup( function() {
                     table.draw();
+                    // console.log(get_filtered_ids());
+
+                    update_button();
                 } );
+                // update select button with initial number of rows
+                update_button();
+
+                $('#returnTableResults_filter input').keyup(function(){
+                    update_button();
+                });
+
+                $('#returnTableResults').click(function(){
+                    update_button();
+                })
+
+
             } );
 
             // Get the IDs of selected items
@@ -423,16 +447,47 @@
                 var ids = $.map(table.rows({selected: true }).data(), function (item) {
                     return item[0]
                 });
-                console.log(ids);
+
                 $('#data-table-selected .panel-body').html('');
                 for (var i=0; i<ids.length;i++){
-                    console.log(ids[i]);
                     $('#data-table-selected .panel-body').append('<a href="'+SAMPLE_URL+ids[i]+'">'+ids[i]+'</a><br>')
                 }
                 $('#download_button').attr('data-objects', ids)
 
                 return ids
+            };
+
+            get_filtered_ids = function(){
+                /*
+                    Returns the list of ids where a search has been applied
+                 */
+                var ids = $.map(table.rows({search: 'applied' }).data(), function (item) {
+                    return item[0]
+                });
+                return ids
+            };
+
+            update_button = function(){
+                var selected = $.map(table.rows({selected: true }).data(), function (item) {
+                    return item[0]
+                });
+                var filtered = $.map(table.rows({search: 'applied' }).data(), function (item) {
+                    return item[0]
+                });
+                if (selected.length>0){
+                    _text = '<i class="fa fa-check-square-o" aria-hidden="true"></i> Unselect '+selected.length+' objects';
+                } else {
+                    _text = '<i class="fa fa-square-o" aria-hidden="true"></i> Select '+filtered.length+' objects';
+                }
+
+                $('#select_button_text').html(_text);
             }
+
+            remove_filters = function(){
+                $('#max').val('');
+                $('#min').val('');
+                $('#dataTables_filter input').val('');
+            };
 
 
             // obtain a jQuery object that holds the container element of the button set. Then can insert the element as per styling
@@ -450,23 +505,26 @@
             new $.fn.dataTable.Buttons(table, {
                 buttons: [
                     {
-                        text: '<i class="fa fa-check-square-o" aria-hidden="true"></i> Select All ',
+                        text: ' <span id="select_button_text"><i class="fa fa-square-o" aria-hidden="true"></i> Select 0 objects</span> ',
                         action: function () {
-                            table.rows().select();
-                            get_ids();
-                        }
-                    },
-                    {
-                        text: '<i class="fa fa-square-o" aria-hidden="true"></i> Select None',
-                        action: function () {
-                            table.rows().deselect();
-                            get_ids();
-                        }
-                    },
-                    {
-                        text: '<i class="fa fa-filter" aria-hidden="true"></i> Select Filtered',
-                        action: function () {
-                            table.rows({search: 'applied'}).select();
+                            // if already some selected - deselect:
+                            var selected = $.map(table.rows({selected: true}).data(), function (item) {
+                                return item[0]
+                            });
+                            if (selected.length > 0) {
+                                table.rows().deselect();
+                                var ids = $.map(table.rows({search: 'applied'}).data(), function (item) {
+                                    return item[0]
+                                });
+
+                            } else {
+                                var ids = $.map(table.rows({search: 'applied'}).data(), function (item) {
+                                    return item[0]
+                                });
+                                table.rows({search: 'applied'}).select();
+                            }
+                            update_button();
+
                             get_ids();
                         }
                     }
@@ -474,6 +532,11 @@
             });
             table.buttons(1,null).container()
                     .appendTo($('#dataTableButtons_select', table.table().container()));
+
+
+
+
+
         };
     };
 {% endautoescape %}
