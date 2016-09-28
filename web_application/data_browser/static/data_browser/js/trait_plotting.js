@@ -61,8 +61,8 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                 if (typeof $("#slider-range").slider === "function"){
                     $("#slider-range").slider({
                         range: true,
-                        min: 0.01,
-                        max: 0.99,
+                        min: 0.0,
+                        max: 1.0,
                         step: 0.01,
                         values: [zmin, zmax],
                         slide: function (event, ui) {

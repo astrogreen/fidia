@@ -8,6 +8,10 @@
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/js/DataTables/datatables.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+
+<script type="text/javascript" src="{% static 'query/js/available-products/controllers.js' %}"></script>
+<script type="text/javascript" src="{% static 'query/js/available-products/services.js' %}"></script>
+<script type="text/javascript" src="{% static 'query/js/available-products/components.js' %}"></script>
 {% endblock %}
 
 {% block page_title %}Data Browser{% endblock %}
@@ -101,10 +105,10 @@
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2 id="overview">Data Release {{response.data.data_release}} Overview</h2>
+        <h2 id="overview">Overview</h2>
         <div class="panel panel-default" style="margin-top:20px;">
             <div class="panel-heading">
-                Overview
+                {{survey|uppercase}} Data Release {{response.data.data_release}}
             </div>
             <div class="table-responsive">
                 <table class="table table-overview">
@@ -161,7 +165,7 @@
                 </table>
             </div>
         </div>
-        <h3 id="data-access">Data Access</h3>
+        <h3>Data Access Information</h3>
         <p>The Data Browser allows users a quick-look at each astronomical object's data
             products available in this data release, including visualizations, processing information and associated
             properties. Data products can be downloaded as multi-extension FITS files, with all relevant processing
@@ -179,30 +183,39 @@
             <a class="disabled" disabled="" href="/asvo/docs/articles/branches-what-is-a-branch/">
                 view the documentation.</a></p>
 
+        <!--<table class="table table-bordered">-->
+            <!--<colgroup>-->
+                 <!--<col align="center" width="25%" />-->
+                 <!--<col align="center" width="25%" />-->
+                 <!--<col align="center" width="50%" />-->
+            <!--</colgroup>-->
+            <!--<tbody>-->
+            <!--<tr>-->
+                <!--<td style="vertical-align: bottom"><span class="sub-heading">Set the number of entries displayed on this page.</span></td>-->
+                <!--<td style="vertical-align: bottom"><span class="sub-heading">Search all rows and columns.</span></td>-->
+                <!--<td style="vertical-align: bottom"><span class="sub-heading">Search data in the selected column between two values.</span></td>-->
 
-        <table class="table table-bordered">
-            <colgroup>
-                 <col align="center" width="25%" />
-                 <col align="center" width="25%" />
-                 <col align="center" width="50%" />
-            </colgroup>
-            <tbody>
-            <tr>
-                <td style="vertical-align: bottom"><span class="sub-heading">Set the number of entries displayed on this page.</span></td>
-                <td style="vertical-align: bottom"><span class="sub-heading">Search all rows and columns.</span></td>
-                <td style="vertical-align: bottom"><span class="sub-heading">Search data in the selected column between two values.</span></td>
+            <!--</tr>-->
+            <!--</tbody>-->
+        <!--</table>-->
 
-            </tr>
-            </tbody>
-        </table>
-
+        <h3 id="data-access">Data Access: {{survey|uppercase}} Objects</h3>
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-xs-12">
                 <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
             </div>
         </div>
 
+        <h3>Download Products for Selected Objects</h3>
+        <div class="row">
 
+            <div class="col-xs-12">
+                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
+                <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
+
+
+            </div>
+        </div>
 
 
         <h3 id="help">Help</h3>
@@ -225,10 +238,8 @@
 {% comment %}
 ------ TURN ON DATATABLES ------
 {% endcomment %}
-<script src="{% static 'restapi_app/js/data-tables/dataTables.js' %}"></script>
+<!--<script src="{% static 'restapi_app/js/data-tables/dataTables.js' %}"></script>-->
 <script src="{% static 'data_browser/js/DataTables/datatables.min.js' %}"></script>
-<script src="{% static 'data_browser/js/DataTables/pdfmake.min.js' %}"></script>
-<script src="{% static 'data_browser/js/DataTables/vfs_fonts.js' %}"></script>
 
 {% autoescape off %}
  <script type="text/javascript">
@@ -295,10 +306,12 @@
             var table = $('#returnTableResults').DataTable( {
                 data : catalog.data,
                 columns : columns,
-                "orderClasses": false,
-                "scrollX": true,
-                "deferRender": true,
-                "language": {
+                orderClasses: false,
+                colReorder: false,
+                scrollX: true,
+                deferRender: true,
+                fixedHeader: true,
+                language: {
                     "loadingRecords": "Please wait - loading..."
                 },
                 select: {
@@ -307,18 +320,31 @@
 
             });
 
+
             $('#returnTableResults_filter input').unwrap().wrap("<div class='input-group' role='search'></div>")
                     .addClass('form-control')
                     .attr('placeholder', 'SEARCH...')
                     .after('<span class="input-group-btn"> <button class="btn btn-default btn-sm" type="button">' +
                             '<i class="fa fa-search fa-fw"></i></button> </span>');
             document.getElementById('returnTableResults_filter').firstChild.data = "";
+
+            $('#returnTableResults_filter').parent('.col-sm-6').parent('.row').append('<div id="dataTableButtons_range" class="col-xs-12 col-sm-6"><p class="bg-info">FILTER: Range <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></p></div>');
+
             $('#returnTableResults_length').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
+            $('#returnTableResults_length').parent('.col-sm-3').prepend('<p class="bg-info">PAGINATION</p>');
             $('#returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
+            $('#returnTableResults_filter').parent('.col-sm-3').prepend('<p class="bg-info">FILTER: Search <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></p>');
+;
+
+            $('#returnTableResults_wrapper').prepend(
+                    '<div class="row" style="margin-bottom:15px">' +
+                    '<div id="dataTableButtons_export" class="col-xs-12 col-sm-6 text-center"><p class="bg-info">EXPORT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Export all, or if a filter is applied, selected, rows."><i class="fa fa-info-circle"></i></a></p></div> ' +
+                    '<div id="dataTableButtons_select" class="col-xs-12 col-sm-6 text-center"><p class="bg-info">SELECT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the buttons below to Select All/None or Select only the rows returned by the Filter methods below."><i class="fa fa-info-circle"></i></a></p></div>' +
+                    '</div>'
+            )
 
 
-
-            $('#returnTableResults_wrapper').prepend('<div class="col-xs-12 col-sm-6">' +
+            $('#dataTableButtons_range').append('<div class="">' +
                     '<form class=""><div class="row">' +
                     '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum" id="min" placeholder="MINIMUM" disabled> </div></div>' +
                     '<div class="col-xs-4 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
@@ -398,6 +424,13 @@
                     return item[0]
                 });
                 console.log(ids);
+                $('#data-table-selected .panel-body').html('');
+                for (var i=0; i<ids.length;i++){
+                    console.log(ids[i]);
+                    $('#data-table-selected .panel-body').append('<a href="'+SAMPLE_URL+ids[i]+'">'+ids[i]+'</a><br>')
+                }
+                $('#download_button').attr('data-objects', ids)
+
                 return ids
             }
 
@@ -407,23 +440,31 @@
                 buttons: [
                     'copyHtml5',
                     'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5', {
-                        text: 'Select all',
+                    'csvHtml5', 'print',
+                    'pdfHtml5',
+                ]
+            });
+            table.buttons(0,null).container()
+                    .appendTo($('#dataTableButtons_export', table.table().container()));
+
+            new $.fn.dataTable.Buttons(table, {
+                buttons: [
+                    {
+                        text: '<i class="fa fa-check-square-o" aria-hidden="true"></i> Select All ',
                         action: function () {
                             table.rows().select();
                             get_ids();
                         }
                     },
                     {
-                        text: 'Select none',
+                        text: '<i class="fa fa-square-o" aria-hidden="true"></i> Select None',
                         action: function () {
                             table.rows().deselect();
                             get_ids();
                         }
                     },
                     {
-                        text: 'Select filtered',
+                        text: '<i class="fa fa-filter" aria-hidden="true"></i> Select Filtered',
                         action: function () {
                             table.rows({search: 'applied'}).select();
                             get_ids();
@@ -431,16 +472,67 @@
                     }
                 ]
             });
-
-            table.buttons().container()
-                    .appendTo($('.col-sm-6:eq(0)', table.table().container()));
-
-
-
-
+            table.buttons(1,null).container()
+                    .appendTo($('#dataTableButtons_select', table.table().container()));
         };
     };
 {% endautoescape %}
+
+    // text ajax
+    function testGetAjax() {
+        return $.ajax({
+            url: "{% url 'data_browser:data-browser-download' %}"
+        });
+    }
+    var promise_get = testGetAjax();
+    promise_get.success(function (data) {
+      console.log(data);
+    });
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    function getCookie(name) {
+    var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+    console.log(csrftoken)
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    function testPostAjax() {
+        return $.post({
+            url: "{% url 'data_browser:data-browser-download' %}",
+            data: {
+                action: 'download this',
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+        });
+    }
+
+    var promise_post = testPostAjax();
+    promise_post.success(function (data) {
+      console.log(data);
+    });
+
+
 </script>
 {% endblock %}
 

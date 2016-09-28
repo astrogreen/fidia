@@ -284,6 +284,26 @@ table.table-overview tr:nth-child(2) td {
 .table-overview .table > tfoot > tr > td {
   padding: 15px;
 }
+.table-condensed > tbody > tr > td,
+.table-condensed > tbody > tr > th,
+.table-condensed > tfoot > tr > td,
+.table-condensed > tfoot > tr > th,
+.table-condensed > thead > tr > td,
+.table-condensed > thead > tr > th {
+  padding: 5px 15px;
+}
+.table-condensed tbody > tr > td {
+  vertical-align: middle;
+}
+.bg-info {
+  padding: 5px 15px;
+  background-color: #EBEBEB;
+  text-align: center;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+}
 div.dataTables_wrapper div.dataTables_filter input {
   width: 100%;
 }

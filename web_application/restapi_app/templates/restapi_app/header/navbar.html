@@ -52,10 +52,10 @@
                             <li><a href="{% url 'data-access' %}">Overview</a></li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Query catalogue properties</li>
-                            <li><a href="{% url 'query-create-list' %}">Multi Object Query Builder</a></li>
+                            <li class="disabled"><a href="{% url 'query-create-list' %}" disabled>Multi Object Query Builder</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">View survey data products</li>
-                            <li><a href="{% url 'data_browser:root-list' %}">Single Object Viewer</a></li>
+                            <li class="dropdown-header">View data associated with an astronomical object</li>
+                            <li><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
                             <!--<li class="dropdown-header  text-uppercase">View all survey data for an astronomical object</li>-->
                             <!--<li class="disabled"><a href="" disabled>Single Object Viewer</a></li>-->
                             <li role="separator" class="divider"></li>
@@ -118,8 +118,8 @@
 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                <li class="download-li">
-                    <a href="{% url 'download-create' %}" class="download-icon">
+                <li class="download-li disabled">
+                    <a href="{% url 'download-create' %}" disabled class="download-icon">
                         <i class="fa fa-download icon fa-lg"></i>
                         <div class="badge" id="mini-download" mini-download></div>
                     </a>

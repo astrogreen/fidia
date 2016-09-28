@@ -137,12 +137,12 @@
         {% endwith %}
         <h3 id="available-data">Available Data</h3>
         <p>Data products are grouped by their product-type (e.g., you can find the SAMI [OIII] (5007Å) and [NII] (6583Å) line maps under <em>Line Maps</em>).  </p>
-        <div class="p">Select a product type from the list below to view the available data.</div>
+        <div class="p">Select a product type from the list below to view its properties, meta-data and where available, an interactive visualization.</div>
         <h4>Product Types</h4>
         <ul class="nav nav-pills" role="tablist" id="trait_tabs">
             {% for trait_type, trait_value in response.data.traits.items %}
             <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
-                <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}s</a>
+                <a href="#{{trait_type}}" aria-controls="{{trait_type}}" role="tab" data-toggle="tab">{{trait_value.pretty_name}}</a>
             </li>
             {% endfor %}
         </ul>
@@ -194,7 +194,7 @@
                                         <div class="col-xs-12">
                                             <div
                                                 class="helper step step3"><span class="sub-heading "> <i
-                                                class="fa fa-download"></i>  </span> Download this data product as JSON or FITS, or add it to the Download Bundle.
+                                                class="fa fa-download"></i>  </span> Download this data product as JSON or FITS.
                                             </div>
                                         </div>
                                     </div>
@@ -247,7 +247,7 @@
                                         </a>
                                         {% endfor %}
                                         <br><br>
-                                        <add-download-button url='{{value.url}}' options='' formats='{{value.formats}}' prettyname="{{value.pretty_name}}"></add-download-button>
+                                        <!--<add-download-button url='{{value.url}}' options='' formats='{{value.formats}}' prettyname="{{value.pretty_name}}"></add-download-button>-->
 
                                     </td>
                                 </tr>

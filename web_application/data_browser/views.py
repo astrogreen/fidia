@@ -78,6 +78,67 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
+# class Download(views.APIView):
+#     """ Viewset for DataBrowser API root. List View only. """
+#
+#     renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer, renderers.JSONRenderer)
+#     permission_classes = [permissions.AllowAny]
+#
+#     def get(self, request, pk=None, format=None):
+#         # Request available samples from FIDIA
+#         data = ['empty']
+#         return Response(data)
+#
+#     def post(self, request, pk=None, format=None):
+#         # Request available samples from FIDIA
+#
+#         print(request.data)
+#         data = request.data
+#
+#         return Response(data)
+
+from django.http import HttpResponse
+from django.views.generic import View
+
+class Download(View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse('This is GET request')
+
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        return HttpResponse('This is POST request')
+
+# class Download(views.APIView):
+#     """
+#     Download Route
+#     """
+#
+#     # def get(self, request, format=None):
+#     #     """
+#     #     Return a list of all users.
+#     #     """
+#     #     usernames = [user.username for user in User.objects.all()]
+#     #     return Response(usernames)
+#     # permission_classes = (permissions.AllowAny,)
+#     # renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer, renderers.JSONRenderer)
+#     # serializer_class = data_browser.serializers.DownloadSerializer
+#     #
+#     def get(self, request, format=None, *args, **kwargs):
+#
+#         return Response(status=status.HTTP_200_OK)
+#     #
+#     # def post(self, request, *args, **kwargs):
+#     #     serializer = data_browser.serializers.DownloadSerializer(data=request.data)
+#     #     serializer.is_valid()
+#     #
+#     #     if serializer.is_valid():
+#     #         serializer_unbound = data_browser.serializers.DownloadSerializer
+#     #         return Response({"download_status": "success", 'serializer': serializer_unbound},
+#     #                         status=status.HTTP_202_ACCEPTED)
+#     #
+#     #     return Response({"download_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (data_browser.renderers.AstroObjectRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
@@ -315,6 +376,16 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
             self.type = trait_pointer.trait_type
             self.trait_2D_map = False
+
+            if 'array' in traitproperty_pointer.type and 'string' not in traitproperty_pointer.type:
+                try:
+                    n_axes = len(traitproperty_pointer.value.shape)
+                except AttributeError:
+                    pass
+                else:
+                    if n_axes == 2:
+                        self.trait_2D_map = True
+                # @TODO: Handle arrays other than numpy ndarrays
 
             if isinstance(self.trait, traits.Map2D):
                 self.trait_2D_map = True
