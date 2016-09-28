@@ -40,5 +40,5 @@ urlpatterns = [
     url(r'^(?i)', include(trait_nested_router.urls)),
     url(r'^(?i)', include(sub_traitprop_nested_router.urls)),
     url(r'^(?i)', include(traitprop_nested_router.urls)),
-
+    url(r'^(?i)data-access/download/$', data_browser.views.Download.as_view(), name='data-browser-download'),
 ]

@@ -286,7 +286,8 @@
                 Browser</a>.
         </p>
         <h3 id="download">Download</h3>
-        <p>Download the {{response.data.pretty_name}} for {{response.data.sample|uppercase}} object {{response.data.astro_object}} in FITS or JSON file format. Alternatively, add it to the Download Bundle.</p>
+        <p>Download the {{response.data.pretty_name}} for {{response.data.sample|uppercase}} object
+            {{response.data.astro_object}} in FITS or JSON file format. </p>
         {% for f in formats %}
         <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
             <span class="fa-custom-stack">
@@ -295,7 +296,7 @@
             </span>{{f}}
         </a>
         {% endfor %}
-        <add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>
+        <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
 
         <h3 id="data">Data <small>
             <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"

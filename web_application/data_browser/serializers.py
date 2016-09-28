@@ -85,6 +85,7 @@ class SampleSerializer(data_browser.mixins.SampleAttributesMixin):
     astro_objects = serializers.SerializerMethodField()
 
 
+
 class AstroObjectSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
     """ Returns list of available traits. """
 

@@ -8,17 +8,12 @@
 </span>
 
 <!-- Nav tabs -->
-<div class="helper step step1">Select a survey tab to view the available data products.</div>
-<ul class="nav nav-tabs nav-tabs-with-well" role="tablist">
-    <li role="presentation" ng-repeat="(survey, traits) in availabledata" ng-class='{active:$first}'><a href="#{{survey}}" aria-controls="{{survey}}" role="tab" data-toggle="tab">{{survey}}</a></li>
-</ul>
 <div class="well">
     <div class="row">
         <div class="col-sm-12 col-xs-12">
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane" ng-repeat="(survey, traits) in availabledata" ng-class='{active:$first}' id="{{survey}}">
-
+                <div role="tabpanel" class="tab-pane" ng-repeat="(survey, traits) in availabledata" id="{{survey}}">
                     <fieldset ng-disabled="(isDisabled.state && !isSubmitted.state)">
                     <div class="row">
                         <div class="col-xs-12">

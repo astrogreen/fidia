@@ -78,14 +78,20 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
 
     // X percentile clip, i.e. 0.01 to 0.99 of the actual values.
     var NumArrSort = NumArr.sort(function(a,b){return a - b});
-    var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin_user) + 1];
-    var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user)];
-    // console.log(zmin_user, zmax_user);
-    // console.log(_Zmin, _Zmax);
+
+    var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin_user)];
+    var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user) - 1];
 
     if ($('#data-range').length>0){
+        console.log(_Zmin)
+        console.log(_Zmax)
         // $("#data-range").html( _Zmin.toPrecision(8) + "  - " + _Zmax.toPrecision(8));
-        $("#lv").val( _Zmin.toPrecision(8));
+        if (_Zmin != 0.0){
+            $("#lv").val( _Zmin.toPrecision(8));
+        } else {
+            $("#lv").val( _Zmin);
+        }
+
         $("#uv").val( _Zmax.toPrecision(8));
         $('#data-range button').click(function(){
             // console.log('clip')

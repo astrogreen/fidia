@@ -160,7 +160,7 @@ class Sample(collections.MutableMapping):
                 first_row = False
 
         # Construct column names
-        column_names = ["Sample ID"]
+        column_names = ["ID"]
         for tp in trait_properties:
             # Get the pretty name of the Trait
             col_name = tp[0].get_pretty_name()
