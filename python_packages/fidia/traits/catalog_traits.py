@@ -12,16 +12,11 @@ from astropy.io import fits
 import pandas as pd
 
 # Internal package imports
-from .abstract_base_traits import *
 from ..exceptions import *
-from .trait_property import TraitProperty
-from .trait_key import TraitKey, TRAIT_NAME_RE, \
-    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
-    BranchesVersions
-from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set, Inherit
-from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
+from .trait_property import TraitProperty
+from .base_trait import Trait
+from .trait_key import TraitKey
 # This makes available all of the usual parts of this package for use here.
 #
 # I think this will not cause a circular import because it is a module level import.
@@ -44,6 +39,8 @@ def trait_property_from_pandas_series(name, data_source):
         tp_type = 'string'
     elif data_source.dtype.kind in ('f',):
         tp_type = 'float'
+    elif data_source.dtype.kind in ('O',):
+        tp_type = 'string'
     else:
         raise ValueError("Source Series must be a float, int, or string type, not '%s'" % data_source.dtype.kind)
 
@@ -67,16 +64,25 @@ def trait_property_from_pandas_series(name, data_source):
 
     return new_trait_property
 
-def catalog_trait(TraitClass, trait_type, mapping):
+def catalog_trait(TraitClass, trait_name, mapping):
     # type: (Trait, str, dict[str, pd.Series]) -> Trait
     class new_trait(TraitClass): pass
+
+    # if hasattr(TraitClass, 'unit'):
+    input_unit = mapping.pop('unit', None)
+
+    new_trait.unit = property(lambda: input_unit)
 
     for key in mapping:
         trait_property = trait_property_from_pandas_series(key, mapping[key])
         setattr(new_trait, key, trait_property)
 
-    new_trait.trait_type = trait_type
-    new_trait.__name__ = "CatalogTrait_" + trait_type
+    new_trait.trait_type, qualifier = TraitKey.split_trait_name(trait_name)
+    if qualifier is not None:
+        new_trait.qualifiers = {qualifier}
+    new_trait.__name__ = "CatalogTrait_" + trait_name
     # new_trait.branches_versions = {trait_key.branch: {trait_key.version}}
+
+    # assert issubclass(new_trait, Trait)
 
     return new_trait
