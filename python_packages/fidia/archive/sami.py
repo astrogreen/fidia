@@ -1539,69 +1539,258 @@ class SAMIDR1PublicArchive(Archive):
         # Trait 'rss_map' (now a sub-trait of spectral_cube above.)
         # self.available_traits[TraitKey(SAMIRowStackedSpectra.trait_type, None, None, None)] = SAMIRowStackedSpectra
 
-        # Catalog traits:
-        redshift = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_helio'])]))
-        redshift.branches_versions = {('helio', "Heliocentric", "Redshift in the heliocentric frame"): {"V02"}}
-        self.available_traits.register(redshift)
+        #  __       ___            __   __      __   __   __   __   ___  __  ___    ___  __
+        # /  `  /\   |   /\  |    /  \ / _`    |__) |__) /  \ |__) |__  |__)  |  | |__  /__`
+        # \__, /~~\  |  /~~\ |___ \__/ \__>    |    |  \ \__/ |    |___ |  \  |  | |___ .__/
 
-        redshift_tonry = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_tonry'])]))
-        redshift_tonry.branches_versions = {('tonry', "Flow Corrected", "Flow corrected redshift using Tonry model"): {"V02"}}
-        self.available_traits.register(redshift_tonry)
+        # name (IAU Identifier)
+        iau_name = catalog_trait(Measurement, 'iau_id',
+                                OrderedDict([('value', self.tabular_data['name'])]))
+        iau_name.set_pretty_name(r"IAU Identifier")
+        iau_name.set_description("IAU format object name")
+        # iau_name.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
+        self.available_traits.register(iau_name)
+        del iau_name
 
-        self.available_traits.change_defaults('redshift', DefaultsRegistry(default_branch='helio'))
-
+        # RA and DEC
         cat_coord = catalog_trait(SkyCoordinate, 'catalog_coordinate',
                                   OrderedDict([('_ra', self.tabular_data['RA']),
                                                ('_dec', self.tabular_data['Dec'])]))
+        cat_coord.set_description("J2000 Right Ascension and Declination [InputCatv29 TilingCatv29 RA/DEC]")
+        cat_coord.set_pretty_name("Catalog Coordinate")
         self.available_traits.register(cat_coord)
+        del cat_coord
 
-        # r_petro = catalog_trait(Redshift, 'r_petro', OrderedDict([('value', self.tabular_data['r_petro'])]))
-        # r_petro.branches_versions = {('tonry', "Petrosian radius", "Flow corrected redshift using Tonry model"): {"V02"}}
-        # self.available_traits.register(r_petro)
+        # r_petro
+        r_petro = catalog_trait(Measurement, 'm_r-petrosian',
+                                OrderedDict([('value', self.tabular_data['r_petro']),
+                                             ('unit', units.mag)]))
+        r_petro.set_pretty_name(r"$m_r$", petrosian="Petrosian")
+        r_petro.set_description("Extinction-corrected SDSS DR7 Petrosian mag [InputCatv29 TilingCatv29 R_PETRO]")
+        # r_petro.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
+        self.available_traits.register(r_petro)
+        del r_petro
 
-        ellip = catalog_trait(MorphologicalMeasurement, 'ellip', OrderedDict([('value', self.tabular_data['ellip'])]))
-        # ellip.branches_versions = {('default', "default", ""): {"V02"}}
-        self.available_traits.register(ellip)
+        # r_auto
+        r_auto = catalog_trait(Measurement, 'm_r-auto',
+                                OrderedDict([('value', self.tabular_data['r_auto']),
+                                             ('unit', units.mag)]))
+        r_auto.set_pretty_name(r"$m_r$", auto="Auto")
+        r_auto.set_description("Extinction-corrected Kron magnitude (r band) [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_R - A_r]")
+        r_auto.set_documentation("""The magntidues in the GAMA table ApMatchedCatv03 are not extinction-corrected,
+                                    so we corrected them using extinction values from GalacticExtinctionv02""",
+                                 format='markdown')
+        # r_auto.branches_versions = {('ApMatchedPhotomv03', "GAMA ApMatchedPhotomv03"): {"V02"}}
+        self.available_traits.register(r_auto)
+        del r_auto
 
-        pa = catalog_trait(MorphologicalMeasurement, 'position_angle', OrderedDict([('value', self.tabular_data['PA'])]))
-        # pa.branches_versions = {('default', "default", ""): {"V02"}}
-        self.available_traits.register(pa)
+        # z_helio
+        redshift = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_helio'])]))
+        redshift.branches_versions = {('helio', "Heliocentric", "Redshift in the heliocentric frame"): {"V02"}}
+        redshift.set_description("Heliocentric redshift  [LocalFlowCorrectionv08 DistancesFramesv08 Z_HELIO]")
+        self.available_traits.register(redshift)
+        del redshift
 
-        stellar_mass = catalog_trait(Measurement, 'mass',
-                           OrderedDict([('value', self.tabular_data['logmstar_proxy'])]))
-        stellar_mass.branches_versions = {('proxy', "Stellar Mass Proxy", ""): {"V02"}}
-        self.available_traits.register(stellar_mass)
-        self.available_traits.change_defaults('mass', DefaultsRegistry(default_branch='proxy'))
+        # z_tonry
+        redshift_tonry = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_tonry'])]))
+        # redshift_tonry.branches_versions = {('tonry', "Flow Corrected", "Flow corrected redshift using Tonry model"): {"V02"}}
+        redshift_tonry.set_description("Flow-corrected redshift using Tonry model [LocalFlowCorrectionv08 DistancesFramesv08 Z_TONRY]")
+        redshift_tonry.set_documentation(
+            r"""The GAMA source catalogue contains the following notes regarding
+            this column "This column provides a redshift corrected for peculiar
+            velocities due to local flows, using the Tonry et~al. (2000, ApJ,
+            530, 625) flow model described in the Appendix of that paper. Note
+            there are triple-valued solutions of $z_\textrm{cmb} \rightarrow z_\textrm{tonry}$ over a small
+            range in G12 (near Virgo cluster), here the average distance is use
+            The solution is tapered to $z_\textrm{cmb}$ from $z_\textrm{cmb}=0.02$ to $z_\textrm{cmb}=0.03$. Thus
+            $z_\textrm{tonry} = z_\textrm{cmb}$ at $z_\textrm{cmb} > 0.03$. $z_\textrm{tonry}$ is close to but not exactly
+            equal to $z_\textrm{lg}$ (Local Group frame redshift) at $< \sim10$ Mpc."
+            """,
+            format='latex'
+        )
+        self.available_traits.register(redshift_tonry)
+        del redshift_tonry
+
+        self.available_traits.change_defaults('redshift', DefaultsRegistry(default_branch='helio'))
 
 
-        g_i = catalog_trait(Measurement, 'g_i',
-                           OrderedDict([('value', self.tabular_data['g_i'])]))
-        # g_i.branches_versions = {('default', "default", ""): {"V02"}}
-        self.available_traits.register(g_i)
+        # M_r
+        r_abs = catalog_trait(Measurement, 'M_r-auto',
+                                OrderedDict([('value', self.tabular_data['M_r']),
+                                             ('unit', units.mag)]))
+        r_abs.set_pretty_name("$M_r$", auto="Auto")
+        r_abs.set_description("Absolute magnitude in restframe r-band from SED fits [StellarMassesv08 absmag_r]")
+        r_abs.set_documentation(
+            """The GAMA source catalogue contains the following notes regarding
+            this column which must be taken into account before using $M_r$ for
+            science analysis "The values in this table are based on aperture
+            (AUTO) photometry, which may miss a significant fraction of a
+            galaxy's light. Make sure you understand the need for and meaning of
+            the quantity <fluxscale>, which is described under 'based on matched
+            aperture photometry' [in the StellarMassesv08 notes file]."
 
-        A_g = catalog_trait(Measurement, 'A_g',
-                            OrderedDict([('value', self.tabular_data['A_g'])]))
-        # A_g.branches_versions = {('default', "default", ""): {"V02"}}
-        self.available_traits.register(A_g)
+            """,
+            format='markdown')
+        r_abs.branches_versions = {('gama_sed', "GAMA StellarMassesv08"): {"V02"}}
+        r_abs.defaults = DefaultsRegistry('gama_sed', {'gama_sed': "V02"})
+        self.available_traits.register(r_abs)
+        del r_abs
 
+        # r_e: effective radius
+        r_e = catalog_trait(Measurement, 'effective_radius',
+                            OrderedDict([('value', self.tabular_data['mu_within_1re']),
+                                         ('unit', units.arcsecond)]))
+        r_e.branches_versions = {('central', "Central", "Surface Brightness within $1R_e$"): {"V02"}}
+        r_e.defaults = DefaultsRegistry('central', {'central': "V02"})
+        r_e.set_pretty_name(r"$R_\textrm{eff}$")
+        r_e.set_description(r"Effective radius in r-band (hl rad) (semi-major) [SersicPhotometryv07 SersicCatAllv07 GAL_RE_R]")
+        self.available_traits.register(r_e)
+        del r_e
+
+        # mu_within_1re
         surf_bright = catalog_trait(Measurement, 'surface_brightness',
-                            OrderedDict([('value', self.tabular_data['mu_within_1re'])]))
+                            OrderedDict([('value', self.tabular_data['mu_within_1re']),
+                                         ('unit',  units.mag/units.arcsec**2)]))
         surf_bright.branches_versions = {('central', "Central", "Surface Brightness within $1R_e$"): {"V02"}}
+        surf_bright.set_description(r"Effective r-band surface brightness within r_e [SersicPhotometryv07 SersicCatAllv07 GAL_MU_E_AVG_R]")
         self.available_traits.register(surf_bright)
+        del surf_bright
 
+        # mu_1re
         surf_bright = catalog_trait(Measurement, 'surface_brightness',
-                            OrderedDict([('value', self.tabular_data['mu_1re'])]))
+                            OrderedDict([('value', self.tabular_data['mu_1re']),
+                                         ('unit', units.mag/units.arcsec**2)]))
         surf_bright.branches_versions = {('1re', "1R_e", "Surface Brightness at $1R_e$"): {"V02"}}
+        surf_bright.set_description(r"Effective r-band surface brightness at r_e  [SersicPhotometryv07 SersicCatAllv07 GAL_MU_E_R]")
         self.available_traits.register(surf_bright)
+        del surf_bright
 
+        # mu_2re
         surf_bright = catalog_trait(Measurement, 'surface_brightness',
-                            OrderedDict([('value', self.tabular_data['mu_2re'])]))
+                            OrderedDict([('value', self.tabular_data['mu_2re']),
+                                         ('unit',  units.mag/units.arcsec**2)]))
         surf_bright.branches_versions = {('2re', "2R_e", "Surface Brightness at $2R_e$"): {"V02"}}
+        surf_bright.set_description(r"Effective r-band surface brightness at 2r_e [SersicPhotometryv07 SersicCatAllv07 GAL_MU_E_2R]")
         self.available_traits.register(surf_bright)
+        del surf_bright
 
         log.debug("Setting surface_brightness default.")
         self.available_traits.change_defaults('surface_brightness', DefaultsRegistry(default_branch='central'))
         log.debug(self.available_traits._trait_name_defaults['surface_brightness']._default_branch)
+
+
+        # ellip
+        ellip = catalog_trait(MorphologicalMeasurement, 'ellipticy-r_band',
+                              OrderedDict([('value', self.tabular_data['ellip'])]))  # type: MorphologicalMeasurement
+        # ellip.branches_versions = {('default', "default", ""): {"V02"}}
+        ellip.set_pretty_name("Ellipticity", r_band="r-band")
+        ellip.set_description("Ellipticity from r-band Sersic fits [SersicPhotometryv07 SersicCatAllv07 GAL_ELLIP_R]")
+        self.available_traits.register(ellip)
+        del ellip
+
+        # pa
+        pa = catalog_trait(MorphologicalMeasurement, 'position_angle-r_band',
+                           OrderedDict([('value', self.tabular_data['PA']),
+                                        ('unit', units.deg)]))  # type: MorphologicalMeasurement
+        # pa.branches_versions = {('default', "default", ""): {"V02"}}
+        pa.set_pretty_name("Position Angle", r_band="r-band")
+        pa.set_description("Position angle from r-band Sersic fits [SersicPhotometryv07 SersicCatAllv07 GAL_PA_R]")
+        self.available_traits.register(pa)
+        del pa
+
+        # logmstar_proxy
+        stellar_mass = catalog_trait(Measurement, 'mass',
+                           OrderedDict([('value', self.tabular_data['logmstar_proxy']),
+                                        ('unit', units.dex(units.solMass))]))  # type: Measurement
+        stellar_mass.branches_versions = {('proxy', "Stellar Mass Proxy", ""): {"V02"}}
+        stellar_mass.set_pretty_name("Stellar Mass")
+        stellar_mass.set_description("Stellar mass proxy (see Bryant et al. 2015) (units of log(Mstar/Msun))")
+        stellar_mass.set_documentation(
+            r"""
+            The stellar mass values in this catalogue are not based on SED fitting, but are
+            proxies for stellar mass based on colours to aid the selection of galaxies for
+            the SAMI survey.  We calculated the stellar mass proxy for the SAMI survey from
+            observed-frame Milky Way-extinction-corrected apparent magnitudes (\emph{g} and \emph{i}),
+            and limited the colours to reasonable values of $-0.2 < g - i < 1.6$. The
+            relation is:
+
+            \begin{align}
+            \log \left( \frac{M_*}{M_\cdot}\right) = -0.4i + 0.4D - \log(1.0 + z) + (1.2117 - 0.5893z) + (0.7106 - 0.1467z) \times (g i)
+            \end{align}
+
+            where D is the distance modulus.  For SED-based stellar masses,
+            please refer to the GAMA catalogue StellarMassesv08 with careful
+            reference to the `fluxscale' correction discussed in the notes file
+            that accompanies that catalogue.
+
+            """,
+            format='latex')
+        self.available_traits.register(stellar_mass)
+        self.available_traits.change_defaults('mass', DefaultsRegistry(default_branch='proxy'))
+        del stellar_mass
+
+        g_i = catalog_trait(Measurement, 'g_i',
+                           OrderedDict([('value', self.tabular_data['g_i'])]))  # type: Measurement
+        # g_i.branches_versions = {('default', "default", ""): {"V02"}}
+        g_i.set_pretty_name(r"$g_i$")
+        g_i.set_description(r"Kron colour (aperture-matched based on r-band), extinction corrected.")
+        g_i.set_documentation(
+            r"""Source: [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_G -MAG_AUTO_I -A_g +A_i]
+
+            NOTE: The magntidues in the GAMA table ApMatchedCatv03 are not
+            extinction-corrected, so we corrected them using extinction values
+            from GalacticExtinctionv02
+            """
+        )
+        self.available_traits.register(g_i)
+        del g_i
+
+        A_g = catalog_trait(Measurement, 'A_g',
+                            OrderedDict([('value', self.tabular_data['A_g'])]))  # type: Measurement
+        # A_g.branches_versions = {('default', "default", ""): {"V02"}}
+        A_g.set_pretty_name("$A_g$")
+        A_g.set_description("Galactic extinction in SDSS g band.")
+        A_g.set_documentation("""Source: [InputCatv29 GalacticExtinctionv02 A_g]""")
+        self.available_traits.register(A_g)
+        del A_g
+
+        surv_sami = catalog_trait(Measurement, 'priority_class',
+                            OrderedDict([('value', self.tabular_data['SURV_SAMI'])]))  # type: Measurement
+        # @TODO: Change to Classification type or similar as appropriate.
+        # surv_sami.branches_versions = {('default', "default", ""): {"V02"}}
+        surv_sami.set_description("Sample priority class: primary = 8; high-mass fillers = 4; remaining fillers = 3.")
+        # surv_sami.set_documentation("""""")
+        self.available_traits.register(surv_sami)
+        del surv_sami
+
+        bad_class = catalog_trait(Measurement, 'visual_class',
+                            OrderedDict([('value', self.tabular_data['BAD_CLASS'])]))  # type: Measurement
+        # @TODO: Change to Classification type or similar as appropriate.
+        # bad_class.branches_versions = {('default', "default", ""): {"V02"}}
+        bad_class.set_description("Classification based on visual inspection (see Bryant et al. 2015).")
+        bad_class.set_documentation(
+            r"""The BAD_CLASS flag measures the visual classification as follows:
+            \begin{description}
+                \item[0] object is OK;
+                \item[1] nearby bright star;
+                \item[2] target is a star;
+                \item[3] subcomponent of a galaxy;
+                \item[4] very large, low redshift galaxy;
+                \item[5] needs re-centring;
+                \item[6] poor redshift;
+                \item[7] other problems,
+                \item[8] smaller component of a close pair of galaxies, where the second
+                     galaxy is outside of the bundle radius. Only objects with BAD\_CLASS =
+                    0, 5 or 8 will be in the sample that may be observed.
+            \end{description}
+
+            """,
+            format='latex'
+        )
+        self.available_traits.register(bad_class)
+        del bad_class
+
+
 
         # LZIFU Items
 
