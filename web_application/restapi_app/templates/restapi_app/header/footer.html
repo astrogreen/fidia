@@ -160,10 +160,10 @@
                 if ($('.main-content').height() > $('.sidebar .sidebar-contents').height()) {
                     $('.sidebar').height($('.main-content').height() + 'px');
                 } else {
-                    $('.sidebar').height($('.sidebar .sidebar-contents').height() + 30 + 'px');
+                    $('.sidebar').height($('.sidebar .sidebar-contents').height() + 'px');
                 }
             } else {
-                $('.sidebar').height($('.sidebar .sidebar-contents').height() + 30 + 'px');
+                $('.sidebar').height($('.sidebar .sidebar-contents').height() + 'px');
             }
         };
 
@@ -192,6 +192,7 @@
         $('.dismissable_panel a.dismiss_button').click(function(){
             $('.dismissable_panel').hide();
         });
+        $('body').scrollspy({ target: '.sidebar .page-contents' })
 
     });
 </script>

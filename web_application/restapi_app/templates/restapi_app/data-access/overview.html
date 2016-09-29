@@ -17,41 +17,40 @@
 
 {% block content_render %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
-            <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <div class="page-contents">
+                <h5>Page Contents</h5>
+                <ul class="nav nav-pills nav-stacked nav-sidebar">
+                    <li role="presentation">
+                        <a href="#top-of-page" class="scroll">Overview</a></li>
+                    <li>
+                        <a href="#data-browser" class="scroll">Data Browser</a>
+                    </li>
+                    <li>
+                        <a href="#query-builder" class="scroll">Query Builder (SQL)</a></li>
+                    <li>
+                        <a href="#schema-browser" class="scroll">Schema Browser</a>
+                    </li>
+                    <li>
+                        <a href="#schema-browser" class="scroll">TAP Service</a>
+                    </li>
+                    <li>
+                        <a href="#data-explorer" class="scroll">Data Explorer</a>
+                    </li>
+                    <li>
+                        <a href="#position-search" class="scroll">Position Search</a></li>
+                    <li>
+                        <a href="#api" class="scroll">API</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="quick-links">
+                <h5>Quick Links</h5>
+                <ul class="nav-sidebar"><li><a href="{% url 'surveys' %}">Surveys</a></li>
+                </ul>
+            </div>
 
-                <li class="text-uppercase heading">
-                    <h6>{{trait_type_value.pretty_name}}</h6>
-                </li>
-                <li role="presentation">
-                    <a href="#overview" class="scroll">Overview</a></li>
-                <li>
-                    <a href="#data-browser" class="scroll">Data Browser</a>
-                </li>
-                <li>
-                    <a href="#query-builder" class="scroll">Query Builder (SQL)</a></li>
-                <li>
-                    <a href="#schema-browser" class="scroll">Schema Browser</a>
-                </li>
-                <li>
-                    <a href="#schema-browser" class="scroll">TAP Service</a>
-                </li>
-                <li>
-                    <a href="#data-explorer" class="scroll">Data Explorer</a>
-                </li>
-                <li>
-                    <a href="#position-search" class="scroll">Position Search</a></li>
-                <li>
-                    <a href="#api" class="scroll">API</a>
-                </li>
-
-            </ul>
-            <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a href="{% url 'surveys' %}">Surveys</a></li>
-            </ul>
 
         </div>
     </div>

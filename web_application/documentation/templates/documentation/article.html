@@ -32,31 +32,35 @@
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
+
             {% if not response.data.content %}
-            <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li>
-                    <a href="{% url 'documentation:topic-list' %}"><i class="fa fa-angle-left"></i> Cancel and return to Help Center</a>
-                </li>
-            </ul>
+            <div class="page-contents">
+                <h5>Page Contents</h5>
+                <ul class="nav-sidebar">
+                    <li>
+                        <a href="{% url 'documentation:topic-list' %}"><i class="fa fa-angle-left"></i> Cancel and return to Help Center</a>
+                    </li>
+                </ul>
+            </div>
             {% endif %}
 
-
             {% if response.data.topic_info %}
-            <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li>
-                    <a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}"><i class="fa fa-angle-left"></i> Back to all {{response.data.topic_info.title|capfirst}} articles </a>
-                </li>
-            </ul>
-            <h5>Other {{response.data.topic_info.title}} Articles</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                {% for article in response.data.all_articles_in_topic %}
-                    {% if article.title != response.data.title %}
-                        <li><a class="" href="{{article.url}}"> {{article.title}}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+            <div class="quick-links">
+                <h5>Quick Links</h5>
+                <ul class="nav-sidebar">
+                    <li>
+                        <a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}"><i class="fa fa-angle-left"></i> Back to all {{response.data.topic_info.title|capfirst}} articles </a>
+                    </li>
+                </ul>
+                <h5>Other {{response.data.topic_info.title}} Articles</h5>
+                <ul class="nav nav-sidebar">
+                    {% for article in response.data.all_articles_in_topic %}
+                        {% if article.title != response.data.title %}
+                            <li><a class="" href="{{article.url}}"> {{article.title}}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
         </div>
     </div>

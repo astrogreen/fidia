@@ -63,39 +63,43 @@
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
-            <h5>Page Contents</h5>
+            <div class="page-contents">
+                <h5>Page Contents</h5>
+                <ul class="nav nav-pills nav-stacked  nav-sidebar">
+                    <li role="presentation"><a class="scroll" href="#top-of-page">Data Release
+                        {{response.data.data_release}}
+                        Overview</a></li>
+                    <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+                    <li role="presentation"><a class="scroll" href="#help">Help</a></li>
 
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-
-
-                <li role="presentation"><a class="scroll" href="#overview">Data Release {{response.data.data_release}}
-                    Overview</a></li>
-                <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
-                <li role="presentation"><a class="scroll" href="#help">Help</a></li>
-
-            </ul>
-            <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
-                    Browser</a></li>
-                <li>
-                    {% with survey|add:"-data-products" as data_product_descriptions %}
-                    <a href="{% url data_product_descriptions %}"><span>
+                </ul>
+            </div>
+            <div class="quick-links">
+                <h5>Quick Links</h5>
+                <ul class="nav-sidebar">
+                    <li>
+                       <a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
+                    Browser</a>
+                    </li>
+                    <li>
+                        {% with survey|add:"-data-products" as data_product_descriptions %}
+                        <a href="{% url data_product_descriptions %}"><span>
                         Data Product Descriptions</span></a>
-                    {% endwith %}
-                </li>
+                        {% endwith %}
 
-
-                <!--<li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>-->
-                {% if breadcrumblist %}
-                {% with breadcrumblist|length|add:"-2" as b %}
-                <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
-                    {{breadcrumblist|key:b|key:0}}</a></li>
-                {% endwith %}
-                {% endif %}
-            </ul>
+                    </li>
+                    <li>
+                        {% if breadcrumblist %}
+                        {% with breadcrumblist|length|add:"-2" as b %}
+                        <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+                            {{breadcrumblist|key:b|key:0}}</a>
+                        {% endwith %}
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 

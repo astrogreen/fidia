@@ -60,19 +60,17 @@
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
+            <div class="page-contents">
             <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <!--<li class="text-uppercase heading no-margin-top">-->
-                    <!--<h6>Data Release {{response.data.data_release}}</h6>-->
-                <!--</li>-->
-                <li role="presentation"><a class="scroll" href="#overview">Overview</a></li>
+            <ul class="nav nav-pills nav-stacked nav-sidebar">
+                <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
                 <li role="presentation"><a class="scroll" href="#available-data">Available Data</a></li>
             </ul>
-
+            </div>
             <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <ul class="nav-sidebar">
                 <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
                 {% if breadcrumblist %}

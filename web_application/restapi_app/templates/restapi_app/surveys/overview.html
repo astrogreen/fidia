@@ -22,33 +22,30 @@
 
 {% block content_render %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
-            <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-
-                <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
-                    <h6>{{trait_type_value.pretty_name}}</h6>
-                </li>
-                <li  role="presentation">
-                    <a href="#overview" class="scroll">Overview</a>
-                </li>
-                {% for value in response.data.samples %}
-                <li  role="presentation">
-                    <a href="#{{value.survey}}" class="scroll">{{value.survey |uppercase}}
-                    </a>
-                </li>
-            {% endfor %}
-
-            </ul>
-            <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li>
-                    <a href="{% url 'data-access' %}">Data Access</a>
-                </li>
-
-            </ul>
-
+            <div class="page-contents">
+                <h5>Page Contents</h5>
+                <ul class="nav nav-pills nav-stacked nav-sidebar">
+                    <li role="presentation">
+                        <a href="#top-of-page" class="scroll">Overview</a>
+                    </li>
+                    {% for value in response.data.samples %}
+                    <li role="presentation">
+                        <a href="#{{value.survey}}" class="scroll">{{value.survey |uppercase}}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="quick-links">
+                <h5>Quick Links</h5>
+                <ul class="nav-sidebar">
+                    <li>
+                        <a href="{% url 'data-access' %}">Data Access Overview</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -61,7 +58,7 @@
 
             Below is a summary of each survey, links to data release information and relevant data access tools.</p>
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table">
                 <colgroup>
                     <col width="10%">
                     <col width="40%">
