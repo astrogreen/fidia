@@ -1441,6 +1441,7 @@ class SAMIDR1PublicArchive(Archive):
                 fits_table.tolist(),
                 columns=map(lambda x: x.name, fits_table.columns))
             self.tabular_data['CATID'] = self.tabular_data['CATID'].astype(str)
+            self.tabular_data['name'] = self.tabular_data['name'].str.decode('utf8')
         self.tabular_data.set_index('CATID', inplace=True)
         log.debug("tabular_data columns: %s", self.tabular_data.columns)
 
@@ -1448,11 +1449,6 @@ class SAMIDR1PublicArchive(Archive):
         self._trait_cache = dict()
 
         super(SAMIDR1PublicArchive, self).__init__()
-
-    feature_catalog_data = [
-        TraitPath("mass"),
-        TraitPath("redshift")
-    ]
 
     def _find_cubes(self):
 
@@ -1536,6 +1532,16 @@ class SAMIDR1PublicArchive(Archive):
     def name(self):
         return 'SAMI'
 
+
+    feature_catalog_data = [
+        TraitPath("iau_id"),
+        # TraitPath("catalog_coordinate", trait_property='_ra'),
+        # TraitPath("catalog_coordinate", trait_property='_dec'),
+        TraitPath("redshift:helio"),
+        TraitPath("M_r-auto"),
+        TraitPath("mass")
+    ]
+
     def define_available_traits(self):
 
         # Trait 'spectral_cube'
@@ -1547,13 +1553,16 @@ class SAMIDR1PublicArchive(Archive):
         # /  `  /\   |   /\  |    /  \ / _`    |__) |__) /  \ |__) |__  |__)  |  | |__  /__`
         # \__, /~~\  |  /~~\ |___ \__/ \__>    |    |  \ \__/ |    |___ |  \  |  | |___ .__/
 
+        sami_gama_catalog_branch = ('sami_gama', 'SAMI-GAMA', 'SAMI-GAMA Target Catalog')
+
         # name (IAU Identifier)
         iau_name = catalog_trait(Measurement, 'iau_id',
                                 OrderedDict([('value', self.tabular_data['name'])]))
         iau_name.set_pretty_name(r"IAU Identifier")
         iau_name.set_description("IAU format object name")
-        # iau_name.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
+        iau_name.branches_versions = {('iau', "IAU Standard"): {"V02"}}
         self.available_traits.register(iau_name)
+        self.available_traits.change_defaults('iau_id', DefaultsRegistry(default_branch='iau'))
         del iau_name
 
         # RA and DEC
@@ -1562,27 +1571,32 @@ class SAMIDR1PublicArchive(Archive):
                                                ('_dec', self.tabular_data['Dec'])]))
         cat_coord.set_description("J2000 Right Ascension and Declination [InputCatv29 TilingCatv29 RA/DEC]")
         cat_coord.set_pretty_name("Catalog Coordinate")
+        cat_coord.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         self.available_traits.register(cat_coord)
+        self.available_traits.change_defaults('catalog_coordinate', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
         del cat_coord
 
         # r_petro
         r_petro = catalog_trait(Measurement, 'm_r-petrosian',
                                 OrderedDict([('value', self.tabular_data['r_petro']),
                                              ('unit', units.mag)]))
-        r_petro.set_pretty_name(r"$m_r$", petrosian="Petrosian")
+        r_petro.set_pretty_name(r"r-band Magnitude", petrosian="Petrosian")
         r_petro.set_description("Extinction-corrected SDSS DR7 Petrosian mag [InputCatv29 TilingCatv29 R_PETRO]")
-        # r_petro.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
+        r_petro.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
         self.available_traits.register(r_petro)
+        self.available_traits.change_defaults('m_r-petrosian', DefaultsRegistry(default_branch='sdss_dr7'))
         del r_petro
 
         # r_auto
         r_auto = catalog_trait(Measurement, 'm_r-auto',
                                 OrderedDict([('value', self.tabular_data['r_auto']),
                                              ('unit', units.mag)]))
-        r_auto.set_pretty_name(r"$m_r$", auto="Auto")
-        r_auto.set_description("Extinction-corrected Kron magnitude (r band) [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_R - A_r]")
+        r_auto.set_pretty_name(r"r-band Mag", auto="Auto")
+        r_auto.set_description("Extinction-corrected Kron magnitude (r band)")
         r_auto.set_documentation("""The magntidues in the GAMA table ApMatchedCatv03 are not extinction-corrected,
-                                    so we corrected them using extinction values from GalacticExtinctionv02""",
+                                    so we corrected them using extinction values from GalacticExtinctionv02.
+
+                                    Source: GAMA catalogs [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_R - A_r]""",
                                  format='markdown')
         # r_auto.branches_versions = {('ApMatchedPhotomv03', "GAMA ApMatchedPhotomv03"): {"V02"}}
         self.available_traits.register(r_auto)
@@ -1622,10 +1636,10 @@ class SAMIDR1PublicArchive(Archive):
         r_abs = catalog_trait(Measurement, 'M_r-auto',
                                 OrderedDict([('value', self.tabular_data['M_r']),
                                              ('unit', units.mag)]))
-        r_abs.set_pretty_name("$M_r$", auto="Auto")
-        r_abs.set_description("Absolute magnitude in restframe r-band from SED fits [StellarMassesv08 absmag_r]")
+        r_abs.set_pretty_name(r"Absolute r-band Mag", auto="Auto")
+        r_abs.set_description(r"Absolute magnitude in restframe r-band from SED fits [StellarMassesv08 absmag_r]")
         r_abs.set_documentation(
-            """The GAMA source catalogue contains the following notes regarding
+            r"""The GAMA source catalogue contains the following notes regarding
             this column which must be taken into account before using $M_r$ for
             science analysis "The values in this table are based on aperture
             (AUTO) photometry, which may miss a significant fraction of a
@@ -1646,7 +1660,7 @@ class SAMIDR1PublicArchive(Archive):
                                          ('unit', units.arcsecond)]))
         r_e.branches_versions = {('central', "Central", "Surface Brightness within $1R_e$"): {"V02"}}
         r_e.defaults = DefaultsRegistry('central', {'central': "V02"})
-        r_e.set_pretty_name(r"$R_\textrm{eff}$")
+        r_e.set_pretty_name(r"Effective Radius")
         r_e.set_description(r"Effective radius in r-band (hl rad) (semi-major) [SersicPhotometryv07 SersicCatAllv07 GAL_RE_R]")
         self.available_traits.register(r_e)
         del r_e
@@ -1686,21 +1700,27 @@ class SAMIDR1PublicArchive(Archive):
         # ellip
         ellip = catalog_trait(MorphologicalMeasurement, 'ellipticy-r_band',
                               OrderedDict([('value', self.tabular_data['ellip'])]))  # type: MorphologicalMeasurement
-        # ellip.branches_versions = {('default', "default", ""): {"V02"}}
+        ellip.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         ellip.set_pretty_name("Ellipticity", r_band="r-band")
         ellip.set_description("Ellipticity from r-band Sersic fits [SersicPhotometryv07 SersicCatAllv07 GAL_ELLIP_R]")
         self.available_traits.register(ellip)
         del ellip
 
+        self.available_traits.change_defaults('ellipticy-r_band', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
         # pa
         pa = catalog_trait(MorphologicalMeasurement, 'position_angle-r_band',
                            OrderedDict([('value', self.tabular_data['PA']),
                                         ('unit', units.deg)]))  # type: MorphologicalMeasurement
-        # pa.branches_versions = {('default', "default", ""): {"V02"}}
+        pa.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         pa.set_pretty_name("Position Angle", r_band="r-band")
         pa.set_description("Position angle from r-band Sersic fits [SersicPhotometryv07 SersicCatAllv07 GAL_PA_R]")
         self.available_traits.register(pa)
         del pa
+
+        self.available_traits.change_defaults('position_angle-r_band', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
 
         # logmstar_proxy
         stellar_mass = catalog_trait(Measurement, 'mass',
@@ -1735,8 +1755,8 @@ class SAMIDR1PublicArchive(Archive):
 
         g_i = catalog_trait(Measurement, 'g_i',
                            OrderedDict([('value', self.tabular_data['g_i'])]))  # type: Measurement
-        # g_i.branches_versions = {('default', "default", ""): {"V02"}}
-        g_i.set_pretty_name(r"$g_i$")
+        g_i.branches_versions = {sami_gama_catalog_branch: {"V02"}}
+        g_i.set_pretty_name(r"Kron Colour")
         g_i.set_description(r"Kron colour (aperture-matched based on r-band), extinction corrected.")
         g_i.set_documentation(
             r"""Source: [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_G -MAG_AUTO_I -A_g +A_i]
@@ -1749,28 +1769,37 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(g_i)
         del g_i
 
-        A_g = catalog_trait(Measurement, 'A_g',
+        self.available_traits.change_defaults('g_i', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
+        A_g = catalog_trait(Measurement, 'A_gal-g_band',
                             OrderedDict([('value', self.tabular_data['A_g'])]))  # type: Measurement
-        # A_g.branches_versions = {('default', "default", ""): {"V02"}}
-        A_g.set_pretty_name("$A_g$")
+        A_g.branches_versions = {sami_gama_catalog_branch: {"V02"}}
+        A_g.set_pretty_name("Galactic extinction", g_band='g-band')
         A_g.set_description("Galactic extinction in SDSS g band.")
         A_g.set_documentation("""Source: [InputCatv29 GalacticExtinctionv02 A_g]""")
         self.available_traits.register(A_g)
         del A_g
 
+        self.available_traits.change_defaults('A_gal-g_band', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
         surv_sami = catalog_trait(Measurement, 'priority_class',
                             OrderedDict([('value', self.tabular_data['SURV_SAMI'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
-        # surv_sami.branches_versions = {('default', "default", ""): {"V02"}}
+        surv_sami.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         surv_sami.set_description("Sample priority class: primary = 8; high-mass fillers = 4; remaining fillers = 3.")
         # surv_sami.set_documentation("""""")
         self.available_traits.register(surv_sami)
         del surv_sami
 
+        self.available_traits.change_defaults('priority_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
         bad_class = catalog_trait(Measurement, 'visual_class',
                             OrderedDict([('value', self.tabular_data['BAD_CLASS'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
-        # bad_class.branches_versions = {('default', "default", ""): {"V02"}}
+        bad_class.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         bad_class.set_description("Classification based on visual inspection (see Bryant et al. 2015).")
         bad_class.set_documentation(
             r"""The BAD_CLASS flag measures the visual classification as follows:
@@ -1794,9 +1823,14 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(bad_class)
         del bad_class
 
+        self.available_traits.change_defaults('visual_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
-        # LZIFU Items
+
+        #      __    ___          __       ___
+        # |     / | |__  |  |    |  \  /\   |   /\
+        # |___ /_ | |    \__/    |__/ /~~\  |  /~~\
+
 
         self.available_traits.register(LZIFUVelocityMap)
         self.available_traits.register(LZIFUVelocityDispersionMap)
