@@ -63,12 +63,12 @@
             <br>
             <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
                 {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
-                <li class="text-uppercase heading  {% if forloop.first %}no-margin-top{% endif %}">
-                    <h6 class="trait">{{trait_type_value.pretty_name}}</h6>
-                </li>
+                    <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}" data-trait-type-key="{{trait_type_key}}">
+                        <h6 >{{trait_type_value.pretty_name}}</h6>
+                    </li>
                     {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                        <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
-                            <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait trait_type_button"
+                        <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation" data-trait-type-key="{{trait_type_key}}">
+                            <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_type_button"
                                aria-controls="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" role="tab"
                                data-toggle="pill">{{trait_qualifier_value.pretty_name}}
                                 {% if not trait_qualifier_value.pretty_name %}
@@ -452,7 +452,7 @@
             e.preventDefault();
 
             // remove all active classes off sidebar buttons
-            console.log($("#docs-sidebar li"));
+
             $("#docs-sidebar li").removeClass('active');
             // if clicked
             // if list.js has filtering active
@@ -606,14 +606,56 @@
 </script>
 <script>
     $('#schema_search').on('keyup', function(){
+        //reset all
+        $('#schema_menu li').each(function(){
+            $(this).show();
+        })
         var search_value = $(this).val().toLowerCase();
-        $('#schema_menu li h6, #schema_menu li a').each(function(){
-            if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
-                $(this).parent('li').show();
-            } else {
-                $(this).parent('li').hide();
-            }
-        });
+
+        if (!!search_value){
+            // if there is a search value in the input box
+            $('#schema_menu li').each(function(){
+                // hide everything
+                $(this).hide();
+            })
+
+            $('#schema_menu li h6').each(function () {
+                // iterate over the h6 headers  - if present, show all associated anchors with the data-trait-type-key attribute
+
+                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
+                    // if the search value is found
+                    // get all li with the same data-trait-type-key attribute
+                    var _trait_type_key = $(this).parent('li').attr('data-trait-type-key');
+
+                    $('#schema_menu li').each(function () {
+                        // show these (effectively searching in the h6 and anchors simulataneously)
+                        if ($(this).attr('data-trait-type-key') == _trait_type_key) {
+                            $(this).show();
+                        }
+                    })
+                }
+            });
+
+            $('#schema_menu li a').each(function () {
+                // iterate over anchor text - if present, show associated h6 heading
+
+                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
+                    // if the search value is found
+                    // show only parent h6 with same attribute
+                    var _trait_type_key = $(this).parent('li').attr('data-trait-type-key');
+                    // show the anchor's parent li
+                    $(this).parent('li').show();
+
+                    $('#schema_menu li').each(function () {
+                        // show these (effectively searching in the h6 and anchors simulataneously)
+                        if ($(this).find('h6').length && $(this).attr('data-trait-type-key') == _trait_type_key) {
+                            $(this).show();
+                        }
+                    })
+                }
+            });
+        }
+
     });
 </script>
 {% endblock %}
