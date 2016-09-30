@@ -60,22 +60,26 @@
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
+            <div class="page-contents">
             <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li role="presentation"><a href="#data" class="scroll">Data</a></li>
+            <ul class="nav nav-pills nav-stacked nav-sidebar">
+                <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
             </ul>
+            </div>
             <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
-                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+            <ul class="nav-sidebar">
                 {% if breadcrumblist %}
 
                   {% with breadcrumblist|length|add:"-2" as b %}
                     <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
                   {% endwith %}
             {% endif %}
+                <br>
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
+                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+
             </ul>
 
         </div>
@@ -83,12 +87,6 @@
     </div>
     <div class="col-xs-12 col-sm-9 main-content">
         <h2>{{sample|uppercase}} {{astro_object}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
-
-        {% with response.data as tpdata %}
-            {% with "None" as tp %}
-                {% include 'data_browser/trait/end-point-trait-properties.html' %}
-            {% endwith %}
-        {% endwith %}
 
         <h3 id="data">Data</h3>
         <div class="row">
@@ -156,6 +154,12 @@
             </div>
 
         </div>
+        <h3 id="properties">Properties</h3>
+        {% with response.data as tpdata %}
+            {% with "None" as tp %}
+                {% include 'data_browser/trait/end-point-trait-properties.html' %}
+            {% endwith %}
+        {% endwith %}
     </div>
 </div>
 

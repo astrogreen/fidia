@@ -20,15 +20,18 @@
 
 <div class="row">
 
-<div class="col-xs-12 col-sm-3 sidebar">
+<div class="col-xs-12 col-sm-3 sidebar" role="navigation">
+    <div class="page-contents">
         <h5>Page Contents</h5>
-        <ul class="nav nav-pills nav-stacked docs-sidebar">
-            <li role="presentation"><a href="#schema-access" class="scroll">Schema Access</a></li>
-            <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">What does the Schema Browser
+        <ul class="nav nav-pills nav-stacked nav-sidebar">
+            <li role="presentation"><a href="#top-of-page" class="scroll">Schema Access</a></li>
+            <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">What does the Schema
+                Browser
                 do?</a></li>
-        </ul><br>
+        </ul>
+    </div>
         <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <ul class="nav-sidebar">
                 {% for value in response.data.surveys %}
                 <li role="presentation"><a href="{{value.survey}}/"><span>Schema Browser for {{value.survey|uppercase}}
                 <i class="fa fa-angle-right"></i></span></a></li>

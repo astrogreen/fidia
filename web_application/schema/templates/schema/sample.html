@@ -56,16 +56,19 @@
 
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
-        <div class="sidebar-contents schema">
-            <h5>Page Contents</h5>
+
+        <div class="sidebar-contents schema" id="schema_menu">
+            <h5>Schema Contents</h5>
+            <input type="text" class="search form-control" id="schema_search" placeholder="e.g., Search Schema">
+            <br>
             <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
                 {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
-                <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
-                    <h6>{{trait_type_value.pretty_name}}</h6>
+                <li class="text-uppercase heading  {% if forloop.first %}no-margin-top{% endif %}">
+                    <h6 class="trait">{{trait_type_value.pretty_name}}</h6>
                 </li>
                     {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                         <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
-                            <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_type_button"
+                            <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait trait_type_button"
                                aria-controls="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" role="tab"
                                data-toggle="pill">{{trait_qualifier_value.pretty_name}}
                                 {% if not trait_qualifier_value.pretty_name %}
@@ -76,8 +79,6 @@
                     {% endfor %}
                 {% endfor %}
             </ul>
-
-
         </div>
     </div>
 
@@ -449,6 +450,15 @@
         $("ul.nav-pills a.trait_type_button").click(function (e) {
             // prevent jump to hash
             e.preventDefault();
+
+            // remove all active classes off sidebar buttons
+            console.log($("#docs-sidebar li"));
+            $("#docs-sidebar li").removeClass('active');
+            // if clicked
+            // if list.js has filtering active
+            // remove all active classes from within the filtered list
+
+
             // append to url
             window.location.hash = this.hash;
             // scroll to top of .main-content
@@ -593,7 +603,17 @@
 
     });
 
-    
-
+</script>
+<script>
+    $('#schema_search').on('keyup', function(){
+        var search_value = $(this).val().toLowerCase();
+        $('#schema_menu li h6, #schema_menu li a').each(function(){
+            if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
+                $(this).parent('li').show();
+            } else {
+                $(this).parent('li').hide();
+            }
+        });
+    });
 </script>
 {% endblock %}
