@@ -61,7 +61,7 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
@@ -381,9 +381,22 @@
             $('#returnTableResults_wrapper').removeClass('form-inline');
             $('#returnTableResults_filter > div > input').removeClass('input-sm');
             $('#returnTableResults_filter > div > span > button').removeClass('btn-sm');
+
             // Append column options to the range select
             for (var k=0;k<columns.length;k++){
-                $('select#column').append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
+                // if you can parse as float, then append
+
+                var _column_append = true;
+
+                for (var z=0;z<catalog.data[k].length;z++){
+                    if (!!parseFloat(catalog.data[k][z])){
+                    } else {_column_append = false;}
+                }
+
+                if (_column_append == true){
+                    $('select#column').append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
+                }
+
             }
 
 
@@ -392,20 +405,21 @@
             // this needs to be re-initialized on each selection of the column
 
 
-
             $('#column').on('change', function (e) {
                 // redraw table without any filtering
                 $.fn.dataTable.ext.search = [];
                 table.draw();
 
                 var selected_column = $(e.currentTarget).val();
+
                 console.log('selected '+selected_column);
 
-                $('#min, #max').val('').removeClass().addClass(selected_column).addClass('form-control').attr("disabled",false);
                 // find column index
                 for (var k=0;k<columns.length;k++){
                     if (columns[k].title == selected_column){column_index = k;}
                 }
+                $('#min, #max').val('').addClass('form-control').attr("disabled",false);
+
                 console.log('column index in data '+column_index);
 
                 data = catalog.data;
@@ -413,8 +427,8 @@
                 $.fn.dataTable.ext.search.push(
                     function (settings, data, dataIndex) {
 
-                        var min = parseFloat($('#min.'+selected_column).val());
-                        var max = parseFloat($('#max.'+selected_column).val());
+                        var min = parseFloat($('#min').val());
+                        var max = parseFloat($('#max').val());
 
                         // TODO find type of data if string...
                         var field = parseFloat(data[column_index]) || 0; // use data for the selected column
