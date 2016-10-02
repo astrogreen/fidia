@@ -51,7 +51,7 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
 <div class="row">
@@ -270,6 +270,7 @@
                                                                 {% for trait_property_key, trait_property_value in value.trait_properties.items %}
                                                                     <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">
                                                                     {{trait_property_value.pretty_name}} <small> <code>{{trait_property_value.type}}</code></small></h4>
+                                                                    {% if trait_property_value.description %}<div class="sub-heading small" style="margin-top:-10px; margin-bottom:20px;"><em>{{trait_property_value.description|safe}}</em></div>{% endif %}
                                                                     <div class="documentation_fidia">
                                                                         {{trait_property_value.html_documentation|safe}}
                                                                     </div>

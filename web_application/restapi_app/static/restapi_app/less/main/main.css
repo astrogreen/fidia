@@ -265,6 +265,25 @@ code {
 ++ SIDEBAR
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.affix {
+  top: 0px;
+}
+.affix-bottom {
+  position: absolute;
+}
+@media (max-width: 992px) {
+  .sidebar ul.nav-sidebar li a {
+    max-width: 120px;
+  }
+}
+@media (max-width: 767px) {
+  .affix {
+    position: static;
+  }
+  .sidebar ul.nav-sidebar li a {
+    max-width: auto;
+  }
+}
 .container-fluid {
   padding-left: 30px;
   padding-right: 30px;
@@ -295,8 +314,35 @@ code {
   font-size: 14px;
   vertical-align: middle;
   display: block;
+  word-wrap: break-word;
 }
 .sidebar ul.nav-sidebar li a:hover {
+  text-decoration: none;
+  color: #4078C0;
+}
+.sidebar ul.nav-sidebar-nested {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  margin-bottom: 0px;
+  vertical-align: middle;
+}
+.sidebar ul.nav-sidebar-nested li {
+  line-height: 14px;
+  margin: 0 0 6px;
+  vertical-align: middle;
+  padding-left: 20px;
+}
+.sidebar ul.nav-sidebar-nested li a {
+  color: #555;
+  font-size: 14px;
+  vertical-align: middle;
+  padding: 5px 10px;
+  display: block;
+  word-wrap: break-word;
+}
+.sidebar ul.nav-sidebar-nested li a:hover {
   text-decoration: none;
   color: #4078C0;
 }
@@ -311,16 +357,21 @@ code {
   border-left: solid 4px transparent;
   border-radius: 0;
 }
-.sidebar .page-contents .nav-pills > li.active > a,
-.sidebar .page-contents .nav-pills > li.active > a:hover,
 .sidebar .page-contents .nav-pills > li.active > a:focus {
+  background-color: transparent;
+}
+.sidebar .page-contents .nav-pills > li.active > a,
+.sidebar .page-contents .nav-pills > li.active > a:hover {
   color: #333;
   background-color: #D3D3D3;
   border-left: solid 4px #cc7a6f;
   border-radius: 0;
 }
-.sidebar .page-contents .nav > li > a:hover,
 .sidebar .page-contents .nav > li > a:focus {
+  text-decoration: none;
+  background-color: transparent;
+}
+.sidebar .page-contents .nav > li > a:hover {
   text-decoration: none;
   color: #333;
   background-color: #D3D3D3;

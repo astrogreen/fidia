@@ -12,7 +12,7 @@
 <ul class="nav nav-tabs nav-tabs-with-well" role="tablist" ng-if="!apctrl.single">
     <li role="presentation" ng-repeat="(survey, traits) in availabledata" ng-class='{active:$first}'><a href="#{{survey}}" aria-controls="{{survey}}" role="tab" data-toggle="tab">{{survey}}</a></li>
 </ul>
-<div class="well">
+<div class="">
 
     <div class="row">
         <div class="col-sm-12 col-xs-12">
@@ -121,12 +121,9 @@
         </div>
         <div class="">
 
-            <div class="col-xs-12 col-sm-12">
-                <h3>Selection Summary</h3>
-                <div class="col-xs-12">
-                    <div class="helper step step3">This is the list of data products you've chosen to
-                        download for your selected objects.
-                    </div>
+            <div class="col-xs-12">
+                <div class="helper step step3">This is the list of data products you've chosen to
+                    download for your selected objects.
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6">

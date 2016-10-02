@@ -192,7 +192,14 @@
         $('.dismissable_panel a.dismiss_button').click(function(){
             $('.dismissable_panel').hide();
         });
-        $('body').scrollspy({ target: '.sidebar .page-contents' })
+        $('body').scrollspy({ target: '.sidebar .page-contents' });
+
+        // Affix plugin
+        var pos = $('.sidebar-contents').eq(0).offset();
+        var pos_foot = $('.footer').outerHeight(true);
+
+        $('[data-spy="affix"]').attr("data-offset-top", pos.top);
+        $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot+30);
 
     });
 </script>

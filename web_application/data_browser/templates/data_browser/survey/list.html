@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/js/DataTables/datatables.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 
 <script type="text/javascript" src="{% static 'query/js/available-products/controllers.js' %}"></script>
 <script type="text/javascript" src="{% static 'query/js/available-products/services.js' %}"></script>
@@ -60,11 +61,11 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content_render %}
+{% block content-test %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
+        <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
                 <h5>Page Contents</h5>
                 <ul class="nav nav-pills nav-stacked  nav-sidebar">
@@ -72,6 +73,11 @@
                         {{response.data.data_release}}
                         Overview</a></li>
                     <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+                    <ul class="nav nav-pills nav-stacked nav-sidebar-nested">
+                        <li role="presentation"><a class="scroll" href="#single_object">Single Object</a></li>
+                        <li role="presentation"><a class="scroll" href="#multiple_objects">Multiple Objects</a></li>
+                        <li role="presentation"><a class="scroll" href="#data_products">Download Data Products</a></li>
+                    </ul>
                     <li role="presentation"><a class="scroll" href="#help">Help</a></li>
 
                 </ul>
@@ -109,7 +115,7 @@
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2 id="overview">Overview</h2>
+        <h2 id="overview">Data Release {{response.data.data_release}} Overview</h2>
         <div class="panel panel-default" style="margin-top:20px;">
             <div class="panel-heading">
                 {{survey|uppercase}} Data Release {{response.data.data_release}}
@@ -124,28 +130,13 @@
                         </td>
                         <td class="lead">{{response.data.data_release}}</td>
                         <td class="lead">{{response.data.astro_objects | length}}</td>
-                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a>
-                        </td>
-                        <td class="lead">
-                            {% for f in available_formats %}
-                            {% if f != "api" %}
-                            <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
-                                            <span class="fa-custom-stack">
-                                              <i class="fa fa-file-o"></i>
-                                                <span class="fa-custom-filetype">{{f}}</span>
-                                            </span>
-                            </a>
-                            {% endif %}
-                            {% endfor %}
-
-                        </td>
+                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a></td>
                     </tr>
                     <tr class="large">
                         <td>PI</td>
                         <td>Data Release Number</td>
                         <td>Number of Objects</td>
                         <td>Schema Browser</td>
-                        <td>Available Objects</td>
                     </tr>
                     <tr class="medium">
 
@@ -161,35 +152,47 @@
                         <td>
                             <small>The Schema Browser describes the SAMI survey data products.</small>
                         </td>
-                        <td>
-                            <small>View a json-formatted list of available objects in this data release.</small>
-                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <h3>Data Access Information</h3>
+        <h3 id="data-access">Data Access</h3>
         <p>The Data Browser allows users a quick-look at each astronomical object's data
             products available in this data release, including visualizations, processing information and associated
             properties. Data products can be downloaded as multi-extension FITS files, with all relevant processing
-            information
-            contained within the FITS header.</p>
-        <p>It is recommended
-            that you also use the SAMI Data Browser in conjunction with the
+            information contained within the FITS header.</p>
+        <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
             <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
             descriptions of the data products available.</p>
-        <p><strong>Single Object:</strong> Search for a specific {{survey|uppercase}}
-            object below by typing in the search box.<br>
-            <strong>Multiple Objects:</strong> Filter all rows using the search box or range inputs.
-        </p>
+
         <p>For more information,
-            <a class="disabled" disabled="" href="/asvo/docs/articles/branches-what-is-a-branch/">
-                view the documentation.</a></p>
+            <a href="{% url 'documentation:topic-list' %}">view the documentation.</a></p>
+
+        <h3 id="single_object">Single Object</h3>
+        <p>Use the dropdown in the <a href="#single_object">Single Object</a> section below to view and download an individual {{survey|uppercase}}
+            object's properties and available data products.</p>
+        <div class="row">
+                <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+                <select type="text" class="searchbox selectized text-center"
+                        id="autocomplete-widget" placeholder="SEARCH">
+                    <option value="" disabled selected>Select an object</option>
+                    {% for key, value in response.data.astro_objects.items %}
+                    <option value="{{value}}">{{key}}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-block btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">GO</a>
+                <br><br>
+            </div>
+        </div>
 
 
+        <h3 id="multiple_objects">Multiple Objects</h3>
+        <p> The <a href="#multiple_objects">Multiple Objects</a>
+            section includes a table of all objects in the {{survey|uppercase}} data release. Users can search and
+            filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
 
-        <h3 id="data-access">Data Access: {{survey|uppercase}} Objects</h3>
         <div class="row">
             <div class="col-xs-12">
                 <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
@@ -215,10 +218,17 @@
         </div>
 
 
-        <h3>Download Products for Selected Objects</h3>
+        <h3 id="data_products">Download Data Products</h3>
+        <div class="panel panel-default success ">
+            <div class="panel-body">
+                <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+                </div>
+            </div>
+        </div>
         <div class="row">
 
             <div class="col-xs-12">
+                <p>Follow the steps to choose available data products.</p>
                 <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
                 <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
 
@@ -281,24 +291,24 @@
             $.each(catalog.column_names, function(i,k){
                 var b = { title: k };
 
-                if (k.indexOf("url_img") > -1){
-                    b = {
-                        "title":k,
-                        "render": function(data, type, row) {
-                            return '<img class="img-responsive" style="max-width:70px" src="'+data+'" />';
-                        }
-                    }
-                }
+//                if (k.indexOf("url_img") > -1){
+//                    b = {
+//                        "title":k,
+//                        "render": function(data, type, row) {
+//                            return '<img class="img-responsive" style="max-width:70px" src="'+data+'" />';
+//                        }
+//                    }
+//                }
 
-                if (k.indexOf("ID") > -1){
-                    b = {
-                        "title":k,
-                        "render": function(data, type, row) {
-                            var temp_string = '<a href="'+SAMPLE_URL+data+'">'+data+'</a>';
-                            return temp_string;
-                        }
-                    }
-                }
+//                if (k.indexOf("ID") > -1){
+//                    b = {
+//                        "title":k,
+//                        "render": function(data, type, row) {
+//                            var temp_string = '<a href="'+SAMPLE_URL+data+'">'+data+'</a>';
+//                            return temp_string;
+//                        }
+//                    }
+//                }
 
                 th = '<th>'+k+'</th>';
                 columns.push(b);
@@ -618,4 +628,23 @@
 
 </script>
 {% endblock %}
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $selector = $("#autocomplete-widget").selectize({
+            closeAfterSelect: true,
+            selectOnTab: true,
+            placeholder: "SEARCH...",
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                $('#autocomplete-button').attr('href', value).attr('disabled', false)
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
 
