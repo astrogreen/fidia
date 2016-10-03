@@ -242,7 +242,7 @@
                 <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
                 <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
                 <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
-
+                <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
 
             </div>
         </div>
@@ -357,7 +357,7 @@
                     .prependTo("#returnTableResults_wrapper");
 
 
-            $('#returnTableResults_wrapper').append('<div id="" class="row"><div class="col-xs-12 col-sm-6" id="datatables_export"></div><div class="col-xs-12 col-sm-6 text-right" id="datatables_pagination"><p class="bg-info">PAGINATION</p></div></div>');
+            $('#returnTableResults_wrapper').append('<div id="" class="row"><div class="col-xs-12 col-sm-12" id="datatables_export"></div></div>');
 
 
             // FILTER
@@ -373,14 +373,14 @@
                     .appendTo("#datatables_search");
 
             // PAGINATION
+            $("#returnTableResults_info").parent('.col-sm-5').parent('.row').prepend('<div id="datatables_pagination" class="col-sm-12" style="padding-top:10px"></div>');
+
             $("#returnTableResults_length")
                     .appendTo("#datatables_pagination");
 
             //  EXPORT
             $('#datatables_export').append(
-                    '<div id="dataTableButtons_export">' +
-                    '<p class="bg-info">EXPORT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Export all, or if a filter is applied, selected, rows."><i class="fa fa-info-circle"></i></a></p>' +
-                    '</div>'
+                    '<div id="dataTableButtons_export"></div>'
 
             );
 
@@ -530,12 +530,56 @@
 
             // obtain a jQuery object that holds the container element of the button set. Then can insert the element as per styling
             new $.fn.dataTable.Buttons(table, {
+
                 buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5', 'print',
-                    'pdfHtml5',
+                    {
+                        extend: 'copyHtml5',
+                        text: '<i class="fa fa-copy"></i> Copy to clipboard',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fa fa-file-excel-o"></i> Excel',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fa fa-print"></i> Print',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="fa fa-file-pdf-o"></i> PDF',
+
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+
                 ]
+
             });
             table.buttons(0,null).container()
                     .appendTo($('#dataTableButtons_export', table.table().container()));
