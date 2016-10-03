@@ -201,5 +201,18 @@
         $('[data-spy="affix"]').attr("data-offset-top", pos.top);
         $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot+30);
 
+        function affixWidth() {
+            // ensure the affix element maintains it width
+            var affix = $('.sidebar-contents');
+            var width = affix.width();
+            affix.width(width);
+        }
+
+        $(document).ready(function () {
+
+            affixWidth();
+
+        });
+
     });
 </script>

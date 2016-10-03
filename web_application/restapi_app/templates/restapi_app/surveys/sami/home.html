@@ -76,8 +76,8 @@
             <div class="quick-links">
                 <h5>Quick Links</h5>
                 <ul class="nav-sidebar">
-                    <li><a class=""  href="{% url 'sami-data-products' %}">{{response.data.survey|uppercase}} Data Product Descriptions</a>
-                </li>
+                    <li><a class=""  href="{% url 'sami-data-products' %}">{{response.data.survey|uppercase}} Data Product Descriptions</a></li>
+                    <li><a href="{% url 'data-access' %}">ADC Data Access Description</a></li>
                 </ul>
             </div>
 
@@ -93,20 +93,22 @@
         <h2>Welcome to the SAMI archive at ADC</h2>
         <h3 id="data-access"> Data Access</h3>
         <p>SAMI Data are accessible from ADC in a variety of ways.
-
-            View the <a href="{% url 'data-access' %}">Data Access</a> summary page for an overview.
         </p>
 
         <div class="row">
-            <div class="col-xs-6 text-justify">
+            <div class="col-xs-12 text-justify">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><span class="panel-title">Data Browser</span></div>
+                    <div class="panel-heading"><span class="panel-title">Data Browser (view/download data)</span></div>
                     <div class="panel-body">
-                        <p>Browse the available {{response.data.survey|uppercase}} data products on an object-by-object
-                            basis. Provides a quick-look at the
-                            data products for a particular object, and download individual or samples of data products
-                            in fits
-                            format.</p>
+                        <p>The Data Browser allows you to: </p>
+                        <p>
+                        <ul>
+                            <li>Browse the available {{response.data.survey|uppercase}} data products on an object-by-object basis.</li>
+                            <li>Download individual {{response.data.survey|uppercase}} data products for a particular object.</li>
+                            <li>Download selected {{response.data.survey|uppercase}} data products for a user-defined sample.</li>
+                            <li>Where available, view key data product visualizations in your browser.</li>
+                        </ul>
+                        </p>
                     </div>
                     <div class="panel-footer text-right"><a href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}" class="text-uppercase"><strong>Go to Data Browser: {{survey}} <i class="fa fa-angle-right"></i></strong></a></div>
                 </div>

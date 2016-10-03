@@ -23,19 +23,19 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
+        <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
                 <h5>Page Contents</h5>
                 <ul class="nav nav-pills nav-stacked nav-sidebar">
                     <li role="presentation">
                         <a href="#top-of-page" class="scroll">Overview</a>
                     </li>
-                    {% for value in response.data.samples %}
                     <li role="presentation">
-                        <a href="#{{value.survey}}" class="scroll">{{value.survey |uppercase}}
-                        </a>
+                        <a href="#sami" class="scroll">SAMI</a>
                     </li>
-                    {% endfor %}
+                    <li role="presentation"><a href="#gama" class="scroll">GAMA</a></li>
+                    <li role="presentation"><a href="#galah" class="scroll">GALAH</a></li>
+
                 </ul>
             </div>
             <div class="quick-links">
@@ -53,7 +53,7 @@
         <h2 id="overview">Overview</h2>
         <p class="">ADC offers a range of <a
                 href="{% url 'data-access' %}">data access tools</a> to explore and interact with the individual data
-            products provided by the survey teams, and tools to combine data across multiple surveys to create new
+            products provided by survey team members, and tools to combine data across multiple surveys to create new
             and interesting samples of astronomical objects.
 
             Below is a summary of each survey, links to data release information and relevant data access tools.</p>
@@ -105,7 +105,7 @@
                     </td>
                 </tr>
                 {% endfor %}
-                <tr id="{{gama}}">
+                <tr id="gama">
                     <td class="text-center"><img class="img-responsive" src="/static/restapi_app/img/documentation/gama.png"><div class=half-br></div><strong>{{value.survey|uppercase}}</strong></td>
                     <td class="small">
                         {% with "data_browser/root/surveys/"|add:"gama"|add:".html" as template %}
@@ -124,7 +124,7 @@
                         Coming soon.
                     </td>
                 </tr>
-                <tr id="{{galah}}">
+                <tr id="galah">
                     <td class="text-center"><img class="img-responsive" src="/static/restapi_app/img/documentation/galah.png"><div class=half-br></div><strong>{{value.survey|uppercase}}</strong></td>
                     <td class="small">
                         {% with "data_browser/root/surveys/"|add:"galah"|add:".html" as template %}
@@ -150,6 +150,25 @@
 
     </div>
 </div>
+
+
+<!--<p>Surveys hosted at AAODC are are&nbsp;<code>samples</code>&nbsp;containing&nbsp;<code>astronomical objects</code>. You-->
+    <!--can read more about our data model <a href="../data-central-data-model/">here</a>, or our middleware python package,-->
+    <!--FIDIA&nbsp;<a href="../schema/">here</a>.</p>-->
+<!--<p>Within the Data Browser, data are organised hierarchically, according to the following structure:</p>-->
+<!--<dl class="">-->
+    <!--<dt>survey/</dt>-->
+    <!--<dd>Available survey objects, products, schema browser etc. <br/>e.g, <a href="../../documentation/data-access/">sami/</a>-->
+    <!--</dd>-->
+    <!--<dt>survey/galaxy</dt>-->
+    <!--<dd>Available data for the object 'galaxy'. <br/>e.g, <a href="../../documentation/data-access/">sami/9352/</a></dd>-->
+    <!--<dt>survey/galaxy/property/</dt>-->
+    <!--<dd>Displays an on-the-fly rendering of the property (if sensible). Download in a variety of formats [fits, json,-->
+        <!--csv]. <br/>e.g, <a href="../../documentation/data-access/">sami/9352/velocity_map/</a></dd>-->
+    <!--<dt>survey/galaxy/property/attribute</dt>-->
+    <!--<dd>Displays a list of the attributes for the property. <br/>e.g, <a href="../../documentation/data-access/">sami/9352/velocity_map/value/</a>-->
+    <!--</dd>-->
+<!--</dl>-->
 
 {% endblock %}
 {% block footer-extra %}

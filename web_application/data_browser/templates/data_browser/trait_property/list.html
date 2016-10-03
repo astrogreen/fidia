@@ -61,11 +61,12 @@
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
+        <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
             <h5>Page Contents</h5>
             <ul class="nav nav-pills nav-stacked nav-sidebar">
                 <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
+                <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
             </ul>
             </div>
             <h5>Quick Links</h5>
@@ -138,18 +139,18 @@
 
                         </li>
                     </ul>
-                    <div class="panel-heading" style="background-color:#e6e6e6">
-                        View Extensions <span class="sub-heading">(in development)</span></div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div id="{{trait_type}}_plotly_plot_options">
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                    <!--<div class="panel-heading" style="background-color:#e6e6e6">-->
+                        <!--View Extensions <span class="sub-heading">(in development)</span></div>-->
+                    <!--<ul class="list-group">-->
+                        <!--<li class="list-group-item">-->
+                            <!--<div class="row">-->
+                                <!--<div class="col-xs-12">-->
+                                    <!--<div id="{{trait_type}}_plotly_plot_options">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</li>-->
+                    <!--</ul>-->
                 </div>
             </div>
 

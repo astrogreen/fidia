@@ -76,7 +76,7 @@
                     <ul class="nav nav-pills nav-stacked nav-sidebar-nested">
                         <li role="presentation"><a class="scroll" href="#single_object">Single Object</a></li>
                         <li role="presentation"><a class="scroll" href="#multiple_objects">Multiple Objects</a></li>
-                        <li role="presentation"><a class="scroll" href="#data_products">Download Data Products</a></li>
+                        <li role="presentation" style="padding-left:40px"><a class="scroll" href="#data_products">Download Data Products</a></li>
                     </ul>
                     <li role="presentation"><a class="scroll" href="#help">Help</a></li>
 
@@ -157,21 +157,33 @@
                 </table>
             </div>
         </div>
-        <h3 id="data-access">Data Access</h3>
-        <p>The Data Browser allows users a quick-look at each astronomical object's data
-            products available in this data release, including visualizations, processing information and associated
-            properties. Data products can be downloaded as multi-extension FITS files, with all relevant processing
-            information contained within the FITS header.</p>
+        <h2 id="data-access">Data Access</h2>
+
+
+        <ul>
+            <li><p>The Data Browser allows users a quick-look at each astronomical object's data
+                products available in this data release, including visualizations, processing information and associated
+                properties, using the <strong>Single Object</strong> search box below.
+            </p></li>
+            <li><p>Within the <strong>Single Object</strong> data browser, users can download individual data products as multi-extension
+                FITS files, with all relevant processing information contained within the FITS header.</p></li>
+            <li><p>Using the <strong>Multiple Objects</strong> selection below, users can define a sample of
+                {{survey|uppercase}} objects filtering on some catalogue property. </p></li>
+            <li><p>Data products for this selection can be downloaded using the <strong>Download Data Products</strong>
+                tool. </p></li>
+        </ul>
+
+
         <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
             <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
             descriptions of the data products available.</p>
+        <p>For help using the Data Browser,
+            <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">view the documentation.</a></p>
 
-        <p>For more information,
-            <a href="{% url 'documentation:topic-list' %}">view the documentation.</a></p>
 
-        <h3 id="single_object">Single Object</h3>
-        <p>Use the dropdown in the <a href="#single_object">Single Object</a> section below to view and download an individual {{survey|uppercase}}
-            object's properties and available data products.</p>
+        <h3 style="font-size:20px" id="single_object">Single Object</h3>
+        <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click <strong>Go</strong> to view the
+            object's properties and available data, and download individual data products.</p>
         <div class="row">
                 <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
                 <select type="text" class="searchbox selectized text-center"
@@ -188,9 +200,8 @@
         </div>
 
 
-        <h3 id="multiple_objects">Multiple Objects</h3>
-        <p> The <a href="#multiple_objects">Multiple Objects</a>
-            section includes a table of all objects in the {{survey|uppercase}} data release. Users can search and
+        <h3 style="font-size:20px" id="multiple_objects">Multiple Objects</h3>
+        <p> All objects in the {{survey|uppercase}} data release are shown below. Search and
             filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
 
         <div class="row">
@@ -218,7 +229,7 @@
         </div>
 
 
-        <h3 id="data_products">Download Data Products</h3>
+        <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
         <div class="panel panel-default success ">
             <div class="panel-body">
                 <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
@@ -228,7 +239,7 @@
         <div class="row">
 
             <div class="col-xs-12">
-                <p>Follow the steps to choose available data products.</p>
+                <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
                 <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
                 <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
 

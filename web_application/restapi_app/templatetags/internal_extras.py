@@ -327,7 +327,11 @@ def key(d, key_name):
     """ Get a supplied key value from a dictionary"""
     if key_name == "None":
         return d
+    print(type(d), key_name)
+    # if hasattr(d, key_name):
     return d[key_name]
+    # else:
+    #     return ''
 
 
 @register.filter

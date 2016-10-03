@@ -69,11 +69,11 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents schema">
+        <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
                 {% if response.data.results %}
                 <h5>Topics</h5>
-                <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+                <ul class="nav nav-pills nav-stacked nav-sidebar" id="docs-sidebar">
                     {% for topic in response.data.results %}
                     <li role="presentation" class="{% if forloop.first %}{% endif %}">
                         <a href="#{{topic.title|slug}}" class="scroll">{{topic.title}}</a>

@@ -18,7 +18,7 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
+        <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
                 <h5>Page Contents</h5>
                 <ul class="nav nav-pills nav-stacked nav-sidebar">
@@ -33,7 +33,7 @@
                         <a href="#schema-browser" class="scroll">Schema Browser</a>
                     </li>
                     <li>
-                        <a href="#schema-browser" class="scroll">TAP Service</a>
+                        <a href="#tap-service" class="scroll">TAP Service</a>
                     </li>
                     <li>
                         <a href="#data-explorer" class="scroll">Data Explorer</a>
@@ -136,7 +136,7 @@
                             <i class="fa fa-angle-right"></i></strong></a>
                     </td>
                 </tr>
-                <tr id="tap">
+                <tr id="tap-service">
                     <td class="text-center"><img class="img-responsive"
                                                  src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">
                         <div class=half-br></div>
@@ -150,10 +150,10 @@
                         data, is also a fantastic tool for TAP service interaction.
                     </td>
                     <td>
-                        Coming Soon.
+                        In Development.
                     </td>
                 </tr>
-                <tr>
+                <tr id="data-explorer">
                     <td class="text-center"><img class="img-responsive"
                                                  src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">
                         <div class=half-br></div>
@@ -166,7 +166,7 @@
                         Coming Soon.
                     </td>
                 </tr>
-                <tr>
+                <tr id="position-search">
                     <td class="text-center"><img class="img-responsive"
                                                  src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">
                         <div class=half-br></div>
@@ -197,7 +197,7 @@
                         ADC plans to document and release its API soon.
                     </td>
                     <td>
-                        Coming Soon.
+                        In Development.
                     </td>
                 </tr>
 

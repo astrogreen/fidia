@@ -38,7 +38,7 @@
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
+        <div class="sidebar-contents" data-spy="affix">
             <h5>Page Contents</h5>
             <div class="page-contents">
                 <ul class="nav nav-pills nav-stacked nav-sidebar">
@@ -71,8 +71,8 @@
         <!--</p>-->
 
         <h3 id="data-access">By Survey</h3>
-        <p>Choose a survey from the list below to get started. To
-            view more information about each survey's data products and derived properties, visit the <a
+        <p>Choose a survey from the list below to get started.
+            To find detailed descriptions of each survey's data products and derived properties, visit the <a
                     href="{% url 'schema:schema-list' %}">Schema
                 Browser</a>.</p><br><br>
         <div class="row">

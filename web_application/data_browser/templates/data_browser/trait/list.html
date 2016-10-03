@@ -88,9 +88,10 @@
 
             <a role="button" class="pull-right sub-heading" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
             <h5>Properties
-            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus" title="<span class='panel-title'>Properties Panel</span>"
-               data-content="<p>The properties panel contains meta-data (e.g., WCS information) or attributes that are associated with this data product (e.g,, units, errors).<br> To view a summary about any of the properties, expand the panel using the <i class='fa fa-caret-down'></i> symbol, or view more information click the <i class='fa fa-arrow-circle-right'></i> arrow.  </p>"
-               data-placement="top"><i class="fa fa-info-circle"></i></a>
+                <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click"
+                   data-placement="top" data-html="true"
+                   data-content="The properties panel contains meta-data (e.g., WCS information) or attributes that are associated with this data product (e.g,, units, errors).<br> To view a summary about any of the properties, expand the panel using the <i class='fa fa-caret-down'></i> symbol, or view more information click the <i class='fa fa-arrow-circle-right'></i> arrow.  "
+                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
             </h5>
 
             <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
@@ -135,7 +136,7 @@
                                 <div class="panel panel-default sub-trait-sidebar">
                                     <div class="panel-heading" role="tab" id="heading{{s}}">
                                         <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
-                                            {{ response.data|key:s |key:'pretty_name' }}
+                                            <span>{{ response.data|key:s |key:'pretty_name' }}</span>
                                             <i class="fa fa-caret-down sub-heading"></i>
                                         </a>
                                         <span class="sub-heading pull-right"><span class="testing">sub-trait</span> <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
@@ -307,10 +308,10 @@
             <div class="col-sm-4 col-xs-12" id="interactive">
                 <div class="panel panel-default interactive">
                     <div class="panel-heading">
-                        <p class="panel-title">Interactive</p>
+                        <h5 class="text-uppercase">Interactive</h5>
                     </div>
                     <div class="panel-heading" style="background-color:#e6e6e6">
-                        Clipping
+                        <span>Clipping</span>
                          <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
                                            data-trigger="focus"
                                            data-content="<p>Apply percentile scaling to image. Clips minimum and maximum percentage of pixel values to bring out features in the image. </p>"
@@ -343,18 +344,18 @@
 
                         </li>
                     </ul>
-                    <div class="panel-heading" style="background-color:#e6e6e6">
-                        View Extensions <span class="sub-heading">(in development)</span></div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div id="{{trait_type}}_plotly_plot_options">
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                    <!--<div class="panel-heading" style="background-color:#e6e6e6">-->
+                        <!--View Extensions <span class="sub-heading">(in development)</span></div>-->
+                    <!--<ul class="list-group">-->
+                        <!--<li class="list-group-item">-->
+                            <!--<div class="row">-->
+                                <!--<div class="col-xs-12">-->
+                                    <!--<div id="{{trait_type}}_plotly_plot_options">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</li>-->
+                    <!--</ul>-->
                 </div>
             </div>
         </div>

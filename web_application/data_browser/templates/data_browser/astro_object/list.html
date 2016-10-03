@@ -57,7 +57,7 @@
     <a href="{% url 'data_browser:survey-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
 {% endblock %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
@@ -65,8 +65,7 @@
             <div class="page-contents">
             <h5>Page Contents</h5>
             <ul class="nav nav-pills nav-stacked nav-sidebar">
-                <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
-                <li role="presentation"><a class="scroll" href="#available-data">Available Data</a></li>
+                <li role="presentation"><a class="scroll" href="#top-of-page">{{response.data.sample|uppercase}} {{response.data.astro_object}}</a></li>
             </ul>
             </div>
             <h5>Quick Links</h5>
@@ -108,15 +107,15 @@
 
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation"><a href="#overview" aria-controls="overview" role="tab"
+                <li role="presentation" class="active"><a href="#overview" aria-controls="overview" role="tab"
                                                           data-toggle="tab">Overview</a></li>
-                <li role="presentation" class="active"><a href="#products" aria-controls="products" role="tab"
+                <li role="presentation"><a href="#products" aria-controls="products" role="tab"
                                            data-toggle="tab">Available Products</a></li>
             </ul>
 
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane " id="overview">
+                <div role="tabpanel" class="tab-pane active" id="overview">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <span class="panel-title">Object Properties</span>
@@ -148,7 +147,7 @@
 
 
                 </div>
-                <div role="tabpanel" class="tab-pane active" id="products">
+                <div role="tabpanel" class="tab-pane" id="products">
                     <p>Data products are grouped by their product-type (e.g., you can find the SAMI [OIII] (5007Å) and [NII] (6583Å) line maps under <em>Line Maps</em>).  </p>
                     <div class="p">Select a product type from the list below to view its properties, meta-data and where available, an interactive visualization. To find out more
                                             about the available branches, visit the <a
