@@ -362,6 +362,8 @@ class SAMISpectralCube(SpectralMap):
     qualifiers = {'red', 'blue'}
 
     branches_versions = {('drizzle_05', "Drizzle 0.5\"", "SAMI Drizzle onto 0.5\" grid with drop shrinking"): {"V1"}}
+    defaults = DefaultsRegistry(default_branch='drizzle_05',
+                                version_defaults={'drizzle_05': 'V1'})
 
     def init(self):
 
