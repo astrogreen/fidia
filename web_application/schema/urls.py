@@ -32,8 +32,8 @@ trait_nested_router.register(r'(?P<trait_pk>' + TRAIT_KEY_RE.pattern + ')', sche
 urlpatterns = [
     url(r'^(?i)', include(router.urls)),
     url(r'^(?i)', include(sample_nested_router.urls)),
-    url(r'^(?i)', include(astroobject_nested_router.urls)),
-    url(r'^(?i)', include(trait_nested_router.urls)),
+    # url(r'^(?i)', include(astroobject_nested_router.urls)),
+    # url(r'^(?i)', include(trait_nested_router.urls)),
 ] 
 
 

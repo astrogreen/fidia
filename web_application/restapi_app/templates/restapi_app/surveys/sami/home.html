@@ -133,19 +133,6 @@
             </div>
         </div>
 
-
-        <!--<h4 id="data-access-query-builder">Query Builder</h4>-->
-        <!--<p>Create a sample of objects from all the surveys hosted at ADC using the Query Builder tool (or write-->
-            <!--complicated queries in SQL), filtering on some parameter(s) and return available rows of-->
-            <!--objects.-->
-            <!--From the results, select available products from the {{response.data.survey|uppercase}} for bulk download.-->
-            <!--Revisit previous queries in your Query History.</p>-->
-        <!--<p><a href="{% url 'query-create-list' %}" class="text-uppercase"><strong>Query {{response.data.survey}} data-->
-            <!--<i class="fa fa-angle-right"></i></strong></a></p>-->
-
-
-        <h4 id="data-access-restful-api">RESTful API</h4>
-        <p>ADC to fill in <code>REST API</code> usage</p>
         <h3 id="project-overview">Project Overview</h3>
         {% with "restapi_app/surveys/"|add:response.data.survey|add:"/about.html" as template %}
         {% include template %}
