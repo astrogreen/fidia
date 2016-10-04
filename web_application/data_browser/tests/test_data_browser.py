@@ -48,14 +48,14 @@ class DataBrowserTests(APITestCase):
     }
     _sub_trait_kwargs = {
         'subtraitproperty_pk': 'wcs',
-        'trait_pk': 'line_map-NII6583',
+        'trait_pk': 'line_emission_map-NII6583',
         'astroobject_pk': 24433,
         'sample_pk': 'sami',
     }
     _sub_trait_property_kwargs = {
         'traitproperty_pk': '_wcs_string',
         'subtraitproperty_pk': 'wcs',
-        'trait_pk': 'line_map-NII6583',
+        'trait_pk': 'line_emission_map-NII6583',
         'astroobject_pk': 24433,
         'sample_pk': 'sami',
     }
