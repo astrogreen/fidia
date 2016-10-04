@@ -1,6 +1,7 @@
 from .abstract_base_traits import *
 
 from . import Trait
+from .base_trait import FITSExportMixin
 
 import numpy as np
 
@@ -40,7 +41,7 @@ class Map(Trait, AbstractBaseArrayTrait):
     def nominal_position(self):
         return self._nominal_position
 
-class Map2D(Map):
+class Map2D(Map, FITSExportMixin):
     """A Trait who's value can be displayed as a contiguous 2D image of square pixels."""
     pass
 
