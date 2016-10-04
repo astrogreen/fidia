@@ -181,11 +181,12 @@ section.welcome .nav-pills > li.active > a:focus {
   position: absolute;
   top: 100px;
   right: 0;
+  margin-top: 15px;
 }
 .whats-new .well {
   border: 0;
   border-radius: 8px;
-  background-color: rgba(251, 251, 251, 0.6);
+  background-color: rgba(251, 251, 251, 0.8);
 }
 .whats-new .well h5 {
   border-bottom: dotted 1px #a33731;
