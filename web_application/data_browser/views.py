@@ -218,9 +218,15 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.sub_trait_list = sub_trait_list
         self.breadcrumb_list = []
 
-    renderer_classes = (
-        data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
     permission_classes = [permissions.AllowAny]
+
+    # @property
+    # def renderer_classes(self):
+    #     # print('hi')
+    #     return (data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+
+    # @TODO: Make this smart enough to remove FITSRenderer when not available.
+    renderer_classes = (data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
