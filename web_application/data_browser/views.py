@@ -185,10 +185,12 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 # Branches
                 trait_name_branches = {}
                 for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
+                    tc = trait_registry.retrieve_with_key(tk)
+                    bv_info = tc.branches_versions  # type: fidia.traits.trait_key.BranchesVersions
                     trait_name_branches[str(tk.branch)] = {
                         "url": astro_object_url + str(tk.replace(version=None)),
-                        "description": "branch description",
-                        "pretty_name": tk.branch
+                        "description": bv_info.get_description(tk.branch),
+                        "pretty_name": bv_info.get_pretty_name(tk.branch)
                     }
 
                 trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
