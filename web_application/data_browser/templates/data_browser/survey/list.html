@@ -73,11 +73,6 @@
                         {{response.data.data_release}}
                         Overview</a></li>
                     <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
-                    <ul class="nav nav-pills nav-stacked nav-sidebar-nested">
-                        <li role="presentation"><a class="scroll" href="#single_object">Single Object</a></li>
-                        <li role="presentation"><a class="scroll" href="#multiple_objects">Multiple Objects</a></li>
-                        <li role="presentation" style="padding-left:40px"><a class="scroll" href="#data_products">Download Data Products</a></li>
-                    </ul>
                     <li role="presentation"><a class="scroll" href="#help">Help</a></li>
 
                 </ul>
@@ -157,21 +152,25 @@
                 </table>
             </div>
         </div>
-        <h2 id="data-access">Data Access</h2>
+        <h3 id="data-access">Data Access</h3>
+        <div class="well">
+            <p class="lead margin-bottom-ten">
+                What can I do?
+            </p>
+            <ul class="p">
+                <li>The Data Browser allows users a quick-look at each {{survey|uppercase}} object's data
+                    products available in this data release, including visualizations, processing information and associated
+                    properties, using the <strong>Single Object</strong> search box below.
+                </li>
+                <li>Within the <strong>Single Object</strong> tab, users can download individual data products as multi-extension
+                    FITS files, with all relevant processing information contained within the FITS header.</li>
+                <li>The <strong>Multiple Objects</strong> tab allows users to define a sample of
+                    {{survey|uppercase}} objects filtering on some catalogue property. </li>
+                <li>Data products for this selection can be downloaded using the <strong>Download Data Products</strong>
+                    tool. </li>
+            </ul>
+        </div>
 
-
-        <ul>
-            <li><p>The Data Browser allows users a quick-look at each astronomical object's data
-                products available in this data release, including visualizations, processing information and associated
-                properties, using the <strong>Single Object</strong> search box below.
-            </p></li>
-            <li><p>Within the <strong>Single Object</strong> data browser, users can download individual data products as multi-extension
-                FITS files, with all relevant processing information contained within the FITS header.</p></li>
-            <li><p>Using the <strong>Multiple Objects</strong> selection below, users can define a sample of
-                {{survey|uppercase}} objects filtering on some catalogue property. </p></li>
-            <li><p>Data products for this selection can be downloaded using the <strong>Download Data Products</strong>
-                tool. </p></li>
-        </ul>
 
 
         <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
@@ -180,72 +179,87 @@
         <p>For help using the Data Browser,
             <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">view the documentation.</a></p>
 
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Object</a>
+            </li>
+            <li role="presentation"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Object</a>
+            </li>
 
-        <h3 style="font-size:20px" id="single_object">Single Object</h3>
-        <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click <strong>Go</strong> to view the
-            object's properties and available data, and download individual data products.</p>
-        <div class="row">
-                <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
-                <select type="text" class="searchbox selectized text-center"
-                        id="autocomplete-widget" placeholder="SEARCH">
-                    <option value="" disabled selected>Select an object</option>
-                    {% for key, value in response.data.astro_objects.items %}
-                    <option value="{{value}}">{{key}}</option>
-                    {% endfor %}
-                </select>
-                <a class="btn btn-block btn-primary" type="button" href="" disabled
-                   id="autocomplete-button">GO</a>
-                <br><br>
-            </div>
-        </div>
+        </ul>
 
-
-        <h3 style="font-size:20px" id="multiple_objects">Multiple Objects</h3>
-        <p> All objects in the {{survey|uppercase}} data release are shown below. Search and
-            filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
-
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
-            </div>
-        </div>
-
-        <div id="filter_panel">
-            <div class="row">
-                <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
-                <div class="col-xs-9">
-                    <div class="row">
-                        <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
-                        <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
-                        <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="single">
+                <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
+                    <strong>Go</strong> to view the
+                    object's properties and available data, and download individual data products.</p>
+                <div class="row">
+                    <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+                        <select type="text" class="searchbox selectized text-center"
+                                id="autocomplete-widget" placeholder="SEARCH">
+                            <option value="" disabled selected>Select an object</option>
+                            {% for key, value in response.data.astro_objects.items %}
+                            <option value="{{value}}">{{key}}</option>
+                            {% endfor %}
+                        </select>
+                        <a class="btn btn-block btn-primary" type="button" href="" disabled
+                           id="autocomplete-button">GO</a>
+                        <br><br>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12 text-right">
-                    <span id="remove_filters"></span>
+            <div role="tabpanel" class="tab-pane" id="multiple">
+                <p> All objects in the {{survey|uppercase}} data release are shown below. Search and
+                    filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-
-        <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
-        <div class="panel panel-default success ">
-            <div class="panel-body">
-                <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+                <div id="filter_panel">
+                    <div class="row">
+                        <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
+                        <div class="col-xs-9">
+                            <div class="row">
+                                <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
+                                <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                                <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 text-right">
+                            <span id="remove_filters"></span>
+                        </div>
+                    </div>
                 </div>
+
+
+                <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
+                <div class="panel panel-default success ">
+                    <div class="panel-body">
+                        <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-xs-12">
+                        <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
+                        <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
+                        <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
+                        <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
+
+                    </div>
+                </div>
+
             </div>
         </div>
-        <div class="row">
 
-            <div class="col-xs-12">
-                <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
-                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
-                <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
-                <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
 
-            </div>
-        </div>
+
 
 
         <h3 id="help">Help</h3>
@@ -476,6 +490,12 @@
                     update_button();
                 })
 
+                $('a#multiple_object[data-toggle="tab"]').one('shown.bs.tab', function (e) {
+                    // moved single and multiple objects into tabs, fire this once (.one) when the shown.bs.tab event
+                    // is triggered, to force datatables to redraw the table once the tab is visible (else the column headers
+                    // have incorrect widths calculated
+                    table.draw();
+                })
 
             } );
 
@@ -712,6 +732,8 @@
             }
         });
     });
+
+
 </script>
 {% endblock %}
 

@@ -97,12 +97,23 @@
             objects with some set of data products. Each astronomical object's components are organised into a
             tree-like structure, allowing you to discover derived properties and data products, along with any
             associated meta-data.</p>
-
-        <p>For certain types of data product (e.g., line maps) you can interact with the data directly in your browser.
-            You can also download data products in fits format to work with offline using your favourite astronomy
-            visualization software.</p>
-
-        <p>For more information, including articles on Data Browser examples, head over to the <a                 href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
+            <h4>Features</h4>
+        <ul class="p">
+            <li>The Data Browser allows users a quick-look at each astronomical object's data products available in this
+                data
+                release, including visualizations, processing information and associated properties.
+            </li>
+            <li>Users can download individual data products as multi-extension FITS
+                files, with all relevant processing information contained within the FITS header.
+            </li>
+            <li>Users can define a sample of SAMI objects filtering on some
+                catalogue property.
+            </li>
+            <li>Data products for this selection can be downloaded for offline use.</li>
+        </ul>
+        <br>
+        <p>For more information, including articles on Data Browser examples, head over to the <a
+                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
     </div>
 </div>
 {% endblock %}

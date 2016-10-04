@@ -887,6 +887,9 @@ header .user a > a {
 .no-margin-bottom {
   margin-bottom: 0 !important;
 }
+.margin-bottom-ten {
+  margin-bottom: 10px !important;
+}
 .headline h2 {
   margin-top: 0;
 }

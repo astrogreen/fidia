@@ -98,7 +98,7 @@
                             {% endfor %}
                     </td>
                     <td>
-                        <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}">Data Browser</a> <span class="tiny sub-heading">Browse data per {{value.survey|uppercase}} object.</span><br>
+                        <a href="{% url 'data_browser:survey-list' sample_pk=value.survey %}">Data Browser</a> <span class="tiny sub-heading">View and download {{value.survey|uppercase}} survey data products.</span><br>
                         <a href="{% url 'schema:sample-list' sample_pk=value.survey %}"  >Schema Browser</a> <span class="tiny sub-heading">Detailed descriptions of the data products in {{value.survey|uppercase}}.</span><br>
                         <a href="{% url 'query-create-list' %}" disabled class="disabled">Query</a> <span class="tiny sub-heading">SQL access to the database.</span><br>
                         <a href="{% url 'documentation:topic-detail' slug=value.survey %}" disabled class="disabled">Documentation</a> <span class="tiny sub-heading">Help Center.</span><br>
