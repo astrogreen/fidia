@@ -51,7 +51,6 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                     });
                 }
 
-
             } else {
                 changePlotData(trait_value.value, null, zmin, zmax);
             }
@@ -71,6 +70,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                             // $("#lv").attr('value', ui.values[0]);
                         },
                         stop: function(event, ui) {
+                            console.log('stop');
                             var array_index = null;
                             // if multiple extensions, get the currently selected option.
                             if ($("input[name=optionsRadios]").length > 0){
@@ -83,6 +83,24 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                             " - " + $("#slider-range").slider("values", 1));
                     // $("#uv").val($("#slider-range").slider("values", 0));
                     // $("#lv").val($("#slider-range").slider("values", 1));
+
+                    // RESET
+                    $('#reset_2d_plot').click(function () {
+                        // move slider back
+                        var $slider = $("#slider-range");
+                        $slider.slider("values", 0, zmin);
+                        $slider.slider("values", 1, zmax);
+                        // replot
+                        var array_index = null;
+                            // if multiple extensions, get the currently selected option.
+                            if ($("input[name=optionsRadios]").length > 0){
+                                array_index = Number($("input[name=optionsRadios]:checked").val());
+                            }
+                        changePlotData(trait_value.value, array_index, zmin, zmax);
+                        // update html
+                        $("#amount").html( $("#slider-range").slider("values", 0) +
+                            " - " + $("#slider-range").slider("values", 1));
+                    });
                 };
             }
 
