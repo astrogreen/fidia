@@ -413,8 +413,8 @@
 
                 var _column_append = true;
 
-                for (var z=0;z<catalog.data[k].length;z++){
-                    if (!!parseFloat(catalog.data[k][z])){
+                for (var z=0;z<catalog.data.length;z++){
+                    if (!!parseFloat(catalog.data[z][k])){
                     } else {_column_append = false;}
                 }
 
@@ -691,7 +691,7 @@
         return cookieValue;
     }
     var csrftoken = getCookie('csrftoken');
-    console.log(csrftoken)
+
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {

@@ -4,7 +4,7 @@ console.log('availableproducts.controllers.js');
 
     var app = angular.module('DCApp');
 
-    app.controller('AvailableProductsController', function($scope, AvailableProductsService, SessionService, $window, $q){
+    app.controller('AvailableProductsController', function($scope, AvailableProductsService, $window, $q){
 
         var ctrl = this; // create alias to this to avoid closure issues
 
@@ -138,44 +138,44 @@ console.log('availableproducts.controllers.js');
                 'objects':$(event.target).attr("data-objects")
             }
         }
-        ctrl.reapplyState = function(){
-
-
-            var deferred = $q.defer();
-
-            SessionService.getStorageContents().then(function (storage_data) {
-
-                // Go through the cookie items and get the trait_type, trait_name and branches that have been previously selected.
-                // Switch their selected property to 'true'
-                angular.forEach(storage_data, function (data, id) {
-                    if (id == ctrl.sample_url) {
-                        angular.forEach(data.options, function (product, survey) {
-                            angular.forEach(product, function (value, key) {
-                                var trait_type = value.trait_type;
-                                var trait_name = value.trait_name;
-                                var branch = value.branch;
-                                // console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'])
-                                $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = true;
-                            });
-                        });
-                    }
-                });
-
-                // Allow submitting again
-                $scope.isDisabled.state=false;
-                $scope.isSubmitted.state=false;
-
-                $('#available-products').html('<i class="fa fa-download"></i> Update Download');
-                deferred.resolve();
-            }).catch(function () {
-                deferred.reject(data);
-                ctrl.error = true;
-                ctrl.text = 'Unable to get stored data';
-                ctrl.status = data.status;
-            });
-
-
-        }
+        // ctrl.reapplyState = function(){
+        //
+        //
+        //     var deferred = $q.defer();
+        //
+        //     SessionService.getStorageContents().then(function (storage_data) {
+        //
+        //         // Go through the cookie items and get the trait_type, trait_name and branches that have been previously selected.
+        //         // Switch their selected property to 'true'
+        //         angular.forEach(storage_data, function (data, id) {
+        //             if (id == ctrl.sample_url) {
+        //                 angular.forEach(data.options, function (product, survey) {
+        //                     angular.forEach(product, function (value, key) {
+        //                         var trait_type = value.trait_type;
+        //                         var trait_name = value.trait_name;
+        //                         var branch = value.branch;
+        //                         // console.log($scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'])
+        //                         $scope.availabledata[survey]['available_traits'][trait_type]['traits'][trait_name]['branches'][branch]['selected'] = true;
+        //                     });
+        //                 });
+        //             }
+        //         });
+        //
+        //         // Allow submitting again
+        //         $scope.isDisabled.state=false;
+        //         $scope.isSubmitted.state=false;
+        //
+        //         $('#available-products').html('<i class="fa fa-download"></i> Update Download');
+        //         deferred.resolve();
+        //     }).catch(function () {
+        //         deferred.reject(data);
+        //         ctrl.error = true;
+        //         ctrl.text = 'Unable to get stored data';
+        //         ctrl.status = data.status;
+        //     });
+        //
+        //
+        // }
 
     });
 
