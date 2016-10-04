@@ -248,7 +248,7 @@
 
                     <div class="col-xs-12">
                         <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
-                        <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
+
                         <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
                         <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
 
