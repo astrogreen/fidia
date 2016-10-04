@@ -349,19 +349,29 @@
                                                                 <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_formats">
                                                                      Formats
                                                                 </h3>
-                                                                <div>
-                                                                    <span class="fa-custom-stack">
-                                                                      <i class="fa fa-file-o"></i>
-                                                                        <span class="fa-custom-filetype">fits</span>
-                                                                    </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
-                                                                    <span class="fa-custom-stack">
-                                                                      <i class="fa fa-file-o"></i>
-                                                                        <span class="fa-custom-filetype">json</span>
-                                                                    </span><i class="fa fa-check sub-heading"></i>
-                                                                </div>
-                                                                <p> You can download {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-type data products in fits and json formats.
 
+                                                                <div>
+                                                                    {% for format_key in value.export_formats %}
+                                                                        <span class="fa-custom-stack">
+                                                                          <i class="fa fa-file-o"></i>
+                                                                            <span class="fa-custom-filetype">{{format_key}}</span>
+                                                                        </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
+                                                                    {% endfor %}
+
+                                                                </div>
+                                                                {% if value.export_formats|length > 0 %}
+                                                                <p> You can download {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-type data products in
+                                                                    {% for format_key in value.export_formats %}
+                                                                        {{format_key}}
+                                                                        {% if value.export_formats|length > 1 %}
+                                                                            {% if forloop.last %} and {% else %} , {% endif %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                    format{% if value.export_formats|length > 1 %}s{% endif %}.
                                                                 </p>
+                                                                {% else %}
+                                                                <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} is a catalogue property. Export the {{survey|uppercase}} catalogue properties as CSV, Excel in the <a target="_blank" href="{% url 'data_browser:survey-list' sample_pk=survey %}">Data Browser Survey page</a> under the <strong>Multiple Object</strong> tab. </p>
+                                                                {% endif %}
 
 
                                                                 <!-- Branches -->
