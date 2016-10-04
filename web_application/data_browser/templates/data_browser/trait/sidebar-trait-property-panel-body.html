@@ -3,16 +3,17 @@
 {% load i18n %}
 {% load internal_extras %}
 
-<span class="sub-heading pull-right" style="margin-top:5px;"><code >{{tpdata|key:tp|key:"type"}}</code></span>
-<p class="heading"><strong>Value</strong>
-    <span class="sub-heading">
-                <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
-                   data-content="<p>If the value is not a single value or string, the link to data is shown. Warning: the data size may be large.</p>"
-                   data-placement="right"><i class="fa fa-info-circle"></i></a>
-            </span>
-</p>
-<p class="readmore breakword">{{tpdata|key:tp|key:"value"}}</p>
-<p class="heading"><strong>Description</strong>
-<p class="readmore">{{tpdata|key:tp|key:"description"}}</p>
-<p class="heading"><strong>URL</strong>
-<p class="breakword"><a href="{{tpdata|key:tp|key:'url'}}">{{tpdata|key:tp|key:"url"}}</a></p>
+<div class="sub-heading small"><em>{{tpdata|key:tp|key:"description"}}</em></div>
+
+<div class="heading"><strong>Value</strong>
+    <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click"
+       data-placement="top"
+       data-content="If the value is not a single value or string, the link to data is shown. Warning: the data size may be large."
+       data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
+
+</div>
+<div class="">{{tpdata|key:tp|key:"value"}}</div>
+<div class="heading"><strong>Type</strong></div>
+<span class="sub-heading" style="margin-top:5px;"><code >{{tpdata|key:tp|key:"type"}}</code></span>
+<div class="heading"><strong>URL</strong></div>
+<div class=""><a href="{{tpdata|key:tp|key:'url'}}">{{tpdata|key:tp|key:"url"}}</a></div>

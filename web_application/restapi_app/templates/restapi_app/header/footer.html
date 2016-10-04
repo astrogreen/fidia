@@ -11,10 +11,10 @@
                         <td><h4><small><a class="text-uppercase disabled" href="" disabled>Query Builder</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="">Data Browser</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'data_browser:root-list' %}">Data Browser</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="">Schema Browser</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'schema:schema-list' %}">Schema Browser</a></small></h4></td>
                     </tr>
                     </tbody>
                 </table>
@@ -32,7 +32,7 @@
                         <td><h4><small><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="mailto:asvo@aao.gov.au">Contact us</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'support-contact' %}">Contact us</a></small></h4></td>
                     </tr>
 
                     </tbody>
@@ -160,10 +160,10 @@
                 if ($('.main-content').height() > $('.sidebar .sidebar-contents').height()) {
                     $('.sidebar').height($('.main-content').height() + 'px');
                 } else {
-                    $('.sidebar').height($('.sidebar .sidebar-contents').height() + 30 + 'px');
+                    $('.sidebar').height($('.sidebar .sidebar-contents').height() + 'px');
                 }
             } else {
-                $('.sidebar').height($('.sidebar .sidebar-contents').height() + 30 + 'px');
+                $('.sidebar').height($('.sidebar .sidebar-contents').height() + 'px');
             }
         };
 
@@ -191,6 +191,27 @@
         // Hide branch warning message
         $('.dismissable_panel a.dismiss_button').click(function(){
             $('.dismissable_panel').hide();
+        });
+        $('body').scrollspy({ target: '.sidebar .page-contents' });
+
+        // Affix plugin
+        var pos = $('.sidebar-contents').eq(0).offset();
+        var pos_foot = $('.footer').outerHeight(true);
+
+        $('[data-spy="affix"]').attr("data-offset-top", pos.top);
+        $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot+30);
+
+        function affixWidth() {
+            // ensure the affix element maintains it width
+            var affix = $('.sidebar-contents');
+            var width = affix.width();
+            affix.width(width);
+        }
+
+        $(document).ready(function () {
+
+            affixWidth();
+
         });
 
     });

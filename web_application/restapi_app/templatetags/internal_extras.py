@@ -33,15 +33,15 @@ def optional_logout(request, user):
     except NoReverseMatch:
         snippet = format_html('<li class="navbar-text">{user}</li>', user=escape(user))
         return mark_safe(snippet)
-    try:
-        querylist_url = reverse('query-list')
-    except NoReverseMatch:
-        return ''
-
-    try:
-        downloadlist_url = reverse('download-list')
-    except NoReverseMatch:
-        return ''
+    # try:
+    #     querylist_url = reverse('query-list')
+    # except NoReverseMatch:
+    #     querylist_url = ''
+    #
+    # try:
+    #     downloadlist_url = reverse('download-list')
+    # except NoReverseMatch:
+    #     downloadlist_url = ''
 
     try:
         user = request.user
@@ -49,19 +49,32 @@ def optional_logout(request, user):
     except NoReverseMatch:
         return ''
 
+    # snippet = """<li class="dropdown user">
+    #     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+    #         {user}
+    #         <b class="caret"></b>
+    #     </a>
+    #     <ul class="dropdown-menu">
+    #         <li><a href="{profile}">Profile</a></li>
+    #         <li><a href="{requests}">Query History</a></li>
+    #         <li><a href="{download}">Download History</a></li>
+    #         <li><a href='{logout_url}'>Sign out </a></li>
+    #     </ul>
+    # </li>"""
+    # snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, download=downloadlist_url)
+
     snippet = """<li class="dropdown user">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            {user}
-            <b class="caret"></b>
-        </a>
-        <ul class="dropdown-menu">
-            <li><a href="{profile}">Profile</a></li>
-            <li><a href="{requests}">Query History</a></li>
-            <li><a href="{download}">Download History</a></li>
-            <li><a href='{logout_url}'>Sign out </a></li>
-        </ul>
-    </li>"""
-    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, download=downloadlist_url )
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {user}
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="{profile}">Profile</a></li>
+                <li><a href='{logout_url}'>Sign out </a></li>
+            </ul>
+        </li>"""
+
+    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile)
 
     return mark_safe(snippet)
 
@@ -327,7 +340,10 @@ def key(d, key_name):
     """ Get a supplied key value from a dictionary"""
     if key_name == "None":
         return d
+    # if hasattr(d, key_name):
     return d[key_name]
+    # else:
+    #     return ''
 
 
 @register.filter

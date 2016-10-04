@@ -51,20 +51,23 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
-        <div class="sidebar-contents">
-            <h5>Page Contents</h5>
+
+        <div class="sidebar-contents schema" id="schema_menu">
+            <h5>Schema Contents</h5>
+            <input type="text" class="search form-control" id="schema_search" placeholder="Search Schema...">
+            <br>
             <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
                 {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
-                <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}">
-                    <h6>{{trait_type_value.pretty_name}}</h6>
-                </li>
+                    <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}" data-trait-type-key="{{trait_type_key}}">
+                        <h6 >{{trait_type_value.pretty_name}}</h6>
+                    </li>
                     {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                        <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation">
+                        <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation" data-trait-type-key="{{trait_type_key}}">
                             <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_type_button"
                                aria-controls="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" role="tab"
                                data-toggle="pill">{{trait_qualifier_value.pretty_name}}
@@ -76,8 +79,6 @@
                     {% endfor %}
                 {% endfor %}
             </ul>
-
-
         </div>
     </div>
 
@@ -269,6 +270,7 @@
                                                                 {% for trait_property_key, trait_property_value in value.trait_properties.items %}
                                                                     <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">
                                                                     {{trait_property_value.pretty_name}} <small> <code>{{trait_property_value.type}}</code></small></h4>
+                                                                    {% if trait_property_value.description %}<div class="sub-heading small" style="margin-top:-10px; margin-bottom:20px;"><em>{{trait_property_value.description|safe}}</em></div>{% endif %}
                                                                     <div class="documentation_fidia">
                                                                         {{trait_property_value.html_documentation|safe}}
                                                                     </div>
@@ -449,6 +451,15 @@
         $("ul.nav-pills a.trait_type_button").click(function (e) {
             // prevent jump to hash
             e.preventDefault();
+
+            // remove all active classes off sidebar buttons
+
+            $("#docs-sidebar li").removeClass('active');
+            // if clicked
+            // if list.js has filtering active
+            // remove all active classes from within the filtered list
+
+
             // append to url
             window.location.hash = this.hash;
             // scroll to top of .main-content
@@ -593,7 +604,59 @@
 
     });
 
-    
+</script>
+<script>
+    $('#schema_search').on('keyup', function(){
+        //reset all
+        $('#schema_menu li').each(function(){
+            $(this).show();
+        })
+        var search_value = $(this).val().toLowerCase();
 
+        if (!!search_value){
+            // if there is a search value in the input box
+            $('#schema_menu li').each(function(){
+                // hide everything
+                $(this).hide();
+            })
+
+            $('#schema_menu li h6').each(function () {
+                // iterate over the h6 headers  - if present, show all associated anchors with the data-trait-type-key attribute
+
+                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
+                    // if the search value is found
+                    // get all li with the same data-trait-type-key attribute
+                    var _trait_type_key = $(this).parent('li').attr('data-trait-type-key');
+
+                    $('#schema_menu li').each(function () {
+                        // show these (effectively searching in the h6 and anchors simulataneously)
+                        if ($(this).attr('data-trait-type-key') == _trait_type_key) {
+                            $(this).show();
+                        }
+                    })
+                }
+            });
+
+            $('#schema_menu li a').each(function () {
+                // iterate over anchor text - if present, show associated h6 heading
+
+                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
+                    // if the search value is found
+                    // show only parent h6 with same attribute
+                    var _trait_type_key = $(this).parent('li').attr('data-trait-type-key');
+                    // show the anchor's parent li
+                    $(this).parent('li').show();
+
+                    $('#schema_menu li').each(function () {
+                        // show these (effectively searching in the h6 and anchors simulataneously)
+                        if ($(this).find('h6').length && $(this).attr('data-trait-type-key') == _trait_type_key) {
+                            $(this).show();
+                        }
+                    })
+                }
+            });
+        }
+
+    });
 </script>
 {% endblock %}

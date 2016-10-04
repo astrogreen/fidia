@@ -20,15 +20,18 @@
 
 <div class="row">
 
-<div class="col-xs-12 col-sm-3 sidebar">
+<div class="col-xs-12 col-sm-3 sidebar" role="navigation">
+    <div class="page-contents">
         <h5>Page Contents</h5>
-        <ul class="nav nav-pills nav-stacked docs-sidebar">
-            <li role="presentation"><a href="#schema-access" class="scroll">Schema Access</a></li>
-            <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">What does the Schema Browser
+        <ul class="nav nav-pills nav-stacked nav-sidebar">
+            <li role="presentation"><a href="#top-of-page" class="scroll">Schema Access</a></li>
+            <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">What does the Schema
+                Browser
                 do?</a></li>
-        </ul><br>
+        </ul>
+    </div>
         <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <ul class="nav-sidebar">
                 {% for value in response.data.surveys %}
                 <li role="presentation"><a href="{{value.survey}}/"><span>Schema Browser for {{value.survey|uppercase}}
                 <i class="fa fa-angle-right"></i></span></a></li>
@@ -39,8 +42,7 @@
 
     <div class="col-xs-12 col-sm-9 main-content">
         <h2>How was that derived?</h2>
-        <p class="lead">Find detailed descriptions of the data products available in a survey. To
-            view the data a particular survey has to offer, check out the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a>.</p>
+        <p class="lead">Find detailed descriptions of the data products available in a survey. </p>
         <h3 id="schema-access">Schema Access</h3>
         <p>Choose a survey from the list below to get started. To
             view survey data products and derived properties, visit the <a
@@ -70,12 +72,12 @@
 
         <h3 id="what-does-the-schema-browser-do">What does the Schema Browser do?</h3>
         <p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
-            data products hosted at AAODC, the Schema Browser provides a map of those data products and derived
-            properties. The Schema Browser displays an extensive description for each type of data product, along with
+            data products hosted at AAODC, the Schema Browser provides a description of those data products and derived
+            properties. The Schema Browser displays an extensive explaination of each type of data product, along with
             any relevant analysis and publiction information.
         </p>
-        <p>The Schema Browser reflects the tree-like organisational structure we've adopted here at AAODC. Each survey
-            is a collection of astronomical objects with a certain set of properties, and the schema displays astronomical properties available <strong>only</strong> for the selected survey. </p>
+        <p>The Schema Browser reflects the tree-like organisational structure we've adopted here at ADC. Each survey
+            is a collection of astronomical objects with a certain set of properties, and the schema displays astronomical properties available for the selected survey <strong>only</strong>. </p>
 
         <p>For more information, including articles on Schema Browser examples, head over to the <a
                     href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. </p>

@@ -12,7 +12,7 @@
 <ul class="nav nav-tabs nav-tabs-with-well" role="tablist" ng-if="!apctrl.single">
     <li role="presentation" ng-repeat="(survey, traits) in availabledata" ng-class='{active:$first}'><a href="#{{survey}}" aria-controls="{{survey}}" role="tab" data-toggle="tab">{{survey}}</a></li>
 </ul>
-<div class="well">
+<div class="">
 
     <div class="row">
         <div class="col-sm-12 col-xs-12">
@@ -23,7 +23,7 @@
 
                     <fieldset ng-disabled="(isDisabled.state && !isSubmitted.state)">
                     <div class="row">
-                        <div class="col-xs-12">
+                        <div class="col-xs-12 schema">
                             <div class="helper step step1" >Select a type of data product from the list below.</div>
                         <!-- Level1 -->
                             <ul class="nav nav-pills" id="{{survey}}_trait_type_key">
@@ -36,7 +36,7 @@
                         <div class="col-xs-12 col-sm-12">
                         <!-- Level2 -->
                             <div class="helper step step2">Add or remove data products using the checkboxes. </div>
-                            <div class="tab-content inert_dropdowns branch_dropdown">
+                            <div class="tab-content branch_dropdown">
                                 <div role="tabpanel" ng-repeat="(trait_type_key, trait_type_value) in traits" ng-class='{active:$first}' class="tab-pane" id="{{survey}}_{{trait_type_key}}">
                                     <div class="table-responsive" >
                                         <table class="table table-bordered table-condensed">
@@ -61,7 +61,7 @@
                                                 <td>
                                                     <ul class="nav nav-pills branch-selector">
                                                     <li class="dropdown">
-                                                        <a class="btn btn-default btn-sm branch_button" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                                        <a class="btn btn-default btn-xs branch_button" style="padding: 1px 5px;" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                                             <span class="sub-heading">
                                                             <i class="fa fa-code-fork"></i> Branch </span>
                                                             <span ng-repeat="(trait_branch_key, trait_branch_value) in trait_qualifier_value.branches track by $index">
@@ -121,12 +121,9 @@
         </div>
         <div class="">
 
-            <div class="col-xs-12 col-sm-12">
-                <h3>Selection Summary</h3>
-                <div class="col-xs-12">
-                    <div class="helper step step3">This is the list of data products you've chosen to
-                        download for your selected objects.
-                    </div>
+            <div class="col-xs-12">
+                <div class="helper step step3">This is the list of data products you've chosen to
+                    download for your selected objects.
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6">

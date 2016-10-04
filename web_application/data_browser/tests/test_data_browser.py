@@ -89,7 +89,7 @@ class DataBrowserTests(APITestCase):
 
             self.assertTrue('renders' in _test_options.data)
 
-            if url == '/asvo/data-browser/sami/24433/sfr_map/':
+            if url == '/asvo/data-access/data-browser/sami/24433/sfr_map/':
                 self.assertEqual(_test_options.data['renders'], ['text/html', 'application/json', 'application/fits'])
             else:
                 self.assertEqual(_test_options.data['renders'], ['text/html', 'application/json'])
@@ -167,12 +167,12 @@ class RootTests(APITestCase):
     url = reverse('data_browser:root-list')
 
     def test_response_data(self):
-        """ Ensure response json is as expected """
+        """ Ensure response json is as expected (currently only SAMI) """
         _test_response = self.client.get(self.url)
-        self.assertIn('"surveys"', json.dumps(_test_response.data))
-        _surveys = _test_response.data['surveys']
-        self.assertEqual(len(_surveys), 2)
-        self.assertTrue(is_json(json.dumps(_surveys)))
+        self.assertIn('"samples"', json.dumps(_test_response.data))
+        _samples = _test_response.data['samples']
+        self.assertEqual(len(_samples), 1)
+        self.assertTrue(is_json(json.dumps(_samples)))
 
     def test_html_template(self):
         """ Test html template contains correct information """
@@ -213,9 +213,9 @@ class SurveyTests(APITestCase):
     def test_response_data(self):
         """ Ensure response json is as expected """
         _test_response = self.client.get(self.url)
-        self.assertIn('"survey"', json.dumps(_test_response.data))
+        self.assertIn('"sample"', json.dumps(_test_response.data))
         self.assertIn('"astro_objects"', json.dumps(_test_response.data))
-        self.assertEqual(_test_response.data['survey'], DataBrowserTests._survey_kwargs['sample_pk'])
+        self.assertEqual(_test_response.data['sample'], DataBrowserTests._survey_kwargs['sample_pk'])
         self.assertTrue(is_json(json.dumps(_test_response.data)))
 
         # Check all the astroobjects are in the view
@@ -227,42 +227,42 @@ class SurveyTests(APITestCase):
         """ Test html template contains correct information """
         _test_response = self.client.get(self.url)
         self.assertTemplateUsed('data_browser/survey/list.html')
-        self.assertIn("Included?", str(_test_response.content))
+        self.assertIn("Data Access", str(_test_response.content))
 
     def test_route_options_formats(self):
         """ Test specific route options for Root """
         _test_options = self.client.options(self.url, HTTP_ACCEPT='application/json')
-        self.assertIn("Survey List", json.dumps(_test_options.data))
+        self.assertIn("Sample List", json.dumps(_test_options.data))
 
     def test_renderer(self):
         """ Check the appropriate renderer is being used as per request config """
         _test_get = self.client.get(path=self.url, format='api', HTTP_ACCEPT='text/html')
-        self.assertEqual(_test_get.accepted_renderer.__str__(), 'SurveyRenderer')
+        self.assertEqual(_test_get.accepted_renderer.__str__(), 'SampleRenderer')
 
         _test_get = self.client.get(path=self.url, format='json', HTTP_ACCEPT='application/json')
-        self.assertNotEqual(_test_get.accepted_renderer.__str__(), 'SurveyRenderer')
+        self.assertNotEqual(_test_get.accepted_renderer.__str__(), 'SampleRenderer')
 
     def test_renderer_context(self):
         """ Ensure html context is available """
         _response = self.client.get(path=self.url)
-        _str = "About " + DataBrowserTests._survey_kwargs['sample_pk'].upper()
+        _str = DataBrowserTests._survey_kwargs['sample_pk'].upper()
         self.assertIn(_str, _response.content.decode('utf-8'))
 
     def test_caching(self):
         pass
 
 
-# class AstroObjectTests(APITestCase):
-#     pass
-#
-#
-# class TraitTests(APITestCase):
-#     pass
-#
-#
-# class SubTraitTests(APITestCase):
-#     pass
-#
-#
-# class TraitPropertyTests(APITestCase):
-#     pass
+class AstroObjectTests(APITestCase):
+    pass
+
+
+class TraitTests(APITestCase):
+    pass
+
+
+class SubTraitTests(APITestCase):
+    pass
+
+
+class TraitPropertyTests(APITestCase):
+    pass

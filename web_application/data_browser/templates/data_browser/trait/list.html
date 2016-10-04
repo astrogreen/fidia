@@ -64,15 +64,18 @@
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
             <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li role="presentation"><a href="#download" class="scroll">Download</a></li>
-                <li role="presentation"><a href="#data" class="scroll">Data</a></li>
-            </ul>
+            <div class="page-contents">
+                <ul class="nav nav-pills nav-stacked nav-sidebar">
+                    <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
+                    <li role="presentation"><a href="#download" class="scroll">Download</a></li>
+                </ul>
+            </div>
+
             <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <ul class="nav-sidebar">
                 <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
                 {% if breadcrumblist %}
@@ -83,11 +86,12 @@
             {% endif %}
             </ul>
 
-            <a role="button" class="pull-right sub-heading" style="margin-top:10px;" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
+            <a role="button" class="pull-right sub-heading" id="collapse-all"> Collapse all <i class="fa fa-minus"></i></a>
             <h5>Properties
-            <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus" title="<span class='panel-title'>Properties Panel</span>"
-               data-content="<p>The properties panel contains meta-data (e.g., WCS information) or attributes that are associated with this data product (e.g,, units, errors).<br> To view a summary about any of the properties, expand the panel using the <i class='fa fa-caret-down'></i> symbol, or view more information click the <i class='fa fa-arrow-circle-right'></i> arrow.  </p>"
-               data-placement="top"><i class="fa fa-info-circle"></i></a>
+                <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click"
+                   data-placement="top" data-html="true"
+                   data-content="The properties panel contains meta-data (e.g., WCS information) or attributes that are associated with this data product (e.g,, units, errors).<br> To view a summary about any of the properties, expand the panel using the <i class='fa fa-caret-down'></i> symbol, or view more information click the <i class='fa fa-arrow-circle-right'></i> arrow.  "
+                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
             </h5>
 
             <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
@@ -132,7 +136,7 @@
                                 <div class="panel panel-default sub-trait-sidebar">
                                     <div class="panel-heading" role="tab" id="heading{{s}}">
                                         <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
-                                            {{ response.data|key:s |key:'pretty_name' }}
+                                            <span>{{ response.data|key:s |key:'pretty_name' }}</span>
                                             <i class="fa fa-caret-down sub-heading"></i>
                                         </a>
                                         <span class="sub-heading pull-right"><span class="testing">sub-trait</span> <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>
@@ -285,19 +289,6 @@
                     href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}">Schema
                 Browser</a>.
         </p>
-        <h3 id="download">Download</h3>
-        <p>Download the {{response.data.pretty_name}} for {{response.data.sample|uppercase}} object
-            {{response.data.astro_object}} in FITS or JSON file format. </p>
-        {% for f in formats %}
-        <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
-            <span class="fa-custom-stack">
-              <i class="fa fa-file-o"></i>
-                <span class="fa-custom-filetype">{{f}}</span>
-            </span>{{f}}
-        </a>
-        {% endfor %}
-        <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
-
         <h3 id="data">Data <small>
             <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
                data-content="<p>Inspect the data before download. Where available, data products that can be visualized and interacted with (e.g., line maps) will be shown here. </p>"
@@ -317,10 +308,10 @@
             <div class="col-sm-4 col-xs-12" id="interactive">
                 <div class="panel panel-default interactive">
                     <div class="panel-heading">
-                        <p class="panel-title">Interactive</p>
+                        <h5 class="text-uppercase">Interactive</h5>
                     </div>
                     <div class="panel-heading" style="background-color:#e6e6e6">
-                        Clipping
+                        <span>Clipping</span>
                          <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
                                            data-trigger="focus"
                                            data-content="<p>Apply percentile scaling to image. Clips minimum and maximum percentage of pixel values to bring out features in the image. </p>"
@@ -353,21 +344,35 @@
 
                         </li>
                     </ul>
-                    <div class="panel-heading" style="background-color:#e6e6e6">
-                        View Extensions <span class="sub-heading">(in development)</span></div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div id="{{trait_type}}_plotly_plot_options">
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                    <!--<div class="panel-heading" style="background-color:#e6e6e6">-->
+                        <!--View Extensions <span class="sub-heading">(in development)</span></div>-->
+                    <!--<ul class="list-group">-->
+                        <!--<li class="list-group-item">-->
+                            <!--<div class="row">-->
+                                <!--<div class="col-xs-12">-->
+                                    <!--<div id="{{trait_type}}_plotly_plot_options">-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</li>-->
+                    <!--</ul>-->
                 </div>
             </div>
         </div>
+        <h3 id="download">Download</h3>
+        <p>Download the {{response.data.pretty_name}} for {{response.data.sample|uppercase}} object
+            {{response.data.astro_object}} in FITS or JSON file format. </p>
+        {% for f in formats %}
+        <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+            <span class="fa-custom-stack">
+              <i class="fa fa-file-o"></i>
+                <span class="fa-custom-filetype">{{f}}</span>
+            </span>{{f}}
+        </a>
+        {% endfor %}
+        <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
+
+
 
     </div>
 </div>

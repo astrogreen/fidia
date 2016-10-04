@@ -84,14 +84,14 @@
                 <div class="infographic row">
 
                     <div class="col col-md-3 col-sm-3">
-                        <a href="{% url 'query-create-list'%}">
+                        <a href="" class="disabled">
                             <div class="circle">
                                 <i class="fa fa-terminal"></i>
                                 <div class="line"></div>
                             </div>
                         </a>
-                        <p>Query</p>
-                        <span style="color:rgba(251,251,251,0.8)">Query the surveys available at ADC and return a sample of objects.</span>
+                        <p class="disabled">Query</p>
+                        <span class="disabled">Query the astronomical objects available at ADC and return a sample of objects across multiple surveys.</span>
                     </div>
                     <div class="col col-md-3 col-sm-3">
                         <a href="{% url 'data_browser:root-list'%}">
@@ -167,7 +167,7 @@
             <h5 class="text-uppercase no-margin-top">Get Started</h5>
             <dl class="text-left">
                 <dt>
-                    <a href="{% url 'surveys' %}">Survey Overview</a>
+                    <a href="{% url 'surveys' %}">Surveys Overview</a>
                 </dt>
                 <dh class="text-justify">View all surveys hosted at ADC.</dh>
                 <dt>
@@ -175,11 +175,7 @@
                 </dt>
                 <dh class="text-justify">Information about accessing data at ADC.</dh>
                 <dt>
-                    <a href="{% url 'query-create-list' %}">Multi Object Query Builder</a>
-                </dt>
-                <dh class="text-justify">Query all survey catalogue properties and return a table of results.</dh>
-                <dt>
-                    <a href="{% url 'data_browser:root-list'%}">Single Object Viewer</a>
+                    <a href="{% url 'data_browser:root-list'%}">Data Browser</a>
                 </dt>
                 <dh class="text-justify">Browse data products per Survey object.</dh>
                 <dt>

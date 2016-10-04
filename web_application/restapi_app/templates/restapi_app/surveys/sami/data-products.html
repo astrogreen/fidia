@@ -56,27 +56,27 @@
 {% block content_render %}
 {% captureas survey %}sami{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
             <h5>Page Contents</h5>
+            <div class="page-contents">
+                <ul class="nav nav-pills nav-stacked nav-sidebar">
+                    <li role="presentation"><a class="scroll" href="#top-of-page">Available Data Products</a></li>
+                    {% for product_key, product_value in response.data.products.items %}
+                    <li role="presentation">
+                        <a href="#{{product_key}}" aria-controls="{{product_key}}" role="tab" data-toggle="tab">{{product_value.pretty_name}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
 
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li role="presentation"><a class="scroll" href="#available-data-products">Available Data Products</a></li>
-                {% for product_key, product_value in response.data.products.items %}
-                <li role="presentation">
-                    <a href="#{{product_key}}" aria-controls="{{product_key}}" role="tab" data-toggle="tab">{{product_value.pretty_name}}</a>
-                </li>
-                {% endfor %}
-            </ul>
             <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <ul class="nav-sidebar">
                 <li><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">
                     Schema Browser for {{response.data.survey|uppercase}}</a></li>
                 <li><a class="" href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}"> Data
                     Browser for {{response.data.survey|uppercase}}</a></li>
-                <li><a class="" href="{% url 'query-create-list' %}"> Query Builder</a></li>
-
-                <li class="disabled"><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled>
+                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}">
                     Documentation</a></li>
                 {% if breadcrumblist %}
                 {% with breadcrumblist|length|add:"-2" as b %}

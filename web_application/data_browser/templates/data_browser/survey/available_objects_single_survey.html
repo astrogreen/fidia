@@ -1,0 +1,71 @@
+<div class="row">
+<div class="col-xs-12 col-sm-6">
+
+        <div id="data-products-selected">
+            <div class="panel panel-default">
+                <div class="panel-heading">SELECTED PRODUCTS
+                    <small>
+                        <a uib-popover='To add products, use the data products panel above. To remove products, click the red cross next to a product.'
+                           class="sub-heading"
+                           type="button" class="btn btn-default"><i class="fa fa-info-circle"></i>
+                        </a>
+                        <a role="button" ng-click="apctrl.emptyList()" class="tiny pull-right sub-heading"
+                           style="margin-top:3px;">remove all</a>
+                </div>
+                </small>
+
+                <div class="panel-body fixed-panel">
+                    <div>
+                        <p class="sub-heading">You've not added any data products. Follow the prompts to get
+                            started.</p>
+
+                    </div>
+                    <div>
+                        <p ng-repeat="product in traits">
+                            {{product.pretty_names.trait_type}}
+                            <span ng-if="product.pretty_names.trait_qualifier">-{{product.pretty_names.trait_qualifier}}</span>
+                            <span ng-if="product.pretty_names.branch" class="sub-heading"><i
+                                    class="fa fa-code-fork"></i> {{product.pretty_names.branch}}</span>
+                            <span ng-if="product.pretty_names.version" class="sub-heading"><i class="fa fa-map-pin"></i> {{product.pretty_names.version}}</span>
+
+                            {{product.branch}}&nbsp;<a
+                                ng-click="apctrl.uncheckProduct(survey, product.trait_key_arr)"><i
+                                class="fa fa-times text-error"></i></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
+<div class="col-xs-12 col-sm-6">
+    <div id="data-table-selected">
+        <div class="panel panel-default">
+            <div class="panel-heading">SELECTED OBJECTS
+                <small>
+                    <a uib-popover="To add or remove objects, use the object selection table above." class="sub-heading"
+                       type="button" class="btn btn-default"><i class="fa fa-info-circle"></i>
+                    </a>
+
+                </small>
+            </div>
+            <div class="panel-body fixed-panel">
+                <p class="sub-heading">You've not added any astronomical objects. Select objects from the <a
+                        href="#returnTableResults" class="scroll">table above</a> above. </p>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="col-xs-12">
+        <div class="row">
+            <div class="col-xs-12 text-right">
+                <button class="btn btn-default" id="download_button" ng-click="apctrl.downloadProducts($event)"
+                        ng-disabled="(download | isEmpty) || isDisabled.state"
+                        data-objects><i class="fa fa-download"></i> Download
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

@@ -4,6 +4,8 @@ import json, os, re
 from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
 
+from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
+
 from restapi_app.fields import AbsoluteURLField
 
 import fidia, collections
@@ -80,10 +82,14 @@ class SampleSerializer(data_browser.mixins.SampleAttributesMixin):
     def get_catalog(self, obj):
         return obj.get_feature_catalog_data()
 
+    def get_schema(self, obj):
+        # type: (Archive) -> dict
+        schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True)
+        return schema
+
     catalog = serializers.SerializerMethodField()
-
     astro_objects = serializers.SerializerMethodField()
-
+    schema = serializers.SerializerMethodField()
 
 
 class AstroObjectSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):

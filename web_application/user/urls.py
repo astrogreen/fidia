@@ -23,8 +23,8 @@ user_detail = user.views.UserViewSet.as_view({
 
 urlpatterns = [
             # ADMIN USER VIEW
-            url(r'^users/$', user_list, name='user-list'),
-            url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
+            # url(r'^users/$', user_list, name='user-list'),
+            # url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
 
             # USER ACTIONS
             url(r'^register/', user.views.CreateUserView.as_view(), name='user-register'),

@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/js/DataTables/datatables.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 
 <script type="text/javascript" src="{% static 'query/js/available-products/controllers.js' %}"></script>
 <script type="text/javascript" src="{% static 'query/js/available-products/services.js' %}"></script>
@@ -63,39 +64,43 @@
 {% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
-        <div class="sidebar-contents">
-            <h5>Page Contents</h5>
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
+        <div class="sidebar-contents" data-spy="affix">
+            <div class="page-contents">
+                <h5>Page Contents</h5>
+                <ul class="nav nav-pills nav-stacked  nav-sidebar">
+                    <li role="presentation"><a class="scroll" href="#top-of-page">Data Release
+                        {{response.data.data_release}}
+                        Overview</a></li>
+                    <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+                    <li role="presentation"><a class="scroll" href="#help">Help</a></li>
 
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-
-
-                <li role="presentation"><a class="scroll" href="#overview">Data Release {{response.data.data_release}}
-                    Overview</a></li>
-                <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
-                <li role="presentation"><a class="scroll" href="#help">Help</a></li>
-
-            </ul>
-            <h5>Quick Links</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
-                    Browser</a></li>
-                <li>
-                    {% with survey|add:"-data-products" as data_product_descriptions %}
-                    <a href="{% url data_product_descriptions %}"><span>
+                </ul>
+            </div>
+            <div class="quick-links">
+                <h5>Quick Links</h5>
+                <ul class="nav-sidebar">
+                    <li>
+                       <a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
+                    Browser</a>
+                    </li>
+                    <li>
+                        {% with survey|add:"-data-products" as data_product_descriptions %}
+                        <a href="{% url data_product_descriptions %}"><span>
                         Data Product Descriptions</span></a>
-                    {% endwith %}
-                </li>
+                        {% endwith %}
 
-
-                <!--<li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>-->
-                {% if breadcrumblist %}
-                {% with breadcrumblist|length|add:"-2" as b %}
-                <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
-                    {{breadcrumblist|key:b|key:0}}</a></li>
-                {% endwith %}
-                {% endif %}
-            </ul>
+                    </li>
+                    <li>
+                        {% if breadcrumblist %}
+                        {% with breadcrumblist|length|add:"-2" as b %}
+                        <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+                            {{breadcrumblist|key:b|key:0}}</a>
+                        {% endwith %}
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -105,7 +110,7 @@
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2 id="overview">Overview</h2>
+        <h2 id="overview">Data Release {{response.data.data_release}} Overview</h2>
         <div class="panel panel-default" style="margin-top:20px;">
             <div class="panel-heading">
                 {{survey|uppercase}} Data Release {{response.data.data_release}}
@@ -120,28 +125,13 @@
                         </td>
                         <td class="lead">{{response.data.data_release}}</td>
                         <td class="lead">{{response.data.astro_objects | length}}</td>
-                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a>
-                        </td>
-                        <td class="lead">
-                            {% for f in available_formats %}
-                            {% if f != "api" %}
-                            <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
-                                            <span class="fa-custom-stack">
-                                              <i class="fa fa-file-o"></i>
-                                                <span class="fa-custom-filetype">{{f}}</span>
-                                            </span>
-                            </a>
-                            {% endif %}
-                            {% endfor %}
-
-                        </td>
+                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a></td>
                     </tr>
                     <tr class="large">
                         <td>PI</td>
                         <td>Data Release Number</td>
                         <td>Number of Objects</td>
                         <td>Schema Browser</td>
-                        <td>Available Objects</td>
                     </tr>
                     <tr class="medium">
 
@@ -157,65 +147,119 @@
                         <td>
                             <small>The Schema Browser describes the SAMI survey data products.</small>
                         </td>
-                        <td>
-                            <small>View a json-formatted list of available objects in this data release.</small>
-                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <h3>Data Access Information</h3>
-        <p>The Data Browser allows users a quick-look at each astronomical object's data
-            products available in this data release, including visualizations, processing information and associated
-            properties. Data products can be downloaded as multi-extension FITS files, with all relevant processing
-            information
-            contained within the FITS header.</p>
-        <p>It is recommended
-            that you also use the SAMI Data Browser in conjunction with the
+        <h3 id="data-access">Data Access</h3>
+        <div class="well">
+            <p class="lead margin-bottom-ten">
+                What can I do?
+            </p>
+            <ul class="p">
+                <li>The Data Browser allows users a quick-look at each {{survey|uppercase}} object's data
+                    products available in this data release, including visualizations, processing information and associated
+                    properties, using the <strong>Single Object</strong> search box below.
+                </li>
+                <li>Within the <strong>Single Object</strong> tab, users can download individual data products as multi-extension
+                    FITS files, with all relevant processing information contained within the FITS header.</li>
+                <li>The <strong>Multiple Objects</strong> tab allows users to define a sample of
+                    {{survey|uppercase}} objects filtering on some catalogue property. </li>
+                <li>Data products for this selection can be downloaded using the <strong>Download Data Products</strong>
+                    tool. </li>
+            </ul>
+        </div>
+
+
+
+        <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
             <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
             descriptions of the data products available.</p>
-        <p><strong>Single Object:</strong> Search for a specific {{survey|uppercase}}
-            object below by typing in the search box.<br>
-            <strong>Multiple Objects:</strong> Filter all rows using the search box or range inputs.
-        </p>
-        <p>For more information,
-            <a class="disabled" disabled="" href="/asvo/docs/articles/branches-what-is-a-branch/">
-                view the documentation.</a></p>
+        <p>For help using the Data Browser,
+            <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">view the documentation.</a></p>
 
-        <!--<table class="table table-bordered">-->
-            <!--<colgroup>-->
-                 <!--<col align="center" width="25%" />-->
-                 <!--<col align="center" width="25%" />-->
-                 <!--<col align="center" width="50%" />-->
-            <!--</colgroup>-->
-            <!--<tbody>-->
-            <!--<tr>-->
-                <!--<td style="vertical-align: bottom"><span class="sub-heading">Set the number of entries displayed on this page.</span></td>-->
-                <!--<td style="vertical-align: bottom"><span class="sub-heading">Search all rows and columns.</span></td>-->
-                <!--<td style="vertical-align: bottom"><span class="sub-heading">Search data in the selected column between two values.</span></td>-->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Object</a>
+            </li>
+            <li role="presentation"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Object</a>
+            </li>
 
-            <!--</tr>-->
-            <!--</tbody>-->
-        <!--</table>-->
+        </ul>
 
-        <h3 id="data-access">Data Access: {{survey|uppercase}} Objects</h3>
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="single">
+                <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
+                    <strong>Go</strong> to view the
+                    object's properties and available data, and download individual data products.</p>
+                <div class="row">
+                    <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+                        <select type="text" class="searchbox selectized text-center"
+                                id="autocomplete-widget" placeholder="SEARCH">
+                            <option value="" disabled selected>Select an object</option>
+                            {% for key, value in response.data.astro_objects.items %}
+                            <option value="{{value}}">{{key}}</option>
+                            {% endfor %}
+                        </select>
+                        <a class="btn btn-block btn-primary" type="button" href="" disabled
+                           id="autocomplete-button">GO</a>
+                        <br><br>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="multiple">
+                <p> All objects in the {{survey|uppercase}} data release are shown below. Search and
+                    filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+                    </div>
+                </div>
+
+                <div id="filter_panel">
+                    <div class="row">
+                        <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
+                        <div class="col-xs-9">
+                            <div class="row">
+                                <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
+                                <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                                <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 text-right">
+                            <span id="remove_filters"></span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
+                <div class="panel panel-default success ">
+                    <div class="panel-body">
+                        <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-xs-12">
+                        <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
+
+                        <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
+                        <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
+
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <h3>Download Products for Selected Objects</h3>
-        <div class="row">
-
-            <div class="col-xs-12">
-                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
-                <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
 
 
-            </div>
-        </div>
 
 
         <h3 id="help">Help</h3>
@@ -264,38 +308,32 @@
             var columns = [];
             var thead = '';
 
-            // ADD checkboxes to array (unshift appends to beginning of an array, whereas push appends to the end)
-//            for (var key in catalog.data) {
-//                astro_object = catalog.data[key][0];
-//                catalog.data[key].unshift('<input type="checkbox" value="'+astro_object+'">')
-//            }
-//            catalog.column_names.unshift('check');
 
             $('#returnTableResults').find('thead > tr').empty();
             $('#returnTableResults').addClass("table-bordered cell-border");
+
             //APPEND COLUMN VALUES TO TABLE HEAD
-//            columns.push({title:'checkbox'});
             $.each(catalog.column_names, function(i,k){
                 var b = { title: k };
 
-                if (k.indexOf("url_img") > -1){
-                    b = {
-                        "title":k,
-                        "render": function(data, type, row) {
-                            return '<img class="img-responsive" style="max-width:70px" src="'+data+'" />';
-                        }
-                    }
-                }
+//                if (k.indexOf("url_img") > -1){
+//                    b = {
+//                        "title":k,
+//                        "render": function(data, type, row) {
+//                            return '<img class="img-responsive" style="max-width:70px" src="'+data+'" />';
+//                        }
+//                    }
+//                }
 
-                if (k.indexOf("ID") > -1){
-                    b = {
-                        "title":k,
-                        "render": function(data, type, row) {
-                            var temp_string = '<a href="'+SAMPLE_URL+data+'">'+data+'</a>';
-                            return temp_string;
-                        }
-                    }
-                }
+//                if (k.indexOf("ID") > -1){
+//                    b = {
+//                        "title":k,
+//                        "render": function(data, type, row) {
+//                            var temp_string = '<a href="'+SAMPLE_URL+data+'">'+data+'</a>';
+//                            return temp_string;
+//                        }
+//                    }
+//                }
 
                 th = '<th>'+k+'</th>';
                 columns.push(b);
@@ -328,34 +366,62 @@
                             '<i class="fa fa-search fa-fw"></i></button> </span>');
             document.getElementById('returnTableResults_filter').firstChild.data = "";
 
-            $('#returnTableResults_filter').parent('.col-sm-6').parent('.row').append('<div id="dataTableButtons_range" class="col-xs-12 col-sm-6"><p class="bg-info">FILTER: Range <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></p></div>');
 
-            $('#returnTableResults_length').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
-            $('#returnTableResults_length').parent('.col-sm-3').prepend('<p class="bg-info">PAGINATION</p>');
-            $('#returnTableResults_filter').parent('.col-sm-6').addClass('col-xs-6 col-sm-3').removeClass('col-sm-6');
-            $('#returnTableResults_filter').parent('.col-sm-3').prepend('<p class="bg-info">FILTER: Search <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></p>');
-;
-
-            $('#returnTableResults_wrapper').prepend(
-                    '<div class="row" style="margin-bottom:15px">' +
-                    '<div id="dataTableButtons_export" class="col-xs-12 col-sm-6 text-center"><p class="bg-info">EXPORT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Export all, or if a filter is applied, selected, rows."><i class="fa fa-info-circle"></i></a></p></div> ' +
-                    '<div id="dataTableButtons_select" class="col-xs-12 col-sm-6 text-center"><p class="bg-info">SELECT <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the buttons below to Select All/None or Select only the rows returned by the Filter methods below."><i class="fa fa-info-circle"></i></a></p></div>' +
-                    '</div>'
-            )
+            $("#filter_panel")
+                    .prependTo("#returnTableResults_wrapper");
 
 
-            $('#dataTableButtons_range').append('<div class="">' +
+            $('#returnTableResults_wrapper').append('<div id="" class="row"><div class="col-xs-12 col-sm-12" id="datatables_export"></div></div>');
+
+
+            // FILTER
+            $('#datatables_filter').append(
                     '<form class=""><div class="row">' +
                     '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum" id="min" placeholder="MINIMUM" disabled> </div></div>' +
                     '<div class="col-xs-4 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
                     '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="MAXIMUM" disabled></div></div>' +
                     '</div> </form>');
+
+
+            $("#returnTableResults_filter")
+                    .appendTo("#datatables_search");
+
+            // PAGINATION
+            $("#returnTableResults_info").parent('.col-sm-5').parent('.row').prepend('<div id="datatables_pagination" class="col-sm-12" style="padding-top:10px"></div>');
+
+            $("#returnTableResults_length")
+                    .appendTo("#datatables_pagination");
+
+            //  EXPORT
+            $('#datatables_export').append(
+                    '<div id="dataTableButtons_export"></div>'
+
+            );
+
+            // SELECT
+            $('#datatables_select').append(
+                    '<div id="dataTableButtons_select" class=""></div>'
+            )
+
             $('#returnTableResults_wrapper').removeClass('form-inline');
             $('#returnTableResults_filter > div > input').removeClass('input-sm');
             $('#returnTableResults_filter > div > span > button').removeClass('btn-sm');
+
             // Append column options to the range select
             for (var k=0;k<columns.length;k++){
-                $('select#column').append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
+                // if you can parse as float, then append
+
+                var _column_append = true;
+
+                for (var z=0;z<catalog.data[k].length;z++){
+                    if (!!parseFloat(catalog.data[k][z])){
+                    } else {_column_append = false;}
+                }
+
+                if (_column_append == true){
+                    $('select#column').append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
+                }
+
             }
 
 
@@ -364,20 +430,21 @@
             // this needs to be re-initialized on each selection of the column
 
 
-
             $('#column').on('change', function (e) {
                 // redraw table without any filtering
                 $.fn.dataTable.ext.search = [];
                 table.draw();
 
                 var selected_column = $(e.currentTarget).val();
+
                 console.log('selected '+selected_column);
 
-                $('#min, #max').val('').removeClass().addClass(selected_column).addClass('form-control').attr("disabled",false);
                 // find column index
                 for (var k=0;k<columns.length;k++){
                     if (columns[k].title == selected_column){column_index = k;}
                 }
+                $('#min, #max').val('').addClass('form-control').attr("disabled",false);
+
                 console.log('column index in data '+column_index);
 
                 data = catalog.data;
@@ -385,8 +452,8 @@
                 $.fn.dataTable.ext.search.push(
                     function (settings, data, dataIndex) {
 
-                        var min = parseFloat($('#min.'+selected_column).val());
-                        var max = parseFloat($('#max.'+selected_column).val());
+                        var min = parseFloat($('#min').val());
+                        var max = parseFloat($('#max').val());
 
                         // TODO find type of data if string...
                         var field = parseFloat(data[column_index]) || 0; // use data for the selected column
@@ -408,7 +475,28 @@
                 // Event listener to the two range filtering inputs to redraw on input
                 $('#min, #max').keyup( function() {
                     table.draw();
+                    // console.log(get_filtered_ids());
+
+                    update_button();
                 } );
+                // update select button with initial number of rows
+                update_button();
+
+                $('#returnTableResults_filter input').keyup(function(){
+                    update_button();
+                });
+
+                $('#returnTableResults').click(function(){
+                    update_button();
+                })
+
+                $('a#multiple_object[data-toggle="tab"]').one('shown.bs.tab', function (e) {
+                    // moved single and multiple objects into tabs, fire this once (.one) when the shown.bs.tab event
+                    // is triggered, to force datatables to redraw the table once the tab is visible (else the column headers
+                    // have incorrect widths calculated
+                    table.draw();
+                })
+
             } );
 
             // Get the IDs of selected items
@@ -423,26 +511,95 @@
                 var ids = $.map(table.rows({selected: true }).data(), function (item) {
                     return item[0]
                 });
-                console.log(ids);
+
                 $('#data-table-selected .panel-body').html('');
                 for (var i=0; i<ids.length;i++){
-                    console.log(ids[i]);
                     $('#data-table-selected .panel-body').append('<a href="'+SAMPLE_URL+ids[i]+'">'+ids[i]+'</a><br>')
                 }
                 $('#download_button').attr('data-objects', ids)
 
                 return ids
-            }
+            };
+
+            get_filtered_ids = function(){
+                /*
+                    Returns the list of ids where a search has been applied
+                 */
+                var ids = $.map(table.rows({search: 'applied' }).data(), function (item) {
+                    return item[0]
+                });
+                return ids
+            };
+
+            update_button = function(){
+                var selected = $.map(table.rows({selected: true }).data(), function (item) {
+                    return item[0]
+                });
+                var filtered = $.map(table.rows({search: 'applied' }).data(), function (item) {
+                    return item[0]
+                });
+                if (selected.length>0){
+                    _text = '<i class="fa fa-check-square-o" aria-hidden="true"></i> Unselect '+selected.length+' objects';
+                } else {
+                    _text = '<i class="fa fa-square-o" aria-hidden="true"></i> Select '+filtered.length+' objects';
+                }
+
+                $('#select_button_text').html(_text);
+            };
 
 
             // obtain a jQuery object that holds the container element of the button set. Then can insert the element as per styling
             new $.fn.dataTable.Buttons(table, {
+
                 buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5', 'print',
-                    'pdfHtml5',
+                    {
+                        extend: 'copyHtml5',
+                        text: '<i class="fa fa-copy"></i> Copy to clipboard',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fa fa-file-excel-o"></i> Excel',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fa fa-print"></i> Print',
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="fa fa-file-pdf-o"></i> PDF',
+
+                        exportOptions: {
+                            modifier: {
+                                selected: true
+                            }
+                        }
+                    },
+
                 ]
+
             });
             table.buttons(0,null).container()
                     .appendTo($('#dataTableButtons_export', table.table().container()));
@@ -450,23 +607,27 @@
             new $.fn.dataTable.Buttons(table, {
                 buttons: [
                     {
-                        text: '<i class="fa fa-check-square-o" aria-hidden="true"></i> Select All ',
+                        text: ' <span id="select_button_text"><i class="fa fa-square-o" aria-hidden="true"></i> Select 0 objects</span> ',
                         action: function () {
-                            table.rows().select();
-                            get_ids();
-                        }
-                    },
-                    {
-                        text: '<i class="fa fa-square-o" aria-hidden="true"></i> Select None',
-                        action: function () {
-                            table.rows().deselect();
-                            get_ids();
-                        }
-                    },
-                    {
-                        text: '<i class="fa fa-filter" aria-hidden="true"></i> Select Filtered',
-                        action: function () {
-                            table.rows({search: 'applied'}).select();
+                            // if already some selected - deselect:
+                            var selected = $.map(table.rows({selected: true}).data(), function (item) {
+                                return item[0]
+                            });
+                            if (selected.length > 0) {
+                                table.rows().deselect();
+                                var ids = $.map(table.rows({search: 'applied'}).data(), function (item) {
+                                    return item[0]
+                                });
+
+                            } else {
+                                // select the filtered options
+                                var ids = $.map(table.rows({search: 'applied'}).data(), function (item) {
+                                    return item[0]
+                                });
+                                table.rows({search: 'applied'}).select();
+                            }
+                            update_button();
+
                             get_ids();
                         }
                     }
@@ -474,6 +635,27 @@
             });
             table.buttons(1,null).container()
                     .appendTo($('#dataTableButtons_select', table.table().container()));
+
+            new $.fn.dataTable.Buttons(table, {
+                buttons: [
+                    {
+                        text: '<small>remove all filters</small>',
+                        action: function () {
+                            $('#max').val('');
+                            $('#min').val('');
+                            $('#returnTableResults_filter input').val('');
+//                            table.rows().deselect();
+                            table.search("").draw()
+                            update_button();
+                        }
+                    }
+                ]
+            });
+            table.buttons(2,null).container()
+                    .appendTo($('#remove_filters', table.table().container()));
+            $('#remove_filters .btn.btn-default').removeClass('btn btn-default')
+
+
         };
     };
 {% endautoescape %}
@@ -535,4 +717,25 @@
 
 </script>
 {% endblock %}
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $selector = $("#autocomplete-widget").selectize({
+            closeAfterSelect: true,
+            selectOnTab: true,
+            placeholder: "SEARCH...",
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                $('#autocomplete-button').attr('href', value).attr('disabled', false)
+            }
+        });
+    });
+
+
+</script>
+{% endblock %}
+
+
 

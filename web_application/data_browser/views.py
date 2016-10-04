@@ -108,36 +108,6 @@ class Download(View):
         print(request.POST)
         return HttpResponse('This is POST request')
 
-# class Download(views.APIView):
-#     """
-#     Download Route
-#     """
-#
-#     # def get(self, request, format=None):
-#     #     """
-#     #     Return a list of all users.
-#     #     """
-#     #     usernames = [user.username for user in User.objects.all()]
-#     #     return Response(usernames)
-#     # permission_classes = (permissions.AllowAny,)
-#     # renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer, renderers.JSONRenderer)
-#     # serializer_class = data_browser.serializers.DownloadSerializer
-#     #
-#     def get(self, request, format=None, *args, **kwargs):
-#
-#         return Response(status=status.HTTP_200_OK)
-#     #
-#     # def post(self, request, *args, **kwargs):
-#     #     serializer = data_browser.serializers.DownloadSerializer(data=request.data)
-#     #     serializer.is_valid()
-#     #
-#     #     if serializer.is_valid():
-#     #         serializer_unbound = data_browser.serializers.DownloadSerializer
-#     #         return Response({"download_status": "success", 'serializer': serializer_unbound},
-#     #                         status=status.HTTP_202_ACCEPTED)
-#     #
-#     #     return Response({"download_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (data_browser.renderers.AstroObjectRenderer, renderers.JSONRenderer)
