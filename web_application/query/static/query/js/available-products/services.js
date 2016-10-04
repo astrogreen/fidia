@@ -18,6 +18,7 @@
                     return response.data;
                 });
             }
+
         }
     })
 })(window.angular, window.AvailableProducts);

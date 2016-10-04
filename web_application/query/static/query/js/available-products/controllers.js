@@ -112,8 +112,8 @@ console.log('availableproducts.controllers.js');
                         });
                     });
                 });
-
             });
+            $('#download_button').attr('data-products', $scope.download)
         }, true);
 
         ctrl.uncheckProduct = function(survey, trait_key_arr) {
@@ -129,15 +129,17 @@ console.log('availableproducts.controllers.js');
         };
 
         ctrl.downloadProducts = function(e){
-            console.log('clicked');
-            console.log($scope.download)
 
-            console.log($(event.target).attr("data-objects"))
+            // console.log($scope.download);
+            // console.log($(event.target).attr("data-objects"));
+
             var data = {
                 'products':$scope.download,
                 'objects':$(event.target).attr("data-objects")
-            }
-        }
+            };
+
+
+        };
         // ctrl.reapplyState = function(){
         //
         //

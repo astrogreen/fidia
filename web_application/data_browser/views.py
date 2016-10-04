@@ -4,6 +4,7 @@ import django.core.exceptions
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.http import HttpResponse
+from django.views.generic import View
 
 from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
@@ -97,8 +98,6 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 #
 #         return Response(data)
 
-from django.http import HttpResponse
-from django.views.generic import View
 
 class Download(View):
     def get(self, request, *args, **kwargs):

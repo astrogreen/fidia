@@ -251,12 +251,18 @@
 
                         <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
                         <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <button class="btn btn-default" id="download_button" data-products data-objects><i class="fa fa-download"></i> Download</button>
+                            </div>
 
+                        </div>
                     </div>
                 </div>
 
             </div>
         </div>
+
 
         <h3 id="help">Help</h3>
         <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
@@ -512,7 +518,7 @@
                 for (var i=0; i<ids.length;i++){
                     $('#data-table-selected .panel-body').append('<a href="'+SAMPLE_URL+ids[i]+'">'+ids[i]+'</a><br>')
                 }
-                $('#download_button').attr('data-objects', ids)
+                $('#download_button').attr('data-objects', ids);
 
                 return ids
             };
@@ -695,20 +701,18 @@
             }
         }
     });
-    function testPostAjax() {
-        return $.post({
-            url: "{% url 'data_browser:data-browser-download' %}",
-            data: {
-                action: 'download this',
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-        });
-    }
 
-    var promise_post = testPostAjax();
-    promise_post.success(function (data) {
-      console.log(data);
-    });
+    $('#download_button').click(function(){
+
+        var data_download = {
+            'products': $(event.target).attr("data-products"),
+            'objects': $(event.target).attr("data-objects")
+        };
+
+        $.post("{% url 'data_browser:data-browser-download' %}", data_download, function (data) {
+            console.log("received " + data);
+        });
+    })
 
 
 </script>
