@@ -38,6 +38,7 @@
                             <div class="helper step step2">Add or remove data products using the checkboxes. </div>
                             <div class="tab-content branch_dropdown">
                                 <div role="tabpanel" ng-repeat="(trait_type_key, trait_type_value) in traits" ng-class='{active:$first}' class="tab-pane" id="{{survey}}_{{trait_type_key}}">
+
                                     <div class="table-responsive" >
                                         <table class="table table-bordered table-condensed">
                                             <thead style="background-color:#fafafa">
@@ -100,6 +101,7 @@
                                                                 <label for="{{trait_version_value.trait_key}}">
                                                                     <i class="fa fa-map-pin"></i>
                                                                     {{trait_version_value.pretty_name}} <span class="tiny sub-heading">{{trait_version_value.trait_key}}</span>
+                                                                    {{trait_version_value.trait.export_formats}}
                                                                 </label>
                                                                 <!--&nbsp; &nbsp;<a href="{{branch_value.url}}" target="_blank">Docs</a>-->
                                                             </div>

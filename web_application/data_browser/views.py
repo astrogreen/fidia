@@ -176,11 +176,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 trait_name_short_description = None
 
                 # Formats
-                trait_name_formats = []
-                for r in TraitViewSet.renderer_classes:
-                    f = str(r.format)
-                    if f != "api":
-                        trait_name_formats.append(f)
+                trait_name_formats = trait_class.get_available_export_formats()
 
                 # Branches
                 trait_name_branches = {}
