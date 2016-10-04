@@ -273,7 +273,7 @@ class SAMIRowStackedSpectra(SpectralMap):
 
 
 class SAMISpectralCube(SpectralMap):
-    """Flux cubes from optical integral-field spectroscopy.
+    r"""Flux cubes from optical integral-field spectroscopy.
 
 
     The data cubes
@@ -358,7 +358,7 @@ class SAMISpectralCube(SpectralMap):
 
     sub_traits = TraitRegistry()
 
-    trait_type = 'spectral_map'
+    trait_type = 'spectral_cube'
     qualifiers = {'red', 'blue'}
 
     branches_versions = {('drizzle_05', "Drizzle 0.5\"", "SAMI Drizzle onto 0.5\" grid with drop shrinking"): {"V1"}}
@@ -413,7 +413,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float.array')
     def variance(self):
-        """Variance of the flux measurements.
+        r"""Variance of the flux measurements.
 
         NOTE: The SAMI Drizzling process introduces considerable co-variance to
         the flux information, which is stored separately.
@@ -424,7 +424,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float.array')
     def covariance(self):
-        """Compressed description of the covariance introduced by the drizzling.
+        r"""Compressed description of the covariance introduced by the drizzling.
 
         The full covariance matrix for a SAMI cube is both very large and highly
         redundant. Therefore, we calculate and store the covariance only (i) at
@@ -693,6 +693,25 @@ class SAMISpectralCube(SpectralMap):
 
         dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
 
+SAMISpectralCube.set_pretty_name("Spectral Cube")
+SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy")
+
+# SAMISpectralCube.value.set_description
+# SAMISpectralCube.variance.set_description
+# SAMISpectralCube.covariance.set_description
+# SAMISpectralCube.weight.set_description
+# SAMISpectralCube.total_exposure.set_description
+# SAMISpectralCube.cubing_code_version.set_description
+# SAMISpectralCube.plate_id.set_description
+# SAMISpectralCube.plate_label.set_description
+
+# SAMISpectralCube.CatCoordinate.set_pretty_name()
+SAMISpectralCube.CatCoordinate.set_description("Catalog coordinate of the target centre of the SAMI fibre bundle.")
+
+SAMISpectralCube.AAT.altitude.set_description("Altitude of observatory in metres")
+SAMISpectralCube.AAT.latitude.set_description("Observatory latitude in degrees")
+SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees)")
+
 
 #         __    ___          __       ___
 #    |     / | |__  |  |    |  \  /\   |   /\
@@ -779,6 +798,8 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     trait_type = "velocity_map"
 
+    qualifiers = {'ionized_gas'}
+
     branches_versions = {
         branch_lzifu_1_comp: {'V02'},
         branch_lzifu_m_comp: {'V02'}
@@ -832,6 +853,8 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
 
     trait_type = "velocity_dispersion_map"
+
+    qualifiers = {'ionized_gas'}
 
     @property
     def shape(self):
@@ -1961,24 +1984,6 @@ class SAMITeamArchive(Archive):
 
 
 
-SAMISpectralCube.set_pretty_name("Spectral Map")
-SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy")
-
-# SAMISpectralCube.value.set_description
-# SAMISpectralCube.variance.set_description
-# SAMISpectralCube.covariance.set_description
-# SAMISpectralCube.weight.set_description
-# SAMISpectralCube.total_exposure.set_description
-# SAMISpectralCube.cubing_code_version.set_description
-# SAMISpectralCube.plate_id.set_description
-# SAMISpectralCube.plate_label.set_description
-
-# SAMISpectralCube.CatCoordinate.set_pretty_name()
-SAMISpectralCube.CatCoordinate.set_description("Catalog coordinate of the target centre of the SAMI fibre bundle.")
-
-SAMISpectralCube.AAT.altitude.set_description("Altitude of observatory in metres")
-SAMISpectralCube.AAT.latitude.set_description("Observatory latitude in degrees")
-SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees)")
 
 
 
