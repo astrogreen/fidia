@@ -746,14 +746,25 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             return byte_file.getvalue()
 
 
+    #      ___          ___         ___            __  ___    __        __
+    # |  |  |  | |    |  |  \ /    |__  |  | |\ | /  `  |  | /  \ |\ | /__`
+    # \__/  |  | |___ |  |   |     |    \__/ | \| \__,  |  | \__/ | \| .__/
+    #
+    # Functions to augment behaviour in Python
+
     def __getitem__(self, key):
         # type: (TraitKey) -> Trait
         """Provide dictionary-like retrieve of sub-traits"""
         return self.get_sub_trait(key)
 
+    def __str__(self):
+        return "<Trait class '{classname}': {trait_type}>".format(classname=self.__name__, trait_type=self.trait_type)
 
-# class FITSExportMixin:
-#     """A Trait Mixin class which adds FITS Export to the export options for a Trait."""
+
+
+
+class FITSExportMixin:
+    """A Trait Mixin class which adds FITS Export to the export options for a Trait."""
 
     def as_fits(self, file):
         """FITS Exporter
