@@ -35,16 +35,28 @@
         </div>
     </div>
     <script type="text/javascript">
-        $(document).ready(function(){
 
+        $(document).ready(function () {
             var trait_url = "{{trait_path.url}}value/?format=json";
             var trait_name = "{{trait_path.pretty_name}}";
-            var map_selector = "#velocity_map_plotly_plot";
-            var options_selector = "#velocity_map_plotly_plot_options";
-
+            var map_selector = "velocity_map_plotly_plot";
+            var options_selector = "velocity_map_plotly_plot_options";
             trait_plot(trait_url, trait_name, map_selector, options_selector);
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 
+                // if the overview tab is activated, once the shown.bs.tab event
+                // is completed, force plotly to recalcular its size
+                console.log(map_selector)
+                var elementWidth = $('#' + map_selector).parent().width();
+                var update = {
+                    width: elementWidth,
+                    height: elementWidth
+                };
+
+                Plotly.relayout(map_selector, update);
+            })
         });
+
     </script>
     {% endwith %}
 
@@ -70,16 +82,29 @@
         </div>
     </div>
     <script type="text/javascript">
-        $(document).ready(function(){
 
+        $(document).ready(function () {
             var trait_url = "{{trait_path.url}}value/?format=json";
             var trait_name = "{{trait_path.pretty_name}}";
-            var map_selector = "#sfr_map_plotly_plot";
-            var options_selector = "#sfr_map_plotly_plot_options";
+            var map_selector = "sfr_map_plotly_plot";
+            var options_selector = "sfr_map_plotly_plot_options";
 
             trait_plot(trait_url, trait_name, map_selector, options_selector);
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                console.log(map_selector)
+                // if the overview tab is activated, once the shown.bs.tab event
+                // is completed, force plotly to recalcular its size
+                var elementWidth = $('#' + map_selector).parent().width();
+                var update = {
+                    width: elementWidth,
+                    height: elementWidth
+                };
 
+                Plotly.relayout(map_selector, update);
+            })
         });
+
     </script>
     {% endwith %}
+
 </div>

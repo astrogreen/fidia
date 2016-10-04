@@ -107,7 +107,7 @@
 
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#overview" aria-controls="overview" role="tab"
+                <li role="presentation" class="active"><a href="#overview" id="overview_anchor" aria-controls="overview" role="tab"
                                                           data-toggle="tab">Overview</a></li>
                 <li role="presentation"><a href="#products" aria-controls="products" role="tab"
                                            data-toggle="tab">Available Products</a></li>
@@ -202,7 +202,9 @@
                         {% for trait_type_key, trait_type_value in response.data.traits.items %}
                         <tr data-trait-type-key="{{trait_type_key}}" class="active">
                             <td colspan="3">
-                                <h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span><span class="sub-heading" style="font-weight:400"><em>{{trait_type_value.description}}</em></span></h6>
+                                <h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span>
+                                    {% if trait_type_value.description %}<span class="sub-heading" style="font-weight:400"><em>{{trait_type_value.description}}</em></span>{% endif %}
+                                </h6>
                             </td>
                         </tr>
                         {% for trait, value in trait_type_value.traits.items %}
@@ -211,7 +213,7 @@
                                     <li><a href="{{value.url}}" class="trait_anchor">
                                         <span class="text-info"> {{value.pretty_name}}</span>
                                     </a>
-                                    <span class="version sub-heading"><i class="fa fa-code-fork"></i> Default</span>
+                                    <!--<span class="version sub-heading"><i class="fa fa-code-fork"></i> Default</span>-->
                                     {% if value.description != None %}
                                     <div class="p">{{value.description}}</div>
                                     {%endif%}</li>
@@ -229,10 +231,12 @@
                                                 {% for branch_key, branch_value in value.branches.items %}
                                                 <li><a href="{{branch_value.url}}">{{branch_value.pretty_name}}</a>
                                                 </li>
+                                                {% if branch_value.description %}
                                                 <li class="dropdown-header"><i
                                                         class="fa fa-level-up fa-rotate-90"></i>
                                                     {{branch_value.description}}
                                                 </li>
+                                                {% endif %}
                                                 {% endfor %}
                                             </ul>
                                         </div>
@@ -272,14 +276,6 @@
 {% endblock %}
 
 {% block footer-extra %}
-<script type="application/javascript">
-    $('#ao_tabs a').click(function (e) {
-        e.preventDefault()
-        $(this).tab('show')
-    })
-</script>
-
-
 <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
 <script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
 <script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
@@ -336,8 +332,9 @@
                 }
             });
         }
-
     });
+
+
 </script>
 
 {% endblock %}

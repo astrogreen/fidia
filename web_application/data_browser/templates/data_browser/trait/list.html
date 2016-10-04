@@ -399,8 +399,8 @@
         $(document).ready(function(){
             var trait_url = "{{request.build_absolute_uri}}value/?format=json";
             var trait_name = "{{response.data.pretty_name}}";
-            var map_selector = "#{{trait_type}}_plotly_plot";
-            var options_selector = "#{{trait_type}}_plotly_plot_options";
+            var map_selector = "{{trait_type}}_plotly_plot";
+            var options_selector = "{{trait_type}}_plotly_plot_options";
 
             // make ajax request to get data and save so can adjust with range slider
             trait_plot(trait_url, trait_name, map_selector, options_selector);

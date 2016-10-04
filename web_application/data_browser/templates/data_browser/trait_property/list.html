@@ -184,8 +184,8 @@
         $(document).ready(function(){
             var trait_url = "{{request.build_absolute_uri}}?format=json";
             var trait_name = "{{response.data.pretty_name}}";
-            var map_selector = "#{{trait_type}}_plotly_plot";
-            var options_selector = "#{{trait_type}}_plotly_plot_options";
+            var map_selector = "{{trait_type}}_plotly_plot";
+            var options_selector = "{{trait_type}}_plotly_plot_options";
 
             trait_plot(trait_url, trait_name, map_selector, options_selector);
 

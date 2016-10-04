@@ -2,9 +2,9 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-
+{% if tpdata|key:tp|key:"description" %}
 <div class="sub-heading small"><em>{{tpdata|key:tp|key:"description"}}</em></div>
-
+{% endif %}
 <div class="heading"><strong>Value</strong>
     <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click"
        data-placement="top"

@@ -11,14 +11,14 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
         }
         if (getdim(trait_data) !== false) {
             // Everything's good, clear the element
-            $(map_selector).html('');
+            $('#'+map_selector).html('');
             // Call plotly
             plot_map(trait_name, trait_data, map_selector, zmin, zmax);
 
             return trait_data;
         }
         else {
-            return $(map_selector).html('Validation Fail: value array is irregular. Contact support. ');
+            return $('#'+map_selector).html('Validation Fail: value array is irregular. Contact support. ');
         }
     };
 
@@ -39,7 +39,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                     if (a == 0) {
                         checked = 'checked'
                     }
-                    $(options_selector).append('<div class="radio"> <label> <input type="radio" disabled name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
+                    $('#'+options_selector).append('<div class="radio"> <label> <input type="radio" disabled name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
                 }
                 changePlotData(trait_value.value, 0, zmin, zmax);
 

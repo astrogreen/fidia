@@ -179,7 +179,7 @@ function plot_map(name, data, selector, zmin, zmax){
     ];
 
     // Force responsive layout
-    var elementWidth=$(map_selector).parent().width();
+    var elementWidth=$('#'+map_selector).parent().width();
     var layout = {
         autosize:true,
         width:elementWidth,
@@ -208,7 +208,7 @@ function plot_map(name, data, selector, zmin, zmax){
 
     // RESPONSIVE TO CHANGING WINDOW SIZE
     $(window).on("resize",function(e){
-        var elementWidth=$(map_selector).parent().width();
+        var elementWidth=$('#'+map_selector).parent().width();
         var update = {
           width: elementWidth,
           height:elementWidth
@@ -216,6 +216,7 @@ function plot_map(name, data, selector, zmin, zmax){
 
         Plotly.relayout(map_selector, update);
     });
+
 };
 
 

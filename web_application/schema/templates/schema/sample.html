@@ -91,7 +91,7 @@
                                 <div id="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
 
                                     <h2>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}</h2>
-                                    <p><em>{{trait_type_value.description}}</em></p>
+                                    {% if trait_type_value.description %}<p><em>{{trait_type_value.description}}</em></p>{% endif %}
 
                                     <div class="panel panel-default success branch_warning">
                                         <div class="panel-body">
@@ -114,7 +114,7 @@
                                                         <!--Default branch, and the default version for that branch, are set as active-->
                                                         {% if trait_qualifier_value.default_branch == trait_branch_key %}
                                                             <strong>{{trait_branch_value.pretty_name}}{% if trait_branch_value.description %}: {% endif %}</strong>
-                                                            {{trait_branch_value.description}}
+                                                            {% if trait_branch_value.description %}{{trait_branch_value.description}}{% endif %}
                                                         {% endif %}
                                                     {% endfor %}
                                                 <i class="fa fa-caret-down"></i>
@@ -159,7 +159,7 @@
                                                             {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                                                     <!--Default branch, and the default version for that branch, are set as active-->
                                                                 {% if trait_branch_value.default_version == trait_version_key %}
-                                                                    <span class="sub-heading"><i class="fa fa-map-pin"></i> Version</span>  <strong> {{trait_version_value.pretty_name}}{% if trait_version_value.description %}: {% endif %}</strong> {{trait_version_value.description}}
+                                                                    <span class="sub-heading"><i class="fa fa-map-pin"></i> Version</span>  <strong> {{trait_version_value.pretty_name}}{% if trait_version_value.description %}: {% endif %}</strong>{% if trait_version_value.description %} {{trait_version_value.description}} {% endif %}
                                                                 {% endif %}
                                                             {% endfor %}
                                                             <i class="fa fa-caret-down"></i>
@@ -210,7 +210,7 @@
 
                                                                 <h3>Contents</h3>
                                                                 <ul class="p">
-                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_description" class="scroll">Description</a></li>
+                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_documentation" class="scroll">Documentation</a></li>
                                                                     <li>
                                                                         <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_properties"
                                                                            class="scroll">Properties</a>
@@ -258,7 +258,7 @@
                                                                 </ul>
 
                                                                 <!-- Documentation -->
-                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_description">Description</h3>
+                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_documentation">Documentation</h3>
                                                                 <div class="documentation_fidia">
                                                                     {{value.html_documentation|safe}}
                                                                 </div>
@@ -296,7 +296,7 @@
                                                                         <!-- here, can access the trait description, pretty name etc-->
                                                                             {% with sub_trait_qualifier_value.trait as sub_value %}
                                                                                 <!--{% if sub_value.description %}-->
-                                                                                    <p><em>{{sub_value.description}}</em></p>
+                                                                                    {% if sub_value.description %}<p><em>{{sub_value.description}}</em></p>{% endif %}
                                                                                 <!--{% endif %}-->
                                                                                 <!--{% if sub_value.html_documentation %}-->
                                                                                     <div class="documentation_fidia">{{sub_value.html_documentation|safe}}</div>
