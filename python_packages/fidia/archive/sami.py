@@ -273,7 +273,7 @@ class SAMIRowStackedSpectra(SpectralMap):
 
 
 class SAMISpectralCube(SpectralMap):
-    """Flux cubes from optical integral-field spectroscopy.
+    r"""Flux cubes from optical integral-field spectroscopy.
 
 
     The data cubes
@@ -358,8 +358,12 @@ class SAMISpectralCube(SpectralMap):
 
     sub_traits = TraitRegistry()
 
-    trait_type = 'spectral_map'
+    trait_type = 'spectral_cube'
     qualifiers = {'red', 'blue'}
+
+    branches_versions = {('drizzle_05', "Drizzle 0.5\"", "SAMI Drizzle onto 0.5\" grid with drop shrinking"): {"V1"}}
+    defaults = DefaultsRegistry(default_branch='drizzle_05',
+                                version_defaults={'drizzle_05': 'V1'})
 
     def init(self):
 
@@ -409,7 +413,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float.array')
     def variance(self):
-        """Variance of the flux measurements.
+        r"""Variance of the flux measurements.
 
         NOTE: The SAMI Drizzling process introduces considerable co-variance to
         the flux information, which is stored separately.
@@ -420,7 +424,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('float.array')
     def covariance(self):
-        """Compressed description of the covariance introduced by the drizzling.
+        r"""Compressed description of the covariance introduced by the drizzling.
 
         The full covariance matrix for a SAMI cube is both very large and highly
         redundant. Therefore, we calculate and store the covariance only (i) at
@@ -689,14 +693,44 @@ class SAMISpectralCube(SpectralMap):
 
         dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
 
+SAMISpectralCube.set_pretty_name("Spectral Cube")
+SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy")
+
+# SAMISpectralCube.value.set_description
+# SAMISpectralCube.variance.set_description
+# SAMISpectralCube.covariance.set_description
+# SAMISpectralCube.weight.set_description
+# SAMISpectralCube.total_exposure.set_description
+# SAMISpectralCube.cubing_code_version.set_description
+# SAMISpectralCube.plate_id.set_description
+# SAMISpectralCube.plate_label.set_description
+
+# SAMISpectralCube.CatCoordinate.set_pretty_name()
+SAMISpectralCube.CatCoordinate.set_description("Catalog coordinate of the target centre of the SAMI fibre bundle.")
+
+SAMISpectralCube.AAT.altitude.set_description("Altitude of observatory in metres")
+SAMISpectralCube.AAT.latitude.set_description("Observatory latitude in degrees")
+SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees)")
+
 
 #         __    ___          __       ___
 #    |     / | |__  |  |    |  \  /\   |   /\
 #    |___ /_ | |    \__/    |__/ /~~\  |  /~~\
 #
 
+branch_lzifu_1_comp = ("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component")
+branch_lzifu_m_comp = ('recom_comp', "LZIFU multi component", "LZIFU fits using up to three components")
+
 class LZIFUDataMixin:
     """Mixin class to provide extra properties common to all LZIFU Data."""
+
+    branches_versions = {
+        branch_lzifu_1_comp: {'V02'},
+        branch_lzifu_m_comp: {'V02'}
+    }
+
+    defaults = DefaultsRegistry(default_branch="1_comp",
+                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
 
     def init(self):
         data_product_name = "EmissionLineFits"
@@ -741,17 +775,6 @@ class LZIFUFlag(LZIFUDataMixin, FlagMap):
 
     trait_type = 'flags'
 
-    branches_versions = {
-        ("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component"): {'V02'},
-        ('recom_comp', "LZIFU multi component", "LZIFU fits using up to three components"): {'V02'}
-    }
-
-    defaults = DefaultsRegistry(
-        default_branch='recom_comp',
-        version_defaults={"1_comp": 'V02',
-                          "recom_comp": 'V02'}
-    )
-
     valid_flags = [
         ('BADSKY', "Bad Sky Subtraction"),
         ('BADCONT', "Bad Continuum Fit"),
@@ -775,9 +798,15 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     trait_type = "velocity_map"
 
-    branches_versions = {("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component"): {"V02"}}
+    qualifiers = {'ionized_gas'}
 
-    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
+    branches_versions = {
+        branch_lzifu_1_comp: {'V02'},
+        branch_lzifu_m_comp: {'V02'}
+    }
+
+    defaults = DefaultsRegistry(default_branch="1_comp",
+                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
 
     # def init(self):
     #
@@ -825,32 +854,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
 
     trait_type = "velocity_dispersion_map"
 
-    branches_versions = {"1_comp": {"V02"}}
-
-    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
-
-    # def init(self):
-    #
-    #     data_product_name = "EmissionLineFits"
-    #
-    #     self._lzifu_fits_file = "/".join((
-    #         self.archive.vap_data_path,
-    #         data_product_name,
-    #         data_product_name + self.version,
-    #         "1_comp",
-    #         self.object_id + "_1_comp.fits"))
-    #
-    #     if not os.path.exists(self._lzifu_fits_file):
-    #         if os.path.exists(self._lzifu_fits_file + ".gz"):
-    #             self._lzifu_fits_file += ".gz"
-    #         else:
-    #             raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
-    #
-    # def preload(self):
-    #     self._hdu = fits.open(self._lzifu_fits_file)
-    #
-    # def cleanup(self):
-    #     self._hdu.close()
+    qualifiers = {'ionized_gas'}
 
     @property
     def shape(self):
@@ -870,13 +874,19 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
 
 
 class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
+    r"""Emission line flux map from a single Gaussian fit.
 
-    trait_type = 'line_map'
-    branches_versions = {("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component"): {"V02"}}
-    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={"1_comp": "V02"})
+    Documentation from SAMI Team here...
+
+    ##format: markdown
+    """
+
+
+    trait_type = 'line_emission_map'
+    branches_versions = {branch_lzifu_1_comp: {"V02"}}
+    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={branch_lzifu_1_comp[0]: "V02"})
 
     sub_traits = TraitRegistry()
-
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -893,30 +903,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
     }
 
     qualifiers = line_name_map.keys()
-
-    # def init(self):
-    #     data_product_name = "EmissionLineFits"
-    #
-    #     self._lzifu_fits_file = "/".join((
-    #         self.archive.vap_data_path,
-    #         data_product_name,
-    #         data_product_name + self.version,
-    #         self.branch,
-    #         self.object_id + "_" + self.branch + ".fits"))
-    #
-    #     log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
-    #
-    #     if not os.path.exists(self._lzifu_fits_file):
-    #         if os.path.exists(self._lzifu_fits_file + ".gz"):
-    #             self._lzifu_fits_file += ".gz"
-    #         else:
-    #             raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
-    #
-    # def preload(self):
-    #     self._hdu = fits.open(self._lzifu_fits_file)
-    #
-    # def cleanup(self):
-    #     self._hdu.close()
 
     @property
     def shape(self):
@@ -950,7 +936,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
             return self._parent_trait._wcs_string.value
 
 LZIFUOneComponentLineMap.set_pretty_name(
-    "Line Map",
+    "Line Emission Map",
     OII3729="[OII] (3729Å)",
     HBETA='Hβ',
     OIII5007='[OIII] (5007Å)',
@@ -961,11 +947,16 @@ LZIFUOneComponentLineMap.set_pretty_name(
     SII6731='[SII] (6731Å)')
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
+    r"""Emission line flux map from one to three Gaussian fits.
 
-    branches_versions ={('recom_comp', "LZIFU multi component", "LZIFU fits using up to three components"): {"V02"}}
+    Documentation from SAMI Team here...
+
+    ##format: markdown
+    """
+    branches_versions ={branch_lzifu_m_comp: {"V02"}}
 
     # Extends 'line_map', so no defaults:
-    defaults = DefaultsRegistry(None, {'recom_comp': 'V02'})
+    defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V02'})
 
     qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
 
@@ -978,46 +969,55 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
         log.debug("Returning type: %s", type(value))
         return value
+    value.set_description("Total Line Flux in all components")
 
     @trait_property('float.array')
     def variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
         variance = sigma**2
         return variance
+    value.set_description("Variance of Total Line Flux in all components")
 
     # 1-component
     @trait_property('float.array')
     def comp_1_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
         return value
+    value.set_description("Line Flux in narrowest component")
 
     @trait_property('float.array')
     def comp_1_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
         variance = sigma**2
         return variance
+    value.set_description("Variance of Line Flux in narrowest component")
 
     @trait_property('float.array')
     def comp_2_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[2, :, :]
         return value
+    value.set_description("Line Flux in middle-width component")
 
     @trait_property('float.array')
     def comp_2_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
         variance = sigma**2
         return variance
+    value.set_description("Variance of Line Flux in middle-width component")
 
     @trait_property('float.array')
     def comp_3_flux(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[3, :, :]
         return value
+    value.set_description("Line Flux in broadest component")
+
 
     @trait_property('float.array')
     def comp_3_variance(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
         variance = sigma**2
         return variance
+    value.set_description("Variance of Line Flux in broadest component")
 
     #
     # Sub Traits
@@ -1031,17 +1031,17 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
 
-LZIFURecommendedMultiComponentLineMap.set_pretty_name(
-    "Line Map",
-    OII3726="[OII] (3726Å)",
-    OII3729="[OII] (3729Å)",
-    HBETA='Hβ',
-    OIII5007='[OIII] (5007Å)',
-    OI6300='[OI] (6300Å)',
-    HALPHA='Hα',
-    NII6583='[NII] (6583Å)',
-    SII6716='[SII] (6716Å)',
-    SII6731='[SII] (6731Å)')
+# LZIFURecommendedMultiComponentLineMap.set_pretty_name(
+#     "Line Map",
+#     OII3726="[OII] (3726Å)",
+#     OII3729="[OII] (3729Å)",
+#     HBETA='Hβ',
+#     OIII5007='[OIII] (5007Å)',
+#     OI6300='[OI] (6300Å)',
+#     HALPHA='Hα',
+#     NII6583='[NII] (6583Å)',
+#     SII6716='[SII] (6716Å)',
+#     SII6731='[SII] (6731Å)')
 
 class LZIFUCombinedFit(SpectralMap):
 
@@ -1441,6 +1441,7 @@ class SAMIDR1PublicArchive(Archive):
                 fits_table.tolist(),
                 columns=map(lambda x: x.name, fits_table.columns))
             self.tabular_data['CATID'] = self.tabular_data['CATID'].astype(str)
+            self.tabular_data['name'] = self.tabular_data['name'].str.decode('utf8')
         self.tabular_data.set_index('CATID', inplace=True)
         log.debug("tabular_data columns: %s", self.tabular_data.columns)
 
@@ -1448,11 +1449,6 @@ class SAMIDR1PublicArchive(Archive):
         self._trait_cache = dict()
 
         super(SAMIDR1PublicArchive, self).__init__()
-
-    feature_catalog_data = [
-        TraitPath("mass"),
-        TraitPath("redshift")
-    ]
 
     def _find_cubes(self):
 
@@ -1536,6 +1532,16 @@ class SAMIDR1PublicArchive(Archive):
     def name(self):
         return 'SAMI'
 
+
+    feature_catalog_data = [
+        TraitPath("iau_id"),
+        # TraitPath("catalog_coordinate", trait_property='_ra'),
+        # TraitPath("catalog_coordinate", trait_property='_dec'),
+        TraitPath("redshift:helio"),
+        TraitPath("M_r-auto"),
+        TraitPath("mass")
+    ]
+
     def define_available_traits(self):
 
         # Trait 'spectral_cube'
@@ -1547,13 +1553,16 @@ class SAMIDR1PublicArchive(Archive):
         # /  `  /\   |   /\  |    /  \ / _`    |__) |__) /  \ |__) |__  |__)  |  | |__  /__`
         # \__, /~~\  |  /~~\ |___ \__/ \__>    |    |  \ \__/ |    |___ |  \  |  | |___ .__/
 
+        sami_gama_catalog_branch = ('sami_gama', 'SAMI-GAMA', 'SAMI-GAMA Target Catalog')
+
         # name (IAU Identifier)
         iau_name = catalog_trait(Measurement, 'iau_id',
                                 OrderedDict([('value', self.tabular_data['name'])]))
         iau_name.set_pretty_name(r"IAU Identifier")
         iau_name.set_description("IAU format object name")
-        # iau_name.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
+        iau_name.branches_versions = {('iau', "IAU Standard"): {"V02"}}
         self.available_traits.register(iau_name)
+        self.available_traits.change_defaults('iau_id', DefaultsRegistry(default_branch='iau'))
         del iau_name
 
         # RA and DEC
@@ -1562,31 +1571,37 @@ class SAMIDR1PublicArchive(Archive):
                                                ('_dec', self.tabular_data['Dec'])]))
         cat_coord.set_description("J2000 Right Ascension and Declination [InputCatv29 TilingCatv29 RA/DEC]")
         cat_coord.set_pretty_name("Catalog Coordinate")
+        cat_coord.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         self.available_traits.register(cat_coord)
         del cat_coord
+        self.available_traits.change_defaults('catalog_coordinate', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
         # r_petro
         r_petro = catalog_trait(Measurement, 'm_r-petrosian',
                                 OrderedDict([('value', self.tabular_data['r_petro']),
                                              ('unit', units.mag)]))
-        r_petro.set_pretty_name(r"$m_r$", petrosian="Petrosian")
+        r_petro.set_pretty_name(r"r-band Magnitude", petrosian="Petrosian")
         r_petro.set_description("Extinction-corrected SDSS DR7 Petrosian mag [InputCatv29 TilingCatv29 R_PETRO]")
-        # r_petro.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
+        r_petro.branches_versions = {('sdss_dr7', "SDSS DR7"): {"V02"}}
         self.available_traits.register(r_petro)
+        self.available_traits.change_defaults('m_r-petrosian', DefaultsRegistry(default_branch='sdss_dr7'))
         del r_petro
 
         # r_auto
         r_auto = catalog_trait(Measurement, 'm_r-auto',
                                 OrderedDict([('value', self.tabular_data['r_auto']),
                                              ('unit', units.mag)]))
-        r_auto.set_pretty_name(r"$m_r$", auto="Auto")
-        r_auto.set_description("Extinction-corrected Kron magnitude (r band) [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_R - A_r]")
+        r_auto.set_pretty_name(r"r-band Mag", auto="Auto")
+        r_auto.set_description("Extinction-corrected Kron magnitude (r band)")
         r_auto.set_documentation("""The magntidues in the GAMA table ApMatchedCatv03 are not extinction-corrected,
-                                    so we corrected them using extinction values from GalacticExtinctionv02""",
+                                    so we corrected them using extinction values from GalacticExtinctionv02.
+
+                                    Source: GAMA catalogs [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_R - A_r]""",
                                  format='markdown')
-        # r_auto.branches_versions = {('ApMatchedPhotomv03', "GAMA ApMatchedPhotomv03"): {"V02"}}
+        r_auto.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         self.available_traits.register(r_auto)
         del r_auto
+        self.available_traits.change_defaults('m_r-auto', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
         # z_helio
         redshift = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_helio'])]))
@@ -1597,7 +1612,7 @@ class SAMIDR1PublicArchive(Archive):
 
         # z_tonry
         redshift_tonry = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_tonry'])]))
-        # redshift_tonry.branches_versions = {('tonry', "Flow Corrected", "Flow corrected redshift using Tonry model"): {"V02"}}
+        redshift_tonry.branches_versions = {('tonry', "Flow Corrected", "Flow corrected redshift using Tonry model"): {"V02"}}
         redshift_tonry.set_description("Flow-corrected redshift using Tonry model [LocalFlowCorrectionv08 DistancesFramesv08 Z_TONRY]")
         redshift_tonry.set_documentation(
             r"""The GAMA source catalogue contains the following notes regarding
@@ -1622,10 +1637,10 @@ class SAMIDR1PublicArchive(Archive):
         r_abs = catalog_trait(Measurement, 'M_r-auto',
                                 OrderedDict([('value', self.tabular_data['M_r']),
                                              ('unit', units.mag)]))
-        r_abs.set_pretty_name("$M_r$", auto="Auto")
-        r_abs.set_description("Absolute magnitude in restframe r-band from SED fits [StellarMassesv08 absmag_r]")
+        r_abs.set_pretty_name(r"Absolute r-band Mag", auto="Auto")
+        r_abs.set_description(r"Absolute magnitude in restframe r-band from SED fits [StellarMassesv08 absmag_r]")
         r_abs.set_documentation(
-            """The GAMA source catalogue contains the following notes regarding
+            r"""The GAMA source catalogue contains the following notes regarding
             this column which must be taken into account before using $M_r$ for
             science analysis "The values in this table are based on aperture
             (AUTO) photometry, which may miss a significant fraction of a
@@ -1646,7 +1661,7 @@ class SAMIDR1PublicArchive(Archive):
                                          ('unit', units.arcsecond)]))
         r_e.branches_versions = {('central', "Central", "Surface Brightness within $1R_e$"): {"V02"}}
         r_e.defaults = DefaultsRegistry('central', {'central': "V02"})
-        r_e.set_pretty_name(r"$R_\textrm{eff}$")
+        r_e.set_pretty_name(r"Effective Radius")
         r_e.set_description(r"Effective radius in r-band (hl rad) (semi-major) [SersicPhotometryv07 SersicCatAllv07 GAL_RE_R]")
         self.available_traits.register(r_e)
         del r_e
@@ -1686,21 +1701,27 @@ class SAMIDR1PublicArchive(Archive):
         # ellip
         ellip = catalog_trait(MorphologicalMeasurement, 'ellipticy-r_band',
                               OrderedDict([('value', self.tabular_data['ellip'])]))  # type: MorphologicalMeasurement
-        # ellip.branches_versions = {('default', "default", ""): {"V02"}}
+        ellip.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         ellip.set_pretty_name("Ellipticity", r_band="r-band")
         ellip.set_description("Ellipticity from r-band Sersic fits [SersicPhotometryv07 SersicCatAllv07 GAL_ELLIP_R]")
         self.available_traits.register(ellip)
         del ellip
 
+        self.available_traits.change_defaults('ellipticy-r_band', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
         # pa
         pa = catalog_trait(MorphologicalMeasurement, 'position_angle-r_band',
                            OrderedDict([('value', self.tabular_data['PA']),
                                         ('unit', units.deg)]))  # type: MorphologicalMeasurement
-        # pa.branches_versions = {('default', "default", ""): {"V02"}}
+        pa.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         pa.set_pretty_name("Position Angle", r_band="r-band")
         pa.set_description("Position angle from r-band Sersic fits [SersicPhotometryv07 SersicCatAllv07 GAL_PA_R]")
         self.available_traits.register(pa)
         del pa
+
+        self.available_traits.change_defaults('position_angle-r_band', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
 
         # logmstar_proxy
         stellar_mass = catalog_trait(Measurement, 'mass',
@@ -1735,8 +1756,8 @@ class SAMIDR1PublicArchive(Archive):
 
         g_i = catalog_trait(Measurement, 'g_i',
                            OrderedDict([('value', self.tabular_data['g_i'])]))  # type: Measurement
-        # g_i.branches_versions = {('default', "default", ""): {"V02"}}
-        g_i.set_pretty_name(r"$g_i$")
+        g_i.branches_versions = {sami_gama_catalog_branch: {"V02"}}
+        g_i.set_pretty_name(r"Kron Colour")
         g_i.set_description(r"Kron colour (aperture-matched based on r-band), extinction corrected.")
         g_i.set_documentation(
             r"""Source: [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_G -MAG_AUTO_I -A_g +A_i]
@@ -1749,28 +1770,37 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(g_i)
         del g_i
 
-        A_g = catalog_trait(Measurement, 'A_g',
+        self.available_traits.change_defaults('g_i', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
+        A_g = catalog_trait(Measurement, 'A_gal-g_band',
                             OrderedDict([('value', self.tabular_data['A_g'])]))  # type: Measurement
-        # A_g.branches_versions = {('default', "default", ""): {"V02"}}
-        A_g.set_pretty_name("$A_g$")
+        A_g.branches_versions = {sami_gama_catalog_branch: {"V02"}}
+        A_g.set_pretty_name("Galactic extinction", g_band='g-band')
         A_g.set_description("Galactic extinction in SDSS g band.")
         A_g.set_documentation("""Source: [InputCatv29 GalacticExtinctionv02 A_g]""")
         self.available_traits.register(A_g)
         del A_g
 
+        self.available_traits.change_defaults('A_gal-g_band', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
         surv_sami = catalog_trait(Measurement, 'priority_class',
                             OrderedDict([('value', self.tabular_data['SURV_SAMI'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
-        # surv_sami.branches_versions = {('default', "default", ""): {"V02"}}
+        surv_sami.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         surv_sami.set_description("Sample priority class: primary = 8; high-mass fillers = 4; remaining fillers = 3.")
         # surv_sami.set_documentation("""""")
         self.available_traits.register(surv_sami)
         del surv_sami
 
+        self.available_traits.change_defaults('priority_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+
+
         bad_class = catalog_trait(Measurement, 'visual_class',
                             OrderedDict([('value', self.tabular_data['BAD_CLASS'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
-        # bad_class.branches_versions = {('default', "default", ""): {"V02"}}
+        bad_class.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         bad_class.set_description("Classification based on visual inspection (see Bryant et al. 2015).")
         bad_class.set_documentation(
             r"""The BAD_CLASS flag measures the visual classification as follows:
@@ -1794,9 +1824,14 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(bad_class)
         del bad_class
 
+        self.available_traits.change_defaults('visual_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
-        # LZIFU Items
+
+        #      __    ___          __       ___
+        # |     / | |__  |  |    |  \  /\   |   /\
+        # |___ /_ | |    \__/    |__/ /~~\  |  /~~\
+
 
         self.available_traits.register(LZIFUVelocityMap)
         self.available_traits.register(LZIFUVelocityDispersionMap)
@@ -1949,49 +1984,31 @@ class SAMITeamArchive(Archive):
 
 
 
-SAMISpectralCube.set_pretty_name("Spectral Map")
-SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy")
-
-# SAMISpectralCube.value.set_description
-# SAMISpectralCube.variance.set_description
-# SAMISpectralCube.covariance.set_description
-# SAMISpectralCube.weight.set_description
-# SAMISpectralCube.total_exposure.set_description
-# SAMISpectralCube.cubing_code_version.set_description
-# SAMISpectralCube.plate_id.set_description
-# SAMISpectralCube.plate_label.set_description
-
-# SAMISpectralCube.CatCoordinate.set_pretty_name()
-SAMISpectralCube.CatCoordinate.set_description("Catalog coordinate of the target centre of the SAMI fibre bundle.")
-
-SAMISpectralCube.AAT.altitude.set_description("Altitude of observatory in metres")
-SAMISpectralCube.AAT.latitude.set_description("Observatory latitude in degrees")
-SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees)")
 
 
 
-
-LZIFUOneComponentLineMap.set_pretty_name(
-    "Line Map",
-    OII3726="[OII] (33726A)",
-    HBETA='Hβ',
-    OIII5007='[OIII] (5007A)',
-    OI6300='[OI] (6300A)',
-    HALPHA='Hα',
-    NII6583='[NII] (6583)',
-    SII6716='[SII] (6716)',
-    SII6731='[SII] (6731)')
-
-LZIFURecommendedMultiComponentLineMap.set_pretty_name(
-    "Line Map",
-    OII3726="[OII] (3726Å)",
-    HBETA='Hβ',
-    OIII5007='[OIII] (5007Å)',
-    OI6300='[OI] (6300Å)',
-    HALPHA='Hα',
-    NII6583='[NII] (6583Å)',
-    SII6716='[SII] (6716Å)',
-    SII6731='[SII] (6731Å)')
+#
+# LZIFUOneComponentLineMap.set_pretty_name(
+#     "Line Map",
+#     OII3726="[OII] (33726A)",
+#     HBETA='Hβ',
+#     OIII5007='[OIII] (5007A)',
+#     OI6300='[OI] (6300A)',
+#     HALPHA='Hα',
+#     NII6583='[NII] (6583)',
+#     SII6716='[SII] (6716)',
+#     SII6731='[SII] (6731)')
+#
+# LZIFURecommendedMultiComponentLineMap.set_pretty_name(
+#     "Line Map",
+#     OII3726="[OII] (3726Å)",
+#     HBETA='Hβ',
+#     OIII5007='[OIII] (5007Å)',
+#     OI6300='[OI] (6300Å)',
+#     HALPHA='Hα',
+#     NII6583='[NII] (6583Å)',
+#     SII6716='[SII] (6716Å)',
+#     SII6731='[SII] (6731Å)')
 
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 SFRMap.set_pretty_name("Star Formation Rate Map")

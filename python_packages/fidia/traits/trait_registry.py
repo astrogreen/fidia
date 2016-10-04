@@ -4,6 +4,7 @@ from itertools import product
 # Internal package imports
 from .trait_key import TraitKey, validate_trait_name, validate_trait_type
 from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
+from .. import exceptions
 
 # Logging import and setup
 from .. import slogging
@@ -13,10 +14,11 @@ log.enable_console_logging()
 
 class TraitRegistry:
 
-    def __init__(self):
+    def __init__(self, branches_versions_required=False):
         self._registry = set()
         self._trait_lookup = dict()
-        self._trait_name_defaults = dict() # type: dict[str, DefaultsRegistry]
+        self._trait_name_defaults = dict()  # type: dict[str, DefaultsRegistry]
+        self.branches_versions_required = branches_versions_required
 
     def register(self, trait):
         log.debug("Registering Trait '%s'", trait)
@@ -35,7 +37,12 @@ class TraitRegistry:
 
         # Determine available branches:
         if trait.branches_versions is None:
-            branches = {None: [None]}
+            if self.branches_versions_required:
+                raise exceptions.TraitValidationError(
+                    "The Trait '%s' ('%s') must define at least one branch and one version." %
+                    (trait.__name__, trait.trait_type))
+            else:
+                branches = {None: [None]}
         else:
             branches = trait.branches_versions
 

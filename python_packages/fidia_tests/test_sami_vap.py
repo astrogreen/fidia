@@ -37,21 +37,21 @@ class TestSAMILZIFU:
         assert vmap.shape == (50, 50)
 
     def test_lzifu_ha_map(self, sami_sample):
-        themap = sami_sample['24433']['line_map', 'HALPHA']
+        themap = sami_sample['24433']['line_emission_map', 'HALPHA']
 
         assert isinstance(themap.value(), numpy.ndarray)
 
         assert themap.shape == (50, 50)
 
     def test_lzifu_ha_map_multicomponent(self, sami_sample):
-        themap = sami_sample['24433'][TraitKey('line_map', 'HALPHA', "recom_comp")]
+        themap = sami_sample['24433'][TraitKey('line_emission_map', 'HALPHA', "recom_comp")]
 
         assert hasattr(themap, 'comp_1_flux')
         assert hasattr(themap, 'variance')
 
     def test_wcs_on_both_branches(self, a_sami_galaxy):
 
-        for trait_key in a_sami_galaxy['line_map-HALPHA'].get_all_branches_versions():
+        for trait_key in a_sami_galaxy['line_emission_map-HALPHA'].get_all_branches_versions():
             trait = a_sami_galaxy[trait_key]
             wcs_sub_trait = trait['wcs']
             assert isinstance(wcs_sub_trait, WorldCoordinateSystem)
@@ -83,7 +83,7 @@ class TestSAMILZIFU:
     #     assert themap.shape == (2048, 50, 50)
 
     def test_lzifu_wcs(self, a_sami_galaxy):
-        a_sami_galaxy['line_map', 'HALPHA'].get_sub_trait(TraitKey('wcs'))
+        a_sami_galaxy['line_emission_map', 'HALPHA'].get_sub_trait(TraitKey('wcs'))
 
 class TestSAMISFRmaps:
 
@@ -93,9 +93,9 @@ class TestSAMISFRmaps:
 
         assert isinstance(a_sami_galaxy['sfr_map'].value(), numpy.ndarray)
 
-        assert isinstance(a_sami_galaxy['sfr_map'].variance(), numpy.ndarray)
+        assert isinstance(a_sami_galaxy['sfr_map'].error(), numpy.ndarray)
 
-        assert a_sami_galaxy['sfr_map'].value().shape == a_sami_galaxy['sfr_map'].variance().shape
+        assert a_sami_galaxy['sfr_map'].value().shape == a_sami_galaxy['sfr_map'].error().shape
 
 
 
