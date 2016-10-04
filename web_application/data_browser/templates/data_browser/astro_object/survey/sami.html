@@ -12,7 +12,7 @@
     <!--</div>-->
 </div>
 <div class="row">
-    {% with response.data.traits.velocity_map.traits.velocity_map as trait_path %}
+    {% with response.data.traits.velocity_map.traits|key:'velocity_map-ionized_gas' as trait_path %}
     <div class="col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -47,6 +47,7 @@
         });
     </script>
     {% endwith %}
+
     {% with response.data.traits.sfr_map.traits.sfr_map as trait_path %}
     <div class="col-sm-6 col-xs-12">
         <div class="panel panel-default">
