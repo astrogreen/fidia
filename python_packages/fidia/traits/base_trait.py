@@ -223,6 +223,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             schema['trait_type'] = cls.trait_type
             # schema['branches_versions'] = cls.branches_versions
 
+            # Available export formats (see ASVO-695)
+            schema['export_formats'] = cls.get_available_export_formats()
+
         # Add description information for this trait to the schema if requested
         if verbosity == 'descriptions':
             cls.copy_descriptions_to_dictionary(schema)
@@ -746,15 +749,39 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             pickle.dump(dict_to_serialize, byte_file)
             return byte_file.getvalue()
 
+    @classmethod
+    def get_available_export_formats(cls):
+        export_formats = []
+        if hasattr(cls, 'as_fits'):
+            export_formats.append("FITS")
+        return export_formats
+
+    #      ___          ___         ___            __  ___    __        __
+    # |  |  |  | |    |  |  \ /    |__  |  | |\ | /  `  |  | /  \ |\ | /__`
+    # \__/  |  | |___ |  |   |     |    \__/ | \| \__,  |  | \__/ | \| .__/
+    #
+    # Functions to augment behaviour in Python
 
     def __getitem__(self, key):
         # type: (TraitKey) -> Trait
         """Provide dictionary-like retrieve of sub-traits"""
         return self.get_sub_trait(key)
 
+    def __str__(self):
+        return "<Trait class '{classname}': {trait_type}>".format(classname=self.__name__, trait_type=self.trait_type)
 
-# class FITSExportMixin:
-#     """A Trait Mixin class which adds FITS Export to the export options for a Trait."""
+
+#  __       ___          ___      __   __   __  ___                        __
+# |  \  /\   |   /\     |__  \_/ |__) /  \ |__)  |      |\/| | \_/ | |\ | /__`
+# |__/ /~~\  |  /~~\    |___ / \ |    \__/ |  \  |      |  | | / \ | | \| .__/
+#
+# Mixin classes to handle various special kinds of data export.
+#
+# These are provided as mix-in classes because they may not be appropriate to any/all Traits.
+
+
+class FITSExportMixin:
+    """A Trait Mixin class which adds FITS Export to the export options for a Trait."""
 
     def as_fits(self, file):
         """FITS Exporter
