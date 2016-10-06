@@ -3,7 +3,7 @@ import random, collections, logging, json, requests, zipfile, io
 import django.core.exceptions
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.views.generic import View
 
 from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
@@ -27,6 +27,8 @@ import data_browser.helpers
 import fidia.exceptions
 from fidia.traits import Trait, TraitProperty, TraitKey
 from fidia import traits
+
+import fidia_tarfile_helper
 
 log = logging.getLogger(__name__)
 
@@ -105,7 +107,29 @@ class Download(View):
 
     def post(self, request, *args, **kwargs):
         print(request.POST)
-        return HttpResponse('This is POST request')
+
+
+        trait_path_list = [
+            {'sample': 'SAMI',
+             'object_id': '9352',
+             'trait_path': [
+                 "velocity_map-ionized_gas"
+             ]},
+            {'sample': 'SAMI',
+             'object_id': '9352',
+             'trait_path': [
+                 "velocity_dispersion_map-ionized_gas"
+             ]}
+            # {'sample': 'SAMI',
+            #  'object_id': '24433',
+            #  'trait_path': [
+            #      "spectral_cube-blue"
+            #  ]}
+        ]
+
+        tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+
+        return StreamingHttpResponse(tar_stream, content_type='application/gzip')
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
