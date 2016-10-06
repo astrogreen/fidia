@@ -812,11 +812,14 @@ class FITSExportMixin:
         try:
             wcs_smarttrait = self['wcs']
         except KeyError:
+            log.debug("No WCS information available for export to FITS in Trait %s", self)
             def add_wcs(hdu):
+                # type: (fits.PrimaryHDU) -> fits.PrimaryHDU
                 return hdu
         else:
             def add_wcs(hdu):
                 # type: (fits.PrimaryHDU) -> fits.PrimaryHDU
+                log.debug("Adding WCS information to extension %s", hdu)
                 hdu.header.extend(wcs_smarttrait.to_header())
                 return hdu
 
