@@ -15,6 +15,7 @@ console.log('availableproducts.controllers.js');
         ctrl.temporary = {};
 
         // Set these on scope to allow two-way data binding
+        $scope.data_received = false;
         $scope.availabledata = {};
         $scope.selection = {};
         $scope.download = {};
@@ -32,11 +33,10 @@ console.log('availableproducts.controllers.js');
                 $scope.availabledata[survey] = {};
                 AvailableProductsService.getProducts(url).then(function (data) {
                     // Go through the data and add a selected property to each trait
-                    console.log(data);
 
                     angular.forEach(data.schema_non_catalog.trait_types, function(trait_type_value, trait_type_key){
-
-                        console.log('---'+trait_type_key+'---');
+                        $scope.data_received = true;
+                        // console.log('---'+trait_type_key+'---');
 
                         angular.forEach(trait_type_value.trait_qualifiers, function(trait_qualifier_value, trait_qualifier_key){
                             // console.log('-'+trait_qualifier_key+'-');

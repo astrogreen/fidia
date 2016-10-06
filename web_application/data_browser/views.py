@@ -79,18 +79,10 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         )
         return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, pk=None, sample_pk=None, *args, **kwargs):
         print(request.data)
-        return Response({'data': 'test'}, status=status.HTTP_201_CREATED)
+        return HttpResponse('This is POST request')
 
-#
-# class Download(View):
-#     def get(self, request, *args, **kwargs):
-#         return HttpResponse('This is GET request')
-#
-#     def post(self, request, *args, **kwargs):
-#         print(request.POST)
-#         return HttpResponse('This is POST request')
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

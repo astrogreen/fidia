@@ -260,20 +260,17 @@
                     </div>
                     <div class="col-xs-12">
                         {% if post_form %}
-                            <div class="tab-pane" id="post-object-form">
-                              {% with form=post_form %}
-                                <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
-                                  <fieldset>
+                        <div class="" id="post-object-form">
+                            {% with form=post_form %}
+                            <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" style="visibility: hidden" class="form-horizontal" novalidate>
+                                <fieldset>
                                     {% csrf_token %}
                                     {{ post_form }}
-                                    <div class="form-actions">
-                                      <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
-                                    </div>
-                                  </fieldset>
-                                </form>
-                              {% endwith %}
-                            </div>
-                          {% endif %}
+                                </fieldset>
+                            </form>
+                            {% endwith %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -679,6 +676,8 @@
     };
 {% endautoescape %}
 
+    // add an id to the download form
+    $('#post-object-form').find('textarea[name=download]').attr('id','textarea-download');
 
     // move this over to the hidden field (same as query builder)
     $('#download_button').click(function(){
@@ -693,6 +692,28 @@
             // console.log("received " + data_download);
         });
     })
+
+    $('#download_button').click(function () {
+
+        var data_download = {
+            'products': $(event.target).attr("data-products"),
+            'objects': $(event.target).attr("data-objects")
+        };
+
+        // SEND SQL TO FORM TEXT AREA
+        $(this).attr('disabled', 'disabled');
+        $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
+
+        // Use browsers parser to strip html tags etc.
+        // jQuery .text()
+        var valid_sql = $('#output-SQL').text();
+
+        $('#textarea-download').val(data_download);
+
+        setTimeout(function () {
+            $('#post-object-form form').submit();
+        }, 1000);
+    });
 
 
 </script>

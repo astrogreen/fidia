@@ -3,9 +3,6 @@
         <p>{{apctrl.text}}</p>
     </div>
 </div>
-<span class="sub-headling" ng-if="availabledata | isEmpty">Fetching available data products, please wait ...
-    <i class="fa fa-refresh fa-spin"></i>
-</span>
 
 <!-- Nav tabs -->
 <div class="helper step step1" ng-if="!apctrl.single">Select a survey tab to view the available data products.</div>
@@ -25,8 +22,13 @@
                     <div class="row">
                         <div class="col-xs-12 schema">
                             <div class="helper step step1" >Select a type of data product from the list below.</div>
-                            <span ng-if="!traits" class="p"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i> Loading...</span>
-                        <!-- Level1 -->
+                            <div class="panel panel-default warning" ng-if="!data_received">
+                                <div class="panel-body"><strong class="text-uppercase">in progress</strong>
+                                    <p>Fetching available data products, please wait ...
+                                        <i class="fa fa-refresh fa-spin"></i></p>
+                                </div>
+                            </div>
+                            <!-- Level1 -->
                             <ul class="nav nav-pills" id="{{survey}}_trait_type_key">
                                 <li role="presentation" ng-repeat="(trait_type_key, trait_type_value) in traits" ng-class='{active:$first}'>
                                     <a href="#{{survey}}_{{trait_type_key}}" aria-controls="{{trait_type_key}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
@@ -102,7 +104,7 @@
                                                                 <label for="{{trait_version_value.trait_key}}">
                                                                     <i class="fa fa-map-pin"></i>
                                                                     {{trait_version_value.pretty_name}} <span class="tiny sub-heading">{{trait_version_value.trait_key}}</span>
-                                                                    {{trait_version_value.trait.export_formats}}
+                                                                    <!--{{trait_version_value.trait.export_formats}}-->
                                                                 </label>
                                                                 <!--&nbsp; &nbsp;<a href="{{branch_value.url}}" target="_blank">Docs</a>-->
                                                             </div>
@@ -139,9 +141,9 @@
                                        class="sub-heading"
                                        type="button" class="btn btn-default"><i class="fa fa-info-circle"></i>
                                     </a>
-                                    <a role="button" ng-click="apctrl.emptyList()" class="tiny pull-right sub-heading" style="margin-top:3px;">remove all</a></div>
+                                    <a role="button" ng-click="apctrl.emptyList()" class="tiny pull-right sub-heading" style="margin-top:3px;">remove all</a>
                                 </small>
-
+                            </div>
                             <div class="panel-body fixed-panel">
                                 <div ng-if="selection | isEmpty">
                                     <p class="sub-heading">You've not added any data products. Follow the prompts to get
