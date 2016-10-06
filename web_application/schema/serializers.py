@@ -49,9 +49,21 @@ class SurveySerializer(serializers.Serializer):
         schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True)
         return schema
 
+    def get_schema_catalog(self, obj):
+        schema_catalog = obj.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
+                                 verbosity='descriptions', separate_metadata=True)
+        return schema_catalog
+
+    def get_schema_non_catalog(self, obj):
+        schema_non_catalog = obj.full_schema(include_subtraits=True, data_class='non-catalog', combine_levels=None,
+                                 verbosity='descriptions', separate_metadata=True)
+        return schema_non_catalog
+
     sample = serializers.SerializerMethodField()
 
     schema = serializers.SerializerMethodField()
+    schema_catalog = serializers.SerializerMethodField()
+    schema_non_catalog = serializers.SerializerMethodField()
 
 
 class SampleSerializer(serializers.Serializer):
