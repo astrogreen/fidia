@@ -94,7 +94,7 @@
                     <span class="panel-title">SDSS</span>
                 </div>
                 <div class="panel-body">
-                    <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                    <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
                          alt="..." class="img-responsive">
                     <br>
                     <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
@@ -125,26 +125,28 @@
                 <div role="tabpanel" class="tab-pane active" id="overview">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <span class="panel-title">Object Properties</span>
+                            <span class="panel-title">Object Properties
+                            <small class="pull-right sub-heading">scroll for more <i class="fa fa-arrows-h"></i></small>
+                            </span>
                         </div>
                         <div class="table-responsive">
                             <table class="table">
                                 <tbody>
 
                                 <tr class="sub-heading">
-                                    <td>Survey ID</td>
-                                    <td>RA</td>
-                                    <td>DEC</td>
+                                    <td style="vertical-align:bottom">Survey ID</td>
+                                    <td style="vertical-align:bottom">RA</td>
+                                    <td style="vertical-align:bottom">DEC</td>
                                     {% for f in response.data.feature_catalog_data %}
-                                    <td>{{f.pretty_name}}</td>
+                                    <td style="vertical-align:bottom">{{f.pretty_name}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <td class="lead">{{response.data.astro_object}}</td>
-                                    <td>-</td>
-                                    <td>-</td>
+                                    <td class="lead" style="vertical-align:middle">{{response.data.astro_object}}</td>
+                                    <td style="vertical-align:middle">{{response.data.position.ra}}</td>
+                                    <td style="vertical-align:middle">{{response.data.position.dec}}</td>
                                     {% for f in response.data.feature_catalog_data %}
-                                    <td>{{f.value}}</td>
+                                    <td style="vertical-align:middle">{{f.value}}</td>
                                     {% endfor %}
                                 </tr>
                                 </tbody>

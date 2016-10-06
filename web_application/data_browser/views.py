@@ -298,7 +298,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                                                                 "description": trait_name_short_description,
                                                                 "branches": trait_name_branches,
                                                                 "formats": trait_name_formats}
-
+        position = {'ra':astro_object.ra, 'dec':astro_object.dec}
         serializer = serializer_class(
             instance=astro_object, many=False,
             context={
@@ -306,7 +306,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'astro_object': astroobject_pk,
                 'request': request,
                 'traits': trait_info,
-                'feature_catalog_data':astro_object.get_feature_catalog_data()
+                'feature_catalog_data':astro_object.get_feature_catalog_data(),
+                'position': position
             }
         )
         return Response(serializer.data)
