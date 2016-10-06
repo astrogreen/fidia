@@ -768,7 +768,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         return self.get_sub_trait(key)
 
     def __str__(self):
-        return "<Trait class '{classname}': {trait_type}>".format(classname=self.__name__, trait_type=self.trait_type)
+        return "<Trait class '{classname}': {trait_type}>".format(classname=self.__class__.__name__, trait_type=self.trait_type)
 
 
 #  __       ___          ___      __   __   __  ___                        __
@@ -848,13 +848,19 @@ class FITSExportMixin:
             # be appended individually, so we iterate over each Trait's
             # TraitProperties
             for trait_property in sub_trait.trait_properties(['float', 'int', 'string']):
-                keyword_name = trait_property.get_short_name()
-                keyword_value = trait_property.value
-                keyword_comment = trait_property.get_description()
-                log.debug("Adding metadata TraitProperty '%s' to header", keyword_name)
-                primary_hdu.header[keyword_name] = (
-                    keyword_value,
-                    keyword_comment)
+                try:
+                    keyword_name = trait_property.get_short_name()
+                    keyword_value = trait_property.value
+                    keyword_comment = trait_property.get_description()
+                    log.debug("Adding metadata TraitProperty '%s' to header", keyword_name)
+                    primary_hdu.header[keyword_name] = (
+                        keyword_value,
+                        keyword_comment)
+                    del keyword_name, keyword_value, keyword_comment
+                except DataNotAvailable:
+                    log.warning(
+                        "Trait Property '%s' not added to FITS file because it's data is not available.",
+                        trait_property)
 
         # Attach all simple value Traits to header of Primary HDU:
         # for trait in self.get_sub_trait(Measurement):
@@ -863,37 +869,57 @@ class FITSExportMixin:
 
         # Create extensions for additional array-like values
         for trait_property in self.trait_properties(['float.array', 'int.array']):
-            extension = fits.ImageHDU(trait_property.value)
-            extension.name = trait_property.get_short_name()
-            # Add the same WCS if appropriate
-            add_wcs(extension)
-            hdulist.append(extension)
+            if trait_property.name == 'value':
+                continue
+            try:
+                extension = fits.ImageHDU(trait_property.value)
+                extension.name = trait_property.get_short_name()
+                # Add the same WCS if appropriate
+                add_wcs(extension)
+                hdulist.append(extension)
+                del extension
+            except DataNotAvailable:
+                log.warning(
+                    "Trait Property '%s' not added to FITS file because it's data is not available.",
+                    trait_property)
 
         # Add single-numeric-value TraitProperties to the primary header:
         for trait_property in self.trait_properties(['float', 'int']):
-            keyword_name = trait_property.get_short_name()
-            keyword_value = trait_property.value
-            keyword_comment = trait_property.get_description()
-            log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
-            primary_hdu.header[keyword_name] = (
-                keyword_value,
-                keyword_comment)
-        # del keyword_name, keyword_comment, keyword_value
+            try:
+                keyword_name = trait_property.get_short_name()
+                keyword_value = trait_property.value
+                keyword_comment = trait_property.get_description()
+                log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
+                primary_hdu.header[keyword_name] = (
+                    keyword_value,
+                    keyword_comment)
+                del keyword_name, keyword_comment, keyword_value
+            except DataNotAvailable:
+                log.warning(
+                    "Trait Property '%s' not added to FITS file because it's data is not available.",
+                    trait_property)
 
         # Add string value TraitProperties to the primary header
         for trait_property in self.trait_properties(['string']):
-            keyword_name = trait_property.get_short_name()
-            keyword_value = trait_property.value
-            keyword_comment = trait_property.get_description()
-            if len(keyword_value) >= 80:
-                # This value won't fit, so skip it.
-                # @TODO: Issue a warning?
-                log.warning("TraitProperty '%s' skipped because it is to long to fit in header", trait_property)
-                continue
-            log.debug("Adding string TraitProperty '%s' to header", keyword_name)
-            primary_hdu.header[keyword_name] = (
-                keyword_value,
-                keyword_comment)
+            try:
+                keyword_name = trait_property.get_short_name()
+                keyword_value = trait_property.value
+                keyword_comment = trait_property.get_description()
+                if len(keyword_value) >= 80:
+                    # This value won't fit, so skip it.
+                    # @TODO: Issue a warning?
+                    log.warning("TraitProperty '%s' skipped because it is to long to fit in header", trait_property)
+                    continue
+                log.debug("Adding string TraitProperty '%s' to header", keyword_name)
+                primary_hdu.header[keyword_name] = (
+                    keyword_value,
+                    keyword_comment)
+                del keyword_name, keyword_comment, keyword_value
+            except DataNotAvailable:
+                log.warning(
+                    "Trait Property '%s' not added to FITS file because it's data is not available.",
+                    trait_property)
+
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
         # for trait_property in self.trait_property_values('catalog'):

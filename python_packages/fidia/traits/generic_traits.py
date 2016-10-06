@@ -135,7 +135,7 @@ class Image(Map2D):
         return self.value.value.shape
 
 
-class SpectralMap(Trait, AbstractBaseArrayTrait):
+class SpectralMap(Trait, AbstractBaseArrayTrait, FITSExportMixin):
     """
 
     Required trait_properties:
