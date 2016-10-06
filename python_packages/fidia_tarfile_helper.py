@@ -19,6 +19,12 @@ log.setLevel(logging.DEBUG)
 import fidia
 import fidia.traits as traits
 
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.2f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.2f%s%s" % (num, 'Yi', suffix)
 
 def format_trait_path_as_path(trait_key, include_branch_version=False):
     # type: (Union[TraitKey, str], bool) -> str
@@ -104,10 +110,11 @@ def fits_file_generator(sample, trait_path_list):
         ti = tarfile.TarInfo(filename)
         ti.size = len(fits_file.getbuffer())
 
-        log.debug("Size of file '%s' to be added to tar: '%s'" % (filename, ti.size))
+        log.debug("Size of file '%s' to be added to tar: %s (%s)" % (filename, ti.size, sizeof_fmt(ti.size)))
         yield (ti, fits_file)
 
 def streaming_targz_generator(tar_info_generator, stream_buffer):
+    # type: (list[(tarfile.TarInfo, BytesIO)], StreamBuffer) -> None
     """Generator which takes the output of a tar_info_generator and writes it as a Tar File to the stream_buffer"""
 
     assert isinstance(stream_buffer, StreamBuffer)
@@ -117,6 +124,10 @@ def streaming_targz_generator(tar_info_generator, stream_buffer):
     for tar_info, fileobj in tar_info_generator:
 
         tar_file.addfile(tar_info, fileobj)
+
+        assert isinstance(tar_info, tarfile.TarInfo)
+
+        log.info("File '%s' in tar ready to stream.", tar_info.name)
 
         yield stream_buffer.retrieve_and_clear()
 
@@ -135,8 +146,10 @@ def fidia_tar_file_generator(sample, trait_path_list):
     fits_generator = fits_file_generator(sample, trait_path_list)
     tar_generator = streaming_targz_generator(fits_generator, stream_buffer)
 
-    response = Streaming(tar_generator, "example.tar.gz")
-    return response
+    return tar_generator
+
+    # response = Streaming(tar_generator, "example.tar.gz")
+    # return response
 
 
 
@@ -181,13 +194,14 @@ class StreamBuffer(object):
             self._offset += len(value)
             if log.isEnabledFor(logging.DEBUG):
                 # log.debug("New Bytes Received: '%s'", value)
-                log.debug("Total bytes received: %s" % self._offset)
+                log.debug("Total bytes received: %s (%s)", self._offset, sizeof_fmt(self._offset))
         else:
             log.debug("Write called with no data.")
 
     def retrieve(self):
         """Retrieve the outstanding contents of the buffer (i.e. that which has not been handled)"""
         if len(self._storage) > 0:
+            log.debug("Sending %s bytes", len(self._storage))
             self._contents_retrieved = True
         return self._storage
 
@@ -210,6 +224,7 @@ class StreamBuffer(object):
     def close(self):
         if self._contents_retrieved or len(self._storage) == 0:
             # Okay to close. Delete remaining contents
+            log.info("Closing StreamBuffer correctly.")
             self.clear()
         else:
             raise BufferError("Attempt to close StreamBuffer which still contains data.")

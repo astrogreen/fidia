@@ -18,8 +18,14 @@ ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test
 
 sample = ar.get_full_sample()
 
-sfrmap = sample['9352']['sfr_map']
+# sfrmap = sample['9352']['sfr_map']
+#
+# cube = sample['24433']['spectral_map-red']
 
-cube = sample['24433']['spectral_cube-red']
+velmap = sample['9352']['velocity_map-ionized_gas']
 
-ao = sample['9352']
+velmap.as_fits("9352_velmap.fits")
+
+specfit = sample['9352']['spectral_fit_cube-red']
+
+specfit.as_fits("9352_specfit.fits")

@@ -15,6 +15,7 @@ console.log('availableproducts.controllers.js');
         ctrl.temporary = {};
 
         // Set these on scope to allow two-way data binding
+        $scope.data_received = false;
         $scope.availabledata = {};
         $scope.selection = {};
         $scope.download = {};
@@ -33,8 +34,8 @@ console.log('availableproducts.controllers.js');
                 AvailableProductsService.getProducts(url).then(function (data) {
                     // Go through the data and add a selected property to each trait
 
-                    angular.forEach(data.schema.trait_types, function(trait_type_value, trait_type_key){
-
+                    angular.forEach(data.schema_non_catalog.trait_types, function(trait_type_value, trait_type_key){
+                        $scope.data_received = true;
                         // console.log('---'+trait_type_key+'---');
 
                         angular.forEach(trait_type_value.trait_qualifiers, function(trait_qualifier_value, trait_qualifier_key){
@@ -61,7 +62,7 @@ console.log('availableproducts.controllers.js');
                         });
                     });
                     // availabledata["sami"] = object containing schema with :selected: attribute on branch + version
-                    $scope.availabledata[survey] = data.schema.trait_types;
+                    $scope.availabledata[survey] = data.schema_non_catalog.trait_types;
 
                 }).catch(function () {
                     ctrl.error = true;
@@ -113,7 +114,7 @@ console.log('availableproducts.controllers.js');
                     });
                 });
             });
-            $('#download_button').attr('data-products', $scope.download)
+            $('#download_button').attr('data-products', angular.toJson($scope.download))
         }, true);
 
         ctrl.uncheckProduct = function(survey, trait_key_arr) {

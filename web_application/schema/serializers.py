@@ -37,21 +37,27 @@ class SurveySerializer(serializers.Serializer):
 
     def get_sample(self, obj):
         return self.context['sample']
-    #
-    # def get_available_traits(self, obj):
-    #     return self.context['available_traits']
-
-    # def get_survey_registry(self, obj):
-    #     return self.context['survey_registry']
 
     def get_schema(self, obj):
         # type: (Archive) -> dict
         schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True)
         return schema
 
+    def get_schema_catalog(self, obj):
+        schema_catalog = obj.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
+                                 verbosity='descriptions', separate_metadata=True)
+        return schema_catalog
+
+    def get_schema_non_catalog(self, obj):
+        schema_non_catalog = obj.full_schema(include_subtraits=True, data_class='non-catalog', combine_levels=None,
+                                 verbosity='descriptions', separate_metadata=True)
+        return schema_non_catalog
+
     sample = serializers.SerializerMethodField()
 
     schema = serializers.SerializerMethodField()
+    schema_catalog = serializers.SerializerMethodField()
+    schema_non_catalog = serializers.SerializerMethodField()
 
 
 class SampleSerializer(serializers.Serializer):

@@ -180,6 +180,44 @@ class TestSAMIArchiveSchema:
     def test_cube_wcs_in_schema(self, schema):
         schema['spectral_cube']['red']['wcs']
 
+    def test_catalog_only_schema(self, sami_archive):
+        # type: (sami.SAMIDR1PublicArchive) -> None
+        """Test that there are no "empty" non-catalog Traits in the catalog-only schema.
+
+        Note: This should really be a test on FIDIA generally, but SAMI is the priority at the moment.
+        """
+
+        schema_names = ['data_only', 'metadata', 'descriptions', 'simple']
+
+        for schema_name in schema_names:
+            print(schema_name)
+            schema = sami_archive.full_schema(
+                data_class='catalog', verbosity=schema_name, separate_metadata=True)
+
+            print(schema.keys())
+            assert "extinction_map" not in schema['trait_types'].keys()
+            assert "position_angle" in schema['trait_types'].keys()
+
+
+
+    def test_noncatalog_only_schema(self, sami_archive):
+        # type: (sami.SAMIDR1PublicArchive) -> None
+        """Test that there are no "empty" catalog Traits in the non-catalog-only schema.
+
+        Note: This should really be a test on FIDIA generally, but SAMI is the priority at the moment.
+        """
+
+        schema_names = ['data_only', 'metadata', 'descriptions', 'simple']
+
+        for schema_name in schema_names:
+            print(schema_name)
+            schema = sami_archive.full_schema(
+                data_class='non-catalog', verbosity=schema_name, separate_metadata=True)
+
+            print(schema.keys())
+            assert "extinction_map" in schema['trait_types'].keys()
+            assert "position_angle" not in schema['trait_types'].keys()
+
 class TestSAMIArchiveMetadata:
 
     def test_telescope_metadata(self, a_sami_galaxy):
