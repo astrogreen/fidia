@@ -113,7 +113,7 @@ console.log('availableproducts.controllers.js');
                     });
                 });
             });
-            $('#download_button').attr('data-products', $scope.download)
+            $('#download_button').attr('data-products', angular.toJson($scope.download))
         }, true);
 
         ctrl.uncheckProduct = function(survey, trait_key_arr) {
