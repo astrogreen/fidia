@@ -24,6 +24,8 @@ import pandas as pd
 from .astro_object import AstronomicalObject
 from .archive.base_archive import BaseArchive
 
+from . import traits
+
 from .exceptions import *
 
 
@@ -50,6 +52,7 @@ class Sample(collections.MutableMapping):
 
         # Set of archives this object is attached to:
         self._archives = set()  # type: set[Archive]
+        self._primary_archive = None
 
         # The archive which recieves write requests
         self._write_archive = None
@@ -76,7 +79,16 @@ class Sample(collections.MutableMapping):
         elif key in self._id_cross_matches.index:
             # The request object exists in the archive, but has not been created for this sample.
             # TODO: Move the following line to it's own function and expand.
-            self._contents[key] = AstronomicalObject(self, identifier=key)
+            # Check if the primary archive has catalog_coordinates, and if so get the RA and DEC
+            coord_key = traits.TraitKey("catalog_coordinate")
+            if self._primary_archive.can_provide(coord_key):
+                coord = self._primary_archive.get_trait(key, coord_key)
+                ra = coord.ra
+                dec = coord.dec
+            else:
+                ra = None
+                dec = None
+            self._contents[key] = AstronomicalObject(self, identifier=key, ra=ra, dec=dec)
             return self._contents[key]
         elif self.read_only:
             # The requested object is unknown, and we're not allowed to create a new one.
