@@ -145,6 +145,7 @@ class Sample(collections.MutableMapping):
         trait_paths = []  # type: list[TraitPath]
 
         for archive in self._archives:
+            # TODO: This code won't support more than one archive!
             data_table = []
             for id in self:
                 row = [id]
