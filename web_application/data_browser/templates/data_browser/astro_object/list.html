@@ -137,7 +137,7 @@
                                     <td style="vertical-align:bottom">Survey ID</td>
                                     <td style="vertical-align:bottom">RA</td>
                                     <td style="vertical-align:bottom">DEC</td>
-                                    {% for f in response.data.feature_catalog_data %}
+                                    {% for f in feature_catalog_data %}
                                     <td style="vertical-align:bottom">{{f.pretty_name}}</td>
                                     {% endfor %}
                                 </tr>
@@ -145,7 +145,7 @@
                                     <td class="lead" style="vertical-align:middle">{{response.data.astro_object}}</td>
                                     <td style="vertical-align:middle">{{response.data.position.ra}}</td>
                                     <td style="vertical-align:middle">{{response.data.position.dec}}</td>
-                                    {% for f in response.data.feature_catalog_data %}
+                                    {% for f in feature_catalog_data %}
                                     <td style="vertical-align:middle">{{f.value}}</td>
                                     {% endfor %}
                                 </tr>

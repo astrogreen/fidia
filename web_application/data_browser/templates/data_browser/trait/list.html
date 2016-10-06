@@ -76,7 +76,7 @@
 
             <h5>Quick Links</h5>
             <ul class="nav-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key|key:0}}{% if response.data.trait_key|key:1 %}-{{response.data.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
                 {% if breadcrumblist %}
 

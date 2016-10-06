@@ -102,13 +102,10 @@ class AstroObjectSerializer(data_browser.mixins.AstronomicalObjectAttributesMixi
     def get_traits(self, obj):
         return self.context['traits']
 
-    def get_feature_catalog_data(self, obj):
-        return self.context['feature_catalog_data']
 
     def get_position(self, obj):
         return self.context['position']
 
-    feature_catalog_data = serializers.SerializerMethodField()
     traits = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
 

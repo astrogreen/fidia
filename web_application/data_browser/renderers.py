@@ -63,6 +63,7 @@ class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
     def get_context(self, data, accepted_media_type, renderer_context):
         context = super().get_context(data, accepted_media_type, renderer_context)
         context['traits_to_render'] = {"sami": ['velocity_map', 'sfr_map']}
+        context['feature_catalog_data'] = renderer_context['view'].feature_catalog_data
 
         return context
 

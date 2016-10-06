@@ -167,7 +167,6 @@
             </li>
             <li role="presentation"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Object</a>
             </li>
-
         </ul>
 
         <!-- Tab panes -->
@@ -221,6 +220,8 @@
 
 
                 <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
+                <p>Download data products for the {{survey|uppercase}} survey objects selected above. To access data via a command line interface, read the documentation on <a href="{% url 'documentation:article-detail' slug='restful-api-bulk-data-downloads' %}">bulk data download</a>.</p>
+                <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
                 <div class="panel panel-default success ">
                     <div class="panel-body">
                         <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
@@ -228,10 +229,7 @@
                     </div>
                 </div>
                 <div class="row">
-
                     <div class="col-xs-12">
-                        <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
-
                         <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
                         <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
                         <div class="row">
