@@ -37,12 +37,6 @@ class SurveySerializer(serializers.Serializer):
 
     def get_sample(self, obj):
         return self.context['sample']
-    #
-    # def get_available_traits(self, obj):
-    #     return self.context['available_traits']
-
-    # def get_survey_registry(self, obj):
-    #     return self.context['survey_registry']
 
     def get_schema(self, obj):
         # type: (Archive) -> dict

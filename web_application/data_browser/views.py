@@ -54,13 +54,14 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
-class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
     """
     Viewset for Sample route. Provides List view only.
     """
 
     renderer_classes = (data_browser.renderers.SampleRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
+    serializer_class = data_browser.serializers.DownloadSerializer
 
     def list(self, request, pk=None, sample_pk=None, format=None, extra_keyword=None):
 
@@ -81,6 +82,9 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
         return Response(serializer.data)
 
+    def create(self, request, pk=None, sample_pk=None, *args, **kwargs):
+        print(request.data)
+        return HttpResponse('This is POST request')
 
 # class Download(views.APIView):
 #     """ Viewset for DataBrowser API root. List View only. """
@@ -274,6 +278,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'astro_object': astroobject_pk,
                 'request': request,
                 'traits': trait_info,
+                'feature_catalog_data':astro_object.get_feature_catalog_data()
             }
         )
         return Response(serializer.data)

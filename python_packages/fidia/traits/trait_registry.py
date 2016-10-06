@@ -411,4 +411,22 @@ class TraitRegistry:
                 separate_metadata=separate_metadata)
             piece.update(trait_schema)
 
+        if data_class != 'all':
+            # Check for empty Trait schemas and remove (only necessary if there
+            # has been filtering on catalog/non-catalog data)
+            schema.delete_empty()
+
+            # Handle filtering of verbosities other than 'data-only'
+            if verbosity != 'data_only':
+                filter_schema = self.schema(include_subtraits=True, data_class=data_class, combine_levels=[],
+                                            verbosity='data_only', separate_metadata=False)
+                keys_to_delete = []
+                for key in schema:
+                    if key not in filter_schema.keys():
+                        keys_to_delete.append(key)
+
+                while len(keys_to_delete) > 0:
+                    key = keys_to_delete.pop()
+                    del schema[key]
+
         return schema

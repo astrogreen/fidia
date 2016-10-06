@@ -236,6 +236,13 @@
                         $form.trigger('submit');
                     });
         });
+
+        $('.zoom').hover(function () {
+            $(".zoom").addClass('transition');
+
+        }, function () {
+            $(".zoom").removeClass('transition');
+        });
     });
 
 </script>
