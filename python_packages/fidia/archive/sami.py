@@ -980,7 +980,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
 
-
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Emission Map",
     OII3729="[OII] (3729Å)",
@@ -1004,7 +1003,12 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     # Extends 'line_map', so no defaults:
     defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V02'})
 
-    qualifiers = LZIFUOneComponentLineMap.line_name_map.keys()
+    # Individual component fluxes released for HALPHA only. See `TotalOnly` class below.
+    line_name_map = {
+        'HALPHA': 'HALPHA',
+    }
+
+    qualifiers = line_name_map.keys()
 
 
     def preload(self):
@@ -1081,17 +1085,83 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
 
-# LZIFURecommendedMultiComponentLineMap.set_pretty_name(
-#     "Line Map",
-#     OII3726="[OII] (3726Å)",
-#     OII3729="[OII] (3729Å)",
-#     HBETA='Hβ',
-#     OIII5007='[OIII] (5007Å)',
-#     OI6300='[OI] (6300Å)',
-#     HALPHA='Hα',
-#     NII6583='[NII] (6583Å)',
-#     SII6716='[SII] (6716Å)',
-#     SII6731='[SII] (6731Å)')
+    # End of class LZIFURecommendedMultiComponentLineMap
+LZIFURecommendedMultiComponentLineMap.set_pretty_name(
+    "Line Emission Map",
+    HALPHA='Hα')
+
+
+class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
+    r"""Total Emission line flux map from one to three Gaussian fits.
+
+    Documentation from SAMI Team here...
+
+    ##format: markdown
+    """
+    branches_versions = {branch_lzifu_m_comp: {"V02"}}
+
+    # Extends 'line_map', so no defaults:
+    defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V02'})
+
+    line_name_map = {
+        'OII3726': 'OII3726',
+        'OII3729': 'OII3729',
+        'HBETA': 'HBETA',
+        # Note missing OIII4959, which is fit as 1/3rd of OIII50007
+        'OIII5007': 'OIII5007',
+        'OI6300': 'OI6300',
+        # Note missing NII6548, which is fit as 1/3rd of NII6583
+        'NII6583': 'NII6583',
+        'SII6716': 'SII6716',
+        'SII6731': 'SII6731'
+    }
+
+    qualifiers = line_name_map.keys()
+
+
+    def preload(self):
+        self._hdu = fits.open(self._lzifu_fits_file)
+
+    @trait_property('float.array')
+    def value(self):
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+    value.set_description("Total Line Flux in all components")
+
+    @trait_property('float.array')
+    def variance(self):
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
+        variance = sigma**2
+        return variance
+    value.set_description("Variance of Total Line Flux in all components")
+
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
+        return _wcs_string
+
+    #
+    # Sub Traits
+    #
+    sub_traits = TraitRegistry()
+
+    @sub_traits.register
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self._parent_trait._wcs_string.value
+LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
+    "Line Emission Map",
+    OII3729="[OII] (3729Å)",
+    HBETA='Hβ',
+    OIII5007='[OIII] (5007Å)',
+    OI6300='[OI] (6300Å)',
+    NII6583='[NII] (6583Å)',
+    SII6716='[SII] (6716Å)',
+    SII6731='[SII] (6731Å)')
+
 
 class LZIFUCombinedFit(SpectralMap):
 
@@ -1911,6 +1981,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(LZIFUCombinedFit)
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
         self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
+        self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly)
 
         self.available_traits.register(SFRMap)
         self.available_traits.register(BalmerExtinctionMap)
