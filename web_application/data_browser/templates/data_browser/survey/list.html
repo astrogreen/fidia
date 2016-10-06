@@ -153,31 +153,14 @@
             </div>
         </div>
         <h3 id="data-access">Data Access</h3>
-        <div class="well">
-            <p class="lead margin-bottom-ten">
-                What can I do?
-            </p>
-            <ul class="p">
-                <li>The Data Browser allows users a quick-look at each {{survey|uppercase}} object's data
-                    products available in this data release, including visualizations, processing information and associated
-                    properties, using the <strong>Single Object</strong> search box below.
-                </li>
-                <li>Within the <strong>Single Object</strong> tab, users can download individual data products as multi-extension
-                    FITS files, with all relevant processing information contained within the FITS header.</li>
-                <li>The <strong>Multiple Objects</strong> tab allows users to define a sample of
-                    {{survey|uppercase}} objects filtering on some catalogue property. </li>
-                <li>Data products for this selection can be downloaded using the <strong>Download Data Products</strong>
-                    tool. </li>
-            </ul>
-        </div>
-
-
 
         <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
             <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
             descriptions of the data products available.</p>
         <p>For help using the Data Browser,
             <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">view the documentation.</a></p>
+
+        <img class="img-responsive" src="{% static 'data_browser/img/sami/sami_dr1poster_plot_only.jpg' %}">
 
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Object</a>
