@@ -847,8 +847,24 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     def variance(self):
         return self._hdu['V_ERR'].data[1, :, :]
 
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu['V'].header
+        return _wcs_string
+
+    #
+    # Sub Traits
+    #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+
+
+    @sub_traits.register
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self._parent_trait._wcs_string.value
+
 
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
 
@@ -871,6 +887,24 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
     @trait_property('float.array')
     def variance(self):
         return self._hdu['VDISP_ERR'].data[1, :, :]
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu['VDISP'].header
+        return _wcs_string
+
+
+    #
+    # Sub Traits
+    #
+    sub_traits = TraitRegistry()
+
+
+    @sub_traits.register
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self._parent_trait._wcs_string.value
 
 
 class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
@@ -924,16 +958,29 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
         variance = sigma**2
         return variance
 
+    # @trait_property('string')
+    # def _wcs_string(self):
+    #     _wcs_string = self._hdu[0].header
+    #     return _wcs_string
+
     @trait_property('string')
     def _wcs_string(self):
-        _wcs_string = self._hdu[0].header
+        _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
         return _wcs_string
+
+
+    #
+    # Sub Traits
+    #
+    sub_traits = TraitRegistry()
+
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
+
 
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Emission Map",
@@ -1019,11 +1066,15 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         return variance
     value.set_description("Variance of Line Flux in broadest component")
 
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
+        return _wcs_string
+
     #
     # Sub Traits
     #
     sub_traits = TraitRegistry()
-
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
@@ -1070,6 +1121,14 @@ class LZIFUCombinedFit(SpectralMap):
             else:
                 raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
 
+        # Determine which colour:
+        if self.trait_qualifier == "blue":
+            self._color = "B"
+        elif self.trait_qualifier == "red":
+            self._color = "R"
+        else:
+            raise UnknownTrait("'%s' is not a valid qualifier for '%s'", (self.trait_qualifier, self.trait_type))
+
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
 
@@ -1082,18 +1141,29 @@ class LZIFUCombinedFit(SpectralMap):
 
     @trait_property('float.array')
     def value(self):
-        # Determine which colour:
-        if self.trait_qualifier == "blue":
-            color = "B"
-        elif self.trait_qualifier == "red":
-            color = "R"
-        else:
-            raise ValueError("unknown trait name")
-        return self._hdu[color + '_CONTINUUM'].data + self._hdu[color + '_LINE'].data
+        return self._hdu[self._color + '_CONTINUUM'].data + self._hdu[self._color + '_LINE'].data
 
     @trait_property('float.array')
     def variance(self):
-        return None
+        raise DataNotAvailable("No Variance data available for LZIFU combined spectral fit.")
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu[self._color + '_CONTINUUM'].header
+        return _wcs_string
+
+
+    #
+    # Sub Traits
+    #
+    sub_traits = TraitRegistry()
+
+    @sub_traits.register
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self._parent_trait._wcs_string.value
+
 
 class LZIFUContinuum(SpectralMap):
 
