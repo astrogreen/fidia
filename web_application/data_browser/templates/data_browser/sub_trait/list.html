@@ -80,7 +80,7 @@
                 {% endwith %}
                 {% endif %}
                 <br>
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.parent_trait.trait_key|key:0}}{% if response.data.parent_trait.trait_key|key:1 %}-{{response.data.parent_trait.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
             </ul>
 

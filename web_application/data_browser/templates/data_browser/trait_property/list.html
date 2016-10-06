@@ -73,14 +73,12 @@
             <ul class="nav-sidebar">
                 {% if breadcrumblist %}
 
-                  {% with breadcrumblist|length|add:"-2" as b %}
-                    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
-                  {% endwith %}
-            {% endif %}
-                <br>
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
+                      {% with breadcrumblist|length|add:"-2" as b %}
+                        <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
+                      {% endwith %}
+                {% endif %}
+                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.parent_trait.trait_key|key:0}}{% if response.data.parent_trait.trait_key|key:1 %}-{{response.data.parent_trait.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
-
             </ul>
 
         </div>

@@ -23,15 +23,16 @@
         <div class="row attention-seeker">
             <div class="col-sm-3 col-xs-6">
                 <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">
-                    <div class="well"><h4>Browsing Single Object Data</h4>
-                        <p>How to access and download survey-derived data products for a particular object.</p>
+                    <div class="well"><h4>Data Access</h4>
+                        <p>How to use the Data Browser to access and download survey-derived data products for single or multiple objects.</p>
                     </div>
                 </a>
             </div>
             <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='query' %}">
+                <a href="" disabled class="disabled">
                     <div class="well"><h4>Making Multi Object Queries</h4>
-                        <p>Find out everything you need to get started querying the survey data hosted at AAODC.</p>
+                        <p>Get started querying the survey data hosted at AAODC.</p>
+                        <p><u>Coming Soon.</u></p>
                     </div>
                 </a>
             </div>
@@ -84,7 +85,7 @@
             </div>
             {% if response.data.articles %}
             <h5>{{response.data.title}} Articles</h5>
-            <ul class="nav nav-pills nav-stacked docs-sidebar">
+            <ul class="nav nav-pills nav-stacked nav-sidebar">
                 {% for article in response.data.articles %}
                 <li role="presentation">
                     <a href="{{article.url}}">{{article.title}}</a>
