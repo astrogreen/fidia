@@ -1,5 +1,6 @@
 from collections import OrderedDict
-import random, collections, logging, json, requests, zipfile, io
+import random, collections, logging, json, requests, zipfile, io, itertools
+
 import django.core.exceptions
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -101,13 +102,11 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 #         return Response(data)
 
 
-class Download(View):
+class Download(views.APIView):
     def get(self, request, *args, **kwargs):
-        return HttpResponse('This is GET request')
+        """Example code to prove it works"""
 
-    def post(self, request, *args, **kwargs):
-        print(request.POST)
-
+        # @TODO: Delete/udpate this function!
 
         trait_path_list = [
             {'sample': 'SAMI',
@@ -126,6 +125,56 @@ class Download(View):
             #      "spectral_cube-blue"
             #  ]}
         ]
+
+        tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+
+        return StreamingHttpResponse(tar_stream, content_type='application/gzip')
+
+    def post(self, request, *args, **kwargs):
+
+        object_list = (request.POST['objects']).split(',')
+        product_list = json.loads(request.POST['products'])
+
+        # product_list will look like the following:
+        #
+        #    {
+        #        "SAMI": [
+        #            {
+        #                "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "velocity_map",
+        #                    "ionized_gas",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            },
+        #            {
+        #                "trait_key": "extinction_map--recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "extinction_map",
+        #                    "null",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            }
+        #        ]
+        #    }
+
+        trait_path_list = []
+        for obj, product in itertools.product(object_list, product_list['SAMI']):
+
+            trait_key_array = product['trait_key_arr'] # type: list
+            # Convert "null" to (Python) None in the list
+            while "null" in trait_key_array:
+                trait_key_array[trait_key_array.index("null")] = None
+
+            trait_path = {
+                'sample': 'SAMI',
+                'object_id': obj,
+                'trait_path': [TraitKey(*trait_key_array)]
+            }
+
+            trait_path_list.append(trait_path)
 
         tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
 
