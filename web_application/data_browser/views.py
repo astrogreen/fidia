@@ -81,6 +81,7 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
 
     def create(self, request, pk=None, sample_pk=None, *args, **kwargs):
         print(request.data)
+        print(json.loads(request.data['download']))
 
         return HttpResponse('This is POST request')
 
