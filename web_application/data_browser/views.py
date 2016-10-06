@@ -178,6 +178,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'astro_object': astroobject_pk,
                 'request': request,
                 'traits': trait_info,
+                'feature_catalog_data':astro_object.get_feature_catalog_data()
             }
         )
         return Response(serializer.data)

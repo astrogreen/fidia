@@ -80,10 +80,18 @@
             </ul>
 
             <h5>Auxillary Data</h5>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="panel-title">GAMA</span>
+                </div>
+                <div class="panel-body">
+                    <strong><a class="text-uppercase" target="_blank" href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{response.data.astro_object}}">GAMA Single Object Viewer for {{response.data.astro_object}} <i class="fa fa-angle-right"></i></a></strong>
+                </div>
+            </div>
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <span class="panel-title">SDSS Image</span>
+                    <span class="panel-title">SDSS</span>
                 </div>
                 <div class="panel-body">
                     <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra=184.5441666666667&amp;dec=-0.7449722222222223&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
@@ -95,6 +103,7 @@
                         5-band composite from SDSS DR7.</p>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -119,21 +128,24 @@
                             <span class="panel-title">Object Properties</span>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-overview">
+                            <table class="table">
                                 <tbody>
-                                <tr class="large">
-                                    <td class="lead">{{response.data.astro_object}}</td>
-                                    <td class="lead">-</td>
-                                    <td class="lead">-</td>
-                                    <td class="lead">-</td>
-                                    <td class="lead">-</td>
-                                </tr>
-                                <tr class="large">
+
+                                <tr class="sub-heading">
                                     <td>Survey ID</td>
-                                    <td>IAU ID</td>
                                     <td>RA</td>
                                     <td>DEC</td>
-                                    <td>Redshift</td>
+                                    {% for f in response.data.feature_catalog_data %}
+                                    <td>{{f.pretty_name}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td class="lead">{{response.data.astro_object}}</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    {% for f in response.data.feature_catalog_data %}
+                                    <td>{{f.value}}</td>
+                                    {% endfor %}
                                 </tr>
                                 </tbody>
                             </table>
