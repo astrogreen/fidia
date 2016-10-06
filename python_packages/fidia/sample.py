@@ -83,8 +83,8 @@ class Sample(collections.MutableMapping):
             coord_key = traits.TraitKey("catalog_coordinate")
             if self._primary_archive.can_provide(coord_key):
                 coord = self._primary_archive.get_trait(key, coord_key)
-                ra = coord.ra
-                dec = coord.dec
+                ra = coord._ra()
+                dec = coord._dec()
             else:
                 ra = None
                 dec = None
