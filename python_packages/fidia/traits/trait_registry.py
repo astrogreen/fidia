@@ -411,4 +411,9 @@ class TraitRegistry:
                 separate_metadata=separate_metadata)
             piece.update(trait_schema)
 
+        if data_class != 'all':
+            # Check for empty Trait schemas and remove (only necessary if there
+            # has been filtering on catalog/non-catalog data)
+            schema.delete_empty()
+
         return schema
