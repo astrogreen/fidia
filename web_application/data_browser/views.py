@@ -84,10 +84,10 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
 
     def create(self, request, pk=None, sample_pk=None, *args, **kwargs):
 
-        print(request.POST)
-        
-        object_list = (request.POST['objects']).split(',')
-        product_list = json.loads(request.POST['products'])
+        download_data = json.loads(request.POST['download'])
+
+        object_list = (download_data['objects']).split(',')
+        product_list = json.loads(download_data['products'])
 
         # product_list will look like the following:
         #
