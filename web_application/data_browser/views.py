@@ -51,13 +51,14 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
-class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
     """
     Viewset for Sample route. Provides List view only.
     """
 
     renderer_classes = (data_browser.renderers.SampleRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
+    serializer_class = data_browser.serializers.DownloadSerializer
 
     def list(self, request, pk=None, sample_pk=None, format=None, extra_keyword=None):
 
@@ -78,34 +79,18 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
         return Response(serializer.data)
 
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        return Response({'data': 'test'}, status=status.HTTP_201_CREATED)
 
-# class Download(views.APIView):
-#     """ Viewset for DataBrowser API root. List View only. """
 #
-#     renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer, renderers.JSONRenderer)
-#     permission_classes = [permissions.AllowAny]
+# class Download(View):
+#     def get(self, request, *args, **kwargs):
+#         return HttpResponse('This is GET request')
 #
-#     def get(self, request, pk=None, format=None):
-#         # Request available samples from FIDIA
-#         data = ['empty']
-#         return Response(data)
-#
-#     def post(self, request, pk=None, format=None):
-#         # Request available samples from FIDIA
-#
-#         print(request.data)
-#         data = request.data
-#
-#         return Response(data)
-
-
-class Download(View):
-    def get(self, request, *args, **kwargs):
-        return HttpResponse('This is GET request')
-
-    def post(self, request, *args, **kwargs):
-        print(request.POST)
-        return HttpResponse('This is POST request')
+#     def post(self, request, *args, **kwargs):
+#         print(request.POST)
+#         return HttpResponse('This is POST request')
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

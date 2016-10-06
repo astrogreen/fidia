@@ -258,6 +258,23 @@
 
                         </div>
                     </div>
+                    <div class="col-xs-12">
+                        {% if post_form %}
+                            <div class="tab-pane" id="post-object-form">
+                              {% with form=post_form %}
+                                <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                                  <fieldset>
+                                    {% csrf_token %}
+                                    {{ post_form }}
+                                    <div class="form-actions">
+                                      <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
+                                    </div>
+                                  </fieldset>
+                                </form>
+                              {% endwith %}
+                            </div>
+                          {% endif %}
+                    </div>
                 </div>
 
             </div>
@@ -662,46 +679,8 @@
     };
 {% endautoescape %}
 
-    // text ajax
-    function testGetAjax() {
-        return $.ajax({
-            url: "{% url 'data_browser:data-browser-download' %}"
-        });
-    }
-    var promise_get = testGetAjax();
-    promise_get.success(function (data) {
-      console.log(data);
-    });
 
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-    function getCookie(name) {
-    var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-
+    // move this over to the hidden field (same as query builder)
     $('#download_button').click(function(){
 
         var data_download = {
@@ -710,7 +689,7 @@
         };
         console.log(data_download);
 
-        $.post("{% url 'data_browser:data-browser-download' %}", data_download, function (data) {
+        $.post("{% url 'data_browser:survey-list' sample_pk=survey %}", data_download, function (data) {
             // console.log("received " + data_download);
         });
     })

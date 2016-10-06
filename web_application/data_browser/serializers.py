@@ -92,6 +92,10 @@ class SampleSerializer(data_browser.mixins.SampleAttributesMixin):
     schema = serializers.SerializerMethodField()
 
 
+class DownloadSerializer(serializers.Serializer):
+    download = serializers.CharField(default='None', max_length=10000)
+
+
 class AstroObjectSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
     """ Returns list of available traits. """
 

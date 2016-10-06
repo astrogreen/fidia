@@ -25,6 +25,7 @@
                     <div class="row">
                         <div class="col-xs-12 schema">
                             <div class="helper step step1" >Select a type of data product from the list below.</div>
+                            <span ng-if="!traits" class="p"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i> Loading...</span>
                         <!-- Level1 -->
                             <ul class="nav nav-pills" id="{{survey}}_trait_type_key">
                                 <li role="presentation" ng-repeat="(trait_type_key, trait_type_value) in traits" ng-class='{active:$first}'>
