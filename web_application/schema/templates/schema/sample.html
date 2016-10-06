@@ -51,7 +51,7 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 
 <div class="row">
@@ -356,21 +356,26 @@
                                                                             <span class="fa-custom-filetype">{{format_key}}</span>
                                                                         </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
                                                                     {% endfor %}
+                                                                    <span class="fa-custom-stack">
+                                                                      <i class="fa fa-file-o"></i>
+                                                                        <span class="fa-custom-filetype">json</span>
+                                                                    </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
                                                                 </div>
+                                                                <p>
+                                                                You can download {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-type data in
                                                                 {% if value.export_formats|length > 0 %}
-                                                                <p> You can download {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-type data products in
                                                                     {% for format_key in value.export_formats %}
                                                                         {{format_key}}
                                                                         {% if value.export_formats|length > 1 %}
-                                                                            {% if forloop.last %} and {% else %} , {% endif %}
+                                                                            {% if forloop.last %} {% else %} , {% endif %}
                                                                         {% endif %}
                                                                     {% endfor %}
-                                                                    format{% if value.export_formats|length > 1 %}s{% endif %}.
-                                                                </p>
+                                                                    and
                                                                 {% else %}
 
                                                                 {% endif %}
-
+                                                                 json format.
+                                                                </p>
                                                                 {% if trait_type_key in response.data.schema_non_catalog.trait_types %}
 
                                                                 {% else %}
@@ -500,7 +505,8 @@
         // Change the text shown in the branch button.
         $('.branch_dropdown ul.dropdown-menu > li > a').click(function (event) {
 
-            // note, currentTarget gets the element to which the event handler was attached to (rather than target, which gets the element on which the event occurred)
+            // note, currentTarget gets the element to which the event handler was attached
+            // to (rather than target, which gets the element on which the event occurred)
             var _anchor = $(event.currentTarget);
             // get nearest button
 
@@ -536,6 +542,8 @@
 
             $('.trait > .active').find('span.branch_warning-branch').html(_data_branch);
             $('.trait > .active').find('span.branch_warning-version').html(_data_version);
+            console.log(_data_branch);
+            console.log(_data_version);
 
         };
 
@@ -546,7 +554,6 @@
         $('.trait_type_button').click(function(){
             update_branch_warning_message();
         });
-
 
         // Hide branch warning message
         $('.branch_warning_button').click(function(){
@@ -614,9 +621,20 @@
                 }
             }
         }
-
+        update_branch_warning_message();
 
     });
+
+    $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        console.log('pill');
+        update_branch_warning_message();
+    });
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        console.log('trigger');
+//        e.target // newly activated tab
+//        e.relatedTarget // previous active tab
+        update_branch_warning_message();
+    })
 
 </script>
 <script>
