@@ -136,7 +136,7 @@
                                 <div class="panel panel-default sub-trait-sidebar">
                                     <div class="panel-heading" role="tab" id="heading{{s}}">
                                         <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
-                                            <span>{{ response.data|key:s |key:'pretty_name' }}</span>
+                                            <span class="sub-heading">{{ response.data|key:s |key:'pretty_name' }}</span>
                                             <i class="fa fa-caret-down sub-heading"></i>
                                         </a>
                                         <span class="sub-heading pull-right"><span class="testing">sub-trait</span> <a href="{{ response.data|key:s |key:'url' }}" class="sub-heading"><i class="fa fa-arrow-circle-right"></i></a></span>

@@ -12,7 +12,14 @@
        data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
 
 </div>
-<div class="">{{tpdata|key:tp|key:"value"}}</div>
+<div class="">
+
+    {% if tpdata|key:tp|key:"type" == "string" %}
+        <pre>{{tpdata|key:tp|key:"value"|linebreaks}}</pre>
+    {% else %}
+    {{tpdata|key:tp|key:"value"}}
+    {% endif %}
+</div>
 <div class="heading"><strong>Type</strong></div>
 <span class="sub-heading" style="margin-top:5px;"><code >{{tpdata|key:tp|key:"type"}}</code></span>
 <div class="heading"><strong>URL</strong></div>

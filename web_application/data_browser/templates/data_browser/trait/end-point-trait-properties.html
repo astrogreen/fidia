@@ -15,7 +15,16 @@
     <tbody>
     <tr>
         <td>{{tpdata|key:tp|key:"description"}}</td>
-        <td><div style="max-height:200px; overflow: scroll;">{{tpdata|key:tp|key:"value"}}</div></td>
+        <td><div style="max-height:200px; overflow-y: scroll;">
+            {% if tpdata|key:tp|key:"type" == "string" %}
+                <pre>{{tpdata|key:tp|key:"value"|linebreaks}}</pre>
+            {% elif tpdata|key:tp|key:"type" == "float.array" %}
+                <span class="sub-heading">{{tpdata|key:tp|key:"value"}}</span>
+            {% else %}
+            {{tpdata|key:tp|key:"value"}}
+            {% endif %}
+        </div></td>
+
         <td><code >{{tpdata|key:tp|key:"type"}}</code></td>
         <td><a href="{{tpdata|key:tp|key:'url'}}">{{tpdata|key:tp|key:"url"}}</a></td>
     </tr>
