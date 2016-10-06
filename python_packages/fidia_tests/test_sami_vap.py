@@ -30,7 +30,7 @@ def a_sami_galaxy(sami_sample):
 class TestSAMILZIFU:
 
     def test_lzifu_velocity_map(self, sami_sample):
-        vmap = sami_sample['24433']['velocity_map']
+        vmap = sami_sample['24433']['velocity_map-ionized_gas']
 
         assert isinstance(vmap.value(), numpy.ndarray)
 

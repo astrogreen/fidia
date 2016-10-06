@@ -11,7 +11,7 @@ from astropy.io import fits
 # FIDIA Imports
 from fidia.archive.example_archive import ExampleArchive
 # Other user imports
-from fidia_tarfile_helper import fidia_tar_file_generator
+from fidia_tarfile_helper import fidia_tar_file_generator, Streaming
 
 
 @contextlib.contextmanager
@@ -56,7 +56,8 @@ class TestTarFiles:
                  ]}
             ]
 
-            stream = fidia_tar_file_generator(example_sample, trait_path_list)
+            stream = Streaming(fidia_tar_file_generator(example_sample, trait_path_list),
+                               "example.tar.gz")
             stream.filename = temp_directory + "/example.tar.gz"
             stream.stream()
 

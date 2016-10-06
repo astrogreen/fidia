@@ -80,7 +80,7 @@ def catalog_trait(TraitClass, trait_name, mapping):
     new_trait.trait_type, qualifier = TraitKey.split_trait_name(trait_name)
     if qualifier is not None:
         new_trait.qualifiers = {qualifier}
-    new_trait.__name__ = "CatalogTrait_" + trait_name
+    new_trait.__name__ = "CatalogTrait:" + trait_name
     # new_trait.branches_versions = {trait_key.branch: {trait_key.version}}
 
     # assert issubclass(new_trait, Trait)

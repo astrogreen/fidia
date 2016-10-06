@@ -1,9 +1,10 @@
 from collections import OrderedDict
-import random, collections, logging, json, requests, zipfile, io
+import random, collections, logging, json, requests, zipfile, io, itertools
+
 import django.core.exceptions
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.views.generic import View
 
 from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
@@ -27,6 +28,8 @@ import data_browser.helpers
 import fidia.exceptions
 from fidia.traits import Trait, TraitProperty, TraitKey
 from fidia import traits
+
+import fidia_tarfile_helper
 
 log = logging.getLogger(__name__)
 
@@ -80,11 +83,134 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         return Response(serializer.data)
 
     def create(self, request, pk=None, sample_pk=None, *args, **kwargs):
-        print(request.data)
-        print(json.loads(request.data['download']))
 
-        return HttpResponse('This is POST request')
+        download_data = json.loads(request.POST['download'])
 
+        object_list = (download_data['objects']).split(',')
+        product_list = json.loads(download_data['products'])
+
+        # product_list will look like the following:
+        #
+        #    {
+        #        "SAMI": [
+        #            {
+        #                "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "velocity_map",
+        #                    "ionized_gas",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            },
+        #            {
+        #                "trait_key": "extinction_map--recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "extinction_map",
+        #                    "null",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            }
+        #        ]
+        #    }
+
+        trait_path_list = []
+        for obj, product in itertools.product(object_list, product_list['SAMI']):
+
+            trait_key_array = product['trait_key_arr'] # type: list
+            # Convert "null" to (Python) None in the list
+            while "null" in trait_key_array:
+                trait_key_array[trait_key_array.index("null")] = None
+
+            trait_path = {
+                'sample': 'SAMI',
+                'object_id': obj,
+                'trait_path': [TraitKey(*trait_key_array)]
+            }
+
+            trait_path_list.append(trait_path)
+
+        tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+
+        return StreamingHttpResponse(tar_stream, content_type='application/gzip')
+
+class Download(views.APIView):
+    def get(self, request, *args, **kwargs):
+        """Example code to prove it works"""
+
+        # @TODO: Delete/udpate this function!
+
+        trait_path_list = [
+            {'sample': 'SAMI',
+             'object_id': '9352',
+             'trait_path': [
+                 "velocity_map-ionized_gas"
+             ]},
+            {'sample': 'SAMI',
+             'object_id': '9352',
+             'trait_path': [
+                 "velocity_dispersion_map-ionized_gas"
+             ]}
+            # {'sample': 'SAMI',
+            #  'object_id': '24433',
+            #  'trait_path': [
+            #      "spectral_cube-blue"
+            #  ]}
+        ]
+
+        tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+
+        return StreamingHttpResponse(tar_stream, content_type='application/gzip')
+
+    def post(self, request, *args, **kwargs):
+
+        object_list = (request.POST['objects']).split(',')
+        product_list = json.loads(request.POST['products'])
+
+        # product_list will look like the following:
+        #
+        #    {
+        #        "SAMI": [
+        #            {
+        #                "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "velocity_map",
+        #                    "ionized_gas",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            },
+        #            {
+        #                "trait_key": "extinction_map--recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "extinction_map",
+        #                    "null",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            }
+        #        ]
+        #    }
+
+        trait_path_list = []
+        for obj, product in itertools.product(object_list, product_list['SAMI']):
+
+            trait_key_array = product['trait_key_arr'] # type: list
+            # Convert "null" to (Python) None in the list
+            while "null" in trait_key_array:
+                trait_key_array[trait_key_array.index("null")] = None
+
+            trait_path = {
+                'sample': 'SAMI',
+                'object_id': obj,
+                'trait_path': [TraitKey(*trait_key_array)]
+            }
+
+            trait_path_list.append(trait_path)
+
+        tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+
+        return StreamingHttpResponse(tar_stream, content_type='application/gzip')
 
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

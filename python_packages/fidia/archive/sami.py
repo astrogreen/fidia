@@ -1605,8 +1605,8 @@ class SAMIDR1PublicArchive(Archive):
 
     feature_catalog_data = [
         TraitPath("iau_id"),
-        # TraitPath("catalog_coordinate", trait_property='_ra'),
-        # TraitPath("catalog_coordinate", trait_property='_dec'),
+        TraitPath("catalog_coordinate", trait_property='_ra'),
+        TraitPath("catalog_coordinate", trait_property='_dec'),
         TraitPath("redshift:helio"),
         TraitPath("M_r-auto"),
         TraitPath("mass")

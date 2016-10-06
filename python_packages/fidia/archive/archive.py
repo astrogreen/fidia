@@ -64,6 +64,7 @@ class Archive(BaseArchive):
 
         # Add this archive to the set of archives associated with the sample.
         new_sample._archives = {self}
+        new_sample._primary_archive = self
 
         # Finally, we mark this new sample as immutable.
         new_sample.mutable = False
@@ -137,6 +138,7 @@ class Archive(BaseArchive):
             return TraitProperty
 
     def can_provide(self, trait_key):
+        trait_key = TraitKey.as_traitkey(trait_key)
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
     def schema(self, by_trait_name=False, data_class='all'):

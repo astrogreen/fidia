@@ -10,6 +10,7 @@ import astropy.wcs
 # Internal package imports
 from . import Trait
 from .abstract_base_traits import *
+from .trait_property import trait_property
 
 # Logging Import and setup
 from .. import slogging
@@ -30,17 +31,17 @@ class SkyCoordinate(astropy.coordinates.SkyCoord, SmartTrait):
         astropy.coordinates.SkyCoord.__init__(self, self._ra(), self._dec(), unit='deg', frame=self._ref_frame)
 
     # @FIXME: explain why value is required here but not for WorldCoordinateSystem below.
-    @property
+    @trait_property('string')
     def value(self):
-        return None
+        return self.to_string('hmsdms')
 
-    @abstractproperty
-    def _ra(self):
-        return NotImplementedError
-
-    @abstractproperty
-    def _dec(self):
-        return NotImplementedError
+    # @abstractproperty
+    # def _ra(self):
+    #     return NotImplementedError
+    #
+    # @abstractproperty
+    # def _dec(self):
+    #     return NotImplementedError
 
     @property
     def _ref_frame(self):
@@ -79,6 +80,11 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
         header_string = self._wcs_string.value
         log.debug("Initialising WCS object with %s containing %s", type(header_string), header_string)
         astropy.wcs.WCS.__init__(self, header=header_string)
+
+    @trait_property('string')
+    def value(self):
+        trim_lines = list(map(lambda x: x.strip(), repr(self.to_header()).splitlines()))
+        return "\n".join(trim_lines)
 
     @abstractproperty
     def _wcs_string(self):
