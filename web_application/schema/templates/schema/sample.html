@@ -368,11 +368,13 @@
                                                                     format{% if value.export_formats|length > 1 %}s{% endif %}.
                                                                 </p>
                                                                 {% else %}
-                                                                    {% if trait_type_key in response.data.schema_non_catalog.trait_types %}
-                                                                        {{trait_type_key}} is non-catalog
-                                                                    {% else %}
-                                                                        <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} is a catalogue property. Export the {{survey|uppercase}} catalogue properties as CSV, Excel in the <a target="_blank" href="{% url 'data_browser:survey-list' sample_pk=survey %}">Data Browser Survey page</a> under the <strong>Multiple Object</strong> tab. </p>
-                                                                    {% endif %}
+
+                                                                {% endif %}
+
+                                                                {% if trait_type_key in response.data.schema_non_catalog.trait_types %}
+                                                                    
+                                                                {% else %}
+                                                                    <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} is a catalogue property. Export the {{survey|uppercase}} catalogue properties as CSV, Excel in the <a target="_blank" href="{% url 'data_browser:survey-list' sample_pk=survey %}">Data Browser Survey page</a> under the <strong>Multiple Object</strong> tab. </p>
                                                                 {% endif %}
 
 
