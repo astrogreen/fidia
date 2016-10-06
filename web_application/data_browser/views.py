@@ -83,28 +83,56 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         return Response(serializer.data)
 
     def create(self, request, pk=None, sample_pk=None, *args, **kwargs):
-        print(request.data)
-        return HttpResponse('This is POST request')
 
-# class Download(views.APIView):
-#     """ Viewset for DataBrowser API root. List View only. """
-#
-#     renderer_classes = (restapi_app.renderers.ExtendBrowsableAPIRenderer, renderers.JSONRenderer)
-#     permission_classes = [permissions.AllowAny]
-#
-#     def get(self, request, pk=None, format=None):
-#         # Request available samples from FIDIA
-#         data = ['empty']
-#         return Response(data)
-#
-#     def post(self, request, pk=None, format=None):
-#         # Request available samples from FIDIA
-#
-#         print(request.data)
-#         data = request.data
-#
-#         return Response(data)
+        print(request.POST)
+        
+        object_list = (request.POST['objects']).split(',')
+        product_list = json.loads(request.POST['products'])
 
+        # product_list will look like the following:
+        #
+        #    {
+        #        "SAMI": [
+        #            {
+        #                "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "velocity_map",
+        #                    "ionized_gas",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            },
+        #            {
+        #                "trait_key": "extinction_map--recom_comp-V02",
+        #                "trait_key_arr": [
+        #                    "extinction_map",
+        #                    "null",
+        #                    "recom_comp",
+        #                    "V02"
+        #                ]
+        #            }
+        #        ]
+        #    }
+
+        trait_path_list = []
+        for obj, product in itertools.product(object_list, product_list['SAMI']):
+
+            trait_key_array = product['trait_key_arr'] # type: list
+            # Convert "null" to (Python) None in the list
+            while "null" in trait_key_array:
+                trait_key_array[trait_key_array.index("null")] = None
+
+            trait_path = {
+                'sample': 'SAMI',
+                'object_id': obj,
+                'trait_path': [TraitKey(*trait_key_array)]
+            }
+
+            trait_path_list.append(trait_path)
+
+        tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+
+        return StreamingHttpResponse(tar_stream, content_type='application/gzip')
 
 class Download(views.APIView):
     def get(self, request, *args, **kwargs):
