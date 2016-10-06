@@ -57,6 +57,9 @@ class SchemaDictionary(dict):
     def __init__(self, *args, **kwargs):
         super(SchemaDictionary, self).__init__(*args, **kwargs)
 
+        self.make_sub_dicts_schema_dicts()
+
+    def make_sub_dicts_schema_dicts(self):
         # Walk the new dictionary, replacing any plain dicts with SchemaDicts:
         for key in self:
             if isinstance(self[key], dict):
@@ -94,6 +97,8 @@ class SchemaDictionary(dict):
     def delete_empty(self):
         """Remove any empty dictionaries in this and nested dictionaries."""
 
+        self.make_sub_dicts_schema_dicts()
+
         to_delete = set()
 
         for key in self.keys():
@@ -102,6 +107,9 @@ class SchemaDictionary(dict):
                     to_delete.add(key)
                 else:
                     self[key].delete_empty()
+                    # Check if the previously un-empty dictionary is now truly empty.
+                    if len(self[key].keys()) == 0:
+                        to_delete.add(key)
 
         for key in to_delete:
             del self[key]

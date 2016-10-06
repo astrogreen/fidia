@@ -200,7 +200,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
 
     @classmethod
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
                     separate_metadata=False):
 
         # Validate the verbosity option
