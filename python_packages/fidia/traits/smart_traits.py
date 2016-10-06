@@ -33,7 +33,7 @@ class SkyCoordinate(astropy.coordinates.SkyCoord, SmartTrait):
     # @FIXME: explain why value is required here but not for WorldCoordinateSystem below.
     @trait_property('string')
     def value(self):
-        return str([self.ra, self.dec])
+        return self.to_string('hmsdms')
 
     # @abstractproperty
     # def _ra(self):
@@ -80,6 +80,11 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
         header_string = self._wcs_string.value
         log.debug("Initialising WCS object with %s containing %s", type(header_string), header_string)
         astropy.wcs.WCS.__init__(self, header=header_string)
+
+    @trait_property('string')
+    def value(self):
+        trim_lines = list(map(lambda x: x.strip(), repr(self.to_header()).splitlines()))
+        return "\n".join(trim_lines)
 
     @abstractproperty
     def _wcs_string(self):
