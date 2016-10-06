@@ -262,9 +262,10 @@
                         {% if post_form %}
                         <div class="" id="post-object-form">
                             {% with form=post_form %}
-                            <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" style="visibility: hidden" class="form-horizontal" novalidate>
+                            <form action="{{ request.get_full_path }}" style="visibility: hidden" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
                                 <fieldset>
                                     {% csrf_token %}
+                                    <!--<input name="download" class="form-control" type="text">-->
                                     {{ post_form }}
                                 </fieldset>
                             </form>
@@ -677,21 +678,7 @@
 {% endautoescape %}
 
     // add an id to the download form
-    $('#post-object-form').find('textarea[name=download]').attr('id','textarea-download');
-
-    // move this over to the hidden field (same as query builder)
-    $('#download_button').click(function(){
-
-        var data_download = {
-            'products': $(event.target).attr("data-products"),
-            'objects': $(event.target).attr("data-objects")
-        };
-        console.log(data_download);
-
-        $.post("{% url 'data_browser:survey-list' sample_pk=survey %}", data_download, function (data) {
-            // console.log("received " + data_download);
-        });
-    })
+    $('#post-object-form form').find('input[name=download]').attr('id','textarea-download');
 
     $('#download_button').click(function () {
 
@@ -706,9 +693,9 @@
 
         // Use browsers parser to strip html tags etc.
         // jQuery .text()
-        var valid_sql = $('#output-SQL').text();
-
-        $('#textarea-download').val(data_download);
+//        var valid_sql = $('#output-SQL').text();
+        console.log(data_download)
+        $('#textarea-download').val(JSON.stringify(data_download));
 
         setTimeout(function () {
             $('#post-object-form form').submit();
