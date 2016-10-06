@@ -33,7 +33,7 @@ console.log('availableproducts.controllers.js');
                 AvailableProductsService.getProducts(url).then(function (data) {
                     // Go through the data and add a selected property to each trait
 
-                    angular.forEach(data.schema.trait_types, function(trait_type_value, trait_type_key){
+                    angular.forEach(data.schema_non_catalog.trait_types, function(trait_type_value, trait_type_key){
 
                         // console.log('---'+trait_type_key+'---');
 
@@ -61,7 +61,7 @@ console.log('availableproducts.controllers.js');
                         });
                     });
                     // availabledata["sami"] = object containing schema with :selected: attribute on branch + version
-                    $scope.availabledata[survey] = data.schema.trait_types;
+                    $scope.availabledata[survey] = data.schema_non_catalog.trait_types;
 
                 }).catch(function () {
                     ctrl.error = true;
