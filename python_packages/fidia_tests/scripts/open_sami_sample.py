@@ -20,4 +20,4 @@ sample = ar.get_full_sample()
 
 sfrmap = sample['9352']['sfr_map']
 
-cube = sample['24433']['spectral_map-red']
+cube = sample['24433']['spectral_cube-red']
