@@ -22,11 +22,11 @@ urlpatterns = [
             # url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
 
 
-            url(r'^(?i)GAMA/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/underconstruction.html'), name='gama'),
+            url(r'^(?i)GAMA/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/support/underconstruction.html'), name='gama'),
 
 
             url(r'^(?i)under-construction/$',
-                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/underconstruction.html'),
+                restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/support/underconstruction.html'),
                 name='under-construction'),
 
             url(r'^(?i)about/team/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/about/team.html'),
