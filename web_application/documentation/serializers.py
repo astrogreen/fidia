@@ -98,7 +98,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = documentation.models.Topic
-        fields = ('url', 'title', 'articles', 'created', 'updated')
+        fields = ('url', 'title', 'articles', 'created', 'updated', 'hidden')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}

@@ -76,9 +76,11 @@
                 <h5>Topics</h5>
                 <ul class="nav nav-pills nav-stacked nav-sidebar" id="docs-sidebar">
                     {% for topic in response.data.results %}
-                    <li role="presentation" class="{% if forloop.first %}{% endif %}">
-                        <a href="#{{topic.title|slug}}" class="scroll">{{topic.title}}</a>
-                    </li>
+                        {% if not topic.hidden %}
+                            <li role="presentation" class="{% if forloop.first %}{% endif %}">
+                                <a href="#{{topic.title|slug}}" class="scroll">{{topic.title}}</a>
+                            </li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
                 {% endif %}
@@ -101,6 +103,7 @@
          {% if response.data.results %}
             <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
             {% for topic in response.data.results %}
+                {% if not topic.hidden %}
                 <h2 id="{{topic.title|slug}}" class="no-margin-top">
                     {{topic.title}}
                     <p class="pull-right" style="margin-top:10px;">
@@ -124,6 +127,7 @@
                     {% endif %}
                 </ul>
                 <br><br><br>
+                {% endif %}
             {% endfor %}
             {% if post_form %}
                 <h2>New Topic</h2>

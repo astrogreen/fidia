@@ -19,16 +19,10 @@
 {% block page_title %} Help Center {% endblock %}
 {% block page_title_banner_class %}blue{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation:article-detail' slug='data-central-syntax' %}">Syntax</a></li>
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
+<li><a href="{% url 'documentation:topic-list' %}" title="Help Center Home"> <i class="fa fa-home fa-lg"></i></a></li>
 {% endblock useful_links %}
 
-{% block content-navigator-help %}
-    <a href="{% url 'documentation:topic-list' %}" class=""><i class="fa fa-reply"></i> Back to Help Center</a>
-{% endblock %}
-
 {% block content_render %}
-
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
         <div class="sidebar-contents">
@@ -98,14 +92,16 @@
 
                     <h2>All Articles</h2>
                     {% if response.data.results %}
-                    <ul class="p sub-heading">
-                        {% for this in response.data.results %}
-                        <li>
-                            <a href="{{this.url}}">{{this.title}}</a>
-                            <p class=""><span class="sub-heading"> Last updated {{this.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=this.topic_info.slug %}">#{{this.topic_info.title}}</a></p>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                        {% if not topic.hidden %}
+                        <ul class="p sub-heading">
+                            {% for this in response.data.results %}
+                            <li>
+                                <a href="{{this.url}}">{{this.title}}</a>
+                                <p class=""><span class="sub-heading"> Last updated {{this.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=this.topic_info.slug %}">#{{this.topic_info.title}}</a></p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
                     {% else %}
                     <p>No articles have been added yet.</p>
                     {% endif %}
