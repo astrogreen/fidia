@@ -14,7 +14,7 @@ import os.path
 import logging
 logging.basicConfig(format='%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s', level=logging.DEBUG)
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.WARNING)
 
 import fidia
 import fidia.traits as traits
@@ -151,7 +151,7 @@ def fidia_tar_file_generator(sample, trait_path_list):
     # response = Streaming(tar_generator, "example.tar.gz")
     # return response
 
-
+CHUNK_SIZE = 10*1024**2
 
 class StreamBuffer(object):
     """A simple file-like object which acts as a streaming buffer.
@@ -160,10 +160,37 @@ class StreamBuffer(object):
     interface. Then it implements an additional methods for getting data within
     the buffer.
 
+    NOTE: A pointer to the result of the `retrieve` function cannot be held
+    while a new call to `write` is made, or an exception can occur. See the code
+    in Streaming to see how this is handled with a `del` at the end of the for
+    loop.
+
+    For reference:
+
+        Less copies in Python with the buffer protocol and memoryviews - Eli Bendersky's website
+        http://eli.thegreenplace.net/2011/11/28/less-copies-in-python-with-the-buffer-protocol-and-memoryviews
+
+        5. Built-in Types — Python v3.1.5 documentation
+        https://docs.python.org/3.1/library/stdtypes.html#memoryview
+
+        2. Built-in Functions — Python v3.1.5 documentation
+        https://docs.python.org/3.1/library/functions.html#bytearray
+
+        python - Example to throw a BufferError - Stack Overflow
+        http://stackoverflow.com/questions/20307726/example-to-throw-a-buffererror
+
+
+
     """
+
     def __init__(self):
         self._offset = 0
-        self._storage = b""
+        # Storage as a preallocated byte array.
+        self._storage = bytearray(CHUNK_SIZE)
+        # Variables to keep track of what part of the _storage array is actually valid data.
+        self._len = 0
+        self._offset = 0
+        self._total = 0
         # Initially no data.
         self._contents_retrieved = False
 
@@ -182,7 +209,7 @@ class StreamBuffer(object):
         return self._offset
 
     def write(self, value):
-        """Write the value by returning it, instead of storing in a buffer."""
+        """Append the new data to the buffer."""
 
         # There is nothing to do unless we have actually been given data.
         if len(value) > 0:
@@ -190,28 +217,42 @@ class StreamBuffer(object):
                 log.warning("Buffer contents have been retrieved but not cleared, and new data is being added.")
                 self._contents_retrieved = False
 
-            self._storage += value
-            self._offset += len(value)
+            # Expand storage buffer if not big enough to handle incoming data.
+            while len(value) + self._offset + self._len > len(self._storage):
+                try:
+                    self._storage.extend(bytearray(CHUNK_SIZE))
+                except BufferError:
+                    raise BufferError("A pointer to the result of a call to `retrieve` is still held: this must be " +
+                                      "cleared before a new call to `write` can be made!")
+
+            # Insert incoming data into buffer
+            self._storage[self._offset + self._len:self._offset + self._len + len(value)] = value
+            # Update length information
+            self._len += len(value)
+            self._total += len(value)
             if log.isEnabledFor(logging.DEBUG):
                 # log.debug("New Bytes Received: '%s'", value)
-                log.debug("Total bytes received: %s (%s)", self._offset, sizeof_fmt(self._offset))
+                log.debug("Total bytes received: %s (%s)", self._total, sizeof_fmt(self._total))
         else:
             log.debug("Write called with no data.")
 
     def retrieve(self):
         """Retrieve the outstanding contents of the buffer (i.e. that which has not been handled)"""
-        if len(self._storage) > 0:
-            log.debug("Sending %s bytes", len(self._storage))
+        if self._len > 0:
+            log.debug("Sending %s bytes", self._len)
             self._contents_retrieved = True
-        return self._storage
+        return memoryview(self._storage)[(self._offset):(self._offset + self._len)]
+
 
     def clear(self):
         """Clear outstanding contents of the buffer"""
 
         # There is nothing to do unless there is actually outstanding data.
-        if len(self._storage) > 0:
+        if self._len > 0:
             if self._contents_retrieved:
-                self._storage = b""
+                # The buffer is left in place, we simply reset the pointers to what part is valid data.
+                self._offset = 0
+                self._len = 0
                 self._contents_retrieved = False
             else:
                 raise BufferError("Attempt to clear StreamBuffer without retrieving contents first.")
@@ -222,12 +263,15 @@ class StreamBuffer(object):
         return result
 
     def close(self):
-        if self._contents_retrieved or len(self._storage) == 0:
+        if self._contents_retrieved or self._len == 0:
             # Okay to close. Delete remaining contents
             log.info("Closing StreamBuffer correctly.")
             self.clear()
         else:
             raise BufferError("Attempt to close StreamBuffer which still contains data.")
+
+    def __len__(self):
+        return self._len
 
 class Streaming:
     """A Test Class similar to Django's StreammingHttpResponse."""
@@ -251,4 +295,4 @@ class Streaming:
             self._total_bytes_written += len(i)
             if len(i) > 0:
                 print("Bytes Written: %s, Total Bytes Written: %s" % (len(i), self._total_bytes_written))
-
+            del i

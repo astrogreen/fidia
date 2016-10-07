@@ -22,10 +22,43 @@ sample = ar.get_full_sample()
 #
 # cube = sample['24433']['spectral_map-red']
 
-velmap = sample['9352']['velocity_map-ionized_gas']
+# velmap = sample['9352']['velocity_map-ionized_gas']
+#
+# velmap.as_fits("9352_velmap.fits")
+#
+# specfit = sample['9352']['spectral_fit_cube-red']
+#
+# specfit.as_fits("9352_specfit.fits")
 
-velmap.as_fits("9352_velmap.fits")
 
-specfit = sample['9352']['spectral_fit_cube-red']
+# ___       __    __  __
+#  |   /\  |__)  / _`  /
+#  |  /~~\ |  \ .\__> /_
 
-specfit.as_fits("9352_specfit.fits")
+
+import fidia_tarfile_helper
+
+trait_path_list = [
+    {'sample': 'SAMI',
+     'object_id': '9352',
+     'trait_path': [
+         "velocity_map-ionized_gas"
+     ]},
+    {'sample': 'SAMI',
+     'object_id': '9352',
+     'trait_path': [
+         "velocity_dispersion_map-ionized_gas"
+     ]},
+    {'sample': 'SAMI',
+     'object_id': '24433',
+     'trait_path': [
+         "spectral_cube-blue"
+     ]}
+]
+
+tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sample, trait_path_list)
+
+stream = fidia_tarfile_helper.Streaming(tar_stream,
+                   "example.tar.gz")
+stream.filename = "example.tar.gz"
+stream.stream()
