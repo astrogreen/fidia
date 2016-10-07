@@ -50,7 +50,9 @@
                 <ul class="nav nav-sidebar">
                     {% for article in response.data.all_articles_in_topic %}
                         {% if article.title != response.data.title %}
-                            <li><a class="" href="{{article.url}}"> {{article.title}}</a></li>
+                            {% if not article.hidden %}
+                                <li><a class="" href="{{article.url}}"> {{article.title}}</a></li>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                 </ul>

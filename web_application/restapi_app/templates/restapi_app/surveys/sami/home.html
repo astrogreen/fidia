@@ -68,15 +68,11 @@
                     <li role="presentation"><a class="scroll" href="#data-release">Data Release
                         {{response.data.data_release}}</a></li>
                     <li role="presentation"><a class="scroll" href="#whats-included">What's included?</a></li>
-
-
-
                 </ul>
             </div>
             <div class="quick-links">
                 <h5>Quick Links</h5>
                 <ul class="nav-sidebar">
-                    <li><a class=""  href="{% url 'sami-data-products' %}">{{response.data.survey|uppercase}} Data Product Descriptions</a></li>
                     <li><a href="{% url 'data-access' %}">ADC Data Access Description</a></li>
                 </ul>
             </div>
@@ -214,17 +210,12 @@
         <p>Data release description provided by the team.</p>
         <p>{% lorem %}</p>
         <p>For detailed descriptions of a particular data product, visit the <a
-                href="{% url 'sami-data-products' %}"><span>{{response.data.survey|uppercase}}
-            Data Product Descriptions</span></a> page, or for in depth information/meta-data pertaining to a particular
+                href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
+             Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
             data product, view the
-            <a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">{{response.data.survey|uppercase}}
+            <a href="{% url 'schema:sample-list' sample_pk=survey %}">{{response.data.survey|uppercase}}
                 Schema Browser</a>.
         </p>
-
-
-
-
-
 
     </div>
 

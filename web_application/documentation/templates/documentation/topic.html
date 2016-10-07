@@ -89,9 +89,11 @@
             <h5>{{response.data.title}} Articles</h5>
             <ul class="nav nav-pills nav-stacked nav-sidebar">
                 {% for article in response.data.articles %}
-                <li role="presentation">
-                    <a href="{{article.url}}">{{article.title}}</a>
-                </li>
+                    {% if not article.hidden %}
+                        <li role="presentation">
+                            <a href="{{article.url}}">{{article.title}}</a>
+                        </li>
+                    {% endif %}
                 {% endfor %}
             </ul>
             {% endif %}
@@ -116,12 +118,16 @@
 
                 <ul class="p sub-heading">
                     {% if topic.articles %}
-                        {# truncate the number shown here #}
-                        {% for article in topic.articles %}
-                            {% if forloop.counter < 10 %}
-                                <li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>
-                            {% endif %}
-                        {% endfor %}
+                        {% if not topic.hidden %}
+                            {# truncate the number shown here #}
+                            {% for article in topic.articles %}
+                                {% if not article.hidden %}
+                                    {% if forloop.counter < 10 %}
+                                        <li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     {% else %}
                         <p>No articles have been added yet.</p>
                     {% endif %}
@@ -163,14 +169,15 @@
                     {% endif %}
                 </h2>
 
-
                 <ul class="p sub-heading">
                     {% if response.data.articles %}
                         {% for article in response.data.articles %}
-                            <li><a href="{{article.url}}">&nbsp;{{article.title}}</a>
-                                <small class="sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
-                                </small>
-                            </li>
+                            {% if not article.hidden %}
+                                <li><a href="{{article.url}}">&nbsp;{{article.title}}</a>
+                                    <small class="sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
+                                    </small>
+                                </li>
+                            {% endif %}
                         {% endfor %}
                     {% else %}
                         <p>No articles have been added yet.</p>

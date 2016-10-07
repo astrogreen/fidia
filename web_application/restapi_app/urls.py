@@ -19,7 +19,7 @@ urlpatterns = [
 
 
             url(r'^(?i)SAMI/$', restapi_app.views.SAMI.as_view(), name='sami'),
-            url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
+            # url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
 
 
             url(r'^(?i)GAMA/$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/underconstruction.html'), name='gama'),

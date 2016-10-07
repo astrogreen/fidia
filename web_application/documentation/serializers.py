@@ -23,7 +23,7 @@ class ListArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = documentation.models.Article
         fields = (
-        'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'image', 'image_caption', 'edit_group')
+        'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'image', 'image_caption', 'edit_group', 'hidden')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}

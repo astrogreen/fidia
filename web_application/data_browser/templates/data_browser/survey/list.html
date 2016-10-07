@@ -84,13 +84,7 @@
                        <a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
                     Browser</a>
                     </li>
-                    <li>
-                        {% with survey|add:"-data-products" as data_product_descriptions %}
-                        <a href="{% url data_product_descriptions %}"><span>
-                        Data Product Descriptions</span></a>
-                        {% endwith %}
 
-                    </li>
                     <li>
                         {% if breadcrumblist %}
                         {% with breadcrumblist|length|add:"-2" as b %}
@@ -266,8 +260,8 @@
         <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
             {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
         <p>For detailed descriptions of a particular data product, visit the <a
-                href="{% url 'sami-data-products' %}"><span>{{response.data.survey|uppercase}}
-            Data Product Descriptions</span></a> page, or for in depth information/meta-data pertaining to a particular
+                href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
+             Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
             data product, view the
             <a href="{% url 'schema:sample-list' sample_pk=survey %}">{{response.data.survey|uppercase}}
                 Schema Browser</a>.
