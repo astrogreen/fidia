@@ -132,7 +132,11 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
 
         tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
 
-        return StreamingHttpResponse(tar_stream, content_type='application/gzip')
+        response = StreamingHttpResponse(tar_stream, content_type='application/gzip')
+        filename = 'SAMI_data.tar.gz'
+        response['content-disposition'] = "attachment; filename=%s" % filename
+
+        return response
 
 class Download(views.APIView):
     def get(self, request, *args, **kwargs):
