@@ -26,6 +26,8 @@ from ..utilities import WildcardDictionary, DefaultsRegistry, exclusive_file_loc
 from fidia.traits import *
 from fidia.traits.trait_property import trait_property_from_fits_header
 
+from fidia.cache.aaodc_presto_cache import PrestoCache
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.INFO)
@@ -1537,6 +1539,9 @@ class SAMIDR1PublicArchive(Archive):
         self.core_data_path = self.base_path + "data_releases/v0.9/"
         self.vap_data_path = self.base_path + "data_products/"
         self.catalog_path = self.base_path + "catalogues/"
+
+        log.info("Setting up cache")
+        self.cache = PrestoCache()
 
         if not os.path.isdir(self.cache_dir):
             os.mkdir(self.cache_dir)

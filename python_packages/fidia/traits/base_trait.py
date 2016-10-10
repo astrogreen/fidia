@@ -3,6 +3,7 @@
 import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
+from copy import copy
 
 from contextlib import contextmanager
 
@@ -356,9 +357,10 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         self._trait_cache = OrderedDict()
 
         if parent_trait is not None:
-            self.trait_path = parent_trait.trait_path + tuple(self.trait_key)
+            self.trait_path = copy(parent_trait.trait_path)
+            self.trait_path.append(self.trait_key)
         else:
-            self.trait_path = tuple(self.trait_key)
+            self.trait_path = [self.trait_key]
 
 
         # The preload count is used to track how many accesses there are to this

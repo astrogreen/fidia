@@ -1,6 +1,11 @@
 import re
 import numpy as np
 
+import sys
+import os
+print(sys.path)
+print(os.getcwd())
+
 from fidia.archive import sami, example_archive
 
 
@@ -45,8 +50,11 @@ ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test
 # # schema = t.full_schema()
 # schema = t.full_schema()
 
-specfit = sample['9352']['spectral_fit_cube-red']
+instrument_metadata = sample['9352']['spectral_cube-red']['instrument_metadata']
 
-specfit.as_fits("9352_specfit.fits")
+x = instrument_metadata.disperser_tilt()
+
+print(x)
+# specfit.as_fits("9352_specfit.fits")
 
 # print(schema)
