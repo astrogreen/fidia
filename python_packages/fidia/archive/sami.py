@@ -116,6 +116,12 @@ def trait_property_from_fits_data(extension_name, type, name):
     return tp
 
 
+def file_or_gz_exists(filename):
+    if os.path.exists(filename):
+        return filename
+    if os.path.exists(filename + ".gz"):
+        return filename + ".gz"
+    return False
 
 def full_path_split(path):
     # Snippit from:
@@ -735,20 +741,54 @@ class LZIFUDataMixin:
     def init(self):
         data_product_name = "EmissionLineFits"
 
-        self._lzifu_fits_file = "/".join((
+        # Find the filename for this dataset.
+        #
+        # Several options are tried:
+        #   - Bare ID and bare ID with .gz extension
+        #   - ID and plate ID combined and the same with .gz
+
+        self._lzifu_fits_file = None
+
+        filepath = "/".join((
             self.archive.vap_data_path,
             data_product_name,
             data_product_name + self.version,
             self.branch,
             self.object_id + "_" + self.branch + ".fits"))
 
-        log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
+        log.debug("Trying path for LZIFU Data: %s", filepath)
 
-        if not os.path.exists(self._lzifu_fits_file):
-            if os.path.exists(self._lzifu_fits_file + ".gz"):
-                self._lzifu_fits_file += ".gz"
-            else:
-                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+        exists = file_or_gz_exists(filepath)
+        if exists:
+            # The requested file exists as is
+            self._lzifu_fits_file = exists
+        else:
+            match = re.match(sami_cube_re, self.archive.cube_file_index['red_cube_file'][self.object_id])
+            if not match:
+                # The given cube_filename is not valid, something is wrong!
+                raise DataNotAvailable("The cube filename '%s' cannot be parsed." % self.archive.cube_file_index['red_cube_file'][self.object_id])
+
+            plate_id = match.group('plate_id')
+            n_comb = match.group('n_comb')
+
+            filepath = "/".join((
+                self.archive.vap_data_path,
+                data_product_name,
+                data_product_name + self.version,
+                self.branch,
+                self.object_id + "_" + n_comb + "_" + plate_id + "_" + self.branch + ".fits"))
+
+            log.debug("Trying path for LZIFU Data: %s", filepath)
+
+        exists = file_or_gz_exists(filepath)
+        if not self._lzifu_fits_file and exists:
+            # Try with the correct plate identifier appended (the case for duplicates)
+                self._lzifu_fits_file = exists
+
+        if not self._lzifu_fits_file:
+            raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
+
+        log.info("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
 
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
