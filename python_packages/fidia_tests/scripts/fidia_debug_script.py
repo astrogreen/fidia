@@ -50,9 +50,9 @@ ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test
 # # schema = t.full_schema()
 # schema = t.full_schema()
 
-instrument_metadata = sample['9352']['spectral_cube-red']['instrument_metadata']
+instrument_metadata = sample['9352']['line_emission_map-HALPHA']
 
-x = instrument_metadata.disperser_tilt()
+x = instrument_metadata._wcs_string()
 
 print(x)
 # specfit.as_fits("9352_specfit.fits")

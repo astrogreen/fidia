@@ -17,7 +17,7 @@ class PrestoCache(Cache):
         'extinction_map': "sami_extinction_maps",
         'velocity_map': "sami_velocity_maps",
         # "sami_spectral_map_paths",
-        'line_map': "sami_line_maps",
+        'line_emission_map': "sami_line_maps",
         'sfr_cube': "sami_sfr_maps"
     }
 
@@ -77,11 +77,13 @@ class PrestoCache(Cache):
         try:
             table_name = self.trait_to_table_mapping[top_level_trait_key.trait_type]
         except KeyError:
-            raise DataNotAvailable
+            raise DataNotAvailable("PrestoCache has no data for '%s'" % top_level_trait_key.trait_type)
 
         # First level of hierarchy
-        column_name = "{qualifier}['{branch}']".format(qualifier=top_level_trait_key.trait_qualifier,
-                                                       branch=top_level_trait_key.branch)
+        column_name = "{qualifier}['{branch}-{version}']".format(
+            qualifier=top_level_trait_key.trait_qualifier,
+            branch=top_level_trait_key.branch,
+            version=top_level_trait_key.version)
         # Add subsequent levels of path heirarchy (if needed)
         for key in trait_key_path[1:]:
             tk = traits.TraitKey(key)
@@ -100,14 +102,16 @@ class PrestoCache(Cache):
 
             # the 'data' key has the actual result of the query:
 
-            if len(json_data['data']) > 1:
+            if len(json_data['data']) != 1:
                 # Returned too many results?
                 log.error("Presto DB cache query retrned too many results?!")
                 pass
 
+            returned_object_id, data = json_data['data'][0]
 
+            assert returned_object_id == object_id
 
-            return json_data['data']['data']
+            return data
         else:
             raise DataNotAvailable
 
