@@ -1,15 +1,14 @@
 
 from fidia import traits
 from fidia.cache import Cache
-from fidia.exceptions import DataNotAvailable, ReadOnly
+from fidia import exceptions
 
 import requests
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
-# log.setLevel(slogging.WARNING)
 
 class PrestoCache(Cache):
 
@@ -40,13 +39,13 @@ class PrestoCache(Cache):
 
 
     def execute_query(self, query):
-        """Execute the given query against the Presto DB RESTful endpoint"""
+        """Execute the given query against the Presto DB RESTful endpoint and return `requests.Response` object."""
         result = requests.post(self.__url, data=query, headers=self.__headers)
-        #r = requests.get(url, data={})
         return result
 
 
     def get_columnnames(self, table):
+        """Return a list of column names in the given table."""
         result = self.execute_query("Describe " + table)
         if result.ok:
             return result.json()['data']
@@ -62,65 +61,77 @@ class PrestoCache(Cache):
             return result.status_code + result.reason
 
     def get_cached_trait_property(self, object_id, trait_key_path, trait, trait_property_name):
-        # get the path to the Trait if interest in the format we want:
+        """Retrieve the value of a trait_property from the database.
 
+        Implementation:
 
-        # Top level trait_key
+            - Identify the database table containing the relevant data.
+            - Construct the column name pointing to the particular branch,
+              version, and then sub-trait and trait-property requested.
+            - Run the query against the database
+            - Extract the result and return it.
+
+        """
+
         top_level_trait_key = traits.TraitKey.as_traitkey(trait_key_path[0])
 
-
-        # The first element in the path will contain the branch and version information
-        branch = top_level_trait_key.branch
-        version = top_level_trait_key.version
-
-
+        # Get the name of the table to be queried:
+        # @TODO: If the table names are standardized, change this to match the standard.
         try:
+            # Look up the table name in the mapping from trait_type to table name.
             table_name = self.trait_to_table_mapping[top_level_trait_key.trait_type]
         except KeyError:
-            raise DataNotAvailable("PrestoCache has no data for '%s'" % top_level_trait_key.trait_type)
+            # Trait type not found in the mapping, so no data avilable.
+            raise exceptions.DataNotAvailable("PrestoCache has no table for '%s'" % top_level_trait_key.trait_type)
 
-        # First level of hierarchy
+        # Construct the column name from the first element of the Trait path.
         column_name = "{qualifier}['{branch}-{version}']".format(
             qualifier=top_level_trait_key.trait_qualifier,
             branch=top_level_trait_key.branch,
             version=top_level_trait_key.version)
-        # Add subsequent levels of path heirarchy (if needed)
+        # Extend the column name for subsequent levels of the path if necessary
         for key in trait_key_path[1:]:
             tk = traits.TraitKey(key)
             column_name += ".{trait_name}".format(trait_name=tk.trait_name)
 
-        # Add trait_property name
+        # Extend the column name with the trait_property name
         column_name += ".{tp_name}".format(tp_name=trait_property_name)
 
+        # Construct the query
+        query = "SELECT object_id, {column_name} AS data FROM {table_name} WHERE object_id='{object_id}'".format(
+            column_name=column_name, table_name=table_name, object_id=object_id
+        )
 
-        query = "select object_id, " + column_name + " as data " \
-                " from " + table_name + " where object_id='" + object_id + "'"
-
+        # Execute the query
         result = self.execute_query(query)
         if result.ok:
             json_data = result.json()
 
-            # the 'data' key has the actual result of the query:
+            # the 'data' key has the actual result of the query
+            # the 'columns' key has information about the returned columns
 
             if len(json_data['data']) != 1:
                 # Returned too many results?
-                log.error("Presto DB cache query retrned too many results?!")
+                log.error("Presto DB cache query returned too many results?!")
+                # @TODO: Should this raise an exception?
                 pass
 
+            # Split the row into its elements
             returned_object_id, data = json_data['data'][0]
 
+            # Confirm that the data returned is as expected.
             assert returned_object_id == object_id
 
             return data
         else:
-            raise DataNotAvailable
+            log.info("Presto DB query failed for query '%s'", query)
+            raise exceptions.DataNotAvailable("Presto DB query failed for query '%s'" % query)
 
 
 
     def check_trait_property_available(self, object_id, trait_key_path, trait_property_name):
+        """A fast check if a cache request for the given data is likely to bear fruit."""
+        top_level_trait_key = traits.TraitKey.as_traitkey(trait_key_path[0])
 
-        # e.g. check that the schema contains data for the given path, and if not, return False.
-        #
-        # if trait_key_path not in parquet.schema:
-        #     return False
-        return True
+        # @TODO: If the table names are standardized, change this to match the standard.
+        return top_level_trait_key.trait_type in  self.trait_to_table_mapping
