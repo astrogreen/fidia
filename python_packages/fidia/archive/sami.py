@@ -1985,7 +1985,7 @@ class SAMIDR1PublicArchive(Archive):
         bad_class.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         bad_class.set_description("Classification based on visual inspection (see Bryant et al. 2015).")
         bad_class.set_documentation(
-            r"""The BAD_CLASS flag measures the visual classification as follows:
+            r"""The BAD\_CLASS flag measures the visual classification as follows:
             \begin{description}
                 \item[0] object is OK;
                 \item[1] nearby bright star;
