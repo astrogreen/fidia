@@ -51,7 +51,7 @@
             <div class="quick-links">
                 <h5>Quick Links</h5>
                 <ul class="nav-sidebar">
-                    {% for value in response.data.samples %}
+                    {% for value in response.data.surveys %}
                     <li role="presentation"><a href="{{value.survey}}/"><span>Data Browser for {{value.survey|uppercase}}
                 <i class="fa fa-angle-right"></i></span></a></li>
                     {% endfor %}
@@ -71,7 +71,7 @@
                     href="{% url 'schema:schema-list' %}">Schema
                 Browser</a>.</p><br><br>
         <div class="row">
-            {% for value in response.data.samples %}
+            {% for value in response.data.surveys %}
             <div class="col-xs-1 col-sm-offset-1 col-sm-1">
                 <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
             </div>

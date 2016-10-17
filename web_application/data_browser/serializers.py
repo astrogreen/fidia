@@ -49,11 +49,12 @@ class DocumentationHTMLField(serializers.Field):
 
 
 class RootSerializer(serializers.Serializer):
+    """ Serializer for the Data Browser Root. Lists all surveys available from FIDIA. """
 
-    def get_samples(self, obj):
-        return self.context['samples']
+    def get_surveys(self, obj):
+        return self.context['surveys']
 
-    samples = serializers.SerializerMethodField()
+    surveys = serializers.SerializerMethodField()
 
 
 class SampleSerializer(data_browser.mixins.SampleAttributesMixin):

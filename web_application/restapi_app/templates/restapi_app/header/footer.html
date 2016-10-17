@@ -152,7 +152,7 @@
         });
 
 
-        update_sidebar_size = function(){
+        update_sidebar_height = function(){
          /*
           * Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
           */
@@ -168,25 +168,22 @@
         };
 
         $(window).load(function () {
-            update_sidebar_size();
+            update_sidebar_height();
+            affixSidebar();
         });
         $(window).resize(function () {
-            update_sidebar_size();
+            update_sidebar_height();
+            affixSidebar();
         });
 
         // Hook method to collapse events on sidebar anchors to re-check size
         // - this is used in the trait property renderer, which is half navigation, half information
 
         $('.sidebar #sidebar').on('shown.bs.collapse', function () {
-            update_sidebar_size();
+            update_sidebar_height();
         }).on('hidden.bs.collapse', function () {
-            update_sidebar_size();
+            update_sidebar_height();
         });
-
-        popoverClose = function(e){
-            console.log(e);
-            console.log(e.target);
-        }
 
         // Hide branch warning message
         $('.dismissable_panel a.dismiss_button').click(function(){
@@ -195,24 +192,25 @@
         $('body').scrollspy({ target: '.sidebar .page-contents' });
 
         // Affix plugin
-        var pos = $('.sidebar-contents').eq(0).offset();
-        var pos_foot = $('.footer').outerHeight(true);
+        function affixSidebar(){
+            // destroy any previous listeners
+            $('.sidebar-contents').off('.affix');
 
-        $('[data-spy="affix"]').attr("data-offset-top", pos.top);
-        $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot+30);
+            var pos = $('.sidebar-contents').eq(0).offset();
+            var pos_foot = $('.footer').outerHeight(true);
 
-        function affixWidth() {
+            $('[data-spy="affix"]').attr("data-offset-top", pos.top);
+            $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot + 30);
+
             // ensure the affix element maintains it width
             var affix = $('.sidebar-contents');
             var width = affix.width();
+            var width = $('.sidebar').width();
+//            console.log('sidebar width '+$('.sidebar').width()+' affix width '+width);
             affix.width(width);
         }
 
-        $(document).ready(function () {
-
-            affixWidth();
-
-        });
+        affixSidebar()
 
     });
 </script>

@@ -35,7 +35,8 @@ log = logging.getLogger(__name__)
 
 
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """ Viewset for DataBrowser API root. List View only. """
+    """ Viewset for DataBrowser API root. Implements List action only.
+    Lists all surveys, their current versions and total number of objects in that version. """
 
     renderer_classes = (data_browser.renderers.RootRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
@@ -49,7 +50,7 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
             many=False, instance=sami_dr1_sample,
-            context={'request': request, 'samples': surveys},
+            context={'request': request, 'surveys': surveys},
         )
         return Response(serializer.data)
 

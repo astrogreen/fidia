@@ -274,19 +274,6 @@ code {
 .affix-bottom {
   position: absolute;
 }
-@media (max-width: 992px) {
-  .sidebar ul.nav-sidebar li a {
-    max-width: 120px;
-  }
-}
-@media (max-width: 767px) {
-  .affix {
-    position: static;
-  }
-  .sidebar ul.nav-sidebar li a {
-    max-width: auto;
-  }
-}
 .container-fluid {
   padding-left: 30px;
   padding-right: 30px;
@@ -1604,6 +1591,29 @@ ol.linenums li {
 @media only screen and (max-width: 320px) {
   .media-query-box {
     border: solid 1px orange;
+  }
+}
+@media (max-width: 992px) {
+  .sidebar ul.nav-sidebar li a {
+    max-width: 120px;
+  }
+}
+@media (max-width: 767px) {
+  .affix {
+    position: static;
+  }
+  .sidebar {
+    border-bottom: solid 1px #ddd;
+  }
+  .sidebar h5 {
+    margin: 0;
+  }
+  .sidebar ul.nav-sidebar {
+    margin-bottom: 5px;
+    padding: 5px 0;
+  }
+  .sidebar ul.nav-sidebar li a {
+    max-width: 100%;
   }
 }
 /*
