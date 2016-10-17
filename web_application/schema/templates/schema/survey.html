@@ -13,7 +13,7 @@
 {% block page_title %}Schema Browser{% endblock %}
 {% block bodyclass %}schema-browser{% endblock %}
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="title_info blue">
     <div class="container">
         <div class="row">
@@ -52,7 +52,7 @@
 {% endblock page_title_banner %}
 
 {% block content_render %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar">
@@ -379,7 +379,7 @@
                                                                 {% if trait_type_key in response.data.schema_non_catalog.trait_types %}
 
                                                                 {% else %}
-                                                                    <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} is a catalogue property. Export the {{survey|uppercase}} catalogue properties as CSV, Excel in the <a target="_blank" href="{% url 'data_browser:survey-list' sample_pk=survey %}">Data Browser Survey page</a> under the <strong>Multiple Object</strong> tab. </p>
+                                                                    <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} is a catalogue property. Export the {{survey|uppercase}} catalogue properties as CSV, Excel in the <a target="_blank" href="{% url 'data_browser:survey-list' survey_pk=survey %}">Data Browser Survey page</a> under the <strong>Multiple Object</strong> tab. </p>
                                                                 {% endif %}
 
 

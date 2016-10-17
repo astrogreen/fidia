@@ -55,18 +55,20 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
-class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
+class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
     """
     Viewset for Sample route. Provides List view only.
+    Endpoint: list of astroobjects
+    HTML Context: survey string ('sami') and survey catalogue data
     """
 
     renderer_classes = (data_browser.renderers.SampleRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
     serializer_class = data_browser.serializers.DownloadSerializer
 
-    def list(self, request, pk=None, sample_pk=None, format=None, extra_keyword=None):
+    def list(self, request, pk=None, survey_pk=None, format=None, extra_keyword=None):
 
-        self.breadcrumb_list = ['Data Browser', str(sample_pk).upper()]
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper()]
 
         try:
             # TODO ask FIDIA what it's got for sample_pk
@@ -76,10 +78,14 @@ class SampleViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer_class = data_browser.serializers.SampleSerializer
+        # Context (for html page render)
+        self.catalog = json.dumps(sami_dr1_sample.get_feature_catalog_data())
+
+        # Endpoint-only
+        serializer_class = data_browser.serializers.SurveySerializer
         serializer = serializer_class(
             instance=sami_dr1_sample, many=False,
-            context={'request': request, 'sample': sample_pk}
+            context={'request': request, 'survey': survey_pk}
         )
         return Response(serializer.data)
 

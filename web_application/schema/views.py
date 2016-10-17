@@ -47,14 +47,14 @@ class SchemaViewSet(data_browser.views.RootViewSet):
 
 class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'schema/sample.html'
+        template = 'schema/survey.html'
 
     renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
-    def list(self, request, pk=None, sample_pk=None, format=None):
-        self.breadcrumb_list = [str(sample_pk).upper()]
+    def list(self, request, pk=None, survey_pk=None, format=None):
+        self.breadcrumb_list = [str(survey_pk).upper()]
 
-        if sample_pk == 'gama':
+        if survey_pk == 'gama':
             return Response({"sample": "gama", "in_progress": True})
 
         try:
@@ -67,7 +67,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer = schema.serializers.SurveySerializer(
             instance=ar, many=False,
             context={
-                'sample': sample_pk,
+                'survey': survey_pk,
                 'request': request
             }
         )

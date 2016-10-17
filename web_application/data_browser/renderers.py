@@ -53,6 +53,12 @@ class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
     def __repr__(self):
         return 'SampleRenderer'
 
+    def get_context(self, data, accepted_media_type, renderer_context):
+        context = super().get_context(data, accepted_media_type, renderer_context)
+        context['catalog'] = renderer_context['view'].catalog
+
+        return context
+
 
 class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
     template = 'data_browser/astro_object/list.html'

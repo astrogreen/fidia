@@ -10,20 +10,20 @@
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 
-<script type="text/javascript" src="{% static 'query/js/available-products/controllers.js' %}"></script>
-<script type="text/javascript" src="{% static 'query/js/available-products/services.js' %}"></script>
-<script type="text/javascript" src="{% static 'query/js/available-products/components.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_browser/js/available-products/controllers.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_browser/js/available-products/services.js' %}"></script>
+<script type="text/javascript" src="{% static 'data_browser/js/available-products/components.js' %}"></script>
 {% endblock %}
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<li role="presentation"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a></li>
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+<li role="presentation"><a href="{% url 'schema:sample-list' survey_pk=survey %}">Schema Browser</a></li>
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
         <div class="row">
@@ -62,7 +62,7 @@
 {% endblock page_title_banner %}
 
 {% block content_render %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents" data-spy="affix">
@@ -74,14 +74,13 @@
                         Overview</a></li>
                     <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
                     <li role="presentation"><a class="scroll" href="#help">Help</a></li>
-
                 </ul>
             </div>
             <div class="quick-links">
                 <h5>Quick Links</h5>
                 <ul class="nav-sidebar">
                     <li>
-                       <a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
+                       <a class="" target="_blank" href="{% url 'schema:sample-list' survey_pk=survey %}"> Schema
                     Browser</a>
                     </li>
 
@@ -119,7 +118,7 @@
                         </td>
                         <td class="lead">{{response.data.data_release}}</td>
                         <td class="lead">{{response.data.astro_objects | length}}</td>
-                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a></td>
+                        <td class="lead"><a href="{% url 'schema:sample-list' survey_pk=survey %}">Schema</a></td>
                     </tr>
                     <tr class="large">
                         <td>PI</td>
@@ -149,7 +148,7 @@
         <h3 id="data-access">Data Access</h3>
 
         <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
-            <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
+            <a href="{% url 'schema:sample-list' survey_pk=survey %}">Schema Browser</a>, which contains comprehensive
             descriptions of the data products available.</p>
         <p>For help using the Data Browser,
             <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">view the documentation.</a></p>
@@ -226,7 +225,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
+                        <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' survey_pk='sami' %}'}" single=True></available-products>
                         <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
                         <div class="row">
                             <div class="col-xs-12 text-right">
@@ -263,7 +262,7 @@
                 href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
              Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
             data product, view the
-            <a href="{% url 'schema:sample-list' sample_pk=survey %}">{{response.data.survey|uppercase}}
+            <a href="{% url 'schema:sample-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
                 Schema Browser</a>.
         </p>
         <p>To learn more about the Data Browser, view the <a
@@ -276,24 +275,21 @@
 {% comment %}
 ------ TURN ON DATATABLES ------
 {% endcomment %}
-<!--<script src="{% static 'restapi_app/js/data-tables/dataTables.js' %}"></script>-->
 <script src="{% static 'data_browser/js/DataTables/datatables.min.js' %}"></script>
 
 {% autoescape off %}
  <script type="text/javascript">
 
-    var SAMPLE_URL = "{% url 'data_browser:survey-list' sample_pk=survey %}";
+    var SAMPLE_URL = "{% url 'data_browser:survey-list' survey_pk=survey %}";
 
-    data = JSON.parse("{{ content|escapejs }}");
+    catalog = JSON.parse("{{ catalog|escapejs }}");
 
-    if (typeof data.catalog !== 'undefined'){
+    if (typeof catalog !== 'undefined'){
         $('#data-table-container').html(' ')
                 .append('<div class=""><table id="returnTableResults" class="table table-responsive table-condensed">' +
                         '<thead><tr><th>Please wait, loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
 
         render_limit = 10000;
-        catalog = (data.catalog);
-
         catalog_data_row_length = catalog.data.length;
         catalog_data_col_length = catalog.column_names.length;
 
@@ -431,7 +427,7 @@
 
                 var selected_column = $(e.currentTarget).val();
 
-                console.log('selected '+selected_column);
+                // console.log('selected '+selected_column);
 
                 // find column index
                 for (var k=0;k<columns.length;k++){
@@ -580,18 +576,7 @@
                                 selected: true
                             }
                         }
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: '<i class="fa fa-file-pdf-o"></i> PDF',
-
-                        exportOptions: {
-                            modifier: {
-                                selected: true
-                            }
-                        }
-                    },
-
+                    }
                 ]
 
             });

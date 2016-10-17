@@ -57,40 +57,34 @@ class RootSerializer(serializers.Serializer):
     surveys = serializers.SerializerMethodField()
 
 
-class SampleSerializer(data_browser.mixins.SampleAttributesMixin):
-    """ Returns list of available astronomical objects. """
+class SurveySerializer(data_browser.mixins.SurveyAttributesMixin):
+    """ Serializer for the Data Browser Root. Lists survey's available astronomical objects. """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        sample = self.instance
-        assert isinstance(sample, fidia.Sample), \
+        survey = self.instance
+        assert isinstance(survey, fidia.Sample), \
             "SampleSerializer must have an instance of fidia.Sample, " + \
-            "not '%s': try SampleSerializer(instance=sample)" % sample
+            "not '%s': try SampleSerializer(instance=sample)" % survey
 
         self.astro_objects = {}
-        for astro_object in sample:
+        for astro_object in survey:
             url_kwargs = {
                 'astroobject_pk': str(astro_object),
-                'sample_pk': self.context['sample']
+                'survey_pk': self.context['survey']
             }
             url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
             self.astro_objects[astro_object] = url
 
     def get_astro_objects(self, obj):
         return self.astro_objects
-
-    def get_catalog(self, obj):
-        return obj.get_feature_catalog_data()
-
-    def get_schema(self, obj):
-        # type: (Archive) -> dict
-        schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True)
-        return schema
-
-    catalog = serializers.SerializerMethodField()
     astro_objects = serializers.SerializerMethodField()
-    schema = serializers.SerializerMethodField()
+    # def get_catalog(self, obj):
+    #     return obj.get_feature_catalog_data()
+
+    # catalog = serializers.SerializerMethodField()
+
 
 
 class DownloadSerializer(serializers.Serializer):

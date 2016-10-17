@@ -30,13 +30,13 @@ class SurveySerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        sample = self.instance
-        assert isinstance(sample, Archive), \
-            "SampleSerializer must have an instance of fidia.Archive, " + \
-            "not '%s': try SampleSerializer(instance=sample)" % sample
+        survey = self.instance
+        assert isinstance(survey, Archive), \
+            "SurveySerializer must have an instance of fidia.Archive, " + \
+            "not '%s': try SampleSerializer(instance=sample)" % survey
 
-    def get_sample(self, obj):
-        return self.context['sample']
+    def get_survey(self, obj):
+        return self.context['survey']
 
     def get_schema(self, obj):
         # type: (Archive) -> dict
@@ -53,8 +53,7 @@ class SurveySerializer(serializers.Serializer):
                                  verbosity='descriptions', separate_metadata=True)
         return schema_non_catalog
 
-    sample = serializers.SerializerMethodField()
-
+    survey = serializers.SerializerMethodField()
     schema = serializers.SerializerMethodField()
     schema_catalog = serializers.SerializerMethodField()
     schema_non_catalog = serializers.SerializerMethodField()
