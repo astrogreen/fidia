@@ -91,12 +91,11 @@ class DownloadSerializer(serializers.Serializer):
     download = serializers.CharField(default='None', max_length=10000)
 
 
-class AstroObjectSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
+class AstroObjectSerializer(serializers.Serializer):
     """ Returns list of available traits. """
 
     def get_traits(self, obj):
         return self.context['traits']
-
 
     def get_position(self, obj):
         return self.context['position']

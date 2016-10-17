@@ -32,7 +32,6 @@
                             <ul class="nav nav-pills" id="{{survey}}_trait_type_key">
                                 <li role="presentation" ng-repeat="(trait_type_key, trait_type_value) in traits" ng-class='{active:$first}'>
                                     <a href="#{{survey}}_{{trait_type_key}}" aria-controls="{{trait_type_key}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
-                                    <p style="padding-left:15px; padding-right:15px;" class="sub-heading">{{trait_type_value.description}}</p>
                                 </li>
                             </ul>
                         </div>

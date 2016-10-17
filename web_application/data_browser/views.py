@@ -89,7 +89,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         )
         return Response(serializer.data)
 
-    def create(self, request, pk=None, sample_pk=None, *args, **kwargs):
+    def create(self, request, pk=None, survey_pk=None, *args, **kwargs):
 
         download_data = json.loads(request.POST['download'])
 
@@ -228,9 +228,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (data_browser.renderers.AstroObjectRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
-    def list(self, request, pk=None, sample_pk=None, astroobject_pk=None, format=None):
+    def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, format=None):
 
-        self.breadcrumb_list = ['Data Browser', str(sample_pk).upper(), astroobject_pk]
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk]
 
         try:
             astro_object = sami_dr1_sample[astroobject_pk]
@@ -244,10 +244,16 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         except ValueError:
             return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Context (for html page render)
+        self.survey = survey_pk
+        self.astro_object = astroobject_pk
+
+        # Endpoint-only
+
         serializer_class = data_browser.serializers.AstroObjectSerializer
         url_kwargs = {
             'astroobject_pk': astroobject_pk,
-            'sample_pk': sample_pk,
+            'survey_pk': survey_pk,
         }
         astro_object_url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
         # Dict of available traits
@@ -271,7 +277,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 url_kwargs = {
                     'trait_pk': trait_name,
                     'astroobject_pk': astroobject_pk,
-                    'sample_pk': sample_pk,
+                    'survey_pk': survey_pk,
                 }
                 trait_name_url = reverse("data_browser:trait-list", kwargs=url_kwargs)
 
@@ -312,7 +318,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer = serializer_class(
             instance=astro_object, many=False,
             context={
-                'sample': sample_pk,
+                'survey': survey_pk,
                 'astro_object': astroobject_pk,
                 'request': request,
                 'traits': trait_info,

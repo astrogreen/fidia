@@ -11,12 +11,11 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema Browser</a></li>
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
         <div class="row">
@@ -54,23 +53,22 @@
 {% endblock page_title_banner %}
 
 {% block content-navigator-help %}
-    <a href="{% url 'data_browser:survey-list' sample_pk=response.data.sample %}"><i class="fa fa-reply"></i> Back to {{response.data.sample|uppercase}}</a>
+    <a href="{% url 'data_browser:survey-list' survey_pk=survey %}"><i class="fa fa-reply"></i> Back to {{survey|uppercase}}</a>
 {% endblock %}
 
 {% block content_render %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
             <div class="page-contents">
             <h5>Page Contents</h5>
             <ul class="nav nav-pills nav-stacked nav-sidebar">
-                <li role="presentation"><a class="scroll" href="#top-of-page">{{response.data.sample|uppercase}} {{response.data.astro_object}}</a></li>
+                <li role="presentation"><a class="scroll" href="#top-of-page">{{survey|uppercase}} {{astro_object}}</a></li>
             </ul>
             </div>
             <h5>Quick Links</h5>
             <ul class="nav-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
                 {% if breadcrumblist %}
                   {% with breadcrumblist|length|add:"-2" as b %}
@@ -85,7 +83,7 @@
                     <span class="panel-title">GAMA</span>
                 </div>
                 <div class="panel-body">
-                    <strong><a class="text-uppercase" target="_blank" href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{response.data.astro_object}}">GAMA Single Object Viewer for {{response.data.astro_object}} <i class="fa fa-angle-right"></i></a></strong>
+                    <strong><a class="text-uppercase" target="_blank" href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}">GAMA Single Object Viewer for {{astro_object}} <i class="fa fa-angle-right"></i></a></strong>
                 </div>
             </div>
 
@@ -111,7 +109,7 @@
         <div class="col-sm-2 pull-right">
             <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2>{{response.data.sample|uppercase}} {{response.data.astro_object}}</h2>
+        <h2>{{survey|uppercase}} {{astro_object}}</h2>
         <div>
 
             <!-- Nav tabs -->
@@ -126,7 +124,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <span class="panel-title">Object Properties
-                            <small class="pull-right sub-heading">scroll for more <i class="fa fa-arrows-h"></i></small>
+                            <small class="pull-right sub-heading"><i class="fa fa-arrows-h"></i> scroll for more</small>
                             </span>
                         </div>
                         <div class="table-responsive">
@@ -142,7 +140,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <td class="lead" style="vertical-align:middle">{{response.data.astro_object}}</td>
+                                    <td class="lead" style="vertical-align:middle">{{astro_object}}</td>
                                     <td style="vertical-align:middle">{{response.data.position.ra}}</td>
                                     <td style="vertical-align:middle">{{response.data.position.dec}}</td>
                                     {% for f in feature_catalog_data %}
@@ -162,9 +160,7 @@
                 <div role="tabpanel" class="tab-pane" id="products">
                     <p>Data products are grouped by their product-type (e.g., you can find the SAMI [OIII] (5007Å) and [NII] (6583Å) line maps under <em>Line Maps</em>).  </p>
                     <div class="p">Select a product type from the list below to view its properties, meta-data and where available, an interactive visualization. To find out more
-                                            about the available branches, visit the <a
-                                                    href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema
-                                                Browser</a>.
+                                            about the available branches, visit the <a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a>.
                     </div>
 
                     <table class="table table-bordered" > 
