@@ -65,8 +65,8 @@ class SurveySerializer(data_browser.mixins.SurveyAttributesMixin):
 
         survey = self.instance
         assert isinstance(survey, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " + \
-            "not '%s': try SampleSerializer(instance=sample)" % survey
+            "SurveySerializer must have an instance of fidia.Sample, " + \
+            "not '%s': try SurveySerializer(instance=sample)" % survey
 
         self.astro_objects = {}
         for astro_object in survey:
@@ -104,7 +104,7 @@ class AstroObjectSerializer(serializers.Serializer):
     position = serializers.SerializerMethodField()
 
 
-class TraitSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
+class TraitSerializer(serializers.Serializer):
     """Serializer for the Trait level of the Data Browser"""
 
     def __init__(self, *args, **kwargs):
@@ -132,7 +132,7 @@ class TraitSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
             self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait, parent_trait_display=False,
                                                                 context={
                                                                     'request': self.context['request'],
-                                                                    'sample': self.context['sample'],
+                                                                    'survey': self.context['survey'],
                                                                     'astro_object': self.context['astro_object'],
                                                                     'trait': self.context['trait'],
                                                                     'trait_key': self.context['trait_key'],
@@ -177,7 +177,7 @@ class TraitSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
         branches = {}
         url_kwargs = {
             'astroobject_pk': self.context['astro_object'],
-            'sample_pk': self.context['sample']
+            'survey_pk': self.context['survey']
         }
         # url = reverse("data_browser:astroobject-list", kwargs=url_kwargs, request=self.context['request'])
         # removing request also removes the protocol etc.
@@ -241,7 +241,7 @@ class TraitSerializer(data_browser.mixins.AstronomicalObjectAttributesMixin):
 
         url_kwargs = {
             'astroobject_pk': self.context['astro_object'],
-            'sample_pk': self.context['sample'],
+            'survey_pk': self.context['survey'],
             'trait_pk': self.context['trait'],
         }
         _url = reverse("data_browser:trait-list", kwargs=url_kwargs)
@@ -369,7 +369,7 @@ class TraitPropertySerializer(data_browser.mixins.AstronomicalObjectAttributesMi
 
         url_kwargs = {
             'astroobject_pk': self.context['astro_object'],
-            'sample_pk': self.context['sample'],
+            'survey_pk': self.context['survey'],
             'trait_pk': self.context['trait'],
         }
         _url = reverse("data_browser:trait-list", kwargs=url_kwargs)

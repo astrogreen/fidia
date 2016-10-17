@@ -316,11 +316,6 @@ h4.list-group-item-text {
 h6 > a:nth-child(1) {
   margin-right: 15px;
 }
-.nav-tabs {
-  margin: 20px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 16px;
-}
 span.version {
   margin-left: 5px;
 }

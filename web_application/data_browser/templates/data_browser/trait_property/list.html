@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{survey}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
         <div class="row">
@@ -58,7 +58,7 @@
 {% endblock page_title_banner %}
 
 {% block content_render %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{survey}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents" data-spy="affix">
@@ -77,7 +77,7 @@
                         <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
                       {% endwith %}
                 {% endif %}
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.parent_trait.trait_key|key:0}}{% if response.data.parent_trait.trait_key|key:1 %}-{{response.data.parent_trait.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{response.data.parent_trait.trait_key|key:0}}{% if response.data.parent_trait.trait_key|key:1 %}-{{response.data.parent_trait.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
             </ul>
 
@@ -85,7 +85,7 @@
 
     </div>
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>{{sample|uppercase}} {{astro_object}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
+        <h2>{{survey|uppercase}} {{astro_object}} {{trait}} {{subtrait}} {{response.data.pretty_name}}</h2>
 
         <h3 id="data">Data</h3>
         <div class="row">

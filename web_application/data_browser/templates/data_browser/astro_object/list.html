@@ -52,14 +52,10 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-navigator-help %}
-    <a href="{% url 'data_browser:survey-list' survey_pk=survey %}"><i class="fa fa-reply"></i> Back to {{survey|uppercase}}</a>
-{% endblock %}
-
 {% block content_render %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
+        <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
             <h5>Page Contents</h5>
             <ul class="nav nav-pills nav-stacked nav-sidebar">
@@ -77,30 +73,7 @@
             {% endif %}
             </ul>
 
-            <h5>Auxillary Data</h5>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <span class="panel-title">GAMA</span>
-                </div>
-                <div class="panel-body">
-                    <strong><a class="text-uppercase" target="_blank" href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}">GAMA Single Object Viewer for {{astro_object}} <i class="fa fa-angle-right"></i></a></strong>
-                </div>
-            </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <span class="panel-title">SDSS</span>
-                </div>
-                <div class="panel-body">
-                    <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
-                         alt="..." class="img-responsive">
-                    <br>
-                    <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
-                        × 512 pixel, 0.2
-                        arcsec/pixel,
-                        5-band composite from SDSS DR7.</p>
-                </div>
-            </div>
 
         </div>
     </div>
@@ -121,36 +94,54 @@
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="overview">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <span class="panel-title">Object Properties
-                            <small class="pull-right sub-heading"><i class="fa fa-arrows-h"></i> scroll for more</small>
-                            </span>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="table-responsive">
+                                <table class="table table-condensed">
+                                    <tbody>
+                                    <tr>
+                                        <td class="p_light">{{survey|uppercase}} ID</td><td>{{astro_object}}</td>
+                                    </tr>
+                                    <tr><td class="p_light">RA</td><td>{{response.data.position.ra}}</td></tr>
+                                    <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
+                                    {% for f in feature_catalog_data %}
+                                        <tr>
+                                            <td class="p_light">{{f.pretty_name}}</td>
+                                            <td>{{f.value}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td>GAMA
+                                Single Object Viewer</td>
+                                        <td><a class="text-uppercase" target="_blank"
+                                       href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}"> SOV <i class="fa fa-external-link"></i></a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <tbody>
-
-                                <tr class="sub-heading">
-                                    <td style="vertical-align:bottom">Survey ID</td>
-                                    <td style="vertical-align:bottom">RA</td>
-                                    <td style="vertical-align:bottom">DEC</td>
-                                    {% for f in feature_catalog_data %}
-                                    <td style="vertical-align:bottom">{{f.pretty_name}}</td>
-                                    {% endfor %}
-                                </tr>
-                                <tr>
-                                    <td class="lead" style="vertical-align:middle">{{astro_object}}</td>
-                                    <td style="vertical-align:middle">{{response.data.position.ra}}</td>
-                                    <td style="vertical-align:middle">{{response.data.position.dec}}</td>
-                                    {% for f in feature_catalog_data %}
-                                    <td style="vertical-align:middle">{{f.value}}</td>
-                                    {% endfor %}
-                                </tr>
-                                </tbody>
-                            </table>
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Auxillary Data: SDSS
+                                </div>
+                                <div class="panel-body">
+                                    <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                         alt="..." class="img-responsive">
+                                    <br>
+                                    <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
+                                        × 512 pixel, 0.2
+                                        arcsec/pixel,
+                                        5-band composite from SDSS DR7.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {% with "data_browser/astro_object/survey/"|add:survey|add:"_feature.html" as template %}
+                        {% include template %}
+                    {% endwith %}
+
                     {% with "data_browser/astro_object/survey/"|add:survey|add:".html" as template %}
                         {% include template %}
                     {% endwith %}
@@ -158,12 +149,23 @@
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="products">
-                    <p>Data products are grouped by their product-type (e.g., you can find the SAMI [OIII] (5007Å) and [NII] (6583Å) line maps under <em>Line Maps</em>).  </p>
-                    <div class="p">Select a product type from the list below to view its properties, meta-data and where available, an interactive visualization. To find out more
-                                            about the available branches, visit the <a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a>.
+                    <p>To view a particular data product's properties, meta-data and where
+                        available, an interactive visualization, click the link in the table below.
+                    </p>
+                    <p>To find out more
+                        about the available branches, visit the <a
+                                href="{% url 'schema:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema Browser</a>.</p>
+                    <div class="panel panel-default success">
+                        <div class="panel-body">
+                            <div class="sub-heading"><strong>Note:</strong> Data products are grouped by their product-type (e.g., you
+                                can find the SAMI [OIII] (5007Å) and
+                                [NII] (6583Å) line maps under <em>Line Maps</em>). Use the search box to filter the
+                                products by a particular keyword.
+                            </div>
+                        </div>
                     </div>
 
-                    <table class="table table-bordered" > 
+                    <table class="table table-condensed table-bordered" > 
                         <colgroup> 
                             <col align="center" width="25%"/>
                              
@@ -173,34 +175,32 @@
                              
                         </colgroup>
                          <thead>
-                        <tr class="active" style="background-color:#F1F1F1">
-                            <td class="panel-heading">
-                                <span class="text-uppercase">Product Type</span>
-
-                                <input type="text" class="search form-control" id="product_search" placeholder="Filter Products...">
+                        <tr class="" style="background-color:#F1F1F1">
+                            <td class="form-inline" style="vertical-align: middle;">
+                                <strong>Product Type</strong>
+                                <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
+                                                            data-toggle="popover" data-trigger="hover click"
+                                                            data-placement="top"
+                                                            data-content="View the default branch for this data product."
+                                                            data-original-title="" title=""><i
+                                        class="fa fa-info-circle"></i></a></span>
+                                <input type="text" class="search form-control" id="product_search" placeholder="Filter Products..." style="margin-left:5%;">
                             </td>
-                            <td class="panel-heading">
-                                <span class="text-uppercase">Branch</span>
-
+                            <td style="vertical-align: middle;">
+                                <strong>Branch</strong>
+                                <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
+                                                            data-toggle="popover" data-trigger="hover click"
+                                                            data-placement="top"
+                                                            data-content="Alternatively, choose a specific branch from the dropdown."
+                                                            data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
                             </td>
-                            <td class="panel-heading">
-                                <span class="text-uppercase">Download</span>
-
-                            </td>
-                        </tr>
-                        <tr class="">
-                            <td>
-                                <div class="sub-heading">View the default branch for this data
-                                                product...</div>
-                            </td>
-                            <td>
-                                <span class="sub-heading">... or choose a specific branch from the
-                                            dropdown. </span>
-                            </td>
-                            <td>
-                                <span class="sub-heading "> <i
-                                                class="fa fa-download"></i>  Download this data product as JSON
-                                            or FITS.</span>
+                            <td style="vertical-align: middle;">
+                                <strong>Download</strong>
+                                <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
+                                                            data-toggle="popover" data-trigger="hover click"
+                                                            data-placement="top"
+                                                            data-content="Download this data product in a variety of formats."
+                                                            data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
                             </td>
                         </tr>
                     </thead>
@@ -208,7 +208,7 @@
                     <tbody id="product_menu"> 
 
                         {% for trait_type_key, trait_type_value in response.data.traits.items %}
-                        <tr data-trait-type-key="{{trait_type_key}}" class="active">
+                        <tr data-trait-type-key="{{trait_type_key}}" class="bg-success">
                             <td colspan="3">
                                 <h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span>
                                     {% if trait_type_value.description %}<span class="sub-heading" style="font-weight:400"><em>{{trait_type_value.description}}</em></span>{% endif %}

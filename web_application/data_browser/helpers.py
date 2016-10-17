@@ -1,6 +1,6 @@
 from rest_framework.reverse import reverse
 
-def trait_helper(self, trait, ar, sample_pk, astroobject_pk, trait_pk, request):
+def trait_helper(self, trait, ar, survey_pk, astroobject_pk, trait_pk, request):
     """ Returns all the useful information about this particular trait """
 
     trait_registry = ar.available_traits
@@ -36,7 +36,7 @@ def trait_helper(self, trait, ar, sample_pk, astroobject_pk, trait_pk, request):
     branches = {}
 
     _astro_object_url = reverse("data_browser:astroobject-list", kwargs={
-        'sample_pk': sample_pk,
+        'survey_pk': survey_pk,
         'astroobject_pk': astroobject_pk,
     })
 
@@ -63,7 +63,7 @@ def trait_helper(self, trait, ar, sample_pk, astroobject_pk, trait_pk, request):
     trait_info['all_branches_versions'] = b_v_arr
 
     trait_info['url'] = reverse("data_browser:trait-list", kwargs={
-        'sample_pk': sample_pk,
+        'survey_pk': survey_pk,
         'astroobject_pk': astroobject_pk,
         'trait_pk': trait_pk,
     })

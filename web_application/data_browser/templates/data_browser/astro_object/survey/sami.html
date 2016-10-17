@@ -1,41 +1,26 @@
 {% load internal_extras %}
 <div class="row">
-    <!--<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
-        <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading">-->
-                <!--<h3 class="panel-title">Spectrum: IN PROGRESS</h3>-->
-            <!--</div>-->
-            <!--<div class="panel-body" style="opacity:0.3">-->
-                <!--<img src="/static/restapi_app/img/sov_test/test_spectra.png" class="img-responsive">-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
-</div>
-<div class="row">
     {% with response.data.traits.velocity_map.traits|key:'velocity_map-ionized_gas' as trait_path %}
     <div class="col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <span class="panel-title">
-                    <a href="{{trait_path.url}}">{{trait_path.pretty_name}}</a>
-                <a href="{{trait_path.url}}" class="pull-right"> <i class="fa fa-arrow-circle-right sub-heading"></i></a>
-                </span>
-
+                <a href="{{trait_path.url}}">{{trait_path.pretty_name}}</a>
             </div>
-            <div class="panel-body text-justify">
-                <div id="velocity_map_plotly_plot">
+            <div class="panel-body">
+                <div class="" id="velocity_map_plotly_plot">
                     <!--Dynamic plotly rendering based on Trait Type-->
                     <p><i class="fa fa-refresh fa-spin"></i> Fetching Data ...</p>
                 </div>
-                {% if trait_path.description %}
-                    <br>
-                    <p class="text-justify">{{trait_path.description}}</p>
-                {% endif %}
             </div>
+            {% if trait_path.description %}
+            <div class="panel-footer">
+                <p class="text-justify">{{trait_path.description}}</p>
+            </div>
+            {% endif %}
         </div>
     </div>
-    <script type="text/javascript">
 
+    <script type="text/javascript">
         $(document).ready(function () {
             var trait_url = "{{trait_path.url}}value/?format=json";
             var trait_name = "{{trait_path.pretty_name}}";
@@ -52,11 +37,9 @@
                     width: elementWidth,
                     height: elementWidth
                 };
-
                 Plotly.relayout(map_selector, update);
             })
         });
-
     </script>
     {% endwith %}
 
@@ -64,25 +47,22 @@
     <div class="col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                 <span class="panel-title">
-                    <a href="{{trait_path.url}}">{{trait_path.pretty_name}}</a>
-                    <a href="{{trait_path.url}}" class="pull-right"> <i class="fa fa-arrow-circle-right sub-heading"></i></a>
-                 </span>
+                <a href="{{trait_path.url}}">{{trait_path.pretty_name}}</a>
             </div>
-            <div class="panel-body text-justify">
-                <div id="sfr_map_plotly_plot">
+            <div class="panel-body">
+                <div class="" id="sfr_map_plotly_plot">
                     <!--Dynamic plotly rendering based on Trait Type-->
                     <p><i class="fa fa-refresh fa-spin"></i> Fetching Data ...</p>
                 </div>
-                {% if trait_path.description %}
-                    <br>
-                    <p class="text-justify">{{trait_path.description}}</p>
-                {% endif %}
             </div>
+            {% if trait_path.description %}
+            <div class="panel-footer">
+                <p class="text-justify">{{trait_path.description}}</p>
+            </div>
+            {% endif %}
         </div>
     </div>
     <script type="text/javascript">
-
         $(document).ready(function () {
             var trait_url = "{{trait_path.url}}value/?format=json";
             var trait_name = "{{trait_path.pretty_name}}";
@@ -99,7 +79,6 @@
                     width: elementWidth,
                     height: elementWidth
                 };
-
                 Plotly.relayout(map_selector, update);
             })
         });

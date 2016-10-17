@@ -185,10 +185,10 @@ function plot_map(name, data, selector, zmin, zmax){
         width:elementWidth,
         height:elementWidth,
         margin: {
-            l: 0.04*elementWidth,
-            r: 0.04*elementWidth,
-            b:0.05*elementWidth,
-            t: 0.03*elementWidth
+            l: 0.08*elementWidth,
+            r: 0.00*elementWidth,
+            b: 0.08*elementWidth,
+            t: 0.06*elementWidth
         },
         // title: map_title
     };

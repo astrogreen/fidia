@@ -12,17 +12,12 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}">Schema</a></li>
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
 {% endblock useful_links %}
 
-{% block content-navigator-help %}
-    <a href="{{trait_url}}"><i class="fa fa-reply"></i> Back to {{trait}} <span>[ <i class="fa fa-code-fork"></i>{{branch}}</span>
-            <span><i class="fa fa-map-marker"></i>{{version}} ]</span></a>
-{% endblock %}
-
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{survey}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
         <div class="row">
@@ -60,7 +55,7 @@
 {% endblock page_title_banner %}
 
 {% block content_render %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% captureas survey %}{{survey}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
@@ -80,7 +75,7 @@
                 {% endwith %}
                 {% endif %}
                 <br>
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.parent_trait.trait_key|key:0}}{% if response.data.parent_trait.trait_key|key:1 %}-{{response.data.parent_trait.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{response.data.parent_trait.trait_key|key:0}}{% if response.data.parent_trait.trait_key|key:1 %}-{{response.data.parent_trait.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
             </ul>
 
@@ -109,7 +104,7 @@
         </div>
     </div>
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>{{response.data.sample|uppercase}} {{response.data.astroobject}} {{trait}} {{response.data.pretty_name}}</h2>
+        <h2>{{survey|uppercase}} {{response.data.astroobject}} {{trait}} {{response.data.pretty_name}}</h2>
         {% if response.data.description %}
         <em><p class="">{{ response.data.description}}</p></em>
         {% endif %}

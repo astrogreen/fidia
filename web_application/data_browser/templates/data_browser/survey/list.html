@@ -61,7 +61,7 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content_render %}
+{% block content-test %}
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
@@ -98,7 +98,6 @@
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
-
 
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
@@ -146,8 +145,11 @@
             </div>
         </div>
         <img class="img-responsive" src="{% static 'data_browser/img/sami/sami_dr1poster_plot_only.jpg' %}">
-        <span class="sub-heading"><em>Figure: The star formation rate-stellar mass relation for SAMI galaxies.
-            Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
+        <div class="well col-sm-offset-6 col-sm-6">
+            <span class="sub-heading"><em>Figure 1: The star formation rate-stellar mass relation for SAMI galaxies.
+        Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
+        </div>
+
 
         <h3 id="data-access">Data Access</h3>
 

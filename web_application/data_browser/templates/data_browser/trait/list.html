@@ -15,12 +15,11 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}">Schema Browser</a></li>
-<!--<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=response.data.sample %}" >Documentation</a></li>-->
+<li role="presentation" ><a href="{% url 'schema:sample-list' survey_pk=survey %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}">Schema Browser</a></li>
+<!--<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}" >Documentation</a></li>-->
 {% endblock useful_links %}
 
 {% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
 <div class="title_info red">
     <div class="container">
         <div class="row">
@@ -61,8 +60,7 @@
 
 {% endblock %}
 
-{% block content_render %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+{% block content-test %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
@@ -76,7 +74,7 @@
 
             <h5>Quick Links</h5>
             <ul class="nav-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}#{{response.data.trait_key|key:0}}{% if response.data.trait_key|key:1 %}-{{response.data.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{response.data.trait_key|key:0}}{% if response.data.trait_key|key:1 %}-{{response.data.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
                 {% if breadcrumblist %}
 
@@ -214,7 +212,7 @@
     </div>
 
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>{{response.data.sample|uppercase}} {{response.data.astro_object}} {{response.data.pretty_name}}
+        <h2>{{survey|uppercase}} {{response.data.astro_object}} {{response.data.pretty_name}}
             <small>
                 <span class="sub-heading"><i class="fa fa-code-fork"></i> {{response.data.branch}}</span>
                 <span class="sub-heading"><i class="fa fa-map-pin"></i> {{response.data.version}}</span>
@@ -286,7 +284,7 @@
             {{response.data.pretty_name}} for branch {{response.data.branch}},
             version {{response.data.version}}. To find out more about the available branches, visit the <a
                     target="_blank"
-                    href="{% url 'schema:sample-list' sample_pk=response.data.sample %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}">Schema
+                    href="{% url 'schema:survey-list' survey_pk=survey %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}">Schema
                 Browser</a>.
         </p>
         <h3 id="data">Data <small>
@@ -360,7 +358,7 @@
             </div>
         </div>
         <h3 id="download">Download</h3>
-        <p>Download the {{response.data.pretty_name}} for {{response.data.sample|uppercase}} object
+        <p>Download the {{response.data.pretty_name}} for {{survey|uppercase}} object
             {{response.data.astro_object}} in FITS or JSON file format. </p>
         {% for f in formats %}
         <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">

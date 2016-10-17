@@ -15,11 +15,11 @@ router = rest_framework.routers.SimpleRouter()
 
 router.register(r'data-access/data-browser', data_browser.views.RootViewSet, base_name='root')
 
-# Nested routes for sample (SAMI)
-sample_nested_router = NestedExtendDefaultRouter(router, r'data-access/data-browser', lookup='root')
-sample_nested_router.register(r'(?P<survey_pk>[^/]+)', data_browser.views.SurveyViewSet, base_name='survey')
+# Nested routes for survey (SAMI)
+survey_nested_router = NestedExtendDefaultRouter(router, r'data-access/data-browser', lookup='root')
+survey_nested_router.register(r'(?P<survey_pk>[^/]+)', data_browser.views.SurveyViewSet, base_name='survey')
 
-object_nested_router = NestedExtendDefaultRouter(sample_nested_router, r'(?P<survey_pk>[^/]+)', lookup='survey')
+object_nested_router = NestedExtendDefaultRouter(survey_nested_router, r'(?P<survey_pk>[^/]+)', lookup='survey')
 object_nested_router.register(r'(?P<astroobject_pk>[^/]+)', data_browser.views.AstroObjectViewSet, base_name='astroobject')
 
 trait_nested_router = NestedExtendDefaultRouter(object_nested_router, r'(?P<astroobject_pk>[^/]+)', lookup='astroobject')
@@ -35,7 +35,7 @@ traitprop_nested_router.register(r'(?P<traitproperty_pk>[^/]+)', data_browser.vi
 
 urlpatterns = [
     url(r'^(?i)', include(router.urls)),
-    url(r'^(?i)', include(sample_nested_router.urls)),
+    url(r'^(?i)', include(survey_nested_router.urls)),
     url(r'^(?i)', include(object_nested_router.urls)),
     url(r'^(?i)', include(trait_nested_router.urls)),
     url(r'^(?i)', include(sub_traitprop_nested_router.urls)),

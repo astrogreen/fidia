@@ -118,7 +118,12 @@ body {
     //line-height: 24px;
     line-height: 1.6;
   }
-
+  .p_light {
+    color: #4d4d4d;
+  }
+  .p_dark {
+    color: #1a1a1a;
+  }
   p {
     margin-bottom: 16px;
   }
@@ -188,6 +193,7 @@ small, .sub-heading, a.sub-heading {
 .sub-heading {
   font-size: 14px;
 }
+
 
 #page-content {
   background-color: rgba(241, 241, 241, 0.6);
@@ -322,7 +328,7 @@ code {
     margin: 0;
     padding: 0;
     border-bottom: 1px solid #ccc;
-    border-bottom: rgba(168, 59, 58, 0.4) dotted 1px;
+    border-bottom: rgba(168, 59, 58, 0.3) solid 1px;
     padding: 12px 0;
     margin-bottom: 22px;
     vertical-align: middle;
@@ -537,6 +543,19 @@ code {
   color: #f1cb76
 }
 
+.bg-success {
+  background-color: #4078C0;
+  background-color: rgba(64, 120, 192, 0.1);
+}
+
+.bg-error {
+  background-color: #B54D48;
+}
+
+.bg-warning {
+  background-color: #f1cb76
+}
+
 .text-outline-black {
   text-shadow: -1px -1px 0 #313131,
     1px -1px 0 #313131,
@@ -550,6 +569,7 @@ code {
   -1px 1px 0 #fff,
   1px 1px 0 #fff;
 }
+
 
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -846,24 +866,6 @@ header {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 .schema {
-
-  .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:visited {
-    background-color: #4078C0;
-    padding: 3px 10px 4px;
-    line-height: 22px;
-    border: 1px solid transparent;
-    color: #ffffff;
-  }
-  .nav > li > a:hover, .nav > li > a:focus {
-    text-decoration: none;
-    background-color: #4078C0;
-    color: rgba(251, 251, 251, 1);
-  }
-  .nav-pills > li.active.nested-pill > a, .nav-pills > li.nested-pill.active > a:hover, .nav-pills > li.nested-pill.active > a:focus {
-    color: #ffffff;
-    //background-color: #5385c6;
-  }
-
   .nav-pills {
     > li > a {
       position: relative;
@@ -874,7 +876,7 @@ header {
       text-decoration: none;
       padding: 5px 10px 6px;
       font-size: 13px;
-      line-height: 16px;
+      line-height: 18px;
       border: 1px solid transparent;
       transition: all 0.3s ease-in-out;
     }
@@ -894,6 +896,23 @@ header {
       }
     }
   }
+  .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:visited {
+    background-color: #4078C0;
+    padding: 3px 10px 4px;
+    line-height: 18px;
+    border: 1px solid transparent;
+    color: #ffffff;
+  }
+  .nav > li > a:hover, .nav > li > a:focus {
+    text-decoration: none;
+    background-color: #4078C0;
+    color: rgba(251, 251, 251, 1);
+  }
+  .nav-pills > li.active.nested-pill > a, .nav-pills > li.nested-pill.active > a:hover, .nav-pills > li.nested-pill.active > a:focus {
+    color: #ffffff;
+    //background-color: #5385c6;
+  }
+
 }
 
 /*
@@ -1284,40 +1303,38 @@ p.breakword {
 ++ TABS
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-
-.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
-  color: #333;
-  box-shadow: inset 0px 2px #f1cb76;
-  //box-shadow: inset 0px 2px #4078C0;
-  //box-shadow: inset 0 3px #b83c2e;
-  //box-shadow: inset 0 3px #d15547;
-  //box-shadow: inset 0 3px #d6685c;
-  //color:
-
-}
-
-.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
-  //border-top:3px solid #ffffff;
-  //border-color:red;
-}
-
-.nav-tabs > li > a {
-  border-radius: 0;
-}
-
-.nav-tabs > li > a {
-  color: #777;
-}
-
 .nav-tabs {
-  //margin: 20px 0;
+  margin: 0px 0 10px 0;
   border-bottom: 1px solid #eee;
+  font-size: 14px;
 }
 
 .nav-tabs-with-well {
   margin: 0 !important;
   border-bottom: 0 !important;
 }
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+  color: #333;
+  //box-shadow: inset 0px 2px #f1cb76;
+  font-weight:500;
+}
+
+
+.nav-tabs > li > a {
+  border-radius: 0;
+  padding:5px 15px;
+  color: #777;
+  background-color: #F1F1F1;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-tabs > li > a:hover, .nav-tabs > li > a:focus {
+  text-decoration: none;
+  background-color: #e6e6e6;
+}
+.nav-tabs > li:first-of-type {margin-left:10px}
+
+.tab-content{padding:10px 15px;}
 
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1338,7 +1355,7 @@ p.breakword {
     color: #333;
     font-weight: 400;
     a {
-      color: #333;
+      //color: #333;
     }
     h3 {
       border: none;
