@@ -70,7 +70,6 @@ class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         context = super().get_context(data, accepted_media_type, renderer_context)
         context['survey'] = renderer_context['view'].survey
         context['astro_object'] = renderer_context['view'].astro_object
-        context['traits_to_render'] = {"sami": ['velocity_map', 'sfr_map']}
         context['feature_catalog_data'] = renderer_context['view'].feature_catalog_data
 
         return context

@@ -61,7 +61,7 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
@@ -168,7 +168,7 @@
         </ul>
 
         <!-- Tab panes -->
-        <div class="tab-content">
+        <div class="tab-content add-padding">
             <div role="tabpanel" class="tab-pane active" id="single">
                 <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
                     <strong>Go</strong> to view the

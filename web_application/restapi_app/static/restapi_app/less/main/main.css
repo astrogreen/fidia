@@ -1147,7 +1147,7 @@ li {
 .nav-tabs > li:first-of-type {
   margin-left: 10px;
 }
-.tab-content {
+.tab-content.add-padding {
   padding: 10px 15px;
 }
 /*

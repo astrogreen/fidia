@@ -52,7 +52,7 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content_render %}
+{% block content-test %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents" data-spy="affix">
@@ -92,7 +92,7 @@
             </ul>
 
             <!-- Tab panes -->
-            <div class="tab-content">
+            <div class="tab-content add-padding">
                 <div role="tabpanel" class="tab-pane active" id="overview">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6">
@@ -164,7 +164,7 @@
                             </div>
                         </div>
                     </div>
-
+                    <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="pull-right question tiny"><i class="fa fa-question-circle"></i> What is a branch?</a>
                     <table class="table table-condensed table-bordered" > 
                         <colgroup> 
                             <col align="center" width="25%"/>
@@ -193,13 +193,14 @@
                                                             data-placement="top"
                                                             data-content="Alternatively, choose a specific branch from the dropdown."
                                                             data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
+
                             </td>
                             <td style="vertical-align: middle;">
                                 <strong>Download</strong>
                                 <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
                                                             data-toggle="popover" data-trigger="hover click"
                                                             data-placement="top"
-                                                            data-content="Download this data product in a variety of formats."
+                                                            data-content="Download the default branch and version for this data product in a variety of formats."
                                                             data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
                             </td>
                         </tr>
@@ -207,58 +208,101 @@
 
                     <tbody id="product_menu"> 
 
-                        {% for trait_type_key, trait_type_value in response.data.traits.items %}
+                        {% for trait_type_key, trait_type_value in response.data.traits.trait_types.items %}
                         <tr data-trait-type-key="{{trait_type_key}}" class="bg-success">
                             <td colspan="3">
                                 <h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span>
-                                    {% if trait_type_value.description %}<span class="sub-heading" style="font-weight:400"><em>{{trait_type_value.description}}</em></span>{% endif %}
+                                    <!--Hack as trait_type descriptions don't exist on the schema on the trait-type, but rather on the trait-type-qualifier:branch(version)-->
+                                    {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+                                        {% if forloop.first %}
+                                            {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                                {% if forloop.first %}
+                                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                                        {% if forloop.first %}
+                                                            {% with trait_version_value.trait as value %}
+                                                                {% if value.description %}
+                                                                    <span class="sub-heading tiny" style="font-weight:400"><em>{{value.description|safe}}</em></span>
+                                                                {% endif %}
+                                                            {% endwith %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
                                 </h6>
                             </td>
                         </tr>
-                        {% for trait, value in trait_type_value.traits.items %}
+                        {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                             <tr data-trait-type-key="{{trait_type_key}}">
                                 <td>
-                                    <li><a href="{{value.url}}" class="trait_anchor">
-                                        <span class="text-info"> {{value.pretty_name}}</span>
+                                    <li><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_anchor">
+                                        <span class="text-info"> {{trait_qualifier_value.pretty_name}}
+                                        {% if not trait_qualifier_value.pretty_name %}
+                                            {{trait_type_value.pretty_name}}
+                                        {% endif %}
+                                        </span>
                                     </a>
-                                    <!--<span class="version sub-heading"><i class="fa fa-code-fork"></i> Default</span>-->
-                                    {% if value.description != None %}
-                                    <div class="p">{{value.description}}</div>
+                                    {% if trait_qualifier_value.description != None %}
+                                    <div class="p">{{trait_qualifier_value.description}}</div>
                                     {%endif%}</li>
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
+                                    <div class="btn-group" role="group" aria-label="...">
                                         <div class="btn-group" role="group">
                                             <button type="button" class="btn btn-default btn-xs dropdown-toggle"
                                                     data-toggle="dropdown" aria-haspopup="true"
                                                     aria-expanded="false">
-                                                <span class="sub-heading"><i class="fa fa-code-fork"></i> Choose a Branch</span>
+                                                <span class="sub-heading tiny"><i class="fa fa-code-fork"></i> Branch</span>
                                                 <i class="fa fa-caret-down"></i>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                {% for branch_key, branch_value in value.branches.items %}
-                                                <li><a href="{{branch_value.url}}">{{branch_value.pretty_name}}</a>
-                                                </li>
-                                                {% if branch_value.description %}
-                                                <li class="dropdown-header"><i
-                                                        class="fa fa-level-up fa-rotate-90"></i>
-                                                    {{branch_value.description}}
-                                                </li>
-                                                {% endif %}
+                                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+
+                                                    <!--Default branch, and the default version for that branch, are set as active-->
+                                                    <li class="">
+                                                        <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}/"
+                                                           data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
+                                                            <span> {{trait_branch_value.pretty_name}}
+                                                            {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                                <small>DEFAULT</small>
+                                                            {% endif %}
+                                                            </span>
+                                                        </a>
+                                                    </li>
+
                                                 {% endfor %}
                                             </ul>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    {% for f in value.formats %}
-                                        <a href="{{value.url}}?format={{f}}" class="btn btn-default btn-xs">
-                                            <span class="fa-custom-stack">
-                                              <i class="fa fa-file-o"></i>
-                                                <span class="fa-custom-filetype">{{f}}</span>
-                                            </span>{{f}}
-                                        </a>
+                                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                        {% if forloop.first %}
+                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                                {% if forloop.first %}
+                                                    {% with trait_version_value.trait as value %}
+
+                                                        {% for f in value.export_formats %}
+                                                            <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format={{f|lowercase}}" class="btn btn-default btn-xs">
+                                                                <span class="fa-custom-stack">
+                                                                  <i class="fa fa-file-o"></i>
+                                                                    <span class="fa-custom-filetype">{{f}}</span>
+                                                                </span>{{f}}
+                                                            </a>
+                                                        {% endfor %}
+                                                    {% endwith %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
                                     {% endfor %}
+                                    <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format=json" class="btn btn-default btn-xs">
+                                        <span class="fa-custom-stack">
+                                          <i class="fa fa-file-o"></i>
+                                            <span class="fa-custom-filetype">json</span>
+                                        </span>json
+                                    </a>
+
                                     <!--<add-download-button url='{{value.url}}' options='' formats='{{value.formats}}' prettyname="{{value.pretty_name}}"></add-download-button>-->
                                 </td>
                             </tr>
@@ -271,7 +315,6 @@
                     </table>
 
                     <hr>
-
 
                 </div>
             </div>

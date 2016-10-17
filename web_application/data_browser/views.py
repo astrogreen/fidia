@@ -250,91 +250,21 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk]
         self.survey = survey_pk
         self.astro_object = astroobject_pk
+        self.feature_catalog_data = astro_object.get_feature_catalog_data()
 
         # Endpoint-only
-
         serializer_class = data_browser.serializers.AstroObjectSerializer
-        url_kwargs = {
-            'astroobject_pk': astroobject_pk,
-            'survey_pk': survey_pk,
-        }
-        astro_object_url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
-        # Dict of available traits
-        trait_registry = ar.available_traits
-        trait_info = {}
-        for trait_type in trait_registry.get_trait_types():
-
-            # Get info for a trait_key (trait name) filtered by trait type
-            trait_info[trait_type] = {}
-
-            # Descriptions
-            trait_info[trait_type]["description"] = ""
-            trait_info[trait_type]["traits"] = {}
-
-            for trait_name in trait_registry.get_trait_names(trait_type_filter=trait_type):
-
-                default_trait_key = trait_registry.update_key_with_defaults(trait_name)
-                trait_class = trait_registry.retrieve_with_key(default_trait_key)  # type: Trait
-
-                # url
-                url_kwargs = {
-                    'trait_pk': trait_name,
-                    'astroobject_pk': astroobject_pk,
-                    'survey_pk': survey_pk,
-                }
-                trait_name_url = reverse("data_browser:trait-list", kwargs=url_kwargs)
-
-                # Pretty Name
-                # - trait_type
-                trait_info[trait_type]["pretty_name"] = trait_class.get_pretty_name()
-
-                # - trait_name
-                trait_name_pretty_name = trait_class.get_pretty_name(TraitKey.split_trait_name(trait_name)[1])
-
-                # Descriptions
-                # - trait_type description
-                trait_type_short_description = trait_class.get_description()
-                trait_info[trait_type]["description"] = trait_type_short_description
-
-                # - trait_name description
-                trait_name_short_description = None
-
-                # Formats
-                trait_name_formats = trait_class.get_available_export_formats()
-                trait_name_formats.append('json')
-
-                # Branches
-                trait_name_branches = {}
-                for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait_name):
-                    tc = trait_registry.retrieve_with_key(tk)
-                    bv_info = tc.branches_versions  # type: fidia.traits.trait_key.BranchesVersions
-                    trait_name_branches[str(tk.branch)] = {
-                        "url": astro_object_url + str(tk.replace(version=None)),
-                        "description": bv_info.get_description(tk.branch),
-                        "pretty_name": bv_info.get_pretty_name(tk.branch)
-                    }
-
-                trait_info[trait_type]["traits"][trait_name] = {"url": trait_name_url,
-                                                                "pretty_name": trait_name_pretty_name,
-                                                                "description": trait_name_short_description,
-                                                                "branches": trait_name_branches,
-                                                                "formats": trait_name_formats}
         serializer = serializer_class(
             instance=astro_object, many=False,
             context={
                 'survey': survey_pk,
                 'astro_object': astroobject_pk,
                 'request': request,
-                'traits': trait_info,
+                'traits': ar.full_schema(include_subtraits=False, data_class='all', combine_levels=None,
+                                 verbosity='descriptions', separate_metadata=True),
                 'position': {'ra': astro_object.ra, 'dec': astro_object.dec}
             }
         )
-
-        # -- Available on context only --
-        self.feature_catalog_data = astro_object.get_feature_catalog_data()
-
-
-
         return Response(serializer.data)
 
 
