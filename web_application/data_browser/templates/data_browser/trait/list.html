@@ -15,7 +15,7 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:sample-list' survey_pk=survey %}#{{response.data.trait_key.0}}-{{response.data.trait_key.1}}">Schema Browser</a></li>
+<li role="presentation" ><a href="{% url 'schema:sample-list' survey_pk=survey %}#{{trait_key.0}}-{{trait_key.1}}">Schema Browser</a></li>
 <!--<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}" >Documentation</a></li>-->
 {% endblock useful_links %}
 
@@ -56,10 +56,6 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-navigator-help %}
-
-{% endblock %}
-
 {% block content-test %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
@@ -74,7 +70,7 @@
 
             <h5>Quick Links</h5>
             <ul class="nav-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{response.data.trait_key|key:0}}{% if response.data.trait_key|key:1 %}-{{response.data.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
                 {% if breadcrumblist %}
 
@@ -214,33 +210,46 @@
     <div class="col-xs-12 col-sm-9 main-content">
         <h2>{{survey|uppercase}} {{response.data.astro_object}} {{response.data.pretty_name}}
             <small>
-                <span class="sub-heading"><i class="fa fa-code-fork"></i> {{response.data.branch}}</span>
-                <span class="sub-heading"><i class="fa fa-map-pin"></i> {{response.data.version}}</span>
+                <span class="sub-heading"><i class="fa fa-code-fork"></i> {{branch}}</span>
+                <span class="sub-heading"><i class="fa fa-map-pin"></i> {{version}}</span>
             </small>
         </h2>
 
         {% if response.data.description %}
             <p><em>{{ response.data.description}}</em></p>
         {% endif %}
-        <br>
+        <div class="panel panel-default success branch_warning">
+            <div class="panel-body">
+                <div class="sub-heading">
+                    You are currently viewing data and associated properties for
+                    {{response.data.pretty_name}} for <strong>branch {{branch}},
+                    version {{version}}</strong>. To find out more about available branches, visit the
+                    <a target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}-{{trait_key|key:1}}">Schema
+                    Browser</a>.
+
+                </div>
+            </div>
+        </div>
         <div class="options text-left">
+            <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What is a branch?</a>
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                    {% for i in response.data.all_branches_versions %}
-                        {% if i.branch == response.data.branch %}
-                            <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch </span> <strong>{{i.branch}} </strong><i class="fa fa-caret-down"></i>
+                    {% for branch_key, branch_value in all_branches_versions.items %}
+                        {% if branch_key == branch %}
+                            <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch </span> <strong>{{branch_value.pretty_name}} :</strong> {{branch_value.description}} <i class="fa fa-caret-down"></i>
                         {% endif %}
                     {% endfor %}
-
                 </button>
                 <ul class="dropdown-menu">
-                    {% for i in response.data.all_branches_versions %}
-                    {% if i.branch == response.data.branch %}
-                        <li class="disabled"><a href="{{branch}}">{{i.branch}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
-                    {% else %}
-                        <li><a href="{{i.url}}">{{i.branch}}</a></li>
-                    {% endif %}
+                    {% for branch_key, branch_value in all_branches_versions.items %}
+                        {% if branch_key == branch %}
+                        <li class="disabled"><a href="{{branch_value.url}}">{{branch_value.pretty_name}}
+                            <small class="sub-heading text-uppercase">Current</small>
+                        </a></li>
+                        {% else %}
+                            <li><a href="{{branch_value.url}}">{{branch_value.pretty_name}}</a></li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             </div>
@@ -248,24 +257,24 @@
             <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        {% for i in response.data.all_branches_versions %}
-                            {% if i.branch == response.data.branch %}
-                                {% for version in i.versions %}
-                                    {% if version == response.data.version %}
-                                        <span class="sub-heading"><i class="fa fa-map-pin"></i> Version </span> <strong>{{version}} </strong><i class="fa fa-caret-down"></i>
+                        {% for branch_key, branch_value in all_branches_versions.items %}
+                            {% if branch_key == branch %}
+                                {% for version_k in branch_value.versions %}
+                                    {% if version_k == version %}
+                                        <span class="sub-heading"><i class="fa fa-map-pin"></i> Version </span> <strong>{{version_k}} </strong><i class="fa fa-caret-down"></i>
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
                         {% endfor %}
                     </button>
                     <ul class="dropdown-menu">
-                        {% for i in response.data.all_branches_versions %}
-                            {% if i.branch == response.data.branch %}
-                                {% for version in i.versions %}
-                                    {% if version == response.data.version %}
-                                        <li class="disabled"><a href="{{i.url}}({{version}})">{{version}} &nbsp; <small class="sub-heading text-uppercase">Current</small></a></li>
+                         {% for branch_key, branch_value in all_branches_versions.items %}
+                             {% if branch_key == branch %}
+                                {% for version_k in branch_value.versions %}
+                                    {% if version_k == version %}
+                                        <li class="disabled"><a href="{{branch_value.url}}({{version_k}})">{{version_k}} &nbsp <small class="sub-heading text-uppercase">Current</small></a></li>
                                     {% else %}
-                                        <li><a href="{{i.url}}({{version}})">{{version}}</a></li>
+                                        <li><a href="{{branch_value.url}}({{version_k}})">{{version_k}}</a></li>
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
@@ -278,15 +287,8 @@
                 </div>
         </div>
 
-        <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="options question pull-right"><i class="fa fa-question-circle"></i> What is a branch?</a>
-        <br>
-        <p class="well">You are currently viewing data and associated properties for
-            {{response.data.pretty_name}} for branch {{response.data.branch}},
-            version {{response.data.version}}. To find out more about the available branches, visit the <a
-                    target="_blank"
-                    href="{% url 'schema:survey-list' survey_pk=survey %}#{{response.data.trait_key|key:0}}-{{response.data.trait_key|key:1}}">Schema
-                Browser</a>.
-        </p>
+
+
         <h3 id="data">Data <small>
             <a href="" data-toggle="popover" data-html="true" class="popover-anchor" data-trigger="focus"
                data-content="<p>Inspect the data before download. Where available, data products that can be visualized and interacted with (e.g., line maps) will be shown here. </p>"
@@ -361,13 +363,19 @@
         <p>Download the {{response.data.pretty_name}} for {{survey|uppercase}} object
             {{response.data.astro_object}} in FITS or JSON file format. </p>
         {% for f in formats %}
-        <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+        <a href="{{request.get_full_path}}?format={{f|lowercase}}" class="btn btn-default">
             <span class="fa-custom-stack">
               <i class="fa fa-file-o"></i>
                 <span class="fa-custom-filetype">{{f}}</span>
             </span>{{f}}
         </a>
         {% endfor %}
+        <a href="{{request.get_full_path}}?format={{json}}" class="btn btn-default">
+            <span class="fa-custom-stack">
+              <i class="fa fa-file-o"></i>
+                <span class="fa-custom-filetype">{{json}}</span>
+            </span>{{json}}
+        </a>
         <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
 
 

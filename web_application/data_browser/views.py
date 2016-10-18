@@ -34,6 +34,12 @@ import fidia_tarfile_helper
 log = logging.getLogger(__name__)
 
 
+def invert_dict(inverted_dict):
+    elements = inverted_dict.iteritems()
+    for flag_value, flag_names in elements:
+        for flag_name in flag_names:
+            yield flag_name, flag_value
+
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. Implements List action only.
     Lists all surveys, their current versions and total number of objects in that version. """
@@ -226,7 +232,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
 
 class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for Astroobject. Provides List view only.
-    Endpoint: available traits
+    Endpoint: available traits (plus branches/versions)
     HTML context: survey string, astroobject, traits and position (ra,dec)"""
 
     renderer_classes = (data_browser.renderers.AstroObjectRenderer, renderers.JSONRenderer)
@@ -269,28 +275,30 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    Trait Viewset
-    """
+    """ Viewset for Trait. Provides List view only.
+    Endpoint: available properties
+    HTML context: survey string, astroobject, all available branches"""
 
-    def __init__(self, sub_trait_list=None, *args, **kwargs):
-        self.sub_trait_list = sub_trait_list
-        self.breadcrumb_list = []
-        self.survey = ''
-        self.astro_object = ''
+    def __init__(self, *args, **kwargs):
+        self.survey = self.astro_object = self.trait = self.trait_key = self.branch = self.version = self.trait_type = self.trait_url = ''
+        self.all_branches_versions = {}
+        self.breadcrumb_list = self.sub_traits = self.sub_trait_list = self.formats = []
+        self.trait_2D_map = False
+
+        super().__init__()
 
     permission_classes = [permissions.AllowAny]
-
     renderer_classes = (data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
-        # Dict of available traits
-        trait_registry = ar.available_traits
-        default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
-
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
+            # Dict of available traits
+            trait_registry = ar.available_traits
+            default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
+            trait_class = trait_registry.retrieve_with_key(default_trait_key)
+
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
@@ -300,14 +308,49 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                           status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            message = 'Key Error: ' + trait_pk + ' does not exist'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            message = 'Value Error: ' + trait_pk + ' does not exist'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
 
         # Context (for html page render)
         self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait.get_pretty_name()]
         self.survey = survey_pk
         self.astro_object = astroobject_pk
+        self.trait = trait_pk
+        self.trait = trait.trait_type
+        self.trait_key = default_trait_key
+        self.branch = trait.branch
+        self.version = trait.version
+        self.formats = trait_class.get_available_export_formats()
+        self.sub_traits = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
+        self.trait_url = reverse("data_browser:trait-list",
+                           kwargs={'survey_pk': survey_pk, 'astroobject_pk': astroobject_pk, 'trait_pk': trait_pk, })
+
+        if isinstance(trait, traits.Map2D):
+            self.trait_2D_map = True
+
+        # - Branches -
+        # removing request from reverse also removes the protocol etc.
+        astro_object_url = reverse("data_browser:astroobject-list",
+                                   kwargs={'astroobject_pk': astroobject_pk, 'survey_pk': survey_pk})
+
+        for tk in trait_registry.get_all_traitkeys(trait_name_filter=trait.trait_name):
+
+            # trait_class for trait_key
+            tc = trait_registry.retrieve_with_key(tk)
+
+            # tc.branches_versions has type: fidia.traits.trait_key.BranchesVersions
+            # {'branches_versions': {('1_comp', 'LZIFU 1 component', 'LZIFU fit with only a single component'): {'V02'}}
+            self.all_branches_versions[str(tk.branch)] = {
+                "description": tc.branches_versions.get_description(tk.branch),
+                "pretty_name": tc.branches_versions.get_pretty_name(tk.branch),
+                "url":  astro_object_url + str(trait.trait_name) + ':' + str(tk.branch),
+                "versions": [str(tk.version)]
+            }
 
         # Endpoint
         serializer_class = data_browser.serializers.TraitSerializer
@@ -315,22 +358,12 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             instance=trait, many=False, parent_trait_display=False,
             context={
                 'request': request,
-                'survey': survey_pk,
-                'astro_object': astroobject_pk,
-                'trait': trait_pk,
+                'trait_url': self.trait_url,
                 'trait_pk': trait_pk,
                 'trait_key': default_trait_key,
                 'parent_trait': data_browser.helpers.trait_helper(self, trait, ar, survey_pk, astroobject_pk, trait_pk, request),
             }
         )
-
-        # Add some data to the view so that it can be made available to the renderer.
-        #
-        # This data is not included in the actual data of the serialized object
-        # (though that is possible, see the implementations of the Serializers)
-        # self.documentation_html = trait.get_documentation('html')
-        # self.pretty_name = trait.get_pretty_name()
-        # self.short_description = trait.get_description()
 
         return Response(serializer.data)
 
@@ -439,6 +472,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                          'survey': survey_pk,
                          'astro_object': astroobject_pk,
                          'trait': trait_pk,
+                         'trait_url':reverse("data_browser:trait-list", kwargs={'survey_pk': survey_pk, 'astroobject_pk': astroobject_pk, 'trait_pk': trait_pk, }),
                          'subtraitproperty': subtraitproperty_pk,
                          'parent_trait': data_browser.helpers.trait_helper(self, trait_pointer, ar, survey_pk, astroobject_pk, trait_pk,
                                                       request)

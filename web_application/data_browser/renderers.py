@@ -77,7 +77,6 @@ class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
 class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
     def __init__(self, sub_trait_list_extended=None, *args, **kwargs):
-        # pass
         self.template = 'data_browser/trait/list.html'
 
     def __repr__(self):
@@ -91,7 +90,15 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
         context['survey'] = renderer_context['view'].survey
         context['astro_object'] = renderer_context['view'].astro_object
-
+        context['trait'] = renderer_context['view'].trait
+        context['trait_type'] = renderer_context['view'].trait_type
+        context['trait_key'] = renderer_context['view'].trait_key
+        context['branch'] = renderer_context['view'].branch
+        context['version'] = renderer_context['view'].version
+        context['all_branches_versions'] = renderer_context['view'].all_branches_versions
+        context['formats'] = renderer_context['view'].formats
+        context['sub_traits'] = renderer_context['view'].sub_traits
+        context['trait_2D_map'] = renderer_context['view'].trait_2D_map
 
 
         # These are not looped over for the top-level trait view (but appear in the properties panel)
@@ -103,27 +110,18 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "url",
                                               "name", "type", "value", ]
 
-        trait = sami_dr1_sample[context['astro_object']][data['trait']]
-
-        context['sub_traits'] = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
-
         # These are not looped over for the html rendering
         context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
                                        context['side_bar_explicit_render'] + \
                                        context['trait_properties'] + \
                                        context['sub_traits']
-        # Formats
-        trait_name_formats = []
-        for r in data_browser.views.TraitViewSet.renderer_classes:
-            f = str(r.format)
-            if f != "api": trait_name_formats.append(f)
-
-        context['formats'] = trait_name_formats
-
-        context['trait_type'] = trait.trait_type
-
-        if isinstance(trait, traits.Map2D):
-            context['trait_2D_map'] = True
+        # # Formats
+        # trait_name_formats = []
+        # for r in data_browser.views.TraitViewSet.renderer_classes:
+        #     f = str(r.format)
+        #     if f != "api": trait_name_formats.append(f)
+        #
+        # context['formats'] = trait_name_formats
 
         return context
 
