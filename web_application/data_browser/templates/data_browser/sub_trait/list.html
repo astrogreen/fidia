@@ -75,7 +75,7 @@
                 {% endwith %}
                 {% endif %}
                 <br>
-                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{response.data.parent_trait.trait_key|key:0}}{% if response.data.parent_trait.trait_key|key:1 %}-{{response.data.parent_trait.trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
+                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
             </ul>
 
@@ -104,7 +104,7 @@
         </div>
     </div>
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>{{survey|uppercase}} {{response.data.astroobject}} {{trait}} {{response.data.pretty_name}}</h2>
+        <h2>{{survey|uppercase}} {{astroobject}} {{trait_pretty_name}} {{response.data.pretty_name}}</h2>
         {% if response.data.description %}
         <em><p class="">{{ response.data.description}}</p></em>
         {% endif %}

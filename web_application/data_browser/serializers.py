@@ -105,10 +105,6 @@ class TraitSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
-        parent_trait_display = kwargs.pop('parent_trait_display')
-
-        if parent_trait_display:
-            self.fields['parent_trait'] = serializers.SerializerMethodField()
 
         log.debug("depth_limit: %s", depth_limit)
         super().__init__(*args, **kwargs)
@@ -123,10 +119,9 @@ class TraitSerializer(serializers.Serializer):
 
         for sub_trait in trait.get_all_subtraits():
             log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
-            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait, parent_trait_display=False,
+            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait,
                                                                 context={
                                                                     'request': self.context['request'],
-                                                                    'trait_key': self.context['trait_key'],
                                                                 }, many=False)
 
         log.debug("Adding Trait properties")
@@ -137,11 +132,11 @@ class TraitSerializer(serializers.Serializer):
             if 'array' in trait_property.type:
                 # TraitProperty is an array, so display a URL for it's value
                 self.fields[trait_property.name] = TraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='url', parent_trait_display=False, parent_sub_trait_display=False)
+                    instance=trait_property, depth_limit=depth_limit, data_display='url')
             else:
                 # TraitProperty is not an array so we want it's actual value returned.
                 self.fields[trait_property.name] = TraitPropertySerializer(
-                    instance=trait_property, depth_limit=depth_limit, data_display='value', parent_trait_display=False, parent_sub_trait_display=False)
+                    instance=trait_property, depth_limit=depth_limit, data_display='value')
 
     description = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
@@ -169,9 +164,6 @@ class TraitSerializer(serializers.Serializer):
         _url += subtrait_str
 
         return _url
-
-    def get_parent_trait(self, obj):
-        return self.context['parent_trait']
 
     def get_attribute(self, instance):
         """
@@ -220,20 +212,11 @@ class TraitPropertySerializer(serializers.Serializer):
              get_pretty_name
              get_description
         (these are the 'standard' description fields, see fidia/descriptions.py)
-
-        parent_trait_display and parent_sub_trait_display flags used for views below Trait level.
     """
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
         data_display = kwargs.pop('data_display', 'value')
-        parent_trait_display = kwargs.pop('parent_trait_display')
-        parent_sub_trait_display = kwargs.pop('parent_sub_trait_display')
-
-        if parent_trait_display:
-            self.fields['parent_trait'] = serializers.SerializerMethodField()
-        if parent_sub_trait_display:
-            self.fields['parent_sub_trait'] = serializers.SerializerMethodField()
 
         super().__init__(*args, **kwargs)
 
@@ -292,12 +275,6 @@ class TraitPropertySerializer(serializers.Serializer):
         _url += subtrait_str + traitproperty_str
 
         return _url
-
-    def get_parent_trait(self, obj):
-        return self.context['parent_trait']
-
-    def get_parent_sub_trait(self, obj):
-        return self.context['parent_sub_trait']
 
 
     short_name = serializers.SerializerMethodField()
