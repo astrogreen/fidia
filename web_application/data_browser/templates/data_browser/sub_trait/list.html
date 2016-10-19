@@ -54,15 +54,16 @@
 </div>
 {% endblock page_title_banner %}
 
-{% block content-test %}
+{% block content_render %}
 {% captureas survey %}{{survey}}{% endcaptureas %}
 <div class="row">
     <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
         <div class="sidebar-contents">
             <div class="page-contents">
             <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked nav-sidebar">
-                <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
+             <ul class="nav nav-pills nav-stacked nav-sidebar">
+                <li role="presentation"><a href="#top-of-page" class="scroll">Interactive</a></li>
+                <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
             </ul>
             </div>
             <h5>Quick Links</h5>
@@ -79,101 +80,41 @@
                 <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
             </ul>
 
-            <h5>Properties
-                <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click"
-                   data-placement="top" data-html="true"
-                   data-content="The properties panel contains meta-data (e.g., WCS information) or attributes that are associated with this data product (e.g,, units, errors).<br> To view a summary about any of the properties, expand the panel using the <i class='fa fa-caret-down'></i> symbol, or view more information click the <i class='fa fa-arrow-circle-right'></i> arrow.  "
-                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
-            </h5>
 
-            <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
-                <div class="panel panel-default">
-                    <div class="panel-body meta-data">
-                        <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
-                        {% with response.data as tpdata %}
-                            {% for tp in tpdata %}
-                                {% if tp in reserved_keywords %}
-                                {% else %}
-                                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endwith %}
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
+
     <div class="col-xs-12 col-sm-9 main-content">
-        <h2>{{survey|uppercase}} {{astroobject}} {{trait_pretty_name}} {{response.data.pretty_name}}</h2>
-        {% if response.data.description %}
-        <em><p class="">{{ response.data.description}}</p></em>
-        {% endif %}
-        <h3 id="data">Data</h3>
-        <div class="row">
-
-            <div class="col-sm-8 col-xs-12">
-                <div class="well">
-                    <div id="{{trait_type}}_plotly_plot">
-                        <!--Dynamic plotly rendering based on Trait Type-->
-                        <p id="visualization_status"><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4 col-xs-12" id="interactive">
-                <div class="panel panel-default interactive">
-                    <div class="panel-heading">
-                        <p class="panel-title">Interactive</p>
-                    </div>
-                    <div class="panel-heading" style="background-color:#e6e6e6">
-                        Clipping
-                         <a href="" data-toggle="popover" data-html="true" class="popover-anchor sub-heading"
-                                           data-trigger="focus"
-                                           data-content="<p>Apply percentile scaling to image. Clips minimum and maximum percentage of pixel values to bring out features in the image. </p>"
-                                           data-placement="left"><i class="fa fa-info-circle"></i></a>
-                    </div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <div class="row">
-
-                                <div class="col-xs-12">
-                                    <p class="sub-heading">By percentile </p>
-                                    <div id="slider-range"></div>
-                                    <div id="amount" class="text-center p small"></div>
-                                    <!--<div id="data-range" class="text-center sub-heading"></div>-->
-                                    <div class="half-br"></div>
-                                    <span class="sub-heading">By value (in development)</span>
-                                    <form id="data-range">
-                                        <div class="form-group">
-                                            <label for="lv">Lower</label>
-                                            <input type="text" id="lv" class="form-control" readonly>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="uv">Upper</label>
-                                            <input type="text" id="uv" class="form-control" readonly>
-                                        </div>
-                                        <button class="btn btn-default disabled">Clip</button>
-                                    </form>
-                                </div>
-                            </div>
-
-                        </li>
-                    </ul>
-                    <!--<div class="panel-heading" style="background-color:#e6e6e6">-->
-                        <!--View Extensions <span class="sub-heading">(in development)</span></div>-->
-                    <!--<ul class="list-group">-->
-                        <!--<li class="list-group-item">-->
-                            <!--<div class="row">-->
-                                <!--<div class="col-xs-12">-->
-                                    <!--<div id="{{trait_type}}_plotly_plot_options">-->
-                                    <!--</div>-->
-                                <!--</div>-->
-                            <!--</div>-->
-                        <!--</li>-->
-                    <!--</ul>-->
-                </div>
-            </div>
-
+        <div class="col-sm-2 pull-right">
+            <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
+        <h2>{{survey|uppercase}} {{astroobject}} {{trait_pretty_name}} <br>{{response.data.pretty_name}}
+            <small>
+                <span class="sub-heading"><i class="fa fa-code-fork"></i> {{branch}}</span>
+                <span class="sub-heading"><i class="fa fa-map-pin"></i> {{version}}</span>
+            </small>
+        </h2>
+
+        {% if response.data.description %}
+            <p><em>{{ response.data.description}}</em></p>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 documentation_fidia">
+                <!--visualization/data-->
+                {% include 'data_browser/interactive/panel.html' %}
+
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <!--properties/interactive-->
+                {% include 'data_browser/tables/action.html' %}
+            </div>
+            <div class="col-xs-12">
+                {% include 'data_browser/trait/properties_table.html' %}
+            </div>
+        </div>
+
+        <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
     </div>
 </div>
 

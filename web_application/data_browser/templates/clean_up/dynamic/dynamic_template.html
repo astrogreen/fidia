@@ -1,0 +1,174 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{astroobject}} | {{trait}} | {{response.data.pretty_name}}{% endblock %}
+{% block useful_links %}
+{% comment %}
+<li role="presentation"><a href={% url 'data_browser:sample-list' sample_pk=response.data.sample %}>Back to
+    {{response.data.sample}}</a></li>
+<li role="presentation"><a href={% url 'data_browser:astroobject-list' sample_pk=response.data.sample astroobject_pk=response.data.astroobject %}>Back to
+    {{response.data.astroobject}}</a></li>
+{% endcomment %}
+{% endblock useful_links %}
+
+
+{% block content-nope %}
+{% captureas survey %}{{sample}}{% endcaptureas %}
+<div class="row">
+    <div class="col-xs-6 col-sm-4 options">
+        <h2>{{response.data.pretty_name}}</h2>
+    </div>
+    <div class="text-right col-xs-6 col-sm-8 options">
+        <span class="branch_version">
+            <span class="sub-heading"><i class="fa fa-level-up"></i><a href="{{trait_url}}">{{trait}}</a></span>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4 col-xs-12">
+        <div class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+            <!-- If Trait Property -->
+            {% with response.data as tpdata %}
+                {% with "None" as tp %}
+                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                {% endwith %}
+            {% endwith %}
+            <pre class="prettyprint" id="prettyprint_value">
+                {% autoescape off %}
+                    {{ content|urlize_quoted_links }}
+                {% endautoescape %}
+            </pre>
+
+            <!--Explicitly specifited trait properties will appear first-->
+
+            {% comment %}
+            {% with response as tpdata %}
+                {% with 'data' as tp %}
+
+                    {% include 'data_browser/trait/sidebar-trait-property.html' %}
+
+                {% endwith %}
+            {% endwith %}
+            <!--Iterate over sub-traits-->
+            {% for s in sub_traits %}
+                {% include 'data_browser/trait/sidebar-sub-trait.html' %}
+                <div class="panel panel-default sub-trait-sidebar">
+                    <div class="panel-heading" role="tab" id="heading{{s}}">
+                        <a role="button" data-toggle="collapse" href="#collapse{{s}}" aria-controls="collapse{{s}}">
+                            {{ response.data|key:s |key:'pretty_name' }}
+                        </a>
+                        <span class="sub-heading pull-right">sub-trait</span>
+                    </div>
+                    <div id="collapse{{s}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{s}}">
+                        <div class="panel-body nested-sidebar">
+                            <div class="panel-group" id="nested-sidebar{{s}}" role="tablist" aria-multiselectable="true">
+                                {% for r in side_bar_explicit_render %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="{{s}}_nested_heading{{r}}">
+                                        <i class="fa fa-level-up fa-rotate-90"></i>
+                                        <a role="button" data-toggle="collapse" href="#{{s}}_nested_collapse{{r}}"
+                                           {% if forloop.first %}
+                                           aria-expanded="true"
+                                           {% endif %}
+                                           aria-controls="{{s}}_nested_collapse{{r}}">
+                                            {{r |capfirst}}
+                                        </a>
+                                        <span class="sub-heading pull-right">explicitly rendered attributes</span>
+                                    </div>
+                                    <div id="{{s}}_nested_collapse{{r}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{r}}">
+                                        <div class="panel-body">
+                                            <p class="readmore">{{ response.data|key:s|key:r }} </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% for t in response.data|key:s %}
+                                    {% if t in reserved_keywords %}
+                                    {% else %}
+                                        <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="nested_heading{{t}}">
+                                            <i class="fa fa-level-up fa-rotate-90"></i>
+                                            <a role="button" data-toggle="collapse" href="#{{s}}_nested_collapse{{t}}"
+                                               {% if forloop.first %}
+                                               aria-expanded="true"
+                                               {% endif %}
+                                               aria-controls="collapse{{t}}">
+                                                {{t |capfirst}}
+                                            </a>
+                                            <span class="sub-heading pull-right">trait_property</span>
+                                        </div>
+                                        <div id="{{s}}_nested_collapse{{t}}" class="panel-collapse collapse {% if forloop.first %} in {% endif %}" role="tabpanel" aria-labelledby="{{s}}_nested_heading{{t}}">
+                                            <div class="panel-body">
+                                                {% with response.data|key:s as tpdata %}
+                                                    {% with t as tp %}
+                                                        {% include 'data_browser/trait/sidebar-trait-property-panel-body.html' %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+
+            <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
+            {% with response.data as tpdata %}
+                {% for tp in tpdata %}
+                    {% if tp in reserved_keywords %}
+                    {% else %}
+                        {% include 'data_browser/trait/sidebar-trait-property.html' %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+            {% endcomment %}
+        </div>
+
+    </div>
+    <div class="col-sm-6 col-xs-12">
+        <div class="panel panel-default trait_property_value">
+            <div class="panel-body">
+                <div id="{{trait_type}}_plotly_plot">
+                    <!--Dynamic plotly rendering based on Trait Type-->
+                    <p><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Plot Options
+            </div>
+            <div class="panel-body">
+                <div id="{{trait_type}}_plotly_plot_options">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script>
+    $('.panel-collapse').collapse('show');
+</script>
+
+{% endblock %}

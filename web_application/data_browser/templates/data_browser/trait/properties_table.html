@@ -1,0 +1,62 @@
+{% load internal_extras %}
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered" id="properties-table">
+         <thead>
+             <tr class="active" id="properties">
+                <td colspan="4">
+                    <h6 class="text-uppercase" style="margin:0">Properties</h6>
+                </td>
+            </tr>
+            <tr class="active">
+                <th class="p_dark col-xs-3">Name <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click on the name of a property to view more." data-original-title="" title=""><i class="fa fa-info-circle"></i></a></th>
+                <th class="p_dark col-xs-4">Description</th>
+                <th class="p_dark col-xs-3">Value <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="If the value is not a single value or string, the link to data is shown. Warning: the data size may be large." data-original-title="" title=""><i class="fa fa-info-circle"></i></a></th>
+                <th class="p_dark col-xs-2">Type</th>
+            </tr>
+        </thead>
+        <tbody>
+        <!--Explicitly specifited trait properties will appear first-->
+        {% if trait_properties %}
+            {% with response.data as tpdata %}
+                {% for tp in trait_properties %}
+                    {% if tp in tpdata %}
+                        {% include 'data_browser/trait/trait_property_row.html' %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+        {% endif %}
+        <!--Now Iterate over remaining trait properties, excluding all reserved_keywords (which include the explitly rendered ones above, and the sub-traits which are handled separately)-->
+        {% with response.data as tpdata %}
+            {% for tp in tpdata %}
+                {% if tp not in reserved_keywords and tp not in trait_properties and tp not in sub_traits %}
+                    {% include 'data_browser/trait/trait_property_row.html' %}
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+
+        <!--Iterate over sub-traits-->
+        {% for s in sub_traits %}
+        <tr class="bg-success">
+            <td colspan="4">
+                <a href="{{ response.data|key:s |key:'url' }}">
+                    {{ response.data|key:s|key:'pretty_name' }}
+                </a>
+                {% if response.data|key:s|key:'description' %}
+                <span class="sub-heading small"><em>{{response.data|key:s|key:'description'}}</em></span>
+                {% endif %}
+            </td>
+        </tr>
+            {% for t in response.data|key:s %}
+                {% if t not in reserved_keywords %}
+                    {% with response.data|key:s as tpdata %}
+                        {% with t as tp %}
+                            {% include 'data_browser/trait/subtrait_property_row.html' %}
+                        {% endwith %}
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+
+    </table>
+</div>

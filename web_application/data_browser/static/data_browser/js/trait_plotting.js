@@ -65,7 +65,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                         step: 0.01,
                         values: [zmin, zmax],
                         slide: function (event, ui) {
-                            $("#amount").html( ui.values[0] + " - " + ui.values[1]);
+                            $("#amount").html( ui.values[0]*100 + "% - " + ui.values[1]*100+"% ");
                             // $("#uv").attr('value', ui.values[1]);
                             // $("#lv").attr('value', ui.values[0]);
                         },
@@ -79,8 +79,13 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                             changePlotData(trait_value.value, array_index, ui.values[0], ui.values[1]);
                         }
                     });
-                    $("#amount").html( $("#slider-range").slider("values", 0) +
-                            " - " + $("#slider-range").slider("values", 1));
+
+                    updateHtml = function(){
+                        $("#amount").html( ($("#slider-range").slider("values", 0)*100).toPrecision(2) +
+                            "% - " + ($("#slider-range").slider("values", 1)*100).toPrecision(2) +'% ');
+                    };
+                    updateHtml();
+
                     // $("#uv").val($("#slider-range").slider("values", 0));
                     // $("#lv").val($("#slider-range").slider("values", 1));
 
@@ -98,8 +103,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                             }
                         changePlotData(trait_value.value, array_index, zmin, zmax);
                         // update html
-                        $("#amount").html( $("#slider-range").slider("values", 0) +
-                            " - " + $("#slider-range").slider("values", 1));
+                        updateHtml();
                     });
                 };
             }

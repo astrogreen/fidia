@@ -316,6 +316,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_browser.
                             trait=trait, ar=ar)
 
         self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait.get_pretty_name()]
+        self.fidia_type = "trait"
 
         if isinstance(trait, traits.Map2D):
             self.trait_2D_map = True
@@ -375,6 +376,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, da
 
         if issubclass(ar.type_for_trait_path(path), Trait):
             self.template = 'data_browser/sub_trait/list.html'
+            self.fidia_type = "sub_trait"
             subtrait_pointer = trait_pointer[subtraitproperty_pk]
 
             serializer = data_browser.serializers.TraitSerializer(
@@ -391,6 +393,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, da
 
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
             self.template = 'data_browser/trait_property/list.html'
+            self.fidia_type = "trait_property"
             traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
 
             if 'array' in traitproperty_pointer.type and 'string' not in traitproperty_pointer.type:
@@ -446,6 +449,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_
         self.set_attributes(survey_pk=survey_pk, astroobject_pk=astroobject_pk, trait_pk=trait_pk,
                             trait=trait_pointer, ar=ar)
 
+        self.fidia_type = "trait_property"
         self.subtrait_pretty_name = subtrait_pointer.get_pretty_name()
 
         self.trait_2D_map = False

@@ -1,0 +1,23 @@
+{% load internal_extras %}
+<tr>
+    <td>
+        <a href="{{tpdata|key:tp|key:'url'}}">
+            {{ tpdata|key:tp |key:'pretty_name' }}
+        </a>
+    </td>
+    <td>
+        {% if tpdata|key:tp|key:"description" %}
+            <span class="sub-heading small"><em>{{tpdata|key:tp|key:"description"}}</em></span>
+        {% endif %}</td>
+    <td class="wrapword">
+        {% if tpdata|key:tp|key:"type" == "string" %}
+        {{tpdata|key:tp|key:"value"|linebreaks|truncatechars:60}}
+        {% elif tpdata|key:tp|key:"type" == "float.array" or tpdata|key:tp|key:"type" == "int.array" or tpdata|key:tp|key:"type" == "string.array"  %}
+        <a href='{{tpdata|key:tp|key:"value"}}'>view <i class="fa fa-angle-right"></i> </a>
+        {% else %}
+        {{tpdata|key:tp|key:"value"}}
+        {% endif %}
+    </td>
+    <td class="wrapword">
+        <code>{{tpdata|key:tp|key:"type"}}</code></td>
+</tr>

@@ -19,7 +19,7 @@ CONTEXT = {}
 CONTEXT['reserved_keywords'] = ['survey', 'data_release', 'astro_object', 'trait', 'trait_key', 'trait_key_array',
                                 'trait_url', 'sub_trait_key', 'parent_trait', 'parent_sub_trait', 'sub_traits',
                                 'pretty_name', 'short_name', 'branch', 'version', 'url', 'all_branches_versions',
-                                'documentation']
+                                'documentation', 'description']
 
 
 class FITSRenderer(renderers.BaseRenderer):
@@ -88,6 +88,7 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
         context = super().get_context(data, accepted_media_type, renderer_context)
 
+        context['fidia_type'] = renderer_context['view'].fidia_type
         context['survey'] = renderer_context['view'].survey
         context['astro_object'] = renderer_context['view'].astro_object
         context['trait'] = renderer_context['view'].trait
@@ -104,19 +105,11 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         context['trait_url'] = renderer_context['view'].trait_url
 
 
-        # These are not looped over for the top-level trait view (but appear in the properties panel)
-        context['side_bar_explicit_render'] = ['description']
-
         # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
         context['trait_properties'] = ['value']
 
-        context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "url",
-                                              "name", "type", "value", ]
-
         # These are not looped over for the html rendering
         context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
-                                       context['side_bar_explicit_render'] + \
-                                       context['trait_properties'] + \
                                        context['sub_traits']
 
 
@@ -132,6 +125,8 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         they will be explicitly positioned. """
 
         context = super().get_context(data, accepted_media_type, renderer_context)
+
+        context['fidia_type'] = renderer_context['view'].fidia_type
         context['survey'] = renderer_context['view'].survey
         context['astro_object'] = renderer_context['view'].astro_object
         context['trait'] = renderer_context['view'].trait
@@ -143,24 +138,23 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         context['version'] = renderer_context['view'].version
         context['all_branches_versions'] = renderer_context['view'].all_branches_versions
         context['formats'] = renderer_context['view'].formats
-        context['sub_traits'] = renderer_context['view'].sub_traits
         context['trait_2D_map'] = renderer_context['view'].trait_2D_map
         context['trait_url'] = renderer_context['view'].trait_url
+        context['subtrait_pretty_name'] = renderer_context['view'].subtrait_pretty_name
 
         context['template'] = renderer_context['view'].template
 
         # - - - - - -
 
-        context['fidia_keys'] = ['survey', 'astro_object', 'trait', 'trait_key', 'trait_key_array', 'sub_trait_key',
-                                 'data_release', 'documentation' ]
-        context['side_bar_explicit_render'] = ['description']
+        # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
+        context['trait_properties'] = ['value']
 
-        context['trait_property_keywords'] = ["short_name", "pretty_name", "description",
-                                              "name", "type", "value", ]
+        # Subtraits/traitproperties dont have any subtraits, so drop the parent_trait sub_trait property
+        context['sub_traits'] = []
 
+        # These are not looped over for the html rendering
         context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
-                                       context['side_bar_explicit_render'] + \
-                                       context['fidia_keys']
+                                       context['sub_traits']
 
         return context
 

@@ -1,0 +1,14 @@
+{% load staticfiles %}
+{% load internal_extras %}
+
+<div class="well">
+    <div id="{{trait_type}}_plotly_plot">
+        <!--Dynamic plotly rendering based on Trait Type-->
+        <p id="visualization_status"><i class="fa fa-refresh fa-spin"></i> Fetching Data for Type: {{trait_type}}...</p>
+    </div>
+</div>
+
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>

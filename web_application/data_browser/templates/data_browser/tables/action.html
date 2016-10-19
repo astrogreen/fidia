@@ -1,0 +1,91 @@
+{% load staticfiles %}
+{% load internal_extras %}
+
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered">
+
+    {% if fidia_type == "trait" or fidia_type == "sub_trait" %}
+        <tr class="active">
+            <td colspan="2">
+                <h6 class="text-uppercase" style="margin:0">Actions</h6>
+            </td>
+        </tr>
+        <tr>
+            <td class="p_light">Schema</td>
+            <td><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}"><i class="fa fa-book"></i></a></td>
+        </tr>
+        {% if fidia_type = "trait" %}
+            <tr>
+                <td class="p_light">Download</td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% for f in formats %}
+                        <a href="{{request.get_full_path}}?format={{f|lowercase}}" class="btn btn-default btn-xs">
+                            <span class="fa-custom-stack">
+                              <i class="fa fa-file-o"></i>
+                                <span class="fa-custom-filetype">{{f}}</span>
+                            </span>{{f}}
+                        </a>
+                        {% endfor %}
+                        <a href="{{request.get_full_path}}?format=json" class="btn btn-default btn-xs">
+                            <span class="fa-custom-stack">
+                              <i class="fa fa-file-o"></i>
+                                <span class="fa-custom-filetype">json</span>
+                            </span>json
+                        </a>
+                    </div>
+
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td class="p_light">Data</td>
+                <td>
+                    <a href="{{response.data.url}}?format=json" class="btn btn-default btn-xs">
+                            <span class="fa-custom-stack">
+                              <i class="fa fa-file-o"></i>
+                                <span class="fa-custom-filetype">json</span>
+                            </span>json
+                        </a>
+                </td>
+            </tr>
+        {% endif %}
+
+    {% else %}
+
+        <tr class="active">
+            <td colspan="2">
+                <h6 class="text-uppercase" style="margin:0">Properties</h6>
+            </td>
+        </tr>
+        <tr>
+            <td class="p_light">Description</td>
+            <td>{{response.data.description}}</td>
+        </tr>
+        <tr>
+            <td class="p_light">Type</td>
+            <td><code>{{response.data.type}}</code></td>
+        </tr>
+        <tr>
+            <td class="p_light">Data</td>
+            <td>
+                <a href="{{response.data.url}}?format=json" class="btn btn-default btn-xs">
+                        <span class="fa-custom-stack">
+                          <i class="fa fa-file-o"></i>
+                            <span class="fa-custom-filetype">json</span>
+                        </span>json
+                    </a>
+            </td>
+        </tr>
+        {% comment %}
+        <tr>
+            <td class="p_light">URL</td>
+            <td class="wrapword tiny">{{response.data.url}}</td>
+        </tr>
+        {% endcomment %}
+    {% endif %}
+
+    {% include 'data_browser/interactive/panel_controls.html' %}
+
+    </table>
+</div>

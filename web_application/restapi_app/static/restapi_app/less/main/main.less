@@ -111,18 +111,25 @@ body {
   }
 
   p, .p {
-    opacity: 0.87;
+    //opacity: 0.87;
     color: #333;
     font-size: 16px;
     font-weight: normal;
     //line-height: 24px;
     line-height: 1.6;
   }
+
+  pre {
+    border-radius: 0;
+    p {
+      font-size: 12px;
+    }
+  }
   .p_light {
-    color: #4d4d4d;
+    color: #707070 !important;
   }
   .p_dark {
-    color: #1a1a1a;
+    color: #1a1a1a !important;
   }
   p {
     margin-bottom: 16px;
@@ -1055,6 +1062,13 @@ header {
   margin-top: 12px;
 }
 
+.margin-top-fifteen {
+  margin-top: 15px;
+}
+
+.margin-all-fifteen{margin:15px;}
+.margin-all-thirty{margin:30px;}
+
 p.breakword {
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -1634,13 +1648,27 @@ li.nested_dropdown > a {
   margin-top: 0px;
   margin-bottom: 6px;
 }
+.table-bordered>thead>tr>th, .table-bordered>thead>tr>td {
+    border-bottom-width: 1px;
+}
+table.table > thead > tr > th {font-weight:400;}
 
 /* position relative here ensures that dropdowns can be seen in the table cell,
  if absolute, are obscured by edge of cell */
 .table-responsive .table .dropdown-menu {
   position: relative;
 }
-
+// snippet from stackoverflow:
+.wrapword {
+  white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+  white-space: -webkit-pre-wrap; /*Chrome & Safari */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  white-space: pre-wrap; /* css-3 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+  word-break: break-all;
+  white-space: normal;
+}
 .table {
   tr:hover .fake-ellipsis {
     background: #f5f5f5;
@@ -1660,17 +1688,15 @@ li.nested_dropdown > a {
   p.version span {
     margin-right: 8px;
   }
-  .truncate {
-    height: 44px;
-    position: relative;
-    overflow: hidden;
-    .fake-ellipsis {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      background: #fff;
-
-    }
+  tr, td, th, p {
+    font-size: 14px;
+    margin-bottom:0;
+  }
+  td, p {
+    //opacity: .87;
+    color: #333;
+    font-weight: 400;
+    line-height: 1.6;
   }
 }
 

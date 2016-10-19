@@ -1,0 +1,40 @@
+{% load staticfiles %}
+{% load internal_extras %}
+<!-- Takes some inputs -->
+
+<!-- Figures out which interactive panel to display -->
+
+
+{% if trait_2D_map == True %}
+    {% include 'data_browser/interactive/visual/2d_map.html' %}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% if fidia_type == "trait" %}
+                var trait_url = "{{request.build_absolute_uri}}value/?format=json";
+            {% elif fidia_type == "sub_trait" %}
+                var trait_url = "{{request.build_absolute_uri}}value/?format=json";
+            {% elif fidia_type == "trait_property" %}
+                var trait_url = "{{request.build_absolute_uri}}?format=json";
+            {% endif %}
+
+            var trait_name = "{{response.data.pretty_name}}";
+            var map_selector = "{{trait_type}}_plotly_plot";
+            var options_selector = "{{trait_type}}_plotly_plot_options";
+
+            // make ajax request to get data and save so can adjust with range slider
+            trait_plot(trait_url, trait_name, map_selector, options_selector);
+        });
+    </script>
+
+{% else %}
+    {% if fidia_type != "trait_property" %}
+        <div class="well">
+            Interactive element for {{response.data.pretty_name}} is in development.
+        </div>
+    {% elif fidia_type == "trait_property" and response.data.value|stringformat:"s"|length > 1000 %}
+    <div class="well">
+        Interactive element for {{response.data.pretty_name}} is in development.
+    </div>
+    {% endif %}
+{% endif %}

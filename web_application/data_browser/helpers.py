@@ -5,7 +5,9 @@ class TraitHelper:
     """ Returns all the useful information about this particular trait """
 
     def __init__(self, *args, **kwargs):
-        self.survey = self.astro_object = self.trait = self.trait_key = self.branch = self.version = self.trait_type = self.trait_class = self.trait_name = self.trait_url = self.trait_pretty_name = self.default_trait_key = ''
+        self.fidia_type = self.survey = self.astro_object = self.trait = self.trait_key = \
+            self.branch = self.version = self.trait_type = self.trait_class = self.trait_name = \
+            self.trait_url = self.trait_pretty_name = self.default_trait_key = self.subtrait_pretty_name = ''
         self.all_branches_versions = self.trait_registry = {}
         self.sub_traits = self.sub_trait_list = self.formats = self.breadcrumb_list = []
         self.trait_2D_map = False

@@ -159,7 +159,7 @@ class TraitSerializer(serializers.Serializer):
         # if self._parent_trait is None:
         if hasattr(trait, '_parent_trait'):
             if hasattr(trait._parent_trait, '_parent_trait'):
-                subtrait_str = str(trait.trait_key) + '/'
+                subtrait_str = str(trait.trait_name) + '/'
 
         _url += subtrait_str
 
@@ -267,10 +267,11 @@ class TraitPropertySerializer(serializers.Serializer):
         if hasattr(trait_property, '_trait'):
             traitproperty_str = getattr(trait_property, 'name') + '/'
 
+
         if hasattr(trait_property, '_trait'):
             if hasattr(trait_property._trait, '_parent_trait'):
                 if hasattr(trait_property._trait._parent_trait, '_parent_trait'):
-                    subtrait_str = str(trait_property._trait.trait_key) + '/'
+                    subtrait_str = str(trait_property._trait.trait_name) + '/'
 
         _url += subtrait_str + traitproperty_str
 
