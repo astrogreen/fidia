@@ -1444,6 +1444,10 @@ li.nested_dropdown > a {
   margin-top: 0px;
   margin-bottom: 6px;
 }
+.table h4 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
 .table-bordered > thead > tr > th,
 .table-bordered > thead > tr > td {
   border-bottom-width: 1px;
@@ -1459,10 +1463,6 @@ table.table > thead > tr > th {
 .wrapword {
   white-space: -moz-pre-wrap !important;
   /* Mozilla, since 1999 */
-  white-space: -webkit-pre-wrap;
-  /*Chrome & Safari */
-  white-space: -pre-wrap;
-  /* Opera 4-6 */
   white-space: -o-pre-wrap;
   /* Opera 7 */
   white-space: pre-wrap;
@@ -1516,6 +1516,16 @@ table.table > thead > tr > th {
 .table > tbody > tr.active > th,
 .table > tfoot > tr.active > th {
   background-color: #fafafa;
+}
+.vertical_align_middle tr td {
+  vertical-align: middle !important;
+}
+.table_tool_overview {
+  border: solid 1px #eeeeee;
+}
+.table_tool_overview tr td {
+  padding-bottom: 30px !important;
+  padding: 30px !important;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -3,7 +3,41 @@
 
 <div class="table-responsive">
     <table class="table table-condensed table-bordered">
+        <tr class="active">
+            <td colspan="2">
+                <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="tiny pull-right question" style="margin-top:3px;"><i class="fa fa-question-circle"></i> Branch help</a>
+                <h6 class="text-uppercase" style="margin:0">Branch & Version</h6>
+            </td>
+        </tr>
+        <tr>
+            <td class="p_light"><i class="fa fa-code-fork"></i> Branch
 
+            </td>
+            <td> {{branch}}
+            <a role="button" class="p_light pull-right" data-container="body" data-toggle="popover"
+                   data-trigger="hover click" data-placement="top" data-html="true"
+                   {% if fidia_type == "trait" %}
+                   data-content="This page shows data for branch <em>{{branch}}</em>. To switch branches, use the dropdowns on the left."
+                   {% else %}
+                   data-content="This page shows data for branch <em>{{branch}}</em> of the data type <em>{{trait_pretty_name}}</em>. To switch branches, use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
+                   {% endif %}
+                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
+            </td>
+        </tr>
+        <tr>
+            <td class="p_light"><i class="fa fa-map-pin"></i> Version
+
+            </td>
+            <td> {{version}}
+            <a role="button" class="p_light pull-right" data-container="body" data-toggle="popover"
+                   data-trigger="hover click" data-placement="top" data-html="true"
+                   {% if fidia_type == "trait" %}
+                   data-content="There may be multiple versions of this branch (<em>{{branch}}</em>). To switch versions, use the dropdowns on the left."
+                   {% else %}
+                   data-content="There may be multiple versions of this branch (<em>{{branch}}</em>). To switch versions, use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
+                   {% endif %}
+                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a></td>
+        </tr>
     {% if fidia_type == "trait" or fidia_type == "sub_trait" %}
         <tr class="active">
             <td colspan="2">
@@ -58,6 +92,7 @@
                 <h6 class="text-uppercase" style="margin:0">Properties</h6>
             </td>
         </tr>
+
         <tr>
             <td class="p_light">Description</td>
             <td>{{response.data.description}}</td>

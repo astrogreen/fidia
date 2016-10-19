@@ -1636,6 +1636,7 @@ li.nested_dropdown > a {
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
+
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
   padding: 15px;
 }
@@ -1648,6 +1649,7 @@ li.nested_dropdown > a {
   margin-top: 0px;
   margin-bottom: 6px;
 }
+.table {h4{margin-top:10px;margin-bottom:5px}}
 .table-bordered>thead>tr>th, .table-bordered>thead>tr>td {
     border-bottom-width: 1px;
 }
@@ -1661,8 +1663,7 @@ table.table > thead > tr > th {font-weight:400;}
 // snippet from stackoverflow:
 .wrapword {
   white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-  white-space: -webkit-pre-wrap; /*Chrome & Safari */
-  white-space: -pre-wrap; /* Opera 4-6 */
+
   white-space: -o-pre-wrap; /* Opera 7 */
   white-space: pre-wrap; /* css-3 */
   word-wrap: break-word; /* Internet Explorer 5.5+ */
@@ -1702,6 +1703,18 @@ table.table > thead > tr > th {font-weight:400;}
 
 .table > thead > tr > td.active, .table > tbody > tr > td.active, .table > tfoot > tr > td.active, .table > thead > tr > th.active, .table > tbody > tr > th.active, .table > tfoot > tr > th.active, .table > thead > tr.active > td, .table > tbody > tr.active > td, .table > tfoot > tr.active > td, .table > thead > tr.active > th, .table > tbody > tr.active > th, .table > tfoot > tr.active > th {
   background-color: #fafafa;
+}
+
+.vertical_align_middle{
+  tr td {vertical-align: middle !important}
+}
+
+.table_tool_overview {
+  border: solid 1px #eeeeee;
+  tr td {
+    padding-bottom: 30px !important;
+    padding:30px !important;
+  }
 }
 
 /*

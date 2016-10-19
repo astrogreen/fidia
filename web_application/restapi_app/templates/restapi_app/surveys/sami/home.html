@@ -74,6 +74,9 @@
                 <h5>Quick Links</h5>
                 <ul class="nav-sidebar">
                     <li><a href="{% url 'data-access' %}">ADC Data Access Description</a></li>
+                    <li><a href="{% url 'data_browser:survey-list' survey_pk=response.data.survey %}" class=""> Data Browser</a></li>
+                    <li><a href="{% url 'schema:survey-list' survey_pk=response.data.survey %}"> Schema Browser</a></li>
+                    <li><a href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}" class=""> Documentation: RESTful API</a></li>
                 </ul>
             </div>
 
@@ -106,7 +109,7 @@
                         </ul>
                         </p>
                     </div>
-                    <div class="panel-footer text-right"><a href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}" class="text-uppercase"><strong>Go to Data Browser: {{survey}} <i class="fa fa-angle-right"></i></strong></a></div>
+                    <div class="panel-footer text-right"><a href="{% url 'data_browser:survey-list' survey_pk=response.data.survey %}" class="text-uppercase"><strong>Go to Data Browser: {{survey}} <i class="fa fa-angle-right"></i></strong></a></div>
                 </div>
             </div>
             <div class="col-xs-6 text-justify">
@@ -114,7 +117,7 @@
                     <div class="panel-heading"><span class="panel-title">Schema Browser</span></div>
                     <div class="panel-body"><p>The schema browser allows you to explore the types of product included in this release, how each was
             derived (reduction pipelines, analysis method etc), and any associated meta data.</p></div>
-                    <div class="panel-footer text-right"><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}" class="text-uppercase"><strong>Go to Schema Browser: {{survey}} <i class="fa fa-angle-right"></i></strong></a></div>
+                    <div class="panel-footer text-right"><a href="{% url 'schema:survey-list' survey_pk=response.data.survey %}" class="text-uppercase"><strong>Go to Schema Browser: {{survey}} <i class="fa fa-angle-right"></i></strong></a></div>
                 </div>
             </div>
             <div class="col-xs-6 text-justify">
@@ -154,7 +157,7 @@
                         </td>
                         <td class="lead">{{response.data.data_release}}</td>
                         <td class="lead">{{response.data.count}}</td>
-                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">Schema</a>
+                        <td class="lead"><a href="{% url 'schema:survey-list' survey_pk=response.data.survey %}">Schema</a>
                         </td>
                         <td class="lead">dd/mm/yy</td>
                         <!--<td class="lead">-->
@@ -213,7 +216,7 @@
                 href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
              Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
             data product, view the
-            <a href="{% url 'schema:sample-list' sample_pk=survey %}">{{response.data.survey|uppercase}}
+            <a href="{% url 'schema:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
                 Schema Browser</a>.
         </p>
 

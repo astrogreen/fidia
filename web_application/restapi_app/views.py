@@ -82,7 +82,7 @@ class Surveys(views.APIView):
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'samples': surveys},
+            context={'request': request, 'surveys': surveys},
         )
 
         return Response(serializer.data)
@@ -115,16 +115,6 @@ class SAMI(views.APIView):
         return Response(serializer.data)
 
 # TODO surveys as resources list.
-# class Survey(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-#     """
-#         Available Surveys page
-#         """
-#     permission_classes = (permissions.AllowAny,)
-#
-#     class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-#         template = 'restapi_app/sami/data-release.html'
-#
-#     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
 
 
@@ -185,7 +175,7 @@ class DataAccess(views.APIView):
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'samples': surveys},
+            context={'request': request, 'surveys': surveys},
         )
 
         return Response(serializer.data)

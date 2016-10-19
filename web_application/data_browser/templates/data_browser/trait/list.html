@@ -99,19 +99,14 @@
         <div class="col-sm-2 pull-right">
             <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2>{{survey|uppercase}} {{astro_object}} {{response.data.pretty_name}}
-            <small>
-                <span class="sub-heading"><i class="fa fa-code-fork"></i> {{branch}}</span>
-                <span class="sub-heading"><i class="fa fa-map-pin"></i> {{version}}</span>
-            </small>
-        </h2>
+        <h2>{{survey|uppercase}} {{astro_object}} {{response.data.pretty_name}}</h2>
 
         {% if response.data.description %}
             <p><em>{{ response.data.description}}</em></p>
         {% endif %}
 
         <div class="options text-left">
-            <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="pull-right question"><i class="fa fa-question-circle"></i> What is a branch?</a>
+
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
