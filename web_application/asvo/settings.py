@@ -308,6 +308,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.TemplateHTMLRenderer',
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
     ),
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    # 'EXCEPTION_HANDLER': 'restapi_app.utils..exceptions.custom_exception_handler'
 }
-

@@ -1,5 +1,7 @@
 import json
 from django.views.generic import TemplateView
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
@@ -13,6 +15,22 @@ import data_browser.serializers
 
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
+#
+# def handler404(request):
+#     print('here')
+#     response = render_to_response('404.html', {},
+#                                   context_instance=RequestContext(request))
+#     response.status_code = 404
+#     raise restapi_app.exceptions.CustomValidation(detail="Not found", field='detail',
+#                                                   status_code=status.HTTP_404_NOT_FOUND)
+#     return response
+#
+#
+# def handler500(request):
+#     response = render_to_response('500.html', {},
+#                                   context_instance=RequestContext(request))
+#     response.status_code = 500
+#     return response
 
 class TemplateViewWithStatusCode(TemplateView):
     """

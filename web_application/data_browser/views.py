@@ -72,6 +72,10 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
     permission_classes = [permissions.AllowAny]
     serializer_class = data_browser.serializers.DownloadSerializer
 
+    def __init__(self, *args, **kwargs):
+        self.catalog = ''
+
+
     def list(self, request, pk=None, survey_pk=None, format=None, extra_keyword=None):
 
         self.breadcrumb_list = ['Data Browser', str(survey_pk).upper()]
@@ -79,6 +83,10 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         try:
             # TODO ask FIDIA what it's got for survey_pk
             sami_dr1_sample
+            if survey_pk != "sami":
+                message = 'Survey does not exist: ' + survey_pk
+                raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                                  status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -240,6 +248,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, format=None):
 
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk]
+
         try:
             astro_object = sami_dr1_sample[astroobject_pk]
             assert isinstance(astro_object, fidia.AstronomicalObject)
@@ -253,7 +263,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 
         # Context (for html page render)
-        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk]
         self.survey = survey_pk
         self.astro_object = astroobject_pk
         self.feature_catalog_data = astro_object.get_feature_catalog_data()
@@ -293,7 +302,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_browser.
 
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
-
+            self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait.get_pretty_name()]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
@@ -314,8 +323,6 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_browser.
         # Context (for html page render)
         self.set_attributes(survey_pk=survey_pk, astroobject_pk=astroobject_pk, trait_pk=trait_pk,
                             trait=trait, ar=ar)
-
-        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait.get_pretty_name()]
         self.fidia_type = "trait"
 
         if isinstance(trait, traits.Map2D):
@@ -370,7 +377,18 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, da
                                                           status_code=status.HTTP_404_NOT_FOUND)
 
         # Context (for html page render)
-        trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
+        try:
+            trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
+        except KeyError:
+            _branch = trait_pk.split(":")[1]
+            message = 'No ' + trait_pk + ' data available for ' + astroobject_pk +'. Check the branch and version ['+_branch+'] are correct.'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+        except fidia.exceptions.UnknownTrait:
+            message = 'Unknown trait: ' + trait_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+
         self.set_attributes(survey_pk=survey_pk, astroobject_pk=astroobject_pk, trait_pk=trait_pk,
                             trait=trait_pointer, ar=ar)
 
@@ -391,16 +409,33 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, da
                                     trait_pointer.get_pretty_name(),
                                     subtrait_pointer.get_pretty_name()]
 
+
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
+
+            try:
+                traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
+            except:
+                message = 'Not found: Object ' + astroobject_pk + ' trait ' + trait_pk + ' does not have property ' + subtraitproperty_pk
+                raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                              status_code=status.HTTP_404_NOT_FOUND)
+
             self.template = 'data_browser/trait_property/list.html'
             self.fidia_type = "trait_property"
-            traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
+
+            # Set Breadcrumbs for this method
+            self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk,
+                                    trait_pointer.get_pretty_name(),
+                                    traitproperty_pointer.get_pretty_name()]
 
             if 'array' in traitproperty_pointer.type and 'string' not in traitproperty_pointer.type:
                 try:
                     n_axes = len(traitproperty_pointer.value.shape)
                 except AttributeError:
                     pass
+                except fidia.exceptions.DataNotAvailable:
+                    message = 'No '+subtraitproperty_pk+' data available for ' + trait_pk
+                    raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                                  status_code=status.HTTP_404_NOT_FOUND)
                 else:
                     if n_axes == 2:
                         self.trait_2D_map = True
@@ -413,13 +448,9 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, da
                                               kwargs={'survey_pk': survey_pk, 'astroobject_pk': astroobject_pk,
                                                       'trait_pk': trait_pk, }),
                          })
-            # Set Breadcrumbs for this method
-            self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk,
-                                    trait_pointer.get_pretty_name(),
-                                    traitproperty_pointer.get_pretty_name()]
+
         else:
-            raise Exception("programming error")
-        # TODO Handle this!
+            raise Exception("An error has occurred.")
 
         return Response(serializer.data)
 
@@ -439,11 +470,36 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_
     def list(self, request, survey_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None,
              traitproperty_pk=None, format=None):
 
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait_pk,
+                                subtraitproperty_pk, traitproperty_pk]
+
         # set trait attributes on the renderer context
-        trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
-        subtrait_pointer = sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk]
-        traitproperty_pointer = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk],
-                                        traitproperty_pk)
+        try:
+            trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
+        except KeyError:
+            message = "Key not found: " + trait_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+        try:
+            subtrait_pointer = sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk]
+        except KeyError:
+            message = "Key not found: " + subtraitproperty_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                      status_code=status.HTTP_404_NOT_FOUND)
+        try:
+            traitproperty_pointer = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk],
+                                            traitproperty_pk)
+        except KeyError:
+            message = "Key not found: "+ traitproperty_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+
+
+
+        except ValueError:
+            message = "Value not found: " + traitproperty_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
 
         # Context (for html page render)
         self.set_attributes(survey_pk=survey_pk, astroobject_pk=astroobject_pk, trait_pk=trait_pk,
