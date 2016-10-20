@@ -19,6 +19,8 @@ from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.conf.urls.static import static
 
+handler404 = "restapi_app.errorhandler.handler404"
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^asvo/', include('restapi_app.urls')),
@@ -31,3 +33,5 @@ urlpatterns = [
     # url(r'^asvo/', include('sov.urls')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

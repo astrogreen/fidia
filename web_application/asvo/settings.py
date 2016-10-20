@@ -311,3 +311,5 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     # 'EXCEPTION_HANDLER': 'restapi_app.utils..exceptions.custom_exception_handler'
 }
+
+

@@ -1,6 +1,6 @@
 {% load staticfiles %}
+{% load internal_extras %}
 <header>
-
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -36,14 +36,6 @@
                             <!--<li class="disabled"><a href="{% url 'under-construction' %}">Access</a></li>-->
                         </ul>
                     </li>
-                    <!--<li class="dropdown disabled">-->
-                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"-->
-                           <!--aria-expanded="false">Raw Observations</a>-->
-                        <!--<ul class="dropdown-menu">-->
-
-                            <!--<li class="dropdown-header">Survey Data</li>-->
-                        <!--</ul>-->
-                    <!--</li>-->
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">Data Access</a>
@@ -118,12 +110,13 @@
                     </a>
                 </li>
                 {% block userlinks %}
+
                     {% if user.is_authenticated %}
-                        {% load internal_extras %}
                         {% optional_logout request user %}
                     {% else %}
-                        {% optional_login_header request %}
+                        {% optional_login request True %}
                     {% endif %}
+
                 {% endblock %}
 
             </ul>
