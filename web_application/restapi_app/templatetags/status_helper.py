@@ -1,5 +1,6 @@
 from __future__ import unicode_literals, absolute_import
 from django.utils.html import escape, format_html
+from django.core.urlresolvers import reverse
 from django.utils.safestring import SafeData, mark_safe
 from django import template
 
@@ -69,6 +70,7 @@ def status_info(request, status_code, user, status_code_detail):
     Display status info if not success (HTTP_2xx)
     {% status_info request response.status_code user response.data.detail %}
     """
+    _support = reverse('support-contact')
     status_code = int(status_code)
     # format the string to be added in for the optional signin/register buttons if user is unauthenticated
     optional_login_html = restapi_app.templatetags.internal_extras.optional_login(request, False)
@@ -82,7 +84,7 @@ def status_info(request, status_code, user, status_code_detail):
                             <p>Hmmm. Something went wrong.</p>
                             <p><code>Status Code: {status_code}<br> Detail: {status_code_detail}</code></p>
 
-                            <p>If you believe you are seeing this page in error, please <a href="" class="btn btn-default btn-xs">Contact
+                            <p>If you believe you are seeing this page in error, please <a href="{support}" class="btn btn-default btn-xs">Contact
                                 Support </a>
                             </p>
                         </div>
@@ -102,7 +104,8 @@ def status_info(request, status_code, user, status_code_detail):
         # 2XX
         if status_code == 204:
             # 204 NO CONTENT
-            snippet = format_html(html_to_render, status_code=status_code,  status_code_detail=status_code_detail, authenticators=authenticators)
+            snippet = format_html(html_to_render, status_code=status_code, status_code_detail=status_code_detail,
+                                  authenticators=authenticators, support=_support)
 
     if status.is_redirect(status_code):
         # 3XX
@@ -110,7 +113,7 @@ def status_info(request, status_code, user, status_code_detail):
     if status.is_client_error(status_code):
         # 4XX
         snippet = format_html(html_to_render, status_code=status_code, request=request, user=user,
-                              status_code_detail=status_code_detail, authenticators=authenticators)
+                              status_code_detail=status_code_detail, authenticators=authenticators, support=_support)
 
     if status.is_server_error(status_code):
         # 5XX
