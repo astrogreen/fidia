@@ -55,7 +55,7 @@
                         </div>
                     </div>
                     {% endif %}
-                    {% if email_status == "error" %}
+                    {% if email_status == "server_error" %}
                     <div class="panel panel-default error">
                         <div class="panel-body"><strong class="text-uppercase">Error <i
                                 class="fa fa-times-circle-o text-error"></i></strong>
@@ -63,9 +63,12 @@
                                     href="mailto:asvo@aao.gov.au">asvo@aao.gov.au</a> and let us know.</p>
                         </div>
                     </div>
+                    {% elif email_status == "client_error" %}
+                        {{errors}}
                     {% endif %}
 
-                        <form action="{% url 'support-contact' %}" method="post" novalidate>
+                    {% if display_form %}
+                        <form action="{% url 'support-bug' %}" method="post" novalidate>
                             {% csrf_token %}
                             {% render_form serializer %}
                             <div>
@@ -78,7 +81,7 @@
                             <button type="submit" class="btn text-uppercase btn-primary pull-right margin-top-fifteen"
                                     {% if email_status == "success" %}disabled="true"{% endif %}>Send</button>
                         </form>
-
+                    {% endif %}
                 </div>
             </div>
         </div>

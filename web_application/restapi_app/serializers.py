@@ -1,5 +1,4 @@
-from django.core.mail import send_mail
-
+from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
 from rest_framework import serializers, mixins, status
 
 
@@ -51,7 +50,7 @@ class ContactFormSerializer(serializers.Serializer):
     """
     name = serializers.CharField(
         max_length=100,
-        style={'placeholder':'Name'}
+        style={'placeholder': 'Name'}
     )
     email = serializers.EmailField(
         max_length=100,
@@ -65,7 +64,8 @@ class ContactFormSerializer(serializers.Serializer):
     def send(self):
         email = self.validated_data['email']
         message = self.validated_data['message']
-        send_mail('ADC Contact Form', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'], fail_silently=False)
+        send_mail('ADC Contact Form', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'],
+                  fail_silently=False)
 
 
 class BugReportSerializer(serializers.Serializer):
@@ -74,21 +74,33 @@ class BugReportSerializer(serializers.Serializer):
     """
     message = serializers.CharField(
         max_length=10000, required=True, label="Message*",
-        style={'placeholder': 'Please be as specific as possible when describing your issue.', 'base_template': 'textarea.html', 'rows': 6}
+        style={'placeholder': 'Please be as specific as possible when describing your issue.',
+               'base_template': 'textarea.html', 'rows': 6}
     )
-    url = serializers.URLField(required=False, label='URL (optional)', style={'placeholder':'e.g., /asvo/data-access/data-browser/'})
+    url = serializers.CharField(required=False, label='URL (optional)', max_length=100,
+                               style={'placeholder': 'e.g., /asvo/data-access/data-browser/'})
     name = serializers.CharField(
         max_length=100, required=True, label="Name*",
-        style={'placeholder':'Name'}
+        style={'placeholder': 'Name'}
     )
     email = serializers.EmailField(
         max_length=100, label="Email (optional)**", required=False,
         style={'placeholder': 'Email'}
     )
 
-
-
     def send(self):
-        email = self.validated_data['email']
-        message = self.validated_data['message']
-        send_mail('ADC Bug Report', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'], fail_silently=False)
+        subject, from_email, to = 'hello', 'from@example.com', 'liz.mannering@uwa.edu.au'
+        text_content = 'This is an important message.'
+        html_content = '<p>This is an <strong>important</strong> message.</p>'
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send(fail_silently=False)
+
+        #
+        #
+        # email = self.validated_data['email']
+        # name = self.validated_data['name']
+        #
+        # message_to_send = "MESSAGE:" + self.validated_data['message'] + '<br>' + 'URL: ' +self.validated_data['url']
+        #
+        # send_mail('ADC Bug Report', message=message_to_send, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'], fail_silently=False)

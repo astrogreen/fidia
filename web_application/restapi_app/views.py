@@ -76,20 +76,32 @@ class BugReport(views.APIView):
 
     def get(self, request):
         serializer = restapi_app.serializers.BugReportSerializer
-
-        return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
+        return Response(data={'serializer': serializer, 'display_form': True}, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        serializer = restapi_app.serializers.BugReportSerializer(data=request.data)
+
+        serializer_unbound = restapi_app.serializers.BugReportSerializer
+
+        try:
+            serializer = restapi_app.serializers.BugReportSerializer(data=request.data)
+        except Exception:
+            return Response({"email_status": "server_error", 'serializer': serializer_unbound},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         serializer.is_valid()
 
         if serializer.is_valid():
-            serializer.send()
-            serializer_unbound = restapi_app.serializers.BugReportSerializer
-            return Response({"email_status": "success", 'serializer': serializer_unbound},
-                            status=status.HTTP_202_ACCEPTED)
 
-        return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.send()
+
+            return Response({"email_status": "success", 'display_form': False},
+                            status=status.HTTP_202_ACCEPTED)
+        else:
+            # TODO Ensure submitted data is put back in the form!
+            return Response(
+                {"email_status": "client_error", "errors": serializer.errors, 'serializer': serializer_unbound,
+                 'display_form': True},
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 
