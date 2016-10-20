@@ -15,29 +15,6 @@ import data_browser.serializers
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
 
-def handler404(request):
-    print('THIS --- WAS --- RUN')
-    response = render_to_response('404.html', {},
-                                  context_instance=RequestContext(request))
-    response.status_code = 404
-    return response
-
-# def handler404(request):
-#     print('here')
-#     response = render_to_response('404.html', {},
-#                                   context_instance=RequestContext(request))
-#     response.status_code = 404
-#     raise restapi_app.exceptions.CustomValidation(detail="Not found", field='detail',
-#                                                   status_code=status.HTTP_404_NOT_FOUND)
-#     return response
-#
-#
-# def handler500(request):
-#     response = render_to_response('500.html', {},
-#                                   context_instance=RequestContext(request))
-#     response.status_code = 500
-#     return response
-
 class TemplateViewWithStatusCode(TemplateView):
     """
     Adds a status code to the mix. api.html (which all templates extend)
@@ -85,6 +62,35 @@ class ContactForm(views.APIView):
                             status=status.HTTP_202_ACCEPTED)
 
         return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class BugReport(views.APIView):
+    """
+    Bug Report Form
+    """
+
+    permission_classes = (permissions.AllowAny,)
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'restapi_app/support/bug_report.html'
+
+    def get(self, request):
+        serializer = restapi_app.serializers.BugReportSerializer
+
+        return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        serializer = restapi_app.serializers.BugReportSerializer(data=request.data)
+        serializer.is_valid()
+
+        if serializer.is_valid():
+            serializer.send()
+            serializer_unbound = restapi_app.serializers.BugReportSerializer
+            return Response({"email_status": "success", 'serializer': serializer_unbound},
+                            status=status.HTTP_202_ACCEPTED)
+
+        return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class Surveys(views.APIView):

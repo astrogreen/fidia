@@ -489,15 +489,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_
         try:
             traitproperty_pointer = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk],
                                             traitproperty_pk)
-        except KeyError:
-            message = "Key not found: "+ traitproperty_pk
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
-                                                          status_code=status.HTTP_404_NOT_FOUND)
-
-
-
-        except ValueError:
-            message = "Value not found: " + traitproperty_pk
+        except Exception:
+            message = "Key not found: " + traitproperty_pk
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                           status_code=status.HTTP_404_NOT_FOUND)
 

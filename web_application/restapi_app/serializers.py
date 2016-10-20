@@ -65,4 +65,30 @@ class ContactFormSerializer(serializers.Serializer):
     def send(self):
         email = self.validated_data['email']
         message = self.validated_data['message']
-        send_mail('AAODC Contact Form', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'], fail_silently=False)
+        send_mail('ADC Contact Form', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'], fail_silently=False)
+
+
+class BugReportSerializer(serializers.Serializer):
+    """
+    Contact Form Serializer.
+    """
+    message = serializers.CharField(
+        max_length=10000, required=True, label="Message*",
+        style={'placeholder': 'Please be as specific as possible when describing your issue.', 'base_template': 'textarea.html', 'rows': 6}
+    )
+    url = serializers.URLField(required=False, label='URL (optional)', style={'placeholder':'e.g., /asvo/data-access/data-browser/'})
+    name = serializers.CharField(
+        max_length=100, required=True, label="Name*",
+        style={'placeholder':'Name'}
+    )
+    email = serializers.EmailField(
+        max_length=100, label="Email (optional)**", required=False,
+        style={'placeholder': 'Email'}
+    )
+
+
+
+    def send(self):
+        email = self.validated_data['email']
+        message = self.validated_data['message']
+        send_mail('ADC Bug Report', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'], fail_silently=False)

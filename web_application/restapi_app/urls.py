@@ -33,6 +33,7 @@ urlpatterns = [
                 name='about-team'),
 
             url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
+            url(r'^(?i)support/bug-report/$', restapi_app.views.BugReport.as_view(), name='support-bug'),
 
 
 
