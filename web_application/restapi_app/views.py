@@ -1,6 +1,6 @@
-import json
+import json, requests
 from django.views.generic import TemplateView
-
+from django.conf import settings
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -62,16 +62,50 @@ class AvailableTables(views.APIView):
 #
 #         return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def validateRecaptcha(self, request):
+    # Validate the recaptcha box
+
+    # Get user's response
+    captcha_rs = request.POST.get('g-recaptcha-response')
+
+    url = "https://www.google.com/recaptcha/api/siteverify"
+    params = {
+        'secret': '6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j',
+        'response': captcha_rs,
+        'remoteip': get_client_ip(request)
+    }
+
+    response_content = requests.post(url, data=params)
+    verify_rs = response_content.json()
+
+    recaptcha = {}
+    recaptcha["status"] = verify_rs.get("success", False)
+    recaptcha['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
+    return recaptcha
+
+
 class ContactForm(views.APIView):
     """
     Contact Form
     """
-
     permission_classes = (permissions.AllowAny,)
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'restapi_app/support/contact.html'
 
     def get(self, request):
+        print(request.META['HTTP_HOST'])
         serializer = restapi_app.serializers.ContactFormSerializer
         return Response(data={'serializer': serializer, 'display_form': True}, status=status.HTTP_200_OK)
 
@@ -93,15 +127,25 @@ class ContactForm(views.APIView):
 
         if serializer.is_valid():
 
-            try:
-                serializer.send()
-                return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
-            except BaseException as e:
-                return Response({"email_status": "server_error",
-                                 "message": 'Server Error (' + str(
-                                     e) + '): Contact form could not be sent at this time.',
-                                 'serializer': serializer, 'display_form': True},
-                                status=status.HTTP_400_BAD_REQUEST)
+            recaptcha = validateRecaptcha(self, request)
+            print(recaptcha['status'])
+
+            if recaptcha['status'] is True:
+                try:
+                    serializer.send()
+                    return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
+                except BaseException as e:
+                    return Response({"email_status": "server_error",
+                                     "message": 'Server Error (' + str(
+                                         e) + '): Contact form could not be sent at this time.',
+                                     'serializer': serializer, 'display_form': True},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {"email_status": "client_error", "message": "Recaptcha Failed. Are you a robot?",
+                     'serializer': serializer,
+                     'display_form': True},
+                    status=status.HTTP_400_BAD_REQUEST)
 
         else:
             #  Client Error: serializer is not valid. Return errors and bound form

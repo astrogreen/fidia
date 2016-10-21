@@ -1,5 +1,5 @@
 from time import gmtime, strftime
-
+from captcha.fields import ReCaptchaField
 from django.utils.html import escape, format_html
 from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
 from rest_framework import serializers
@@ -39,13 +39,6 @@ class SurveySerializer(serializers.Serializer):
         return self.context['count']
 
 
-class DataProductSerializer(SurveySerializer):
-    products = serializers.SerializerMethodField()
-
-    def get_products(self, obj):
-        return self.context['products']
-
-
 class ContactFormSerializer(serializers.Serializer):
     """
     Contact Form Serializer.
@@ -62,6 +55,10 @@ class ContactFormSerializer(serializers.Serializer):
         max_length=1000, required=True, label="Message*",
         style={'placeholder': 'Message', 'base_template': 'textarea.html', 'rows': 6}
     )
+
+    captcha = ReCaptchaField(attrs={
+        'theme': 'clean',
+    })
 
     def send(self):
         from_email = str(self.validated_data.get('email'))
