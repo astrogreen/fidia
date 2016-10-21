@@ -24,7 +24,7 @@
     <div class="jumbotron">
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 col-sm-5 vcenter">
+                <div class="col-xs-12 col-sm-5 vcenter  animated fadeInLeft">
                     <h1 style="line-height:64px">Report an Issue.</h1>
                     <p class="lead"><i class="fa fa-bug"></i> Let us know what's gone wrong.</p>
                     <h6 class="text-uppercase">Reporting guidelines</h6>
@@ -47,14 +47,20 @@
 
 
                 </div><!--
-                --><div class="col-xs-12 col-sm-offset-1 col-sm-6 vcenter">
+                --><div class="col-xs-12 col-sm-offset-1 col-sm-6 vcenter animated fadeInUp">
                     {% if email_status == "success" %}
                     <div class="panel panel-default success">
                         <div class="panel-body"><strong class="text-uppercase">Success <i
                                 class="fa fa-check-circle-o text-success"></i></strong>
                             <div class="p">Your email has been sent.</div>
                             <div class="">We'll be in contact with an update on your issue as soon as possible.</div>
+
                         </div>
+                        <ul class="list-group">
+                            <li class="list-group-item"><a href="{% url 'surveys' %}">Survey Overview <i class="fa fa-angle-right"></i></a></li>
+                            <li class="list-group-item"><a href="{% url 'data-access' %}">Data Access Overview <i class="fa fa-angle-right"></i></a></li>
+
+                        </ul>
                     </div>
                     {% endif %}
                     {% if email_status == "server_error" %}
