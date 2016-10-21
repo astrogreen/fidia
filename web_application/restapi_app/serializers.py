@@ -4,7 +4,6 @@ from django.utils.html import escape, format_html
 from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
 from rest_framework import serializers
 
-
 """
 Serializers:
 
@@ -52,23 +51,54 @@ class ContactFormSerializer(serializers.Serializer):
     Contact Form Serializer.
     """
     name = serializers.CharField(
-        max_length=100,
+        max_length=100, required=True, label="Name*",
         style={'placeholder': 'Name'}
     )
     email = serializers.EmailField(
-        max_length=100,
+        max_length=100, required=True, label="Email*",
         style={'placeholder': 'Email'}
     )
     message = serializers.CharField(
-        max_length=1000,
+        max_length=1000, required=True, label="Message*",
         style={'placeholder': 'Message', 'base_template': 'textarea.html', 'rows': 6}
     )
 
     def send(self):
-        email = self.validated_data['email']
-        message = self.validated_data['message']
-        send_mail('ADC Contact Form', message=message, from_email=email, recipient_list=['liz.mannering@uwa.edu.au'],
-                  fail_silently=False)
+        from_email = str(self.validated_data.get('email'))
+        message = str(self.validated_data.get('message'))
+        name = str(self.validated_data.get('name'))
+        date = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+
+        snippet = """
+        <h4>ADC Contact Form Message</h4>
+            <table>
+                <tr>
+                    <td>Name</td>
+                    <td>{name}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>{from_email}</td>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td>{date}</td>
+                </tr>
+                <tr>
+                    <td>Message</td>
+                    <td>{message}</td>
+                </tr>
+            </table>
+        """
+
+        subject, from_email, to = 'ADC Contact Form', from_email, 'liz.mannering@uwa.edu.au'
+
+        html_content = format_html(snippet, name=name, from_email=from_email, message=message, date=date)
+
+        text_content = 'FROM: ' + name + ', ' + from_email + ' MESSAGE: ' + message + ' DATE: ' + date
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send(fail_silently=False)
 
 
 class BugReportSerializer(serializers.Serializer):
@@ -81,7 +111,7 @@ class BugReportSerializer(serializers.Serializer):
                'base_template': 'textarea.html', 'rows': 6}
     )
     url = serializers.CharField(required=False, label='URL (optional)', max_length=100,
-                               style={'placeholder': 'e.g., /asvo/data-access/data-browser/'})
+                                style={'placeholder': 'e.g., /asvo/data-access/data-browser/'})
 
     name = serializers.CharField(
         max_length=100, required=True, label="Name*",
@@ -94,9 +124,7 @@ class BugReportSerializer(serializers.Serializer):
     survey_team = serializers.ChoiceField(choices=['Not Applicable', 'GAMA', 'SAMI'], required=False,
                                           label='Survey Team (optional)', allow_blank=True)
 
-
     def send(self):
-
         from_email = str(self.validated_data.get('email'))
         survey_team = str(self.validated_data.get('survey_team'))
         message = str(self.validated_data.get('message'))

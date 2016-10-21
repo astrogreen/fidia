@@ -1,7 +1,6 @@
 import json
 from django.views.generic import TemplateView
 
-
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -37,6 +36,32 @@ class AvailableTables(views.APIView):
         return Response(json_data)
 
 
+# class ContactForm(views.APIView):
+#     """
+#     Contact Form
+#     """
+#
+#     permission_classes = (permissions.AllowAny,)
+#     renderer_classes = [renderers.TemplateHTMLRenderer]
+#     template_name = 'restapi_app/support/contact.html'
+#
+#     def get(self, request):
+#         serializer = restapi_app.serializers.ContactFormSerializer
+#
+#         return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
+#
+#     def post(self, request, format=None):
+#         serializer = restapi_app.serializers.ContactFormSerializer(data=request.data)
+#         serializer.is_valid()
+#
+#         if serializer.is_valid():
+#             serializer.send()
+#             serializer_unbound = restapi_app.serializers.ContactFormSerializer
+#             return Response({"email_status": "success", 'serializer': serializer_unbound},
+#                             status=status.HTTP_202_ACCEPTED)
+#
+#         return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
 class ContactForm(views.APIView):
     """
     Contact Form
@@ -48,21 +73,42 @@ class ContactForm(views.APIView):
 
     def get(self, request):
         serializer = restapi_app.serializers.ContactFormSerializer
-
-        return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
+        return Response(data={'serializer': serializer, 'display_form': True}, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        serializer = restapi_app.serializers.ContactFormSerializer(data=request.data)
+
+        serializer_unbound = restapi_app.serializers.ContactFormSerializer
+
+        try:
+            # access request data
+            serializer = restapi_app.serializers.ContactFormSerializer(data=request.data)
+        except BaseException as e:
+            return Response({"email_status": "server_error",
+                             "message": 'Server Error (' + str(e) + ').',
+                             'serializer': serializer_unbound, 'data': request.data,
+                             'display_form': True},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         serializer.is_valid()
 
         if serializer.is_valid():
-            serializer.send()
-            serializer_unbound = restapi_app.serializers.ContactFormSerializer
-            return Response({"email_status": "success", 'serializer': serializer_unbound},
-                            status=status.HTTP_202_ACCEPTED)
 
-        return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                serializer.send()
+                return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
+            except BaseException as e:
+                return Response({"email_status": "server_error",
+                                 "message": 'Server Error (' + str(
+                                     e) + '): Contact form could not be sent at this time.',
+                                 'serializer': serializer, 'display_form': True},
+                                status=status.HTTP_400_BAD_REQUEST)
 
+        else:
+            #  Client Error: serializer is not valid. Return errors and bound form
+            return Response(
+                {"email_status": "client_error", "errors": json.dumps(serializer.errors), 'serializer': serializer,
+                 'display_form': True},
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 class BugReport(views.APIView):
@@ -101,7 +147,7 @@ class BugReport(views.APIView):
                 return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
             except BaseException as e:
                 return Response({"email_status": "server_error",
-                                 "message": 'Server Error ('+str(e)+'): Bug report could not be sent at this time.',
+                                 "message": 'Server Error (' + str(e) + '): Bug report could not be sent at this time.',
                                  'serializer': serializer, 'display_form': True},
                                 status=status.HTTP_400_BAD_REQUEST)
 
@@ -111,7 +157,6 @@ class BugReport(views.APIView):
                 {"email_status": "client_error", "errors": json.dumps(serializer.errors), 'serializer': serializer,
                  'display_form': True},
                 status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class Surveys(views.APIView):
@@ -165,6 +210,7 @@ class SAMI(views.APIView):
 
         return Response(serializer.data)
 
+
 # TODO surveys as resources list.
 
 
@@ -206,7 +252,6 @@ class SAMIDataProducts(views.APIView):
         return Response(serializer.data)
 
 
-
 class DataAccess(views.APIView):
     """
     Available Surveys page
@@ -230,4 +275,3 @@ class DataAccess(views.APIView):
         )
 
         return Response(serializer.data)
-

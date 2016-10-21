@@ -11,7 +11,7 @@
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
-<li class="active"><a href="">Bug Report</a></li>
+<li class="active"><a href="{% url 'support-bug' %}">Bug Report</a></li>
 {% endblock %}
 
 {% block page_title %}Bug Report {% endblock %}
@@ -24,7 +24,7 @@
     <div class="jumbotron">
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 col-sm-5 vcenter  animated fadeInLeft">
+                <div class="col-xs-12 col-sm-5 vcenter  animated fadeIn">
                     <h1 style="line-height:64px">Report an Issue.</h1>
                     <p class="lead"><i class="fa fa-bug"></i> Let us know what's gone wrong.</p>
                     <h6 class="text-uppercase">Reporting guidelines</h6>
