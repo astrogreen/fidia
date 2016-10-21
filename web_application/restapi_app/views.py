@@ -83,23 +83,32 @@ class BugReport(views.APIView):
         serializer_unbound = restapi_app.serializers.BugReportSerializer
 
         try:
+            # access request data
             serializer = restapi_app.serializers.BugReportSerializer(data=request.data)
-        except Exception:
-            return Response({"email_status": "server_error", 'serializer': serializer_unbound},
+        except BaseException as e:
+            return Response({"email_status": "server_error",
+                             "message": 'Server Error (' + str(e) + ').',
+                             'serializer': serializer_unbound, 'data': request.data,
+                             'display_form': True},
                             status=status.HTTP_400_BAD_REQUEST)
 
         serializer.is_valid()
 
         if serializer.is_valid():
 
-            serializer.send()
+            try:
+                serializer.send()
+                return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
+            except BaseException as e:
+                return Response({"email_status": "server_error",
+                                 "message": 'Server Error ('+str(e)+'): Bug report could not be sent at this time.',
+                                 'serializer': serializer, 'display_form': True},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({"email_status": "success", 'display_form': False},
-                            status=status.HTTP_202_ACCEPTED)
         else:
-            # TODO Ensure submitted data is put back in the form!
+            #  Client Error: serializer is not valid. Return errors and bound form
             return Response(
-                {"email_status": "client_error", "errors": serializer.errors, 'serializer': serializer_unbound,
+                {"email_status": "client_error", "errors": json.dumps(serializer.errors), 'serializer': serializer,
                  'display_form': True},
                 status=status.HTTP_400_BAD_REQUEST)
 

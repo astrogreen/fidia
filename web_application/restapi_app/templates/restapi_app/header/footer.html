@@ -192,22 +192,26 @@
         $('body').scrollspy({ target: '.sidebar .page-contents' });
 
         // Affix plugin
-        function affixSidebar(){
-            // destroy any previous listeners
-            $('.sidebar-contents').off('.affix');
+        function affixSidebar() {
 
-            var pos = $('.sidebar-contents').eq(0).offset();
-            var pos_foot = $('.footer').outerHeight(true);
+            if ($('.sidebar-contents').length) {
+                // destroy any previous listeners
+                $('.sidebar-contents').off('.affix');
 
-            $('[data-spy="affix"]').attr("data-offset-top", pos.top);
-            $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot + 30);
+                var pos = $('.sidebar-contents').eq(0).offset();
+                var pos_foot = $('.footer').outerHeight(true);
 
-            // ensure the affix element maintains it width
-            var affix = $('.sidebar-contents');
-            var width = affix.width();
-            var width = $('.sidebar').width();
+                $('[data-spy="affix"]').attr("data-offset-top", pos.top);
+                $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot + 30);
+
+                // ensure the affix element maintains it width
+                var affix = $('.sidebar-contents');
+                var width = affix.width();
+                var width = $('.sidebar').width();
 //            console.log('sidebar width '+$('.sidebar').width()+' affix width '+width);
-            affix.width(width);
+                affix.width(width);
+            }
+
         }
 
         affixSidebar()
