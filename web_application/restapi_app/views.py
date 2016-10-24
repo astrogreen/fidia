@@ -63,8 +63,6 @@ class AvailableTables(views.APIView):
 #         return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -82,7 +80,7 @@ def validateRecaptcha(self, request):
 
     url = "https://www.google.com/recaptcha/api/siteverify"
     params = {
-        'secret': '6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j',
+        'secret': '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn',
         'response': captcha_rs,
         'remoteip': get_client_ip(request)
     }
@@ -93,6 +91,7 @@ def validateRecaptcha(self, request):
     recaptcha = {}
     recaptcha["status"] = verify_rs.get("success", False)
     recaptcha['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
+
     return recaptcha
 
 
@@ -105,7 +104,6 @@ class ContactForm(views.APIView):
     template_name = 'restapi_app/support/contact.html'
 
     def get(self, request):
-        print(request.META['HTTP_HOST'])
         serializer = restapi_app.serializers.ContactFormSerializer
         return Response(data={'serializer': serializer, 'display_form': True}, status=status.HTTP_200_OK)
 
@@ -121,14 +119,13 @@ class ContactForm(views.APIView):
                              "message": 'Server Error (' + str(e) + ').',
                              'serializer': serializer_unbound, 'data': request.data,
                              'display_form': True},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         serializer.is_valid()
 
         if serializer.is_valid():
 
             recaptcha = validateRecaptcha(self, request)
-            print(recaptcha['status'])
 
             if recaptcha['status'] is True:
                 try:
@@ -142,7 +139,7 @@ class ContactForm(views.APIView):
                                     status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(
-                    {"email_status": "client_error", "message": "Recaptcha Failed. Are you a robot?",
+                    {"email_status": "client_error", "message": "Recaptcha Failed.",
                      'serializer': serializer,
                      'display_form': True},
                     status=status.HTTP_400_BAD_REQUEST)
@@ -159,7 +156,6 @@ class BugReport(views.APIView):
     """
     Bug Report Form
     """
-
     permission_classes = (permissions.AllowAny,)
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'restapi_app/support/bug_report.html'
@@ -180,20 +176,30 @@ class BugReport(views.APIView):
                              "message": 'Server Error (' + str(e) + ').',
                              'serializer': serializer_unbound, 'data': request.data,
                              'display_form': True},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         serializer.is_valid()
 
         if serializer.is_valid():
 
-            try:
-                serializer.send()
-                return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
-            except BaseException as e:
-                return Response({"email_status": "server_error",
-                                 "message": 'Server Error (' + str(e) + '): Bug report could not be sent at this time.',
-                                 'serializer': serializer, 'display_form': True},
-                                status=status.HTTP_400_BAD_REQUEST)
+            recaptcha = validateRecaptcha(self, request)
+
+            if recaptcha['status'] is True:
+                try:
+                    serializer.send()
+                    return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
+                except BaseException as e:
+                    return Response({"email_status": "server_error",
+                                     "message": 'Server Error (' + str(
+                                         e) + '):  Bug report could not be sent at this time.',
+                                     'serializer': serializer, 'display_form': True},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {"email_status": "client_error", "message": "Recaptcha Failed.",
+                     'serializer': serializer,
+                     'display_form': True},
+                    status=status.HTTP_400_BAD_REQUEST)
 
         else:
             #  Client Error: serializer is not valid. Return errors and bound form
