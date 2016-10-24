@@ -673,17 +673,51 @@
 {% endblock %}
 {% block footer-extra %}
 <script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+<script src="{% static 'restapi_app/js/selectize/enter_key_submit.js' %}"></script>
 <script>
+
     $(document).ready(function () {
+        var TYPED_VALUE = '';
+
         $selector = $("#autocomplete-widget").selectize({
-            closeAfterSelect: true,
+            // load the plugin
+            plugins: ['enter_key_submit'],
+            readOnly:true,
             selectOnTab: true,
             placeholder: "SEARCH...",
             create: false,
             maxItems: 1,
             onChange: function (value) {
-                $('#autocomplete-button').attr('href', value).attr('disabled', false)
-            }
+                if (value){
+                    $('#autocomplete-button').attr('href', value).attr('disabled', false)
+                } else {
+                    $('#autocomplete-button').attr('href', "").attr('disabled', true);
+                }
+            },
+            // listen to submit events (enter_key_submit plugin binds submit event to enter key)
+            onInitialize: function () {
+                this.on('submit', function () {
+                    // call the click function on the href (to follow the link) not the instance of button itself
+                    $('#autocomplete-button')[0].click();
+                }, this);
+            },
+            onType:function(data){
+                TYPED_VALUE = data;
+            },
+            onBlur: function (value) {
+                // on defocus (e.g., browser tab switch) capture the value currently entered
+//                console.log('defocus');
+//                console.log(TYPED_VALUE)
+            },
+            onFocus: function(){
+//                console.log('FOCUS');
+//                console.log(TYPED_VALUE);
+                this.setTextboxValue(TYPED_VALUE);
+
+            },
+//            onClose: function(){
+//                TYPED_VALUE = ''
+//            }
         });
     });
 
