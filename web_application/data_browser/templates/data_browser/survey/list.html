@@ -20,237 +20,243 @@
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
-{% block version-switcher %}
-<div class="btn-group navigation_btn_group" role="group">
-<div class="btn-group" role="group">
-  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
-     <i class="fa fa-map-marker"></i> Data Release <strong>{{response.data.data_release}}</strong>
-    <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu">
-      <li class="disabled">
-          <a href="">{{response.data.data_release}} &nbsp;
-              <small class="sub-heading text-uppercase">Current</small>
-          </a>
-      </li>
-  </ul>
-</div>
-</div>
 
+{% block sidebar %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+ <h5>Page Contents</h5>
+<div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked  nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
+        <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+        <li role="presentation"><a class="scroll" href="#help">Help</a></li>
+    </ul>
+</div>
+<div class="quick-links">
+    <h5>Quick Links</h5>
+    <ul class="nav-sidebar">
+        <li>
+            <a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> Schema
+                Browser</a>
+        </li>
+
+        <li>
+            {% if breadcrumblist %}
+            {% with breadcrumblist|length|add:"-2" as b %}
+            <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+                {{breadcrumblist|key:b|key:0}}</a>
+            {% endwith %}
+            {% endif %}
+        </li>
+    </ul>
+</div>
 {% endblock %}
 
-{% block content_render %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
-<div class="row">
-    <div class="col-xs-12 col-sm-3 col-md-2 sidebar" role="navigation">
-        <div class="sidebar-contents" data-spy="affix">
-            <div class="page-contents">
-                <h5>Page Contents</h5>
-                <ul class="nav nav-pills nav-stacked  nav-sidebar">
-                    <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
-                    <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
-                    <li role="presentation"><a class="scroll" href="#help">Help</a></li>
-                </ul>
-            </div>
-            <div class="quick-links">
-                <h5>Quick Links</h5>
-                <ul class="nav-sidebar">
-                    <li>
-                       <a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> Schema
-                    Browser</a>
-                    </li>
+{% block version_container %}
+<div class="col-xs-12 col-sm-10 version-content">
 
-                    <li>
-                        {% if breadcrumblist %}
-                        {% with breadcrumblist|length|add:"-2" as b %}
-                        <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
-                            {{breadcrumblist|key:b|key:0}}</a>
-                        {% endwith %}
-                        {% endif %}
-                    </li>
-                </ul>
+    <div class="version-container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 text-right">
+                <div class="btn-group navigation_btn_group" role="group">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-map-marker"></i> Data Release
+                            <strong>{{response.data.data_release}}</strong>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="disabled">
+                                <a href="">{{response.data.data_release}} &nbsp;
+                                    <small class="sub-heading text-uppercase">Current</small>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-xs-12 col-sm-9 col-md-10 main-content">
-        <div class="col-sm-2 col-xs-4 pull-right">
-            <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-        </div>
-        <h2>{{survey|uppercase}} Data Release {{response.data.data_release}}</h2>
-        <h3 id="overview">Overview</h3>
-        <div class="panel panel-default" style="margin-top:20px;">
-            <div class="panel-heading">
-                Data Release {{response.data.data_release}}
-            </div>
-            <div class="table-responsive">
-                <table class="table table-overview">
-                    <tbody>
-                    <tr class="large">
-                        <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
-                            {% include template %}
-                            {% endwith %}
-                        </td>
-                        <td class="lead">{{response.data.data_release}}</td>
-                        <td class="lead">{{response.data.astro_objects | length}}</td>
-                        <td class="lead"><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema</a></td>
-                    </tr>
-                    <tr class="large">
-                        <td>PI</td>
-                        <td>Data Release Number</td>
-                        <td>Number of Objects</td>
-                        <td>Schema Browser</td>
-                    </tr>
-                    <tr class="medium">
-
-                        <td>
-                            <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
-                        </td>
-                        <td>
-                            <small>This data release</small>
-                        </td>
-                        <td>
-                            <small>The total number of objects in this data release.</small>
-                        </td>
-                        <td>
-                            <small>The Schema Browser describes the SAMI survey data products.</small>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <img class="img-responsive" src="{% static 'data_browser/img/sami/sami_dr1poster_plot_only.jpg' %}">
-        <div class="well col-sm-offset-6 col-sm-6">
-            <span class="sub-heading"><em>Figure 1: The star formation rate-stellar mass relation for SAMI galaxies.
-        Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
-        </div>
-
-
-        <h3 id="data-access">Data Access</h3>
-
-        <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
-            <a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a>, which contains comprehensive
-            descriptions of the data products available.</p>
-        <p>For help using the Data Browser,
-            <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">visit the documentation.</a></p>
-
-
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Object</a>
-            </li>
-            <li role="presentation"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Objects</a>
-            </li>
-        </ul>
-
-        <!-- Tab panes -->
-        <div class="tab-content add-padding">
-            <div role="tabpanel" class="tab-pane active" id="single">
-                <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
-                    <strong>Go</strong> to view the
-                    object's properties and available data, and download individual data products.</p>
-                <div class="row">
-                    <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
-                        <select type="text" class="searchbox selectized text-center"
-                                id="autocomplete-widget" placeholder="SEARCH">
-                            <option value="" disabled selected>Select an object</option>
-                            {% for key, value in response.data.astro_objects.items %}
-                            <option value="{{value}}">{{key}}</option>
-                            {% endfor %}
-                        </select>
-                        <a class="btn btn-block btn-primary" type="button" href="" disabled
-                           id="autocomplete-button">GO</a>
-                        <br><br>
-                    </div>
-                </div>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="multiple">
-                <p> All objects in the {{survey|uppercase}} data release are shown below. Search and
-                    filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
-
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
-                    </div>
-                </div>
-
-                <div id="filter_panel">
-                    <div class="row">
-                        <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
-                        <div class="col-xs-9">
-                            <div class="row">
-                                <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
-                                <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
-                                <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12 text-right">
-                            <span id="remove_filters"></span>
-                        </div>
-                    </div>
-                </div>
-
-
-                <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
-                <p>Download data products for the {{survey|uppercase}} survey objects selected above. To access data via a command line interface, read the documentation on <a href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data download</a>.</p>
-                <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
-                <div class="panel panel-default success ">
-                    <div class="panel-body">
-                        <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <available-products schemaurls="{'SAMI':'{% url 'schema:survey-list' survey_pk='sami' %}'}" single=True></available-products>
-                        <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
-                        <div class="row">
-                            <div class="col-xs-12 text-right">
-                                <button class="btn btn-default" id="download_button" data-products data-objects><i class="fa fa-download"></i> Download</button>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="col-xs-12">
-                        {% if post_form %}
-                        <div class="" id="post-object-form">
-                            {% with form=post_form %}
-                            <form action="{{ request.get_full_path }}" style="visibility: hidden" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
-                                <fieldset>
-                                    {% csrf_token %}
-                                    <!--<input name="download" class="form-control" type="text">-->
-                                    {{ post_form }}
-                                </fieldset>
-                            </form>
-                            {% endwith %}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-
-        <h3 id="help">Help</h3>
-        <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
-            {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
-        <p>For detailed descriptions of a particular data product, visit the <a
-                href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
-             Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
-            data product, view the
-            <a href="{% url 'schema:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
-                Schema Browser</a>.
-        </p>
-        <p>To learn more about the Data Browser, view the <a
-                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
-
-    </div>
-
 </div>
+{% endblock %}
+
+{% block main %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+
+<div class="col-sm-2 col-xs-4 pull-right">
+<img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
+</div>
+<h2>{{survey|uppercase}} Data Release {{response.data.data_release}}</h2>
+<h3 id="overview">Overview</h3>
+<div class="panel panel-default" style="margin-top:20px;">
+    <div class="panel-heading">
+        Data Release {{response.data.data_release}}
+    </div>
+    <div class="table-responsive">
+        <table class="table table-overview">
+            <tbody>
+            <tr class="large">
+                <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
+                    {% include template %}
+                    {% endwith %}
+                </td>
+                <td class="lead">{{response.data.data_release}}</td>
+                <td class="lead">{{response.data.astro_objects | length}}</td>
+                <td class="lead"><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema</a></td>
+            </tr>
+            <tr class="large">
+                <td>PI</td>
+                <td>Data Release Number</td>
+                <td>Number of Objects</td>
+                <td>Schema Browser</td>
+            </tr>
+            <tr class="medium">
+
+                <td>
+                    <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
+                </td>
+                <td>
+                    <small>This data release</small>
+                </td>
+                <td>
+                    <small>The total number of objects in this data release.</small>
+                </td>
+                <td>
+                    <small>The Schema Browser describes the SAMI survey data products.</small>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<img class="img-responsive" src="{% static 'data_browser/img/sami/sami_dr1poster_plot_only.jpg' %}">
+<div class="well col-sm-offset-6 col-sm-6">
+    <span class="sub-heading"><em>Figure 1: The star formation rate-stellar mass relation for SAMI galaxies.
+Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
+</div>
+
+
+<h3 id="data-access">Data Access</h3>
+
+<p>It is recommended that you also use the SAMI Data Browser in conjunction with the
+    <a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a>, which contains comprehensive
+    descriptions of the data products available.</p>
+<p>For help using the Data Browser,
+    <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">visit the documentation.</a></p>
+
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Object</a>
+    </li>
+    <li role="presentation"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Objects</a>
+    </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content add-padding">
+    <div role="tabpanel" class="tab-pane active" id="single">
+        <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
+            <strong>Go</strong> to view the
+            object's properties and available data, and download individual data products.</p>
+        <div class="row">
+            <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+                <select type="text" class="searchbox selectized text-center"
+                        id="autocomplete-widget" placeholder="SEARCH">
+                    <option value="" disabled selected>Select an object</option>
+                    {% for key, value in response.data.astro_objects.items %}
+                    <option value="{{value}}">{{key}}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-block btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">GO</a>
+                <br><br>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="multiple">
+        <p> All objects in the {{survey|uppercase}} data release are shown below. Search and
+            filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+            </div>
+        </div>
+
+        <div id="filter_panel">
+            <div class="row">
+                <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
+                        <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                        <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-right">
+                    <span id="remove_filters"></span>
+                </div>
+            </div>
+        </div>
+
+
+        <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
+        <p>Download data products for the {{survey|uppercase}} survey objects selected above. To access data via a command line interface, read the documentation on <a href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data download</a>.</p>
+        <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
+        <div class="panel panel-default success ">
+            <div class="panel-body">
+                <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <available-products schemaurls="{'SAMI':'{% url 'schema:survey-list' survey_pk='sami' %}'}" single=True></available-products>
+                <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
+                <div class="row">
+                    <div class="col-xs-12 text-right">
+                        <button class="btn btn-default" id="download_button" data-products data-objects><i class="fa fa-download"></i> Download</button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-xs-12">
+                {% if post_form %}
+                <div class="" id="post-object-form">
+                    {% with form=post_form %}
+                    <form action="{{ request.get_full_path }}" style="visibility: hidden" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                        <fieldset>
+                            {% csrf_token %}
+                            <!--<input name="download" class="form-control" type="text">-->
+                            {{ post_form }}
+                        </fieldset>
+                    </form>
+                    {% endwith %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<h3 id="help">Help</h3>
+<p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
+    {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
+<p>For detailed descriptions of a particular data product, visit the <a
+        href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
+     Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
+    data product, view the
+    <a href="{% url 'schema:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
+        Schema Browser</a>.
+</p>
+<p>To learn more about the Data Browser, view the <a
+        href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
+
 
 {% comment %}
 ------ TURN ON DATATABLES ------
@@ -647,7 +653,9 @@
 
 
 </script>
-{% endblock %}
+{% endblock main %}
+
+
 {% block footer-extra %}
 <script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
 <script src="{% static 'restapi_app/js/selectize/enter_key_submit.js' %}"></script>

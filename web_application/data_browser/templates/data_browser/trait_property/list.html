@@ -15,98 +15,51 @@
 
 {% block page_title %}Data Browser{% endblock %}
 
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
 
-{% block page_title_banner %}
-{% captureas survey %}{{survey}}{% endcaptureas %}
-<div class="title_info red">
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.data_release}}
-                    <small class="right-helper">
-                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                        <div class="btn-group" role="group" style="margin-top:-15px;">
-                            <button type="button" class="btn btn-default dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                    <span class="sub-heading">
-                        <i class="fa fa-map-marker"></i> Data Release
-                    </span>
-                                <strong>{{response.data.data_release}}</strong>
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
-                                    <small class="sub-heading text-uppercase">Current</small>
-                                </a></li>
-                            </ul>
-                        </div>
-                    </small>
-                </h1>
-                <p>The Data Browser provides a quick-look at survey-derived
-                    data products and associated meta-data on an
-                    object-by-object basis, and allows users to download individual data products in FITS file
-                    format.
-                </p>
-            </div>
-        </div>
-    </div>
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
+    </ul>
 </div>
-{% endblock page_title_banner %}
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+    {% if breadcrumblist %}
 
-{% block content_render %}
-{% captureas survey %}{{survey}}{% endcaptureas %}
-<div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents" data-spy="affix">
-            <div class="page-contents">
-            <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked nav-sidebar">
-                <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
-            </ul>
-            </div>
-            <h5>Quick Links</h5>
-            <ul class="nav-sidebar">
-                {% if breadcrumblist %}
-
-                      {% with breadcrumblist|length|add:"-2" as b %}
-                        <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
-                      {% endwith %}
-                {% endif %}
-                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
-                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
-            </ul>
-
-        </div>
-
-    </div>
-    <div class="col-xs-12 col-sm-9 main-content">
-        <div class="col-sm-2 pull-right">
-            <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-        </div>
-        <h2>{{survey|uppercase}} {{astro_object}} {{trait_pretty_name}} <br>{{subtrait_pretty_name}} {{response.data.pretty_name}}</h2>
-
-        <div class="row">
-            <div class="col-xs-12 col-sm-8 documentation_fidia">
-                <!--visualization/data-->
-                {% include 'data_browser/interactive/panel.html' %}
-                {% if response.data.value|stringformat:"s"|length < 1000 %}
-                     <pre>{{response.data.value|safe|linebreaks}}</pre>
-                {% endif %}
-            </div>
-            <div class="col-xs-12 col-sm-4">
-                <!--properties/interactive-->
-                {% include 'data_browser/tables/action.html' %}
-            </div>
-        </div>
-    </div>
-</div>
-
-
+    {% with breadcrumblist|length|add:"-2" as b %}
+    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+        {{breadcrumblist|key:b|key:0}}</a></li>
+    {% endwith %}
+    {% endif %}
+    <li><a class="" target="_blank"
+           href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}">
+        Schema Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+</ul>
 
 {% endblock %}
+{% block version_container %}
 
-{% block footer-extra %}
-<script type="application/javascript" src="{% static 'restapi_app/js/panel-toggle-caret/panel-toggle-caret.js' %}"></script>
+{% endblock %}
+{% block main %}
+<div class="col-sm-2 pull-right">
+    <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
+</div>
+<h2>{{survey|uppercase}} {{astro_object}} {{trait_pretty_name}} <br>{{subtrait_pretty_name}}
+    {{response.data.pretty_name}}</h2>
 
+<div class="row">
+    <div class="col-xs-12 col-sm-8 documentation_fidia">
+        <!--visualization/data-->
+        {% include 'data_browser/interactive/panel.html' %}
+        {% if response.data.value|stringformat:"s"|length < 1000 %}
+        <pre>{{response.data.value|safe|linebreaks}}</pre>
+        {% endif %}
+    </div>
+    <div class="col-xs-12 col-sm-4">
+        <!--properties/interactive-->
+        {% include 'data_browser/tables/action.html' %}
+    </div>
+</div>
 {% endblock %}

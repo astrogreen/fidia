@@ -14,109 +14,82 @@
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
-{% comment %}
-{% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<div class="title_info red">
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-                <h1>Data Browser
-                </h1>
-                <p>
-                    The Data Browser provides a quick-look at survey-derived data products and associated meta-data on
-                    an object-by-object basis, and allows users to download individual data products in FITS file
-                    format.
-                </p>
-            </div>
-        </div>
-    </div>
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page">Data Access</a></li>
+        <li role="presentation"><a href="#what-does-the-data-browser-do" class="scroll">What does the Data
+            Browser do?</a></li>
+    </ul>
 </div>
-{% endblock page_title_banner %}
-{% endcomment %}
-{% block content_render %}
-<div class="row">
-    <div class="col-xs-12 col-sm-2 sidebar" role="navigation">
-        <div class="sidebar-contents" data-spy="affix">
-            <h5>Page Contents</h5>
-            <div class="page-contents">
-                <ul class="nav nav-pills nav-stacked nav-sidebar">
-                    <li role="presentation"><a class="scroll" href="#top-of-page">Data Access</a></li>
-                    <li role="presentation"><a href="#what-does-the-data-browser-do" class="scroll">What does the Data
-                        Browser do?</a></li>
-                </ul>
-            </div>
-            <h5>Quick Links</h5>
-            <div class="quick-links">
-                <ul class="nav-sidebar">
-                    {% for value in response.data.surveys %}
-                    <li role="presentation"><a href="{{value.survey}}/"><span>Data Browser for {{value.survey|uppercase}}
-                <i class="fa fa-angle-right"></i></span></a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="col-xs-12 col-sm-10 main-content">
-        <h2>Discover the survey data products hosted at ADC.</h2>
-        <p class="lead">Browse the available survey data products and meta-data on an object-by-object basis.</p>
-
-        <h3 id="data-access">By Survey</h3>
-        <p>Choose a survey from the list below to get started.
-            To find detailed descriptions of each survey's data products and derived properties, visit the <a
-                    href="{% url 'schema:root-list' %}">Schema
-                Browser</a>.</p><br><br>
-        <div class="row">
-            {% for value in response.data.surveys %}
-            <div class="col-xs-1 col-sm-offset-1 col-sm-1">
-                <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
-            </div>
-            <div class="col-xs-11 col-sm-9">
-                <h3 class="tool-header">{{value.survey | uppercase}}<small>  {{value.count}}
-                                    objects
-                                    <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span></small></h3>
-                {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-                <em>{% include template %}</em>
-                {% endwith %}
-                <div class="half-br"></div>
-                <a href="{{value.survey}}/" class="text-uppercase"><strong>Data Browser for {{value.survey|uppercase}}
-                    <i class="fa fa-angle-right"></i></strong></a>
-            </div>
-            <div class="col-xs-12">
-                <br><br>
-            </div>
-            {% endfor %}
-        </div>
-
-        <h3 id="what-does-the-data-browser-do">What does the Data Browser do?</h3>
-        <p class="lead">The Data Browser provides a quick-look at survey-derived data products and associated meta-data on
-                    an object-by-object basis, and allows users to download individual data products in FITS file
-                    format.</p>
-        <p>The Data Browser is a portal to all survey data hosted at ADC. Surveys are a collection of astronomical
-            objects with some set of data products. Each astronomical object's components are organised into a
-            tree-like structure, allowing you to discover derived properties and data products, along with any
-            associated meta-data.</p>
-            <h4>Features</h4>
-        <ul class="p">
-            <li>The Data Browser allows users a quick-look at each astronomical object's data products available in this
-                data
-                release, including visualizations, processing information and associated properties.
-            </li>
-            <li>Users can download individual data products as multi-extension FITS
-                files, with all relevant processing information contained within the FITS header.
-            </li>
-            <li>Users can define a sample of SAMI objects filtering on some
-                catalogue property.
-            </li>
-            <li>Data products for this selection can be downloaded for offline use.</li>
-        </ul>
-        <br>
-        <p>For more information, including articles on Data Browser examples, head over to the <a
-                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
-    </div>
+<h5>Quick Links</h5>
+<div class="quick-links">
+    <ul class="nav-sidebar">
+        {% for value in response.data.surveys %}
+        <li role="presentation"><a href="{{value.survey}}/"><span>Data Browser for {{value.survey|uppercase}}
+            <i class="fa fa-angle-right"></i></span></a></li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}
 
+{% block main %}
+<h2>Discover the survey data products hosted at ADC.</h2>
+<p class="lead">Browse the available survey data products and meta-data on an object-by-object basis.</p>
 
+<h3 id="data-access">By Survey</h3>
+<p>Choose a survey from the list below to get started.
+    To find detailed descriptions of each survey's data products and derived properties, visit the <a
+            href="{% url 'schema:root-list' %}">Schema
+        Browser</a>.</p><br><br>
+<div class="row">
+    {% for value in response.data.surveys %}
+    <div class="col-xs-1 col-sm-offset-1 col-sm-1">
+        <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
+    </div>
+    <div class="col-xs-11 col-sm-9">
+        <h3 class="tool-header">{{value.survey | uppercase}}
+            <small> {{value.count}}
+                objects
+                <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span></small>
+        </h3>
+        {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+        <em>{% include template %}</em>
+        {% endwith %}
+        <div class="half-br"></div>
+        <a href="{{value.survey}}/" class="text-uppercase"><strong>Data Browser for {{value.survey|uppercase}}
+            <i class="fa fa-angle-right"></i></strong></a>
+    </div>
+    <div class="col-xs-12">
+        <br><br>
+    </div>
+    {% endfor %}
+</div>
+
+<h3 id="what-does-the-data-browser-do">What does the Data Browser do?</h3>
+<p class="lead">The Data Browser provides a quick-look at survey-derived data products and associated meta-data on
+    an object-by-object basis, and allows users to download individual data products in FITS file
+    format.</p>
+<p>The Data Browser is a portal to all survey data hosted at ADC. Surveys are a collection of astronomical
+    objects with some set of data products. Each astronomical object's components are organised into a
+    tree-like structure, allowing you to discover derived properties and data products, along with any
+    associated meta-data.</p>
+<h4>Features</h4>
+<ul class="p">
+    <li>The Data Browser allows users a quick-look at each astronomical object's data products available in this
+        data
+        release, including visualizations, processing information and associated properties.
+    </li>
+    <li>Users can download individual data products as multi-extension FITS
+        files, with all relevant processing information contained within the FITS header.
+    </li>
+    <li>Users can define a sample of SAMI objects filtering on some
+        catalogue property.
+    </li>
+    <li>Data products for this selection can be downloaded for offline use.</li>
+</ul>
+<br>
+<p>For more information, including articles on Data Browser examples, head over to the <a
+        href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
+{% endblock %}

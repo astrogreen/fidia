@@ -47,6 +47,10 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
     add in get_astroobj name
     """
 
+    def __init__(self, *args, **kwargs):
+        self.show_api = False
+        super().__init__()
+
     def get_astro_object_name(self, request):
         """
         Return the astro object name

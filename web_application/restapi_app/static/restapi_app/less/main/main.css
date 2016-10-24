@@ -666,11 +666,11 @@ header .user a > a {
 ++ VERSION BRANCH SWITCHER
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-.version-switcher {
+.version-content {
   padding: 0;
   background-color: #f9f9f9;
 }
-.version-switcher .version-container {
+.version-content .version-container {
   width: 100%;
   margin-bottom: 0;
   background-color: #f9f9f9;
@@ -682,7 +682,7 @@ header .user a > a {
   font-size: 11px;
   line-height: 11px;
 }
-.version-switcher .navigation_btn_group .btn {
+.version-content .navigation_btn_group .btn {
   background-color: rgba(255, 255, 255, 0.9);
   padding-top: 15px;
   padding-bottom: 13px;
@@ -693,20 +693,31 @@ header .user a > a {
   color: #73818c;
   font-size: 11px;
 }
-.version-switcher .navigation_btn_group .btn-group:last-child .btn {
+.version-content .navigation_btn_group .btn-group:last-child .btn {
   border-right: 1px solid rgba(0, 0, 0, 0.095);
 }
-.version-switcher .navigation_btn_group .btn-group:first-child .btn {
+.version-content .navigation_btn_group .btn-group:first-child .btn {
   border-left: 1px solid rgba(0, 0, 0, 0.095);
 }
-.version-switcher .navigation_btn_group .dropdown-menu {
+.version-content .navigation_btn_group .dropdown-menu {
   min-width: 35px;
   text-transform: none;
 }
-.version-switcher .navigation_btn_group .dropdown-menu li > a {
+.version-content .navigation_btn_group .dropdown-menu li > a {
   padding: 3px 10px;
   font-size: 11px;
   min-width: 35px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+.branch_dropdown .dropdown-menu {
+  min-width: 120px;
+  text-transform: none;
+}
+.branch_dropdown .dropdown-menu li > a {
+  padding: 3px 10px;
+  font-size: 11px;
+  min-width: 120px;
   word-wrap: break-word;
   white-space: normal;
 }

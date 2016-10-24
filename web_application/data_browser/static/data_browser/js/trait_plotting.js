@@ -45,7 +45,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
 
                 if ($("input[name=optionsRadios]").length > 0){
                     $("input[name=optionsRadios]").click(function () {
-                        console.log($("input[name=optionsRadios]:checked").val());
+                        // console.log($("input[name=optionsRadios]:checked").val());
                         var array_index = Number($("input[name=optionsRadios]:checked").val());
                         changePlotData(trait_value.value, array_index, zmin, zmax);
                     });
@@ -65,7 +65,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                         step: 0.01,
                         values: [zmin, zmax],
                         slide: function (event, ui) {
-                            $("#amount").html( ui.values[0]*100 + "% - " + ui.values[1]*100+"% ");
+                            $("#amount").html( (ui.values[0]*100).toPrecision(2) + "% - " + (ui.values[1]*100).toPrecision(2)+"% ");
                             // $("#uv").attr('value', ui.values[1]);
                             // $("#lv").attr('value', ui.values[0]);
                         },

@@ -12,140 +12,90 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema</a></li>
-<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
-{% block page_title_banner %}
-{% captureas survey %}{{survey}}{% endcaptureas %}
-<div class="title_info red">
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.data_release}}
-                    <small class="right-helper">
-                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                        <div class="btn-group" role="group" style="margin-top:-15px;">
-                            <button type="button" class="btn btn-default dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                    <span class="sub-heading">
-                        <i class="fa fa-map-marker"></i> Data Release
-                    </span>
-                                <strong>{{response.data.data_release}}</strong>
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
-                                    <small class="sub-heading text-uppercase">Current</small>
-                                </a></li>
-                            </ul>
-                        </div>
-                    </small>
-                </h1>
-                <p>The Data Browser provides a quick-look at survey-derived
-                    data products and associated meta-data on an
-                    object-by-object basis, and allows users to download individual data products in FITS file
-                    format.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock page_title_banner %}
 
-{% block content_render %}
-{% captureas survey %}{{survey}}{% endcaptureas %}
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a href="#top-of-page" class="scroll">Interactive</a></li>
+        <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
+    </ul>
+</div>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+    {% if breadcrumblist %}
+
+    {% with breadcrumblist|length|add:"-2" as b %}
+    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+        {{breadcrumblist|key:b|key:0}}</a></li>
+    {% endwith %}
+    {% endif %}
+    <br>
+    <li><a class="" target="_blank"
+           href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}">
+        Schema Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+</ul>
+{% endblock %}
+{% block version_container %}
+
+{% endblock %}
+{% block main %}
+<div class="col-sm-2 pull-right">
+    <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
+</div>
+<h2>{{survey|uppercase}} {{astroobject}} {{trait_pretty_name}} <br>{{response.data.pretty_name}}</h2>
+
+{% if response.data.description %}
+<p><em>{{ response.data.description}}</em></p>
+{% endif %}
+
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
-            <div class="page-contents">
-            <h5>Page Contents</h5>
-             <ul class="nav nav-pills nav-stacked nav-sidebar">
-                <li role="presentation"><a href="#top-of-page" class="scroll">Interactive</a></li>
-                <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
-            </ul>
-            </div>
-            <h5>Quick Links</h5>
-            <ul class="nav-sidebar">
-                {% if breadcrumblist %}
+    <div class="col-xs-12 col-sm-8 documentation_fidia">
+        <!--visualization/data-->
+        {% include 'data_browser/interactive/panel.html' %}
 
-                {% with breadcrumblist|length|add:"-2" as b %}
-                <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
-                    {{breadcrumblist|key:b|key:0}}</a></li>
-                {% endwith %}
-                {% endif %}
-                <br>
-                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}"> Schema Browser</a></li>
-                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
-            </ul>
-
-
-        </div>
     </div>
-
-    <div class="col-xs-12 col-sm-9 main-content">
-        <div class="col-sm-2 pull-right">
-            <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-        </div>
-        <h2>{{survey|uppercase}} {{astroobject}} {{trait_pretty_name}} <br>{{response.data.pretty_name}}</h2>
-
-        {% if response.data.description %}
-            <p><em>{{ response.data.description}}</em></p>
-        {% endif %}
-
-        <div class="row">
-            <div class="col-xs-12 col-sm-8 documentation_fidia">
-                <!--visualization/data-->
-                {% include 'data_browser/interactive/panel.html' %}
-
-            </div>
-            <div class="col-xs-12 col-sm-4">
-                <!--properties/interactive-->
-                {% include 'data_browser/tables/action.html' %}
-            </div>
-            <div class="col-xs-12">
-                {% include 'data_browser/trait/properties_table.html' %}
-            </div>
-        </div>
-
-        <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
+    <div class="col-xs-12 col-sm-4">
+        <!--properties/interactive-->
+        {% include 'data_browser/tables/action.html' %}
+    </div>
+    <div class="col-xs-12">
+        {% include 'data_browser/trait/properties_table.html' %}
     </div>
 </div>
+
+<!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
 
 {% endblock %}
 
 {% block footer-extra %}
-<script type="application/javascript">
-    $('#ao_tabs a').click(function (e) {
-        e.preventDefault();
-        $(this).tab('show')
-    })
-</script>
-
-<script type="application/javascript" src="{% static 'restapi_app/js/panel-toggle-caret/panel-toggle-caret.js' %}"></script>
 
 {% if trait_2D_map == True %}
-    <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
-    <script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
-    <script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
-    <script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>
-    <script type="text/javascript">
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>
+<script type="text/javascript">
 
-        $(document).ready(function(){
-            var trait_url = "{{request.build_absolute_uri}}value/?format=json";
-            var trait_name = "{{response.data.pretty_name}}";
-            var map_selector = "{{trait_type}}_plotly_plot";
-            var options_selector = "{{trait_type}}_plotly_plot_options";
+    $(document).ready(function () {
+        var trait_url = "{{request.build_absolute_uri}}value/?format=json";
+        var trait_name = "{{response.data.pretty_name}}";
+        var map_selector = "{{trait_type}}_plotly_plot";
+        var options_selector = "{{trait_type}}_plotly_plot_options";
 
-            trait_plot(trait_url, trait_name, map_selector, options_selector);
+        trait_plot(trait_url, trait_name, map_selector, options_selector);
 
-        });
-    </script>
+    });
+</script>
 {% else %}
 <script>
-$('#visualization_status').html('Visualization for {{response.data.pretty_name}} is in development.')
-$('#interactive').html("<div class='well'><p>Interactivity in development</p></div>");
+    $('#visualization_status').html('Visualization for {{response.data.pretty_name}} is in development.')
+    $('#interactive').html("<div class='well'><p>Interactivity in development</p></div>");
 </script>
 {% endif %}
 

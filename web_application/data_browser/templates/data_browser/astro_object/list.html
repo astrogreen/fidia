@@ -14,279 +14,272 @@
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
-{% block version-switcher %}
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
+    </ul>
+</div>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+    <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> Schema
+        Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a>
+    </li>
+    {% if breadcrumblist %}
+    {% with breadcrumblist|length|add:"-2" as b %}
+    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+        {{breadcrumblist|key:b|key:0}}</a></li>
+    {% endwith %}
+    {% endif %}
+</ul>
+
 {% endblock %}
+{% block version_container %}
 
-{% block content_render %}
-<div class="row">
-    <div class="col-xs-12 col-sm-3 col-md-2 sidebar" role="navigation">
-        <div class="sidebar-contents" data-spy="affix">
-            <div class="page-contents">
-            <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked nav-sidebar">
-                <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
-            </ul>
-            </div>
-            <h5>Quick Links</h5>
-            <ul class="nav-sidebar">
-                <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> Schema Browser</a></li>
-                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
-                {% if breadcrumblist %}
-                  {% with breadcrumblist|length|add:"-2" as b %}
-                    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to {{breadcrumblist|key:b|key:0}}</a></li>
-                  {% endwith %}
-            {% endif %}
-            </ul>
-        </div>
-    </div>
+{% endblock %}
+{% block main %}
+<div class="col-sm-2 col-xs-6 pull-right">
+    <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
+</div>
+<h2>{{survey|uppercase}} {{astro_object}}</h2>
+<div>
 
-    <div class="col-xs-12 col-sm-9 col-md-10 main-content">
-        <div class="col-sm-2 pull-right">
-            <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-        </div>
-        <h2>{{survey|uppercase}} {{astro_object}}</h2>
-        <div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#overview" id="overview_anchor" aria-controls="overview" role="tab" data-toggle="tab">Overview</a></li>
+        <li role="presentation"><a href="#products" aria-controls="products" role="tab" data-toggle="tab">Available Data</a></li>
+    </ul>
 
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#overview" id="overview_anchor" aria-controls="overview" role="tab" data-toggle="tab">Overview</a></li>
-                <li role="presentation"><a href="#products" aria-controls="products" role="tab" data-toggle="tab">Available Data</a></li>
-            </ul>
-
-            <!-- Tab panes -->
-            <div class="tab-content add-padding">
-                <div role="tabpanel" class="tab-pane active" id="overview">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-6">
-                            <div class="table-responsive">
-                                <table class="table table-condensed">
-                                    <tbody>
-                                    <tr>
-                                        <td class="p_light">{{survey|uppercase}} ID</td><td>{{astro_object}}</td>
-                                    </tr>
-                                    <tr><td class="p_light">RA</td><td>{{response.data.position.ra}}</td></tr>
-                                    <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
-                                    {% for f in feature_catalog_data %}
-                                        <tr>
-                                            <td class="p_light">{{f.pretty_name}}</td>
-                                            <td>{{f.value}}</td>
-                                        </tr>
-                                    {% endfor %}
-                                    <tr>
-                                        <td class="p_light">GAMA
-                                Single Object Viewer</td>
-                                        <td><a class="text-uppercase" target="_blank"
-                                       href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}"> SOV <i class="fa fa-external-link"></i></a></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-6">
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    Auxillary Data: SDSS
-                                </div>
-                                <div class="panel-body">
-                                    <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
-                                         alt="..." class="img-responsive">
-                                    <br>
-                                    <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
-                                        × 512 pixel, 0.2
-                                        arcsec/pixel,
-                                        5-band composite from SDSS DR7.</p>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Tab panes -->
+    <div class="tab-content add-padding">
+        <div role="tabpanel" class="tab-pane active" id="overview">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="table-responsive">
+                        <table class="table table-condensed">
+                            <tbody>
+                            <tr>
+                                <td class="p_light">{{survey|uppercase}} ID</td><td>{{astro_object}}</td>
+                            </tr>
+                            <tr><td class="p_light">RA</td><td>{{response.data.position.ra}}</td></tr>
+                            <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
+                            {% for f in feature_catalog_data %}
+                                <tr>
+                                    <td class="p_light">{{f.pretty_name}}</td>
+                                    <td>{{f.value}}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td class="p_light">GAMA
+                        Single Object Viewer</td>
+                                <td><a class="text-uppercase" target="_blank"
+                               href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}"> SOV <i class="fa fa-external-link"></i></a></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
-
-                    {% with "data_browser/astro_object/survey/"|add:survey|add:"_feature.html" as template %}
-                        {% include template %}
-                    {% endwith %}
-
-                    {% with "data_browser/astro_object/survey/"|add:survey|add:".html" as template %}
-                        {% include template %}
-                    {% endwith %}
-
-
                 </div>
-                <div role="tabpanel" class="tab-pane" id="products">
-                    <p>To view a particular data product's properties, meta-data and where
-                        available, an interactive visualization, click the link in the table below.
-                    </p>
-                    <p>To find out more
-                        about the available branches, visit the <a
-                                href="{% url 'schema:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema Browser</a>.</p>
-                    <div class="panel panel-default success">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Auxillary Data: SDSS
+                        </div>
                         <div class="panel-body">
-                            <div class="sub-heading"><strong>Note:</strong> Data products are grouped by their product-type (e.g., you
-                                can find the SAMI [OIII] (5007Å) and
-                                [NII] (6583Å) line maps under <em>Line Maps</em>). Use the search box to filter the
-                                products by a particular keyword.
-                            </div>
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                 alt="..." class="img-responsive">
+                            <br>
+                            <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
+                                × 512 pixel, 0.2
+                                arcsec/pixel,
+                                5-band composite from SDSS DR7.</p>
                         </div>
                     </div>
-                    <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="pull-right question tiny"><i class="fa fa-question-circle"></i> What is a branch?</a>
-                    <table class="table table-condensed table-bordered" > 
-                        <colgroup> 
-                            <col align="center" width="25%"/>
-                             
-                            <col align="center" width="25%"/>
-                             
-                            <col align="center" width="50%"/>
-                             
-                        </colgroup>
-                         <thead>
-                        <tr class="active">
-                            <td class="form-inline" style="vertical-align: middle;">
-                                <strong>Product Type</strong>
-                                <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
-                                                            data-toggle="popover" data-trigger="hover click"
-                                                            data-placement="top"
-                                                            data-content="View the default branch for this data product."
-                                                            data-original-title="" title=""><i
-                                        class="fa fa-info-circle"></i></a></span>
-                                <input type="text" class="search form-control" id="product_search" placeholder="Filter Products..." style="margin-left:5%;">
-                            </td>
-                            <td style="vertical-align: middle;">
-                                <strong>Branch</strong>
-                                <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
-                                                            data-toggle="popover" data-trigger="hover click"
-                                                            data-placement="top"
-                                                            data-content="Alternatively, choose a specific branch from the dropdown."
-                                                            data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
+                </div>
+            </div>
 
-                            </td>
-                            <td style="vertical-align: middle;">
-                                <strong>Download</strong>
-                                <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
-                                                            data-toggle="popover" data-trigger="hover click"
-                                                            data-placement="top"
-                                                            data-content="Download the default branch and version for this data product in a variety of formats."
-                                                            data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
-                            </td>
-                        </tr>
-                    </thead>
+            {% with "data_browser/astro_object/survey/"|add:survey|add:"_feature.html" as template %}
+                {% include template %}
+            {% endwith %}
 
-                    <tbody id="product_menu"> 
+            {% with "data_browser/astro_object/survey/"|add:survey|add:".html" as template %}
+                {% include template %}
+            {% endwith %}
 
-                        {% for trait_type_key, trait_type_value in response.data.traits.trait_types.items %}
-                        <tr data-trait-type-key="{{trait_type_key}}" class="bg-success">
-                            <td colspan="3">
-                                <h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span>
-                                    <!--Hack as trait_type descriptions don't exist on the schema on the trait-type, but rather on the trait-type-qualifier:branch(version)-->
-                                    {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                                        {% if forloop.first %}
-                                            {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                                {% if forloop.first %}
-                                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                        {% if forloop.first %}
-                                                            {% with trait_version_value.trait as value %}
-                                                                {% if value.description %}
-                                                                    <span class="sub-heading tiny" style="font-weight:400"><em>{{value.description|safe}}</em></span>
-                                                                {% endif %}
-                                                            {% endwith %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                </h6>
-                            </td>
-                        </tr>
-                        {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                            <tr data-trait-type-key="{{trait_type_key}}">
-                                <td>
-                                    <li><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_anchor">
-                                        <span class="text-info"> {{trait_qualifier_value.pretty_name}}
-                                        {% if not trait_qualifier_value.pretty_name %}
-                                            {{trait_type_value.pretty_name}}
-                                        {% endif %}
-                                        </span>
-                                    </a>
-                                    {% if trait_qualifier_value.description != None %}
-                                    <div class="p">{{trait_qualifier_value.description}}</div>
-                                    {%endif%}</li>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="...">
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-default btn-xs dropdown-toggle"
-                                                    data-toggle="dropdown" aria-haspopup="true"
-                                                    aria-expanded="false">
-                                                <span class="sub-heading tiny"><i class="fa fa-code-fork"></i> Branch</span>
-                                                <i class="fa fa-caret-down"></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
 
-                                                    <!--Default branch, and the default version for that branch, are set as active-->
-                                                    <li class="">
-                                                        <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}/"
-                                                           data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
-                                                            <span> {{trait_branch_value.pretty_name}}
-                                                            {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                                <small>DEFAULT</small>
-                                                            {% endif %}
-                                                            </span>
-                                                        </a>
-                                                    </li>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="products">
+            <p>To view a particular data product's properties, meta-data and where
+                available, an interactive visualization, click the link in the table below.
+            </p>
+            <p>To find out more
+                about the available branches, visit the <a
+                        href="{% url 'schema:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema Browser</a>.</p>
+            <div class="panel panel-default success">
+                <div class="panel-body">
+                    <div class="sub-heading"><strong>Note:</strong> Data products are grouped by their product-type (e.g., you
+                        can find the SAMI [OIII] (5007Å) and
+                        [NII] (6583Å) line maps under <em>Line Maps</em>). Use the search box to filter the
+                        products by a particular keyword.
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="pull-right question tiny"><i class="fa fa-question-circle"></i> What is a branch?</a>
+            <table class="table table-condensed table-bordered" > 
+                <colgroup> 
+                    <col align="center" width="25%"/>
+                     
+                    <col align="center" width="25%"/>
+                     
+                    <col align="center" width="50%"/>
+                     
+                </colgroup>
+                 <thead>
+                <tr class="active">
+                    <td class="form-inline" style="vertical-align: middle;">
+                        <strong>Product Type</strong>
+                        <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
+                                                    data-toggle="popover" data-trigger="hover click"
+                                                    data-placement="top"
+                                                    data-content="View the default branch for this data product."
+                                                    data-original-title="" title=""><i
+                                class="fa fa-info-circle"></i></a></span>
+                        <input type="text" class="search form-control" id="product_search" placeholder="Filter Products..." style="margin-left:5%;">
+                    </td>
+                    <td style="vertical-align: middle;">
+                        <strong>Branch</strong>
+                        <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
+                                                    data-toggle="popover" data-trigger="hover click"
+                                                    data-placement="top"
+                                                    data-content="Alternatively, choose a specific branch from the dropdown. The default branch for each product is denoted by an asterisk (*)."
+                                                    data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
 
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
+                    </td>
+                    <td style="vertical-align: middle;">
+                        <strong>Download</strong>
+                        <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
+                                                    data-toggle="popover" data-trigger="hover click"
+                                                    data-placement="top"
+                                                    data-content="Download the default branch and version for this data product in a variety of formats."
+                                                    data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
+                    </td>
+                </tr>
+            </thead>
+
+            <tbody id="product_menu"> 
+
+                {% for trait_type_key, trait_type_value in response.data.traits.trait_types.items %}
+                <tr data-trait-type-key="{{trait_type_key}}" class="bg-success">
+                    <td colspan="3">
+                        <h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span>
+                            <!--Hack as trait_type descriptions don't exist on the schema on the trait-type, but rather on the trait-type-qualifier:branch(version)-->
+                            {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+                                {% if forloop.first %}
                                     {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
                                         {% if forloop.first %}
                                             {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                                 {% if forloop.first %}
                                                     {% with trait_version_value.trait as value %}
-
-                                                        {% for f in value.export_formats %}
-                                                            <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format={{f|lowercase}}" class="btn btn-default btn-xs">
-                                                                <span class="fa-custom-stack">
-                                                                  <i class="fa fa-file-o"></i>
-                                                                    <span class="fa-custom-filetype">{{f}}</span>
-                                                                </span>{{f}}
-                                                            </a>
-                                                        {% endfor %}
+                                                        {% if value.description %}
+                                                            <span class="sub-heading tiny" style="font-weight:400"><em>{{value.description|safe}}</em></span>
+                                                        {% endif %}
                                                     {% endwith %}
                                                 {% endif %}
                                             {% endfor %}
                                         {% endif %}
                                     {% endfor %}
-                                    <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format=json" class="btn btn-default btn-xs">
-                                        <span class="fa-custom-stack">
-                                          <i class="fa fa-file-o"></i>
-                                            <span class="fa-custom-filetype">json</span>
-                                        </span>json
-                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </h6>
+                    </td>
+                </tr>
+                {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+                    <tr data-trait-type-key="{{trait_type_key}}">
+                        <td>
+                            <li><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_anchor">
+                                <span class="text-info"> {{trait_qualifier_value.pretty_name}}
+                                {% if not trait_qualifier_value.pretty_name %}
+                                    {{trait_type_value.pretty_name}}
+                                {% endif %}
+                                </span>
+                            </a>
+                            {% if trait_qualifier_value.description != None %}
+                            <div class="p">{{trait_qualifier_value.description}}</div>
+                            {%endif%}</li>
+                        </td>
+                        <td>
+                            <div class="btn-group branch_dropdown" role="group" aria-label="Available branches.">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <span class="sub-heading tiny"><i class="fa fa-code-fork"></i> Branch</span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
 
-                                    <!--<add-download-button url='{{value.url}}' options='' formats='{{value.formats}}' prettyname="{{value.pretty_name}}"></add-download-button>-->
-                                </td>
-                            </tr>
-                        {% endfor %}
+                                            <!--Default branch, and the default version for that branch, are set as active-->
+                                            <li class="tiny">
+                                                <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}/"
+                                                   data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
+                                                    <strong> {{trait_branch_value.pretty_name}}{% if trait_qualifier_value.default_branch == trait_branch_key %}*{% endif %}</strong>
+                                                    <em class="">{{trait_branch_value.description}}</em>
+                                                </a>
+                                            </li>
+                                        {% if not forloop.last %}
+                                        <li role="separator" class="divider"></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                {% if forloop.first %}
+                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                        {% if forloop.first %}
+                                            {% with trait_version_value.trait as value %}
 
-                        {% endfor %}
-                         
-                        </tbody>
-                         
-                    </table>
+                                                {% for f in value.export_formats %}
+                                                    <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format={{f|lowercase}}" class="btn btn-default btn-xs">
+                                                        <span class="fa-custom-stack">
+                                                          <i class="fa fa-file-o"></i>
+                                                            <span class="fa-custom-filetype">{{f}}</span>
+                                                        </span>{{f}}
+                                                    </a>
+                                                {% endfor %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format=json" class="btn btn-default btn-xs">
+                                <span class="fa-custom-stack">
+                                  <i class="fa fa-file-o"></i>
+                                    <span class="fa-custom-filetype">json</span>
+                                </span>json
+                            </a>
 
-                    <hr>
+                            <!--<add-download-button url='{{value.url}}' options='' formats='{{value.formats}}' prettyname="{{value.pretty_name}}"></add-download-button>-->
+                        </td>
+                    </tr>
+                {% endfor %}
 
-                </div>
-            </div>
+                {% endfor %}
+                 
+                </tbody>
+                 
+            </table>
+
+            <hr>
 
         </div>
-
     </div>
-</div>
-
 {% endblock %}
+
 
 {% block footer-extra %}
 <script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
