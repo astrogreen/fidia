@@ -17,7 +17,7 @@
             <a role="button" class="p_light pull-right" data-container="body" data-toggle="popover"
                    data-trigger="hover click" data-placement="top" data-html="true"
                    {% if fidia_type == "trait" %}
-                   data-content="This page shows data for branch <em>{{branch}}</em>. To switch branches, use the dropdowns on the left."
+                   data-content="This page shows data for branch <em>{{branch}}</em>. To switch branches, use the dropdowns in the top right corner."
                    {% else %}
                    data-content="This page shows data for branch <em>{{branch}}</em> of the data type <em>{{trait_pretty_name}}</em>. To switch branches, use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
                    {% endif %}
@@ -32,7 +32,7 @@
             <a role="button" class="p_light pull-right" data-container="body" data-toggle="popover"
                    data-trigger="hover click" data-placement="top" data-html="true"
                    {% if fidia_type == "trait" %}
-                   data-content="There may be multiple versions of this branch (<em>{{branch}}</em>). To switch versions, use the dropdowns on the left."
+                   data-content="There may be multiple versions of this branch (<em>{{branch}}</em>). To switch versions, use the dropdowns in the top right corner."
                    {% else %}
                    data-content="There may be multiple versions of this branch (<em>{{branch}}</em>). To switch versions, use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
                    {% endif %}

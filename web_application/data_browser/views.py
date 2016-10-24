@@ -75,7 +75,6 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
     def __init__(self, *args, **kwargs):
         self.catalog = ''
 
-
     def list(self, request, pk=None, survey_pk=None, format=None, extra_keyword=None):
 
         self.breadcrumb_list = ['Data Browser', str(survey_pk).upper()]
@@ -243,6 +242,10 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     Endpoint: available traits (plus branches/versions)
     HTML context: survey string, astroobject, traits and position (ra,dec)"""
 
+    def __init__(self, *args, **kwargs):
+        self.survey = self.astro_object = self.feature_catalog_data = ''
+        # super().__init__()
+
     renderer_classes = (data_browser.renderers.AstroObjectRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
@@ -262,6 +265,10 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         except ValueError:
             return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 
+        if survey_pk != "sami":
+            message = 'Survey does not exist: ' + survey_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         # Context (for html page render)
         self.survey = survey_pk
         self.astro_object = astroobject_pk

@@ -44,23 +44,29 @@
 
     <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
       {% block breadcrumbs-outer %}
+        <div class="container">
+          <div class="row">
+            <div class="col-xs-12 col-sm-12">
+              <ul class="breadcrumb">
+                {% block breadcrumbs %}
+                  {% if breadcrumblist %}
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
+                    {% if forloop.last %}
+                    <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+                    {% else %}
+                    <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                {% endblock %}
+              </ul>
+            </div>
+            <div class="col-xs-12 col-sm-12 text-right">
 
-        <ul class="breadcrumb container">
-          {% block breadcrumbs %}
-            {% if breadcrumblist %}
-              <li><a href="{% url 'index' %}">Home</a></li>
-              {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
-              {% if forloop.last %}
-              <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
-              {% else %}
-              <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
-              {% endif %}
-              {% endfor %}
-            {% endif %}
-          {% endblock %}
-        </ul>
-
-
+            </div>
+          </div>
+        </div>
       {% endblock %}
     </div>
 

@@ -24,9 +24,8 @@
                 <h1>Data Browser
                 </h1>
                 <p>
-                    The Data Browser provides a quick-look at survey-derived
-                    data products and associated meta-data on an
-                    object-by-object basis, and allows users to download individual data products in FITS file
+                    The Data Browser provides a quick-look at survey-derived data products and associated meta-data on
+                    an object-by-object basis, and allows users to download individual data products in FITS file
                     format.
                 </p>
             </div>
@@ -37,7 +36,7 @@
 {% endcomment %}
 {% block content_render %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
+    <div class="col-xs-12 col-sm-2 sidebar" role="navigation">
         <div class="sidebar-contents" data-spy="affix">
             <h5>Page Contents</h5>
             <div class="page-contents">
@@ -46,10 +45,9 @@
                     <li role="presentation"><a href="#what-does-the-data-browser-do" class="scroll">What does the Data
                         Browser do?</a></li>
                 </ul>
-                <br>
             </div>
+            <h5>Quick Links</h5>
             <div class="quick-links">
-                <h5>Quick Links</h5>
                 <ul class="nav-sidebar">
                     {% for value in response.data.surveys %}
                     <li role="presentation"><a href="{{value.survey}}/"><span>Data Browser for {{value.survey|uppercase}}
@@ -61,7 +59,7 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-sm-9 main-content">
+    <div class="col-xs-12 col-sm-10 main-content">
         <h2>Discover the survey data products hosted at ADC.</h2>
         <p class="lead">Browse the available survey data products and meta-data on an object-by-object basis.</p>
 
@@ -93,6 +91,9 @@
         </div>
 
         <h3 id="what-does-the-data-browser-do">What does the Data Browser do?</h3>
+        <p class="lead">The Data Browser provides a quick-look at survey-derived data products and associated meta-data on
+                    an object-by-object basis, and allows users to download individual data products in FITS file
+                    format.</p>
         <p>The Data Browser is a portal to all survey data hosted at ADC. Surveys are a collection of astronomical
             objects with some set of data products. Each astronomical object's components are organised into a
             tree-like structure, allowing you to discover derived properties and data products, along with any

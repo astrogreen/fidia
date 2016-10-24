@@ -58,8 +58,8 @@
 {% block content_render %}
 {% captureas survey %}{{response.data.survey|uppercase}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents">
+    <div class="col-xs-12 col-sm-3 col-md-2 sidebar" role="navigation" >
+        <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
                 <h5>Page Contents</h5>
                 <ul class="nav nav-pills nav-stacked nav-sidebar">
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-sm-9 main-content">
+    <div class="col-xs-12 col-sm-9 col-md-10 main-content">
 
 
         <div class="col-sm-2 col-xs-4 pull-right">

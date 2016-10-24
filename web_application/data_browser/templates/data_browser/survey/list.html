@@ -17,61 +17,38 @@
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
-<li role="presentation"><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a></li>
-<li role="presentation"><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
-{% block page_title_banner %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
-<div class="title_info red">
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.data_release}}
-                    <small class="right-helper">
-                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                        <div class="btn-group" role="group" style="margin-top:-15px;">
-                            <button type="button" class="btn btn-default dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                    <span class="sub-heading">
-                        <i class="fa fa-map-marker"></i> Data Release
-                    </span>
-                                <strong>{{response.data.data_release}}</strong>
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
-                                    <small class="sub-heading text-uppercase">Current</small>
-                                </a></li>
-                            </ul>
-                        </div>
-                    </small>
-                </h1>
-                <p>
-                    The Data Browser provides a quick-look at survey-derived
-                    data products and associated meta-data on an
-                    object-by-object basis, and allows users to download individual data products in FITS file
-                    format.
-                </p>
-            </div>
-        </div>
-    </div>
+{% block version-switcher %}
+<div class="btn-group navigation_btn_group" role="group">
+<div class="btn-group" role="group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+     <i class="fa fa-map-marker"></i> Data Release <strong>{{response.data.data_release}}</strong>
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+      <li class="disabled">
+          <a href="">{{response.data.data_release}} &nbsp;
+              <small class="sub-heading text-uppercase">Current</small>
+          </a>
+      </li>
+  </ul>
 </div>
-{% endblock page_title_banner %}
+</div>
+
+{% endblock %}
 
 {% block content_render %}
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
+    <div class="col-xs-12 col-sm-3 col-md-2 sidebar" role="navigation">
         <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
                 <h5>Page Contents</h5>
                 <ul class="nav nav-pills nav-stacked  nav-sidebar">
-                    <li role="presentation"><a class="scroll" href="#top-of-page">Data Release
-                        {{response.data.data_release}}
-                        Overview</a></li>
+                    <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
                     <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
                     <li role="presentation"><a class="scroll" href="#help">Help</a></li>
                 </ul>
@@ -97,15 +74,15 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-sm-9 main-content">
-
+    <div class="col-xs-12 col-sm-9 col-md-10 main-content">
         <div class="col-sm-2 col-xs-4 pull-right">
             <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
         </div>
-        <h2 id="overview">Data Release {{response.data.data_release}} Overview</h2>
+        <h2>{{survey|uppercase}} Data Release {{response.data.data_release}}</h2>
+        <h3 id="overview">Overview</h3>
         <div class="panel panel-default" style="margin-top:20px;">
             <div class="panel-heading">
-                {{survey|uppercase}} Data Release {{response.data.data_release}}
+                Data Release {{response.data.data_release}}
             </div>
             <div class="table-responsive">
                 <table class="table table-overview">

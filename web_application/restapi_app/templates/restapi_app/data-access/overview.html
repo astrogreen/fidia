@@ -2,14 +2,14 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %}Data Access {% endblock %}
+{% block title %}Data Access{% endblock %}
 
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
 <li class="active"> Data Access</li>
 {% endblock %}
 
-{% block page_title %} Data Access {% endblock %}
+{% block page_title %} Data Access{% endblock %}
 {% block useful_links %}
 <li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='data-access' %}">Need Help?</a></li>
 {% endblock useful_links %}
@@ -17,7 +17,7 @@
 
 {% block content_render %}
 <div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
+    <div class="col-xs-12 col-sm-3 col-md-2 sidebar" role="navigation">
         <div class="sidebar-contents" data-spy="affix">
             <div class="page-contents">
                 <h5>Page Contents</h5>
@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-sm-9 main-content surveys">
+    <div class="col-xs-12 col-sm-9 col-md-10 main-content surveys">
         <h2>Overview</h2>
 
         <p>Data are accessible from ADC in a variety of ways. Users can browse through each astronomical object's data
