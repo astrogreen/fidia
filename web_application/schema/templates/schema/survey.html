@@ -11,63 +11,39 @@
 {% endblock %}
 
 {% block page_title %}Schema Browser{% endblock %}
+
 {% block bodyclass %}schema-browser{% endblock %}
-{% block page_title_banner %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
-<div class="title_info blue">
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-                <h1>Schema Browser for {{survey|uppercase}} DR 1.0
-                    <small class="right-helper">
-                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                        <div class="btn-group" role="group" style="margin-top:-15px;">
-                            <button type="button" class="btn btn-default dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                    <span class="sub-heading">
-                        <i class="fa fa-map-marker"></i> Data Release
-                    </span>
-                                <strong>1.0</strong>
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li class="disabled"><a href="">Data Release 1.0 &nbsp;
-                                    <small class="sub-heading text-uppercase">Current</small>
-                                </a></li>
-                            </ul>
-                        </div>
-                    </small>
-                </h1>
-                <p>The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
-                    that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
-                    Schema
-                    Browser, which contains a more comprehensive description of pipeline reduction and analysis
-                    techniques.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock page_title_banner %}
 
-{% block content_render %}
-{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+{% block page_title_banner_class %}blue{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Need Help?</a></li>
+{% endblock useful_links %}
 
-<div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar">
+{% block sidebar_container %}
+<div class="col-xs-12 col-sm-2 sidebar" role="navigation">
+    <div class="sidebar-contents">
+        {% block sidebar %}
+        {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 
-        <div class="sidebar-contents schema" id="schema_menu">
+        <div class="page-contents" id="schema_menu">
+            <h5>Page Contents</h5>
+            <ul class="nav nav-pills nav-stacked">
+                <li role="presentation"  class="active">
+                    <a href="#overview">Overview</a>
+                </li>
+            </ul>
             <h5>Schema Contents</h5>
-            <input type="text" class="search form-control" id="schema_search" placeholder="Search Schema...">
-            <br>
+            <div style="position:relative;padding:5px 15px;">
+                <input type="text" class="search form-control" id="schema_search" placeholder="Search...">
+            </div>
+
             <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
                 {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
                     <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}" data-trait-type-key="{{trait_type_key}}">
                         <h6 >{{trait_type_value.pretty_name}}</h6>
                     </li>
                     {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                        <li class="{% if forloop.parentloop.first and forloop.first %}active{% endif %}" role="presentation" data-trait-type-key="{{trait_type_key}}">
+                        <li class="{% if forloop.parentloop.first and forloop.first %}{% endif %}" role="presentation" data-trait-type-key="{{trait_type_key}}">
                             <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_type_button"
                                aria-controls="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" role="tab"
                                data-toggle="pill">{{trait_qualifier_value.pretty_name}}
@@ -80,391 +56,430 @@
                 {% endfor %}
             </ul>
         </div>
+        {% endblock %}
     </div>
+</div>
+{% endblock %}
 
-    <div class="col-xs-12 col-sm-9 main-content">
-        <div class="schema-contents">
-                    <div class="tab-content trait">
-                        {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
-                            {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                                <div id="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}active{% endif %} ">
+{% block version_container %}
+<div class="col-xs-12 col-sm-10 version-content">
+    <div class="version-container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 text-right">
+                <div class="btn-group navigation_btn_group" role="group">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-map-marker"></i> Data Release
+                            <strong class="p_dark">1.0</strong>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li class="disabled">
+                                <a href=""><strong>1.0</strong> <em>Latest</em>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block main %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+<div class="schema-contents">
+    <div class="tab-content trait">
+        <div id="overview" class="tab-pane active">
+            <h2>Overview</h2>
+            <p class="lead">The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
+                    that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
+                    Schema
+                    Browser, which contains a more comprehensive description of pipeline reduction and analysis
+                    techniques.
+                </p>
+            <p class="lead"><i class="fa fa-angle-left"></i> To begin, click a data product from the list. If you cannot find a particular data product, use the search bar to refine the schema contents. </p>
 
-                                    <h2>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}</h2>
-                                    {% if trait_type_value.description %}<p><em>{{trait_type_value.description}}</em></p>{% endif %}
+        </div>
 
-                                    <div class="panel panel-default success branch_warning">
-                                        <div class="panel-body">
-                                            <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
-                                        <strong> branch <em><span class="branch_warning-branch"></span></em>, version <em><span class="branch_warning-version"></span></em></strong>, which can be
-                                                significantly different from other branches/versions. To switch branches/versions, use the
-                                                selectors below. For more information
-                                                on branches,
-                                                <a class="disabled" disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
-                                                    view the documentation.</a><br>
-                                                <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <ul class="nav nav-pills branch-selector">
-                                        <li class="dropdown">
-                                            <a class="btn btn-default branch_button" data-toggle="dropdown" href="" aria-haspopup="true" aria-expanded="false">
-                                               <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch </span>
-                                                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                                        <!--Default branch, and the default version for that branch, are set as active-->
-                                                        {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                            <strong>{{trait_branch_value.pretty_name}}{% if trait_branch_value.description %}: {% endif %}</strong>
-                                                            {% if trait_branch_value.description %}{{trait_branch_value.description}}{% endif %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                <i class="fa fa-caret-down"></i>
-                                            </a>
-                                            <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
+        {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
+            {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+                <div id="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}{% endif %} ">
 
-                                                <li class="dropdown-header dropdown-header-bold">
-                                                    Change branch
-                                                </li>
-                                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                    <h2>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}</h2>
+                    {% if trait_type_value.description %}<p><em>{{trait_type_value.description}}</em></p>{% endif %}
 
+                    <div class="panel panel-default success branch_warning">
+                        <div class="panel-body">
+                            <div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
+                        <strong> branch <em><span class="branch_warning-branch"></span></em>, version <em><span class="branch_warning-version"></span></em></strong>, which can be
+                                significantly different from other branches/versions. To switch branches/versions, use the
+                                selectors below. For more information
+                                on branches,
+                                <a class="disabled" disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
+                                    view the documentation.</a><br>
+                                <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="nav nav-pills branch-selector">
+                        <li class="dropdown">
+                            <a class="btn btn-default branch_button" data-toggle="dropdown" href="" aria-haspopup="true" aria-expanded="false">
+                               <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch </span>
+                                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                        <!--Default branch, and the default version for that branch, are set as active-->
+                                        {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                            <strong>{{trait_branch_value.pretty_name}}{% if trait_branch_value.description %}: {% endif %}</strong>
+                                            {% if trait_branch_value.description %}{{trait_branch_value.description}}{% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                <i class="fa fa-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
+
+                                <li class="dropdown-header dropdown-header-bold">
+                                    Change branch
+                                </li>
+                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+
+                                    <!--Default branch, and the default version for that branch, are set as active-->
+                                    <li class="{% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %}">
+                                        <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}"
+                                           data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
+                                            <strong> {{trait_branch_value.pretty_name}}
+                                            {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                <small>DEFAULT</small>
+                                            {% endif %}
+                                            </strong>
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+
+                                    {% if not forloop.last %}
+                                        <li role="separator" class="divider"></li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+
+                            <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %} ">
+                                <ul class="nav nav-pills version-selector">
+                                    <li class="dropdown">
+                                        <a class="btn btn-default branch_button" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
                                                     <!--Default branch, and the default version for that branch, are set as active-->
-                                                    <li class="{% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %}">
-                                                        <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}"
-                                                           data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
-                                                            <strong> {{trait_branch_value.pretty_name}}
-                                                            {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                                <small>DEFAULT</small>
-                                                            {% endif %}
-                                                            </strong>
-                                                        </a>
-                                                    </li>
-                                                    {% endfor %}
+                                                {% if trait_branch_value.default_version == trait_version_key %}
+                                                    <span class="sub-heading"><i class="fa fa-map-pin"></i> Version</span>  <strong> {{trait_version_value.pretty_name}}{% if trait_version_value.description %}: {% endif %}</strong>{% if trait_version_value.description %} {{trait_version_value.description}} {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            <i class="fa fa-caret-down"></i>
+                                        </a>
+                                        <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
 
-                                                    {% if not forloop.last %}
-                                                        <li role="separator" class="divider"></li>
+                                            <li class="dropdown-header dropdown-header-bold">
+                                                Change version
+                                            </li>
+                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                                    <!--Default branch, and the default version for that branch, are set as active-->
+                                                <li class="{% if trait_branch_value.default_version == trait_version_key %}active{% endif %}">
+                                                    <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}"
+                                                       data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}" data-version-description="{{trait_version_value.description}}">
+                                                        <strong> {{trait_version_value.pretty_name}}
+                                                        {% if trait_branch_value.default_version == trait_version_key %}
+                                                            <small>LATEST</small>
+                                                        {% endif %}
+                                                        </strong>
+                                                    </a>
+                                                </li>
+                                                {% if not forloop.last %}
+                                                    <li role="separator" class="divider"></li>
+                                                {% endif %}
+                                            {% endfor %}
+                                                <!--<li role="separator" class="divider"></li>-->
+                                                <!--<li><a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>-->
+                                        </ul>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                    <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}" class="tab-pane {% if trait_branch_value.default_version == trait_version_key %}active{% endif %} ">
+
+                                            {% with trait_version_value.trait as value %}
+
+                                                <p>{% if value.description %}{{value.description}}{% endif %}</p>
+
+                                                <p>You are currently viewing the {{trait_type_value.pretty_name}}
+                                                    {{trait_qualifier_value.pretty_name}} Schema for
+                                                    branch <strong class="text-danger"><em>{{trait_branch_value.pretty_name}}
+                                                    </em></strong>, version number <strong class="text-danger">
+                                                        <em>{{trait_version_value.pretty_name}}</em></strong>.
+                                                    {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                        The {{trait_branch_value.pretty_name}} branch is the default branch for all {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} products.
                                                     {% endif %}
-                                                {% endfor %}
-                                            </ul>
-                                        </li>
-                                    </ul>
+                                                </p>
 
-                                    <div class="tab-content">
-
-                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-
-                                            <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %} ">
-                                                <ul class="nav nav-pills version-selector">
-                                                    <li class="dropdown">
-                                                        <a class="btn btn-default branch_button" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                                    <!--Default branch, and the default version for that branch, are set as active-->
-                                                                {% if trait_branch_value.default_version == trait_version_key %}
-                                                                    <span class="sub-heading"><i class="fa fa-map-pin"></i> Version</span>  <strong> {{trait_version_value.pretty_name}}{% if trait_version_value.description %}: {% endif %}</strong>{% if trait_version_value.description %} {{trait_version_value.description}} {% endif %}
-                                                                {% endif %}
+                                                <h3>Contents</h3>
+                                                <ul class="p">
+                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_documentation" class="scroll">Documentation</a></li>
+                                                    <li>
+                                                        <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_properties"
+                                                           class="scroll">Properties</a>
+                                                        <ul>
+                                                            {% for trait_property_key, trait_property_value in value.trait_properties.items %}
+                                                                <li><a class="scroll" href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">{{trait_property_value.pretty_name}} </a></li>
                                                             {% endfor %}
-                                                            <i class="fa fa-caret-down"></i>
-                                                        </a>
-                                                        <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
-
-                                                            <li class="dropdown-header dropdown-header-bold">
-                                                                Change version
-                                                            </li>
-                                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                                    <!--Default branch, and the default version for that branch, are set as active-->
-                                                                <li class="{% if trait_branch_value.default_version == trait_version_key %}active{% endif %}">
-                                                                    <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}"
-                                                                       data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}" data-version-description="{{trait_version_value.description}}">
-                                                                        <strong> {{trait_version_value.pretty_name}}
-                                                                        {% if trait_branch_value.default_version == trait_version_key %}
-                                                                            <small>LATEST</small>
-                                                                        {% endif %}
-                                                                        </strong>
-                                                                    </a>
-                                                                </li>
-                                                                {% if not forloop.last %}
-                                                                    <li role="separator" class="divider"></li>
-                                                                {% endif %}
+                                                            {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
+                                                                <li><a class="scroll" href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}">{{sub_trait_value.pretty_name}} </a></li>
+                                                                {% comment %}
+                                                                    <!--<ul>-->
+                                                                        <!--{% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}-->
+                                                                            <!--{% if sub_trait_qualifier_value.pretty_name %}-->
+                                                                                <!--&lt;!&ndash;Only add this level in if it exists&ndash;&gt;-->
+                                                                                <!--<li>-->
+                                                                                    <!--<a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
+                                                                                <!--</li>-->
+                                                                                <!--<ul>-->
+                                                                            <!--{% endif %}-->
+                                                                            <!--&lt;!&ndash; here, can access the trait description, pretty name etc&ndash;&gt;-->
+                                                                                <!--{% with sub_trait_qualifier_value.trait as sub_value %}-->
+                                                                                    <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
+                                                                                        <!--&lt;!&ndash; Here, we can access the any description levels that may be apparent &ndash;&gt;-->
+                                                                                        <!--<li><a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">{{sub_value.pretty_name}}</a></li>-->
+                                                                                        <!--<ul>-->
+                                                                                    <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+                                                                                        <!--{% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}-->
+                                                                                            <!--<li><a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_property_key}}">{{sub_trait_property_value.pretty_name}} </a></li>-->
+                                                                                        <!--{% endfor %}-->
+                                                                                    <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
+                                                                                        <!--</ul>-->
+                                                                                    <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+                                                                                <!--{% endwith %}-->
+                                                                            <!--{% if sub_trait_qualifier_value.pretty_name %}-->
+                                                                                <!--</ul>-->
+                                                                            <!--{% endif %}-->
+                                                                        <!--{% endfor %}-->
+                                                                    <!--</ul>-->
+                                                                {% endcomment %}
                                                             {% endfor %}
-                                                                <!--<li role="separator" class="divider"></li>-->
-                                                                <!--<li><a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>-->
                                                         </ul>
                                                     </li>
+                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_formats" class="scroll">Downloadable Formats</a></li>
+                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_branches" class="scroll">All Available Branches and Previous Versions</a></li>
                                                 </ul>
-                                                <div class="tab-content">
-                                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                    <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}" class="tab-pane {% if trait_branch_value.default_version == trait_version_key %}active{% endif %} ">
 
-                                                            {% with trait_version_value.trait as value %}
+                                                <!-- Documentation -->
+                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_documentation">Documentation</h3>
+                                                <div class="documentation_fidia">
+                                                    {{value.html_documentation|safe}}
+                                                </div>
 
-                                                                <p>{% if value.description %}{{value.description}}{% endif %}</p>
-
-                                                                <p>You are currently viewing the {{trait_type_value.pretty_name}}
-                                                                    {{trait_qualifier_value.pretty_name}} Schema for
-                                                                    branch <strong class="text-danger"><em>{{trait_branch_value.pretty_name}}
-                                                                    </em></strong>, version number <strong class="text-danger">
-                                                                        <em>{{trait_version_value.pretty_name}}</em></strong>.
-                                                                    {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                                        The {{trait_branch_value.pretty_name}} branch is the default branch for all {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} products.
-                                                                    {% endif %}
-                                                                </p>
-
-                                                                <h3>Contents</h3>
-                                                                <ul class="p">
-                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_documentation" class="scroll">Documentation</a></li>
-                                                                    <li>
-                                                                        <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_properties"
-                                                                           class="scroll">Properties</a>
-                                                                        <ul>
-                                                                            {% for trait_property_key, trait_property_value in value.trait_properties.items %}
-                                                                                <li><a class="scroll" href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">{{trait_property_value.pretty_name}} </a></li>
-                                                                            {% endfor %}
-                                                                            {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
-                                                                                <li><a class="scroll" href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}">{{sub_trait_value.pretty_name}} </a></li>
-                                                                                {% comment %}
-                                                                                    <!--<ul>-->
-                                                                                        <!--{% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}-->
-                                                                                            <!--{% if sub_trait_qualifier_value.pretty_name %}-->
-                                                                                                <!--&lt;!&ndash;Only add this level in if it exists&ndash;&gt;-->
-                                                                                                <!--<li>-->
-                                                                                                    <!--<a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
-                                                                                                <!--</li>-->
-                                                                                                <!--<ul>-->
-                                                                                            <!--{% endif %}-->
-                                                                                            <!--&lt;!&ndash; here, can access the trait description, pretty name etc&ndash;&gt;-->
-                                                                                                <!--{% with sub_trait_qualifier_value.trait as sub_value %}-->
-                                                                                                    <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
-                                                                                                        <!--&lt;!&ndash; Here, we can access the any description levels that may be apparent &ndash;&gt;-->
-                                                                                                        <!--<li><a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">{{sub_value.pretty_name}}</a></li>-->
-                                                                                                        <!--<ul>-->
-                                                                                                    <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
-                                                                                                        <!--{% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}-->
-                                                                                                            <!--<li><a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_property_key}}">{{sub_trait_property_value.pretty_name}} </a></li>-->
-                                                                                                        <!--{% endfor %}-->
-                                                                                                    <!--&lt;!&ndash;{% if sub_trait_value.pretty_name != sub_value.pretty_name %}&ndash;&gt;-->
-                                                                                                        <!--</ul>-->
-                                                                                                    <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
-                                                                                                <!--{% endwith %}-->
-                                                                                            <!--{% if sub_trait_qualifier_value.pretty_name %}-->
-                                                                                                <!--</ul>-->
-                                                                                            <!--{% endif %}-->
-                                                                                        <!--{% endfor %}-->
-                                                                                    <!--</ul>-->
-                                                                                {% endcomment %}
-                                                                            {% endfor %}
-                                                                        </ul>
-                                                                    </li>
-                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_formats" class="scroll">Downloadable Formats</a></li>
-                                                                    <li><a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_branches" class="scroll">All Available Branches and Previous Versions</a></li>
-                                                                </ul>
-
-                                                                <!-- Documentation -->
-                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_documentation">Documentation</h3>
-                                                                <div class="documentation_fidia">
-                                                                    {{value.html_documentation|safe}}
-                                                                </div>
-
-                                                                <!-- Properties-->
-                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_properties">Properties</h3>
+                                                <!-- Properties-->
+                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_properties">Properties</h3>
 
 
-                                                                {% for trait_property_key, trait_property_value in value.trait_properties.items %}
-                                                                    <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">
-                                                                    {{trait_property_value.pretty_name}} <small> <code>{{trait_property_value.type}}</code></small></h4>
-                                                                    {% if trait_property_value.description %}<div class="sub-heading small" style="margin-top:-10px; margin-bottom:20px;"><em>{{trait_property_value.description|safe}}</em></div>{% endif %}
-                                                                    {% if trait_property_value.html_documentation %}<div class="documentation_fidia">{{trait_property_value.html_documentation|safe}}</div>{% endif %}
-                                                                {% endfor %}
+                                                {% for trait_property_key, trait_property_value in value.trait_properties.items %}
+                                                    <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{trait_property_key}}">
+                                                    {{trait_property_value.pretty_name}} <small> <code>{{trait_property_value.type}}</code></small></h4>
+                                                    {% if trait_property_value.description %}<div class="sub-heading small" style="margin-top:-10px; margin-bottom:20px;"><em>{{trait_property_value.description|safe}}</em></div>{% endif %}
+                                                    {% if trait_property_value.html_documentation %}<div class="documentation_fidia">{{trait_property_value.html_documentation|safe}}</div>{% endif %}
+                                                {% endfor %}
 
 
-                                                                <!--Sub traits-->
-                                                                {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
-                                                                    <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}">
-                                                                    {{sub_trait_value.pretty_name}}</h4>
-                                                                    <div class="documentation_fidia">
-                                                                        {{sub_trait_value.html_documentation|safe}}
-                                                                    </div>
+                                                <!--Sub traits-->
+                                                {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
+                                                    <h4 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}">
+                                                    {{sub_trait_value.pretty_name}}</h4>
+                                                    <div class="documentation_fidia">
+                                                        {{sub_trait_value.html_documentation|safe}}
+                                                    </div>
 
-                                                                    {% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}
+                                                    {% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}
 
-                                                                        <!--{% if sub_trait_qualifier_value.pretty_name %}-->
-                                                                            <!--Only add this level in if it exists-->
-                                                                            <!--<li>-->
-                                                                                <!--<a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
-                                                                            <!--</li>-->
-                                                                        <!--{% endif %}-->
-                                                                        <!-- here, can access the trait description, pretty name etc-->
-                                                                            {% with sub_trait_qualifier_value.trait as sub_value %}
-                                                                                <!--{% if sub_value.description %}-->
-                                                                                    {% if sub_value.description %}<p><em>{{sub_value.description}}</em></p>{% endif %}
-                                                                                <!--{% endif %}-->
-                                                                                <!--{% if sub_value.html_documentation %}-->
-                                                                                    <div class="documentation_fidia">{{sub_value.html_documentation|safe}}</div>
-                                                                                <!--{% endif %}-->
-
-                                                                                <div>
-                                                                                    <h5 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">
-                                                                                        &nbsp;&nbsp;<i class="fa fa-level-up fa-rotate-90"></i> {{sub_trait_value.pretty_name}} Properties</h5>
-                                                                                    <!-- Here, we can access the any description levels that may be apparent -->
-                                                                                    <div class="documentation_fidia">{{sub_trait_value.html_documentation|safe}}</div>
-                                                                                        <div class="table-responsive" style="padding-left:15px;">
-                                                                                            <table class="table table-bordered table-striped">
-                                                                                                <colgroup>
-                                                                                                    <col style="width:15%">
-                                                                                                    <col style="width:5%">
-                                                                                                    <col style="width:20%">
-                                                                                                    <col style="width:50%">
-                                                                                                </colgroup>
-                                                                                                <thead>
-                                                                                                <tr>
-                                                                                                    <th>Name</th>
-                                                                                                    <th>Type</th>
-                                                                                                    <th>Description</th>
-                                                                                                    <th>Documentation</th>
-                                                                                                </tr>
-                                                                                                </thead>
-                                                                                                <tbody>
-
-                                                                                                {% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}
-                                                                                                    <tr>
-                                                                                                        <td>{{sub_trait_property_value.pretty_name}}</td>
-                                                                                                        <td><code>{{sub_trait_property_value.type}}</code></td>
-                                                                                                        <td><em>{{sub_trait_property_value.description}}</em></td>
-                                                                                                        <td><span class="documentation_fidia">{{sub_trait_property_value.html_documentation|safe}}</span></td>
-                                                                                                    </tr>
-                                                                                                {% endfor %}
-                                                                                                </tbody>
-                                                                                            </table>
-                                                                                        </div>
-                                                                                </div>
-
-                                                                            {% endwith %}
-
-                                                                    {% endfor %}
-
-
-                                                                {% endfor %}
-
-                                                                <!-- Formats -->
-                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_formats">
-                                                                     Formats
-                                                                </h3>
-                                                                <!-- If this trait_type_key is in schema_non_catalog it is likely a fits product and not a catalog property -->
-
+                                                        <!--{% if sub_trait_qualifier_value.pretty_name %}-->
+                                                            <!--Only add this level in if it exists-->
+                                                            <!--<li>-->
+                                                                <!--<a class="scroll" href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}">{{sub_trait_qualifier_value.pretty_name}}</a>-->
+                                                            <!--</li>-->
+                                                        <!--{% endif %}-->
+                                                        <!-- here, can access the trait description, pretty name etc-->
+                                                            {% with sub_trait_qualifier_value.trait as sub_value %}
+                                                                <!--{% if sub_value.description %}-->
+                                                                    {% if sub_value.description %}<p><em>{{sub_value.description}}</em></p>{% endif %}
+                                                                <!--{% endif %}-->
+                                                                <!--{% if sub_value.html_documentation %}-->
+                                                                    <div class="documentation_fidia">{{sub_value.html_documentation|safe}}</div>
+                                                                <!--{% endif %}-->
 
                                                                 <div>
-                                                                    {% for format_key in value.export_formats %}
-                                                                        <span class="fa-custom-stack">
-                                                                          <i class="fa fa-file-o"></i>
-                                                                            <span class="fa-custom-filetype">{{format_key}}</span>
-                                                                        </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
-                                                                    {% endfor %}
-                                                                    <span class="fa-custom-stack">
-                                                                      <i class="fa fa-file-o"></i>
-                                                                        <span class="fa-custom-filetype">json</span>
-                                                                    </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
-                                                                </div>
-                                                                <p>
-                                                                You can download {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-type data in
-                                                                {% if value.export_formats|length > 0 %}
-                                                                    {% for format_key in value.export_formats %}
-                                                                        {{format_key}}
-                                                                        {% if value.export_formats|length > 1 %}
-                                                                            {% if forloop.last %} {% else %} , {% endif %}
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                    and
-                                                                {% else %}
+                                                                    <h5 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_{{sub_trait_key}}_{{sub_trait_qualifier_key}}_{{sub_trait_value.pretty_name}}">
+                                                                        &nbsp;&nbsp;<i class="fa fa-level-up fa-rotate-90"></i> {{sub_trait_value.pretty_name}} Properties</h5>
+                                                                    <!-- Here, we can access the any description levels that may be apparent -->
+                                                                    <div class="documentation_fidia">{{sub_trait_value.html_documentation|safe}}</div>
+                                                                        <div class="table-responsive" style="padding-left:15px;">
+                                                                            <table class="table table-bordered table-striped">
+                                                                                <colgroup>
+                                                                                    <col style="width:15%">
+                                                                                    <col style="width:5%">
+                                                                                    <col style="width:20%">
+                                                                                    <col style="width:50%">
+                                                                                </colgroup>
+                                                                                <thead>
+                                                                                <tr>
+                                                                                    <th>Name</th>
+                                                                                    <th>Type</th>
+                                                                                    <th>Description</th>
+                                                                                    <th>Documentation</th>
+                                                                                </tr>
+                                                                                </thead>
+                                                                                <tbody>
 
-                                                                {% endif %}
-                                                                 json format.
-                                                                </p>
-                                                                {% if trait_type_key in response.data.schema_non_catalog.trait_types %}
-
-                                                                {% else %}
-                                                                    <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} is a catalogue property. Export the {{survey|uppercase}} catalogue properties as CSV, Excel in the <a target="_blank" href="{% url 'data_browser:survey-list' survey_pk=survey %}">Data Browser Survey page</a> under the <strong>Multiple Object</strong> tab. </p>
-                                                                {% endif %}
-
-
-                                                                <!-- Branches -->
-                                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_branches">
-                                                                     All Available Branches and Previous Versions
-                                                                </h3>
-                                                                <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} data products have {{trait_qualifier_value.branches |length }} available branch(es).
-                                                                    In this section, you may find descriptions of each branch and version for reference.
-
-                                                                    To switch branches, use the
-                                                                    branch selector floating in the top right corner at the top
-                                                                    of this document. For more information
-                                                                    on branches,
-                                                                    <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
-                                                                        view the documentation</a>.
-                                                                </p>
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-bordered table-striped">
-                                                                        <colgroup>
-                                                                            <col style="width:20%">
-                                                                            <col style="width:30%">
-                                                                            <col style="width:50%">
-                                                                        </colgroup>
-                                                                        <thead>
-                                                                        <tr>
-                                                                            <th><i class="fa fa-code-fork"></i> Branch</th>
-                                                                            <th>Description</th>
-                                                                            <th><i class="fa fa-map-pin"></i> Versions</th>
-                                                                        </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                                                             <tr>
-                                                                                <td>{{trait_branch_value.pretty_name}}
-                                                                                    {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                                                        <small>DEFAULT</small>
-                                                                                    {% endif %}
-                                                                                </td>
-                                                                                <td>{{trait_branch_value.description}}</td>
-                                                                                 <td>
-                                                                                     <ul>
-                                                                                        {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                                                            <li>
-                                                                                                <span>
-                                                                                                    {{trait_version_value.pretty_name}}
-                                                                                                    {% if trait_branch_value.default_version == trait_version_key %}
-                                                                                                        <small>LATEST</small>
-                                                                                                    {% endif %}
-                                                                                                </span><br>
-                                                                                                <em>{{trait_version_value.description}}</em>
-                                                                                            </li>
-
-                                                                                        {% endfor %}
-                                                                                     </ul>
-
-                                                                                 </td>
-                                                                            </tr>
-                                                                        {% endfor %}
-
-                                                                        </tbody>
-                                                                    </table>
+                                                                                {% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}
+                                                                                    <tr>
+                                                                                        <td>{{sub_trait_property_value.pretty_name}}</td>
+                                                                                        <td><code>{{sub_trait_property_value.type}}</code></td>
+                                                                                        <td><em>{{sub_trait_property_value.description}}</em></td>
+                                                                                        <td><span class="documentation_fidia">{{sub_trait_property_value.html_documentation|safe}}</span></td>
+                                                                                    </tr>
+                                                                                {% endfor %}
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
                                                                 </div>
 
                                                             {% endwith %}
-                                                    </div>
+
                                                     {% endfor %}
+
+
+                                                {% endfor %}
+
+                                                <!-- Formats -->
+                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_formats">
+                                                     Formats
+                                                </h3>
+                                                <!-- If this trait_type_key is in schema_non_catalog it is likely a fits product and not a catalog property -->
+
+
+                                                <div>
+                                                    {% for format_key in value.export_formats %}
+                                                        <span class="fa-custom-stack">
+                                                          <i class="fa fa-file-o"></i>
+                                                            <span class="fa-custom-filetype">{{format_key}}</span>
+                                                        </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
+                                                    {% endfor %}
+                                                    <span class="fa-custom-stack">
+                                                      <i class="fa fa-file-o"></i>
+                                                        <span class="fa-custom-filetype">json</span>
+                                                    </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
                                                 </div>
-                                            </div>
-                                        {% endfor %}
+                                                <p>
+                                                You can download {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-type data in
+                                                {% if value.export_formats|length > 0 %}
+                                                    {% for format_key in value.export_formats %}
+                                                        {{format_key}}
+                                                        {% if value.export_formats|length > 1 %}
+                                                            {% if forloop.last %} {% else %} , {% endif %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    and
+                                                {% else %}
+
+                                                {% endif %}
+                                                 json format.
+                                                </p>
+                                                {% if trait_type_key in response.data.schema_non_catalog.trait_types %}
+
+                                                {% else %}
+                                                    <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} is a catalogue property. Export the {{survey|uppercase}} catalogue properties as CSV, Excel in the <a target="_blank" href="{% url 'data_browser:survey-list' survey_pk=survey %}">Data Browser Survey page</a> under the <strong>Multiple Object</strong> tab. </p>
+                                                {% endif %}
+
+
+                                                <!-- Branches -->
+                                                <h3 id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}_branches">
+                                                     All Available Branches and Previous Versions
+                                                </h3>
+                                                <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} data products have {{trait_qualifier_value.branches |length }} available branch(es).
+                                                    In this section, you may find descriptions of each branch and version for reference.
+
+                                                    To switch branches, use the
+                                                    branch selector floating in the top right corner at the top
+                                                    of this document. For more information
+                                                    on branches,
+                                                    <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
+                                                        view the documentation</a>.
+                                                </p>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-striped">
+                                                        <colgroup>
+                                                            <col style="width:20%">
+                                                            <col style="width:30%">
+                                                            <col style="width:50%">
+                                                        </colgroup>
+                                                        <thead>
+                                                        <tr>
+                                                            <th><i class="fa fa-code-fork"></i> Branch</th>
+                                                            <th>Description</th>
+                                                            <th><i class="fa fa-map-pin"></i> Versions</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                                             <tr>
+                                                                <td>{{trait_branch_value.pretty_name}}
+                                                                    {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                                        <small>DEFAULT</small>
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td>{{trait_branch_value.description}}</td>
+                                                                 <td>
+                                                                     <ul>
+                                                                        {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                                                            <li>
+                                                                                <span>
+                                                                                    {{trait_version_value.pretty_name}}
+                                                                                    {% if trait_branch_value.default_version == trait_version_key %}
+                                                                                        <small>LATEST</small>
+                                                                                    {% endif %}
+                                                                                </span><br>
+                                                                                <em>{{trait_version_value.description}}</em>
+                                                                            </li>
+
+                                                                        {% endfor %}
+                                                                     </ul>
+
+                                                                 </td>
+                                                            </tr>
+                                                        {% endfor %}
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                            {% endwith %}
                                     </div>
+                                    {% endfor %}
                                 </div>
-                            {% endfor %}
+                            </div>
                         {% endfor %}
                     </div>
                 </div>
+            {% endfor %}
+        {% endfor %}
     </div>
 </div>
-
 {% endblock %}
+
 {% block footer-extra %}
 <script>
 
     $(document).ready(function () {
-
 
         // Animate smooth scrolling of trait types
         $("ul.nav-pills a.trait_type_button").click(function (e) {
@@ -661,7 +676,7 @@
                     var _trait_type_key = $(this).parent('li').attr('data-trait-type-key');
 
                     $('#schema_menu li').each(function () {
-                        // show these (effectively searching in the h6 and anchors simulataneously)
+                        // show these (effectively searching in the h6 and anchors simultaneously)
                         if ($(this).attr('data-trait-type-key') == _trait_type_key) {
                             $(this).show();
                         }

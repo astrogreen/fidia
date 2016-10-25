@@ -32,10 +32,6 @@
 .schema-browser .table tbody p {
   margin-bottom: 0;
 }
-.schema-browser h5 {
-  font-size: 16px;
-  margin-top: 20px;
-}
 .schema-browser .schema-contents .branch_warning {
   background-color: #fafafa;
 }

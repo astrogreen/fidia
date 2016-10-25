@@ -16,25 +16,28 @@
 
 {% block page_title %}Team{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'support-contact' %}">Contact ADC</a></li>
-
+<li role="presentation"><a href="{% url 'support-contact' %}">Contact Us</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
 
-<div class="row">
-    <div class="col-sm-3 col-xs-12 sidebar">
-        <h5>Location</h5>
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked  nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
+        <li role="presentation"><a class="scroll" href="#funding">Funding</a></li>
+        <li role="presentation"><a class="scroll" href="#people">People</a></li>
+    </ul>
+</div>
+<h5>Location</h5>
         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3315.6156037094906!2d151.14305211520838!3d-33.79642338067633!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b08fe7877ced22f%3A0x3d98d19820feb711!2sAustralian+Astronomical+Observatory!5e0!3m2!1sen!2sau!4v1461113727378"
                 width="100%" class="google-maps" frameborder="0" style="border:0"
                 allowfullscreen></iframe>
-        <span>AAO Data Central is based at the <a href="https://www.aao.gov.au/"
-                                               target="_blank">AAO</a> North Ryde.
-        </span>
-    </div>
-    <div class="col-sm-9 col-xs-12 main-content">
-        <h2 class="headline">
-            <span>AAO Data Central</span>
+{% endblock %}
+
+{% block main %}
+<h2>
+            <span>Overview</span>
         </h2>
         <p>AAO Data Central (ADC) forms the Anglo-Australian Telescope (AAT) Node of the All-Sky Virtual Observatory
             (ASVO). ADC
@@ -50,7 +53,7 @@
             requirement to
             be interoperable with the other ASVO nodes and compliant with IVOA protocols.</p>
 
-        <h3 class="headline">
+        <h3 id="funding">
             <span>Funding</span>
         </h3>
         <p>
@@ -59,7 +62,7 @@
             Australian Astronomical Observatory (AAO), as the owners and operators of the AAT, to develop this ASVO
             Node. This is a 2 year project with completion expected by June 2017. </p>
 
-        <h3 class="headline">
+        <h3 id="people">
             <span>People</span>
         </h3>
 
@@ -201,12 +204,4 @@
                 <!--<h3>Contact Us</h3>-->
             </div>
         </div>
-
-    </div>
-
-</div>
-
-{% endblock %}
-{% block footer-extra %}
-
 {% endblock %}

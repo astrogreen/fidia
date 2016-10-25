@@ -14,6 +14,9 @@
 {% endblock %}
 
 {% block page_title %}Data Browser{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
+{% endblock useful_links %}
 
 {% block sidebar %}
 <h5>Page Contents</h5>

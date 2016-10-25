@@ -42,6 +42,7 @@
         </li>
     </ul>
 </div>
+<hr>
 <div class="quick-links">
     <h5>Quick Links</h5>
     <ul class="nav-sidebar">
@@ -50,171 +51,313 @@
 </div>
 {% endblock %}
 
-{% block main %}
-<h2>Overview</h2>
+{% block no_sidebar %}
+<div class="jumbotron">
+        <div class="container">
+<div class="row">
+    <div class="col-xs-12 text-center">
+        <h1>ADC Data Access</h1>
 
-<p>Data are accessible from ADC in a variety of ways. Users can browse through each astronomical object's data
-    products available per survey, including visualizations, processing information and associated
-    properties. Users are able to query properties of astronomical objects across multiple surveys, and
-    view/download a table of
-    results. The query tool also allows for bulk download of specific types of data products for the resultant
-    sample.
+        <p class="lead">
+            Read more about each data access tool below.
+        </p>
+    </div>
+</div>
 
-</p>
-<p>
-    Read more about each data access tool below.
-</p>
+<div class="row box-row">
 
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <a href="{% url 'data_browser:root-list' %}" class="box">
+            <div class=" text-justify box-contents">
 
-<div class="table-responsive">
-    <table class="table table-striped table_tool_overview">
-        <colgroup>
-            <col width="15%">
-            <col width="55%">
-            <col width="30%">
-        </colgroup>
-        <!--<thead>-->
-        <!--<tr>-->
-        <!--<th>Tool</th>-->
-        <!--<th>About</th>-->
-        <!--<th>Link</th>-->
-        <!--</tr>-->
-        <!--</thead>-->
-        <tbody class="vertical_align_middle">
-        <tr id="data-browser">
-            <td class="text-center"><img class="img-responsive"
-                                         src="{% static 'restapi_app/img/documentation/data-browser.png'%}">
-                <div class=half-br></div>
-            </td>
-            <td>
-                <h4><strong>Data Browser</strong></h4>
-                The Data Browser allows users a quick-look at each survey object's data products available in a
-                particular data release, including visualizations, processing information and associated
-                properties.
-                Users can download individual data products as multi-extension
-                FITS files, with all relevant processing information contained within the FITS header.
-                Users can also use the Data Browser tool to define a sample of objects within a single survey,
-                filtering on some catalogue property, and download selected data products for those objects.
+                <img class="img-responsive center-block" style="max-width:80px"
+                     src="{% static 'restapi_app/img/documentation/data-browser.png'%}"><br>
+                <div class="p text-center">Data Browser</div>
 
-            </td>
-            <td>
+                <span class="sub">
+                        View and download the available data products in each survey on an object-by-object basis.
+                    </span>
 
-                <a href="{% url 'data_browser:root-list' %}" class="text-uppercase"><strong>Go to Data Browser
-                    <i class="fa fa-angle-right"></i></strong></a>
-            </td>
-        </tr>
-        <tr id="query-builder">
-            <td class="text-center"><img class="img-responsive"
-                                         src="{% static 'restapi_app/img/documentation/query.png'%}">
-                <div class=half-br></div>
-            </td>
-            <td>
-                <h4><strong>Query Builder (SQL)</strong></h4>
-                Query the ADC database across all surveys, filtering on some parameter(s) and return
-                available rows of objects. Sort by column, download table as CSV.
+                <span class="status btn-xs btn-default  text-success"><i class="fa fa-check"></i> beta</span>
+            </div>
+        </a>
+    </div>
 
-                If your query result contains object IDs, the interface allows users to
-                select particular data products from any of the surveys hosted at ADC to bundle into a
-                downloadable
-                tarball.
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <a href="" disabled class="box disabled">
+            <div class=" text-justify box-contents">
 
-            </td>
-            <td>
-                In testing.
-            </td>
-        </tr>
-        <tr id="schema-browser">
-            <td class="text-center"><img class="img-responsive"
-                                         src="{% static 'restapi_app/img/documentation/schema-browser.png'%}">
-                <div class=half-br></div>
-            </td>
-            <td>
-                <h4><strong>Schema Browser</strong></h4>
-                The schema browser allows you to explore the types of data product each survey team has
-                released, how
-                each
-                was derived (reduction pipelines, analysis method etc), and any associated meta data.
-            </td>
-            <td>
+                <img class="img-responsive center-block" style="max-width:80px"
+                     src="{% static 'restapi_app/img/documentation/query.png'%}"><br>
+                <div class="p text-center">Query Builder (SQL)</div>
 
-                <a href="{% url 'schema:root-list' %}" class="text-uppercase"><strong>Go to Schema Browser
-                    <i class="fa fa-angle-right"></i></strong></a>
-            </td>
-        </tr>
-        <tr id="tap-service">
-            <td class="text-center"><img class="img-responsive"
-                                         src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">
-                <div class=half-br></div>
-            </td>
-            <td>
-                <h4><strong>TAP Service</strong></h4>
-                ADC provides query access to our databases via the table access protocol (TAP).
-                This services enables users to POST queries to the database over HTTP and retrieve responses in
-                a chosen format (CSV, VOTable). <a href="http://www.star.bris.ac.uk/~mbt/topcat/">TOPCAT</a>
-                (Tool for OPerations on Catalogues And Tables), an interactive graphical viewer and editor for
-                tabular
-                data, is also a fantastic tool for TAP service interaction.
-            </td>
-            <td>
-                In Development.
-            </td>
-        </tr>
-        <tr id="data-explorer">
-            <td class="text-center">
-                <img class="img-responsive"
-                     src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">
-                <div class=half-br></div>
-            </td>
-            <td>
-                <h4><strong>Data Explorer</strong></h4>
+                <span class=" sub">
+                       Query the ADC database across all surveys.
+
+                        Download selected data products for those objects from all surveys (where available).
+                    </span>
+                <span class="status btn-xs btn-default"><i class="fa fa-minus"></i> alpha</span>
+
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <a href="{% url 'schema:root-list' %}" class="box">
+            <div class=" text-justify box-contents">
+
+                <img class="img-responsive center-block" style="max-width:80px"
+                     src="{% static 'restapi_app/img/documentation/schema-browser.png'%}"><br>
+                <div class="p text-center">Schema Browser</div>
+
+                <span class=" sub">
+                      Read comprehensive documentation on the types of data products hosted at ADC.
+                    </span>
+                <span class="status btn-xs btn-default text-success"><i class="fa fa-check"></i> beta</span>
+
+            </div>
+        </a>
+    </div>
+
+</div>
+<div class="row box-row">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <a href="" disabled class="box disabled">
+            <div class=" text-justify box-contents">
+
+                <img class="img-responsive center-block" style="max-width:80px"
+                     src="{% static 'restapi_app/img/documentation/comingsoon.png'%}"><br>
+                <div class="p text-center">TAP Service</div>
+
+                <span class=" sub">
+                Access to ADC via the table access protocol (TAP).
+                POST queries to the database over HTTP and retrieve responses in
+                a chosen format (CSV, VOTable). </span>
+                <span class="status btn-xs btn-default"><i class="fa fa-minus"></i> dev</span>
+            </div>
+        </a>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <a href="" disabled class="box disabled">
+            <div class=" text-justify box-contents">
+
+                <img class="img-responsive center-block" style="max-width:80px"
+                     src="{% static 'restapi_app/img/documentation/comingsoon.png'%}"><br>
+                <div class="p text-center">Data Explorer</div>
+
+                <span class=" sub">
                 A graphical interface allowing users to view imaging (where available) and overlaid source
-                positions for the ADC-hosted surveys.
-            </td>
-            <td>
-                Coming Soon.
-            </td>
-        </tr>
-        <tr id="position-search">
-            <td class="text-center"><img class="img-responsive"
-                                         src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">
-                <div class=half-br></div>
-            </td>
-            <td>
-                <h4><strong>Position Search</strong></h4>
-                View available data (survey-derived data products or obervation coverage) for some radius around
+                positions for the ADC-hosted surveys.</span>
+                <span class="status btn-xs btn-default"><i class="fa fa-minus"></i> dev</span>
+            </div>
+        </a>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <a href="" disabled class="box disabled">
+            <div class=" text-justify box-contents">
+
+                <img class="img-responsive center-block" style="max-width:80px"
+                     src="{% static 'restapi_app/img/documentation/comingsoon.png'%}"><br>
+                <div class="p text-center">Position Search</div>
+
+                <span class=" sub">
+                View available data (survey-derived data products or observation coverage) for some radius around
                 RA, DEC coordinates.
-                Upload a list of RA, DEC positions and cross match to all available survey objects, to within
-                some radius.
-            </td>
-            <td>
-                Coming Soon.
-            </td>
-        </tr>
-        <tr id="api">
-            <td class="text-center"><img class="img-responsive"
-                                         src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">
-                <div class=half-br></div>
-            </td>
-            <td>
-                <h4><strong>API</strong></h4>
-                ADC's REST API provides programmatic access to read (and for survey team members, write) data,
+                Upload a list of positions and cross match to all available survey objects.</span>
+                <span class="status btn-xs btn-default"><i class="fa fa-minus"></i> dev</span>
+            </div>
+        </a>
+    </div>
+</div>
+<div class="row box-row">
+    <div class="col-xs-12 col-sm-6">
+        <a href="" disabled class="box disabled">
+            <div class=" text-justify box-contents">
+
+                <img class="img-responsive center-block" style="max-width:80px"
+                     src="{% static 'restapi_app/img/documentation/comingsoon.png'%}"><br>
+                <div class="p text-center">API</div>
+
+                <span class=" sub">
+              ADC's REST API provides programmatic access to read (and for survey team members, write) data,
                 returning structured responses for you to use in your own code.
 
                 Submit an SQL query, access previous query results (with authentication), read the meta data for
                 a data product, and more. Responses are available in the popular JSON format, as well as FITS
                 and CSV (where appropriate).
 
-                ADC plans to document and release its API soon.
-            </td>
-            <td>
-                In Development.
-            </td>
-        </tr>
-
-
-        </tbody>
-    </table>
+                ADC plans to document and release its API soon.</span>
+                <span class="status btn-xs btn-default"><i class="fa fa-minus"></i> dev</span>
+            </div>
+        </a>
+    </div>
 </div>
 
+
+<div class="table-responsive">
+    <!--<table class="table table-striped table_tool_overview">-->
+        <!--<colgroup>-->
+            <!--<col width="15%">-->
+            <!--<col width="55%">-->
+            <!--<col width="30%">-->
+        <!--</colgroup>-->
+
+        <!--<tbody class="vertical_align_middle">-->
+        <!--<tr id="data-browser">-->
+            <!--<td class="text-center"><img class="img-responsive"-->
+                                         <!--src="{% static 'restapi_app/img/documentation/data-browser.png'%}">-->
+                <!--<div class=half-br></div>-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--<h4><strong>Data Browser</strong></h4>-->
+                <!--View the available data products in each survey on an object-by-object basis.-->
+                <!--Includes visualizations, processing information and associated-->
+                <!--properties. Download individual data products as multi-extension-->
+                <!--FITS files, or define a sample of objects within a single survey and download selected data products for-->
+                <!--those objects.-->
+
+            <!--</td>-->
+            <!--<td>-->
+
+                <!--<a href="{% url 'data_browser:root-list' %}" class="text-uppercase"><strong>Go to Data Browser-->
+                    <!--<i class="fa fa-angle-right"></i></strong></a>-->
+            <!--</td>-->
+        <!--</tr>-->
+        <!--<tr id="query-builder">-->
+            <!--<td class="text-center"><img class="img-responsive"-->
+                                         <!--src="{% static 'restapi_app/img/documentation/query.png'%}">-->
+                <!--<div class=half-br></div>-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--<h4><strong>Query Builder (SQL)</strong></h4>-->
+                <!--Query the ADC database across all surveys, filtering on some parameter(s) and return-->
+                <!--available rows of objects. Sort by column, download table as CSV.-->
+
+                <!--If your query result contains object IDs, the interface allows users to-->
+                <!--select particular data products from any of the surveys hosted at ADC to bundle into a-->
+                <!--downloadable-->
+                <!--tarball.-->
+
+            <!--</td>-->
+            <!--<td>-->
+                <!--In testing.-->
+            <!--</td>-->
+        <!--</tr>-->
+        <!--<tr id="schema-browser">-->
+            <!--<td class="text-center"><img class="img-responsive"-->
+                                         <!--src="{% static 'restapi_app/img/documentation/schema-browser.png'%}">-->
+                <!--<div class=half-br></div>-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--<h4><strong>Schema Browser</strong></h4>-->
+                <!--The schema browser allows you to explore the types of data product each survey team has-->
+                <!--released, how-->
+                <!--each-->
+                <!--was derived (reduction pipelines, analysis method etc), and any associated meta data.-->
+            <!--</td>-->
+            <!--<td>-->
+
+                <!--<a href="{% url 'schema:root-list' %}" class="text-uppercase"><strong>Go to Schema Browser-->
+                    <!--<i class="fa fa-angle-right"></i></strong></a>-->
+            <!--</td>-->
+        <!--</tr>-->
+        <!--<tr id="tap-service">-->
+            <!--<td class="text-center"><img class="img-responsive"-->
+                                         <!--src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">-->
+                <!--<div class=half-br></div>-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--<h4><strong>TAP Service</strong></h4>-->
+                <!--ADC provides query access to our databases via the table access protocol (TAP).-->
+                <!--This services enables users to POST queries to the database over HTTP and retrieve responses in-->
+                <!--a chosen format (CSV, VOTable). <a href="http://www.star.bris.ac.uk/~mbt/topcat/">TOPCAT</a>-->
+                <!--(Tool for OPerations on Catalogues And Tables), an interactive graphical viewer and editor for-->
+                <!--tabular-->
+                <!--data, is also a fantastic tool for TAP service interaction.-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--In Development.-->
+            <!--</td>-->
+        <!--</tr>-->
+        <!--<tr id="data-explorer">-->
+            <!--<td class="text-center">-->
+                <!--<img class="img-responsive"-->
+                     <!--src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">-->
+                <!--<div class=half-br></div>-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--<h4><strong>Data Explorer</strong></h4>-->
+                <!--A graphical interface allowing users to view imaging (where available) and overlaid source-->
+                <!--positions for the ADC-hosted surveys.-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--Coming Soon.-->
+            <!--</td>-->
+        <!--</tr>-->
+        <!--<tr id="position-search">-->
+            <!--<td class="text-center"><img class="img-responsive"-->
+                                         <!--src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">-->
+                <!--<div class=half-br></div>-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--<h4><strong>Position Search</strong></h4>-->
+                <!--View available data (survey-derived data products or obervation coverage) for some radius around-->
+                <!--RA, DEC coordinates.-->
+                <!--Upload a list of RA, DEC positions and cross match to all available survey objects, to within-->
+                <!--some radius.-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--Coming Soon.-->
+            <!--</td>-->
+        <!--</tr>-->
+        <!--<tr id="api">-->
+            <!--<td class="text-center"><img class="img-responsive"-->
+                                         <!--src="{% static 'restapi_app/img/documentation/comingsoon.png'%}">-->
+                <!--<div class=half-br></div>-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--<h4><strong>API</strong></h4>-->
+                <!--ADC's REST API provides programmatic access to read (and for survey team members, write) data,-->
+                <!--returning structured responses for you to use in your own code.-->
+
+                <!--Submit an SQL query, access previous query results (with authentication), read the meta data for-->
+                <!--a data product, and more. Responses are available in the popular JSON format, as well as FITS-->
+                <!--and CSV (where appropriate).-->
+
+                <!--ADC plans to document and release its API soon.-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--In Development.-->
+            <!--</td>-->
+        <!--</tr>-->
+
+
+        <!--</tbody>-->
+    <!--</table>-->
+</div>
+</div></div>
 {% endblock %}
 
+{% block footer-extra %}
+<script>
+
+    function box_heights() {
+        console.log('this')
+        $(".box-row").each(function () {
+            var heights, maxHeight;
+            heights = $(this).find(".box .box-contents").map(function () {
+                return $(this).height();
+            }).get();
+            maxHeight = Math.max.apply(null, heights);
+
+            $(this).find(".box").height(maxHeight);
+        })
+    }
+    $(window).load(function () {
+        box_heights()
+    });
+    $(window).resize(function () {
+        box_heights()
+    });
+</script>
+{% endblock %}

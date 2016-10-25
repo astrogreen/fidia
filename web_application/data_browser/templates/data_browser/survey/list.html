@@ -63,13 +63,12 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-map-marker"></i> Data Release
-                            <strong>{{response.data.data_release}}</strong>
+                            <strong class="p_dark">{{response.data.data_release}}</strong>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li class="disabled">
-                                <a href="">{{response.data.data_release}} &nbsp;
-                                    <small class="sub-heading text-uppercase">Current</small>
+                                <a href=""><strong>{{response.data.data_release}} </strong> <em>Latest</em>
                                 </a>
                             </li>
                         </ul>

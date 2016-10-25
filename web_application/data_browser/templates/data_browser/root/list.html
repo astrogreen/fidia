@@ -18,11 +18,12 @@
 <h5>Page Contents</h5>
 <div class="page-contents">
     <ul class="nav nav-pills nav-stacked nav-sidebar">
-        <li role="presentation"><a class="scroll" href="#top-of-page">Data Access</a></li>
-        <li role="presentation"><a href="#what-does-the-data-browser-do" class="scroll">What does the Data
-            Browser do?</a></li>
+        <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
+        <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+        <li role="presentation"><a class="scroll" href="#features">Features</a></li>
     </ul>
 </div>
+<hr>
 <h5>Quick Links</h5>
 <div class="quick-links">
     <ul class="nav-sidebar">
@@ -35,56 +36,81 @@
 {% endblock %}
 
 {% block main %}
-<h2>Discover the survey data products hosted at ADC.</h2>
-<p class="lead">Browse the available survey data products and meta-data on an object-by-object basis.</p>
+<!--<h2 id="overview">Overview</h2>-->
 
-<h3 id="data-access">By Survey</h3>
-<p>Choose a survey from the list below to get started.
+<!--<p class="lead">The Data Browser provides a quick-look at survey-derived data products and associated meta-data on-->
+    <!--an object-by-object basis, and allows users to download individual data products in FITS file-->
+    <!--format.</p>-->
+<h2>Overview</h2>
+<p class="lead">The Data Browser is a portal to all survey data hosted at ADC. Browse survey-derived data products on an object-by-object basis.
     To find detailed descriptions of each survey's data products and derived properties, visit the <a
             href="{% url 'schema:root-list' %}">Schema
-        Browser</a>.</p><br><br>
-<div class="row">
-    {% for value in response.data.surveys %}
-    <div class="col-xs-1 col-sm-offset-1 col-sm-1">
-        <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
-    </div>
-    <div class="col-xs-11 col-sm-9">
-        <h3 class="tool-header">{{value.survey | uppercase}}
-            <small> {{value.count}}
-                objects
-                <span class="version"><i class="fa fa-map-marker"></i> {{value.current_version}} Release</span></small>
-        </h3>
-        {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-        <em>{% include template %}</em>
-        {% endwith %}
-        <div class="half-br"></div>
-        <a href="{{value.survey}}/" class="text-uppercase"><strong>Data Browser for {{value.survey|uppercase}}
-            <i class="fa fa-angle-right"></i></strong></a>
-    </div>
-    <div class="col-xs-12">
-        <br><br>
-    </div>
-    {% endfor %}
+        Browser</a>.</p>
+<p class="lead">Choose a survey from the list below to get started.</p><br>
+<!--<h3 id="data-access">Data Access</h3>-->
+<div>
+
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#survey" aria-controls="survey" role="tab" data-toggle="tab">By Survey</a></li>
+        <li role="presentation" class=""><a href="#astroobject" aria-controls="" role="tab" data-toggle="tab">By Astronomical Object</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content" id="data-access">
+      <div role="tabpanel" class="tab-pane active" id="survey">
+          <br>
+          <div class="row">
+              {% for value in response.data.surveys %}
+              <div class="col-xs-12 col-sm-6 col-md-4">
+                  <a href="{{value.survey}}/" class="box">
+                      <div class="row text-center">
+                          <div class="col-xs-12">
+                              <img class="img-responsive center-block" style="max-width:80px"
+                                   src="/static/restapi_app/img/documentation/{{value.survey}}.png"><br>
+                              <div class="p">{{value.survey | uppercase}}</div>
+                              {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+                              <em class="tiny sub-heading">{% include template %}</em>
+                              {% endwith %}
+                          </div>
+                      </div>
+                  </a>
+              </div>
+              {% endfor %}
+              <div class="col-xs-12 col-sm-6 col-md-4">
+                  <a href="" disabled class="box">
+                      <div class="row text-center">
+                          <div class="col-xs-12">
+                              <img class="img-responsive center-block" style="max-width:80px"
+                                   src="/static/restapi_app/img/documentation/gama.png"><br>
+                              <div class="p">GAMA</div>
+                              {% with "data_browser/root/surveys/"|add:'gama'|add:".html" as template %}
+                              <em class="tiny sub-heading">{% include template %}</em>
+                              {% endwith %}
+                          </div>
+                      </div>
+                  </a>
+              </div>
+          </div>
+       </div>
+      <div role="tabpanel" class="tab-pane" id="astroobject">Coming soon...</div>
+  </div>
+
 </div>
 
-<h3 id="what-does-the-data-browser-do">What does the Data Browser do?</h3>
-<p class="lead">The Data Browser provides a quick-look at survey-derived data products and associated meta-data on
-    an object-by-object basis, and allows users to download individual data products in FITS file
-    format.</p>
-<p>The Data Browser is a portal to all survey data hosted at ADC. Surveys are a collection of astronomical
-    objects with some set of data products. Each astronomical object's components are organised into a
+<h3 id="features">Features</h3>
+<p>Surveys are a collection of astronomical
+    objects, each with a unique set of data products. Each astronomical object's components are organised into a
     tree-like structure, allowing you to discover derived properties and data products, along with any
     associated meta-data.</p>
-<h4>Features</h4>
 <ul class="p">
-    <li>The Data Browser allows users a quick-look at each astronomical object's data products available in this
-        data
-        release, including visualizations, processing information and associated properties.
+    <li>Quick-look at each astronomical object's data products in a particular
+        data release, including visualizations, processing information and associated properties.
     </li>
-    <li>Users can download individual data products as multi-extension FITS
+    <li>Download individual data products as multi-extension FITS
         files, with all relevant processing information contained within the FITS header.
     </li>
-    <li>Users can define a sample of SAMI objects filtering on some
+    <li>Define a sample of SAMI objects filtering on some
         catalogue property.
     </li>
     <li>Data products for this selection can be downloaded for offline use.</li>
@@ -92,4 +118,11 @@
 <br>
 <p>For more information, including articles on Data Browser examples, head over to the <a
         href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a>.</p>
+
+
+
+
+
+
+
 {% endblock %}

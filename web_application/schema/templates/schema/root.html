@@ -13,77 +13,70 @@
 {% block page_title %}Schema Browser{% endblock %}
 {% block page_title_banner_class %}blue{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Documentation</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
-
-<div class="row">
-
-<div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-    <div class="page-contents">
-        <h5>Page Contents</h5>
-        <ul class="nav nav-pills nav-stacked nav-sidebar">
-            <li role="presentation"><a href="#top-of-page" class="scroll">Schema Access</a></li>
-            <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">What does the Schema
-                Browser
-                do?</a></li>
-        </ul>
-    </div>
-        <h5>Quick Links</h5>
-            <ul class="nav-sidebar">
-                {% for value in response.data.surveys %}
-                <li role="presentation"><a href="{{value.survey}}/"><span>Schema Browser for {{value.survey|uppercase}}
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a href="#top-of-page" class="scroll">Schema Access</a></li>
+        <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">What does the Schema
+            Browser
+            do?</a></li>
+    </ul>
+</div>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+    {% for value in response.data.surveys %}
+    <li role="presentation"><a href="{{value.survey}}/"><span>Schema Browser for {{value.survey|uppercase}}
                 <i class="fa fa-angle-right"></i></span></a></li>
-                {% endfor %}
-            </ul>
+    {% endfor %}
+</ul>
+{% endblock %}
+{% block version_container %}
 
+{% endblock %}
+{% block main %}
+<h2>How was that derived?</h2>
+<p class="lead">Find detailed descriptions of the data products available in a survey. </p>
+<h3 id="schema-access">Schema Access</h3>
+<p>Choose a survey from the list below to get started. To
+    view survey data products and derived properties, visit the <a
+            href="{% url 'data_browser:root-list' %}">Data
+        Browser</a>.</p><br><br>
+<div class="row">
+    {% for value in response.data.surveys %}
+    <div class="col-xs-1 col-sm-offset-1 col-sm-1">
+        <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
     </div>
-
-    <div class="col-xs-12 col-sm-9 main-content">
-        <h2>How was that derived?</h2>
-        <p class="lead">Find detailed descriptions of the data products available in a survey. </p>
-        <h3 id="schema-access">Schema Access</h3>
-        <p>Choose a survey from the list below to get started. To
-            view survey data products and derived properties, visit the <a
-                    href="{% url 'data_browser:root-list' %}">Data
-                Browser</a>.</p><br><br>
-        <div class="row">
-            {% for value in response.data.surveys %}
-            <div class="col-xs-1 col-sm-offset-1 col-sm-1">
-                <img class="img-responsive" src="/static/restapi_app/img/documentation/{{value.survey}}.png">
-            </div>
-            <div class="col-xs-11 col-sm-9">
-                <h3 class="tool-header">{{value.survey | uppercase}} <small>{{value.count}}
-                            objects
-                            <span class="version"><i
-                                    class="fa fa-map-marker"></i> {{value.current_version}} Release</span></small></h3>
-                {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-                <em>{% include template %}</em>
-                {% endwith %}<br><div class="half-br"></div>
-                <a href="{{value.survey}}/" class="text-uppercase"><strong>Schema browser for {{value.survey|uppercase}} <i
-                        class="fa fa-angle-right"></i></strong></a>
-            </div>
-            <div class="col-xs-12">
-                <br><br>
-            </div>
-            {% endfor %}
-        </div>
-
-        <h3 id="what-does-the-schema-browser-do">What does the Schema Browser do?</h3>
-        <p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
-            data products hosted at AAODC, the Schema Browser provides a description of those data products and derived
-            properties. The Schema Browser displays an extensive explaination of each type of data product, along with
-            any relevant analysis and publiction information.
-        </p>
-        <p>The Schema Browser reflects the tree-like organisational structure we've adopted here at ADC. Each survey
-            is a collection of astronomical objects with a certain set of properties, and the schema displays astronomical properties available for the selected survey <strong>only</strong>. </p>
-
-        <p>For more information, including articles on Schema Browser examples, head over to the <a
-                    href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. </p>
-        <hr>
-
+    <div class="col-xs-11 col-sm-9">
+        <h3 class="tool-header">{{value.survey | uppercase}} <small>{{value.count}}
+                    objects
+                    <span class="version"><i
+                            class="fa fa-map-marker"></i> {{value.current_version}} Release</span></small></h3>
+        {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+        <em>{% include template %}</em>
+        {% endwith %}<br><div class="half-br"></div>
+        <a href="{{value.survey}}/" class="text-uppercase"><strong>Schema browser for {{value.survey|uppercase}} <i
+                class="fa fa-angle-right"></i></strong></a>
     </div>
+    <div class="col-xs-12">
+        <br><br>
+    </div>
+    {% endfor %}
 </div>
 
+<h3 id="what-does-the-schema-browser-do">What does the Schema Browser do?</h3>
+<p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
+    data products hosted at AAODC, the Schema Browser provides a description of those data products and derived
+    properties. The Schema Browser displays an extensive explaination of each type of data product, along with
+    any relevant analysis and publiction information.
+</p>
+<p>The Schema Browser reflects the tree-like organisational structure we've adopted here at ADC. Each survey
+    is a collection of astronomical objects with a certain set of properties, and the schema displays astronomical properties available for the selected survey <strong>only</strong>. </p>
+
+<p>For more information, including articles on Schema Browser examples, head over to the <a
+            href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. </p>
+<hr>
 {% endblock %}
