@@ -166,7 +166,7 @@ body {
   p.emphasis, .emphasis {
     font-size: 18px;
   }
-  p.lead {
+  p.lead, .lead {
     margin-bottom: 30px;
     font-size:18px;
     font-weight: 200;
@@ -178,6 +178,12 @@ body {
   p.small {
     margin-bottom: 0;
     font-size: 12px;
+  }
+  .sub{
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #47525d;
   }
   .normal {
     font-size: 15px;
@@ -428,6 +434,10 @@ code {
 
       }
     }
+    li > a:hover {
+      text-decoration: underline;
+      background-color: transparent;
+    }
   }
 
   .page-contents {
@@ -555,6 +565,12 @@ code {
     line-height: 1.6;
     color: #47525d;
   }
+  .sub-heading {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #999;
+  }
   div.p {
     color: #4078C0;
     margin-bottom: 15px;
@@ -630,7 +646,7 @@ code {
 }
 
 .bg-warning {
-  background-color: #f1cb76
+  background-color: #faedd1
 }
 
 .text-outline-black {
@@ -766,21 +782,7 @@ header {
   text-transform: uppercase;
   font-size: 11px;
   line-height: 11px;
-  &.transparent {
-    background-color: transparent;
-    border-bottom: 0 solid rgba(0, 0, 0, 0.075);
-  }
-  &.inverted {
-    background: rgba(0, 0, 0, 0.20);
-    color: #fff;
-    border-bottom: 0;
-    li.active a {
-      color: #fff;
-    }
-    li a {
-      color: #ddd;
-    }
-  }
+
 
   .breadcrumb {
     margin-bottom: 0;
@@ -803,6 +805,21 @@ header {
       content: "\f105";
       padding: 0 5px;
       color: #73818c;
+    }
+  }
+  &.transparent {
+    background-color: transparent;
+    border-bottom: 0 solid rgba(0, 0, 0, 0.075);
+  }
+  &.inverted {
+    background: rgba(0, 0, 0, 0.20);
+    color: #fff;
+    border-bottom: 0;
+    li.active a {
+      color: #fff;
+    }
+    li a {
+      color: #ddd;
     }
   }
 
@@ -1251,7 +1268,7 @@ p.breakword {
     margin-bottom: 0;
   }
 }
-
+.well.grey{background-color:#f5f5f5}
 .fa-text-inner {
   font-size: 35% !important;
   margin-top: 10% !important;

@@ -10,6 +10,7 @@ import restapi_app.serializers
 import restapi_app.renderers
 import restapi_app.permissions
 import data_browser.serializers
+import data_browser.views
 
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
@@ -34,33 +35,6 @@ class AvailableTables(views.APIView):
         with open('restapi_app/gama_database.json') as json_d:
             json_data = json.load(json_d)
         return Response(json_data)
-
-
-# class ContactForm(views.APIView):
-#     """
-#     Contact Form
-#     """
-#
-#     permission_classes = (permissions.AllowAny,)
-#     renderer_classes = [renderers.TemplateHTMLRenderer]
-#     template_name = 'restapi_app/support/contact.html'
-#
-#     def get(self, request):
-#         serializer = restapi_app.serializers.ContactFormSerializer
-#
-#         return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
-#
-#     def post(self, request, format=None):
-#         serializer = restapi_app.serializers.ContactFormSerializer(data=request.data)
-#         serializer.is_valid()
-#
-#         if serializer.is_valid():
-#             serializer.send()
-#             serializer_unbound = restapi_app.serializers.ContactFormSerializer
-#             return Response({"email_status": "success", 'serializer': serializer_unbound},
-#                             status=status.HTTP_202_ACCEPTED)
-#
-#         return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_client_ip(request):
@@ -221,14 +195,14 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0,
-                    'data_releases': [1.0, ]}]
+
+        rootview = data_browser.views.RootViewSet()
 
         serializer_class = data_browser.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'surveys': surveys},
+            context={'request': request, 'surveys': rootview.surveys},
         )
 
         return Response(serializer.data)

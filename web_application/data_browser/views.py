@@ -43,24 +43,24 @@ def invert_dict(inverted_dict):
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. Implements List action only.
     Lists all surveys, their current versions and total number of objects in that version. """
+    def __init__(self, *args, **kwargs):
+        self.surveys = [
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": [1.0,]},
+            {"survey": "gama", "count": 0, "current_version": 0},
+            {"survey": "galah", "count": 0, "current_version": 0}
+        ]
 
     renderer_classes = (data_browser.renderers.RootRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
-        surveys = [
-            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
-            {"survey": "gama", "count": 0, "current_version": 0},
-            {"survey": "galah", "count": 0, "current_version": 0}
-        ]
-
         self.breadcrumb_list = ['Data Browser']
 
         serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
             many=False, instance=sami_dr1_sample,
-            context={'request': request, 'surveys': surveys},
+            context={'request': request, 'surveys': self.surveys},
         )
         return Response(serializer.data)
 

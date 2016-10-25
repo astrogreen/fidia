@@ -17,7 +17,7 @@
 
 {% block page_title_banner %}{% endblock page_title_banner %}
 
-{% block content_render %}
+{% block no_sidebar %}
     {% if display_edit_forms %}
     <br>
     <div class="row">
@@ -52,7 +52,7 @@
                             <ul class="list-group">
                                 <li class="list-group-item">
                                     <!--<span class="badge"><i class="fa fa-history"></i></span>-->
-                                    <a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query
+                                    <a href="{% url 'under-construction' %}" title="Re-visit previous queries.">Query
                                         History</a>
                                 </li>
                                 <li class="list-group-item">

@@ -18,8 +18,7 @@
 <h5>Page Contents</h5>
 <div class="page-contents">
     <ul class="nav nav-pills nav-stacked nav-sidebar">
-        <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
-        <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+        <li role="presentation"><a class="scroll" href="#top-of-page">Data Browser Access</a></li>
         <li role="presentation"><a class="scroll" href="#features">Features</a></li>
     </ul>
 </div>
@@ -77,11 +76,12 @@ Choose a survey to get started.</p>
                       <div class="box-contents text-justify">
                           <img class="img-responsive center-block" style="max-width:80px"
                                src="/static/restapi_app/img/documentation/{{value.survey}}.png"><br>
-                          <div class="p text-center">{{value.survey | uppercase}}</div>
-                          {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-                          <span class="sub">{% include template %}</span>
-                          {% endwith %}
+                          <div class="lead p text-center">{{value.survey | uppercase}}</div>
+                          <div class="sub text-center"><span class="sub-heading">{{value.count}} objects</span></div>
 
+                          {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+                          <!--<span class="sub">{% include template %}</span>-->
+                          {% endwith %}
                           {% if value.current_version == 0%}
                           <span class="status btn-xs btn-default"><i
                                   class="fa fa-hourglass-half"></i> in progress</span>

@@ -50,7 +50,6 @@
                 </a>
             </div>
         </div>
-        <p>Find out more about a particular topic. </p>
     </div>
 </div>
 {% endblock page_title_banner %}
@@ -61,17 +60,9 @@
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
 {% endblock useful_links %}
 
-{% block content-navigator-help %}
-    {% if not response.data.results %}
-        <a href="{% url 'documentation:topic-list' %}" class=""><i class="fa fa-reply"></i> Back to Help Center</a>
-    {% endif %}
-{% endblock %}
 
-{% block content_render %}
-<div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents" data-spy="affix">
-            <div class="page-contents">
+{% block sidebar %}
+<div class="page-contents">
                 {% if response.data.results %}
                 <h5>Topics</h5>
                 <ul class="nav nav-pills nav-stacked nav-sidebar" id="docs-sidebar">
@@ -97,13 +88,16 @@
                 {% endfor %}
             </ul>
             {% endif %}
+{% endblock %}
+{% block version_container %}
+{% if not response.data.results %}
 
-        </div>
-    </div>
-
-    <div class="col-xs-12 col-sm-9 main-content">
-         {% if response.data.results %}
-            <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
+       <li> <a href="{% url 'documentation:topic-list' %}" class=""><i class="fa fa-reply"></i> Back to Help Center</a></li>
+    {% endif %}
+{% endblock %}
+{% block main %}
+{% if response.data.results %}
+            <p class="lead">Choose a category to find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
             {% for topic in response.data.results %}
                 {% if not topic.hidden %}
                 <h2 id="{{topic.title|slug}}" class="no-margin-top">
@@ -186,10 +180,9 @@
             </div>
         </div>
         {% endif %}
-    </div>
-</div>
-
 {% endblock %}
+
+
 {% block footer-extra %}
     {% if response.data.results %}
         <script>
