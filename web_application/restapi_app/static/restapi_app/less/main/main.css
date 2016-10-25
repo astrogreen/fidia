@@ -39,7 +39,7 @@ body h1 {
   font-weight: 300;
   font-size: 30px;
   line-height: 40px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   margin-top: 30px;
 }
 body h1.tool-heading {
@@ -50,15 +50,16 @@ body h1.tool-heading {
 body h2 {
   font-size: 22px;
   font-weight: 300;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 20px !important;
-}
-body h2.no-border {
-  border: 0;
+  margin-bottom: 20px;
+  font-weight: 400;
+  font-size: 28px;
 }
 body h3 {
   font-size: 20px;
   line-height: 40px;
+  border-bottom: solid 1px #eeeeee;
+  margin-top: 30px;
+  margin-bottom: 15px;
 }
 body h3 .header-link {
   line-height: 40px;
@@ -121,6 +122,7 @@ body .emphasis {
 body p.lead {
   margin-bottom: 30px;
   font-size: 18px;
+  font-weight: 200;
 }
 body p.heading {
   margin-bottom: 5px;
@@ -202,6 +204,15 @@ a.sub-heading {
   vertical-align: middle;
   float: none;
 }
+.vtop {
+  display: inline-block;
+  vertical-align: top;
+  float: none;
+}
+.vtop h2,
+.vtop img {
+  margin-top: 20px;
+}
 .more-padding {
   padding: 30px;
 }
@@ -270,6 +281,9 @@ code {
   line-height: 1.2 !important;
   margin-bottom: 5px !important;
 }
+.survey-logo {
+  max-width: 120px;
+}
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++ SIDEBAR
@@ -296,6 +310,7 @@ code {
   padding: 0px;
   padding-top: 45px;
   padding-bottom: 15px;
+  border-right: solid 1px #eeeeee;
 }
 .sidebar hr {
   margin-right: 15px;
@@ -334,7 +349,7 @@ code {
   font-weight: normal;
   vertical-align: middle;
   padding: 0 15px;
-  line-height: 13px;
+  line-height: 15px;
   display: block;
   word-wrap: break-word;
 }
@@ -389,40 +404,12 @@ code {
   text-decoration: none;
   background-color: transparent;
 }
-.sidebar h2 {
-  border-bottom: rgba(168, 59, 58, 0.2) dotted 1px;
-  font-weight: 100;
-}
 .main-content {
   padding: 45px;
   max-width: 1200px;
   background-color: #ffffff;
   border-right: solid 1px #eeeeee;
   border-bottom: solid 1px #eeeeee;
-}
-.main-content h2 {
-  font-size: 28px;
-  padding-top: 0;
-  margin-top: 15px;
-  margin-bottom: 15px;
-  border-bottom: 0;
-  line-height: 34px;
-}
-.main-content h3 {
-  margin-top: 30px;
-  margin-bottom: 15px;
-  font-size: 18px;
-  font-weight: bold;
-  border-bottom: solid 1px #eeeeee;
-}
-.main-content h4 {
-  font-size: 14px;
-  line-height: 20px;
-  margin-top: 45px;
-  margin-bottom: 20px;
-}
-.main-content h4 i {
-  font-size: 16px;
 }
 #page-content {
   padding: 0 15px;
@@ -464,11 +451,11 @@ code {
   display: block;
   position: relative;
   min-height: 150px;
-  padding: 15px;
   padding: 30px;
   font-size: 13px;
   line-height: 13px;
   transition: all 0.3s ease-in-out;
+  margin-top: 15px;
 }
 .box span.sub {
   font-size: 13px;
@@ -709,17 +696,6 @@ header .user a > a {
   padding: 0;
   background-color: #f9f9f9;
 }
-.version-content .version-container {
-  width: 100%;
-  margin-bottom: 0;
-  background-color: #f9f9f9;
-  min-height: 36px;
-  margin-top: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.075);
-  border-left: 0;
-  font-size: 11px;
-  line-height: 11px;
-}
 .version-content .navigation_btn_group .btn {
   background-color: rgba(255, 255, 255, 0.9);
   padding-top: 15px;
@@ -734,6 +710,9 @@ header .user a > a {
 .version-content .navigation_btn_group .btn strong {
   color: #404040;
 }
+.version-content .navigation_btn_group .btn-group:last-child {
+  margin-right: -15px;
+}
 .version-content .navigation_btn_group .btn-group:last-child .btn {
   border-right: 1px solid rgba(0, 0, 0, 0.095);
 }
@@ -746,6 +725,7 @@ header .user a > a {
 }
 .version-content .navigation_btn_group .dropdown-menu li > a {
   padding: 3px 10px;
+  text-transform: none;
   font-size: 11px;
   min-width: 35px;
   word-wrap: break-word;
@@ -1630,6 +1610,11 @@ table.table > thead > tr > th {
   color: #333;
   font-weight: 400;
   line-height: 1.6;
+}
+.table td.lead {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.4;
 }
 .table > thead > tr > td.active,
 .table > tbody > tr > td.active,

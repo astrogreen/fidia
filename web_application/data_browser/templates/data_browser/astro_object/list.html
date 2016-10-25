@@ -20,19 +20,22 @@
     <ul class="nav nav-pills nav-stacked nav-sidebar">
         <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
     </ul>
-</div>
+</div><hr>
 <h5>Quick Links</h5>
 <ul class="nav-sidebar">
-    <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> Schema
-        Browser</a></li>
-    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a>
-    </li>
-    {% if breadcrumblist %}
+
+     {% if breadcrumblist %}
     {% with breadcrumblist|length|add:"-2" as b %}
     <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
         {{breadcrumblist|key:b|key:0}}</a></li>
     {% endwith %}
     {% endif %}
+
+    <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema
+        Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}">{{survey|uppercase}} Documentation</a>
+    </li>
+
 </ul>
 
 {% endblock %}
@@ -40,11 +43,8 @@
 
 {% endblock %}
 {% block main %}
-<div class="col-sm-2 col-xs-6 pull-right">
-    <img class="img-responsive sami-logo"  src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-</div>
-<h2>{{survey|uppercase}} {{astro_object}}</h2>
-<div>
+
+{% include "data_browser/layout/title.html" with db_title=astro_object %}
 
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">

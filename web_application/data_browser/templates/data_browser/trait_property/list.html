@@ -25,11 +25,10 @@
     <ul class="nav nav-pills nav-stacked nav-sidebar">
         <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
     </ul>
-</div>
+</div><hr>
 <h5>Quick Links</h5>
 <ul class="nav-sidebar">
     {% if breadcrumblist %}
-
     {% with breadcrumblist|length|add:"-2" as b %}
     <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
         {{breadcrumblist|key:b|key:0}}</a></li>
@@ -46,11 +45,8 @@
 
 {% endblock %}
 {% block main %}
-<div class="col-sm-2 pull-right">
-    <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-</div>
-<h2>{{survey|uppercase}} {{astro_object}} {{trait_pretty_name}} <br>{{subtrait_pretty_name}}
-    {{response.data.pretty_name}}</h2>
+
+{% include "data_browser/layout/title.html" with db_title=astro_object|add:" "|add:trait_pretty_name|add:" "|add:subtrait_pretty_name|add:" "|add:response.data.pretty_name %}
 
 <div class="row">
     <div class="col-xs-12 col-sm-8 documentation_fidia">

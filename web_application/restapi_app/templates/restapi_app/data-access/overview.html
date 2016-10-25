@@ -338,26 +338,3 @@
 </div></div>
 {% endblock %}
 
-{% block footer-extra %}
-<script>
-
-    function box_heights() {
-        console.log('this')
-        $(".box-row").each(function () {
-            var heights, maxHeight;
-            heights = $(this).find(".box .box-contents").map(function () {
-                return $(this).height();
-            }).get();
-            maxHeight = Math.max.apply(null, heights);
-
-            $(this).find(".box").height(maxHeight);
-        })
-    }
-    $(window).load(function () {
-        box_heights()
-    });
-    $(window).resize(function () {
-        box_heights()
-    });
-</script>
-{% endblock %}

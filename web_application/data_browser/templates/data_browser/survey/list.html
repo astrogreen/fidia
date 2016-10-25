@@ -31,50 +31,49 @@
         <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
         <li role="presentation"><a class="scroll" href="#help">Help</a></li>
     </ul>
-</div>
+</div><hr>
 <div class="quick-links">
     <h5>Quick Links</h5>
     <ul class="nav-sidebar">
+
+        {% if breadcrumblist %}
+        {% with breadcrumblist|length|add:"-2" as b %}
         <li>
-            <a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> Schema
-                Browser</a>
+        <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+            {{breadcrumblist|key:b|key:0}}</a>
+        </li>
+        {% endwith %}
+        {% endif %}
+        <li>
+            <a class="" target="_blank" href="{% url survey %}"> {{survey|uppercase}} DR
+                            {{response.data.data_release}} details</a>
+        </li>
+        <li>
+            <a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> {{survey|uppercase}} Schema
+                Browser </a>
         </li>
 
-        <li>
-            {% if breadcrumblist %}
-            {% with breadcrumblist|length|add:"-2" as b %}
-            <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
-                {{breadcrumblist|key:b|key:0}}</a>
-            {% endwith %}
-            {% endif %}
-        </li>
+
     </ul>
 </div>
 {% endblock %}
 
 {% block version_container %}
-<div class="col-xs-12 col-sm-10 version-content">
-
-    <div class="version-container">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 text-right">
-                <div class="btn-group navigation_btn_group" role="group">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-map-marker"></i> Data Release
-                            <strong class="p_dark">{{response.data.data_release}}</strong>
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li class="disabled">
-                                <a href=""><strong>{{response.data.data_release}} </strong> <em>Latest</em>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+<div class=" version-content">
+    <div class="btn-group navigation_btn_group" role="group">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-map-marker"></i> Data Release
+                <strong class="p_dark">{{response.data.data_release}}</strong>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li class="disabled">
+                    <a href=""><strong>{{response.data.data_release}} </strong> <em>Latest</em>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
@@ -83,15 +82,14 @@
 {% block main %}
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 
-<div class="col-sm-2 col-xs-4 pull-right">
-<img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-</div>
-<h2>{{survey|uppercase}} Data Release {{response.data.data_release}}</h2>
-<h3 id="overview">Overview</h3>
+{% with response.data.data_release|stringformat:"s" as data_release %}
+{% include "data_browser/layout/title.html" with db_title=survey|uppercase|add:" Data Release "|add:data_release %}
+{% endwith %}
+
 <div class="panel panel-default" style="margin-top:20px;">
-    <div class="panel-heading">
-        Data Release {{response.data.data_release}}
-    </div>
+    <!--<div class="panel-heading">-->
+        <!--Data Release {{response.data.data_release}}-->
+    <!--</div>-->
     <div class="table-responsive">
         <table class="table table-overview">
             <tbody>
@@ -102,27 +100,22 @@
                 </td>
                 <td class="lead">{{response.data.data_release}}</td>
                 <td class="lead">{{response.data.astro_objects | length}}</td>
-                <td class="lead"><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema</a></td>
+                <td class="lead"><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a></td>
             </tr>
-            <tr class="large">
-                <td>PI</td>
-                <td>Data Release Number</td>
-                <td>Number of Objects</td>
-                <td>Schema Browser</td>
-            </tr>
+
             <tr class="medium">
 
-                <td>
-                    <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
+                <td class="p_light">
+                    Principal Investigator for the {{survey|uppercase}} survey.
                 </td>
-                <td>
-                    <small>This data release</small>
+                <td class="p_light">
+                    Data Release Number
                 </td>
-                <td>
-                    <small>The total number of objects in this data release.</small>
+               <td class="p_light">
+                  The total number of objects in this data release.
                 </td>
-                <td>
-                    <small>The Schema Browser describes the SAMI survey data products.</small>
+                <td class="p_light">
+                    The Schema Browser describes the SAMI survey data products.
                 </td>
             </tr>
             </tbody>

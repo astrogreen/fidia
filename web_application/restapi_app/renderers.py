@@ -47,10 +47,6 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
     add in get_astroobj name
     """
 
-    def __init__(self, *args, **kwargs):
-        self.show_api = False
-        super().__init__()
-
     def get_astro_object_name(self, request):
         """
         Return the astro object name
@@ -121,7 +117,11 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
 
             'display_edit_forms': bool(response.status_code != 403),
 
-            'api_settings': api_settings
+            'api_settings': api_settings,
+
+            'show_api': False
+
+
         }
         return context
 

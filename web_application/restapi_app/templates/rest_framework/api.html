@@ -62,11 +62,15 @@
                     {% endfor %}
                   {% endif %}
                 {% endblock %}
+
+                <div class="pull-right">
+                  {% block version_container %}
+                  {% endblock %}
+                </div>
               </ul>
-            </div>
-            <div class="col-xs-12 col-sm-12 text-right">
 
             </div>
+
           </div>
         </div>
       {% endblock %}
@@ -125,8 +129,7 @@
                     </div>
                   </div>
                   {% endblock %}
-                  {% block version_container %}
-                  {% endblock %}
+
                   {% block main_container %}
                   <div class="col-xs-12 col-sm-10 main-content">
                     {% block main %}
@@ -136,6 +139,7 @@
                   {% endblock %}
                 {% endblock %}
               </div>
+
               {% if show_api %}
                 {% block content_api %}
                   <!-- API Content -->

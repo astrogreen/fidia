@@ -49,7 +49,11 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, pk=None, format=None):
         # Request available samples from FIDIA
-        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0}]
+        surveys = [
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0},
+            {"survey": "gama", "count": 0, "current_version": 0},
+            {"survey": "galah", "count": 0, "current_version": 0}
+        ]
 
         self.breadcrumb_list = ['Data Browser']
 

@@ -27,26 +27,34 @@
 <h5>Quick Links</h5>
 <div class="quick-links">
     <ul class="nav-sidebar">
+
+         <li>
+            {% if breadcrumblist %}
+            {% with breadcrumblist|length|add:"-2" as b %}
+            <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+                {{breadcrumblist|key:b|key:0}}</a>
+            {% endwith %}
+            {% endif %}
+        </li>
+        <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser Documentation</a></li>
         {% for value in response.data.surveys %}
-        <li role="presentation"><a href="{{value.survey}}/"><span>Data Browser for {{value.survey|uppercase}}
-            <i class="fa fa-angle-right"></i></span></a></li>
+        {% if value.current_version != 0%}
+        <!--<li role="presentation"><a href="{{value.survey}}/"><span>Data Browser for {{value.survey|uppercase}}-->
+            <!--<i class="fa fa-angle-right"></i></span></a></li>-->
+        {% endif %}
         {% endfor %}
+        <li><a href="{% url 'schema:root-list' %}">Schema
+            Browser</a></li>
+
     </ul>
 </div>
 {% endblock %}
 
 {% block main %}
-<!--<h2 id="overview">Overview</h2>-->
+<h2 class="text-center"> Browse survey-derived data products on an object-by-object basis.</h2>
+<p class="lead text-center">
 
-<!--<p class="lead">The Data Browser provides a quick-look at survey-derived data products and associated meta-data on-->
-    <!--an object-by-object basis, and allows users to download individual data products in FITS file-->
-    <!--format.</p>-->
-<h2>Overview</h2>
-<p class="lead">The Data Browser is a portal to all survey data hosted at ADC. Browse survey-derived data products on an object-by-object basis.
-    To find detailed descriptions of each survey's data products and derived properties, visit the <a
-            href="{% url 'schema:root-list' %}">Schema
-        Browser</a>.</p>
-<p class="lead">Choose a survey from the list below to get started.</p><br>
+Choose a survey to get started.</p>
 <!--<h3 id="data-access">Data Access</h3>-->
 <div>
 
@@ -59,39 +67,39 @@
   <!-- Tab panes -->
   <div class="tab-content" id="data-access">
       <div role="tabpanel" class="tab-pane active" id="survey">
-          <br>
-          <div class="row">
-              {% for value in response.data.surveys %}
+          {% for value in response.data.surveys %}
+              {% if forloop.first %}
+              <div class="row box-row">
+              {% endif %}
               <div class="col-xs-12 col-sm-6 col-md-4">
-                  <a href="{{value.survey}}/" class="box">
-                      <div class="row text-center">
-                          <div class="col-xs-12">
-                              <img class="img-responsive center-block" style="max-width:80px"
-                                   src="/static/restapi_app/img/documentation/{{value.survey}}.png"><br>
-                              <div class="p">{{value.survey | uppercase}}</div>
-                              {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
-                              <em class="tiny sub-heading">{% include template %}</em>
-                              {% endwith %}
-                          </div>
+                  <a href="{% if value.current_version != 0%}{{value.survey}}/{% endif %}"
+                     class="box {% if value.current_version == 0%}disabled{% endif%}">
+                      <div class="box-contents text-justify">
+                          <img class="img-responsive center-block" style="max-width:80px"
+                               src="/static/restapi_app/img/documentation/{{value.survey}}.png"><br>
+                          <div class="p text-center">{{value.survey | uppercase}}</div>
+                          {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+                          <span class="sub">{% include template %}</span>
+                          {% endwith %}
+
+                          {% if value.current_version == 0%}
+                          <span class="status btn-xs btn-default"><i
+                                  class="fa fa-hourglass-half"></i> in progress</span>
+                          {% else %}
+                          <span class="status btn-xs btn-default text-success"> <i class="fa fa-map-marker"></i> {{value.current_version}}</span>
+                          {% endif%}
                       </div>
                   </a>
               </div>
-              {% endfor %}
-              <div class="col-xs-12 col-sm-6 col-md-4">
-                  <a href="" disabled class="box">
-                      <div class="row text-center">
-                          <div class="col-xs-12">
-                              <img class="img-responsive center-block" style="max-width:80px"
-                                   src="/static/restapi_app/img/documentation/gama.png"><br>
-                              <div class="p">GAMA</div>
-                              {% with "data_browser/root/surveys/"|add:'gama'|add:".html" as template %}
-                              <em class="tiny sub-heading">{% include template %}</em>
-                              {% endwith %}
-                          </div>
-                      </div>
-                  </a>
+              {% if forloop.counter|divisibleby:3 %}
+              </div><div class="row box-row">
+              {% endif %}
+              {% if forloop.last %}
               </div>
-          </div>
+              {% endif %}
+
+          {% endfor %}
+
        </div>
       <div role="tabpanel" class="tab-pane" id="astroobject">Coming soon...</div>
   </div>
@@ -103,6 +111,7 @@
     objects, each with a unique set of data products. Each astronomical object's components are organised into a
     tree-like structure, allowing you to discover derived properties and data products, along with any
     associated meta-data.</p>
+<p>The data browser tool provides the following functionality:</p>
 <ul class="p">
     <li>Quick-look at each astronomical object's data products in a particular
         data release, including visualizations, processing information and associated properties.
