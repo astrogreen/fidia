@@ -45,7 +45,7 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     Lists all surveys, their current versions and total number of objects in that version. """
     def __init__(self, *args, **kwargs):
         self.surveys = [
-            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": [1.0,]},
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {}},
             {"survey": "gama", "count": 0, "current_version": 0},
             {"survey": "galah", "count": 0, "current_version": 0}
         ]
@@ -77,7 +77,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
     serializer_class = data_browser.serializers.DownloadSerializer
 
     def __init__(self, *args, **kwargs):
-        self.catalog = ''
+        self.catalog = self.traits = ''
 
     def list(self, request, pk=None, survey_pk=None, format=None, extra_keyword=None):
 
@@ -97,6 +97,8 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
 
         # Context (for html page render)
         self.catalog = json.dumps(sami_dr1_sample.get_feature_catalog_data())
+        self.traits = ar.full_schema(include_subtraits=False, data_class='non-catalog', combine_levels=None,
+                                              verbosity='descriptions', separate_metadata=True)
 
         # Endpoint-only
         serializer_class = data_browser.serializers.SurveySerializer
@@ -115,28 +117,28 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
 
         # product_list will look like the following:
         #
-        #    {
-        #        "SAMI": [
-        #            {
-        #                "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
-        #                "trait_key_arr": [
-        #                    "velocity_map",
-        #                    "ionized_gas",
-        #                    "recom_comp",
-        #                    "V02"
-        #                ]
-        #            },
-        #            {
-        #                "trait_key": "extinction_map--recom_comp-V02",
-        #                "trait_key_arr": [
-        #                    "extinction_map",
-        #                    "null",
-        #                    "recom_comp",
-        #                    "V02"
-        #                ]
-        #            }
-        #        ]
-        #    }
+           # {
+           #     "SAMI": [
+           #         {
+           #             "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+           #             "trait_key_arr": [
+           #                 "velocity_map",
+           #                 "ionized_gas",
+           #                 "recom_comp",
+           #                 "V02"
+           #             ]
+           #         },
+           #         {
+           #             "trait_key": "extinction_map--recom_comp-V02",
+           #             "trait_key_arr": [
+           #                 "extinction_map",
+           #                 "null",
+           #                 "recom_comp",
+           #                 "V02"
+           #             ]
+           #         }
+           #     ]
+           # }
 
         trait_path_list = []
         for obj, product in itertools.product(object_list, product_list['SAMI']):
@@ -147,13 +149,13 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
                 trait_key_array[trait_key_array.index("null")] = None
 
             trait_path = {
-                'survey': 'SAMI',
+                'sample': 'SAMI',
                 'object_id': obj,
                 'trait_path': [TraitKey(*trait_key_array)]
             }
 
             trait_path_list.append(trait_path)
-
+        print(trait_path_list)
         tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
 
         response = StreamingHttpResponse(tar_stream, content_type='application/gzip')

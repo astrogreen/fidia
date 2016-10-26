@@ -126,153 +126,9 @@
                 </div>
             </div>
             <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="pull-right question tiny"><i class="fa fa-question-circle"></i> What is a branch?</a>
-            <table class="table table-condensed table-bordered" > 
-                <colgroup> 
-                    <col align="center" width="25%"/>
-                     
-                    <col align="center" width="25%"/>
-                     
-                    <col align="center" width="50%"/>
-                     
-                </colgroup>
-                 <thead>
-                <tr class="active">
-                    <td class="form-inline" style="vertical-align: middle;">
-                        <strong>Product Type</strong>
-                        <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
-                                                    data-toggle="popover" data-trigger="hover click"
-                                                    data-placement="top"
-                                                    data-content="View the default branch for this data product."
-                                                    data-original-title="" title=""><i
-                                class="fa fa-info-circle"></i></a></span>
-                        <input type="text" class="search form-control" id="product_search" placeholder="Filter Products..." style="margin-left:5%;">
-                    </td>
-                    <td style="vertical-align: middle;">
-                        <strong>Branch</strong>
-                        <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
-                                                    data-toggle="popover" data-trigger="hover click"
-                                                    data-placement="top"
-                                                    data-content="Alternatively, choose a specific branch from the dropdown. The default branch for each product is denoted by an asterisk (*)."
-                                                    data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
 
-                    </td>
-                    <td style="vertical-align: middle;">
-                        <strong>Download</strong>
-                        <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
-                                                    data-toggle="popover" data-trigger="hover click"
-                                                    data-placement="top"
-                                                    data-content="Download the default branch and version for this data product in a variety of formats."
-                                                    data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
-                    </td>
-                </tr>
-            </thead>
 
-            <tbody id="product_menu"> 
-
-                {% for trait_type_key, trait_type_value in response.data.traits.trait_types.items %}
-                <tr data-trait-type-key="{{trait_type_key}}" class="bg-success">
-                    <td colspan="3">
-                        <h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span>
-                            <!--Hack as trait_type descriptions don't exist on the schema on the trait-type, but rather on the trait-type-qualifier:branch(version)-->
-                            {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                                {% if forloop.first %}
-                                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                        {% if forloop.first %}
-                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                {% if forloop.first %}
-                                                    {% with trait_version_value.trait as value %}
-                                                        {% if value.description %}
-                                                            <span class="sub-heading tiny" style="font-weight:400"><em>{{value.description|safe}}</em></span>
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                        </h6>
-                    </td>
-                </tr>
-                {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                    <tr data-trait-type-key="{{trait_type_key}}">
-                        <td>
-                            <li><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_anchor">
-                                <span class="text-info"> {{trait_qualifier_value.pretty_name}}
-                                {% if not trait_qualifier_value.pretty_name %}
-                                    {{trait_type_value.pretty_name}}
-                                {% endif %}
-                                </span>
-                            </a>
-                            {% if trait_qualifier_value.description != None %}
-                            <div class="p">{{trait_qualifier_value.description}}</div>
-                            {%endif%}</li>
-                        </td>
-                        <td>
-                            <div class="btn-group branch_dropdown" role="group" aria-label="Available branches.">
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <span class="sub-heading tiny"><i class="fa fa-code-fork"></i> Branch</span>
-                                        <i class="fa fa-caret-down"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-
-                                            <!--Default branch, and the default version for that branch, are set as active-->
-                                            <li class="tiny">
-                                                <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}/"
-                                                   data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
-                                                    <strong> {{trait_branch_value.pretty_name}}{% if trait_qualifier_value.default_branch == trait_branch_key %}*{% endif %}</strong>
-                                                    <em class="">{{trait_branch_value.description}}</em>
-                                                </a>
-                                            </li>
-                                        {% if not forloop.last %}
-                                        <li role="separator" class="divider"></li>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                {% if forloop.first %}
-                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                        {% if forloop.first %}
-                                            {% with trait_version_value.trait as value %}
-
-                                                {% for f in value.export_formats %}
-                                                    <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format={{f|lowercase}}" class="btn btn-default btn-xs">
-                                                        <span class="fa-custom-stack">
-                                                          <i class="fa fa-file-o"></i>
-                                                            <span class="fa-custom-filetype">{{f}}</span>
-                                                        </span>{{f}}
-                                                    </a>
-                                                {% endfor %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                            <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}?format=json" class="btn btn-default btn-xs">
-                                <span class="fa-custom-stack">
-                                  <i class="fa fa-file-o"></i>
-                                    <span class="fa-custom-filetype">json</span>
-                                </span>json
-                            </a>
-
-                            <!--<add-download-button url='{{value.url}}' options='' formats='{{value.formats}}' prettyname="{{value.pretty_name}}"></add-download-button>-->
-                        </td>
-                    </tr>
-                {% endfor %}
-
-                {% endfor %}
-                 
-                </tbody>
-                 
-            </table>
+            {% include 'data_browser/available_products/root.html' with traits=response.data.traits single=True %}
 
             <hr>
 
@@ -287,61 +143,7 @@
 <script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
 <script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>
 
-<script>
-    $('#product_search').on('keyup', function(){
-        //reset all
-        $('#product_menu tr').each(function(){
-            $(this).show();
-        })
-        var search_value = $(this).val().toLowerCase();
 
-        if (!!search_value){
-            // if there is a search value in the input box
-            $('#product_menu tr').each(function(){
-                // hide everything
-                $(this).hide();
-            })
-
-            $('#product_menu tr h6').each(function () {
-                // iterate over the h6 headers  - if present, show all associated anchors with the data-trait-type-key attribute
-
-                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
-
-                    // if the search value is found
-                    // get all tr with the same data-trait-type-key attribute
-                    var _trait_type_key = $(this).closest('tr').attr('data-trait-type-key');
-                    $('#product_menu tr').each(function () {
-                        // show these (effectively searching in the h6 and anchors simulataneously)
-                        if ($(this).attr('data-trait-type-key') == _trait_type_key) {
-                            $(this).show();
-                        }
-                    })
-                }
-            });
-
-            $('#product_menu tr a.trait_anchor').each(function () {
-                // iterate over anchor text - if present, show associated h6 heading
-
-                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
-                    // if the search value is found
-                    // show only parent h6 with same attribute
-                    var _trait_type_key = $(this).parent('tr').attr('data-trait-type-key');
-                    // show the anchor's parent tr
-                    $(this).closest('tr').show();
-
-                    $('#product_menu tr').each(function () {
-                        // show these (effectively searching in the h6 and anchors simulataneously)
-                        if ($(this).find('h6').length && $(this).attr('data-trait-type-key') == _trait_type_key) {
-                            $(this).show();
-                        }
-                    })
-                }
-            });
-        }
-    });
-
-
-</script>
 
 {% endblock %}
 

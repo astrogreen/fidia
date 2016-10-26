@@ -1,0 +1,29 @@
+<script>
+    function get_trait_keys() {
+//        "trait_key_arr": [
+//        "extinction_map",
+//          "null",
+//         "recom_comp",
+//          "V02"
+//        ]
+        var _trait_key_arr = [];
+        $('input[name="add_to_download"]:checked').each(function () {
+
+            $('#select_' + this.value +" :selected").map(function (i, el) {
+
+                _trait_key_arr.push({"trait_key_arr":JSON.parse($(el).val())});
+            });
+        });
+
+        $('#download_button').attr('data-products', JSON.stringify({'SAMI':_trait_key_arr}));
+        return _trait_key_arr
+    }
+
+    $('.selectpicker').on('changed.bs.select', function (e) {
+        get_trait_keys();
+    });
+    $('input[name="add_to_download"]').on('change', function (e) {
+        get_trait_keys();
+    })
+
+</script>
