@@ -83,8 +83,7 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
     var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user) - 1];
 
     if ($('#data-range').length>0){
-        // console.log(_Zmin)
-        // console.log(_Zmax)
+
         // $("#data-range").html( _Zmin.toPrecision(8) + "  - " + _Zmax.toPrecision(8));
         if (_Zmin != 0.0){
             $("#lv").html( _Zmin.toPrecision(6));

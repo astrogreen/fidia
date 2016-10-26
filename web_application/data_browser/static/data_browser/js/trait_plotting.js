@@ -1,7 +1,7 @@
 function trait_plot(trait_url, trait_name, map_selector, options_selector) {
     var zmin = 0.01;
     var zmax = 0.99;
-
+    var options_selector = 'extensions-select';
     function changePlotData(data, array_index, zmin, zmax) {
         // If single component
         var trait_data = data;
@@ -39,7 +39,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                     if (a == 0) {
                         checked = 'checked'
                     }
-                    $('#'+options_selector).append('<div class="radio"> <label> <input type="radio" disabled name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
+                    $('#'+options_selector).append('<div class="radio"> <label> <input type="radio" name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
                 }
                 changePlotData(trait_value.value, 0, zmin, zmax);
 
@@ -50,9 +50,10 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                         changePlotData(trait_value.value, array_index, zmin, zmax);
                     });
                 }
-
             } else {
                 changePlotData(trait_value.value, null, zmin, zmax);
+                $('.extensions').hide();
+
             }
 
             // SLIDER
@@ -70,7 +71,6 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                             // $("#lv").attr('value', ui.values[0]);
                         },
                         stop: function(event, ui) {
-                            console.log('stop');
                             var array_index = null;
                             // if multiple extensions, get the currently selected option.
                             if ($("input[name=optionsRadios]").length > 0){
