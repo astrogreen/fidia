@@ -119,7 +119,7 @@
                                 on branches,
                                 <a class="disabled" disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
                                     view the documentation.</a><br>
-                                <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
+                                <a href="" role="button" class="hide_this_message pull-right">Hide this message</a>
                             </div>
                         </div>
                     </div>
@@ -571,8 +571,8 @@
         });
 
         // Hide branch warning message
-        $('.branch_warning_button').click(function(){
-            $('.branch_warning').hide();
+        $('.hide_this_message').click(function(){
+            $('.hide_this_message').hide();
         });
 
 

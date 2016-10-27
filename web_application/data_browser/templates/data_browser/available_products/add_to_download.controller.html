@@ -1,29 +1,129 @@
 <script>
+
+    function error_check() {
+        /*
+         *  Check for any errors in the objects DataTable and the Data Products table.
+         */
+
+
+        // reset all error/warning panels
+        $('#download_errors, #download_warnings').hide().html('');
+
+        $('#download_button').attr('disabled', false);
+
+        // get data list (stored on button as data attributes)
+        var data_download = {
+            'products': $('#download_button').attr("data-products"),
+            'objects': $('#download_button').attr("data-objects")
+        };
+
+        // check for incomplete fields
+        var _products = data_download['products'];
+        //console.log('products: '+_products.length);
+        try {
+            _products = JSON.parse(_products);
+
+            //console.log('parsed products: '+typeof _products);
+            //console.log(_products);
+
+            if (typeof _products != "undefined") {
+                try {
+                    _products = _products['SAMI'];
+                    //console.log('SAMI parsed products: '+typeof _products);
+                    //console.log('SAMI parsed products: '+_products.length);
+                }
+                catch (e) {
+                    // ignore
+                }
+            }
+        }
+        catch (e) {
+            // ignore
+        }
+
+        // append error panels
+        var _errors = '';
+
+        function create_panel(message) {
+            return '<div class="panel panel-default error"> <div class="panel-body"> <div class="sub-heading">' + message + '</div></div> </div>'
+        }
+
+        if (_products.length == 0 || typeof _products == "undefined") {
+            _errors += create_panel('<strong>Error:</strong> You\'ve not added any data products to download. Use the checkboxes in the <a href="#data_products" class="scroll">data products table</a> above to make your selection.');
+        }
+        if (data_download['objects'].length == 0) {
+            _errors += create_panel('<strong>Error:</strong> You\'ve not selected any astronomical sources! Use the <a href="#objects" class="scroll">objects table</a> to chose objects.');
+        }
+
+        if (_errors.length){
+            $('#download_errors').show().html(_errors);
+            $('#download_button').attr('disabled', 'disabled');
+        }
+        return _errors
+    }
+
+
     function get_trait_keys() {
-//        "trait_key_arr": [
-//        "extinction_map",
-//          "null",
-//         "recom_comp",
-//          "V02"
-//        ]
+        //        "trait_key_arr": [
+        //        "extinction_map",
+        //          "null",
+        //         "recom_comp",
+        //          "V02"
+        //        ]
         var _trait_key_arr = [];
         $('input[name="add_to_download"]:checked').each(function () {
 
-            $('#select_' + this.value +" :selected").map(function (i, el) {
+            $('#select_' + this.value + " :selected").map(function (i, el) {
 
-                _trait_key_arr.push({"trait_key_arr":JSON.parse($(el).val())});
+                _trait_key_arr.push({"trait_key_arr": JSON.parse($(el).val())});
             });
         });
 
-        $('#download_button').attr('data-products', JSON.stringify({'SAMI':_trait_key_arr}));
+        $('#download_button').attr('data-products', JSON.stringify({'SAMI': _trait_key_arr}));
         return _trait_key_arr
     }
 
     $('.selectpicker').on('changed.bs.select', function (e) {
         get_trait_keys();
+        error_check();
     });
     $('input[name="add_to_download"]').on('change', function (e) {
         get_trait_keys();
-    })
+        error_check();
+    });
+
+
+    $(document).ready(function () {
+
+        error_check();
+
+        // add an id to the download form
+        $('#post-object-form form').find('input[name=download]').attr('id', 'textarea-download');
+
+        $('#download_button').click(function () {
+
+            // get data list (stored on button as data attributes)
+            var data_download = {
+                'products': $(event.target).attr("data-products"),
+                'objects': $(event.target).attr("data-objects")
+            };
+
+            $(this).attr('disabled', 'disabled');
+            $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
+
+             console.log(JSON.stringify(data_download));
+
+            $('#textarea-download').val(JSON.stringify(data_download));
+
+            setTimeout(function () {
+                $('#post-object-form form').submit();
+                $(this).attr('disabled', false);
+                $(this).html('SUBMITTED <i class="fa fa-tick"></i>');
+            }, 1000);
+
+
+        });
+    });
+
 
 </script>

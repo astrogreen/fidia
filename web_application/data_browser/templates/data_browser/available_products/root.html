@@ -49,7 +49,7 @@
         </td>
         {% else %}
         <td class="col-xs-7">
-            <strong>Choose branches and versions</strong>
+            <strong>Select branches and versions</strong>
             <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
                                         data-toggle="popover" data-trigger="hover click"
                                         data-placement="top"
@@ -60,7 +60,7 @@
             <strong>Add</strong>&nbsp;<span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
                                         data-toggle="popover" data-trigger="hover click"
                                         data-placement="top"
-                                        data-content="Add these product to the download."
+                                        data-content="Add selected products to the download."
                                         data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
         </td>
         {% endif %}
@@ -68,7 +68,6 @@
 </thead>
 
 <tbody id="product_menu"> 
-
     {% for trait_type_key, trait_type_value in traits.trait_types.items %}
         <tr data-trait-type-key="{{trait_type_key}}" class="bg-success">
              {% if single %}
@@ -139,5 +138,24 @@
 {% include 'data_browser/available_products/product_filter.controller.html' %}
 
 {% if not single %}
-{% include 'data_browser/available_products/add_to_download.controller.html' %}
+
+    {% if post_form %}
+        <div class="" id="post-object-form">
+            {% with form=post_form %}
+            <form action="{{ request.get_full_path }}" style="visibility: hidden" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                <fieldset>
+                    {% csrf_token %}
+                    <!--<input name="download" class="form-control" type="text">-->
+                    {{ post_form }}
+                </fieldset>
+            </form>
+            {% endwith %}
+        </div>
+        {% endif %}
+
+    <div id="download_errors"></div>
+    <div id="download_warnings"></div>
+
+    {% include 'data_browser/available_products/add_to_download.controller.html' %}
+
 {% endif %}

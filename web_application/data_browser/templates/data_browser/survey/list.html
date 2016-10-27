@@ -9,16 +9,8 @@
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 
-<!--<script type="text/javascript" src="{% static 'data_browser/js/available-products/controllers.js' %}"></script>-->
-<!--<script type="text/javascript" src="{% static 'data_browser/js/available-products/services.js' %}"></script>-->
-<!--<script type="text/javascript" src="{% static 'data_browser/js/available-products/components.js' %}"></script>-->
-
-
-<!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
 
 {% endblock %}
 
@@ -182,7 +174,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
             filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
         <br>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-12" id="objects">
                 <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
             </div>
         </div>
@@ -221,9 +213,8 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
         </div>
         <div class="row">
             <div class="col-xs-12">
-                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:survey-list' survey_pk='sami' %}'}" single=True></available-products>-->
 
-                {% include 'data_browser/available_products/root.html' with traits=traits single=False survey=survey %}
+                {% include 'data_browser/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
 
                 <div class="row">
                     <div class="col-xs-12 text-right">
@@ -231,21 +222,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                {% if post_form %}
-                <div class="" id="post-object-form">
-                    {% with form=post_form %}
-                    <form action="{{ request.get_full_path }}" style="visibility: hidden" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
-                        <fieldset>
-                            {% csrf_token %}
-                            <!--<input name="download" class="form-control" type="text">-->
-                            {{ post_form }}
-                        </fieldset>
-                    </form>
-                    {% endwith %}
-                </div>
-                {% endif %}
-            </div>
+
         </div>
 
     </div>
@@ -273,7 +250,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
 
 {% autoescape off %}
  <script type="text/javascript">
-
     var SAMPLE_URL = "{% url 'data_browser:survey-list' survey_pk=survey %}";
 
     catalog = JSON.parse("{{ catalog|escapejs }}");
@@ -461,7 +437,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
                 $('#min, #max').keyup( function() {
                     table.draw();
                     // console.log(get_filtered_ids());
-
                     update_button();
                 } );
                 // update select button with initial number of rows
@@ -485,7 +460,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
 
             // Get the IDs of selected items
             $('#returnTableResults').click(function(){
-                get_ids()
+                get_ids();
+
+                // error_check comes from the data download code (add_to_download_controller).
+                error_check();
             });
 
             get_ids = function(){
@@ -631,38 +609,14 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
 
         };
     };
-{% endautoescape %}
-
-    // add an id to the download form
-    $('#post-object-form form').find('input[name=download]').attr('id','textarea-download');
-
-    $('#download_button').click(function () {
-
-        var data_download = {
-            'products': $(event.target).attr("data-products"),
-            'objects': $(event.target).attr("data-objects")
-        };
-
-        // SEND SQL TO FORM TEXT AREA
-        $(this).attr('disabled', 'disabled');
-        $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
-
-        console.log(data_download);
-        console.log(JSON.stringify(data_download));
-
-        $('#textarea-download').val(JSON.stringify(data_download));
-
-        setTimeout(function () {
-            $('#post-object-form form').submit();
-        }, 1000);
-    });
-
 
 </script>
+{% endautoescape %}
+
 {% endblock main %}
 
-
 {% block footer-extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
 <script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
 <script src="{% static 'restapi_app/js/selectize/enter_key_submit.js' %}"></script>
 <script>
@@ -711,7 +665,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
 //            }
         });
     });
-
 
 </script>
 

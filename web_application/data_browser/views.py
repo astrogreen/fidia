@@ -144,9 +144,11 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         for obj, product in itertools.product(object_list, product_list['SAMI']):
 
             trait_key_array = product['trait_key_arr'] # type: list
-            # Convert "null" to (Python) None in the list
+            # Convert "null" and "None" to (Python) None in the list
             while "null" in trait_key_array:
                 trait_key_array[trait_key_array.index("null")] = None
+            while "None" in trait_key_array:
+                trait_key_array[trait_key_array.index("None")] = None
 
             trait_path = {
                 'sample': 'SAMI',
@@ -161,6 +163,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         response = StreamingHttpResponse(tar_stream, content_type='application/gzip')
         filename = 'SAMI_data.tar.gz'
         response['content-disposition'] = "attachment; filename=%s" % filename
+        # response['content-length'] = "attachment; filename=%s" % filename
 
         return response
 
