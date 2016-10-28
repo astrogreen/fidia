@@ -167,6 +167,7 @@ function plot_map(name, data, selector, zmin, zmax){
             type: 'heatmap',
             colorbar:{
                 lenmode:'fraction',
+                tickformat:'.2e',
                 leng:1,
                 thicknessmode: 'fraction',
                 thickness: 0.02,
