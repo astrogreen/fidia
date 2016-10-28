@@ -163,7 +163,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         response = StreamingHttpResponse(tar_stream, content_type='application/gzip')
         filename = 'SAMI_data.tar.gz'
         response['content-disposition'] = "attachment; filename=%s" % filename
-        # response['content-length'] = "attachment; filename=%s" % filename
+        response['content-encoding'] = "gzip"
 
         return response
 

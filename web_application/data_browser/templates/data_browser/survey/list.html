@@ -125,23 +125,33 @@
     </div>
 </div>
 <img class="img-responsive" src="{% static 'data_browser/img/sami/sami_dr1poster_plot_only.jpg' %}">
-<div class="well col-sm-offset-6 col-sm-6">
-    <span class="sub-heading"><em>Figure 1: The star formation rate-stellar mass relation for SAMI galaxies.
-Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
+<div class=" col-xs-12 text-right">
+    <p class="sub-heading"><em>Figure 1: The star formation rate-stellar mass relation for SAMI galaxies.
+Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 </div>
 
 
 <h3 id="data-access">Data Access</h3>
+<p>Choose the single-source tab to browse the available {{survey|uppercase}} data products (with visualizations where
+    available) for a particular astronomical source.</p>
 
-<p>It is recommended that you also use the SAMI Data Browser in conjunction with the
+<p>Choose the multiple object tab to define a sample of {{survey|uppercase}} objects filtering on some catalogue property. Data products
+    for this selection can be downloaded for offline use.</p>
+
+
+
+<div class="well">
+    <div class="p">It is recommended that you also use the Data Browser in conjunction with the
     <a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a>, which contains comprehensive
-    descriptions of the data products available.</p>
-<p>For help using the Data Browser,
-    <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">visit the documentation.</a></p>
+    descriptions of the data products available. For help using the Data Browser,
+    <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">visit the documentation.</a></div>
+</div>
 
+
+<br><br>
 
 <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Object</a>
+    <li role="presentation"><a href="#single" aria-controls="single" role="tab" data-toggle="tab" title="">Single Object</a>
     </li>
     <li role="presentation"  class="active"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Objects</a>
     </li>
@@ -150,6 +160,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
 <!-- Tab panes -->
 <div class="tab-content add-padding">
     <div role="tabpanel" class="tab-pane " id="single">
+        <br>
         <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
             <strong>Go</strong> to view the
             object's properties and available data, and download individual data products.</p>
@@ -216,11 +227,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
 
                 {% include 'data_browser/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
 
-                <div class="row">
-                    <div class="col-xs-12 text-right">
-                        <button class="btn btn-default" id="download_button" data-products data-objects><i class="fa fa-download"></i> Download</button>
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -264,7 +270,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
         catalog_data_col_length = catalog.column_names.length;
 
 
-        if((typeof catalog !== 'undefined') && catalog.data.length < render_limit){
+        if(catalog.data.length < render_limit){
             var columns = [];
             var thead = '';
 
