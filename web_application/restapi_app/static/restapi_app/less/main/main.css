@@ -316,7 +316,7 @@ code {
   padding: 15px;
   padding: 0px;
   padding-top: 45px;
-  padding-bottom: 15px;
+  padding-bottom: 60px;
   border-right: solid 1px #eeeeee;
 }
 .sidebar hr {
@@ -416,7 +416,8 @@ code {
   background-color: transparent;
 }
 .main-content {
-  padding: 45px;
+  padding: 60px;
+  padding-top: 40px;
   max-width: 1200px;
   background-color: #ffffff;
   border-right: solid 1px #eeeeee;
@@ -530,7 +531,7 @@ code {
   color: #515151;
 }
 .text-success {
-  color: #4078C0;
+  color: #4078C0 !important;
 }
 .text-error {
   color: #a94442;
@@ -785,6 +786,9 @@ header .user a > a {
 .page_title_banner hr {
   margin-top: 0 !important;
 }
+.page_title_banner a {
+  color: #ffffff;
+}
 .red {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   background-color: #C5413E;
@@ -818,7 +822,10 @@ header .user a > a {
 .title_info p {
   color: rgba(251, 251, 251, 0.8);
 }
-.title_info a {
+.title_info .well {
+  border: 1px solid #ddd;
+}
+.underline-link {
   color: #ffffff;
   border-bottom: 1px dotted #eeeeee;
 }

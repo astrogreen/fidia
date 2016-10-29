@@ -43,16 +43,6 @@
             <a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}"><i class="fa fa-angle-left"></i> Back to all {{response.data.topic_info.title|capfirst}} articles </a>
         </li>
     </ul>
-    <h5>Other {{response.data.topic_info.title}} Articles</h5>
-    <ul class="nav nav-sidebar">
-        {% for article in response.data.all_articles_in_topic %}
-            {% if article.title != response.data.title %}
-                {% if not article.hidden %}
-                    <li><a class="" href="{{article.url}}"> {{article.title}}</a></li>
-                {% endif %}
-            {% endif %}
-        {% endfor %}
-    </ul>
 </div>
 {% endif %}
 {% endblock %}
@@ -97,7 +87,7 @@
                     {% for this in response.data.results %}
                     <li>
                         <a href="{{this.url}}">{{this.title}}</a>
-                        <p class=""><span class="sub-heading"> Last updated {{this.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=this.topic_info.slug %}">#{{this.topic_info.title}}</a></p>
+                        <p class=""><span class="tiny sub-heading"> Last updated {{this.updated}}</span> <a href="{% url 'documentation:topic-detail' slug=this.topic_info.slug %}">#{{this.topic_info.title}}</a></p>
                     </li>
                     {% endfor %}
                 </ul>
@@ -111,21 +101,26 @@
 
     {% else %}
     <div class="row">
-        <div class="col-xs-12">
-            <h2>{{response.data.title}}
-                <small class="pull-right sub-heading" style="margin-top:16px;">
-                    <a href="{% url 'documentation:topic-detail' slug=response.data.topic_info.slug %}">#{{response.data.topic_info.title}}</a>
-                </small>
-                <p class="sub-heading">
-                        Last updated {{response.data.updated}}</p>
+        <div class="col-xs-12 col-sm-9">
+            <h2>{{response.data.title}} <br>
+                <small class="tiny sub-heading">
+                        Last updated {{response.data.updated}}</small>
             </h2>
-            {% if response.data.image %}
-                <img src="{{response.data.image}}" class="img-responsive center-block">
-                {% if response.data.image_caption %}
-                    <div class="image-caption">{{response.data.image_caption}}</div>
-                {% endif %}
-            {% endif %}
+
             {{response.data.content |safe}}
+        </div>
+        <div class="col-sm-3 col-hidden-xs">
+            <h5>Related articles</h5>
+            <ul class="nav nav-sidebar">
+                {% for article in response.data.all_articles_in_topic %}
+                    {% if article.title != response.data.title %}
+                        {% if not article.hidden %}
+                            <li><a style="padding-left:0;padding-right:0" href="{{article.url}}"> {{article.title}}</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+
         </div>
     </div>
         {% if put_form %}
