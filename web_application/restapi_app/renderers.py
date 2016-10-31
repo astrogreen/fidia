@@ -119,7 +119,7 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
 
             'api_settings': api_settings,
 
-            'show_api': True
+            'show_api': False
 
 
         }
