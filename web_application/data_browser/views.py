@@ -34,18 +34,13 @@ import fidia_tarfile_helper
 log = logging.getLogger(__name__)
 
 
-def invert_dict(inverted_dict):
-    elements = inverted_dict.iteritems()
-    for flag_value, flag_names in elements:
-        for flag_name in flag_names:
-            yield flag_name, flag_value
-
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. Implements List action only.
     Lists all surveys, their current versions and total number of objects in that version. """
+
     def __init__(self, *args, **kwargs):
         self.surveys = [
-            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {}},
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0}},
             {"survey": "gama", "count": 0, "current_version": 0},
             {"survey": "galah", "count": 0, "current_version": 0}
         ]
@@ -89,7 +84,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
             if survey_pk != "sami":
                 message = 'Survey does not exist: ' + survey_pk
                 raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
-                                                                  status_code=status.HTTP_404_NOT_FOUND)
+                                                              status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except ValueError:
@@ -98,7 +93,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         # Context (for html page render)
         self.catalog = json.dumps(sami_dr1_sample.get_feature_catalog_data())
         self.traits = ar.full_schema(include_subtraits=False, data_class='non-catalog', combine_levels=None,
-                                              verbosity='descriptions', separate_metadata=True)
+                                     verbosity='descriptions', separate_metadata=True)
 
         # Endpoint-only
         serializer_class = data_browser.serializers.SurveySerializer
@@ -117,33 +112,33 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
 
         # product_list will look like the following:
         #
-           # {
-           #     "SAMI": [
-           #         {
-           #             "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
-           #             "trait_key_arr": [
-           #                 "velocity_map",
-           #                 "ionized_gas",
-           #                 "recom_comp",
-           #                 "V02"
-           #             ]
-           #         },
-           #         {
-           #             "trait_key": "extinction_map--recom_comp-V02",
-           #             "trait_key_arr": [
-           #                 "extinction_map",
-           #                 "null",
-           #                 "recom_comp",
-           #                 "V02"
-           #             ]
-           #         }
-           #     ]
-           # }
+        # {
+        #     "SAMI": [
+        #         {
+        #             "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+        #             "trait_key_arr": [
+        #                 "velocity_map",
+        #                 "ionized_gas",
+        #                 "recom_comp",
+        #                 "V02"
+        #             ]
+        #         },
+        #         {
+        #             "trait_key": "extinction_map--recom_comp-V02",
+        #             "trait_key_arr": [
+        #                 "extinction_map",
+        #                 "null",
+        #                 "recom_comp",
+        #                 "V02"
+        #             ]
+        #         }
+        #     ]
+        # }
 
         trait_path_list = []
         for obj, product in itertools.product(object_list, product_list['SAMI']):
 
-            trait_key_array = product['trait_key_arr'] # type: list
+            trait_key_array = product['trait_key_arr']  # type: list
             # Convert "null" and "None" to (Python) None in the list
             while "null" in trait_key_array:
                 trait_key_array[trait_key_array.index("null")] = None
@@ -166,6 +161,7 @@ class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Creat
         response['content-encoding'] = "gzip"
 
         return response
+
 
 # class Download(views.APIView):
 #     def get(self, request, *args, **kwargs):
@@ -292,7 +288,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'astro_object': astroobject_pk,
                 'request': request,
                 'traits': ar.full_schema(include_subtraits=False, data_class='all', combine_levels=None,
-                                 verbosity='descriptions', separate_metadata=True),
+                                         verbosity='descriptions', separate_metadata=True),
                 'position': {'ra': astro_object.ra, 'dec': astro_object.dec}
             }
         )
@@ -312,7 +308,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_browser.
         # super().__init__()
 
     permission_classes = [permissions.AllowAny]
-    renderer_classes = (data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+    renderer_classes = (
+    data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
     def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
@@ -397,7 +394,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, da
             trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
         except KeyError:
             _branch = trait_pk.split(":")[1]
-            message = 'No ' + trait_pk + ' data available for ' + astroobject_pk +'. Check the branch and version ['+_branch+'] are correct.'
+            message = 'No ' + trait_pk + ' data available for ' + astroobject_pk + '. Check the branch and version [' + _branch + '] are correct.'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                           status_code=status.HTTP_404_NOT_FOUND)
         except fidia.exceptions.UnknownTrait:
@@ -449,7 +446,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, da
                 except AttributeError:
                     pass
                 except fidia.exceptions.DataNotAvailable:
-                    message = 'No '+subtraitproperty_pk+' data available for ' + trait_pk
+                    message = 'No ' + subtraitproperty_pk + ' data available for ' + trait_pk
                     raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                                   status_code=status.HTTP_404_NOT_FOUND)
                 else:
@@ -501,7 +498,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_
         except KeyError:
             message = "Key not found: " + subtraitproperty_pk
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
-                                                      status_code=status.HTTP_404_NOT_FOUND)
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         try:
             traitproperty_pointer = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk],
                                             traitproperty_pk)
