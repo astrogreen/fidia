@@ -8,8 +8,6 @@
     <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'schema_browser/css/schema_browser/schema_browser.min.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation-fidia/documentation-fidia.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/bootstrap-select/bootstrap-select.min.css' %}"/>
-    <script type="application/javascript" src="{% static 'restapi_app/js/bootstrap-select/bootstrap-select.min.js' %}"></script>
 {% endblock %}
 
 {% block page_title %}Schema Browser{% endblock %}
@@ -91,41 +89,6 @@
 {% endblock %}
 {% block main %}
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
-<div class="">
-    <p class="lead">The schema browser describes the {{survey|upper}} data products as hosted by ADC.</p>
-
-    <div class="row">
-        <div class="col-xs-3">
-            <div class="form-group">
-                <select class="selectpicker" data-live-search="true" title="Choose a data product." data-size="20">
-                    {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
-                    <optgroup label="{{trait_type_value.pretty_name}}">
-                        {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                        <option value="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" data-tokens="{{trait_type_value.pretty_name}}">
-                            {{trait_qualifier_value.pretty_name}}
-                            {% if not trait_qualifier_value.pretty_name %}
-                            {{trait_type_value.pretty_name}}
-                            {% endif %}
-                        </option>
-                        {% endfor %}
-                    </optgroup>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-    </div>
-
-
-</div>
-<script>
-    $('.selectpicker').selectpicker({
-  style: 'btn-default',
-  size: 4
-});
-
-</script>
-
-
 <div class="schema-contents">
     <div class="tab-content trait">
         <div id="overview" class="tab-pane active">
