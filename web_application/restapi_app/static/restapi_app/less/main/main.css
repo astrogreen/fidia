@@ -1587,9 +1587,6 @@ li.nested_dropdown > a {
 .table-bordered > thead > tr > td {
   border-bottom-width: 1px;
 }
-table.table > thead > tr > th {
-  font-weight: 400;
-}
 /* position relative here ensures that dropdowns can be seen in the table cell,
  if absolute, are obscured by edge of cell */
 .table-responsive .table .dropdown-menu {

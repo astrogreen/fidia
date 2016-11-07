@@ -5,6 +5,14 @@
   /* dummy classes here else compiler errors (as these belong in
    * restapi_app/static/restapi_app/css/bootstrap/)
    */
+  /*
+  // Table backgrounds
+  //
+  // Exact selectors below required to override `.table-striped` and prevent
+  // inheritance to nested tables.
+
+  // Generate the contextual variants
+  */
 }
 .documentation_fidia h1,
 .documentation_fidia h2,
@@ -82,7 +90,7 @@
 }
 .documentation_fidia table > thead > tr > th {
   vertical-align: bottom;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 1px solid #ddd;
 }
 .documentation_fidia table > caption + thead > tr:first-child > th,
 .documentation_fidia table > colgroup + thead > tr:first-child > th,
@@ -111,7 +119,7 @@
 }
 .documentation_fidia table > thead > tr > th,
 .documentation_fidia table > thead > tr > td {
-  border-bottom-width: 2px;
+  border-bottom-width: 1px;
 }
 .documentation_fidia table > thead > tr > th,
 .documentation_fidia table > tbody > tr > th,
@@ -121,146 +129,138 @@
 .documentation_fidia table > tfoot > tr > td {
   padding: 5px;
 }
-table {
+.documentation_fidia table {
   background-color: transparent;
 }
-caption {
+.documentation_fidia caption {
   padding-top: 8px;
   padding-bottom: 8px;
   color: #777777;
   text-align: left;
 }
-th {
+.documentation_fidia th {
   text-align: left;
 }
-.table {
+.documentation_fidia .table {
   width: 100%;
   max-width: 100%;
   margin-bottom: 20px;
 }
-.table > thead > tr > th,
-.table > tbody > tr > th,
-.table > tfoot > tr > th,
-.table > thead > tr > td,
-.table > tbody > tr > td,
-.table > tfoot > tr > td {
+.documentation_fidia .table > thead > tr > th,
+.documentation_fidia .table > tbody > tr > th,
+.documentation_fidia .table > tfoot > tr > th,
+.documentation_fidia .table > thead > tr > td,
+.documentation_fidia .table > tbody > tr > td,
+.documentation_fidia .table > tfoot > tr > td {
   padding: 8px;
   line-height: 1.42857143;
   vertical-align: top;
   border-top: 1px solid #ddd;
 }
-.table > thead > tr > th {
+.documentation_fidia .table > thead > tr > th {
   vertical-align: bottom;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 1px solid #ddd;
 }
-.table > caption + thead > tr:first-child > th,
-.table > colgroup + thead > tr:first-child > th,
-.table > thead:first-child > tr:first-child > th,
-.table > caption + thead > tr:first-child > td,
-.table > colgroup + thead > tr:first-child > td,
-.table > thead:first-child > tr:first-child > td {
+.documentation_fidia .table > caption + thead > tr:first-child > th,
+.documentation_fidia .table > colgroup + thead > tr:first-child > th,
+.documentation_fidia .table > thead:first-child > tr:first-child > th,
+.documentation_fidia .table > caption + thead > tr:first-child > td,
+.documentation_fidia .table > colgroup + thead > tr:first-child > td,
+.documentation_fidia .table > thead:first-child > tr:first-child > td {
   border-top: 0;
 }
-.table > tbody + tbody {
+.documentation_fidia .table > tbody + tbody {
   border-top: 2px solid #ddd;
 }
-.table .table {
+.documentation_fidia .table .table {
   background-color: #fff;
 }
-.table-condensed > thead > tr > th,
-.table-condensed > tbody > tr > th,
-.table-condensed > tfoot > tr > th,
-.table-condensed > thead > tr > td,
-.table-condensed > tbody > tr > td,
-.table-condensed > tfoot > tr > td {
+.documentation_fidia .table-condensed > thead > tr > th,
+.documentation_fidia .table-condensed > tbody > tr > th,
+.documentation_fidia .table-condensed > tfoot > tr > th,
+.documentation_fidia .table-condensed > thead > tr > td,
+.documentation_fidia .table-condensed > tbody > tr > td,
+.documentation_fidia .table-condensed > tfoot > tr > td {
   padding: 5px;
 }
-.table-bordered {
+.documentation_fidia .table-bordered {
   border: 1px solid #ddd;
 }
-.table-bordered > thead > tr > th,
-.table-bordered > tbody > tr > th,
-.table-bordered > tfoot > tr > th,
-.table-bordered > thead > tr > td,
-.table-bordered > tbody > tr > td,
-.table-bordered > tfoot > tr > td {
+.documentation_fidia .table-bordered > thead > tr > th,
+.documentation_fidia .table-bordered > tbody > tr > th,
+.documentation_fidia .table-bordered > tfoot > tr > th,
+.documentation_fidia .table-bordered > thead > tr > td,
+.documentation_fidia .table-bordered > tbody > tr > td,
+.documentation_fidia .table-bordered > tfoot > tr > td {
   border: 1px solid #ddd;
 }
-.table-bordered > thead > tr > th,
-.table-bordered > thead > tr > td {
-  border-bottom-width: 2px;
+.documentation_fidia .table-bordered > thead > tr > th,
+.documentation_fidia .table-bordered > thead > tr > td {
+  border-bottom-width: 1px;
 }
-.table-striped > tbody > tr:nth-of-type(odd) {
+.documentation_fidia .table-striped > tbody > tr:nth-of-type(odd) {
   background-color: #f9f9f9;
 }
-.table-hover > tbody > tr:hover {
+.documentation_fidia .table-hover > tbody > tr:hover {
   background-color: #f5f5f5;
 }
-table col[class*="col-"] {
+.documentation_fidia table col[class*="col-"] {
   position: static;
   float: none;
   display: table-column;
 }
-table td[class*="col-"],
-table th[class*="col-"] {
+.documentation_fidia table td[class*="col-"],
+.documentation_fidia table th[class*="col-"] {
   position: static;
   float: none;
   display: table-cell;
 }
-/*
-// Table backgrounds
-//
-// Exact selectors below required to override `.table-striped` and prevent
-// inheritance to nested tables.
-
-// Generate the contextual variants
-*/
-.table-responsive {
+.documentation_fidia .table-responsive {
   overflow-x: auto;
   min-height: 0.01%;
 }
 @media screen and (max-width: 767px) {
-  .table-responsive {
+  .documentation_fidia .table-responsive {
     width: 100%;
     margin-bottom: 15px;
     overflow-y: hidden;
     -ms-overflow-style: -ms-autohiding-scrollbar;
     border: 1px solid #ddd;
   }
-  .table-responsive > .table {
+  .documentation_fidia .table-responsive > .table {
     margin-bottom: 0;
   }
-  .table-responsive > .table > thead > tr > th,
-  .table-responsive > .table > tbody > tr > th,
-  .table-responsive > .table > tfoot > tr > th,
-  .table-responsive > .table > thead > tr > td,
-  .table-responsive > .table > tbody > tr > td,
-  .table-responsive > .table > tfoot > tr > td {
+  .documentation_fidia .table-responsive > .table > thead > tr > th,
+  .documentation_fidia .table-responsive > .table > tbody > tr > th,
+  .documentation_fidia .table-responsive > .table > tfoot > tr > th,
+  .documentation_fidia .table-responsive > .table > thead > tr > td,
+  .documentation_fidia .table-responsive > .table > tbody > tr > td,
+  .documentation_fidia .table-responsive > .table > tfoot > tr > td {
     white-space: nowrap;
   }
-  .table-responsive > .table-bordered {
+  .documentation_fidia .table-responsive > .table-bordered {
     border: 0;
   }
-  .table-responsive > .table-bordered > thead > tr > th:first-child,
-  .table-responsive > .table-bordered > tbody > tr > th:first-child,
-  .table-responsive > .table-bordered > tfoot > tr > th:first-child,
-  .table-responsive > .table-bordered > thead > tr > td:first-child,
-  .table-responsive > .table-bordered > tbody > tr > td:first-child,
-  .table-responsive > .table-bordered > tfoot > tr > td:first-child {
+  .documentation_fidia .table-responsive > .table-bordered > thead > tr > th:first-child,
+  .documentation_fidia .table-responsive > .table-bordered > tbody > tr > th:first-child,
+  .documentation_fidia .table-responsive > .table-bordered > tfoot > tr > th:first-child,
+  .documentation_fidia .table-responsive > .table-bordered > thead > tr > td:first-child,
+  .documentation_fidia .table-responsive > .table-bordered > tbody > tr > td:first-child,
+  .documentation_fidia .table-responsive > .table-bordered > tfoot > tr > td:first-child {
     border-left: 0;
   }
-  .table-responsive > .table-bordered > thead > tr > th:last-child,
-  .table-responsive > .table-bordered > tbody > tr > th:last-child,
-  .table-responsive > .table-bordered > tfoot > tr > th:last-child,
-  .table-responsive > .table-bordered > thead > tr > td:last-child,
-  .table-responsive > .table-bordered > tbody > tr > td:last-child,
-  .table-responsive > .table-bordered > tfoot > tr > td:last-child {
+  .documentation_fidia .table-responsive > .table-bordered > thead > tr > th:last-child,
+  .documentation_fidia .table-responsive > .table-bordered > tbody > tr > th:last-child,
+  .documentation_fidia .table-responsive > .table-bordered > tfoot > tr > th:last-child,
+  .documentation_fidia .table-responsive > .table-bordered > thead > tr > td:last-child,
+  .documentation_fidia .table-responsive > .table-bordered > tbody > tr > td:last-child,
+  .documentation_fidia .table-responsive > .table-bordered > tfoot > tr > td:last-child {
     border-right: 0;
   }
-  .table-responsive > .table-bordered > tbody > tr:last-child > th,
-  .table-responsive > .table-bordered > tfoot > tr:last-child > th,
-  .table-responsive > .table-bordered > tbody > tr:last-child > td,
-  .table-responsive > .table-bordered > tfoot > tr:last-child > td {
+  .documentation_fidia .table-responsive > .table-bordered > tbody > tr:last-child > th,
+  .documentation_fidia .table-responsive > .table-bordered > tfoot > tr:last-child > th,
+  .documentation_fidia .table-responsive > .table-bordered > tbody > tr:last-child > td,
+  .documentation_fidia .table-responsive > .table-bordered > tfoot > tr:last-child > td {
     border-bottom: 0;
   }
 }
