@@ -25,12 +25,10 @@
         {% block sidebar %}
         {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 
-        <div class="page-contents" id="schema_menu">
+        <div class="page-contents-no-scrollspy" id="schema_menu">
             <h5>Page Contents</h5>
-            <ul class="nav nav-pills nav-stacked">
-                <li role="presentation"  class="active">
-                    <a href="#overview">Overview</a>
-                </li>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation" class="active"><a href="#overview" role="tab" class="trait_type_button" data-toggle="pill">Overview</a></li>
             </ul>
             <h5>Schema Contents</h5>
             <div style="position:relative;padding:5px 15px;">
@@ -45,8 +43,7 @@
                     {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                         <li class="{% if forloop.parentloop.first and forloop.first %}{% endif %}" role="presentation" data-trait-type-key="{{trait_type_key}}">
                             <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_type_button"
-                               aria-controls="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" role="tab"
-                               data-toggle="pill">{{trait_qualifier_value.pretty_name}}
+                                role="tab" data-toggle="pill">{{trait_qualifier_value.pretty_name}}
                                 {% if not trait_qualifier_value.pretty_name %}
                                     {{trait_type_value.pretty_name}}
                                 {% endif %}
@@ -62,7 +59,7 @@
 {% endblock %}
 
 {% block version_container %}
-<div class="col-xs-12 col-sm-10 version-content">
+<div class="col-xs-12 col-sm-10 content-switcher">
     <div class="version-container">
         <div class="row">
             <div class="col-xs-12 col-sm-12 text-right">
@@ -87,133 +84,152 @@
     </div>
 </div>
 {% endblock %}
+
+
+{% block before-main %}
+
+
+{% endblock %}
 {% block main %}
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="schema-contents">
     <div class="tab-content trait">
-        <div id="overview" class="tab-pane active">
-            <h2>Overview</h2>
-            <p class="lead">The Schema Browser describes the {{survey|uppercase}} survey data products. It is recommended
-                    that you also use the <a href="">{{survey|uppercase}} Documentation</a> in conjunction with the
-                    Schema
-                    Browser, which contains a more comprehensive description of pipeline reduction and analysis
-                    techniques.
-                </p>
-            <p class="lead"><i class="fa fa-angle-left"></i> To begin, click a data product from the list. If you cannot find a particular data product, use the search bar to refine the schema contents. </p>
-
+        <div class="tab-pane active" id="overview">
+            <div class="row">
+                <div class="col-xs-12">
+                    {% include "data_browser/layout/title.html" with db_title="Overview" %}
+                    <p class="lead">The Schema Browser describes the {{survey|uppercase}} survey data products.</p>
+                    <div class="panel panel-default success">
+                        <div class="panel-body">
+                            <div class="sub-heading"><p class="">To begin, click a data product
+                                from the list. If you cannot find a particular data product, use the search bar to
+                                refine the schema
+                                contents. It is recommended
+                                that you also use the <a href="">{{survey|uppercase}} Documentation</a> in
+                                conjunction
+                                with the
+                                Schema
+                                Browser, which contains a more comprehensive description of pipeline reduction and
+                                analysis
+                                techniques.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
             {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                 <div id="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="tab-pane branch_dropdown {% if forloop.parentloop.first and forloop.first %}{% endif %} ">
-
-                    <h2>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}</h2>
-                    {% if trait_type_value.description %}<p><em>{{trait_type_value.description}}</em></p>{% endif %}
-
-                    <!--<div class="panel panel-default success branch_warning">-->
-                        <!--<div class="panel-body">-->
-                            <!--<div class="sub-heading">This document is for the {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}-->
-                        <!--<strong> branch <em><span class="branch_warning-branch"></span></em>, version <em><span class="branch_warning-version"></span></em></strong>, which can be-->
-                                <!--significantly different from other branches/versions. To switch branches/versions, use the-->
-                                <!--selectors below. For more information-->
-                                <!--on branches,-->
-                                <!--<a class="disabled" disabled href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">-->
-                                    <!--view the documentation.</a><br>-->
-                                <!--<a href="" role="button" class="hide_this_message pull-right">Hide this message</a>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                    <ul class="nav nav-pills branch-selector">
-                        <li class="dropdown">
-                            <a class="btn btn-default branch_button" data-toggle="dropdown" href="" aria-haspopup="true" aria-expanded="false">
-                               <span class="sub-heading"><i class="fa fa-code-fork"></i> Branch </span>
-                                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                        <!--Default branch, and the default version for that branch, are set as active-->
-                                        {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                            <strong>{{trait_branch_value.pretty_name}}{% if trait_branch_value.description %}: {% endif %}</strong>
-                                            {% if trait_branch_value.description %}{{trait_branch_value.description}}{% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                <i class="fa fa-caret-down"></i>
-                            </a>
-                            <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
-
-                                <li class="dropdown-header dropdown-header-bold">
-                                    Change branch
-                                </li>
-                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-
-                                    <!--Default branch, and the default version for that branch, are set as active-->
-                                    <li class="{% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %}">
-                                        <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}"
-                                           data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
-                                            <strong> {{trait_branch_value.pretty_name}}
-                                            {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                                <small>DEFAULT</small>
-                                            {% endif %}
-                                            </strong>
+                    <div class="branch-content">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 text-right">
+                                <ul class="nav nav-pills  pull-right">
+                                    <li class="dropdown branch-selector">
+                                        <a class="btn btn-default branch_button" data-toggle="dropdown" href="" aria-haspopup="true" aria-expanded="false">
+                                               <i class="fa fa-code-fork"></i>
+                                                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                                    <!--Default branch, and the default version for that branch, are set as active-->
+                                                    {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                        <strong>{{trait_branch_value.pretty_name}}{% if trait_branch_value.description %}: {% endif %}</strong>
+                                                        {% if trait_branch_value.description %}{{trait_branch_value.description}}{% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            <i class="fa fa-caret-down"></i>
                                         </a>
-                                    </li>
-                                    {% endfor %}
+                                        <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
+                                            <li class="dropdown-header dropdown-header-bold">
+                                                Change branch
+                                            </li>
+                                            {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                                {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
 
-                                    {% if not forloop.last %}
-                                        <li role="separator" class="divider"></li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    </ul>
+                                                <!--Default branch, and the default version for that branch, are set as active-->
+                                                <li class="{% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %}">
+                                                    <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}" data-versions="[{% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}{{trait_version_key}}{% if not forloop.last %},{% endif %}{% endfor %}]"
+                                                       data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}"
+                                                        class="branch_anchor">
+                                                        <strong> {{trait_branch_value.pretty_name}}
+                                                        {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                                            <small>DEFAULT</small>
+                                                        {% endif %}
+                                                        </strong>
+                                                    </a>
+                                                </li>
+                                                {% endfor %}
+
+                                                {% if not forloop.last %}
+                                                    <li role="separator" class="divider"></li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="tab-content">
 
                         {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
 
-                            <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %} ">
-                                <ul class="nav nav-pills version-selector">
-                                    <li class="dropdown">
-                                        <a class="btn btn-default branch_button" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                    <!--Default branch, and the default version for that branch, are set as active-->
-                                                {% if trait_branch_value.default_version == trait_version_key %}
-                                                    <span class="sub-heading"><i class="fa fa-map-pin"></i> Version</span>  <strong> {{trait_version_value.pretty_name}}{% if trait_version_value.description %}: {% endif %}</strong>{% if trait_version_value.description %} {{trait_version_value.description}} {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            <i class="fa fa-caret-down"></i>
-                                        </a>
-                                        <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
-
-                                            <li class="dropdown-header dropdown-header-bold">
-                                                Change version
-                                            </li>
-                                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                                    <!--Default branch, and the default version for that branch, are set as active-->
-                                                <li class="{% if trait_branch_value.default_version == trait_version_key %}active{% endif %}">
-                                                    <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}"
-                                                       data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}" data-version-description="{{trait_version_value.description}}">
-                                                        <strong> {{trait_version_value.pretty_name}}
-                                                        {% if trait_branch_value.default_version == trait_version_key %}
-                                                            <small>LATEST</small>
-                                                        {% endif %}
-                                                        </strong>
+                            <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}" class="tab-pane {% if trait_qualifier_value.default_branch == trait_branch_key %}active{% endif %}">
+                                <div class="version-content">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 text-right">
+                                            <ul class="nav nav-pills pull-right">
+                                                <li class="dropdown version-selector">
+                                                    <a class="btn btn-default version_button" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                                                <!--Default branch, and the default version for that branch, are set as active-->
+                                                            {% if trait_branch_value.default_version == trait_version_key %}
+                                                                <span class=""><i class="fa fa-map-pin"></i> </span>  <strong> {{trait_version_value.pretty_name}}{% if trait_version_value.description %}: {% endif %}</strong>{% if trait_version_value.description %} {{trait_version_value.description}} {% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        <i class="fa fa-caret-down"></i>
                                                     </a>
+                                                    <ul class="dropdown-menu" style="margin-top:0;padding-top:0;">
+                                                        <li class="dropdown-header dropdown-header-bold">
+                                                            Change version
+                                                        </li>
+                                                        {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                                                <!--Default branch, and the default version for that branch, are set as active-->
+                                                            <li class="{% if trait_branch_value.default_version == trait_version_key %}active{% endif %}">
+                                                                <a href="#{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}"
+                                                                   data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="{{trait_version_value.pretty_name}}" data-version-description="{{trait_version_value.description}}">
+                                                                    <strong> {{trait_version_value.pretty_name}}
+                                                                    {% if trait_branch_value.default_version == trait_version_key %}
+                                                                        <small>LATEST</small>
+                                                                    {% endif %}
+                                                                    </strong>
+                                                                </a>
+                                                            </li>
+                                                            {% if not forloop.last %}
+                                                                <li role="separator" class="divider"></li>
+                                                            {% endif %}
+                                                        {% endfor %}
+
+
+                                                    </ul>
                                                 </li>
-                                                {% if not forloop.last %}
-                                                    <li role="separator" class="divider"></li>
-                                                {% endif %}
-                                            {% endfor %}
-                                                <!--<li role="separator" class="divider"></li>-->
-                                                <!--<li><a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}_{{trait_branch_key}}_{{trait_version_key}}_dummy" data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}" data-version="dummy">Dummy</a></li>-->
-                                        </ul>
-                                    </li>
-                                </ul>
-                                <div class="tab-content">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-content schema-contents-tab">
                                     {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                    <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}" class="tab-pane {% if trait_branch_value.default_version == trait_version_key %}active{% endif %} ">
+                                        <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}" class="tab-pane {% if trait_branch_value.default_version == trait_version_key %}active{% endif %} ">
+
+
+                                        {% include "data_browser/layout/title.html" with db_title=trait_type_value.pretty_name|add:" "|add:trait_qualifier_value.pretty_name %}
+
+                                        {% if trait_type_value.description %}<p><em>{{trait_type_value.description}}</em></p>{% endif %}
 
                                             {% with trait_version_value.trait as value %}
 
-                                                <p>{% if value.description %}{{value.description}}{% endif %}</p>
+                                                <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
 
                                                 <p>You are currently viewing the {{trait_type_value.pretty_name}}
                                                     {{trait_qualifier_value.pretty_name}} Schema for
@@ -347,11 +363,30 @@
 
 {% block footer-extra %}
 
-
-
 <script>
 
     $(document).ready(function () {
+
+        // hide all version-content dropdowns
+//        $('.version-content').hide();
+
+
+        // populate the version-selector with this branches available versions
+//        $('.branch_anchor').click(function(){
+//
+//            // append hidden version to inline-dropdown
+//            var _selector = $(this).attr('href') + ' .version-selector-hidden';
+//
+//            // get target element, clear and append the cloned node
+//            var _target = $(this).closest('.branch-selector').siblings('.version-selector');
+//
+////            _target.html("");
+////            $(_selector).clone().appendTo(_target);
+//
+//            _target.html($(_selector).html())
+//
+//        });
+
 
         // Animate smooth scrolling of trait types
         $("ul.nav-pills a.trait_type_button").click(function (e) {
@@ -359,8 +394,8 @@
             e.preventDefault();
 
             // remove all active classes off sidebar buttons
+            $(".sidebar-contents li").removeClass('active');
 
-            $("#docs-sidebar li").removeClass('active');
             // if clicked
             // if list.js has filtering active
             // remove all active classes from within the filtered list
@@ -370,10 +405,11 @@
             window.location.hash = this.hash;
             // scroll to top of .main-content
             $('html, body').animate({scrollTop:$('.main-content').offset().top}, 400);
+
         });
 
         // Don't animate to branch/version hash, as the selection buttons are near the panels anyway
-        $("ul.branch-selector ul.dropdown-menu > li > a, ul.version-selector ul.dropdown-menu > li > a").click(function (e) {
+        $("ul .branch-selector ul.dropdown-menu > li > a, ul .version-selector ul.dropdown-menu > li > a").click(function (e) {
             // prevent jump to hash
             e.preventDefault();
 
@@ -403,13 +439,13 @@
             if (!!_anchor.attr('data-version-description')){_vers_description_colon=':'}
             if (!!_anchor.attr('data-branch-description')){_branch_description_colon=':'}
 
-            var _branch = "<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch </span><strong>" + _anchor.attr('data-branch') + _branch_description_colon + "</strong> " + _anchor.attr('data-branch-description') + " <i class='fa fa-caret-down'></i>";
-            var _version = "<span class='sub-heading'><i class='fa fa-map-pin'></i> Version </span><strong>" + _anchor.attr('data-version') + _vers_description_colon + "</strong> " + _anchor.attr('data-version-description') + " <i class='fa fa-caret-down'></i>";
+            var _branch = "<span class=''><i class='fa fa-code-fork'></i> Branch </span><strong>" + _anchor.attr('data-branch') + _branch_description_colon + "</strong> " + _anchor.attr('data-branch-description') + " <i class='fa fa-caret-down'></i>";
+            var _version = "<span class=''><i class='fa fa-map-pin'></i> Version </span><strong>" + _anchor.attr('data-version') + _vers_description_colon + "</strong> " + _anchor.attr('data-version-description') + " <i class='fa fa-caret-down'></i>";
 
             if (!!_anchor.attr('data-version')){
-                _anchor.closest('ul.version-selector').find('a.branch_button').html(_version)
+                _anchor.closest('ul .version-selector').find('a.version_button').html(_version)
             } else {
-                _anchor.closest('ul.branch-selector').find('a.branch_button').html(_branch)
+                _anchor.closest('ul .branch-selector').find('a.branch_button').html(_branch)
             }
 
         });
@@ -417,6 +453,10 @@
 
         // Activate a tab if the hash is in the url
         if (window.location.hash.length > 0) {
+
+            // remove the first active class
+            $(".sidebar-contents li").removeClass('active');
+
 
             var _trait_key_arr = window.location.hash.split('-');
 
@@ -441,7 +481,7 @@
 
             if (_trait_key_arr.length > 2) {
                 // Remove all active classes
-                $(_trait_type+_qualifier+" ul.branch-selector ul.dropdown-menu > li > a").each(function () {
+                $(_trait_type+_qualifier+" ul .branch-selector ul.dropdown-menu > li > a").each(function () {
                     $(this).closest('li').removeClass("active");
                 });
                 var _branch = '-' + _trait_key_arr[2];
@@ -460,18 +500,18 @@
                 // show branch
                 // use click event rather than 'show' as bound button name change to click event above. This ensures you
                 // get the dropdown button name change functionality reflecting the branch name + description
-                $('ul.branch-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + '"]').click();
-                // $('ul.branch-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + '"]').tab('show');
+                $('ul .branch-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + '"]').click();
+                // $('ul .branch-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + '"]').tab('show');
 
                 // show version
                 if (!!_trait_key_arr[3]) {
                     // Remove all active classes
-                    $(_trait_type+_qualifier+_branch+" ul.version-selector ul.dropdown-menu > li > a").each(function () {
+                    $(_trait_type+_qualifier+_branch+" ul .version-selector ul.dropdown-menu > li > a").each(function () {
                         $(this).closest('li').removeClass("active");
                     });
                     var _version = '-' + _trait_key_arr[3];
-                    $('ul.version-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + _version + '"]').click();
-                    //  $('ul.version-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + _version + '"]').tab('show');
+                    $('ul .version-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + _version + '"]').click();
+                    //  $('ul .version-selector ul.dropdown-menu > li > a[href="' + _trait_type + _qualifier + _branch + _version + '"]').tab('show');
                 }
             }
         }

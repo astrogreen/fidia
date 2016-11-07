@@ -10,17 +10,6 @@
 .schema-contents .branch_warning {
   background-color: #fafafa;
 }
-.schema-contents .version-selector {
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-.schema-contents h2 {
-  font-size: 28px;
-  padding-top: 10px;
-  margin-top: 0;
-  margin-bottom: 15px;
-  border-bottom: 0;
-}
 .schema-contents h3 {
   margin-top: 30px;
   margin-bottom: 15px;
@@ -35,15 +24,6 @@
 }
 .schema-contents h4 i {
   font-size: 16px;
-}
-.schema-contents .branch_dropdown .nav-pills > li.active > a,
-.schema-contents .branch_dropdown .nav-pills > li.active > a:hover,
-.schema-contents .branch_dropdown .nav-pills > li.active > a:focus {
-  color: inherit;
-  background-color: inherit;
-}
-.schema-contents .branch_dropdown .nav > li > a {
-  padding: 6px 12px;
 }
 .branch_dropdown .dropdown-header-bold {
   color: #333;

@@ -367,11 +367,14 @@ code {
   text-decoration: underline;
   background-color: transparent;
 }
-.sidebar .page-contents {
+.sidebar .page-contents,
+.sidebar .page-contents-no-scrollspy {
   transition: all 0.1s ease-in-out;
 }
 .sidebar .page-contents .nav-pills > li > a,
-.sidebar .page-contents .nav-pills > li > a:focus {
+.sidebar .page-contents-no-scrollspy .nav-pills > li > a,
+.sidebar .page-contents .nav-pills > li > a:focus,
+.sidebar .page-contents-no-scrollspy .nav-pills > li > a:focus {
   position: relative;
   display: block;
   border-radius: 0px;
@@ -384,18 +387,24 @@ code {
   border: 1px solid transparent;
   transition: all 0.3s ease-in-out;
 }
-.sidebar .page-contents .nav-pills > li {
+.sidebar .page-contents .nav-pills > li,
+.sidebar .page-contents-no-scrollspy .nav-pills > li {
   transition: all 0.1s ease-in-out;
   margin: 0;
 }
-.sidebar .page-contents .nav-pills > li:hover a {
+.sidebar .page-contents .nav-pills > li:hover a,
+.sidebar .page-contents-no-scrollspy .nav-pills > li:hover a {
   background-color: rgba(0, 0, 0, 0.1);
   color: #647b82;
 }
 .sidebar .page-contents .nav-pills > li.active > a,
+.sidebar .page-contents-no-scrollspy .nav-pills > li.active > a,
 .sidebar .page-contents .nav-pills > li.active > a:hover,
+.sidebar .page-contents-no-scrollspy .nav-pills > li.active > a:hover,
 .sidebar .page-contents .nav-pills > li.active > a:focus,
-.sidebar .page-contents .nav-pills > li.active > a:visited {
+.sidebar .page-contents-no-scrollspy .nav-pills > li.active > a:focus,
+.sidebar .page-contents .nav-pills > li.active > a:visited,
+.sidebar .page-contents-no-scrollspy .nav-pills > li.active > a:visited {
   background-color: #4078C0;
   padding: 0 20px;
   line-height: 24px;
@@ -404,20 +413,21 @@ code {
   margin-left: -1px;
   margin-right: -1px;
 }
-.sidebar .page-contents .nav > li > a:hover {
+.sidebar .page-contents .nav > li > a:hover,
+.sidebar .page-contents-no-scrollspy .nav > li > a:hover {
   text-decoration: none;
   background-color: #4078C0;
   color: #fbfbfb;
   margin-left: -1px;
   margin-right: -1px;
 }
-.sidebar .page-contents .nav > li > a:focus {
+.sidebar .page-contents .nav > li > a:focus,
+.sidebar .page-contents-no-scrollspy .nav > li > a:focus {
   text-decoration: none;
   background-color: transparent;
 }
 .main-content {
-  padding: 60px;
-  padding-top: 40px;
+  padding: 40px 60px 60px 60px;
   max-width: 1200px;
   background-color: #ffffff;
   border-right: solid 1px #eeeeee;
@@ -656,7 +666,8 @@ header .user a > a {
 ++ BREADCRUMB
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
-.breadcrumb-container {
+.breadcrumb-container,
+.branch_container {
   width: 100%;
   margin-bottom: 30px;
   background-color: #f2f2f2;
@@ -667,12 +678,14 @@ header .user a > a {
   font-size: 11px;
   line-height: 11px;
 }
-.breadcrumb-container .breadcrumb {
+.breadcrumb-container .breadcrumb,
+.branch_container .breadcrumb {
   margin-bottom: 0;
   padding: 0;
   background: transparent;
 }
-.breadcrumb-container .breadcrumb li a {
+.breadcrumb-container .breadcrumb li a,
+.branch_container .breadcrumb li a {
   display: inline-block;
   padding: 15px 0 13px 0;
   font-size: 11px;
@@ -680,29 +693,37 @@ header .user a > a {
   text-transform: uppercase;
 }
 .breadcrumb-container .breadcrumb li,
+.branch_container .breadcrumb li,
 .breadcrumb-container .breadcrumb li a,
-.breadcrumb-container .breadcrumb li.active a {
+.branch_container .breadcrumb li a,
+.breadcrumb-container .breadcrumb li.active a,
+.branch_container .breadcrumb li.active a {
   color: #73818c;
 }
-.breadcrumb-container .breadcrumb > li + li:before {
+.breadcrumb-container .breadcrumb > li + li:before,
+.branch_container .breadcrumb > li + li:before {
   font-family: FontAwesome;
   content: "\f105";
   padding: 0 5px;
   color: #73818c;
 }
-.breadcrumb-container.transparent {
+.breadcrumb-container.transparent,
+.branch_container.transparent {
   background-color: transparent;
   border-bottom: 0 solid rgba(0, 0, 0, 0.075);
 }
-.breadcrumb-container.inverted {
+.breadcrumb-container.inverted,
+.branch_container.inverted {
   background: rgba(0, 0, 0, 0.2);
   color: #fff;
   border-bottom: 0;
 }
-.breadcrumb-container.inverted li.active a {
+.breadcrumb-container.inverted li.active a,
+.branch_container.inverted li.active a {
   color: #fff;
 }
-.breadcrumb-container.inverted li a {
+.breadcrumb-container.inverted li a,
+.branch_container.inverted li a {
   color: #ddd;
 }
 /*
@@ -710,12 +731,22 @@ header .user a > a {
 ++ VERSION BRANCH SWITCHER
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+.content-switcher,
+.branch-content,
 .version-content {
   padding: 0;
-  background-color: #f9f9f9;
+  background-color: #f2f2f2;
 }
-.version-content .navigation_btn_group .btn {
-  background-color: rgba(255, 255, 255, 0.9);
+.content-switcher .navigation_btn_group .btn,
+.branch-content .navigation_btn_group .btn,
+.version-content .navigation_btn_group .btn,
+.content-switcher .branch-selector .btn,
+.branch-content .branch-selector .btn,
+.version-content .branch-selector .btn,
+.content-switcher .version-selector .btn,
+.branch-content .version-selector .btn,
+.version-content .version-selector .btn {
+  background-color: #fefefe;
   padding-top: 15px;
   padding-bottom: 13px;
   line-height: 11px;
@@ -725,23 +756,71 @@ header .user a > a {
   color: #7d959b;
   font-size: 11px;
 }
-.version-content .navigation_btn_group .btn strong {
+.content-switcher .navigation_btn_group .btn strong,
+.branch-content .navigation_btn_group .btn strong,
+.version-content .navigation_btn_group .btn strong,
+.content-switcher .branch-selector .btn strong,
+.branch-content .branch-selector .btn strong,
+.version-content .branch-selector .btn strong,
+.content-switcher .version-selector .btn strong,
+.branch-content .version-selector .btn strong,
+.version-content .version-selector .btn strong {
   color: #404040;
 }
-.version-content .navigation_btn_group .btn-group:last-child {
+.content-switcher .navigation_btn_group .btn-group:last-child,
+.branch-content .navigation_btn_group .btn-group:last-child,
+.version-content .navigation_btn_group .btn-group:last-child,
+.content-switcher .branch-selector .btn-group:last-child,
+.branch-content .branch-selector .btn-group:last-child,
+.version-content .branch-selector .btn-group:last-child,
+.content-switcher .version-selector .btn-group:last-child,
+.branch-content .version-selector .btn-group:last-child,
+.version-content .version-selector .btn-group:last-child {
   margin-right: -15px;
 }
-.version-content .navigation_btn_group .btn-group:last-child .btn {
+.content-switcher .navigation_btn_group .btn-group:last-child .btn,
+.branch-content .navigation_btn_group .btn-group:last-child .btn,
+.version-content .navigation_btn_group .btn-group:last-child .btn,
+.content-switcher .branch-selector .btn-group:last-child .btn,
+.branch-content .branch-selector .btn-group:last-child .btn,
+.version-content .branch-selector .btn-group:last-child .btn,
+.content-switcher .version-selector .btn-group:last-child .btn,
+.branch-content .version-selector .btn-group:last-child .btn,
+.version-content .version-selector .btn-group:last-child .btn {
   border-right: 1px solid rgba(0, 0, 0, 0.095);
 }
-.version-content .navigation_btn_group .btn-group:first-child .btn {
+.content-switcher .navigation_btn_group .btn-group:first-child .btn,
+.branch-content .navigation_btn_group .btn-group:first-child .btn,
+.version-content .navigation_btn_group .btn-group:first-child .btn,
+.content-switcher .branch-selector .btn-group:first-child .btn,
+.branch-content .branch-selector .btn-group:first-child .btn,
+.version-content .branch-selector .btn-group:first-child .btn,
+.content-switcher .version-selector .btn-group:first-child .btn,
+.branch-content .version-selector .btn-group:first-child .btn,
+.version-content .version-selector .btn-group:first-child .btn {
   border-left: 1px solid rgba(0, 0, 0, 0.095);
 }
-.version-content .navigation_btn_group .dropdown-menu {
+.content-switcher .navigation_btn_group .dropdown-menu,
+.branch-content .navigation_btn_group .dropdown-menu,
+.version-content .navigation_btn_group .dropdown-menu,
+.content-switcher .branch-selector .dropdown-menu,
+.branch-content .branch-selector .dropdown-menu,
+.version-content .branch-selector .dropdown-menu,
+.content-switcher .version-selector .dropdown-menu,
+.branch-content .version-selector .dropdown-menu,
+.version-content .version-selector .dropdown-menu {
   min-width: 35px;
   text-transform: none;
 }
-.version-content .navigation_btn_group .dropdown-menu li > a {
+.content-switcher .navigation_btn_group .dropdown-menu li > a,
+.branch-content .navigation_btn_group .dropdown-menu li > a,
+.version-content .navigation_btn_group .dropdown-menu li > a,
+.content-switcher .branch-selector .dropdown-menu li > a,
+.branch-content .branch-selector .dropdown-menu li > a,
+.version-content .branch-selector .dropdown-menu li > a,
+.content-switcher .version-selector .dropdown-menu li > a,
+.branch-content .version-selector .dropdown-menu li > a,
+.version-content .version-selector .dropdown-menu li > a {
   padding: 3px 10px;
   text-transform: none;
   font-size: 11px;
@@ -749,8 +828,144 @@ header .user a > a {
   word-wrap: break-word;
   white-space: normal;
 }
-.version-content .navigation_btn_group .dropdown-menu li > a strong {
+.content-switcher .navigation_btn_group .dropdown-menu li > a strong,
+.branch-content .navigation_btn_group .dropdown-menu li > a strong,
+.version-content .navigation_btn_group .dropdown-menu li > a strong,
+.content-switcher .branch-selector .dropdown-menu li > a strong,
+.branch-content .branch-selector .dropdown-menu li > a strong,
+.version-content .branch-selector .dropdown-menu li > a strong,
+.content-switcher .version-selector .dropdown-menu li > a strong,
+.branch-content .version-selector .dropdown-menu li > a strong,
+.version-content .version-selector .dropdown-menu li > a strong {
   color: #404040;
+}
+.content-switcher .navigation_btn_group .dropdown-menu li.active > a,
+.branch-content .navigation_btn_group .dropdown-menu li.active > a,
+.version-content .navigation_btn_group .dropdown-menu li.active > a,
+.content-switcher .branch-selector .dropdown-menu li.active > a,
+.branch-content .branch-selector .dropdown-menu li.active > a,
+.version-content .branch-selector .dropdown-menu li.active > a,
+.content-switcher .version-selector .dropdown-menu li.active > a,
+.branch-content .version-selector .dropdown-menu li.active > a,
+.version-content .version-selector .dropdown-menu li.active > a {
+  color: #eeeeee;
+}
+.content-switcher .navigation_btn_group .dropdown-menu li.active > a strong,
+.branch-content .navigation_btn_group .dropdown-menu li.active > a strong,
+.version-content .navigation_btn_group .dropdown-menu li.active > a strong,
+.content-switcher .branch-selector .dropdown-menu li.active > a strong,
+.branch-content .branch-selector .dropdown-menu li.active > a strong,
+.version-content .branch-selector .dropdown-menu li.active > a strong,
+.content-switcher .version-selector .dropdown-menu li.active > a strong,
+.branch-content .version-selector .dropdown-menu li.active > a strong,
+.version-content .version-selector .dropdown-menu li.active > a strong {
+  color: #ffffff;
+}
+.content-switcher .navigation_btn_group .branch_dropdown .nav-pills > li.active > a,
+.branch-content .navigation_btn_group .branch_dropdown .nav-pills > li.active > a,
+.version-content .navigation_btn_group .branch_dropdown .nav-pills > li.active > a,
+.content-switcher .branch-selector .branch_dropdown .nav-pills > li.active > a,
+.branch-content .branch-selector .branch_dropdown .nav-pills > li.active > a,
+.version-content .branch-selector .branch_dropdown .nav-pills > li.active > a,
+.content-switcher .version-selector .branch_dropdown .nav-pills > li.active > a,
+.branch-content .version-selector .branch_dropdown .nav-pills > li.active > a,
+.version-content .version-selector .branch_dropdown .nav-pills > li.active > a,
+.content-switcher .navigation_btn_group .branch_dropdown .nav-pills > li.active > a:hover,
+.branch-content .navigation_btn_group .branch_dropdown .nav-pills > li.active > a:hover,
+.version-content .navigation_btn_group .branch_dropdown .nav-pills > li.active > a:hover,
+.content-switcher .branch-selector .branch_dropdown .nav-pills > li.active > a:hover,
+.branch-content .branch-selector .branch_dropdown .nav-pills > li.active > a:hover,
+.version-content .branch-selector .branch_dropdown .nav-pills > li.active > a:hover,
+.content-switcher .version-selector .branch_dropdown .nav-pills > li.active > a:hover,
+.branch-content .version-selector .branch_dropdown .nav-pills > li.active > a:hover,
+.version-content .version-selector .branch_dropdown .nav-pills > li.active > a:hover,
+.content-switcher .navigation_btn_group .branch_dropdown .nav-pills > li.active > a:focus,
+.branch-content .navigation_btn_group .branch_dropdown .nav-pills > li.active > a:focus,
+.version-content .navigation_btn_group .branch_dropdown .nav-pills > li.active > a:focus,
+.content-switcher .branch-selector .branch_dropdown .nav-pills > li.active > a:focus,
+.branch-content .branch-selector .branch_dropdown .nav-pills > li.active > a:focus,
+.version-content .branch-selector .branch_dropdown .nav-pills > li.active > a:focus,
+.content-switcher .version-selector .branch_dropdown .nav-pills > li.active > a:focus,
+.branch-content .version-selector .branch_dropdown .nav-pills > li.active > a:focus,
+.version-content .version-selector .branch_dropdown .nav-pills > li.active > a:focus {
+  color: inherit;
+  background-color: inherit;
+}
+.content-switcher .navigation_btn_group .branch_button,
+.branch-content .navigation_btn_group .branch_button,
+.version-content .navigation_btn_group .branch_button,
+.content-switcher .branch-selector .branch_button,
+.branch-content .branch-selector .branch_button,
+.version-content .branch-selector .branch_button,
+.content-switcher .version-selector .branch_button,
+.branch-content .version-selector .branch_button,
+.version-content .version-selector .branch_button,
+.content-switcher .navigation_btn_group .version_button,
+.branch-content .navigation_btn_group .version_button,
+.version-content .navigation_btn_group .version_button,
+.content-switcher .branch-selector .version_button,
+.branch-content .branch-selector .version_button,
+.version-content .branch-selector .version_button,
+.content-switcher .version-selector .version_button,
+.branch-content .version-selector .version_button,
+.version-content .version-selector .version_button {
+  border-right: 0;
+}
+.content-switcher .navigation_btn_group .branch_button:hover,
+.branch-content .navigation_btn_group .branch_button:hover,
+.version-content .navigation_btn_group .branch_button:hover,
+.content-switcher .branch-selector .branch_button:hover,
+.branch-content .branch-selector .branch_button:hover,
+.version-content .branch-selector .branch_button:hover,
+.content-switcher .version-selector .branch_button:hover,
+.branch-content .version-selector .branch_button:hover,
+.version-content .version-selector .branch_button:hover,
+.content-switcher .navigation_btn_group .version_button:hover,
+.branch-content .navigation_btn_group .version_button:hover,
+.version-content .navigation_btn_group .version_button:hover,
+.content-switcher .branch-selector .version_button:hover,
+.branch-content .branch-selector .version_button:hover,
+.version-content .branch-selector .version_button:hover,
+.content-switcher .version-selector .version_button:hover,
+.branch-content .version-selector .version_button:hover,
+.version-content .version-selector .version_button:hover,
+.content-switcher .navigation_btn_group .branch_button:focus,
+.branch-content .navigation_btn_group .branch_button:focus,
+.version-content .navigation_btn_group .branch_button:focus,
+.content-switcher .branch-selector .branch_button:focus,
+.branch-content .branch-selector .branch_button:focus,
+.version-content .branch-selector .branch_button:focus,
+.content-switcher .version-selector .branch_button:focus,
+.branch-content .version-selector .branch_button:focus,
+.version-content .version-selector .branch_button:focus,
+.content-switcher .navigation_btn_group .version_button:focus,
+.branch-content .navigation_btn_group .version_button:focus,
+.version-content .navigation_btn_group .version_button:focus,
+.content-switcher .branch-selector .version_button:focus,
+.branch-content .branch-selector .version_button:focus,
+.version-content .branch-selector .version_button:focus,
+.content-switcher .version-selector .version_button:focus,
+.branch-content .version-selector .version_button:focus,
+.version-content .version-selector .version_button:focus {
+  color: inherit;
+  background-color: inherit;
+}
+.branch-content,
+.version-content {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+  border-right: 1px solid rgba(0, 0, 0, 0.075);
+  margin-right: -1px;
+  background-color: #f9f9f9;
+}
+.branch-content {
+  margin-top: -40px;
+  margin-left: -60px;
+  margin-right: -60px;
+}
+.version-content {
+  margin-left: -60px;
+  margin-right: -60px;
+  margin-bottom: 40px;
 }
 .branch_dropdown .dropdown-menu {
   min-width: 120px;
