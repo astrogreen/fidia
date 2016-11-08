@@ -40,17 +40,18 @@ class SurveySerializer(serializers.Serializer):
 
     def get_schema(self, obj):
         # type: (Archive) -> dict
-        schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True)
+        schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None,
+                                 verbosity='descriptions', separate_metadata=True)
         return schema
 
     def get_schema_catalog(self, obj):
         schema_catalog = obj.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
-                                 verbosity='descriptions', separate_metadata=True)
+                                         verbosity='descriptions', separate_metadata=True)
         return schema_catalog
 
     def get_schema_non_catalog(self, obj):
         schema_non_catalog = obj.full_schema(include_subtraits=True, data_class='non-catalog', combine_levels=None,
-                                 verbosity='descriptions', separate_metadata=True)
+                                             verbosity='descriptions', separate_metadata=True)
         return schema_non_catalog
 
     survey = serializers.SerializerMethodField()
@@ -59,61 +60,33 @@ class SurveySerializer(serializers.Serializer):
     schema_non_catalog = serializers.SerializerMethodField()
 
 
-class SampleSerializer(serializers.Serializer):
+class TraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        sample = self.instance
-        assert isinstance(sample, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " + \
-            "not '%s': try SampleSerializer(instance=sample)" % sample
+        trait = self.instance
+        assert issubclass(trait, Trait), \
+            "TraitSerializer must have an instance of fidia.Trait, " + \
+            "not '%s': try TraitSerializer(instance=trait)" % trait
 
-        self.astro_objects = {}
-        for astro_object in sample:
-            url_kwargs = {
-                'astroobject_pk': str(astro_object),
-                'sample_pk': self.context['sample']
-            }
-            url = reverse("schema:astroobject-list", kwargs=url_kwargs)
+    trait = serializers.SerializerMethodField()
 
-            # self.fields[astro_object] = AbsoluteURLField(url=url, required=False)
-            self.astro_objects[astro_object] = url
-            # # Recurse displaying details at lower level (check depth_limit > 0)
-            # self.fields[astro_object] = AstroObjectSerializer(instance=sample[astro_object], depth_limit=depth_limit)
-
-    def get_astro_objects(self, obj):
-        return self.astro_objects
-
-    def get_sample(self, obj):
-        return self.context['sample']
-
-    def get_version(self, obj):
-        return '1.0'
-
-    def get_data_release_versions(self, obj):
-        return ['1.0']
-
-    def get_documentation(self, obj):
-        print(obj)
-        return 'None'
-
-    sample = serializers.SerializerMethodField()
-    astro_objects = serializers.SerializerMethodField()
-    data_release_versions = serializers.SerializerMethodField()
-    version = serializers.SerializerMethodField()
-    documentation = serializers.SerializerMethodField()
+    def get_trait(self, obj):
+        return obj.full_schema(verbosity='descriptions')
 
 
-class AstroObjectSerializer(serializers.Serializer):
-    def get_sample(self, obj):
-        return self.context['sample']
+class DynamicSerializer(serializers.Serializer):
+    def __init__(self, *args, **kwargs):
+        # Instantiate the superclass normally
+        super(DynamicSerializer, self).__init__(*args, **kwargs)
+        # pop off trait_property field if the type is sub_trait
+        if self.context['dynamic_type'] == 'sub_trait':
+            self.fields.pop('trait_property')
+        else:
+            self.fields.pop('sub_trait')
 
-    def get_astroobject(self, obj):
-        return self.context['astroobject']
+    def get_obj(self, obj):
+        return obj
 
-    def get_available_traits(self, obj):
-        return self.context['available_traits']
-
-    sample = serializers.SerializerMethodField()
-    astroobject = serializers.SerializerMethodField()
-    available_traits = serializers.SerializerMethodField()
+    trait_property = serializers.SerializerMethodField('get_obj')
+    sub_trait = serializers.SerializerMethodField('get_obj')

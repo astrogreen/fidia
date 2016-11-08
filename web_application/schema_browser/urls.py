@@ -17,21 +17,22 @@ router = rest_framework.routers.SimpleRouter()
 router.register(r'schema-browser', schema_browser.views.SchemaViewSet, base_name='root')
 
 # Nested routes for sample ()
-sample_nested_router = NestedExtendDefaultRouter(router, r'schema-browser', lookup='root')
-sample_nested_router.register(r'(?P<survey_pk>[^/]+)', schema_browser.views.SurveyViewSet, base_name='survey-browser')
+survey_nested_router = NestedExtendDefaultRouter(router, r'schema-browser', lookup='root')
+survey_nested_router.register(r'(?P<survey_pk>[^/]+)', schema_browser.views.SurveyViewSet, base_name='survey-browser')
 
-# astroobject_nested_router = NestedExtendDefaultRouter(sample_nested_router, r'(?P<survey_pk>[^/]+)', lookup='sample')
-# astroobject_nested_router.register(r'(?P<astroobject_pk>[^/]+)', schema.views.AstroObjectViewSet, base_name='astroobject')
-#
-# trait_nested_router = NestedExtendDefaultRouter(astroobject_nested_router, r'(?P<astroobject_pk>[^/]+)', lookup='astroobject')
-# trait_nested_router.register(r'(?P<trait_pk>[^/]+)', schema.views.TraitViewSet, base_name='trait')
-# trait_nested_router.register(r'(?P<trait_pk>' + TRAIT_KEY_RE.pattern + ')', schema.views.TraitViewSet, base_name='trait')
+trait_nested_router = NestedExtendDefaultRouter(survey_nested_router, r'(?P<survey_pk>[^/]+)', lookup='survey')
+trait_nested_router.register(r'(?P<trait_pk>[^/]+)', schema_browser.views.TraitViewSet, base_name='trait')
+
+dynamic_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/]+)', lookup='trait')
+dynamic_nested_router.register(r'(?P<dynamic_pk>(.*))', schema_browser.views.DynamicViewSet, base_name='dynamic')
+dynamic_nested_router.register(r'(?P<dynamic_pk>(.*)' + TRAIT_KEY_RE.pattern + ')', schema_browser.views.DynamicViewSet,
+                               base_name='dynamic')
 
 urlpatterns = [
     url(r'^(?i)', include(router.urls)),
-    url(r'^(?i)', include(sample_nested_router.urls)),
-    # url(r'^(?i)', include(astroobject_nested_router.urls)),
-    # url(r'^(?i)', include(trait_nested_router.urls)),
+    url(r'^(?i)', include(survey_nested_router.urls)),
+    url(r'^(?i)', include(trait_nested_router.urls)),
+    url(r'^(?i)', include(dynamic_nested_router.urls)),
 ]
 
 
