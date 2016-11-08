@@ -55,10 +55,13 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
 
     def get_breadcrumbs(self, request, view):
         _breadcrumb_list = []
-
+        _url_list = []
         if hasattr(view, 'breadcrumb_list'):
             _breadcrumb_list = view.breadcrumb_list
-        return get_breadcrumbs_by_viewname(request.path, request, _breadcrumb_list)
+        if hasattr(view, 'url_list'):
+            _url_list = view.url_list
+
+        return get_breadcrumbs_by_viewname(request.path, request, _breadcrumb_list, _url_list)
 
     def get_context(self, data, accepted_media_type, renderer_context):
         """

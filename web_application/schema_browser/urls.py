@@ -24,9 +24,9 @@ trait_nested_router = NestedExtendDefaultRouter(survey_nested_router, r'(?P<surv
 trait_nested_router.register(r'(?P<trait_pk>[^/]+)', schema_browser.views.TraitViewSet, base_name='trait')
 
 dynamic_nested_router = NestedExtendDefaultRouter(trait_nested_router, r'(?P<trait_pk>[^/]+)', lookup='trait')
-dynamic_nested_router.register(r'(?P<dynamic_pk>(.*))', schema_browser.views.DynamicViewSet, base_name='dynamic')
-dynamic_nested_router.register(r'(?P<dynamic_pk>(.*)' + TRAIT_KEY_RE.pattern + ')', schema_browser.views.DynamicViewSet,
-                               base_name='dynamic')
+dynamic_nested_router.register(r'(?P<dynamic_pk>.*)', schema_browser.views.DynamicViewSet, base_name='dynamic')
+# dynamic_nested_router.register(r'(?P<dynamic_pk>(.*)' + TRAIT_KEY_RE.pattern + ')', schema_browser.views.DynamicViewSet,
+#                                base_name='dynamic')
 
 urlpatterns = [
     url(r'^(?i)', include(router.urls)),

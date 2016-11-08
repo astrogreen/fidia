@@ -119,28 +119,31 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     renderer_classes = (DynamicRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def list(self, request, pk=None, survey_pk=None, trait_pk=None, dynamic_pk=None, format=None):
-        self.breadcrumb_list = [str(survey_pk).upper(), str(trait_pk), str(dynamic_pk)]
+        self.breadcrumb_list = [str(survey_pk).upper(), str(trait_pk)]
+        self.url_list = []
 
         try:
-
             # get trait_class
             trait_registry = ar.available_traits
             default_trait_key = trait_registry.update_key_with_defaults(trait_pk)
-            # print('default_trait_key: ' + str(default_trait_key))
             trait_class = trait_registry.retrieve_with_key(default_trait_key)
-            # print('trait_class: ' + str(trait_class))
 
             # get the schema for this trait class
             trait_class_schema = trait_class.full_schema(verbosity='descriptions')
 
             # figure out if sub-trait, sub-trait/trait-property or trait-property
             dyn_arr = dynamic_pk.split('/')
+
             path = [dyn_arr[0]]  # < class 'list'>: ['value']
             path.insert(0, str(default_trait_key))  # < class 'list'>: ['line_emission_map-HBETA', 'value']
 
             if issubclass(ar.type_for_trait_path(path), Trait):
                 # sub-trait - make a TraitPath object and get the sub-trait class
                 stp = TraitPath(path)
+                self.breadcrumb_list.append(str(dyn_arr[0]))
+                self.url_list.append(reverse('schema_browser:dynamic-list',
+                                             kwargs={'survey_pk': survey_pk, 'trait_pk': trait_pk,
+                                                     'dynamic_pk': dyn_arr[0]}))
 
                 sub_trait_class = stp.get_trait_class_for_archive(ar)
                 dynamic_obj = sub_trait_class.full_schema(verbosity='descriptions')
@@ -149,6 +152,9 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 if len(dyn_arr) > 1:
                     # has a trait property, update
                     _trait_property_key = dyn_arr[1]
+                    self.breadcrumb_list.append(dyn_arr[1])
+                    self.url_list.append(reverse('schema_browser:dynamic-list',
+                                  kwargs={'survey_pk': survey_pk, 'trait_pk': trait_pk, 'dynamic_pk': dynamic_pk}))
 
                     sub_trait_schema = sub_trait_class.full_schema(verbosity='descriptions')
                     dynamic_obj = sub_trait_schema["trait_properties"][_trait_property_key]
@@ -156,12 +162,16 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             else:
                 # trait property
                 dynamic_type = 'trait_property'
+                self.breadcrumb_list.append(dynamic_pk)
+                self.url_list.append(reverse('schema_browser:dynamic-list',
+                                             kwargs={'survey_pk': survey_pk, 'trait_pk': trait_pk,
+                                                     'dynamic_pk': dynamic_pk}))
                 dynamic_obj = trait_class_schema["trait_properties"][dyn_arr[0]]
 
-        # except KeyError:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-        # except ValueError:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             message = str(e)
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
