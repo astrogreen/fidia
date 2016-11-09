@@ -48,14 +48,13 @@ body h1.tool-heading {
   line-height: 50px;
 }
 body h2 {
-  font-size: 22px;
   font-weight: 300;
   margin-bottom: 20px;
   font-weight: 400;
   font-size: 28px;
 }
 body h3 {
-  font-size: 20px;
+  font-size: 24px;
   line-height: 40px;
   border-bottom: solid 1px #eeeeee;
   margin-top: 30px;
@@ -1256,6 +1255,9 @@ header .user a > a {
 }
 .margin-top-fifteen {
   margin-top: 15px;
+}
+.margin-top-thirty {
+  margin-top: 30px;
 }
 .margin-all-fifteen {
   margin: 15px;

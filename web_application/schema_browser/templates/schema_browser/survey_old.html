@@ -4,9 +4,9 @@
 {% load internal_extras %}
 {% block title %} Schema Browser {% endblock %}
 {% block head-extra %}
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>-->
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'schema_browser/css/schema_browser/schema_browser.min.css' %}"/>-->
+    <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'schema_browser/css/schema_browser/schema_browser.min.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation-fidia/documentation-fidia.min.css' %}"/>
 {% endblock %}
 
@@ -19,22 +19,44 @@
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
+{% block sidebar_container %}
+<div class="col-xs-12 col-sm-2 sidebar" role="navigation">
+    <div class="sidebar-contents">
+        {% block sidebar %}
+        {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 
-{% block sidebar %}
-<div class="page-contents">
-    <h5>Page Contents</h5>
-    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <div class="page-contents-no-scrollspy" id="schema_menu">
+            <h5>Page Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation" class="active"><a href="#overview" role="tab" class="trait_type_button" data-toggle="pill">Overview</a></li>
+            </ul>
+            <h5>Schema Contents</h5>
+            <div style="position:relative;padding:5px 15px;">
+                <input type="text" class="search form-control" id="schema_search" placeholder="Search...">
+            </div>
 
-        <li role="presentation" class="active"><a href="#overview" >Overview</a></li>
-        {% for trait_type_key, trait_type_value in response.data.schema_non_catalog.trait_types.items %}
-            <li role="presentation"><a class="scroll" href="#{{trait_type_key}}" >{{trait_type_value.pretty_name}}</a></li>
-        {% endfor %}
-    </ul>
-
+            <ul class="nav nav-pills nav-stacked docs-sidebar" id="docs-sidebar">
+                {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
+                    <li class="text-uppercase heading {% if forloop.first %}no-margin-top{% endif %}" data-trait-type-key="{{trait_type_key}}">
+                        <h6 >{{trait_type_value.pretty_name}}</h6>
+                    </li>
+                    {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+                        <li class="{% if forloop.parentloop.first and forloop.first %}{% endif %}" role="presentation" data-trait-type-key="{{trait_type_key}}">
+                            <a href="#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_type_button"
+                                role="tab" data-toggle="pill">{{trait_qualifier_value.pretty_name}}
+                                {% if not trait_qualifier_value.pretty_name %}
+                                    {{trait_type_value.pretty_name}}
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endblock %}
+    </div>
 </div>
 {% endblock %}
-
-
 
 {% block version_container %}
 <div class="col-xs-12 col-sm-10 content-switcher">
@@ -64,67 +86,38 @@
 {% endblock %}
 
 
+{% block before-main %}
+
+
+{% endblock %}
 {% block main %}
 {% captureas survey %}{{response.data.survey}}{% endcaptureas %}
 <div class="schema-contents">
-    <div class="row">
-        <div class="col-xs-12">
-            {% include "data_browser/layout/title.html" with db_title="Overview" %}
-            <p class="lead">The Schema Browser describes the {{survey|uppercase}} survey data products.</p>
-            <div class="panel panel-default success">
-                <div class="panel-body">
-                    <div class="sub-heading"><p class="">
-                        Note: Data are grouped by their product type, e.g., [OII] (3729Å) and Hα line emission maps are
-                        found in the <strong>Line Emission Map</strong> section.
-                        It is recommended
-                        that you also use the <a href="">{{survey|uppercase}} Documentation</a> in
-                        conjunction
-                        with the
-                        Schema
-                        Browser, which contains a more comprehensive description of pipeline reduction and
-                        analysis
-                        techniques.</p>
+    <div class="tab-content trait">
+        <div class="tab-pane active" id="overview">
+            <div class="row">
+                <div class="col-xs-12">
+                    {% include "data_browser/layout/title.html" with db_title="Overview" %}
+                    <p class="lead">The Schema Browser describes the {{survey|uppercase}} survey data products.</p>
+                    <div class="panel panel-default success">
+                        <div class="panel-body">
+                            <div class="sub-heading"><p class="">To begin, click a data product
+                                from the list. If you cannot find a particular data product, use the search bar to
+                                refine the schema
+                                contents. It is recommended
+                                that you also use the <a href="">{{survey|uppercase}} Documentation</a> in
+                                conjunction
+                                with the
+                                Schema
+                                Browser, which contains a more comprehensive description of pipeline reduction and
+                                analysis
+                                techniques.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    {% for trait_type_key, trait_type_value in response.data.schema_non_catalog.trait_types.items %}
-        <h3 id="{{trait_type_key}}">{{trait_type_value.pretty_name}}</h3>
-        Trait Class description and/or documentation {% lorem %}
-
-        <table class="table table-bordered table-condensed margin-top-thirty">
-            <thead>
-            <tr class="active">
-                <th class="col-xs-3 col-sm-3">Type</th>
-                <th class="col-xs-7 col-sm-8">Description</th>
-                <th class="col-xs-2 col-sm-1">Schema</th>
-            </tr>
-            </thead>
-            <tbody>
-                {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                <tr>
-                    <td>
-                        <a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">{{trait_qualifier_value.pretty_name}}
-                            {% if not trait_qualifier_value.pretty_name %}
-                                {{trait_type_value.pretty_name}}
-                            {% endif %}
-                        </a>
-                    </td>
-                    <td><em>description {{trait_qualifier_value.description|safe}}</em></td>
-                    <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    {% endfor %}
-
-
-
-    <div class="tab-content trait">
-
 
         {% for trait_type_key, trait_type_value in response.data.schema.trait_types.items %}
             {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
@@ -368,7 +361,7 @@
 </div>
 {% endblock %}
 
-{% block footer-extra-nope %}
+{% block footer-extra %}
 
 <script>
 

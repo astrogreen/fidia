@@ -3,7 +3,7 @@
     <table class="table table-condensed table-bordered" id="properties-table">
          <thead>
              <tr class="active" id="properties">
-                <td colspan="5" style="border-right:0" align="middle">
+                <td colspan="5" style="border-right:0">
                     <h6 class="" style="margin:0"><span class="text-uppercase">Properties</span></h6>
                 </td>
             </tr>
@@ -30,8 +30,15 @@
         <!--Iterate over sub-traits-->
         {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
              <tr class="bg-success" id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}({{trait_version_key}})_{{sub_trait_key}}">
-                <td colspan="5" style="border-right:0" align="middle">
+                <td colspan="1" style="border-right:0">
                     <h6 class="" style="margin:0"><span class="text-uppercase">{{sub_trait_value.pretty_name}}</span></h6>
+                </td>
+                <td colspan="4" align="right" style="border-left:0">
+                    {% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}
+                        {% with sub_trait_qualifier_value.trait as sub_value %}
+                            &nbsp;&nbsp;<span class="sub-heading small"><em>{{sub_value.description|safe}}</em></span>
+                        {% endwith %}
+                    {% endfor %}
                 </td>
             </tr>
              <!-- sub-trait trait properties -->
@@ -40,7 +47,9 @@
                     {% if sub_value.description %}
                          <tr>
                              <td colspan="5" style="padding:15px;">
-                                 <em>{{sub_value.description|safe}}</em> &nbsp;<a class="" href="">read more <i class="fa fa-angle-right"></i></a>
+                                 {% if sub_value.html_documentation %}
+                                     <div class="documentation_fidia">{{sub_value.html_documentation|safe}}</div>
+                                {% endif %}
                              </td>
                          </tr>
                     {% endif %}

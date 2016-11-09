@@ -38,25 +38,25 @@ class SurveySerializer(serializers.Serializer):
     def get_survey(self, obj):
         return self.context['survey']
 
-    def get_schema(self, obj):
-        # type: (Archive) -> dict
-        schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None,
-                                 verbosity='descriptions', separate_metadata=True)
-        return schema
-
-    def get_schema_catalog(self, obj):
-        schema_catalog = obj.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
-                                         verbosity='descriptions', separate_metadata=True)
-        return schema_catalog
+    # def get_schema(self, obj):
+    #     # type: (Archive) -> dict
+    #     schema = obj.full_schema(include_subtraits=True, data_class='all', combine_levels=None,
+    #                              verbosity='descriptions', separate_metadata=True)
+    #     return schema
+    #
+    # def get_schema_catalog(self, obj):
+    #     schema_catalog = obj.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
+    #                                      verbosity='descriptions', separate_metadata=True)
+    #     return schema_catalog
 
     def get_schema_non_catalog(self, obj):
-        schema_non_catalog = obj.full_schema(include_subtraits=True, data_class='non-catalog', combine_levels=None,
+        schema_non_catalog = obj.full_schema(include_subtraits=False, data_class='non-catalog', combine_levels=None,
                                              verbosity='descriptions', separate_metadata=True)
         return schema_non_catalog
 
     survey = serializers.SerializerMethodField()
-    schema = serializers.SerializerMethodField()
-    schema_catalog = serializers.SerializerMethodField()
+    # schema = serializers.SerializerMethodField()
+    # schema_catalog = serializers.SerializerMethodField()
     schema_non_catalog = serializers.SerializerMethodField()
 
 
@@ -64,15 +64,10 @@ class TraitSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        trait = self.instance
-        assert issubclass(trait, Trait), \
-            "TraitSerializer must have an instance of fidia.Trait, " + \
-            "not '%s': try TraitSerializer(instance=trait)" % trait
-
     trait = serializers.SerializerMethodField()
 
     def get_trait(self, obj):
-        return obj.full_schema(verbosity='descriptions')
+        return obj
 
 
 class DynamicSerializer(serializers.Serializer):

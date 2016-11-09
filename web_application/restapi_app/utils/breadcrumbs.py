@@ -71,7 +71,6 @@ def get_breadcrumbs_by_viewname(url, request=None, breadcrumb_list=None, url_lis
         """
         try:
             (view, unused_args, unused_kwargs) = resolve(url)
-            print(url)
         except Exception:
             pass
         else:
