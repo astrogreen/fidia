@@ -4,9 +4,6 @@
 {% load internal_extras %}
 {% block title %} Schema Browser {% endblock %}
 {% block head-extra %}
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>-->
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'schema_browser/css/schema_browser/schema_browser.min.css' %}"/>-->
     <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation-fidia/documentation-fidia.min.css' %}"/>
 {% endblock %}
 
@@ -24,15 +21,23 @@
 <div class="page-contents">
     <h5>Page Contents</h5>
     <ul class="nav nav-pills nav-stacked nav-sidebar">
-
-        <li role="presentation" class="active"><a href="#overview" >Overview</a></li>
+        <li role="presentation" class="active"><a href="#top-of-page" >Overview</a></li>
         <li role="presentation"><a href="#documentation" class="scroll">Documentation</a></li>
         <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
         <li role="presentation"><a href="#formats" class="scroll">Downloadable Formats</a></li>
         <li role="presentation"><a href="#branches" class="scroll">All Available Branches and Previous Versions</a></li>
+    </ul>
+    <h5>Quick Links</h5>
+    <ul class="nav-sidebar">
+
+         {% if breadcrumblist %}
+        {% with breadcrumblist|length|add:"-2" as b %}
+        <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+            {{breadcrumblist|key:b|key:0}}</a></li>
+        {% endwith %}
+        {% endif %}
 
     </ul>
-
 </div>
 {% endblock %}
 
@@ -119,145 +124,130 @@
             {% include "data_browser/layout/title.html" with db_title=trait_pretty_name %}
         </div>
     </div>
-
-        {% if trait_type_value.description %}<p><em>{{trait_type_value.description}}</em></p>{% endif %}
-
-            {% with response.data.trait as value %}
-
-                <!--<p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>-->
-
-                <p><em>You are currently viewing the {{trait_type_value.pretty_name}}
-                    {{trait_qualifier_value.pretty_name}} Schema for
-                    branch <strong class="text-danger"><em>
-                        {% for branch_key, branch_value in full_trait_schema.branches.items %}
-                            {% if branch_key == branch %}
-                                {{branch_value.pretty_name}}
+    <div class="panel panel-default success">
+        <div class="panel-body">
+            <div class="p">
+                You are currently viewing the {{trait_pretty_name}} schema for
+        branch <strong class="text-danger"><em>
+            {% for branch_key, branch_value in full_trait_schema.branches.items %}
+                {% if branch_key == branch %}
+                    {{branch_value.pretty_name}}
+                {% endif %}
+            {% endfor %}
+        </em></strong>, version  <strong class="text-danger">
+            <em>
+                {% for branch_key, branch_value in full_trait_schema.branches.items %}
+                    {% if branch_key == branch %}
+                        {% for version_key, version_value in branch_value.versions.items %}
+                            {% if version_key == version %}
+                                {{version_value.pretty_name}}
                             {% endif %}
                         {% endfor %}
-                    </em></strong>, version  <strong class="text-danger">
-                        <em>
-                            {% for branch_key, branch_value in full_trait_schema.branches.items %}
-                                {% if branch_key == branch %}
-                                    {% for version_key, version_value in branch_value.versions.items %}
-                                        {% if version_key == version %}
-                                            {{version_value.pretty_name}}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                        </em></strong>.
-
-
-                    {% if full_trait_schema.default_branch == branch %}
-                        The
-                        {% for branch_key, branch_value in full_trait_schema.branches.items %}
-                            {% if branch_key == branch %}
-                                {{branch_value.pretty_name}}
-                            {% endif %}
-                        {% endfor %}
-                        branch is the default branch for {{trait_pretty_name}}.
                     {% endif %}
-                </em></p>
+                {% endfor %}
+            </em></strong>.
 
-
-
-
-                <!-- Documentation -->
-                <h3 id="documentation">Documentation</h3>
-                <div class="documentation_fidia">
-                    {{value.html_documentation|safe}}
-                </div>
-
-                <!-- Properties-->
-                <h3 id="properties">Properties</h3>
-
-                <div class="row">
-                    <div class="col-xs-12">
-                        {% include 'schema_browser/tables/properties_table.html' %}
-                    </div>
-                </div>
-
-                <!-- Formats -->
-                <h3 id="formats">
-                     Downloadable Formats
-                </h3>
-                <!-- If this trait_type_key is in schema_non_catalog it is likely a fits product and not a catalog property -->
-                <div>
-                    {% for format_key in value.export_formats %}
-                        <span class="fa-custom-stack">
-                          <i class="fa fa-file-o"></i>
-                            <span class="fa-custom-filetype">{{format_key}}</span>
-                        </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
+                {% if full_trait_schema.default_branch == branch %}
+                    The
+                    {% for branch_key, branch_value in full_trait_schema.branches.items %}
+                        {% if branch_key == branch %}
+                            {{branch_value.pretty_name}}
+                        {% endif %}
                     {% endfor %}
-                    <span class="fa-custom-stack">
-                      <i class="fa fa-file-o"></i>
-                        <span class="fa-custom-filetype">json</span>
-                    </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
-                </div>
-                <p>
+                    branch is the default branch for {{trait_pretty_name}}.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <br>
 
-                <!-- Branches -->
-                <h3 id="branches">
-                     All Available Branches and Previous Versions
-                </h3>
-                <p>{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} data products have {{trait_qualifier_value.branches |length }} available branch(es).
-                    In this section, you may find descriptions of each branch and version for reference.
+    {% with response.data.trait as value %}
 
-                    To switch branches, use the
-                    branch selector floating in the top right corner at the top
-                    of this document. For more information
-                    on branches,
-                    <a href="{% url 'documentation:article-detail' slug='branches-what-is-a-branch' %}">
-                        view the documentation</a>.
-                </p>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-condensed">
-                        <colgroup>
-                            <col style="width:20%">
-                            <col style="width:30%">
-                            <col style="width:50%">
-                        </colgroup>
-                        <thead>
-                        <tr class="active">
-                            <th><i class="fa fa-code-fork"></i> Branch</th>
-                            <th>Description</th>
-                            <th><i class="fa fa-map-pin"></i> Versions</th>
+        <!--<p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>-->
+
+
+
+        <!-- Documentation -->
+        <h3 id="documentation">Documentation</h3>
+        <div class="documentation_fidia">
+            {{value.html_documentation|safe}}
+        </div>
+
+        <!-- Properties-->
+        <h3 id="properties">Properties</h3>
+
+        <div class="row">
+            <div class="col-xs-12">
+                {% include 'schema_browser/tables/properties_table.html' %}
+            </div>
+        </div>
+
+        <!-- Formats -->
+        <h3 id="formats">
+             Downloadable Formats
+        </h3>
+        <!-- If this trait_type_key is in schema_non_catalog it is likely a fits product and not a catalog property -->
+        <div>
+            {% for format_key in value.export_formats %}
+                <span class="fa-custom-stack">
+                  <i class="fa fa-file-o"></i>
+                    <span class="fa-custom-filetype">{{format_key}}</span>
+                </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
+            {% endfor %}
+            <span class="fa-custom-stack">
+              <i class="fa fa-file-o"></i>
+                <span class="fa-custom-filetype">json</span>
+            </span><i class="fa fa-check sub-heading"></i>&nbsp;&nbsp;
+        </div>
+        <p>
+
+        <!-- Branches -->
+        <h3 id="branches">
+             All Available Branches and Previous Versions
+        </h3>
+
+        <p>There are {{full_trait_schema.branches|length}} available branch(es) for {{trait_pretty_name}} data products.
+            In this section, you may find descriptions of each branch and version for reference.
+            To switch branches, use the
+            branch selector in the top right corner of this page.
+        </p>
+        <div class="table-responsive">
+            <table class="table table-bordered table-condensed">
+
+                <thead>
+                <tr class="active">
+                    <th class="col-xs-3">Branch</th>
+                    <th class="col-xs-5">Description</th>
+                    <th class="col-xs-2">Handle</th>
+                    <th class="col-xs-2">Versions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for branch_key, branch_value in full_trait_schema.branches.items %}
+                        <tr>
+                            <td>
+                                {{branch_value.pretty_name}}
+                                {% if full_trait_schema.default_branch == branch_key %}
+                                <small>DEFAULT</small>
+                                {% endif %}
+                            </td>
+                            <td>{{branch_value.description}}</td>
+                            <td>{{branch_key}}</td>
+                            <td>
+                                {% for version_key, version_value in branch_value.versions.items %}
+                                    <i class="fa fa-map-pin"></i> {{version_value.pretty_name}} {% if not forloop.last%},{% endif %}
+                                {% endfor %}
+
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
-                             <tr>
-                                <td>{{trait_branch_value.pretty_name}}
-                                    {% if trait_qualifier_value.default_branch == trait_branch_key %}
-                                        <small>DEFAULT</small>
-                                    {% endif %}
-                                </td>
-                                <td>{{trait_branch_value.description}}</td>
-                                 <td>
-                                     <ul>
-                                        {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
-                                            <li>
-                                                <span>
-                                                    {{trait_version_value.pretty_name}}
-                                                    {% if trait_branch_value.default_version == trait_version_key %}
-                                                        <small>LATEST</small>
-                                                    {% endif %}
-                                                </span><br>
-                                                <em>{{trait_version_value.description}}</em>
-                                            </li>
 
-                                        {% endfor %}
-                                     </ul>
+                {% endfor %}
 
-                                 </td>
-                            </tr>
-                        {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-                        </tbody>
-                    </table>
-                </div>
-
-            {% endwith %}
+    {% endwith %}
 
 </div>
 {% endblock %}

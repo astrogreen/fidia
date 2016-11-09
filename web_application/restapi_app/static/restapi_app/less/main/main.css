@@ -196,6 +196,18 @@ a.sub-heading {
 .sub-heading {
   font-size: 14px;
 }
+.label {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
 #page-content {
   background-color: rgba(241, 241, 241, 0.6);
   background-color: #f7f7f7;
@@ -279,6 +291,14 @@ code {
   padding: 2px 4px;
   font-size: 90%;
   color: #4078C0;
+  background-color: #f9f2f4;
+  border-radius: 4px;
+}
+.segment {
+  padding: 2px 4px;
+  font-size: 90%;
+  color: #a94442;
+  color: #B54D48;
   background-color: #f9f2f4;
   border-radius: 4px;
 }
@@ -1849,8 +1869,10 @@ li.nested_dropdown > a {
 .table td,
 .table p {
   color: #333;
+  color: #777;
   font-weight: 400;
   line-height: 1.6;
+  font-size: 12px;
 }
 .table td.lead {
   font-size: 18px;

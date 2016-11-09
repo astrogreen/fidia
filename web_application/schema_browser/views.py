@@ -186,9 +186,25 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Schema Browser Dynamic Viewset providing List route only. Returns schema for a survey_pk / trait_pk / sub_trait or trait_property_pk.
     """
+    def __init__(self, *args, **kwargs):
+        self.full_trait_schema = {}
+        self.survey = self.trait_name = self.trait_class = self.trait_qualifier = self.trait_pretty_name = self.branch = self.version = ''
+        super().__init__(*args, **kwargs)
 
     class DynamicRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        pass
+        template = 'schema_browser/dynamic.html'
+
+        def get_context(self, data, accepted_media_type, renderer_context):
+            context = super().get_context(data, accepted_media_type, renderer_context)
+            context['survey'] = renderer_context['view'].survey
+            # context['trait_name'] = renderer_context['view'].trait_name
+            # context['trait_class'] = renderer_context['view'].trait_class
+            # context['trait_qualifier'] = renderer_context['view'].trait_qualifier
+            # context['trait_pretty_name'] = renderer_context['view'].trait_pretty_name
+            # context['full_trait_schema'] = renderer_context['view'].full_trait_schema
+            # context['branch'] = renderer_context['view'].branch
+            # context['version'] = renderer_context['view'].version
+            return context
 
     renderer_classes = (DynamicRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
@@ -252,6 +268,7 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             message = str(e)
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                           status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.survey = survey_pk
 
         serializer = schema_browser.serializers.DynamicSerializer(
             instance=dynamic_obj, many=False,
