@@ -57,7 +57,7 @@ class TestSAMILZIFU:
         themap = sami_sample['24433'][TraitKey('line_emission_map', 'HALPHA', "recom_comp")]
 
         assert hasattr(themap, 'comp_1_flux')
-        assert hasattr(themap, 'variance')
+        assert hasattr(themap, 'error')
 
     def test_wcs_on_both_branches(self, a_sami_galaxy):
 

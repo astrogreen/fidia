@@ -883,7 +883,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
         return self._hdu['V'].data[1, :, :]
 
     @trait_property('float.array')
-    def variance(self):
+    def error(self):
         return self._hdu['V_ERR'].data[1, :, :]
 
     @trait_property('string')
@@ -924,7 +924,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
         return self._hdu['VDISP'].data[1, :, :]
 
     @trait_property('float.array')
-    def variance(self):
+    def error(self):
         return self._hdu['VDISP_ERR'].data[1, :, :]
 
     @trait_property('string')
@@ -991,11 +991,10 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
         return value
 
     @trait_property('float.array')
-    def variance(self):
+    def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
         log.debug("Returning type: %s", type(sigma))
-        variance = sigma**2
-        return variance
+        return sigma
 
     # @trait_property('string')
     # def _wcs_string(self):
@@ -1062,10 +1061,9 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     value.set_description("Total Line Flux in all components")
 
     @trait_property('float.array')
-    def variance(self):
+    def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
-        variance = sigma**2
-        return variance
+        return sigma
     value.set_description("Variance of Total Line Flux in all components")
 
     # 1-component
@@ -1076,10 +1074,9 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     value.set_description("Line Flux in narrowest component")
 
     @trait_property('float.array')
-    def comp_1_variance(self):
+    def comp_1_error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
-        variance = sigma**2
-        return variance
+        return sigma
     value.set_description("Variance of Line Flux in narrowest component")
 
     @trait_property('float.array')
@@ -1089,10 +1086,9 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     value.set_description("Line Flux in middle-width component")
 
     @trait_property('float.array')
-    def comp_2_variance(self):
+    def comp_2_error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
-        variance = sigma**2
-        return variance
+        return sigma
     value.set_description("Variance of Line Flux in middle-width component")
 
     @trait_property('float.array')
@@ -1103,10 +1099,9 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
 
     @trait_property('float.array')
-    def comp_3_variance(self):
+    def comp_3_error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
-        variance = sigma**2
-        return variance
+        return sigma
     value.set_description("Variance of Line Flux in broadest component")
 
     @trait_property('string')
@@ -1170,10 +1165,9 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     value.set_description("Total Line Flux in all components")
 
     @trait_property('float.array')
-    def variance(self):
+    def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
-        variance = sigma**2
-        return variance
+        return sigma
     value.set_description("Variance of Total Line Flux in all components")
 
 
@@ -1257,8 +1251,8 @@ class LZIFUCombinedFit(SpectralMap):
         return self._hdu[self._color + '_CONTINUUM'].data + self._hdu[self._color + '_LINE'].data
 
     @trait_property('float.array')
-    def variance(self):
-        raise DataNotAvailable("No Variance data available for LZIFU combined spectral fit.")
+    def error(self):
+        raise DataNotAvailable("No error data available for LZIFU combined spectral fit.")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1309,8 +1303,8 @@ class LZIFUContinuum(SpectralMap):
         return self._hdu[color + '_CONTINUUM'].data
 
     @trait_property('float.array')
-    def variance(self):
-        return None
+    def error(self):
+        raise DataNotAvailable("No error data available for LZIFU continuum spectral fit.")
 
 class LZIFULineSpectrum(SpectralMap):
 
@@ -1349,8 +1343,8 @@ class LZIFULineSpectrum(SpectralMap):
         return self._hdu[color + '_LINE'].data
 
     @trait_property('float.array')
-    def variance(self):
-        return None
+    def error(self):
+        raise DataNotAvailable("No error data available for LZIFU emission spectral fit.")
 
 
 #     __   ___  __                          ___          __   __
@@ -1408,7 +1402,7 @@ class BalmerExtinctionMap(Image, TraitFromFitsFile):
              self.object_id + "_extinction_" + self.branch + ".fits"))
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
-    variance = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
+    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 
 
