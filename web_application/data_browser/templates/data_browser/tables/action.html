@@ -30,7 +30,6 @@
             <td class="p_light"><i class="fa fa-map-pin"></i> Version </td>
             <td> {{version}} </td>
         </tr>
-    {% if fidia_type == "trait" or fidia_type == "sub_trait" %}
         <tr class="active">
             <td colspan="2" align="middle">
                 <h6 class="text-uppercase" style="margin:0">Actions</h6>
@@ -39,20 +38,20 @@
         <tr>
             <td class="p_light">Schema</td>
             <td>
-                {% if fidia_type == "sub_trait" %}
+                {% if fidia_type == "sub_trait" or fidia_type == "trait_property" %}
 
                     {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
-                    {% captureas dynamic_link %}{{response.data.name}}{% endcaptureas %}
+                    {% captureas dynamic_link %}{% if sub_trait %}{{sub_trait}}/{% endif %}{{response.data.name}}{% endcaptureas %}
                     <a class="" target="_blank" href="{% url 'schema_browser:dynamic-list' survey_pk=survey trait_pk=schema_link dynamic_pk=dynamic_link %}">view <i class="fa fa-angle-right"></i></a>
 
                 {% else %}
                     {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
                     <a class="" target="_blank" href="{% url 'schema_browser:trait-list' survey_pk=survey trait_pk=schema_link %}">view <i class="fa fa-angle-right"></i></a>
                 {% endif %}
-
-
             </td>
         </tr>
+    {% if fidia_type == "trait" or fidia_type == "sub_trait" %}
+
         {% if fidia_type = "trait" %}
             <tr>
                 <td class="p_light">Download</td>
@@ -101,10 +100,6 @@
         <tr>
             <td class="p_light">Description</td>
             <td>{{response.data.description}}</td>
-        </tr>
-        <tr>
-            <td class="p_light">Type</td>
-            <td><code>{{response.data.type}}</code></td>
         </tr>
         <tr>
             <td class="p_light">Data</td>

@@ -513,6 +513,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_
 
         self.fidia_type = "trait_property"
         self.subtrait_pretty_name = subtrait_pointer.get_pretty_name()
+        self.sub_trait = subtrait_pointer.trait_name
 
         self.trait_2D_map = False
         if isinstance(self.trait, traits.Map2D):

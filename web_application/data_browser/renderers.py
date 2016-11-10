@@ -141,6 +141,7 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         context['trait_2D_map'] = renderer_context['view'].trait_2D_map
         context['trait_url'] = renderer_context['view'].trait_url
         context['subtrait_pretty_name'] = renderer_context['view'].subtrait_pretty_name
+        context['sub_trait'] = renderer_context['view'].sub_trait
 
         context['template'] = renderer_context['view'].template
 

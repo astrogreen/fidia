@@ -198,13 +198,6 @@ class DynamicViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         def get_context(self, data, accepted_media_type, renderer_context):
             context = super().get_context(data, accepted_media_type, renderer_context)
             context['survey'] = renderer_context['view'].survey
-            # context['trait_name'] = renderer_context['view'].trait_name
-            # context['trait_class'] = renderer_context['view'].trait_class
-            # context['trait_qualifier'] = renderer_context['view'].trait_qualifier
-            # context['trait_pretty_name'] = renderer_context['view'].trait_pretty_name
-            # context['full_trait_schema'] = renderer_context['view'].full_trait_schema
-            # context['branch'] = renderer_context['view'].branch
-            # context['version'] = renderer_context['view'].version
             return context
 
     renderer_classes = (DynamicRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
