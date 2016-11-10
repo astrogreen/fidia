@@ -28,35 +28,27 @@
                             <li class="dropdown-header">Extragalactic</li>
                             <li><a href="{% url 'sami' %}">SAMI</a></li>
                             <li class="disabled"><a href="" disabled>GAMA</a></li>
-
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Galactic</li>
                             <li class="disabled"><a href="" disabled>GALAH</a></li>
-                            <!--<li class="dropdown-header">Raw Observations</li>-->
-                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Access</a></li>-->
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Data Access</a>
+                           aria-haspopup="true" aria-expanded="false">Data</a>
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Data Access</li>
                             <li><a href="{% url 'data-access' %}">Overview</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Query catalogue properties</li>
-                            <li class="disabled"><a href="" disabled>Multi Survey Query Builder</a></li>
-                            <li role="separator" class="divider"></li>
                             <li class="dropdown-header">View and download survey data products</li>
-                            <li><a href="{% url 'data_browser:root-list' %}">Data Browser</a></li>
-                            <!--<li class="dropdown-header  text-uppercase">View all survey data for an astronomical object</li>-->
-                            <!--<li class="disabled"><a href="" disabled>Single Object Viewer</a></li>-->
+                            <li><a href="{% url 'data_browser:root-list' %}">Single Object Viewer</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Schema browser for survey data products</li>
-                            <li><a href="{% url 'schema:root-list' %}">Schema Browser</a></li>
+                            <li class="dropdown-header">Query catalogue properties</li>
+                            <li class="disabled"><a href="" disabled>Define a sample</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Search</li>
-                            <li class="disabled"><a>Data Explorer</a></li>
-                            <li class="disabled"><a>Position Search</a></li>
+                            <li class="dropdown-header">Revisit previous queries</li>
+                            <li class="disabled"><a href="" disabled>My Query History</a></li>
+
                         </ul>
                     </li>
 
@@ -65,22 +57,12 @@
                            aria-expanded="false">Documentation </a>
 
                         <ul class="dropdown-menu">
-                            <li style="margin-top:4px;"><a href="{% url 'documentation:topic-list' %}">Help Center Home</a></li>
+                            <li class="dropdown-header">Documentation and FAQs</li>
+                            <li style="margin-top:4px;"><a href="{% url 'documentation:topic-list' %}">Help Center</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">AAODC</li>
+                            <li class="dropdown-header">Schema browser for survey data products</li>
+                            <li><a href="{% url 'schema_browser:root-list' %}">Schema Browser</a></li>
 
-                            <li><a href="{% url 'documentation:topic-detail' slug='data-access' %}">Data Access</a></li>
-                            <li><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Tools</li>
-                            <li><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Data Browser</a></li>
-                            <!--<li><a href="{% url 'documentation:topic-detail' slug='query' %}">Query Builder (SQL)</a></li>-->
-                            <li><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser</a></li>
-
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Surveys</li>
-                            <li><a href="{% url 'documentation:topic-detail' slug='sami' %}">SAMI</a></li>
-                            <li><a href="{% url 'documentation:topic-detail' slug='gama' %}">GAMA</a></li>
 
                         </ul>
                     </li>
@@ -88,10 +70,6 @@
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">About </a>
                         <ul class="dropdown-menu">
-                            <!--<li class="dropdown-header">Useful</li>-->
-                            <li class="disabled"><a href="{% url 'under-construction' %}">Referencing AAT</a>
-                            </li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">Publications</a></li>
                             <li><a href="{% url 'about-team' %}">Meet the Team</a></li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Support</li>

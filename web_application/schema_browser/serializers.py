@@ -44,10 +44,18 @@ class SurveySerializer(serializers.Serializer):
     #                              verbosity='descriptions', separate_metadata=True)
     #     return schema
     #
-    # def get_schema_catalog(self, obj):
-    #     schema_catalog = obj.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
-    #                                      verbosity='descriptions', separate_metadata=True)
-    #     return schema_catalog
+    def get_schema_catalog(self, obj):
+        schema_catalog = obj.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
+                                         verbosity='descriptions', separate_metadata=True)
+
+        schema_non_catalog = obj.full_schema(include_subtraits=False, verbosity='simple', data_class='non-catalog',
+                                             combine_levels=None, separate_metadata=True)
+
+        # remove non-catalog traits from catalog schema
+        for key in schema_non_catalog["trait_types"]:
+            if key in schema_catalog["trait_types"]:
+                schema_catalog["trait_types"].pop(key)
+        return schema_catalog
 
     def get_schema_non_catalog(self, obj):
         schema_non_catalog = obj.full_schema(include_subtraits=False, data_class='non-catalog', combine_levels=None,
@@ -56,7 +64,7 @@ class SurveySerializer(serializers.Serializer):
 
     survey = serializers.SerializerMethodField()
     # schema = serializers.SerializerMethodField()
-    # schema_catalog = serializers.SerializerMethodField()
+    schema_catalog = serializers.SerializerMethodField()
     schema_non_catalog = serializers.SerializerMethodField()
 
 

@@ -40,7 +40,7 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def __init__(self, *args, **kwargs):
         self.surveys = [
-            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0}},
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0}, "astro_objects":{}},
             {"survey": "gama", "count": 0, "current_version": 0},
             {"survey": "galah", "count": 0, "current_version": 0}
         ]
@@ -49,8 +49,18 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, format=None):
-        # Request available samples from FIDIA
-        self.breadcrumb_list = ['Data Browser']
+
+        self.breadcrumb_list = ['Single Object Viewer']
+
+        for survey in self.surveys:
+            if survey["survey"] == "sami":
+                for astro_object in sami_dr1_sample:
+                    url_kwargs = {
+                        'astroobject_pk': str(astro_object),
+                        'survey_pk': 'sami'
+                    }
+                    url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
+                    survey["astro_objects"][astro_object] = url
 
         serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
