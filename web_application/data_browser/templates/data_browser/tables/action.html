@@ -4,9 +4,18 @@
 <div class="table-responsive">
     <table class="table table-condensed table-bordered">
         <tr class="active">
-            <td colspan="2">
-                <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="tiny pull-right question" style="margin-top:3px;"><i class="fa fa-question-circle"></i> Branch help</a>
-                <h6 class="text-uppercase" style="margin:0">Branch & Version</h6>
+            <td colspan="2" align="middle">
+                <h6 class="text-uppercase" style="margin:0">Branch & Version
+                <a role="button" class="sub-heading pull-right" data-container="body" data-toggle="popover"
+                   data-trigger="hover click" data-placement="top" data-html="true"
+                   {% if fidia_type == "trait" %}
+                   data-content="This page shows data for branch <em>{{branch}}</em>. To switch branches (and/or versions), use the dropdowns in the top right corner."
+                   {% else %}
+                   data-content="This page shows data for branch <em>{{branch}}</em> of the data type <em>{{trait_pretty_name}}</em>. To switch branches (and/or versions), use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
+                   {% endif %}
+                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
+
+                </h6>
             </td>
         </tr>
         <tr>
@@ -14,39 +23,35 @@
 
             </td>
             <td> {{branch}}
-            <a role="button" class="sub-heading pull-right" data-container="body" data-toggle="popover"
-                   data-trigger="hover click" data-placement="top" data-html="true"
-                   {% if fidia_type == "trait" %}
-                   data-content="This page shows data for branch <em>{{branch}}</em>. To switch branches, use the dropdowns in the top right corner."
-                   {% else %}
-                   data-content="This page shows data for branch <em>{{branch}}</em> of the data type <em>{{trait_pretty_name}}</em>. To switch branches, use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
-                   {% endif %}
-                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
+
             </td>
         </tr>
         <tr>
-            <td class="p_light"><i class="fa fa-map-pin"></i> Version
-
-            </td>
-            <td> {{version}}
-            <a role="button" class="sub-heading pull-right" data-container="body" data-toggle="popover"
-                   data-trigger="hover click" data-placement="top" data-html="true"
-                   {% if fidia_type == "trait" %}
-                   data-content="There may be multiple versions of this branch (<em>{{branch}}</em>). To switch versions, use the dropdowns in the top right corner."
-                   {% else %}
-                   data-content="There may be multiple versions of this branch (<em>{{branch}}</em>). To switch versions, use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
-                   {% endif %}
-                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a></td>
+            <td class="p_light"><i class="fa fa-map-pin"></i> Version </td>
+            <td> {{version}} </td>
         </tr>
     {% if fidia_type == "trait" or fidia_type == "sub_trait" %}
         <tr class="active">
-            <td colspan="2">
+            <td colspan="2" align="middle">
                 <h6 class="text-uppercase" style="margin:0">Actions</h6>
             </td>
         </tr>
         <tr>
             <td class="p_light">Schema</td>
-            <td><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}"><i class="fa fa-book"></i></a></td>
+            <td>
+                {% if fidia_type == "sub_trait" %}
+
+                    {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
+                    {% captureas dynamic_link %}{{response.data.name}}{% endcaptureas %}
+                    <a class="" target="_blank" href="{% url 'schema_browser:dynamic-list' survey_pk=survey trait_pk=schema_link dynamic_pk=dynamic_link %}">view <i class="fa fa-angle-right"></i></a>
+
+                {% else %}
+                    {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
+                    <a class="" target="_blank" href="{% url 'schema_browser:trait-list' survey_pk=survey trait_pk=schema_link %}">view <i class="fa fa-angle-right"></i></a>
+                {% endif %}
+
+
+            </td>
         </tr>
         {% if fidia_type = "trait" %}
             <tr>
@@ -88,7 +93,7 @@
     {% else %}
 
         <tr class="active">
-            <td colspan="2">
+            <td colspan="2" align="middle">
                 <h6 class="text-uppercase" style="margin:0">Properties</h6>
             </td>
         </tr>
@@ -112,12 +117,6 @@
                     </a>
             </td>
         </tr>
-        {% comment %}
-        <tr>
-            <td class="p_light">URL</td>
-            <td class="wrapword tiny">{{response.data.url}}</td>
-        </tr>
-        {% endcomment %}
     {% endif %}
 
     {% include 'data_browser/interactive/panel_controls.html' %}

@@ -7,9 +7,9 @@
      <thead>
     <tr class="active">
          {% if single %}
-        <td class="form-inline col-xs-6">
+        <th class="form-inline col-xs-6">
         {% else %}
-        <td class="col-xs-4 form-inline">
+        <th class="col-xs-4 form-inline">
          {% endif %}
 
             <div class="form-group">
@@ -28,9 +28,9 @@
                 </label>
                 <input type="text" class="search form-control" id="product_search" placeholder="Filter Products...">
             </div>
-        </td>
+        </th>
         {% if single %}
-        <td class="col-xs-3">
+        <th class="col-xs-3">
             <strong>Branch</strong>
             <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
                                         data-toggle="popover" data-trigger="hover click"
@@ -38,31 +38,31 @@
                                         data-content="Alternatively, choose a specific branch from the dropdown. The default branch for each product is denoted by an asterisk (*)."
                                         data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
 
-        </td>
-        <td class="col-xs-3">
+        </th>
+        <th class="col-xs-3">
             <strong>Download</strong>
             <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
                                         data-toggle="popover" data-trigger="hover click"
                                         data-placement="top"
                                         data-content="Download the default branch and version for this data product in a variety of formats."
                                         data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
-        </td>
+        </th>
         {% else %}
-        <td class="col-xs-7">
+        <th class="col-xs-7">
             <strong>Select branches and versions</strong>
             <span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
                                         data-toggle="popover" data-trigger="hover click"
                                         data-placement="top"
                                         data-content="If you do not specify a branch and version, the default will be added. "
                                         data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
-        </td>
-        <td class="col-xs-1">
+        </th>
+        <th class="col-xs-1">
             <strong>Add</strong>&nbsp;<span class="sub-heading"><a role="button" class="sub-heading" data-container="body"
                                         data-toggle="popover" data-trigger="hover click"
                                         data-placement="top"
                                         data-content="Add selected products to the download."
                                         data-original-title="" title=""><i class="fa fa-info-circle"></i></a></span>
-        </td>
+        </th>
         {% endif %}
     </tr>
 </thead>

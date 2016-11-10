@@ -2,9 +2,11 @@
 {% load internal_extras %}
 
 <tr class="active">
-    <td colspan="2">
-        <a class="sub-heading pull-right" role="button" id="reset_2d_plot" title="reset plot"><i class="fa fa-rotate-left"></i></a>
-        <h6 class="text-uppercase" style="margin:0">Clipping <a role="button" class="sub-heading" data-container="body" data-toggle="popover"
+    <td colspan="2" align="middle">
+
+        <h6 class="text-uppercase" style="margin:0">Clipping
+
+            <a role="button" class="sub-heading pull-right" data-container="body" data-toggle="popover"
                    data-trigger="hover click" data-placement="top"
                    data-content="Apply percentile scaling to image. Clips minimum and maximum percentage of pixel values to bring out features in the image."
                    data-original-title="" title=""><i class="fa fa-info-circle"></i></a></h6>
@@ -19,7 +21,7 @@
     <td class="p_light">Range</td>
     <td>
         <span id="amount" style="margin:0 5px;" class="small badge"></span>
-
+        <a class="sub-heading" role="button" id="reset_2d_plot" title="reset plot"><i class="fa fa-rotate-left"></i></a>
     </td>
 </tr>
 <tr id="data-range">
@@ -32,8 +34,9 @@
 </tr>
 
 <tr class="active extensions">
-    <td colspan="2">
-        <h6 class="text-uppercase" style="margin:0">Data source <a role="button" class="sub-heading" data-container="body" data-toggle="popover"
+    <td colspan="2" align="middle">
+        <h6 class="text-uppercase" style="margin:0">Data source
+            <a role="button" class="sub-heading pull-right" data-container="body" data-toggle="popover"
                    data-trigger="hover click" data-placement="top"
                    data-content="Switch the data displayed in the viewer."
                    data-original-title="" title=""><i class="fa fa-info-circle"></i></a></h6>

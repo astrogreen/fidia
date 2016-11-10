@@ -106,7 +106,7 @@ body pre p {
   font-size: 12px;
 }
 body .p_light {
-  color: #666666 !important;
+  color: #777 !important;
 }
 body .p_dark {
   color: #1a1a1a !important;
@@ -1869,15 +1869,24 @@ li.nested_dropdown > a {
 .table td,
 .table p {
   color: #333;
-  color: #777;
   font-weight: 400;
   line-height: 1.6;
+  vertical-align: middle;
+  line-height: 1.2;
   font-size: 12px;
 }
 .table td.lead {
   font-size: 18px;
   font-weight: 300;
   line-height: 1.4;
+}
+.table thead tr th {
+  font-size: 12px;
+  line-height: 20px;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #999;
+  color: #1a1a1a;
 }
 .table > thead > tr > td.active,
 .table > tbody > tr > td.active,

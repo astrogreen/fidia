@@ -21,6 +21,8 @@
         {% endif %}
     </td>
     <td>
-        <a href="">schema link <i class="fa fa-angle-right"></i></a>
+        {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
+        {% captureas dynamic_link %}{{s}}/{{tpdata|key:tp|key:'name'}}{% endcaptureas %}
+        <a class="" target="_blank" href="{% url 'schema_browser:dynamic-list' survey_pk=survey trait_pk=schema_link dynamic_pk=dynamic_link %}">view <i class="fa fa-angle-right"></i></a>
     </td>
 </tr>

@@ -146,7 +146,8 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if len(trait_pk.split(':')) > 1:
             _branch = trait_pk.split(':')[1]
             if len(_branch.split('(')) > 1:
-                _version = _branch.split('(')[1].split(')')[0]
+                _branch = trait_pk.split(':')[1].split('(')[0]
+                _version = trait_pk.split('(')[1].split(')')[0]
             else:
                 _version = _default_version
         else:

@@ -6,7 +6,7 @@
 {% load data_browser_tag %}
 {% block title %}Data Browser{% endblock %}
 {% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+<!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/jquery-ui.structure.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/jquery-ui.theme.min.css' %}"/>
@@ -39,7 +39,7 @@
     {% endwith %}
     {% endif %}
     <li><a class="" target="_blank"
-           href="{% url 'schema:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}">
+           href="{% url 'schema:survey-list' survey_pk=survey %}">
         {{survey|uppercase}} Schema Browser</a></li>
     <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}">{{survey|uppercase}}
         Documentation</a></li>

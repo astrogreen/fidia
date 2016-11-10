@@ -141,12 +141,16 @@ class TraitSerializer(serializers.Serializer):
     description = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     def get_description(self, trait):
         return trait.get_description()
 
     def get_pretty_name(self, trait):
         return trait.get_pretty_name()
+
+    def get_name(self, trait):
+        return trait.trait_name
 
     def get_url(self, trait):
         """Return URL for current instance (subtrait/tp or tp) - will use in testing """
