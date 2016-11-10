@@ -86,7 +86,7 @@ class TestTraits:
 
     def test_get_trait_properties(self):
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         for prop in test_trait._trait_properties():
             assert isinstance(prop, TraitProperty)
@@ -96,7 +96,7 @@ class TestTraits:
 
     def test_trait_schema(self):
         """This test checks both versions of the schema."""
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Test the schema by trait_type
         schema_by_trait_type = test_trait.schema(by_trait_name=False)
@@ -122,7 +122,7 @@ class TestTraits:
 
     def test_trait_schema_with_subtraits(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Test the schema by trait_type
         schema_by_trait_type = test_trait.schema(by_trait_name=False)
@@ -160,7 +160,7 @@ class TestTraits:
 
     def test_trait_schema_catalog_non_catalog(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # This only tests the schema by trait_name
 
@@ -234,7 +234,7 @@ class TestTraits:
             def extra(self):
                 return "Extra info"
 
-        test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'),
+        test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
                                               object_id='1')
 
         # Test the catalog-only version of the schema:
@@ -258,13 +258,13 @@ class TestTraits:
 
     def test_retrieve_sub_trait_by_dictionary(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'),
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
                                                                   object_id='1')
 
         assert isinstance(test_trait['sub_trait'], Trait)
 
     def test_trait_descriptions(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         assert hasattr(test_trait, 'get_pretty_name')
         assert hasattr(test_trait, 'get_documentation')
@@ -274,7 +274,7 @@ class TestTraits:
 
     def test_trait_property_descriptions(self):
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Check that a trait property has the necessary description attributes
         assert hasattr(test_trait.value, 'get_pretty_name')
@@ -294,7 +294,7 @@ class TestTraits:
 
 
     def test_trait_documentation(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         print(type(test_trait.get_documentation))
         print(test_trait.get_documentation())
