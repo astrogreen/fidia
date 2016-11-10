@@ -811,7 +811,7 @@ class LZIFUDataMixin:
     lzifu_input_redshift.set_pretty_name("LZIFU Input Redshift")
 
 
-class LZIFUFlag(LZIFUDataMixin, FlagMap):
+class LZIFUFlag(FlagMap):
 
     trait_type = 'flags'
 
@@ -823,6 +823,11 @@ class LZIFUFlag(LZIFUDataMixin, FlagMap):
         ('BADCOMP', "Unknown Number of Componenets"),
         ('NODATA', "No Data")
     ]
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
 
     @trait_property("int.array")
     def value(self):
