@@ -17,7 +17,7 @@ from .trait_key import TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set, Inherit, DefaultsRegistry
+from ..utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
 from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 # This makes available all of the usual parts of this package for use here.
@@ -406,14 +406,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
             current_value = getattr(trait_key, attribute)
 
-            if current_value not in (None, Inherit):
+            if current_value is not None:
                 # We have been given a (branch/version) value, check that it
                 # is valid for this Trait:
                 if valid is not None:
                     assert current_value in valid, \
                         "%s '%s' not valid for trait '%s'" % (attribute, current_value, self)
                 return current_value
-            elif current_value is Inherit:
+            elif current_value is None:
                 # We have been asked to inherit the branch/version from the
                 # parent trait. If the parent_trait is defined (i.e. this is
                 # not a top level trait), then take its value if it is valid
@@ -421,15 +421,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 if parent_trait is not None:
                     parent_value = getattr(parent_trait, attribute)
                     # This is a sub trait. Inherit branch from parent unless not valid.
-                    if valid is not None and parent_value in valid:
+                    if valid is None:
+                        # All options are valid.
+                        return parent_value
+                    elif valid is not None and parent_value in valid:
                         return parent_value
                     else:
                         # Parent is not valid here, so leave as None
                         return None
-            elif current_value is None:
-                # Currently no way to define the branch/version for this
-                # trait, so leave it as None.
-                return None
 
         # Determine the branch given the options.
         self.branch = validate_and_inherit(trait_key, self._parent_trait, self.branches_versions, 'branch')
