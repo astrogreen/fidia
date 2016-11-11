@@ -3,6 +3,7 @@ from itertools import product
 
 # Internal package imports
 from .trait_key import TraitKey, validate_trait_name, validate_trait_type
+from ..fidiatype import fidia_type
 from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
 from .. import exceptions
 
@@ -264,6 +265,11 @@ class TraitRegistry:
                         other_dictionary['pretty_name'] = trait.get_qualifier_pretty_name(trait_key.trait_qualifier)
                     else:
                         other_dictionary['pretty_name'] = ""
+
+                # Add Generic Trait Descriptions
+                fidia_trait_class = fidia_type(trait)
+                other_dictionary['description'] = fidia_trait_class.get_description()
+
 
         def add_default_branch_to_schema(trait_key, schema_piece):
             """If descriptions are requested, add the default branch of this Trait."""

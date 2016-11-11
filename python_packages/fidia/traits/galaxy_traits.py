@@ -4,7 +4,9 @@ class StarFormationRate(Measurement): pass
 
 class StellarMass(Measurement): pass
 
-class VelocityMap(Image, Measurement): pass
+class VelocityMap(Image, Measurement):
+    """A spatially resolved map of velocities across an object."""
+    pass
 
 class Abundance(Measurement): pass
 
