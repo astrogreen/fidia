@@ -865,7 +865,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
             return self._parent_trait._wcs_string.value
 
 
-class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
+class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
     trait_type = "velocity_dispersion_map"
 
@@ -906,7 +906,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
             return self._parent_trait._wcs_string.value
 
 
-class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
+class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     r"""Emission line flux map from a single Gaussian fit.
 
     Documentation from SAMI Team here...
@@ -1325,7 +1325,7 @@ class LZIFULineSpectrum(SpectralMap):
 #       - Balmer Extinction estimates
 
 
-class BalmerExtinctionMap(Image, TraitFromFitsFile):
+class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile):
     r"""Emission extinction map based on the Balmer decrement.
 
     Extinction maps are calculated using the EmissionLineFitsV01 (which includes
@@ -1372,7 +1372,7 @@ class BalmerExtinctionMap(Image, TraitFromFitsFile):
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 
 
-class SFRMap(Image, TraitFromFitsFile):
+class SFRMap(StarFormationRateMap, TraitFromFitsFile):
     r"""Map of star formation rate based on Hα emission.
 
     Star formation rate (SFR) map calculated using the EmissionLineFitsV01
