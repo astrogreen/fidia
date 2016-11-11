@@ -4,8 +4,8 @@
 {% load internal_extras %}
 {% block title %} Schema Browser {% endblock %}
 {% block head-extra %}
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>-->
+    <!--<link rel="stylesheet" type="text/css" href="{% static 'sov/css/sample/sample.min.css' %}"/>-->
+    <!--<link rel="stylesheet" type="text/css" href="{% static 'sov/css/trait/trait.min.css' %}"/>-->
     <!--<link rel="stylesheet" type="text/css" href="{% static 'schema_browser/css/schema_browser/schema_browser.min.css' %}"/>-->
     <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation-fidia/documentation-fidia.min.css' %}"/>
 {% endblock %}
@@ -68,7 +68,7 @@
 <div class="schema-contents">
     <div class="row">
         <div class="col-xs-12">
-            {% include "data_browser/layout/title.html" with db_title="Overview" %}
+            {% include "sov/layout/title.html" with db_title="Overview" %}
             <p class="lead">The Schema Browser describes the {{survey|uppercase}} survey data products.</p>
             <div class="panel panel-default success">
                 <div class="panel-body">
@@ -258,7 +258,7 @@
                                         <div id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}-{{trait_branch_key}}-{{trait_version_key}}" class="tab-pane {% if trait_branch_value.default_version == trait_version_key %}active{% endif %} ">
 
 
-                                        {% include "data_browser/layout/title.html" with db_title=trait_type_value.pretty_name|add:" "|add:trait_qualifier_value.pretty_name %}
+                                        {% include "sov/layout/title.html" with db_title=trait_type_value.pretty_name|add:" "|add:trait_qualifier_value.pretty_name %}
 
                                         {% if trait_type_value.description %}<p><em>{{trait_type_value.description}}</em></p>{% endif %}
 

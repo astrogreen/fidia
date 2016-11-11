@@ -49,7 +49,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'documentation',
     'download',
-    'data_browser',
+    # 'data_browser',
     'django_extensions',
     'hitcount',
     'mathfilters',
@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     'rest_framework',
     # 'schema',
     'schema_browser',
+    'sov',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -268,7 +269,7 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'level': 'WARNING'
         },
-        'data_browser': {
+        'sov': {
             'handlers': ['console', 'file'],
             'level': 'WARNING'
         },

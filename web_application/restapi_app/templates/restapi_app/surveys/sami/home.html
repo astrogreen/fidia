@@ -33,10 +33,10 @@
     <h5>Quick Links</h5>
     <ul class="nav-sidebar">
         <li><a href="{% url 'data-access' %}">Data Access Overview</a></li>
-        <li><a href="{% url 'data_browser:survey-list' survey_pk=response.data.survey %}" class="">{{survey}} Data
+        <li><a href="{% url 'sov:survey-list' survey_pk=response.data.survey %}" class="">{{survey}} Data
             Browser</a>
         </li>
-        <li><a href="{% url 'schema:survey-list' survey_pk=response.data.survey %}">{{survey}} Schema Browser</a></li>
+        <li><a href="{% url 'schema_browser:survey-list' survey_pk=response.data.survey %}">{{survey}} Schema Browser</a></li>
         <li><a href="{% url 'documentation:topic-detail' slug=response.data.survey %}"> {{survey}} Documentation </a></li>
         <li><a href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}" class="">
             Documentation: RESTful API</a></li>
@@ -46,7 +46,7 @@
 
 {% block main %}
 {% captureas survey %}{{response.data.survey|uppercase}}{% endcaptureas %}
-{% include "data_browser/layout/title.html" with db_title=survey|uppercase|add:"" %}
+{% include "sov/layout/title.html" with db_title=survey|uppercase|add:"" %}
 
 <p class="lead">
     {% with "restapi_app/surveys/"|add:response.data.survey|add:"/blurb.html" as template %}
@@ -89,12 +89,12 @@
             </div>
             <ul class="list-group sub text-right">
                 <a class="list-group-item"
-                   href="{% url 'data_browser:survey-list' survey_pk=response.data.survey %}"> Go to Data Browser:
+                   href="{% url 'sov:survey-list' survey_pk=response.data.survey %}"> Go to Data Browser:
                     {{survey}} <i
                             class="fa fa-angle-right fa-fw"></i></a>
             </ul>
             <!--<div class="panel-footer text-right"><a-->
-            <!--href="{% url 'data_browser:survey-list' survey_pk=response.data.survey %}"-->
+            <!--href="{% url 'sov:survey-list' survey_pk=response.data.survey %}"-->
             <!--class="text-uppercase"><strong>Go to Data Browser: {{survey}} <i-->
             <!--class="fa fa-angle-right"></i></strong></a></div>-->
         </div>
@@ -180,7 +180,7 @@
             </div>
             <ul class="list-group sub text-right">
                 <a class="list-group-item"
-                   href="{% url 'schema:survey-list' survey_pk=response.data.survey %}"> Go to Schema Browser:
+                   href="{% url 'schema_browser:survey-list' survey_pk=response.data.survey %}"> Go to Schema Browser:
                     {{survey}} <i
                             class="fa fa-angle-right fa-fw"></i></a>
             </ul>
@@ -210,7 +210,7 @@
                 </td>
                 <td class="lead">{{response.data.data_release}}</td>
                 <td class="lead">{{response.data.count}}</td>
-                <td class="lead"><a href="{% url 'schema:survey-list' survey_pk=response.data.survey %}">Schema
+                <td class="lead"><a href="{% url 'schema_browser:survey-list' survey_pk=response.data.survey %}">Schema
                     Browser</a>
                 </td>
                 <td class="lead"><a
@@ -250,7 +250,7 @@
         href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
              Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
     data product, view the
-    <a href="{% url 'schema:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
+    <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
         Schema Browser</a>.
 </p>
 {% endblock %}

@@ -13,10 +13,10 @@ import data_browser.views
 router = rest_framework.routers.SimpleRouter()
 # router = ExtendDefaultRouter()
 
-router.register(r'single-object-viewer', data_browser.views.RootViewSet, base_name='root')
+router.register(r'data-browser', data_browser.views.RootViewSet, base_name='root')
 
 # Nested routes for survey (SAMI)
-survey_nested_router = NestedExtendDefaultRouter(router, r'single-object-viewer', lookup='root')
+survey_nested_router = NestedExtendDefaultRouter(router, r'data-browser', lookup='root')
 survey_nested_router.register(r'(?P<survey_pk>[^/]+)', data_browser.views.SurveyViewSet, base_name='survey')
 
 object_nested_router = NestedExtendDefaultRouter(survey_nested_router, r'(?P<survey_pk>[^/]+)', lookup='survey')

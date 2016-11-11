@@ -5,7 +5,7 @@
 {% block title %}Surveys hosted at ADC{% endblock %}
 
 {% block head-extra %}
-<!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
+<!--<link rel="stylesheet" type="text/css" href="{% static 'sov/css/sample/sample.min.css' %}"/>-->
 {% endblock %}
 
 
@@ -76,7 +76,7 @@
                               <a class="text-center {% if value.current_version == 0 %}disabled{% endif %}" href="{% if value.current_version != 0 %}{% url value.survey %}{% endif %}">{{value.survey | uppercase}}</a><br>
                           </div>
 
-                          {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+                          {% with "sov/root/surveys/"|add:value.survey|add:".html" as template %}
                           <span class="sub">{% include template %}</span>
                           {% endwith %}
 
@@ -99,13 +99,13 @@
                                   </td>
                               </tr>
                               <tr>
-                                  <td class=""><a href="{% url 'data_browser:survey-list' survey_pk=value.survey %}">Data
+                                  <td class=""><a href="{% url 'sov:survey-list' survey_pk=value.survey %}">Data
                                       Browser</a></td>
                                   <td class="tiny sub-heading">View and download {{value.survey|uppercase}} survey data products.
                                   </td>
                               </tr>
                               <tr>
-                                  <td class=""><a href="{% url 'schema:survey-list' survey_pk=value.survey %}">Schema
+                                  <td class=""><a href="{% url 'schema_browser:survey-list' survey_pk=value.survey %}">Schema
                                       Browser</a></td>
                                   <td class="tiny sub-heading">Descriptions of the data products in
                                       {{value.survey|uppercase}}.

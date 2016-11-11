@@ -62,7 +62,7 @@
                           <div class="lead p text-center">{{value.survey | uppercase}}</div>
                           <div class="sub text-center"><span class="sub-heading">{{value.count}} objects</span></div>
 
-                          {% with "data_browser/root/surveys/"|add:value.survey|add:".html" as template %}
+                          {% with "sov/root/surveys/"|add:value.survey|add:".html" as template %}
                           <!--<span class="sub">{% include template %}</span>-->
                           {% endwith %}
                           {% if value.current_version == 0%}
@@ -89,7 +89,7 @@
 
 
 <h3 id="features">Features</h3>
-<p>While the <a href="{% url 'data_browser:root-list' %}"> Data Browser</a> provides a portal to the
+<p>While the <a href="{% url 'sov:root-list' %}"> Data Browser</a> provides a portal to the
     data products hosted at AAODC, the Schema Browser provides a description of those data products and derived
     properties. The Schema Browser displays an extensive explaination of each type of data product, along with
     any relevant analysis and publiction information.

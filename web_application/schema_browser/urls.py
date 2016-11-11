@@ -18,7 +18,7 @@ router.register(r'schema-browser', schema_browser.views.SchemaViewSet, base_name
 
 # Nested routes for sample ()
 survey_nested_router = NestedExtendDefaultRouter(router, r'schema-browser', lookup='root')
-survey_nested_router.register(r'(?P<survey_pk>[^/]+)', schema_browser.views.SurveyViewSet, base_name='survey-browser')
+survey_nested_router.register(r'(?P<survey_pk>[^/]+)', schema_browser.views.SurveyViewSet, base_name='survey')
 
 trait_nested_router = NestedExtendDefaultRouter(survey_nested_router, r'(?P<survey_pk>[^/]+)', lookup='survey')
 trait_nested_router.register(r'(?P<trait_pk>[^/]+)', schema_browser.views.TraitViewSet, base_name='trait')

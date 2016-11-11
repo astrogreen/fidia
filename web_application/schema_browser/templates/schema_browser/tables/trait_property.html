@@ -2,7 +2,7 @@
 
 <div class="row">
     <div class="col-xs-12">
-        {% include "data_browser/layout/title.html" with db_title=value.trait_property.pretty_name %}
+        {% include "sov/layout/title.html" with db_title=value.trait_property.pretty_name %}
     </div>
 </div>
 {% if value.description %}<p><em>{{value.description}}</em></p>{% endif %}
