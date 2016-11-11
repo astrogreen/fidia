@@ -95,8 +95,8 @@
             <thead>
             <tr class="active">
                 <th class="col-xs-3 col-sm-3">Type</th>
-                <th class="col-xs-6 col-sm-8">Description</th>
-                <th class="col-xs-3 col-sm-1">Schema</th>
+                <!--<th class="col-xs-6 col-sm-8">Description</th>-->
+                <th class="col-xs-3 col-sm-2">Schema</th>
             </tr>
             </thead>
         <tbody>
@@ -109,7 +109,7 @@
                             {{trait_qualifier_value.pretty_name}}
                         </a>
                     </td>
-                    <td><em> {{trait_qualifier_value.description|safe}}</em></td>
+                    <!--<td><em> {{trait_qualifier_value.description|safe}}</em></td>-->
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>
                 {% endfor %}
@@ -120,14 +120,14 @@
 
     {% for trait_type_key, trait_type_value in response.data.schema_non_catalog.trait_types.items %}
         <h3 id="{{trait_type_key}}">{{trait_type_value.pretty_name}}</h3>
-        Trait Class description and/or documentation {% lorem %}
+        {{trait_type_value.description|safe}}
 
         <table class="table table-bordered table-condensed margin-top-thirty">
             <thead>
             <tr class="active">
                 <th class="col-xs-3 col-sm-3">Type</th>
-                <th class="col-xs-6 col-sm-8">Description</th>
-                <th class="col-xs-3 col-sm-1">Schema</th>
+                <!--<th class="col-xs-6 col-sm-8">Description</th>-->
+                <th class="col-xs-3 col-sm-2">Schema</th>
             </tr>
             </thead>
             <tbody>
@@ -140,7 +140,7 @@
                             {% endif %}
                         </a>
                     </td>
-                    <td><em> {{trait_qualifier_value.description|safe}}</em></td>
+                    <!--<td><em> {{trait_qualifier_value.description|safe}}</em></td>-->
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>
                 {% endfor %}
