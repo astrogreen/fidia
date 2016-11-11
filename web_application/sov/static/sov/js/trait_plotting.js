@@ -30,6 +30,27 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
         success: function (data) {
             // Parse NANs here
             var trait_value = JSON.parseMore(data);
+            console.log(trait_value.value);
+
+            // flatten array
+            var FlatArr = trait_value.value.reduce(function (p, c) {
+                return p.concat(c);
+            });
+            // remove NANs
+            var NumArr = bouncer(FlatArr);
+
+            // can min/max exist?
+            var NumArrSort = NumArr.sort(function(a,b){return a - b});
+
+            var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin)];
+            var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax) - 1];
+
+            // if z_min == z_max
+            if ((NumArrSort[Math.floor(NumArr.length)] == NumArrSort[Math.floor(NumArr.length) - 1] )) {
+                // exit
+                $('#visualization_status').html('<span class="text-error"><strong>Error:</strong> max/min values cannot be defined (likely: value object contains only NaN)</span>');
+                return
+            };
 
             // EXTENSIONS
             // Does value have multiple extensions? If so, add in plot options.
