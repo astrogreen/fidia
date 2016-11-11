@@ -865,7 +865,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
             return self._parent_trait._wcs_string.value
 
 
-class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
+class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
     trait_type = "velocity_dispersion_map"
 

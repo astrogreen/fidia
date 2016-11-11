@@ -8,6 +8,10 @@ class VelocityMap(Image, Measurement):
     """A spatially resolved map of velocities across an object."""
     pass
 
+class VelocityDispersionMap(VelocityMap):
+    """A spatially resolved map of velocity dispersions across an object."""
+    pass
+
 class Abundance(Measurement): pass
 
 class EmissionClassificationMap(Classification, Map): pass

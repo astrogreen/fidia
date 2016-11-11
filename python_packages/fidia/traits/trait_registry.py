@@ -266,9 +266,10 @@ class TraitRegistry:
                     else:
                         other_dictionary['pretty_name'] = ""
 
-                # Add Generic Trait Descriptions
-                fidia_trait_class = fidia_type(trait)
-                other_dictionary['description'] = fidia_trait_class.get_description()
+                if 'trait_type' in levels:
+                    # Add Generic Trait Descriptions
+                    fidia_trait_class = fidia_type(trait)
+                    other_dictionary['description'] = fidia_trait_class.get_description()
 
 
         def add_default_branch_to_schema(trait_key, schema_piece):
