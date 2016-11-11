@@ -67,15 +67,15 @@
 <div class="row box-row">
 
     <div class="col-xs-12 col-sm-4 col-md-4">
-        <a href="{% url 'data_browser:root-list' %}" class="box">
+        <a href="{% url 'sov:root-list' %}" class="box">
             <div class=" text-justify box-contents">
 
                 <img class="img-responsive center-block" style="max-width:80px"
                      src="{% static 'restapi_app/img/documentation/data-browser.png'%}"><br>
-                <div class="p text-center">Data Browser</div>
+                <div class="p text-center">Single Object Viewer</div>
 
                 <span class="sub">
-                        View the available data products in each survey on an object-by-object basis. Download survey data products for individual objects, or for samples of objects.
+                        View the available data products in each survey on an object-by-object basis. Download survey data products for individual objects.
                     </span>
 
                 <span class="status btn-xs btn-default  text-success"><i class="fa fa-check"></i> beta</span>
@@ -103,7 +103,7 @@
     </div>
 
     <div class="col-xs-12 col-sm-4 col-md-4">
-        <a href="{% url 'schema:root-list' %}" class="box">
+        <a href="{% url 'schema_browser:root-list' %}" class="box">
             <div class=" text-justify box-contents">
 
                 <img class="img-responsive center-block" style="max-width:80px"
@@ -219,7 +219,7 @@
             <!--</td>-->
             <!--<td>-->
 
-                <!--<a href="{% url 'data_browser:root-list' %}" class="text-uppercase"><strong>Go to Data Browser-->
+                <!--<a href="{% url 'sov:root-list' %}" class="text-uppercase"><strong>Go to Data Browser-->
                     <!--<i class="fa fa-angle-right"></i></strong></a>-->
             <!--</td>-->
         <!--</tr>-->
@@ -257,7 +257,7 @@
             <!--</td>-->
             <!--<td>-->
 
-                <!--<a href="{% url 'schema:root-list' %}" class="text-uppercase"><strong>Go to Schema Browser-->
+                <!--<a href="{% url 'schema_browser:root-list' %}" class="text-uppercase"><strong>Go to Schema Browser-->
                     <!--<i class="fa fa-angle-right"></i></strong></a>-->
             <!--</td>-->
         <!--</tr>-->
