@@ -63,7 +63,7 @@
                 <div class="row cta">
                     <div class="col-xs-6">
                         <p><a type="button" title=""
-                              class="white-tooltip" href="{% url 'surveys' %}">Surveys</a></p>
+                              class="white-tooltip" href="{% url 'surveys:root-list' %}">Surveys</a></p>
 
                         <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at ADC.</div>
                     </div>
@@ -164,16 +164,16 @@
             <h5 class="text-uppercase no-margin-top">What's New</h5>
             <dl>
                 <dt>
-                    <a href="{% url 'sami' %}">SAMI DATA RELEASE 1.0
+                    <a href="{% url 'surveys:survey-list' survey_pk='sami' %}">SAMI DATA RELEASE 1.0
                     </a>
                 </dt>
-                <dh class="text-justify">View the data release page <a href="{% url 'sami' %}">here</a>.
+                <dh class="text-justify">View the data release page <a href="{% url 'surveys:survey-list' survey_pk='sami' %}">here</a>.
                 </dh>
             </dl>
             <h5 class="text-uppercase no-margin-top">Get Started</h5>
             <dl class="text-left">
                 <dt>
-                    <a href="{% url 'surveys' %}">Surveys Overview</a>
+                    <a href="{% url 'surveys:root-list' %}">Surveys Overview</a>
                 </dt>
                 <dh class="text-justify">View all surveys hosted at ADC.</dh>
                 <dt>
@@ -181,7 +181,7 @@
                 </dt>
                 <dh class="text-justify">Information about accessing data at ADC.</dh>
                 <dt>
-                    <a href="{% url 'sov:root-list'%}">Data Browser</a>
+                    <a href="{% url 'sov:root-list'%}">Single Object Viewer</a>
                 </dt>
                 <dh class="text-justify">Browse data products per Survey object.</dh>
                 <dt>

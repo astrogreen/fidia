@@ -23,10 +23,10 @@
                            aria-expanded="false">Surveys</a>
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Surveys</li>
-                            <li><a href="{% url 'surveys' %}">Overview</a></li>
+                            <li><a href="{% url 'surveys:root-list' %}">Overview</a></li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Extragalactic</li>
-                            <li><a href="{% url 'sami' %}">SAMI</a></li>
+                            <li><a href="{% url 'surveys:survey-list' survey_pk='sami' %}">SAMI</a></li>
                             <li class="disabled"><a href="" disabled>GAMA</a></li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Galactic</li>

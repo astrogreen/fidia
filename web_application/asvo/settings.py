@@ -57,9 +57,9 @@ INSTALLED_APPS = (
     'user',
     'restapi_app',
     'rest_framework',
-    # 'schema',
     'schema_browser',
     'sov',
+    'surveys',
 )
 
 MIDDLEWARE_CLASSES = (
