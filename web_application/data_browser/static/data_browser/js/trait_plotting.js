@@ -1,7 +1,7 @@
 function trait_plot(trait_url, trait_name, map_selector, options_selector) {
     var zmin = 0.01;
     var zmax = 0.99;
-
+    var options_selector = 'extensions-select';
     function changePlotData(data, array_index, zmin, zmax) {
         // If single component
         var trait_data = data;
@@ -39,20 +39,21 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                     if (a == 0) {
                         checked = 'checked'
                     }
-                    $('#'+options_selector).append('<div class="radio"> <label> <input type="radio" disabled name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
+                    $('#'+options_selector).append('<div class="radio"> <label> <input type="radio" name="optionsRadios" id="optionsRadios' + a + '" value="' + a + '" ' + checked + '> ' + a + ' </label> </div>')
                 }
                 changePlotData(trait_value.value, 0, zmin, zmax);
 
                 if ($("input[name=optionsRadios]").length > 0){
                     $("input[name=optionsRadios]").click(function () {
-                        console.log($("input[name=optionsRadios]:checked").val());
+                        // console.log($("input[name=optionsRadios]:checked").val());
                         var array_index = Number($("input[name=optionsRadios]:checked").val());
                         changePlotData(trait_value.value, array_index, zmin, zmax);
                     });
                 }
-
             } else {
                 changePlotData(trait_value.value, null, zmin, zmax);
+                $('.extensions').hide();
+
             }
 
             // SLIDER
@@ -65,12 +66,11 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                         step: 0.01,
                         values: [zmin, zmax],
                         slide: function (event, ui) {
-                            $("#amount").html( ui.values[0] + " - " + ui.values[1]);
+                            $("#amount").html( (ui.values[0]*100).toPrecision(2) + "% - " + (ui.values[1]*100).toPrecision(2)+"% ");
                             // $("#uv").attr('value', ui.values[1]);
                             // $("#lv").attr('value', ui.values[0]);
                         },
                         stop: function(event, ui) {
-                            console.log('stop');
                             var array_index = null;
                             // if multiple extensions, get the currently selected option.
                             if ($("input[name=optionsRadios]").length > 0){
@@ -79,8 +79,13 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                             changePlotData(trait_value.value, array_index, ui.values[0], ui.values[1]);
                         }
                     });
-                    $("#amount").html( $("#slider-range").slider("values", 0) +
-                            " - " + $("#slider-range").slider("values", 1));
+
+                    updateHtml = function(){
+                        $("#amount").html( ($("#slider-range").slider("values", 0)*100).toPrecision(2) +
+                            "% - " + ($("#slider-range").slider("values", 1)*100).toPrecision(2) +'% ');
+                    };
+                    updateHtml();
+
                     // $("#uv").val($("#slider-range").slider("values", 0));
                     // $("#lv").val($("#slider-range").slider("values", 1));
 
@@ -98,8 +103,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
                             }
                         changePlotData(trait_value.value, array_index, zmin, zmax);
                         // update html
-                        $("#amount").html( $("#slider-range").slider("values", 0) +
-                            " - " + $("#slider-range").slider("values", 1));
+                        updateHtml();
                     });
                 };
             }

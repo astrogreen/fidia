@@ -84,6 +84,9 @@ class VelocityMap(Image):
 
     trait_type = "velocity_map"
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
     @property
     def shape(self):
         return self.value.shape
@@ -104,6 +107,10 @@ class VelocityMap(Image):
 class LineMap(Image):
 
     trait_type = "line_map"
+
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
 
     @property
     def shape(self):
@@ -126,6 +133,9 @@ class RedImage(Image):
 
     qualifiers = {'red'}
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
     def preload(self):
         # Make an object have typically the same random data.
         np.random.seed(hash(self.object_id) % 500000)
@@ -147,6 +157,9 @@ class BlueImage(Image):
     trait_type = 'image'
 
     qualifiers = {'blue'}
+
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
 
     def preload(self):
         # Make an object have typically the same random data.
@@ -226,6 +239,9 @@ class Redshift(Measurement):
 
     trait_type = "redshift"
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
     @trait_property('float')
     def value(self):
         return 3.14159
@@ -265,6 +281,10 @@ class SimpleTrait(Trait):
 
     trait_type = "simple_trait"
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
+
     @trait_property('float')
     def value(self):
         return 5.5
@@ -288,6 +308,9 @@ class SimpleTraitWithSubtraits(Trait):
     # NOTE: Tests rely on this class, so changing it will require updating the tests!
 
     trait_type = "simple_heir_trait"
+
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
 
     sub_traits = TraitRegistry()
 

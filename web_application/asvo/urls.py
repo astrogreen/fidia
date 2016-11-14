@@ -19,15 +19,20 @@ from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.conf.urls.static import static
 
+handler404 = "restapi_app.errorhandler.handler404"
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^asvo/', include('restapi_app.urls')),
     url(r'^asvo/', include('documentation.urls', namespace='documentation')),
     # url(r'^asvo/', include('download.urls')),
-    url(r'^asvo/', include('data_browser.urls', namespace='data_browser')),
+    # url(r'^asvo/', include('data_browser.urls', namespace='data_browser')),
     # url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),
-    url(r'^asvo/', include('schema.urls', namespace='schema')),
-    # url(r'^asvo/', include('sov.urls')),
+    url(r'^asvo/', include('sov.urls', namespace='sov')),
+    url(r'^asvo/', include('surveys.urls', namespace='surveys')),
+    url(r'^asvo/', include('schema_browser.urls', namespace='schema_browser')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

@@ -1,0 +1,56 @@
+<script>
+    $('#product_search').on('keyup', function(){
+
+        //reset all
+        $('#product_menu tr').each(function(){
+            $(this).show();
+        })
+        var search_value = $(this).val().toLowerCase();
+
+        if (!!search_value){
+            // if there is a search value in the input box
+            $('#product_menu tr').each(function(){
+                // hide everything
+                $(this).hide();
+            })
+
+            $('#product_menu tr h6').each(function () {
+                // iterate over the h6 headers  - if present, show all associated anchors with the data-trait-type-key attribute
+
+                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
+
+                    // if the search value is found
+                    // get all tr with the same data-trait-type-key attribute
+                    var _trait_type_key = $(this).closest('tr').attr('data-trait-type-key');
+                    $('#product_menu tr').each(function () {
+                        // show these (effectively searching in the h6 and anchors simulataneously)
+                        if ($(this).attr('data-trait-type-key') == _trait_type_key) {
+                            $(this).show();
+                        }
+                    })
+                }
+            });
+
+            $('#product_menu tr a.trait_anchor').each(function () {
+                // iterate over anchor text - if present, show associated h6 heading
+
+                if ($(this).text().toLowerCase().indexOf(search_value) != -1) {
+                    // if the search value is found
+                    // show only parent h6 with same attribute
+
+                    var _trait_type_key = $(this).closest('tr').attr('data-trait-type-key');
+                    // show the anchor's parent tr
+                    $(this).closest('tr').show();
+
+                    $('#product_menu tr').each(function () {
+                        // show these (effectively searching in the h6 and anchors simulataneously)
+                        if ($(this).attr('data-trait-type-key') == _trait_type_key) {
+                            $(this).show();
+                        }
+                    })
+                }
+            });
+        }
+    });
+
+</script>

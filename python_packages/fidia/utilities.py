@@ -7,6 +7,8 @@ import fcntl
 import functools
 from time import sleep
 
+# from sortedcontainers import SortedDict
+
 from . import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)

@@ -1,0 +1,228 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Single Object Viewer{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'sov/js/DataTables/datatables.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'sov/css/sample/sample.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css">
+{% endblock %}
+
+{% block page_title %}Single Object Viewer{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+
+{% block sidebar %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked  nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
+        <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+        <li role="presentation"><a class="scroll" href="#help">Help</a></li>
+    </ul>
+</div><hr>
+<div class="quick-links">
+    <h5>Quick Links</h5>
+    <ul class="nav-sidebar">
+
+        {% if breadcrumblist %}
+        {% with breadcrumblist|length|add:"-2" as b %}
+        <li>
+        <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+            {{breadcrumblist|key:b|key:0}}</a>
+        </li>
+        {% endwith %}
+        {% endif %}
+        <li>
+            <a class="" target="_blank" href="{% url 'surveys:survey-list' survey_pk=survey %}"> {{survey|uppercase}} DR
+                            {{response.data.data_release}} details</a>
+        </li>
+        <li>
+            <a class="" target="_blank" href="{% url 'schema_browser:survey-list' survey_pk=survey %}"> {{survey|uppercase}} Schema
+                Browser </a>
+        </li>
+
+
+    </ul>
+</div>
+{% endblock %}
+
+{% block version_container %}
+<div class=" content-switcher">
+    <div class="btn-group navigation_btn_group" role="group">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-map-marker"></i> Data Release
+                <strong class="p_dark">{{response.data.data_release}}</strong>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li class="disabled">
+                    <a href=""><strong>{{response.data.data_release}} </strong> <em>Latest</em>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block main %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+
+{% with response.data.data_release|stringformat:"s" as data_release %}
+{% include "sov/layout/title.html" with db_title=survey|uppercase|add:" Data Release "|add:data_release %}
+{% endwith %}
+
+
+<div class="panel panel-default" style="margin-top:20px;">
+    <!--<div class="panel-heading">-->
+        <!--Data Release {{response.data.data_release}}-->
+    <!--</div>-->
+    <div class="table-responsive">
+        <table class="table table-overview">
+            <tbody>
+            <tr class="large">
+                <td class="lead">{% with "sov/survey/survey/"|add:survey|add:"/pi.html" as template %}
+                    {% include template %}
+                    {% endwith %}
+                </td>
+                <td class="lead">{{response.data.data_release}}</td>
+                <td class="lead">{{response.data.astro_objects | length}}</td>
+                <td class="lead"><a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">Schema Browser</a></td>
+            </tr>
+
+            <tr class="medium">
+                <td>
+                    <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
+                </td>
+                <td>
+                    <small>Data Release Number.</small>
+
+                </td>
+                <td>
+                    <small>The total number of objects in this data release.</small>
+
+                </td>
+                <td>
+                    <small>The Schema Browser describes the SAMI survey data products.</small>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<h3 id="data-access">Data Access</h3>
+<p>Select a source to browse the available {{survey|uppercase}} data products (with visualizations where
+    available).</p>
+
+<div class="well">
+    <div class="p">It is recommended that you also use the Single Object Viewer in conjunction with the
+        <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">Schema Browser</a>, which contains
+        comprehensive
+        descriptions of the data products available. For help using the Single Object Viewer,
+        <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">visit the documentation.</a></div>
+</div>
+
+        <br>
+        <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
+            <strong>Go</strong> to view the
+            object's properties and available data, and download individual data products.</p>
+        <div class="row">
+            <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+                <select type="text" class="searchbox selectized text-center"
+                        id="autocomplete-widget" placeholder="SEARCH">
+                    <option value="" disabled selected>Select an object</option>
+                    {% for key, value in response.data.astro_objects.items %}
+                    <option value="{{value}}">{{key}}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-block btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">GO</a>
+                <br><br>
+            </div>
+        </div>
+
+
+<h3 id="help">Help</h3>
+<p>The <a href="{% url 'surveys:survey-list' survey_pk=survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
+    {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
+<p>For detailed descriptions of a particular data product, visit the <a
+        href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
+     Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
+    data product, view the
+    <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
+        Schema Browser</a>.
+</p>
+<p>To learn more about the Single Object Viewer, view the <a
+        href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
+
+{% endblock main %}
+
+{% block footer-extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+<script src="{% static 'restapi_app/js/selectize/enter_key_submit.js' %}"></script>
+<script>
+
+    $(document).ready(function () {
+        var TYPED_VALUE = '';
+
+        $selector = $("#autocomplete-widget").selectize({
+            // load the plugin
+            plugins: ['enter_key_submit'],
+            readOnly:true,
+            selectOnTab: true,
+            placeholder: "SEARCH...",
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                if (value){
+                    $('#autocomplete-button').attr('href', value).attr('disabled', false)
+                } else {
+                    $('#autocomplete-button').attr('href', "").attr('disabled', true);
+                }
+            },
+            // listen to submit events (enter_key_submit plugin binds submit event to enter key)
+            onInitialize: function () {
+                this.on('submit', function () {
+                    // call the click function on the href (to follow the link) not the instance of button itself
+                    $('#autocomplete-button')[0].click();
+                }, this);
+            },
+            onType:function(data){
+                TYPED_VALUE = data;
+            },
+            onBlur: function (value) {
+                // on defocus (e.g., browser tab switch) capture the value currently entered
+//                console.log('defocus');
+//                console.log(TYPED_VALUE)
+            },
+            onFocus: function(){
+//                console.log('FOCUS');
+//                console.log(TYPED_VALUE);
+                this.setTextboxValue(TYPED_VALUE);
+
+            },
+//            onClose: function(){
+//                TYPED_VALUE = ''
+//            }
+        });
+    });
+
+</script>
+
+{% endblock %}
+
+
+

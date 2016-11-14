@@ -1,0 +1,162 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}{{response.data.survey|uppercase}} Data Products{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation-fidia/documentation-fidia.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}{{response.data.survey|uppercase}}{% endblock %}
+{% block useful_links %}
+{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
+<li role="presentation"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
+{% endblock useful_links %}
+
+{% block page_title_banner %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+<div class="title_info red">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>{{survey|uppercase}}
+                    <small class="right-helper">
+
+                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
+                        <div class="btn-group" role="group" style="margin-top:-15px;">
+                            <button type="button" class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                    <span class="sub-heading">
+                        <i class="fa fa-map-marker"></i> Data Release
+                    </span>
+                                <strong>{{response.data.data_release}}</strong>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
+                                    <small class="sub-heading text-uppercase">Current</small>
+                                </a></li>
+                            </ul>
+                        </div>
+                    </small>
+                </h1>
+                <p>
+                    {% with "data_browser/root/surveys/"|add:response.data.survey|add:".html" as template %}
+                    {% include template %}
+                    {% endwith %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_title_banner %}
+
+{% block content_render %}
+{% captureas survey %}sami{% endcaptureas %}
+<div class="row">
+    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
+        <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+            <div class="page-contents">
+                <ul class="nav nav-pills nav-stacked nav-sidebar">
+                    <li role="presentation"><a class="scroll" href="#top-of-page">Available Data Products</a></li>
+                    {% for product_key, product_value in response.data.products.items %}
+                    <li role="presentation">
+                        <a href="#{{product_key}}" aria-controls="{{product_key}}" role="tab" data-toggle="tab">{{product_value.pretty_name}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <h5>Quick Links</h5>
+            <ul class="nav-sidebar">
+                <li><a href="{% url 'schema:sample-list' sample_pk=response.data.survey %}">
+                    Schema Browser for {{response.data.survey|uppercase}}</a></li>
+                <li><a class="" href="{% url 'data_browser:survey-list' sample_pk=response.data.survey %}"> Data
+                    Browser for {{response.data.survey|uppercase}}</a></li>
+                <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}">
+                    Documentation</a></li>
+                {% if breadcrumblist %}
+                {% with breadcrumblist|length|add:"-2" as b %}
+                <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+                    {{breadcrumblist|key:b|key:0}}</a></li>
+                {% endwith %}
+                {% endif %}
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-9 main-content">
+
+
+        <div class="col-sm-2 col-xs-4 pull-right">
+            <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
+        </div>
+        <h2 id="">Data Product Descriptions </h2>
+        <p>{% lorem %}</p>
+        <h3 id="available-data-products">Available Data</h3>
+        <p>Select a product-type from the list below to view the associated description</p><br>
+        <ul class="nav nav-pills" role="tablist" id="trait_tabs">
+            {% for product_key, product_value in response.data.products.items %}
+            <li role="presentation" {% if forloop.first %}class="active" {% endif %}>
+                <a href="#{{product_key}}" aria-controls="{{product_key}}" role="tab" data-toggle="tab">{{product_value.pretty_name}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <br>
+
+        <div class="tab-content">
+            {% for product_key, product_value in response.data.products.items %}
+
+                <div role="tabpanel" class="documentation_fidia tab-pane {% if forloop.first %}active{% endif %}" id="{{product_key}}">
+                    <h1>{{product_value.pretty_name}}</h1>
+                    <div class="p">
+                        <em>{% if trait_value.description %}{{product_value.description}}{% endif %}{% lorem 20 w %}</em>
+                    </div>
+                    <br>
+                    <h2>Heading 1</h2>
+                    <p>{% lorem %}</p>
+                    <h3>Sub Heading 1</h3>
+                    <p>{% lorem %}</p>
+                    <h2>Heading 2</h2>
+                    <p>{% lorem %}</p>
+
+                </div>
+            {% endfor %}
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}
+{% block footer-extra %}
+<script>
+    $("ul.nav-pills a").click(function (e) {
+        if (!!$(this).attr('data-toggle')) {
+            e.preventDefault();
+            $(this).tab('show');
+
+            // find all elements with href = this and set class to active (ie. the sidebar and the tab content)
+            var _anchor = $(event.currentTarget);
+
+            $('ul.nav-pills a').each(function () {
+
+                $(this).parent('li').removeClass('active');
+                if ($(this).attr('href') == _anchor.attr('href')) {
+                    $(this).parent('li').addClass('active');
+                }
+
+
+            })
+        }
+
+    });
+
+</script>
+{% endblock %}
+

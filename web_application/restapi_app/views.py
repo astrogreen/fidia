@@ -1,6 +1,6 @@
-import json
+import json, requests
 from django.views.generic import TemplateView
-
+from django.conf import settings
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -10,6 +10,7 @@ import restapi_app.serializers
 import restapi_app.renderers
 import restapi_app.permissions
 import data_browser.serializers
+import data_browser.views
 
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
@@ -36,31 +37,150 @@ class AvailableTables(views.APIView):
         return Response(json_data)
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def validateRecaptcha(self, request):
+    # Validate the recaptcha box
+
+    # Get user's response
+    captcha_rs = request.POST.get('g-recaptcha-response')
+
+    url = "https://www.google.com/recaptcha/api/siteverify"
+    params = {
+        'secret': '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn',
+        'response': captcha_rs,
+        'remoteip': get_client_ip(request)
+    }
+
+    response_content = requests.post(url, data=params)
+    verify_rs = response_content.json()
+
+    recaptcha = {}
+    recaptcha["status"] = verify_rs.get("success", False)
+    recaptcha['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
+
+    return recaptcha
+
+
 class ContactForm(views.APIView):
     """
     Contact Form
     """
-
     permission_classes = (permissions.AllowAny,)
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'restapi_app/support/contact.html'
 
     def get(self, request):
         serializer = restapi_app.serializers.ContactFormSerializer
-
-        return Response(data={'serializer': serializer, 'email_status': 'unbound'}, status=status.HTTP_200_OK)
+        return Response(data={'serializer': serializer, 'display_form': True}, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        serializer = restapi_app.serializers.ContactFormSerializer(data=request.data)
+
+        serializer_unbound = restapi_app.serializers.ContactFormSerializer
+
+        try:
+            # access request data
+            serializer = restapi_app.serializers.ContactFormSerializer(data=request.data)
+        except BaseException as e:
+            return Response({"email_status": "server_error",
+                             "message": 'Server Error (' + str(e) + ').',
+                             'serializer': serializer_unbound, 'data': request.data,
+                             'display_form': True},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         serializer.is_valid()
 
         if serializer.is_valid():
-            serializer.send()
-            serializer_unbound = restapi_app.serializers.ContactFormSerializer
-            return Response({"email_status": "success", 'serializer': serializer_unbound},
-                            status=status.HTTP_202_ACCEPTED)
 
-        return Response({"email_status": "error"}, status=status.HTTP_400_BAD_REQUEST)
+            recaptcha = validateRecaptcha(self, request)
+
+            if recaptcha['status'] is True:
+                try:
+                    serializer.send()
+                    return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
+                except BaseException as e:
+                    return Response({"email_status": "server_error",
+                                     "message": 'Server Error (' + str(
+                                         e) + '): Contact form could not be sent at this time.',
+                                     'serializer': serializer, 'display_form': True},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {"email_status": "client_error", "message": "Recaptcha Failed.",
+                     'serializer': serializer,
+                     'display_form': True},
+                    status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            #  Client Error: serializer is not valid. Return errors and bound form
+            return Response(
+                {"email_status": "client_error", "errors": json.dumps(serializer.errors), 'serializer': serializer,
+                 'display_form': True},
+                status=status.HTTP_400_BAD_REQUEST)
+
+
+class BugReport(views.APIView):
+    """
+    Bug Report Form
+    """
+    permission_classes = (permissions.AllowAny,)
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'restapi_app/support/bug_report.html'
+
+    def get(self, request):
+        serializer = restapi_app.serializers.BugReportSerializer
+        return Response(data={'serializer': serializer, 'display_form': True}, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+
+        serializer_unbound = restapi_app.serializers.BugReportSerializer
+
+        try:
+            # access request data
+            serializer = restapi_app.serializers.BugReportSerializer(data=request.data)
+        except BaseException as e:
+            return Response({"email_status": "server_error",
+                             "message": 'Server Error (' + str(e) + ').',
+                             'serializer': serializer_unbound, 'data': request.data,
+                             'display_form': True},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        serializer.is_valid()
+
+        if serializer.is_valid():
+
+            recaptcha = validateRecaptcha(self, request)
+
+            if recaptcha['status'] is True:
+                try:
+                    serializer.send()
+                    return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
+                except BaseException as e:
+                    return Response({"email_status": "server_error",
+                                     "message": 'Server Error (' + str(
+                                         e) + '):  Bug report could not be sent at this time.',
+                                     'serializer': serializer, 'display_form': True},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {"email_status": "client_error", "message": "Recaptcha Failed.",
+                     'serializer': serializer,
+                     'display_form': True},
+                    status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            #  Client Error: serializer is not valid. Return errors and bound form
+            return Response(
+                {"email_status": "client_error", "errors": json.dumps(serializer.errors), 'serializer': serializer,
+                 'display_form': True},
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 class Surveys(views.APIView):
@@ -75,14 +195,14 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0,
-                    'data_releases': [1.0, ]}]
+
+        rootview = data_browser.views.RootViewSet()
 
         serializer_class = data_browser.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'samples': surveys},
+            context={'request': request, 'surveys': rootview.surveys},
         )
 
         return Response(serializer.data)
@@ -114,17 +234,8 @@ class SAMI(views.APIView):
 
         return Response(serializer.data)
 
+
 # TODO surveys as resources list.
-# class Survey(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-#     """
-#         Available Surveys page
-#         """
-#     permission_classes = (permissions.AllowAny,)
-#
-#     class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-#         template = 'restapi_app/sami/data-release.html'
-#
-#     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
 
 
@@ -165,7 +276,6 @@ class SAMIDataProducts(views.APIView):
         return Response(serializer.data)
 
 
-
 class DataAccess(views.APIView):
     """
     Available Surveys page
@@ -185,8 +295,7 @@ class DataAccess(views.APIView):
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
-            context={'request': request, 'samples': surveys},
+            context={'request': request, 'surveys': surveys},
         )
 
         return Response(serializer.data)
-

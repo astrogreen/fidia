@@ -4,301 +4,276 @@
 {% load internal_extras %}
 {% block title %}Data Browser{% endblock %}
 {% block head-extra %}
-<!--<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>-->
+
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/js/DataTables/datatables.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
 
-<script type="text/javascript" src="{% static 'query/js/available-products/controllers.js' %}"></script>
-<script type="text/javascript" src="{% static 'query/js/available-products/services.js' %}"></script>
-<script type="text/javascript" src="{% static 'query/js/available-products/components.js' %}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css">
+
+
 {% endblock %}
 
 {% block page_title %}Data Browser{% endblock %}
 {% block useful_links %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<li role="presentation"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a></li>
-<li role="presentation"><a href="{% url 'documentation:topic-detail' slug=survey %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
-{% block page_title_banner %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<div class="title_info red">
-    <div class="container">
+
+{% block sidebar %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked  nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
+        <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
+        <li role="presentation"><a class="scroll" href="#help">Help</a></li>
+    </ul>
+</div><hr>
+<div class="quick-links">
+    <h5>Quick Links</h5>
+    <ul class="nav-sidebar">
+
+        {% if breadcrumblist %}
+        {% with breadcrumblist|length|add:"-2" as b %}
+        <li>
+        <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+            {{breadcrumblist|key:b|key:0}}</a>
+        </li>
+        {% endwith %}
+        {% endif %}
+        <li>
+            <a class="" target="_blank" href="{% url survey %}"> {{survey|uppercase}} DR
+                            {{response.data.data_release}} details</a>
+        </li>
+        <li>
+            <a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}"> {{survey|uppercase}} Schema
+                Browser </a>
+        </li>
+
+
+    </ul>
+</div>
+{% endblock %}
+
+{% block version_container %}
+<div class=" content-switcher">
+    <div class="btn-group navigation_btn_group" role="group">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-map-marker"></i> Data Release
+                <strong class="p_dark">{{response.data.data_release}}</strong>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li class="disabled">
+                    <a href=""><strong>{{response.data.data_release}} </strong> <em>Latest</em>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block main %}
+{% captureas survey %}{{response.data.survey}}{% endcaptureas %}
+
+{% with response.data.data_release|stringformat:"s" as data_release %}
+{% include "data_browser/layout/title.html" with db_title=survey|uppercase|add:" Data Release "|add:data_release %}
+{% endwith %}
+
+
+<div class="panel panel-default" style="margin-top:20px;">
+    <!--<div class="panel-heading">-->
+        <!--Data Release {{response.data.data_release}}-->
+    <!--</div>-->
+    <div class="table-responsive">
+        <table class="table table-overview">
+            <tbody>
+            <tr class="large">
+                <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
+                    {% include template %}
+                    {% endwith %}
+                </td>
+                <td class="lead">{{response.data.data_release}}</td>
+                <td class="lead">{{response.data.astro_objects | length}}</td>
+                <td class="lead"><a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a></td>
+            </tr>
+
+            <tr class="medium">
+                <td>
+                    <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
+                </td>
+                <td>
+                    <small>Data Release Number.</small>
+
+                </td>
+                <td>
+                    <small>The total number of objects in this data release.</small>
+
+                </td>
+                <td>
+                    <small>The Schema Browser describes the SAMI survey data products.</small>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<img class="img-responsive" src="{% static 'data_browser/img/sami/sami_dr1poster_plot_only.jpg' %}">
+<div class="row">
+    <div class=" col-xs-12 text-right">
+    <p class="sub-heading"><em>Figure 1: The star formation rate-stellar mass relation for SAMI galaxies.
+Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
+</div>
+
+</div>
+
+
+<h3 id="data-access">Data Access</h3>
+<p>Choose the single-source tab to browse the available {{survey|uppercase}} data products (with visualizations where
+    available) for a particular astronomical source.</p>
+
+<p>Choose the multiple object tab to define a sample of {{survey|uppercase}} objects filtering on some catalogue property. Data products
+    for this selection can be downloaded for offline use.</p>
+
+
+
+<div class="well">
+    <div class="p">It is recommended that you also use the Data Browser in conjunction with the
+    <a href="{% url 'schema:survey-list' survey_pk=survey %}">Schema Browser</a>, which contains comprehensive
+    descriptions of the data products available. For help using the Data Browser,
+    <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">visit the documentation.</a></div>
+</div>
+
+
+<br><br>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation"><a href="#single" aria-controls="single" role="tab" data-toggle="tab" title="">Single Object</a>
+    </li>
+    <li role="presentation"  class="active"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Objects</a>
+    </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content add-padding">
+    <div role="tabpanel" class="tab-pane " id="single">
+        <br>
+        <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
+            <strong>Go</strong> to view the
+            object's properties and available data, and download individual data products.</p>
+        <div class="row">
+            <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
+                <select type="text" class="searchbox selectized text-center"
+                        id="autocomplete-widget" placeholder="SEARCH">
+                    <option value="" disabled selected>Select an object</option>
+                    {% for key, value in response.data.astro_objects.items %}
+                    <option value="{{value}}">{{key}}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-block btn-primary" type="button" href="" disabled
+                   id="autocomplete-button">GO</a>
+                <br><br>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane active" id="multiple">
+        <br>
+        <p> All {{survey|uppercase}} objects are shown in the table below. Search and
+            filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
+        <br>
+        <div class="row">
+            <div class="col-xs-12" id="objects">
+                <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+            </div>
+        </div>
+
+        <div id="filter_panel">
+            <div class="row">
+                <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
+                        <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-right">
+                    <span id="remove_filters"></span>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+        <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
+        <br>
+        <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple
+            Objects</strong> table above. To access data via a
+            command line interface, read the documentation on <a
+                    href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data
+                download</a>.</p>
+        <br>
+        <div class="panel panel-default success">
+            <div class="panel-body">
+                <i class="fa fa-info"></i> <span class="sub-heading">In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+                </span>
+            </div>
+        </div>
         <div class="row">
             <div class="col-xs-12">
-                <h1>Data Browser for {{survey|uppercase}} Data Release {{response.data.data_release}}
-                    <small class="right-helper">
-                        <!--<span class="sub-heading"><i class="fa fa-map-marker"></i> DR 1.0</span>&nbsp;&nbsp;-->
-                        <div class="btn-group" role="group" style="margin-top:-15px;">
-                            <button type="button" class="btn btn-default dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                    <span class="sub-heading">
-                        <i class="fa fa-map-marker"></i> Data Release
-                    </span>
-                                <strong>{{response.data.data_release}}</strong>
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li class="disabled"><a href="">Data Release {{response.data.data_release}} &nbsp;
-                                    <small class="sub-heading text-uppercase">Current</small>
-                                </a></li>
-                            </ul>
-                        </div>
-                    </small>
-                </h1>
-                <p>
-                    The Data Browser provides a quick-look at survey-derived
-                    data products and associated meta-data on an
-                    object-by-object basis, and allows users to download individual data products in FITS file
-                    format.
-                </p>
+
+                {% include 'data_browser/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
+
             </div>
+
         </div>
+
     </div>
 </div>
-{% endblock page_title_banner %}
-
-{% block content_render %}
-{% captureas survey %}{{response.data.sample}}{% endcaptureas %}
-<div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents" data-spy="affix">
-            <div class="page-contents">
-                <h5>Page Contents</h5>
-                <ul class="nav nav-pills nav-stacked  nav-sidebar">
-                    <li role="presentation"><a class="scroll" href="#top-of-page">Data Release
-                        {{response.data.data_release}}
-                        Overview</a></li>
-                    <li role="presentation"><a class="scroll" href="#data-access">Data Access</a></li>
-                    <li role="presentation"><a class="scroll" href="#help">Help</a></li>
-
-                </ul>
-            </div>
-            <div class="quick-links">
-                <h5>Quick Links</h5>
-                <ul class="nav-sidebar">
-                    <li>
-                       <a class="" target="_blank" href="{% url 'schema:sample-list' sample_pk=survey %}"> Schema
-                    Browser</a>
-                    </li>
-
-                    <li>
-                        {% if breadcrumblist %}
-                        {% with breadcrumblist|length|add:"-2" as b %}
-                        <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
-                            {{breadcrumblist|key:b|key:0}}</a>
-                        {% endwith %}
-                        {% endif %}
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xs-12 col-sm-9 main-content">
 
 
-        <div class="col-sm-2 col-xs-4 pull-right">
-            <img class="img-responsive sami-logo" src="/static/restapi_app/img/logo/logo-{{survey}}.png">
-        </div>
-        <h2 id="overview">Data Release {{response.data.data_release}} Overview</h2>
-        <div class="panel panel-default" style="margin-top:20px;">
-            <div class="panel-heading">
-                {{survey|uppercase}} Data Release {{response.data.data_release}}
-            </div>
-            <div class="table-responsive">
-                <table class="table table-overview">
-                    <tbody>
-                    <tr class="large">
-                        <td class="lead">{% with "data_browser/survey/survey/"|add:survey|add:"/pi.html" as template %}
-                            {% include template %}
-                            {% endwith %}
-                        </td>
-                        <td class="lead">{{response.data.data_release}}</td>
-                        <td class="lead">{{response.data.astro_objects | length}}</td>
-                        <td class="lead"><a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema</a></td>
-                    </tr>
-                    <tr class="large">
-                        <td>PI</td>
-                        <td>Data Release Number</td>
-                        <td>Number of Objects</td>
-                        <td>Schema Browser</td>
-                    </tr>
-                    <tr class="medium">
+<h3 id="help">Help</h3>
+<p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
+    {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
+<p>For detailed descriptions of a particular data product, visit the <a
+        href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
+     Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
+    data product, view the
+    <a href="{% url 'schema:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
+        Schema Browser</a>.
+</p>
+<p>To learn more about the Data Browser, view the <a
+        href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
 
-                        <td>
-                            <small>Principal Investigator for the {{survey|uppercase}} survey.</small>
-                        </td>
-                        <td>
-                            <small>This data release</small>
-                        </td>
-                        <td>
-                            <small>The total number of objects in this data release.</small>
-                        </td>
-                        <td>
-                            <small>The Schema Browser describes the SAMI survey data products.</small>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <h3 id="data-access">Data Access</h3>
-
-        <p>It is recommended that you also use the SAMI Data Browser in conjunction with the
-            <a href="{% url 'schema:sample-list' sample_pk=survey %}">Schema Browser</a>, which contains comprehensive
-            descriptions of the data products available.</p>
-        <p>For help using the Data Browser,
-            <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">view the documentation.</a></p>
-
-        <img class="img-responsive" src="{% static 'data_browser/img/sami/sami_dr1poster_plot_only.jpg' %}">
-        <span class="sub-heading"><em>Figure: The star formation rate-stellar mass relation for SAMI galaxies.
-            Each individual galaxy displays the NII/Halpha line ratio map.</em></span>
-
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Object</a>
-            </li>
-            <li role="presentation"><a href="#multiple" aria-controls="multiple" role="tab" data-toggle="tab" id="multiple_object">Multiple Object</a>
-            </li>
-        </ul>
-
-        <!-- Tab panes -->
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="single">
-                <p>Use the dropdown below to choose an individual object based on {{survey|uppercase}} ID. Click
-                    <strong>Go</strong> to view the
-                    object's properties and available data, and download individual data products.</p>
-                <div class="row">
-                    <div class="col-sm-offset-4 col-sm-4 col-xs-12"><br><br>
-                        <select type="text" class="searchbox selectized text-center"
-                                id="autocomplete-widget" placeholder="SEARCH">
-                            <option value="" disabled selected>Select an object</option>
-                            {% for key, value in response.data.astro_objects.items %}
-                            <option value="{{value}}">{{key}}</option>
-                            {% endfor %}
-                        </select>
-                        <a class="btn btn-block btn-primary" type="button" href="" disabled
-                           id="autocomplete-button">GO</a>
-                        <br><br>
-                    </div>
-                </div>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="multiple">
-                <p> All objects in the {{survey|uppercase}} data release are shown below. Search and
-                    filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
-
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
-                    </div>
-                </div>
-
-                <div id="filter_panel">
-                    <div class="row">
-                        <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
-                        <div class="col-xs-9">
-                            <div class="row">
-                                <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
-                                <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
-                                <!--<div id="datatables_filter_button" class="col-xs-12 col-sm-2"><span class="sub-heading">Select all returned results from search</span> </div>-->
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12 text-right">
-                            <span id="remove_filters"></span>
-                        </div>
-                    </div>
-                </div>
-
-
-                <h4 style="font-size:20px" id="data_products">Download Data Products</h4>
-                <p>Download data products for the {{survey|uppercase}} survey objects selected above. To access data via a command line interface, read the documentation on <a href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data download</a>.</p>
-                <p>Follow the steps to choose available data products for the sample selected in the <strong>Multiple Objects</strong> table.</p>
-                <div class="panel panel-default success ">
-                    <div class="panel-body">
-                        <div class="sub-heading"><i class="fa fa-info-circle"></i> In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}" single=True></available-products>
-                        <!--{% include 'data_browser/survey/available_objects_single_survey.html' %}-->
-                        <div class="row">
-                            <div class="col-xs-12 text-right">
-                                <button class="btn btn-default" id="download_button" data-products data-objects><i class="fa fa-download"></i> Download</button>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="col-xs-12">
-                        {% if post_form %}
-                        <div class="" id="post-object-form">
-                            {% with form=post_form %}
-                            <form action="{{ request.get_full_path }}" style="visibility: hidden" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
-                                <fieldset>
-                                    {% csrf_token %}
-                                    <!--<input name="download" class="form-control" type="text">-->
-                                    {{ post_form }}
-                                </fieldset>
-                            </form>
-                            {% endwith %}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-
-        <h3 id="help">Help</h3>
-        <p>The <a href="{% url survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
-            {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
-        <p>For detailed descriptions of a particular data product, visit the <a
-                href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
-             Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
-            data product, view the
-            <a href="{% url 'schema:sample-list' sample_pk=survey %}">{{response.data.survey|uppercase}}
-                Schema Browser</a>.
-        </p>
-        <p>To learn more about the Data Browser, view the <a
-                href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
-
-    </div>
-
-</div>
 
 {% comment %}
 ------ TURN ON DATATABLES ------
 {% endcomment %}
-<!--<script src="{% static 'restapi_app/js/data-tables/dataTables.js' %}"></script>-->
 <script src="{% static 'data_browser/js/DataTables/datatables.min.js' %}"></script>
 
 {% autoescape off %}
  <script type="text/javascript">
+    var SAMPLE_URL = "{% url 'data_browser:survey-list' survey_pk=survey %}";
 
-    var SAMPLE_URL = "{% url 'data_browser:survey-list' sample_pk=survey %}";
+    catalog = JSON.parse("{{ catalog|escapejs }}");
 
-    data = JSON.parse("{{ content|escapejs }}");
-
-    if (typeof data.catalog !== 'undefined'){
+    if (typeof catalog !== 'undefined'){
         $('#data-table-container').html(' ')
                 .append('<div class=""><table id="returnTableResults" class="table table-responsive table-condensed">' +
                         '<thead><tr><th>Please wait, loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
 
         render_limit = 10000;
-        catalog = (data.catalog);
-
         catalog_data_row_length = catalog.data.length;
         catalog_data_col_length = catalog.column_names.length;
 
 
-        if((typeof catalog !== 'undefined') && catalog.data.length < render_limit){
+        if(catalog.data.length < render_limit){
             var columns = [];
             var thead = '';
 
@@ -385,6 +360,7 @@
 
             $("#returnTableResults_length")
                     .appendTo("#datatables_pagination");
+            $('#datatables_pagination').prepend('<small class="pull-right sub-heading"><i class="fa fa-arrows-h"></i> scroll for more </small>')
 
             //  EXPORT
             $('#datatables_export').append(
@@ -431,7 +407,7 @@
 
                 var selected_column = $(e.currentTarget).val();
 
-                console.log('selected '+selected_column);
+                // console.log('selected '+selected_column);
 
                 // find column index
                 for (var k=0;k<columns.length;k++){
@@ -470,7 +446,6 @@
                 $('#min, #max').keyup( function() {
                     table.draw();
                     // console.log(get_filtered_ids());
-
                     update_button();
                 } );
                 // update select button with initial number of rows
@@ -489,13 +464,15 @@
                     // is triggered, to force datatables to redraw the table once the tab is visible (else the column headers
                     // have incorrect widths calculated
                     table.draw();
-                })
-
+                });
             } );
 
             // Get the IDs of selected items
             $('#returnTableResults').click(function(){
-                get_ids()
+                get_ids();
+
+                // error_check comes from the data download code (add_to_download_controller).
+                error_check();
             });
 
             get_ids = function(){
@@ -580,18 +557,7 @@
                                 selected: true
                             }
                         }
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: '<i class="fa fa-file-pdf-o"></i> PDF',
-
-                        exportOptions: {
-                            modifier: {
-                                selected: true
-                            }
-                        }
-                    },
-
+                    }
                 ]
 
             });
@@ -652,54 +618,65 @@
 
         };
     };
-{% endautoescape %}
-
-    // add an id to the download form
-    $('#post-object-form form').find('input[name=download]').attr('id','textarea-download');
-
-    $('#download_button').click(function () {
-
-        var data_download = {
-            'products': $(event.target).attr("data-products"),
-            'objects': $(event.target).attr("data-objects")
-        };
-
-        // SEND SQL TO FORM TEXT AREA
-        $(this).attr('disabled', 'disabled');
-        $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
-
-        // Use browsers parser to strip html tags etc.
-        // jQuery .text()
-//        var valid_sql = $('#output-SQL').text();
-        console.log(data_download)
-        $('#textarea-download').val(JSON.stringify(data_download));
-
-        setTimeout(function () {
-            $('#post-object-form form').submit();
-        }, 1000);
-    });
-
 
 </script>
-{% endblock %}
+{% endautoescape %}
+
+{% endblock main %}
+
 {% block footer-extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
 <script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+<script src="{% static 'restapi_app/js/selectize/enter_key_submit.js' %}"></script>
 <script>
+
     $(document).ready(function () {
+        var TYPED_VALUE = '';
+
         $selector = $("#autocomplete-widget").selectize({
-            closeAfterSelect: true,
+            // load the plugin
+            plugins: ['enter_key_submit'],
+            readOnly:true,
             selectOnTab: true,
             placeholder: "SEARCH...",
             create: false,
             maxItems: 1,
             onChange: function (value) {
-                $('#autocomplete-button').attr('href', value).attr('disabled', false)
-            }
+                if (value){
+                    $('#autocomplete-button').attr('href', value).attr('disabled', false)
+                } else {
+                    $('#autocomplete-button').attr('href', "").attr('disabled', true);
+                }
+            },
+            // listen to submit events (enter_key_submit plugin binds submit event to enter key)
+            onInitialize: function () {
+                this.on('submit', function () {
+                    // call the click function on the href (to follow the link) not the instance of button itself
+                    $('#autocomplete-button')[0].click();
+                }, this);
+            },
+            onType:function(data){
+                TYPED_VALUE = data;
+            },
+            onBlur: function (value) {
+                // on defocus (e.g., browser tab switch) capture the value currently entered
+//                console.log('defocus');
+//                console.log(TYPED_VALUE)
+            },
+            onFocus: function(){
+//                console.log('FOCUS');
+//                console.log(TYPED_VALUE);
+                this.setTextboxValue(TYPED_VALUE);
+
+            },
+//            onClose: function(){
+//                TYPED_VALUE = ''
+//            }
         });
     });
 
-
 </script>
+
 {% endblock %}
 
 

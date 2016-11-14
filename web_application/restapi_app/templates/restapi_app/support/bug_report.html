@@ -1,0 +1,111 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Bug Report{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/support/contact.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'user/css/user/user.min.css' %}"/>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active"><a href="{% url 'support-bug' %}">Bug Report</a></li>
+{% endblock %}
+
+{% block page_title %}Bug Report {% endblock %}
+
+
+{% block no_sidebar %}
+<div class="main-content">
+    <div class="jumbotron">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-5 vcenter  animated fadeIn">
+                    <h1 style="line-height:64px">Report an Issue.</h1>
+                    <p class="lead"><i class="fa fa-bug"></i> Let us know what's gone wrong.</p>
+                    <h6 class="text-uppercase">Reporting guidelines</h6>
+                    <ul class="list-group">
+
+                        <li class="list-group-item success">Please be as detailed as possible when describing the issue you would like to report. Include a
+                    clear, concise description of the problem, and a set of instructions for replicating it.</li>
+                        <li class="list-group-item success">If your issue pertains to the user interface, please provide information on the operating system and
+                    browser + version you are using. You can copy-paste the information from <a
+                                    href="http://www.whatsmybrowser.org/" target="_blank">whatsmybrowser.org <i
+                                    class="fa fa-external-link"></i></a>.
+                        </li>
+
+                        <li class="list-group-item error"><strong>Don't</strong> submit a bug report if you have a science-based comment
+                            or question about the data! Contact the survey teams directly. <strong>Do</strong> submit a bug report if you
+                            spot an issue with the provenance of the data.
+                        </li>
+                        <li class="list-group-item success"> Read the FAQ to see if your issue may already have an answer.</li>
+                    </ul>
+
+
+                </div><!--
+                --><div class="col-xs-12 col-sm-offset-1 col-sm-6 vcenter animated fadeInUp">
+                    {% if email_status == "success" %}
+                    <div class="panel panel-default success">
+                        <div class="panel-body"><strong class="text-uppercase">Success <i
+                                class="fa fa-check-circle-o text-success"></i></strong>
+                            <div class="p">Your email has been sent.</div>
+                            <div class="">We'll be in contact with an update on your issue as soon as possible.</div>
+
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item"><a href="{% url 'surveys' %}">Survey Overview <i class="fa fa-angle-right"></i></a></li>
+                            <li class="list-group-item"><a href="{% url 'data-access' %}">Data Access Overview <i class="fa fa-angle-right"></i></a></li>
+
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% if email_status == "server_error" %}
+                    <div class="panel panel-default error">
+                        <div class="panel-body"><strong class="text-uppercase">Error <i
+                                class="fa fa-times-circle-o text-error"></i></strong>
+                            <p>Something went wrong. Please email us at <a
+                                    href="mailto:adc-bugs@aao.gov">adc-bugs@aao.gov</a> and let us know.</p>
+                            <p>{{message}}</p>
+                            <p>{% for key, value in data.items %}<strong>{{key}}</strong> {{value}}<br>{% endfor %}</p>
+                        </div>
+                    </div>
+                    {% elif email_status == "client_error" %}
+                        <div class="panel panel-default error">
+                            <div class="panel-body"><strong class="text-uppercase">Error <i
+                                    class="fa fa-times-circle-o text-error"></i></strong>
+                                    Please check the form below for errors.
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if display_form %}
+                        <form action="{% url 'support-bug' %}" method="post" novalidate id="support-form">
+                            {% csrf_token %}
+                            {% render_form serializer %}
+                            <div>
+                                <em class="sub-heading">* required. Please note: We will not share your details with any third
+                                    parties.</em><br>
+                            </div>
+                            <div class="g-recaptcha" data-sitekey="6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j"></div>
+                            <button type="submit" class="btn text-uppercase btn-primary pull-right margin-top-fifteen"
+                                    {% if email_status == "success" %}disabled="true"{% endif %}>Send</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block footer-extra %}
+<script>
+    $("#support-form button").click(function(){
+        $(this).html('Sending <i class="fa fa-circle-o-notch fa-spin"></i>');
+    });
+</script>
+
+{% endblock %}

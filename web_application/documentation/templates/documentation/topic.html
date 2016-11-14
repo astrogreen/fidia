@@ -13,220 +13,180 @@
 </style>
 {% endblock %}
 
-{% block page_title %}Help Center{% endblock %}
-{% block page_title_banner_class %}black{% endblock %}
-{% block page_title_banner %}
 
-<div class="title_info blue">
-    <div class="container">
-        <h1>Help Center <a href="{% url 'documentation:topic-list' %}" title="Help Center Home"><i class="fa fa-home"></i></a></h1>
-        <div class="row attention-seeker">
-            <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='data-browser' %}">
-                    <div class="well"><h4>Data Access</h4>
-                        <p>How to use the Data Browser to access and download survey-derived data products for single or multiple objects.</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <a href="" disabled class="disabled">
-                    <div class="well"><h4>Making Multi Object Queries</h4>
-                        <p>Get started querying the survey data hosted at AAODC.</p>
-                        <p><u>Coming Soon.</u></p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">
-                    <div class="well"><h4>Using the Schema Browser</h4>
-                        <p>Articles on using the Schema Browser tool, the roadmap of survey data products hosted at AAODC.</div>
-                </a>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <a href="{% url 'documentation:topic-detail' slug='my-account' %}">
-                    <div class="well"><h4>My Account</h4>
-                        <p>Questions about managing your account? View all help articles on registering, updating or deleting your profile.</p>
-                    </div>
-                </a>
-            </div>
+{% block page_title_banner_class %}blue{% endblock %}
+
+    {% block page_title_banner %}
+    <div class="page_title_banner {% if response.data.results %}title_info{% else %}{% endif %} blue">
+        <div class="container">
+            <h1>Help Center <a href="{% url 'documentation:topic-list' %}" title="Help Center Home" class="underline-link"><i class="fa fa-home"></i></a></h1>
+            {% if response.data.results and not response.data.results.articles %}
+            <p class="lead">Choose a category to find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
+                <div class="row attention-seeker">
+                    {% for topic in response.data.results %}
+                        {% if not topic.hidden %}
+                            <div class="col-sm-3 col-xs-6">
+                                <a href="{{topic.title|slug}}">
+                                    <div class="well"><h4>{{topic.title}}</h4></div>
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-        <p>Find out more about a particular topic. </p>
     </div>
-</div>
-{% endblock page_title_banner %}
-
+    {% endblock page_title_banner %}
 
 {% block useful_links %}
 <li role="presentation"><a href="{% url 'documentation:article-detail' slug='data-central-syntax' %}">Syntax</a></li>
 <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
 {% endblock useful_links %}
 
-{% block content-navigator-help %}
+{% block sidebar %}
+    <div class="page-contents">
+    {% if response.data.results %}
+        <h5>Page Contents</h5>
+        <div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked  nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page"> FAQ</a></li>
+        <li role="presentation"><a class="scroll" href="#all-articles">All Articles</a></li>
+    </ul>
+</div>
+    {% endif %}
+    </div>
     {% if not response.data.results %}
-        <a href="{% url 'documentation:topic-list' %}" class=""><i class="fa fa-reply"></i> Back to Help Center</a>
+        <h5>Topics</h5>
+        <ul class="nav-sidebar">
+        {% for topic in all_topics %}
+            <li role="presentation">
+                <a href="{% url 'documentation:topic-detail' slug=topic.slug %}">
+                {% if topic.title == response.data.title %}
+                    <strong class="p_dark">{{topic.title}}</strong>
+                {% else %}
+                    {{topic.title}}
+                {% endif %}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+{% block version_container %}
+    {% if not response.data.results %}
+        <li>
+            <a href="{% url 'documentation:topic-list' %}" class=""><i class="fa fa-reply"></i> Back to Help Center</a>
+            {% if request.user.is_superuser %}
+                &nbsp;&nbsp;<a href="{% url 'documentation:article-list' %}" class="text-success">Add New <i class="fa fa-plus"></i> </a>
+            {% endif %}
+        </li>
     {% endif %}
 {% endblock %}
 
-{% block content_render %}
-<div class="row">
-    <div class="col-xs-12 col-sm-3 sidebar" role="navigation">
-        <div class="sidebar-contents" data-spy="affix">
-            <div class="page-contents">
-                {% if response.data.results %}
-                <h5>Topics</h5>
-                <ul class="nav nav-pills nav-stacked nav-sidebar" id="docs-sidebar">
-                    {% for topic in response.data.results %}
-                        {% if not topic.hidden %}
-                            <li role="presentation" class="{% if forloop.first %}{% endif %}">
-                                <a href="#{{topic.title|slug}}" class="scroll">{{topic.title}}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-            {% if response.data.articles %}
-            <h5>{{response.data.title}} Articles</h5>
-            <ul class="nav nav-pills nav-stacked nav-sidebar">
-                {% for article in response.data.articles %}
-                    {% if not article.hidden %}
-                        <li role="presentation">
-                            <a href="{{article.url}}">{{article.title}}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-            {% endif %}
+{% block main %}
+<div class="jumbotron">
+<div class="container">
+{% if response.data.results %}
+    <h2>Frequently Asked Questions</h2>
+    <table class="table">
+        <tbody>
+        {% for article in top_articles %}
+        {% if forloop.first %}<tr>{% endif %}
+            <td><a href="{% url 'documentation:article-detail' slug=article.slug %}">{{article.title}}</a>
+                <p class=""><span class="tiny sub-heading"> Last updated {{article.updated}}</span> <a
+                        href="{% url 'documentation:topic-detail' slug=article.topic_slug %}">#{{article.topic}}</a></p>
+            </td>
+            {% if forloop.counter|divisibleby:2 %}</tr><tr>{% endif %}
+            {% if forloop.last %}</tr>{% endif %}
 
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <br><br><h2 id="all-articles">All Articles</h2><br>
+    <div class="row">
+        <div class="col-xs-12">
+            search help center
         </div>
     </div>
-
-    <div class="col-xs-12 col-sm-9 main-content">
-         {% if response.data.results %}
-            <p class="lead">Find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
-            {% for topic in response.data.results %}
-                {% if not topic.hidden %}
-                <h2 id="{{topic.title|slug}}" class="no-margin-top">
-                    {{topic.title}}
-                    <p class="pull-right" style="margin-top:10px;">
-                        <a href="{{topic.url}}" >
-                            All {{topic.title}} Articles <i class="fa fa-arrow-circle-right"></i>
-                        </a>
-                    </p>
-
-                </h2>
-
-                <ul class="p sub-heading">
-                    {% if topic.articles %}
-                        {% if not topic.hidden %}
-                            {# truncate the number shown here #}
-                            {% for article in topic.articles %}
-                                {% if not article.hidden %}
-                                    {% if forloop.counter < 10 %}
-                                        <li><a href="{{article.url}}">&nbsp;{{article.title}}</a></li>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    {% else %}
-                        <p>No articles have been added yet.</p>
-                    {% endif %}
-                </ul>
-                <br><br><br>
+    {% for topic in response.data.results %}
+        {% if not topic.hidden %}
+            {% if forloop.first %}<div class="row">{% endif %}
+            <div class="col-xs-12 col-sm-4" style="margin-top:30px;">
+                <h4 style="border-bottom:1px solid #eee;padding-bottom:10px">{{topic.title}}</h4>
+            <ul class="p sub-heading">
+                {% if not topic.articles %}
+                <div class="sub-heading">No topics have been added yet.</div>
                 {% endif %}
-            {% endfor %}
-            {% if post_form %}
-                <h2>New Topic</h2>
-                <p>Add a new topic to the AAODC documentation. You can tag articles with your new topic in the <a href="{% url 'documentation:article-list' %}">articles</a> page.</p>
-                {% with form=post_form %}
-                <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data"
-                      class="form-horizontal" novalidate onsubmit="submitForm()">
-                    <fieldset>
-                        {% csrf_token %}
-                        {{ post_form }}
-                        <div class="form-actions">
-                            <button class="btn btn-default pull-right"
-                                    title="Make a POST request on the {{ name }} resource">SUBMIT
-                            </button>
-                        </div>
-                    </fieldset>
-                </form>
-                {% endwith %}
-            {% endif %}
-        {% else %}
+                {% for this in topic.articles %}
+                <li>
+                    <a href="{{this.url}}">{{this.title}}</a>
+                    <div class="tiny"><span class="tiny sub-heading"> Last updated {{this.updated}}</span></div>
+                </li>
+                {% endfor %}
+            </ul>
+            </div>
+            {% if forloop.counter|divisibleby:3 %}</div><div class="row">{% endif %}
+            {% if forloop.last %}</div>{% endif %}
+        {% endif %}
+    {% endfor %}
 
-        <div class="row">
-            <div class="col-xs-12">
-                <p class="lead">
-                    Articles tagged with the topic <em>{{response.data.title}}</em> are shown below.
-                    To view all articles in the Help Center, go back to the
-                    <a href="{% url 'documentation:topic-list' %}" title="Help Center Home">Help Center Home <i
-                        class="fa fa-home"></i></a>
-                </p>
-                <h2>All {{response.data.title}} Articles
-                    {% if request.user.is_superuser %}
-                <small class="right-helper"><a class="pull-right" href="{% url 'documentation:article-list' %}">Add New <i class="fa fa-plus"></i> </a></small>
-                    {% endif %}
-                </h2>
+    {% if post_form %}<br><br>
+        <h2>New Topic</h2>
+        <div class="p">Add a new topic to the AAODC documentation. You can tag articles with your new topic in the <a href="{% url 'documentation:article-list' %}">articles</a> page.</div>
+        {% with form=post_form %}
+        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data"
+              class="form-horizontal" novalidate onsubmit="submitForm()">
+            <fieldset>
+                {% csrf_token %}
+                {{ post_form }}
+                <div class="form-actions">
+                    <button class="btn btn-default pull-right"
+                            title="Make a POST request on the {{ name }} resource">SUBMIT
+                    </button>
+                </div>
+            </fieldset>
+        </form>
+        {% endwith %}
+    {% endif %}
 
-                <ul class="p sub-heading">
+    {% else %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>{{response.data.title}}</h2>
+
+            <table class="table">
+                <tbody>
                     {% if response.data.articles %}
                         {% for article in response.data.articles %}
                             {% if not article.hidden %}
-                                <li><a href="{{article.url}}">&nbsp;{{article.title}}</a>
-                                    <small class="sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
-                                    </small>
-                                </li>
+                                <tr>
+                                    <td><a href="{{article.url}}">&nbsp;{{article.title}}</a></td>
+                                    <td class="text-right">
+                                        <small class="tiny sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
+                                        </small>
+                                    </td>
+                                </tr>
                             {% endif %}
                         {% endfor %}
                     {% else %}
-                        <p>No articles have been added yet.</p>
+                        <tr><td>No articles have been added yet.</td></tr>
                     {% endif %}
-                </ul>
-            </div>
+
+
+                </tbody>
+            </table>
+            <ul class="p sub-heading">
+
+            </ul>
         </div>
-        {% endif %}
     </div>
+    {% endif %}
+
 </div>
 
-{% endblock %}
-{% block footer-extra %}
-    {% if response.data.results %}
-        <script>
-//            $(document).ready(function () {
-//                check_affix();
-//            });
-//
-//            function check_affix(){
-//                // destroy all affix events from the window
-//                // turn affix() on (if page width is large enough)
-//
-//                $(window).off('.affix');
-//                $("#docs-sidebar")
-//                    .removeClass("affix affix-top affix-bottom")
-//                    .removeData("bs.affix");
-//
-//                if ($(window).width() > 770){
-//                    $('#docs-sidebar').affix({
-//                        offset: {
-//                            top: function () {
-//                                return (this.top = $(".schema").offset().top)
-//                            },
-//                            bottom: function () {
-//                                return (this.bottom = $('.footer').outerHeight(true))
-//                            }
-//                        }
-//                    });
-//                    $('#docs-sidebar').affix('checkPosition')
-//                }
-//            }
-//
-//            var _resizetimer;
-//            window.onresize = function(){
-//              clearTimeout(_resizetimer);
-//              _resizetimer = setTimeout(check_affix, 100);
-//            };
+</div>
 
-        </script>
-    {% endif %}
 {% endblock %}

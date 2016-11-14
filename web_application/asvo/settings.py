@@ -48,16 +48,18 @@ INSTALLED_APPS = (
     'astrospark',
     'bootstrap3',
     'documentation',
-    'download',
-    'data_browser',
+    # 'download',
+    # 'data_browser',
     'django_extensions',
+    'hitcount',
     'mathfilters',
-    'query',
+    # 'query',
     'user',
     'restapi_app',
     'rest_framework',
-    'schema',
-    # 'sov',
+    'schema_browser',
+    'sov',
+    'surveys',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -267,7 +269,7 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'level': 'WARNING'
         },
-        'data_browser': {
+        'sov': {
             'handlers': ['console', 'file'],
             'level': 'WARNING'
         },
@@ -308,6 +310,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.TemplateHTMLRenderer',
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
     ),
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    # 'EXCEPTION_HANDLER': 'restapi_app.utils..exceptions.custom_exception_handler'
 }
+
 

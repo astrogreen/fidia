@@ -1,0 +1,35 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %} 404 {% endblock %}
+
+{% block head-extra %}
+<!--<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/about.min.css' %}"/>-->
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li>404</li>
+{% endblock %}
+
+{% block page_title %} 404 {% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'support-contact' %}">contact us</a></li>
+{% endblock useful_links %}
+
+{% block no_sidebar %}
+<div class="main-content">
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Page not available.</h1>
+            <p>Hmmm. Something went wrong. <code>Status Code: {{status_code}}</code></p>
+
+            <p>If you believe you are seeing this page in error, please <a href="{% url 'support-contact' %}" class="btn btn-default btn-xs">Contact
+                Support </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
