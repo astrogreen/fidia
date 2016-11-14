@@ -834,7 +834,11 @@ class LZIFUFlag(FlagMap):
         input_data = self._hdu['QF_BINCODE'].data  # type: np.ndarray
 
         # The array is stored as a unsigned integer array.
-        output_data = input_data.astype(np.uint64, casting='safe', copy=False)
+        output_data = input_data.astype(np.uint64, casting='unsafe', copy=False)
+
+        # Confirm that the cast was safe:
+        if not (output_data == input_data).all():
+            raise FIDIAException("FIDIA Data type error")
 
         return output_data
 
