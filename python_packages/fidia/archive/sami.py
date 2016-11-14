@@ -942,6 +942,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
     # Sub Traits
     #
     sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUFlag)
 
 
     @sub_traits.register
@@ -1016,6 +1017,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, Image):
     # Sub Traits
     #
     sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUFlag)
 
 
     @sub_traits.register
@@ -1118,6 +1120,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     # Sub Traits
     #
     sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUFlag)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
@@ -1185,12 +1188,14 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     # Sub Traits
     #
     sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUFlag)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
             return self._parent_trait._wcs_string.value
+
 LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     "Line Emission Map",
     OII3729="[OII] (3729Å)",
@@ -1269,6 +1274,7 @@ class LZIFUCombinedFit(SpectralMap):
     # Sub Traits
     #
     sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUFlag)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
