@@ -1,0 +1,141 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}Data Browser{% endblock %}
+{% block head-extra %}
+<!--<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>-->
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/trait.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/jquery-ui.structure.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/trait/jquery-ui.theme.min.css' %}"/>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+{% endblock %}
+
+{% block page_title %}Data Browser{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a href="#top-of-page" class="scroll">Interactive</a></li>
+        <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
+    </ul>
+</div>
+<hr>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+
+     {% if breadcrumblist %}
+
+    {% with breadcrumblist|length|add:"-2" as b %}
+    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+        {{breadcrumblist|key:b|key:0}}</a></li>
+    {% endwith %}
+    {% endif %}
+    <li><a class="" target="_blank"
+           href="{% url 'schema:survey-list' survey_pk=survey %}">
+        {{survey|uppercase}} Schema Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}">{{survey|uppercase}}
+        Documentation</a></li>
+
+</ul>
+{% endblock %}
+{% block version_container %}
+<div class="content-switcher">
+    <div class="btn-group navigation_btn_group" role="group">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        {% for branch_key, branch_value in all_branches_versions.items %}
+                        {% if branch_key == branch %}
+                        <i class="fa fa-code-fork"></i>
+                        <strong>{{branch_value.pretty_name}}</strong> <i class="fa fa-caret-down"></i>
+                        {% endif %}
+                        {% endfor %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for branch_key, branch_value in all_branches_versions.items %}
+                        {% if branch_key == branch %}
+                        <li class="disabled">
+                            <a href="{{branch_value.url}}"><i class="fa fa-angle-right"></i>
+                                <strong>{{branch_value.pretty_name}}:</strong>
+                                <em class="">{{branch_value.description}}</em>
+                            </a>
+
+                        </li>
+                        {% else %}
+                        <li><a href="{{branch_value.url}}"><strong>{{branch_value.pretty_name}}:</strong>
+                            <em class="">{{branch_value.description}}</em>
+                        </a>
+
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        {% for branch_key, branch_value in all_branches_versions.items %}
+                        {% if branch_key == branch %}
+                        {% for version_k in branch_value.versions %}
+                        {% if version_k == version %}
+                        <i class="fa fa-map-pin"></i> <strong>{{version_k}} </strong><i class="fa fa-caret-down"></i>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        {% endfor %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for branch_key, branch_value in all_branches_versions.items %}
+                        {% if branch_key == branch %}
+                        {% for version_k in branch_value.versions %}
+                        {% if version_k == version %}
+                        <li class="disabled"><a href="{{branch_value.url}}({{version_k}})"><i
+                                class="fa fa-angle-right"></i> <strong>{{version_k}}</strong></a></li>
+                        {% else %}
+                        <li><a href="{{branch_value.url}}({{version_k}})"><strong>{{version_k}}</strong></a></li>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        {% endfor %}
+
+                        {% for branch_name, branch_url in value.branches.items %}
+                        <li><a href="{{branch_url}}">{{branch_name}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+</div>
+{% endblock %}
+{% block main %}
+
+{% include "data_browser/layout/title.html" with db_title=astro_object|add:" "|add:response.data.pretty_name %}
+
+{% if response.data.description %}
+    <p><em>{{ response.data.description}}</em></p>
+{% endif %}
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 documentation_fidia">
+                <!--visualization/data-->
+                {% include 'data_browser/interactive/panel.html' %}
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <!--properties/interactive-->
+                {% include 'data_browser/tables/action.html' %}
+            </div>
+            <div class="col-xs-12">
+                {% include 'data_browser/trait/properties_table.html' %}
+            </div>
+        </div>
+
+        <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
+
+{% endblock %}

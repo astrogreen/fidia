@@ -1,20 +1,20 @@
 {% load staticfiles %}
 <footer class="footer" id="footer" >
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-sm-3 col-xs-12 footer-block">
-                <h3>EXPLORE</h3>
+                <h3>TOOLS</h3>
                 <table>
                     <col width="100%">
                     <tbody>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'query-create-list' %}">Query Builder</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>Query Builder</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'sami-list' %}">Data Browser</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'sov:root-list' %}">Single Object Viewer</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'documentation' %}">Documentation</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'schema_browser:root-list' %}">Schema Browser</a></small></h4></td>
                     </tr>
                     </tbody>
                 </table>
@@ -26,11 +26,15 @@
                     <col width="100%">
                     <tbody>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="mailto:asvo@aao.gov.au">Contact us</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'documentation:topic-list' %}">Documentation</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'documentation-schema-browser' %}">Schema Browser</a></small></h4></td>
+                        <td><h4><small><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></small></h4></td>
                     </tr>
+                    <tr>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'support-contact' %}">Contact us</a></small></h4></td>
+                    </tr>
+
                     </tbody>
                 </table>
                 <hr class="visible-xs">
@@ -38,13 +42,16 @@
             <div class="col-sm-3 col-xs-12 footer-block">
                 <h3>Subscribe</h3>
                 <h4><small>Sign up to our newsletter</small></h4>
-                <form>
-                  <div class="form-group">
-                    <label class="sr-only" for="exampleInputEmail1"></label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email address">
-                  </div>
-                  <button type="submit" class="btn btn-default form-control">SUBSCRIBE</button>
-                </form>
+
+                    <form>
+                        <div class="form-group">
+                            <label class="sr-only" for="exampleInputEmail1"></label>
+                            <input type="email" class="form-control" id="email" disabled="true"
+                                   placeholder="Email address">
+                        </div>
+                        <button type="submit" class="btn btn-default form-control" disabled="true">SUBSCRIBE</button>
+                    </form>
+
                 <hr class="visible-xs">
             </div>
             <div class="col-sm-3 col-xs-12 footer-block">
@@ -106,17 +113,131 @@
     };
     // Call MathJax after the content has been loaded...
     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ['\\(','\\)'] ]
+      }
+    });
 
     $(document).ready(function () {
 
-        $(window).on("load resize scroll", function (e) {
+        footer_function = function(){
             var docHeight = $(window).height();
             var footerHeight = $('#footer').height();
-            var footerTop = $('#footer').position().top + footerHeight;
-
-            if (footerTop < docHeight) {
-                $('#footer').css('margin-top', 10 + (docHeight - footerTop) + 'px');
-            }
+            var footerTop = $('#footer').position().top;
+            if (footerTop < (docHeight-footerHeight)) {
+                $('#footer').css('margin-top', 10 + (docHeight - footerTop -footerHeight) + 'px');
+            };
+        }
+        $(window).on("load resize scroll", function (e) {
+            footer_function();
         });
+
+        // check height on event panel collapse in out
+        $('.panel-collapse').on('hide.bs.collapse', function () {
+            footer_function();
+        });
+        $('.panel-collapse').on('hidden.bs.collapse', function () {
+            footer_function();
+        });
+        $('.panel-collapse').on('shown.bs.collapse', function () {
+            footer_function();
+        });
+
+        // Smooth scrolling
+        $(".scroll").click(function(event){
+            // stop the hash being appended to the url, and scroll to the value
+            event.preventDefault();
+            $('html, body').animate({scrollTop:$(this.hash).offset().top}, 800);
+        });
+
+
+        update_sidebar_height = function(){
+         /*
+          * Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
+          */
+            if ($(window).width() > 770) {
+                if ($('.main-content').height() > $('.sidebar .sidebar-contents').height()) {
+                    $('.sidebar').height($('.main-content').height() + 'px');
+                } else {
+                    $('.sidebar').height($('.sidebar .sidebar-contents').height() + 'px');
+                }
+            } else {
+                $('.sidebar').height($('.sidebar .sidebar-contents').height() + 'px');
+            }
+        };
+
+
+
+        // Hook method to collapse events on sidebar anchors to re-check size
+        // - this is used in the trait property renderer, which is half navigation, half information
+
+        $('.sidebar #sidebar').on('shown.bs.collapse', function () {
+            update_sidebar_height();
+        }).on('hidden.bs.collapse', function () {
+            update_sidebar_height();
+        });
+
+        // Hide branch warning message
+        $('.dismissable_panel a.dismiss_button').click(function(){
+            $('.dismissable_panel').hide();
+        });
+        $('body').scrollspy({ target: '.sidebar .page-contents' });
+
+        // Affix plugin
+        function affixSidebar() {
+
+            if ($('.sidebar-contents').length) {
+                // destroy any previous listeners
+                $('.sidebar-contents').off('.affix');
+
+                var pos = $('.sidebar-contents').eq(0).offset();
+                var pos_foot = $('.footer').outerHeight(true);
+
+                $('[data-spy="affix"]').attr("data-offset-top", pos.top);
+                $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot + 30);
+
+                // ensure the affix element maintains it width
+                var affix = $('.sidebar-contents');
+                var width = affix.width();
+                var width = $('.sidebar').width();
+//            console.log('sidebar width '+$('.sidebar').width()+' affix width '+width);
+                affix.width(width);
+            }
+
+        }
+
+        affixSidebar()
+
+       // BOX HEIGHTS
+        function box_heights() {
+            /*
+                For each box-row, find the largest box-contents height and map the others to it
+             */
+            if ($(".box-row").length) {
+                $(".box-row").each(function () {
+                    var heights, maxHeight;
+                    heights = $(this).find(".box .box-contents").map(function () {
+                        return $(this).height();
+                    }).get();
+                    maxHeight = Math.max.apply(null, heights);
+
+                    $(this).find(".box").height(maxHeight);
+                })
+            }
+        }
+
+
+         $(window).load(function () {
+            update_sidebar_height();
+            affixSidebar();
+             box_heights()
+        });
+        $(window).resize(function () {
+            update_sidebar_height();
+            affixSidebar();
+            box_heights()
+        });
+
     });
 </script>

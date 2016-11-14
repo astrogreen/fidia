@@ -1,0 +1,242 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Download{% endblock %}
+
+{% block head-extra %}
+<script type="text/javascript" src="{% static 'download/js/controllers.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'download/css/download/download.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Download{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='downloading-data' %}">Documentation</a></li>
+{% endblock useful_links %}
+
+
+
+{% block content_render %}
+<div class="row">
+    <div class="col-sm-12 main-content">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>Download Data from AAODC</h2>
+                <p class="lead">If you wish to re-download a previous collection of data, visit your <a href="{% url 'download-list' %}">Download History</a>.</p>
+                <a href="{% url 'documentation:topic-detail' slug='downloading-data' %}" class="navigator question"><i class="fa fa-question-circle"></i> Need Download Help?</a>
+            </div>
+            <!--<div class="col-xs-12">-->
+                <!--TARBALL ICON IDEAS:-->
+                <!--<span>-->
+                    <!--<span class="fa-stack fa-lg">-->
+                      <!--<i class="fa fa-circle-o-notch fa-stack-2x"></i>-->
+                      <!--<i class="fa fa-download fa-stack-1x"></i>-->
+                    <!--</span>-->
+                    <!--<span class="fa-stack fa-lg">-->
+                        <!--<i class="fa fa-circle fa-stack-2x"></i>-->
+                          <!--<i class="fa fa-file-code-o fa-stack-1x fa-inverse"></i>-->
+                    <!--</span>-->
+                    <!--<span class="fa-stack fa-lg">-->
+                        <!--<i class="fa fa-adjust text-error fa-rotate-90 fa-stack-2x"></i>-->
+                        <!--<i class="fa fa-circle-o fa-stack-2x"></i>-->
+                        <!--<i class="fa fa-long-arrow-down fa-stack-1x text-outline-white"  style="margin-top:-10px;"></i>-->
+                    <!--</span>-->
+
+
+                    <!--<span class="fa-stack fa-lg">-->
+                        <!--<i class="fa fa-file-code-o fa-stack-1x"></i>-->
+                        <!--<span class="fa-custom-filetype">TAR</span>-->
+                    <!--</span>-->
+
+                <!--</span>-->
+            <!--</div>-->
+        </div>
+        <div class="row" ng-controller="DownloadController as ctrl" id="downloadController">
+            <!-- Successful Submit -->
+            <div class="col-sm-6 col-sm-offset-1 col-xs-12">
+                <div class="panel panel-default" style="display:none" id="progress-indicator">
+                    <div class="panel-body success"></div>
+                </div>
+                {% if response.status_code == 201 and response.data.title and response.data.created and response.data.url %}
+                <div class="panel panel-default">
+                    <div class="panel-body success">
+                        <p><a href="{{response.data.url}}">{{response.data.title}}</a> was succesfully created on {{response.data.created}}.</p>
+                        <p>Your Download has been saved at <a href="{{response.data.url}}">{{response.data.url}}</a>.</p>
+                        <p>
+                            Re-visit and re-run previous downloads in your <a href="{% url 'download-list' %}">Download History</a>.</p>
+                    </div>
+                </div>
+                <!-- If successful, empty the Download -->
+                <script>
+                    $(function(){
+                        var controller_by_id = document.getElementById("downloadController");
+                        angular.element(controller_by_id).scope().ctrl.emptyDownload();
+                    })
+                </script>
+                {% endif %}
+
+                {% if response.status_code = 200 and response.data.download_link %}
+                 <div class="panel panel-default">
+                    <div class="panel-body success">
+                        <p><a href="{{response.data.download_link}}">Download {{response.data.download_link}}</a> was
+                            succesfully created. If your download doesn't begin automatically, click the link. </p>
+                        <p>
+                            To re-visit and re-run previous downloads, and download data products for samples of objects, <a
+                                href="{% url 'rest_framework:login' %}">Sign In</a>.</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% include 'download/download-template.html' %}
+
+            <div class="col-sm-4 col-x-s-12 download-options" ng-if="ctrl.items | isEmpty">
+                <h3>Empty!</h3>
+                <p>You've not selected any data products to download. If you're unsure about the types of data you can download, visit the <a href="{% url 'documentation:topic-detail' slug='downloading-data' %}"> Documentation</a>.</p>
+            </div>
+
+            <div class="col-sm-4 col-x-s-12 download-options" ng-if="ctrl.items | isNotEmpty">
+                <h3>Ready to Download?</h3>
+                <p>You can still add more data via the <a href="{% url 'data_browser:root-list'%}">Data
+                    Browser</a> or <a href="{% url 'query-create-list' %}">Query Builder</a>, but if you're ready to
+                    download this selection of data,
+                    click the <i class="fa fa-download"></i> Download button below.</p>
+
+                <div class="panel panel-default" ng-if="ctrl.items | isNotEmpty">
+                    <div class="panel-heading">
+                        <span class="panel-title text-uppercase">Summary</span>
+                    </div>
+                    {% verbatim %}
+                    <!-- List group -->
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Total</strong></li>
+                        <li class="list-group-item list-group-sub-item">Data <span class="badge">{{ctrl.item_count}}</span>
+                        </li>
+                        <li class="list-group-item"><strong>Per Object</strong></li>
+                        <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl.summary.byObject">{{obj.ao}} <span class="badge">{{obj.count}}</span></li>
+                        <li class="list-group-item"><strong>Per Survey</strong></li>
+                        <li class="list-group-item list-group-sub-item" ng-repeat="obj in ctrl.summary.bySample">{{obj.sample}} <span class="badge">{{obj.count}}</span></li>
+                        <li class="list-group-item"><strong>Estimated Download Size </strong><span class="badge">5MB</span></li>
+
+                    </ul>
+                    {% endverbatim %}
+                </div>
+
+                {% if post_form %}
+                    <div id="post-object-form">
+                        {% with form=post_form %}
+                        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" novalidate>
+                            <fieldset>
+                                {% csrf_token %}
+                                {% if user.is_authenticated %}
+                                    <div class="form-group">
+                                        <p class="sub-heading">This download will be saved in your <a
+                                                href="{% url 'download-list' %}">Download History</a>. Give it
+                                            a meaningful name so you can revisit it later.</p>
+                                        <label class="control-label label-sub-heading sr-only">
+                                            Download Title
+                                            <span class="sub-heading" id="title_info">
+                                                <a href="" data-toggle="popover" data-html="true" class="popover-anchor"
+                                                   data-trigger="focus"
+                                                   data-content="<p>Your list of data to download will be saved in your <a href='{% url 'download-list'%}'>download history</a>. Give your download a meaningful name so you can revisit it later.</p>"
+                                                   data-placement="left"><i class="fa fa-info-circle"></i></a>
+                                            </span>
+                                        </label>
+                                        <input name="title" class="form-control" type="text" placeholder="My Download">
+
+                                    </div>
+                                {% endif %}
+
+                                {% verbatim %}
+                                    <input type="hidden" name="downloaditems" ng-value="ctrl.download" />
+                                {% endverbatim %}
+
+                                <div class="form-actions">
+                                    <button class="btn btn-default text-uppercase pull-right" type="button" title="Download data in the download" id="download-submit">
+                                        <i class="fa fa-download"></i> Download
+                                    </button>
+                                </div>
+
+                                <a class="btn btn-default text-uppercase"
+                                        title="Delete all items in the download" id="emptyDownload"  data-toggle="modal" href="#empty-modal-sm">
+                                    <i class="fa fa-trash-o text-error"></i> Empty
+                                </a>
+
+                            </fieldset>
+                        </form>
+                        {% endwith %}
+
+                    </div>
+                {% endif %}
+                <br>
+
+
+
+                <!-- Confirmation modal -->
+                <div class="modal fade" id="empty-modal-sm" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <strong> ARE YOU SURE? </strong>
+                                <p>Emptying the Download is irreversible. </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" data-dismiss="modal" class="btn btn-sm btn-default">CANCEL</button>
+                                {% verbatim %}
+                                    <button class="btn btn-error btn-sm text-uppercase"
+                                            title="Delete all items in the download" id="checkout-empty"  data-dismiss="modal"
+                                            ng-click="ctrl.emptyDownload()"> Empty
+                                    </button>
+                                {% endverbatim %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function(){
+        // HACK inject bootstrap classes to change form layout (DRF restricts to horizontal)
+        $('form .form-group').each(function () {
+            $(this).children('label.col-sm-2').removeClass('col-sm-2');
+            if ($(this).children('.col-sm-10').length) {
+                $(this).children('.col-sm-10').replaceWith(function () {
+                    return $(this).contents();
+                });
+            }
+        });
+
+        // delegate the click event as button didn't exists when page was loaded
+        $(document).on('click', '#download-submit', function () {
+            $(this).attr('disabled','disabled');
+            $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
+            fHideDownloadOptions();
+            setTimeout(function(){
+                // Timeout is needed here for safari compatibility
+                // .submit event loop doesn't allow for repaint, so animate first, then submit.
+                $('#post-object-form form').submit();
+            }, 1000);
+        });
+
+
+        function fHideDownloadOptions(){
+            // Hide query options on successful submit
+            setTimeout(function(){
+                $('#progress-indicator').show();
+                $('.download-options').hide(500);
+                $('#progress-indicator .panel-body').html('<strong>DOWNLOAD SUBMITTED </strong> on '+new Date().toLocaleString()+'<br>')
+                    .append('<em><p class="loading">Processing <span>.</span><span>.</span><span>.</span></p></em><p> Please do not close this page, your download will begin automatically.</p>')
+            }, 500)
+        };
+
+        $('#empty-modal-sm').modal('toggle');
+    });
+</script>
+
+
+{% endblock %}

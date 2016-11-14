@@ -1,14 +1,19 @@
-import random, collections, logging, json, requests, zipfile, io
+from collections import OrderedDict
+import random, collections, logging, json, requests, zipfile, io, itertools
+
 import django.core.exceptions
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
+from django.views.generic import View
 
 from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
-from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
+from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions, \
+    renderers
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.reverse import reverse
 
 import restapi_app.permissions
 import restapi_app.exceptions
@@ -17,151 +22,344 @@ import restapi_app.utils.helpers
 
 import data_browser.serializers
 import data_browser.renderers
+import data_browser.mixins
+import data_browser.helpers
 
 import fidia.exceptions
-from fidia.traits import Trait, TraitProperty, TraitRegistry
+from fidia.traits import Trait, TraitProperty, TraitKey
+from fidia import traits
+
+import fidia_tarfile_helper
 
 log = logging.getLogger(__name__)
 
-class GAMAViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    class GAMARenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/sample/inprogress.html'
+class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """ Viewset for DataBrowser API root. Implements List action only.
+    Lists all surveys, their current versions and total number of objects in that version. """
 
-    renderer_classes = (GAMARenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    def __init__(self, *args, **kwargs):
+        self.surveys = [
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0}, "astro_objects":{}},
+            {"survey": "gama", "count": 0, "current_version": 0},
+            {"survey": "galah", "count": 0, "current_version": 0}
+        ]
 
-    def list(self, request, pk=None, sample_pk=None, format=None):
-        try:
-            sami_dr1_sample
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    renderer_classes = (data_browser.renderers.RootRenderer, renderers.JSONRenderer)
+    permission_classes = [permissions.AllowAny]
 
-        return Response({'nodata': True})
+    def list(self, request, pk=None, format=None):
 
+        self.breadcrumb_list = ['Single Object Viewer']
 
-class SAMIViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+        for survey in self.surveys:
+            if survey["survey"] == "sami":
+                for astro_object in sami_dr1_sample:
+                    url_kwargs = {
+                        'astroobject_pk': str(astro_object),
+                        'survey_pk': 'sami'
+                    }
+                    url = reverse("data_browser:astroobject-list", kwargs=url_kwargs)
+                    survey["astro_objects"][astro_object] = url
 
-    class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/sample/sample-list.html'
-
-    renderer_classes = (SampleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-
-    def list(self, request, pk=None, sample_pk=None, format=None):
-        try:
-            sami_dr1_sample
-        except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        serializer_class = data_browser.serializers.SampleSerializer
+        serializer_class = data_browser.serializers.RootSerializer
         serializer = serializer_class(
-            instance=sami_dr1_sample, many=False,
-            context={'request': request},
-            depth_limit=1
+            many=False, instance=sami_dr1_sample,
+            context={'request': request, 'surveys': self.surveys},
         )
         return Response(serializer.data)
 
 
-class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SurveyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
+    """
+    Viewset for Sample route. Provides List view AND create (post) to download data.
+    Endpoint: list of astroobjects
+    HTML Context: survey string ('sami') and survey catalogue data
+    """
 
-    # TODO ensure proper http status code is returned (page not found) on non-identifiable traits
+    renderer_classes = (data_browser.renderers.SurveyRenderer, renderers.JSONRenderer)
+    permission_classes = [permissions.AllowAny]
+    serializer_class = data_browser.serializers.DownloadSerializer
 
-    class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/astroobject/astroobject-list.html'
+    def __init__(self, *args, **kwargs):
+        self.catalog = self.traits = ''
 
-    renderer_classes = (AstroObjectRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    def list(self, request, pk=None, survey_pk=None, format=None, extra_keyword=None):
 
-    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, format=None):
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper()]
 
         try:
-            astroobject = sami_dr1_sample[galaxy_pk]
+            # TODO ask FIDIA what it's got for survey_pk
+            sami_dr1_sample
+            if survey_pk != "sami":
+                message = 'Survey does not exist: ' + survey_pk
+                raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                              status_code=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Context (for html page render)
+        self.catalog = json.dumps(sami_dr1_sample.get_feature_catalog_data())
+        self.traits = ar.full_schema(include_subtraits=False, data_class='non-catalog', combine_levels=None,
+                                     verbosity='descriptions', separate_metadata=True)
+
+        # Endpoint-only
+        serializer_class = data_browser.serializers.SurveySerializer
+        serializer = serializer_class(
+            instance=sami_dr1_sample, many=False,
+            context={'request': request, 'survey': survey_pk}
+        )
+        return Response(serializer.data)
+
+    def create(self, request, pk=None, survey_pk=None, *args, **kwargs):
+
+        download_data = json.loads(request.POST['download'])
+
+        object_list = (download_data['objects']).split(',')
+        product_list = json.loads(download_data['products'])
+
+        # product_list will look like the following:
+        #
+        # {
+        #     "SAMI": [
+        #         {
+        #             "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+        #             "trait_key_arr": [
+        #                 "velocity_map",
+        #                 "ionized_gas",
+        #                 "recom_comp",
+        #                 "V02"
+        #             ]
+        #         },
+        #         {
+        #             "trait_key": "extinction_map--recom_comp-V02",
+        #             "trait_key_arr": [
+        #                 "extinction_map",
+        #                 "null",
+        #                 "recom_comp",
+        #                 "V02"
+        #             ]
+        #         }
+        #     ]
+        # }
+
+        trait_path_list = []
+        for obj, product in itertools.product(object_list, product_list['SAMI']):
+
+            trait_key_array = product['trait_key_arr']  # type: list
+            # Convert "null" and "None" to (Python) None in the list
+            while "null" in trait_key_array:
+                trait_key_array[trait_key_array.index("null")] = None
+            while "None" in trait_key_array:
+                trait_key_array[trait_key_array.index("None")] = None
+
+            trait_path = {
+                'sample': 'SAMI',
+                'object_id': obj,
+                'trait_path': [TraitKey(*trait_key_array)]
+            }
+
+            trait_path_list.append(trait_path)
+        print(trait_path_list)
+        tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+
+        response = StreamingHttpResponse(tar_stream, content_type='application/gzip')
+        filename = 'SAMI_data.tar.gz'
+        response['content-disposition'] = "attachment; filename=%s" % filename
+        response['content-encoding'] = "gzip"
+
+        return response
+
+
+# class Download(views.APIView):
+#     def get(self, request, *args, **kwargs):
+#         """Example code to prove it works"""
+#
+#         # @TODO: Delete/udpate this function!
+#
+#         trait_path_list = [
+#             {'survey': 'SAMI',
+#              'object_id': '9352',
+#              'trait_path': [
+#                  "velocity_map-ionized_gas"
+#              ]},
+#             {'survey': 'SAMI',
+#              'object_id': '9352',
+#              'trait_path': [
+#                  "velocity_dispersion_map-ionized_gas"
+#              ]}
+#             # {'survey': 'SAMI',
+#             #  'object_id': '24433',
+#             #  'trait_path': [
+#             #      "spectral_cube-blue"
+#             #  ]}
+#         ]
+#
+#         tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+#
+#         return StreamingHttpResponse(tar_stream, content_type='application/gzip')
+#
+#     def post(self, request, *args, **kwargs):
+#
+#         object_list = (request.POST['objects']).split(',')
+#         product_list = json.loads(request.POST['products'])
+#
+#         # product_list will look like the following:
+#         #
+#         #    {
+#         #        "SAMI": [
+#         #            {
+#         #                "trait_key": "velocity_map-ionized_gas-recom_comp-V02",
+#         #                "trait_key_arr": [
+#         #                    "velocity_map",
+#         #                    "ionized_gas",
+#         #                    "recom_comp",
+#         #                    "V02"
+#         #                ]
+#         #            },
+#         #            {
+#         #                "trait_key": "extinction_map--recom_comp-V02",
+#         #                "trait_key_arr": [
+#         #                    "extinction_map",
+#         #                    "null",
+#         #                    "recom_comp",
+#         #                    "V02"
+#         #                ]
+#         #            }
+#         #        ]
+#         #    }
+#
+#         trait_path_list = []
+#         for obj, product in itertools.product(object_list, product_list['SAMI']):
+#
+#             trait_key_array = product['trait_key_arr'] # type: list
+#             # Convert "null" to (Python) None in the list
+#             while "null" in trait_key_array:
+#                 trait_key_array[trait_key_array.index("null")] = None
+#
+#             trait_path = {
+#                 'survey': 'SAMI',
+#                 'object_id': obj,
+#                 'trait_path': [TraitKey(*trait_key_array)]
+#             }
+#
+#             trait_path_list.append(trait_path)
+#
+#         tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sami_dr1_sample, trait_path_list)
+#
+#         return StreamingHttpResponse(tar_stream, content_type='application/gzip')
+
+
+class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """ Viewset for Astroobject. Provides List view only.
+    Endpoint: available traits (plus branches/versions)
+    HTML context: survey string, astroobject, traits and position (ra,dec)"""
+
+    def __init__(self, *args, **kwargs):
+        self.survey = self.astro_object = self.feature_catalog_data = ''
+        # super().__init__()
+
+    renderer_classes = (data_browser.renderers.AstroObjectRenderer, renderers.JSONRenderer)
+    permission_classes = [permissions.AllowAny]
+
+    def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, format=None):
+
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk]
+
+        try:
+            astro_object = sami_dr1_sample[astroobject_pk]
+            assert isinstance(astro_object, fidia.AstronomicalObject)
         except fidia.exceptions.NotInSample:
-            message = 'Object ' + galaxy_pk + ' Not Found'
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            message = 'Object ' + astroobject_pk + ' Not Found'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(data={}, status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response(data={}, status=status.HTTP_400_BAD_REQUEST)
 
+        if survey_pk != "sami":
+            message = 'Survey does not exist: ' + survey_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+        # Context (for html page render)
+        self.survey = survey_pk
+        self.astro_object = astroobject_pk
+        self.feature_catalog_data = astro_object.get_feature_catalog_data()
+
+        # Endpoint-only
         serializer_class = data_browser.serializers.AstroObjectSerializer
-
-        # Get schema for this archive's astro object and sort alphabetically
-        sorted_schema_temp = {}
-
-        for key, value in sorted(ar.schema(by_trait_name=True).items()):
-            sorted_schema_temp[key] = collections.OrderedDict(sorted(value.items()))
-
-        sorted_schema = collections.OrderedDict(sorted(sorted_schema_temp.items()))
-
-        # Get available traits (minus qualifier) for this archive's astro object
-        # to provide groupings (line maps, velocity maps etc) in ao view.
-        available_trait_set = ar.available_traits.get_traits()
-        trait_list = []
-
-        for ty in available_trait_set:
-            trait_list.append(ty.trait_type)
-
-        trait_list = restapi_app.utils.helpers.unique_list(trait_list)
-
         serializer = serializer_class(
-            instance=astroobject, many=False,
+            instance=astro_object, many=False,
             context={
+                'survey': survey_pk,
+                'astro_object': astroobject_pk,
                 'request': request,
-                'schema': sorted_schema,
-                'trait_list': sorted(trait_list)
+                'traits': ar.full_schema(include_subtraits=False, data_class='all', combine_levels=None,
+                                         verbosity='descriptions', separate_metadata=True),
+                'position': {'ra': astro_object.ra, 'dec': astro_object.dec}
             }
         )
-
         return Response(serializer.data)
 
 
-class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_browser.helpers.TraitHelper):
+    """ Viewset for Trait. Provides List view only.
+    Endpoint: available properties
+    HTML context: survey string, astroobject, all available branches"""
 
-    class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/trait/trait-list.html'
+    def __init__(self, *args, **kwargs):
 
-        def get_context(self, data, accepted_media_type, renderer_context):
-            context = super().get_context(data, accepted_media_type, renderer_context)
-            context['html_documentation'] = renderer_context['view'].documentation_html
-            context['pretty_name'] = renderer_context['view'].pretty_name
-            context['short_description'] = renderer_context['view'].short_description
-            return context
+        # call init method from TraitHelper (superclass)
+        self.breadcrumb_list = []
+        data_browser.helpers.TraitHelper.__init__(self)
+        # super().__init__()
 
-    renderer_classes = (TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = (
+    data_browser.renderers.TraitRenderer, renderers.JSONRenderer, data_browser.renderers.FITSRenderer)
 
-    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, format=None):
-        print('TRAIT:'+trait_pk)
+    def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, trait_pk=None, format=None):
+
         try:
-            trait = sami_dr1_sample[galaxy_pk][trait_pk]
+            trait = sami_dr1_sample[astroobject_pk][trait_pk]
+            self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait.get_pretty_name()]
         except fidia.exceptions.NotInSample:
-            message = 'Object ' + galaxy_pk + ' Not Found'
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            message = 'Object ' + astroobject_pk + ' Not Found'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except fidia.exceptions.UnknownTrait:
-            message = 'Not found: Object ' + galaxy_pk + ' does not have property ' + trait_pk
-            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail', status_code=status.HTTP_404_NOT_FOUND)
+            message = 'Not found: Object ' + astroobject_pk + ' does not have property ' + trait_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            message = 'Key Error: ' + trait_pk + ' does not exist'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
         except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            message = 'Value Error: ' + trait_pk + ' does not exist'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
 
-        serializer_class = data_browser.serializers.AstroObjectTraitSerializer
+        # Context (for html page render)
+        self.set_attributes(survey_pk=survey_pk, astroobject_pk=astroobject_pk, trait_pk=trait_pk,
+                            trait=trait, ar=ar)
+        self.fidia_type = "trait"
+
+        if isinstance(trait, traits.Map2D):
+            self.trait_2D_map = True
+
+        # Endpoint
+        serializer_class = data_browser.serializers.TraitSerializer
         serializer = serializer_class(
             instance=trait, many=False,
             context={
                 'request': request,
+                'trait_url': self.trait_url,
             }
         )
-
-        # Add some data to the view so that it can be made available to the renderer.
-        #
-        # This data is not included in the actual data of the serialized object
-        # (though that is possible, see the implementations of the Serializers)
-        self.documentation_html = trait.get_documentation('html')
-        self.pretty_name = trait.get_pretty_name()
-        self.short_description = trait.get_description()
 
         return Response(serializer.data)
 
@@ -169,225 +367,178 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         response = super().finalize_response(request, response, *args, **kwargs)
         if response.accepted_renderer.format == 'fits':
             filename = "{obj_id}-{trait}.fits".format(
-                obj_id=kwargs['galaxy_pk'],
+                obj_id=kwargs['astroobject_pk'],
                 trait=kwargs['trait_pk'])
             response['content-disposition'] = "attachment; filename=%s" % filename
         return response
 
 
-class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_browser.helpers.TraitHelper):
+    """
+    Dynamic View evaluated on instance type is Trait or Trait property
+    This is only one level
+    """
+    renderer_classes = (data_browser.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer)
+    permission_classes = [permissions.AllowAny]
 
-    class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'data_browser/trait_property/traitproperty-list.html'
+    def __init__(self, *args, **kwargs):
+        # call init method from TraitHelper (superclass)
+        self.template = 'data_browser/trait_property/list.html'
+        data_browser.helpers.TraitHelper.__init__(self)
 
-    renderer_classes = (TraitPropertyRenderer, renderers.JSONRenderer)
+    def list(self, request, survey_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None, format=None):
 
-    def list(self, request, pk=None, sample_pk=None, galaxy_pk=None, trait_pk=None, traitproperty_pk=None, format=None):
         try:
-            # address trait properties via . not []
-            trait_property = getattr(sami_dr1_sample[galaxy_pk][trait_pk], traitproperty_pk)
+            # Determine what we're looking at.
+            # type_for_trait_path requires the trait_key and current "path"
+            path = [subtraitproperty_pk]  # < class 'list'>: ['value']
+            path.insert(0, trait_pk)  # < class 'list'>: ['line_emission_map-HBETA', 'value']
+
+        except:
+            message = 'Not found: Object ' + astroobject_pk + ' trait ' + trait_pk + ' does not have property ' + subtraitproperty_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+
+        # Context (for html page render)
+        try:
+            trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
         except KeyError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        except AttributeError:
-            raise restapi_app.exceptions.NoPropertyFound("No property %s" % traitproperty_pk)
-            # return Response(status=status.HTTP_404_NOT_FOUND)
+            _branch = trait_pk.split(":")[1]
+            message = 'No ' + trait_pk + ' data available for ' + astroobject_pk + '. Check the branch and version [' + _branch + '] are correct.'
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+        except fidia.exceptions.UnknownTrait:
+            message = 'Unknown trait: ' + trait_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
 
-        serializer_class = data_browser.serializers.AstroObjectTraitPropertySerializer
-        serializer = serializer_class(
-            instance=trait_property, many=False,
-            context={'request': request}
-        )
+        self.set_attributes(survey_pk=survey_pk, astroobject_pk=astroobject_pk, trait_pk=trait_pk,
+                            trait=trait_pointer, ar=ar)
 
-        # Add some data to the view so that it can be made available to the renderer.
-        #
-        # This data is not included in the actual data of the serialized object
-        # (though that is possible, see the implementations of the Serializers)
-        self.documentation_html = trait_property.get_documentation('html')
-        self.pretty_name = trait_property.get_pretty_name()
-        self.short_description = trait_property.get_description()
-
-        return Response(serializer.data)
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        response = super().finalize_response(request, response, *args, **kwargs)
-        if response.accepted_renderer.format == 'fits':
-            filename = "{galaxy_pk}-{trait_pk}-{traitproperty_pk}.fits".format(**kwargs)
-            response['content-disposition'] = "attachment; filename=%s" % filename
-        return response
-
-
-class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
-    def list(self, request, pk=None, galaxy_pk=None, trait_pk=None, dynamic_pk=None, format=None):
-        print(dynamic_pk)
-        print(trait_pk)
-        print(galaxy_pk)
-        # @property
-        # def dynamic_property_first_of_type(self, dynamic_pk):
-            # split on /
-
-        # Determine what we're looking at.
-        path = list(dynamic_pk.split('/'))
-
-        path.insert(0, trait_pk)
-        # return Response({"data": str(ar.type_for_trait_path(path))})
-        print(ar.type_for_trait_path(path))
         if issubclass(ar.type_for_trait_path(path), Trait):
-            trait_pointer = sami_dr1_sample[galaxy_pk]
-            for elem in path:
-                trait_pointer = trait_pointer[elem]
-            serializer = data_browser.serializers.AstroObjectTraitSerializer(
-                instance=trait_pointer, many=False,
-                context={'request': request}
-            )
+            self.template = 'data_browser/sub_trait/list.html'
+            self.fidia_type = "sub_trait"
+            subtrait_pointer = trait_pointer[subtraitproperty_pk]
+
+            serializer = data_browser.serializers.TraitSerializer(
+                instance=subtrait_pointer, many=False,
+                context={'request': request,
+                         'trait_url': reverse("data_browser:trait-list",
+                                              kwargs={'survey_pk': survey_pk, 'astroobject_pk': astroobject_pk,
+                                                      'trait_pk': trait_pk, }),
+                         })
+            # Set Breadcrumbs for this method
+            self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk,
+                                    trait_pointer.get_pretty_name(),
+                                    subtrait_pointer.get_pretty_name()]
+
 
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
-            trait_pointer = sami_dr1_sample[galaxy_pk]
-            for elem in path[:-1]:
-                trait_pointer = trait_pointer[elem]
-            trait_property = getattr(trait_pointer, path[-1])
-            serializer = data_browser.serializers.AstroObjectTraitPropertySerializer(
-                instance=trait_property, many=False,
-                context={'request': request}
-            )
+
+            try:
+                traitproperty_pointer = getattr(trait_pointer, subtraitproperty_pk)
+            except:
+                message = 'Not found: Object ' + astroobject_pk + ' trait ' + trait_pk + ' does not have property ' + subtraitproperty_pk
+                raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                              status_code=status.HTTP_404_NOT_FOUND)
+
+            self.template = 'data_browser/trait_property/list.html'
+            self.fidia_type = "trait_property"
+
+            # Set Breadcrumbs for this method
+            self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk,
+                                    trait_pointer.get_pretty_name(),
+                                    traitproperty_pointer.get_pretty_name()]
+
+            if 'array' in traitproperty_pointer.type and 'string' not in traitproperty_pointer.type:
+                try:
+                    n_axes = len(traitproperty_pointer.value.shape)
+                except AttributeError:
+                    pass
+                except fidia.exceptions.DataNotAvailable:
+                    message = 'No ' + subtraitproperty_pk + ' data available for ' + trait_pk
+                    raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                                  status_code=status.HTTP_404_NOT_FOUND)
+                else:
+                    if n_axes == 2:
+                        self.trait_2D_map = True
+                        # @TODO: Handle arrays other than numpy ndarrays
+
+            serializer = data_browser.serializers.TraitPropertySerializer(
+                instance=traitproperty_pointer, many=False,
+                context={'request': request,
+                         'trait_url': reverse("data_browser:trait-list",
+                                              kwargs={'survey_pk': survey_pk, 'astroobject_pk': astroobject_pk,
+                                                      'trait_pk': trait_pk, }),
+                         })
+
         else:
-            raise Exception("programming error")
+            raise Exception("An error has occurred.")
 
         return Response(serializer.data)
 
 
-        # Return a list of components
-        dynamic_components = dynamic_pk.split('/')
-        # first component distinction: ST/TP
-        return Response({'dynamic_pk': dynamic_components})
-
-
-class Checkout(views.APIView):
-    renderer_classes = [renderers.StaticHTMLRenderer]
-
-    def get(self, request, format=None):
-        """
-        Return Zip of urls
-        """
-
-        url = 'http://127.0.0.1:8000/asvo/data/sami/9352/velocity_map/?format=fits'
-
-        # get data from url
-        request_data = requests.get(url)
-
-        print(request_data)
-        print(request_data.status_code)
-        print(request_data.headers)
-        print(request_data.headers['content-disposition'])
-
-        # # set zip filename OK
-        zip_filename = "download.zip"
-
-        # Create zip in-memory rather than writing out to file
-        # This is where the zip will be written
-        buff = io.BytesIO()
-        # This is the zip file
-        zip_archive = zipfile.ZipFile(buff, 'w')
-
-        temp = []
-        for i in range(4):
-            # One 'memory file' for each file I want in my zip archive
-            temp.append(io.BytesIO())
-
-        # Writing something to the files, to be able to
-        # distinguish them
-        # HERE TODO write in url data
-        # data is already in bytes format!
-        temp[0].write(request_data.content)
-        temp[1].write(bytes('second in-mem temp file', 'UTF-8'))
-        temp[2].write(bytes('third in-mem temp file', 'UTF-8'))
-        temp[3].write(bytes('fourth in-mem temp file', 'UTF-8'))
-
-        for i in range(4):
-            # The zipfile module provide the 'writestr' method.
-            # First argument is the name you want for the file
-            # inside your zip, the second argument is the content
-            # of the file, in string format. StringIO provides
-            # you with the 'getvalue' method to give you the full
-            # content as a string
-            if i == 0:
-                zip_archive.writestr('temp'+str(i)+'.fits',
-                                 temp[i].getvalue())
-            else:
-                zip_archive.writestr('temp'+str(i)+'.txt',
-                                 temp[i].getvalue())
-
-        # Close the zip (sitting in the buff ByteIO object)
-        zip_archive.close()
-
-        # Visualize zip structure
-        print(zip_archive.printdir())
-
-        # Send file back OK
-        resp = HttpResponse(buff.getvalue(), content_type="application/x-zip-compressed")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-
-        return resp
-
-
-class DataCheckoutView(viewsets.ViewSet):
+class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, data_browser.helpers.TraitHelper):
     """
-    You can do:
-    http --form POST http://127.0.0.1:8000/asvo/data/checkout/ urls="http://127.0.0.1:8000/asvo/data/sami/9352/velocity_map/?format=fits, http://127.0.0.1:8000/asvo/data/sami/9352/line_map-SII6716/?format=fits" > zippyfile.zip
+    Final level of nesting - this will provide a level to all those sub-trait/traitproperty views.
+    Might not even need it - may be able to pass through SubTraitProperty Viewset with carefully managed pks
     """
-    # Required for the Browsable API renderer to have a nice form.
-    serializer_class = data_browser.serializers.DataCheckoutSerializer
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = (data_browser.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer)
 
-    def list(self, request):
-        return Response({'data': 'in the view - list'})
+    def __init__(self, survey=None, astro_object=None, trait=None, template=None, *args, **kwargs):
+        self.template = 'data_browser/trait_property/list.html'
+        data_browser.helpers.TraitHelper.__init__(self)
 
-    def create(self, request):
-        resp_text = 'response text'
-        #
+    def list(self, request, survey_pk=None, astroobject_pk=None, trait_pk=None, subtraitproperty_pk=None,
+             traitproperty_pk=None, format=None):
+
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait_pk,
+                                subtraitproperty_pk, traitproperty_pk]
+
+        # set trait attributes on the renderer context
         try:
-            url_str = request.data['urls']
-        except AttributeError:
-            raise restapi_app.exceptions.NoURLSFound
+            trait_pointer = sami_dr1_sample[astroobject_pk][trait_pk]
+        except KeyError:
+            message = "Key not found: " + trait_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+        try:
+            subtrait_pointer = sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk]
+        except KeyError:
+            message = "Key not found: " + subtraitproperty_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
+        try:
+            traitproperty_pointer = getattr(sami_dr1_sample[astroobject_pk][trait_pk][subtraitproperty_pk],
+                                            traitproperty_pk)
+        except Exception:
+            message = "Key not found: " + traitproperty_pk
+            raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                          status_code=status.HTTP_404_NOT_FOUND)
 
-        # Set zip filename (may want this dynamic in future)
-        zip_filename = "download.zip"
+        # Context (for html page render)
+        self.set_attributes(survey_pk=survey_pk, astroobject_pk=astroobject_pk, trait_pk=trait_pk,
+                            trait=trait_pointer, ar=ar)
 
-        # Create zip archive in-memory
-        # User BytesIO as fits binary
-        buff = io.BytesIO()
-        zip_archive = zipfile.ZipFile(buff, 'w')
+        self.fidia_type = "trait_property"
+        self.subtrait_pretty_name = subtrait_pointer.get_pretty_name()
+        self.sub_trait = subtrait_pointer.trait_name
 
-        # Create temporary arr
-        temp = []
-        url_list = url_str.split(',')
+        self.trait_2D_map = False
+        if isinstance(self.trait, traits.Map2D):
+            self.trait_2D_map = True
 
-        for url in url_list:
-            request_data = requests.get(url.strip())
-            # Get the file name from the request header
-            temp_name = request_data.headers['content-disposition'].split('filename=')[1]
-            if request_data.status_code == 200:
-                # One 'memory file' for each file I want in my zip archive
-                temp.append(io.BytesIO())
+        serializer = data_browser.serializers.TraitPropertySerializer(
+            instance=traitproperty_pointer, many=False,
+            context={'request': request,
+                     'trait_url': reverse("data_browser:trait-list",
+                                          kwargs={'survey_pk': survey_pk, 'astroobject_pk': astroobject_pk,
+                                                  'trait_pk': trait_pk, }),
+                     }
+        )
 
-                # Write to last element in temp arr
-                # Will need additional validation here on content type
-                temp[-1].write(request_data.content)
-                # The zipfile module provide the 'writestr' method.
-                # First argument is the name you want for the file
-                # inside your zip, the second argument is the content
-                # of the file, in byte format.
-                zip_archive.writestr(temp_name, temp[-1].getvalue())
+        self.breadcrumb_list = ['Data Browser', str(survey_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+                                subtrait_pointer.get_pretty_name(), traitproperty_pointer.get_pretty_name()]
 
-        # Close the zip (sitting in the buff ByteIO object)
-        zip_archive.close()
-
-        # Visualize zip structure
-        print(zip_archive.printdir())
-
-        # Send file back
-        resp = HttpResponse(buff.getvalue(), content_type="application/x-zip-compressed")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-
-        return resp
+        return Response(serializer.data)

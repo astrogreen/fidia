@@ -2,9 +2,9 @@
 import numpy as np
 
 from .archive import Archive
-from ..traits import TraitKey, TraitRegistry, trait_property
+from ..traits import *
+from ..traits.trait_property import trait_property_from_constant
 from ..utilities import DefaultsRegistry
-from ..traits.base_traits import SpectralMap, Image, Measurement, Trait
 from ..exceptions import DataNotAvailable
 
 class ExampleSpectralMap(SpectralMap):
@@ -84,6 +84,9 @@ class VelocityMap(Image):
 
     trait_type = "velocity_map"
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
     @property
     def shape(self):
         return self.value.shape
@@ -104,6 +107,10 @@ class VelocityMap(Image):
 class LineMap(Image):
 
     trait_type = "line_map"
+
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
 
     @property
     def shape(self):
@@ -126,6 +133,12 @@ class RedImage(Image):
 
     qualifiers = {'red'}
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
+    def preload(self):
+        # Make an object have typically the same random data.
+        np.random.seed(hash(self.object_id) % 500000)
 
     @trait_property('float.array')
     def value(self):
@@ -135,7 +148,7 @@ class RedImage(Image):
     def variance(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('string')
     def extra_property_red(self):
         return 'red'
 
@@ -145,6 +158,13 @@ class BlueImage(Image):
 
     qualifiers = {'blue'}
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
+    def preload(self):
+        # Make an object have typically the same random data.
+        np.random.seed(hash(self.object_id) % 500000)
+
     @trait_property('float.array')
     def value(self):
         return np.random.random((20, 20))
@@ -153,11 +173,21 @@ class BlueImage(Image):
     def variance(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('string')
     def extra_property_blue(self):
         return 'blue'
 
     sub_traits = TraitRegistry()
+
+    @sub_traits.register
+    class DetectorMetadata(DetectorCharacteristics):
+
+        trait_type = 'detector_metadata'
+
+        detector_id = trait_property_from_constant('DETECTOR', 'string', 'detector_id')
+        detector_id.set_short_name("DETECTOR")
+
+        gain = trait_property_from_constant(0.3, 'float', 'gain')
 
     @sub_traits.register
     class ImageSubTrait(Image):
@@ -165,6 +195,9 @@ class BlueImage(Image):
 
         qualifiers = {'blue'}
 
+        def preload(self):
+            # Make an object have typically the same random data.
+            np.random.seed(hash(self.object_id) % 500000)
 
         @trait_property('float.array')
         def value(self):
@@ -176,7 +209,7 @@ class BlueImage(Image):
             return np.random.random((20, 20))
 
 
-        @trait_property('float.array')
+        @trait_property('string')
         def extra_property_blue(self):
             return 'blue'
 
@@ -186,6 +219,10 @@ class BlueImage(Image):
 
         qualifiers = {'red'}
 
+        def preload(self):
+            # Make an object have typically the same random data.
+            np.random.seed(hash(self.object_id) % 500000)
+
         @trait_property('float.array')
         def value(self):
             return np.random.random((20, 20))
@@ -194,13 +231,16 @@ class BlueImage(Image):
         def variance(self):
             return np.random.random((20, 20))
 
-        @trait_property('float.array')
+        @trait_property('string')
         def extra_property_red(self):
             return 'red'
 
 class Redshift(Measurement):
 
     trait_type = "redshift"
+
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
 
     @trait_property('float')
     def value(self):
@@ -241,21 +281,36 @@ class SimpleTrait(Trait):
 
     trait_type = "simple_trait"
 
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
+
+
     @trait_property('float')
     def value(self):
         return 5.5
-    value.description = "TheValue"
+    value.set_description("TheValue")
+    value.set_pretty_name("Value")
+
+    @trait_property('float.array')
+    def non_catalog_data(self):
+        return [1.1, 2.2, 3.3]
+    non_catalog_data.set_description("Some Non-catalog data")
+    non_catalog_data.set_pretty_name("Non-catalog Data")
 
     @trait_property('string')
     def extra(self):
         return "Extra info"
-    extra.description = "ExtraInformation"
+    extra.set_description("ExtraInformation")
+    extra.set_pretty_name("Extra Info")
 
 class SimpleTraitWithSubtraits(Trait):
 
     # NOTE: Tests rely on this class, so changing it will require updating the tests!
 
     trait_type = "simple_heir_trait"
+
+    branches_versions = {'default': ['ver0']}
+    defaults = DefaultsRegistry('default', {'default': 'ver0'})
 
     sub_traits = TraitRegistry()
 
@@ -266,6 +321,10 @@ class SimpleTraitWithSubtraits(Trait):
     @trait_property('float')
     def value(self):
         return 5.5
+
+    @trait_property('float.array')
+    def non_catalog_data(self):
+        return [1.1, 2.2, 3.3]
 
     @trait_property('string')
     def extra(self):
@@ -293,6 +352,11 @@ class ExampleArchive(Archive):
     def name(self):
         return 'ExampleArchive'
 
+    feature_catalog_data = [
+        TraitPath('redshift', trait_property='value'),
+        TraitPath('simple_trait', trait_property='value'),
+        TraitPath('simple_trait', trait_property='extra')
+    ]
 
     def define_available_traits(self):
         self.available_traits.register(ExampleSpectralMap)

@@ -2,7 +2,8 @@ import pytest
 
 import numpy
 from fidia.archive import sami
-from fidia.traits import TraitKey, Trait
+from fidia.traits import TraitKey, Trait, WorldCoordinateSystem
+from fidia.astro_object import AstronomicalObject
 
 @pytest.fixture(scope='module')
 def sami_archive():
@@ -29,24 +30,32 @@ def a_sami_galaxy(sami_sample):
 class TestSAMILZIFU:
 
     def test_lzifu_velocity_map(self, sami_sample):
-        vmap = sami_sample['24433']['velocity_map']
+        vmap = sami_sample['24433']['velocity_map-ionized_gas']
 
         assert isinstance(vmap.value(), numpy.ndarray)
 
         assert vmap.shape == (50, 50)
 
     def test_lzifu_ha_map(self, sami_sample):
-        themap = sami_sample['24433']['line_map', 'HALPHA']
+        themap = sami_sample['24433']['line_emission_map', 'HALPHA']
 
         assert isinstance(themap.value(), numpy.ndarray)
 
         assert themap.shape == (50, 50)
 
     def test_lzifu_ha_map_multicomponent(self, sami_sample):
-        themap = sami_sample['24433'][TraitKey('line_map', 'HALPHA', "recom_comp")]
+        themap = sami_sample['24433'][TraitKey('line_emission_map', 'HALPHA', "recom_comp")]
 
         assert hasattr(themap, 'comp_1_flux')
         assert hasattr(themap, 'variance')
+
+    def test_wcs_on_both_branches(self, a_sami_galaxy):
+
+        for trait_key in a_sami_galaxy['line_emission_map-HALPHA'].get_all_branches_versions():
+            trait = a_sami_galaxy[trait_key]
+            wcs_sub_trait = trait['wcs']
+            assert isinstance(wcs_sub_trait, WorldCoordinateSystem)
+
 
         # theoldmap = sami_sample['28860'][TraitKey('line_map', 'HALPHA', branch='1_comp', version='0.9')]
         #
@@ -74,7 +83,7 @@ class TestSAMILZIFU:
     #     assert themap.shape == (2048, 50, 50)
 
     def test_lzifu_wcs(self, a_sami_galaxy):
-        a_sami_galaxy['line_map', 'HALPHA'].get_sub_trait(TraitKey('wcs'))
+        a_sami_galaxy['line_emission_map', 'HALPHA'].get_sub_trait(TraitKey('wcs'))
 
 class TestSAMISFRmaps:
 
@@ -84,11 +93,28 @@ class TestSAMISFRmaps:
 
         assert isinstance(a_sami_galaxy['sfr_map'].value(), numpy.ndarray)
 
-        assert isinstance(a_sami_galaxy['sfr_map'].variance(), numpy.ndarray)
+        assert isinstance(a_sami_galaxy['sfr_map'].error(), numpy.ndarray)
 
-        assert a_sami_galaxy['sfr_map'].value().shape == a_sami_galaxy['sfr_map'].variance().shape
+        assert a_sami_galaxy['sfr_map'].value().shape == a_sami_galaxy['sfr_map'].error().shape
 
 
 
     def test_extinction_map_present(self, a_sami_galaxy):
         assert isinstance(a_sami_galaxy['extinction_map'], Trait)
+
+    def test_emission_classification_maps_present(self, a_sami_galaxy):
+        # type: (AstronomicalObject) -> None
+
+
+        trait_list = (
+            a_sami_galaxy['emission_classification_map'],
+            a_sami_galaxy['emission_classification_map:1_comp'],
+            a_sami_galaxy['emission_classification_map:recom_comp']
+        )
+        for trait in trait_list:
+            assert isinstance(trait, Trait)
+            assert isinstance(trait.value(), numpy.ndarray)
+
+            # Check that the data is in the correct range (three classes)
+            assert numpy.min(trait.value()) == 0
+            assert numpy.max(trait.value()) == 2

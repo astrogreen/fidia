@@ -1,10 +1,21 @@
-from rest_framework import serializers
+import logging
+import json, os
+
+from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
 
-import fidia
+from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
-from restapi_app.fields import AbsoluteURLField
-from data_browser.serializers import AstroObjectTraitSerializer
+import fidia, collections
+from fidia.traits import Trait, TraitProperty
+from fidia import traits
+from fidia.descriptions import DescriptionsMixin
+
+import sov.mixins
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+os.environ['PYPANDOC_PANDOC'] = '/usr/local/bin/pandoc'
 
 
 def get_and_update_depth_limit(kwargs):
@@ -21,116 +32,255 @@ def get_and_update_depth_limit(kwargs):
     return depth_limit
 
 
-class SOVListSurveysSerializer(serializers.Serializer):
-    """
-    return list available objects in sample
+class DocumentationHTMLField(serializers.Field):
+    """Serializer for the FIDIA documentation for an object as HTML."""
 
-    """
+    def get_attribute(self, instance):
+        # type: (DescriptionsMixin) -> DescriptionsMixin
+        assert isinstance(instance, DescriptionsMixin)
+        return instance
+
+    def to_representation(self, obj):
+        # type: (DescriptionsMixin) -> str
+        return obj.get_documentation(format='html')
+
+
+class RootSerializer(serializers.Serializer):
+    """ Serializer for the Data Browser Root. Lists all surveys available from FIDIA. """
+
+    def get_surveys(self, obj):
+        return self.context['surveys']
+
+    surveys = serializers.SerializerMethodField()
+
+
+class SurveySerializer(sov.mixins.SurveyAttributesMixin):
+    """ Serializer for the Data Browser Root. Lists survey's available astronomical objects. """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        sample = self.instance
-        assert isinstance(sample, fidia.Sample), \
-            "SampleSerializer must have an instance of fidia.Sample, " +\
-            "not '%s': try SampleSerializer(instance=sample)" % sample
+        survey = self.instance
+        assert isinstance(survey, fidia.Sample), \
+            "SurveySerializer must have an instance of fidia.Sample, " + \
+            "not '%s': try SurveySerializer(instance=sample)" % survey
 
-    # def get_url(self, view_name, astro_object):
-        # url_kwargs = {
-        #     'galaxy_pk': astro_object
-        # }
-        # return reverse(view_name, kwargs=url_kwargs)
+        self.astro_objects = {}
+        for astro_object in survey:
+            url_kwargs = {
+                'astroobject_pk': str(astro_object),
+                'survey_pk': self.context['survey']
+            }
+            url = reverse("sov:astroobject-list", kwargs=url_kwargs)
+            self.astro_objects[astro_object] = url
 
-    def get_name(self, obj_name):
-        return obj_name
-
-    def get_url(self, obj_name):
-        url_kwargs = {
-            'pk': obj_name
-        }
-        view_name = 'sov-detail'
-        return reverse(view_name, kwargs=url_kwargs)
-
-    name = serializers.SerializerMethodField()
-    url = serializers.SerializerMethodField()
+    def get_astro_objects(self, obj):
+        return self.astro_objects
+    astro_objects = serializers.SerializerMethodField()
 
 
-# class SOVRetrieveObjectSerializer(serializers.Serializer):
-#     """
-#     return object name & velocity map only
-#
-#     """
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#         astro_object = self.instance
-#         assert isinstance(astro_object, fidia.AstronomicalObject)
-#         for trait in astro_object:
-#             trait_key = trait
-#             if str(trait_key) == "velocity_map" or 'line_map' in str(trait_key):
-#                 self.fields[str(trait_key)] = \
-#                     AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=2)
-#
-#     def get_samiID(self, obj):
-#         return obj._identifier
-#
-#     def get_ra(self, obj):
-#         return obj['spectral_cube-red'].ra()
-#
-#     def get_dec(self, obj):
-#         return obj['spectral_cube-red'].dec()
-#
-#     samiID = serializers.SerializerMethodField()
-#     ra = serializers.SerializerMethodField()
-#     dec = serializers.SerializerMethodField()
+class DownloadSerializer(serializers.Serializer):
+    """ Hidden download field on form for post data """
+    download = serializers.CharField(default='None', max_length=10000)
 
 
-class SOVRetrieveSerializer(serializers.Serializer):
+class AstroObjectSerializer(serializers.Serializer):
+    """ Returns list of available traits. """
 
-    asvo_id = serializers.SerializerMethodField()
-    ao_url = serializers.SerializerMethodField()
-    # key_info = serializers.SerializerMethodField()
+    def get_traits(self, obj):
+        return self.context['traits']
 
-    def get_asvo_id(self,obj):
-        return '0000001'
+    def get_position(self, obj):
+        return self.context['position']
 
-    def get_ao_url(self, instance):
-        url_kwargs = {
-            'galaxy_pk': instance._identifier
-        }
-        view_name = 'galaxy-list'
-        return reverse(view_name, kwargs=url_kwargs)
+    traits = serializers.SerializerMethodField()
+    position = serializers.SerializerMethodField()
+
+
+class TraitSerializer(serializers.Serializer):
+    """Serializer for the Trait level of the Data Browser"""
 
     def __init__(self, *args, **kwargs):
         depth_limit = get_and_update_depth_limit(kwargs)
+
+        log.debug("depth_limit: %s", depth_limit)
         super().__init__(*args, **kwargs)
 
-        astro_object = self.instance
-        assert isinstance(astro_object, fidia.AstronomicalObject)
+        trait = self.instance
+        assert isinstance(trait, Trait)
 
+        log.debug("Serializing trait '%s'", trait.trait_name)
 
-        def get_key_info(self, astro_object):
-            pass
+        log.debug("Adding Sub-traits")
+        # define serializer type by instance type
 
-        for trait in astro_object:
-            depth_limit = 0
-            trait_key = trait
+        for sub_trait in trait.get_all_subtraits():
+            log.debug("Recursing on subtrait '%s'", sub_trait.trait_name)
+            self.fields[sub_trait.trait_name] = TraitSerializer(instance=sub_trait,
+                                                                context={
+                                                                    'request': self.context['request'],
+                                                                }, many=False)
 
-            url_kwargs = {
-                'galaxy_pk': astro_object._identifier,
-                'trait_pk': str(trait_key)
-            }
+        log.debug("Adding Trait properties")
 
-            url = reverse("trait-list", kwargs=url_kwargs)
-            if depth_limit == 0:
-                self.fields[str(trait_key)] = AbsoluteURLField(url=url, required=False)
-                # No details to be displayed below this level
+        for trait_property in trait.trait_properties():
+
+            # Recurse into trait properties
+            if 'array' in trait_property.type:
+                # TraitProperty is an array, so display a URL for it's value
+                self.fields[trait_property.name] = TraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='url')
             else:
-                # Recurse displaying details at lower level
-                self.fields[str(trait_key)] = \
-                    AstroObjectTraitSerializer(instance=astro_object[trait_key], depth_limit=depth_limit)
+                # TraitProperty is not an array so we want it's actual value returned.
+                self.fields[trait_property.name] = TraitPropertySerializer(
+                    instance=trait_property, depth_limit=depth_limit, data_display='value')
 
-    def get_schema(self, obj):
-        return self.context['schema']
+    description = serializers.SerializerMethodField()
+    pretty_name = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
-    schema = serializers.SerializerMethodField()
-    # object = serializers.CharField(max_length=100, required=False, source="*")
+    def get_description(self, trait):
+        return trait.get_description()
+
+    def get_pretty_name(self, trait):
+        return trait.get_pretty_name()
+
+    def get_name(self, trait):
+        return trait.trait_name
+
+    def get_url(self, trait):
+        """Return URL for current instance (subtrait/tp or tp) - will use in testing """
+        # Need to inject the sub-trait url, so this probably needs getting by
+        # traversing up the parent tree, though this may not be the best method
+        # if has attr (trait) has attr (trait) - prepend
+        _url = self.context['trait_url']
+
+        subtrait_str = ""
+        # if self._parent_trait is None:
+        if hasattr(trait, '_parent_trait'):
+            if hasattr(trait._parent_trait, '_parent_trait'):
+                subtrait_str = str(trait.trait_name) + '/'
+
+        _url += subtrait_str
+
+        return _url
+
+    def get_attribute(self, instance):
+        """
+        Given the *outgoing* object instance, return the primitive value
+        that should be used for this field.
+        """
+        try:
+            # return self.instance
+
+            if isinstance(instance, Trait):
+                # Use sub-trait retrieval logic:
+                return instance[self.source_attrs[0]]
+            else:
+                # Use TraitProperty retrieval logic:
+                return getattr(instance, self.source_attrs[0])
+
+                # return serializers.get_attribute(instance, self.source_attrs)
+        except (KeyError, AttributeError) as exc:
+            if not self.required and self.default is serializers.empty:
+                raise serializers.SkipField()
+            msg = (
+                'Got {exc_type} when attempting to get a value for field '
+                '`{field}` on serializer `{serializer}`.\nThe serializer '
+                'field might be named incorrectly and not match '
+                'any attribute or key on the `{instance}` instance.\n'
+                'Original exception text was: {exc}.'.format(
+                    exc_type=type(exc).__name__,
+                    field=self.field_name,
+                    serializer=self.parent.__class__.__name__,
+                    instance=instance.__class__.__name__,
+                    exc=exc
+                )
+            )
+            raise type(exc)(msg)
+
+
+class TraitPropertySerializer(serializers.Serializer):
+    """
+    Trait Properties have the following:
+
+        Properties:
+            name, type, value
+
+        Methods:
+             get_short_name
+             get_pretty_name
+             get_description
+        (these are the 'standard' description fields, see fidia/descriptions.py)
+    """
+
+    def __init__(self, *args, **kwargs):
+        depth_limit = get_and_update_depth_limit(kwargs)
+        data_display = kwargs.pop('data_display', 'value')
+
+        super().__init__(*args, **kwargs)
+
+        if isinstance(self.instance, TraitProperty):
+            trait_property = self.instance
+
+            self.fields['name'] = serializers.CharField(required=False)
+            self.fields['type'] = serializers.CharField(required=False)
+
+            # Determine the appropriate serializer for the data
+            if 'array' in trait_property.type:
+                data_serializer = serializers.ListField(required=False)
+            elif trait_property.type == 'float':
+                data_serializer = serializers.FloatField(required=False)
+            elif trait_property.type == 'int':
+                data_serializer = serializers.IntegerField(required=False)
+            elif trait_property.type == 'string':
+                data_serializer = serializers.CharField(required=False)
+
+            if data_display == 'value':
+                self.fields['value'] = data_serializer
+            elif data_display == 'url':
+                self.fields['value'] = serializers.SerializerMethodField()
+
+    def get_short_name(self, trait_property):
+        return trait_property.get_short_name()
+
+    def get_pretty_name(self, trait_property):
+        return trait_property.get_pretty_name()
+
+    def get_description(self, trait_property):
+        return trait_property.get_description()
+
+    def get_value(self, trait_property):
+        return self.get_url(trait_property)
+
+    def get_url(self, trait_property):
+        """Return URL for current instance (subtrait/tp or tp)"""
+        # Need to inject the sub-trait url, so this probably needs getting by
+        # traversing up the parent tree, though this may not be the best method
+        # if has attr (trait) has attr (trait) - prepend
+
+        _url = self.context['trait_url']
+
+        subtrait_str = ""
+        traitproperty_str = ""
+
+        if hasattr(trait_property, '_trait'):
+            traitproperty_str = getattr(trait_property, 'name') + '/'
+
+
+        if hasattr(trait_property, '_trait'):
+            if hasattr(trait_property._trait, '_parent_trait'):
+                if hasattr(trait_property._trait._parent_trait, '_parent_trait'):
+                    subtrait_str = str(trait_property._trait.trait_name) + '/'
+
+        _url += subtrait_str + traitproperty_str
+
+        return _url
+
+
+    short_name = serializers.SerializerMethodField()
+    pretty_name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+

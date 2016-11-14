@@ -17,7 +17,7 @@ from rest_framework.settings import api_settings
 
 from restapi_app.utils.breadcrumbs import get_breadcrumbs_by_viewname, get_object_name
 
-from fidia.traits.base_traits import Trait
+from fidia.traits import Trait
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -51,16 +51,17 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
         """
         Return the astro object name
         """
-        pass
-        # try:
-        #     (view, unused_args, unused_kwargs) = resolve(request.path)
-        # except Exception:
-        #     pass
-        # else:
         return get_object_name(request.path, request)
 
-    def get_breadcrumbs(self, request):
-        return get_breadcrumbs_by_viewname(request.path, request)
+    def get_breadcrumbs(self, request, view):
+        _breadcrumb_list = []
+        _url_list = []
+        if hasattr(view, 'breadcrumb_list'):
+            _breadcrumb_list = view.breadcrumb_list
+        if hasattr(view, 'url_list'):
+            _url_list = view.url_list
+
+        return get_breadcrumbs_by_viewname(request.path, request, _breadcrumb_list, _url_list)
 
     def get_context(self, data, accepted_media_type, renderer_context):
         """
@@ -100,7 +101,7 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
             'objname': self.get_astro_object_name(request),
             'version': VERSION,
             'paginator': paginator,
-            'breadcrumblist': self.get_breadcrumbs(request),
+            'breadcrumblist': self.get_breadcrumbs(request, view),
             'allowed_methods': view.allowed_methods,
             'available_formats': [renderer_cls.format for renderer_cls in view.renderer_classes],
             'response_headers': response_headers,
@@ -119,14 +120,11 @@ class ExtendBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
 
             'display_edit_forms': bool(response.status_code != 403),
 
-            'api_settings': api_settings
+            'api_settings': api_settings,
+
+            'show_api': False
+
+
         }
         return context
-
-
-class APIRootRenderer(ExtendBrowsableAPIRenderer):
-    """
-    APIROOT Template (no longer needed...)
-    """
-    template = 'restapi_app/api-root/list.html'
 

@@ -1,0 +1,199 @@
+<div class="panel panel-default error" ng-if="apctrl.error == true">
+    <div class="panel-body"><strong class="text-uppercase">Error {{apctrl.status}}</strong>
+        <p>{{apctrl.text}}</p>
+    </div>
+</div>
+
+<!-- Nav tabs -->
+<div class="helper step step1" ng-if="!apctrl.single">Select a survey tab to view the available data products.</div>
+<ul class="nav nav-tabs nav-tabs-with-well" role="tablist" ng-if="!apctrl.single">
+    <li role="presentation" ng-repeat="(survey, traits) in availabledata" ng-class='{active:$first}'><a href="#{{survey}}" aria-controls="{{survey}}" role="tab" data-toggle="tab">{{survey}}</a></li>
+</ul>
+<div class="">
+
+    <div class="row">
+        <div class="col-sm-12 col-xs-12">
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane" ng-repeat="(survey, traits) in availabledata" ng-class='{active:$first}' id="{{survey}}">
+
+                    <fieldset ng-disabled="(isDisabled.state && !isSubmitted.state)">
+                    <div class="row">
+                        <div class="col-xs-12 schema">
+                            <div class="helper step step1" >Select a type of data product from the list below.</div>
+                            <div class="panel panel-default warning" ng-if="!data_received">
+                                <div class="panel-body"><strong class="text-uppercase">in progress</strong>
+                                    <p>Fetching available data products, please wait ...
+                                        <i class="fa fa-refresh fa-spin"></i></p>
+                                </div>
+                            </div>
+                            <!-- Level1 -->
+                            <ul class="nav nav-pills" id="{{survey}}_trait_type_key">
+                                <li role="presentation" ng-repeat="(trait_type_key, trait_type_value) in traits" ng-class='{active:$first}'>
+                                    <a href="#{{survey}}_{{trait_type_key}}" aria-controls="{{trait_type_key}}" role="tab" data-toggle="tab">{{trait_type_value.pretty_name}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-12">
+                        <!-- Level2 -->
+                            <div class="helper step step2">Add or remove data products using the checkboxes. </div>
+                            <div class="tab-content branch_dropdown">
+                                <div role="tabpanel" ng-repeat="(trait_type_key, trait_type_value) in traits" ng-class='{active:$first}' class="tab-pane" id="{{survey}}_{{trait_type_key}}">
+
+                                    <div class="table-responsive" >
+                                        <table class="table table-bordered table-condensed">
+                                            <thead style="background-color:#fafafa">
+                                            <tr>
+                                                <th style="font-weight:400;">
+                                                    TRAIT
+                                                </th>
+                                                <th style="font-weight:400;">
+                                                    BRANCH
+                                                </th>
+                                                <th style="font-weight:400;">
+                                                    VERSION
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr ng-repeat="(trait_qualifier_key, trait_qualifier_value) in trait_type_value.trait_qualifiers track by $index">
+                                                <td style="">
+                                                    {{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
+                                                </td>
+                                                <td>
+                                                    <ul class="nav nav-pills branch-selector">
+                                                    <li class="dropdown">
+                                                        <a class="btn btn-default btn-xs branch_button" style="padding: 1px 5px;" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                                            <span class="sub-heading">
+                                                            <i class="fa fa-code-fork"></i> Branch </span>
+                                                            <span ng-repeat="(trait_branch_key, trait_branch_value) in trait_qualifier_value.branches track by $index">
+                                                                <!--Default branch, and the default version for that branch, are set as active-->
+                                                                <strong ng-if="trait_qualifier_value.default_branch == trait_branch_key">{{trait_branch_value.pretty_name}}</strong>
+                                                            </span>
+                                                            <i class="fa fa-caret-down"></i>
+                                                        </a>
+                                                        <ul class="dropdown-menu">
+                                                            <li class="dropdown-header dropdown-header-bold">
+                                                                Select branch
+                                                            </li>
+                                                            <!--Default branch, and the default version for that branch, are set as active-->
+                                                            <li ng-repeat="(trait_branch_key, trait_branch_value) in trait_qualifier_value.branches track by $index">
+                                                                <a href="#{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}"
+                                                                   data-toggle="tab" role="tab" data-branch="{{trait_branch_value.pretty_name}}">
+                                                                    <strong> {{trait_branch_value.pretty_name}}</strong>
+                                                                    <small ng-if="trait_qualifier_value.default_branch == trait_branch_key">DEFAULT</small>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                                </td>
+                                                <td>
+                                                    <div class="tab-content">
+                                                        <div ng-repeat="(trait_branch_key, trait_branch_value) in trait_qualifier_value.branches track by $index" id="{{trait_type_key}}-{{trait_qualifier_key}}_{{trait_branch_key}}"
+                                                             class="tab-pane" ng-class="{active:$first}">
+                                                            <div class="checkbox"
+                                                                 ng-repeat="(trait_version_key, trait_version_value) in trait_branch_value.versions track by $index">
+                                                                <input type="checkbox"
+                                                                       value="{{trait_version_value.trait_key}}"
+                                                                       ng-model="trait_version_value.selected"
+                                                                       ng-checked="trait_version_value.selected"
+                                                                       id="{{trait_version_value.trait_key}}">
+                                                                <label for="{{trait_version_value.trait_key}}">
+                                                                    <i class="fa fa-map-pin"></i>
+                                                                    {{trait_version_value.pretty_name}} <span class="tiny sub-heading">{{trait_version_value.trait_key}}</span>
+                                                                    <!--{{trait_version_value.trait.export_formats}}-->
+                                                                </label>
+                                                                <!--&nbsp; &nbsp;<a href="{{branch_value.url}}" target="_blank">Docs</a>-->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="">
+
+            <div class="col-xs-12">
+                <div class="helper step step3">This is the list of data products you've chosen to
+                    download for your selected objects.
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="">
+                    <div id="data-products-selected" ng-if="apctrl.single">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">SELECTED PRODUCTS
+                                <small>
+                                    <a uib-popover='To add products, use the data products panel above. To remove products, click the red cross next to a product.'
+                                       class="sub-heading"
+                                       type="button" class="btn btn-default"><i class="fa fa-info-circle"></i>
+                                    </a>
+                                    <a role="button" ng-click="apctrl.emptyList()" class="tiny pull-right sub-heading" style="margin-top:3px;">remove all</a>
+                                </small>
+                            </div>
+                            <div class="panel-body fixed-panel">
+                                <div ng-if="selection | isEmpty">
+                                    <p class="sub-heading">You've not added any data products. Follow the prompts to get
+                                        started.</p>
+
+                                </div>
+                                <div ng-repeat="(survey, traits) in selection">
+                                    <!--<h5>{{survey}}</h5>-->
+                                    <p ng-repeat="product in traits">
+                                        {{product.pretty_names.trait_type}}
+                                        <span ng-if="product.pretty_names.trait_qualifier">-{{product.pretty_names.trait_qualifier}}</span>
+                                        <span ng-if="product.pretty_names.branch" class="sub-heading"><i class="fa fa-code-fork"></i> {{product.pretty_names.branch}}</span>
+                                        <span ng-if="product.pretty_names.version" class="sub-heading"><i class="fa fa-map-pin"></i> {{product.pretty_names.version}}</span>
+
+                                        {{product.branch}}&nbsp;<a
+                                                ng-click="apctrl.uncheckProduct(survey, product.trait_key_arr)"><i
+                                                class="fa fa-times text-error"></i></a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div id="data-table-selected">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">SELECTED OBJECTS <small>
+                            <a uib-popover="To add or remove objects, use the object selection table above." class="sub-heading"
+                                    type="button" class="btn btn-default"><i class="fa fa-info-circle"></i>
+                            </a>
+
+                        </small></div>
+                        <div class="panel-body fixed-panel">
+                            <p class="sub-heading">You've not added any astronomical objects. Select objects from the <a href="#returnTableResults" class="scroll">table above</a> above. </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<div class="col-xs-12">-->
+            <!--<div class="row">-->
+                <!--<div class="col-xs-12 text-right">-->
+                    <!--<button class="btn btn-default" id="download_button"-->
+                            <!--ng-disabled="(download | isEmpty) || isDisabled.state"-->
+                            <!--data-objects><i class="fa fa-download"></i> Download-->
+                    <!--</button>-->
+
+                <!--</div>-->
+
+            <!--</div>-->
+
+        <!--</div>-->
+    </div>
+</div>

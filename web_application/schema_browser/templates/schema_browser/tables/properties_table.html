@@ -1,0 +1,69 @@
+{% load internal_extras %}
+
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered" id="properties-table">
+         <thead>
+            <tr class="active">
+                <th class="p_dark col-xs-2">Name</th>
+                <th class="p_dark col-xs-4">Description</th>
+                <th class="p_dark col-xs-1">Units</th>
+                <th class="p_dark col-xs-1">Type</th>
+                <th class="p_dark col-xs-2">URL segment <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Locate a piece of data in the single object viewers by combining URL segments to make a path. e.g., sami/24433/spectral_cube-blue/detector_metadata/" data-original-title="" title=""><i class="fa fa-info-circle"></i></a></th>
+                <th class="p_dark col-xs-2">Schema</th>
+            </tr>
+        </thead>
+        <tbody class="sub-heading">
+        <!--Iterate over trait properties-->
+        {% for trait_property_key, trait_property_value in value.trait_properties.items %}
+            <tr id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}({{trait_version_key}})_{{trait_property_key}}">
+                <td>{{trait_property_value.pretty_name}}</td>
+                <td>{{trait_property_value.description|safe}}</td>
+                <td></td>
+                <td>{{trait_property_value.type}}</td>
+                <td>{{trait_property_value.name}}</td>
+                <td><a href="{{trait_property_key}}/">view <i class="fa fa-angle-right"></i></a></td>
+            </tr>
+        {% endfor %}
+
+        <!--Iterate over sub-traits-->
+        {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
+             <tr class="bg-success" id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}({{trait_version_key}})_{{sub_trait_key}}">
+                <td colspan="6" style="border-right:0" align="middle">
+                    <h6 class="" style="margin:0"><span class="text-uppercase">{{sub_trait_value.pretty_name}}</span></h6>
+                </td>
+            </tr>
+             <!-- sub-trait trait properties -->
+            {% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}
+                {% with sub_trait_qualifier_value.trait as sub_value %}
+                         <tr>
+                             <td colspan="6" style="padding:15px;" align="middle">
+                                 <em>{{sub_value.description|safe}}</em> &nbsp;<a class="" href="{{sub_value.trait_type}}/">view schema <i class="fa fa-angle-right"></i></a>
+                             </td>
+                         </tr>
+
+                {% endwith %}
+             {% endfor %}
+
+            <!-- sub-trait trait properties -->
+            {% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}
+                {% with sub_trait_qualifier_value.trait as sub_value %}
+                    {% for sub_trait_property_key, sub_trait_property_value in sub_value.trait_properties.items %}
+                        <tr class="">
+                            <td style="padding-left:30px;">
+                                <i class="fa fa-level-up fa-rotate-90"></i>&nbsp;
+                                {{sub_trait_property_value.pretty_name}}
+                            </td>
+                            <td>{{sub_trait_property_value.description}}</td>
+                            <td></td>
+
+                            <td><span>{{sub_trait_property_value.type}}</span></td>
+                            <td>{{sub_trait_property_value.name}}</td>
+                            <td><a href="{{sub_value.trait_type}}/{{sub_trait_property_key}}/"> view  <i class="fa fa-angle-right"></i></a></td>
+                        </tr>
+                    {% endfor %}
+                {% endwith %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

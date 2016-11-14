@@ -11,7 +11,7 @@ from collections import OrderedDict
 import pandas as pd
 
 from ..sample import Sample
-from ..traits import Trait, TraitKey, TraitProperty
+from ..traits import Trait, TraitKey, TraitProperty, TraitPath
 from ..traits import TraitRegistry
 from .base_archive import BaseArchive
 from ..cache import DummyCache
@@ -21,7 +21,7 @@ from ..exceptions import *
 class Archive(BaseArchive):
     def __init__(self):
         # Traits (or properties)
-        self.available_traits = TraitRegistry()
+        self.available_traits = TraitRegistry(branches_versions_required=True)  # type: TraitRegistry
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
@@ -31,6 +31,11 @@ class Archive(BaseArchive):
 
         super(BaseArchive, self).__init__()
 
+    # This provides a space for an archive to set which catalog data to
+    # "feature". These properties are those that would be displayed e.g. when
+    # someone wants an overview of the data in the archive, or for a particular
+    # object.
+    feature_catalog_data = []  # type: list[TraitPath]
 
     def writeable(self):
         raise NotImplementedError("")
@@ -59,6 +64,7 @@ class Archive(BaseArchive):
 
         # Add this archive to the set of archives associated with the sample.
         new_sample._archives = {self}
+        new_sample._primary_archive = self
 
         # Finally, we mark this new sample as immutable.
         new_sample.mutable = False
@@ -132,64 +138,151 @@ class Archive(BaseArchive):
             return TraitProperty
 
     def can_provide(self, trait_key):
+        trait_key = TraitKey.as_traitkey(trait_key)
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
-    def schema(self, by_trait_name=False):
-        """Provide a list of trait_keys and classes this archive generally supports."""
+    def schema(self, by_trait_name=False, data_class='all'):
+        """Get the schema of this Archive.
+
+        The Schema is provided as a set of nested dictionaries. Generally, the
+        top level gives different trait_types, each of which is a dictionary.
+        For each trait_type, the dictionary keys are the names of the
+        TraitProperty or sub-Trait. Sub-traits have dictionaries as values,
+        which have the same structure. TraitProperties have the (string) type of
+        the TraitProperty as their value.
+
+        Example:
+
+            {
+                "redshift":
+                {
+                    "value": 'float',
+                    "variance": 'float'
+                },
+                "line_map-NII":
+                {
+                    "value": 'float.array',
+                    "variance": 'float.array',
+                    "source": 'string'
+                },
+                "line_map-Ha":
+                {
+                    "value": 'float.array',
+                    "variance": 'float.array',
+                    "source": 'string'
+                },
+                "velocity_map":
+                {
+                    "value": 'float.array',
+                    "systemic_redshift":
+                    {
+                        "value": 'float',
+                        "variance": 'float
+                    }
+                }
+            }
+
+        The keyword `by_trait_name` can be set to True to add an extra layer to
+        the hierarchy. That layer separates out the trait_type from the combined
+        trait_type + trait_qualifier, or trait_name. The above example becomes:
+
+            {
+                "redshift":
+                {
+                    None:
+                    {
+                        "value": 'float',
+                        "variance": 'float'
+                    },
+                },
+                "line_map":
+                {
+                    "NII":
+                    {
+                        "value": 'float.array',
+                        "variance": 'float.array',
+                        "source": 'string'
+                    },
+                    "Ha":
+                    {
+                        "value": 'float.array',
+                        "variance": 'float.array',
+                        "source": 'string'
+                    }
+
+                }
+                "velocity_map":
+                {
+                    "value": 'float.array',
+                    "systemic_redshift":
+                    {
+                        "value": 'float',
+                        "variance": 'float
+                    }
+                }
+            }
+
+        data_class:
+            One of 'all', 'catalog', or 'non-catalog'
+
+            'all' returns the full schema.
+
+            'catalog' returns only items which contain TraitProperties of catalog type.
+
+            'non-catalog' returns only items which contain TraitProperties of non-catalog type.
+
+            Both 'catalog' and 'non-catalog' will not include Traits that
+            consist only of TraitProperties not matching the request.
+
+
+        """
 
         if by_trait_name:
             # Produce a version of the schema which has trait_type and
             # trait_name combined on a single level.
-            if self._schema['by_trait_name']:
-                # Cached copy available, return that.
-                return self._schema['by_trait_name']
-            result = SchemaDictionary()
-            log.debug("Building a schema by_trait_name for archive '%s'", self)
-            for trait_name in self.available_traits.get_trait_names():
-                log.debug("    Processing traits with trait_name '%s'", trait_name)
-                result[trait_name] = SchemaDictionary()
-                for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
-                    log.debug("        Attempting to add Trait class '%s'", trait)
-                    trait_schema = trait.schema(by_trait_name=by_trait_name)
-                    try:
-                        result[trait_name].update(trait_schema)
-                    except ValueError:
-                        log.error("Schema mis-match in traits: trait '%s' cannot be added " +
-                                  "to schema for '%s' containing: '%s'",
-                                  trait, trait_name, result[trait_name])
-                        raise SchemaError("Schema mis-match in traits")
-            self._schema['by_trait_name'] = result
-
+            return self.full_schema(combine_levels=('trait_name', 'branch_version'), verbosity='simple', data_class=data_class)
         else:
-            # Produce a version of the schema which has trait_type on one level,
-            # and trait_name on the next nested level.
-            if self._schema['by_trait_type']:
-                # Cached copy available, return that.
-                return self._schema['by_trait_type']
-            result = SchemaDictionary()
-            log.debug("Building a schema by_trait_type for archive '%s'", self)
-            trait_types = self.available_traits.get_trait_types()
-            for trait_type in trait_types:
-                log.debug("    Processing traits with trait_type '%s'", trait_type)
-                result[trait_type] = SchemaDictionary()
-                trait_names = self.available_traits.get_trait_names(trait_type_filter=trait_type)
-                for trait_name in trait_names:
-                    log.debug("        Processing traits with trait_name '%s'", trait_name)
-                    trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-                    for trait in self.available_traits.get_traits(trait_name_filter=trait_name):
-                        log.debug("            Attempting to add Trait class '%s'", trait)
-                        trait_schema = trait.schema(by_trait_name=by_trait_name)
-                        if trait_qualifier not in result[trait_type]:
-                            result[trait_type][trait_qualifier] = SchemaDictionary()
-                        try:
-                            result[trait_type][trait_qualifier].update(trait_schema)
-                        except ValueError:
-                            log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
-                                      "to schema for '%s' containing: '%s'",
-                                      trait, trait_type, result[trait_type][trait_name])
-                            raise SchemaError("Schema mis-match in traits")
-                self._schema['by_trait_type'] = result
-        return result
+            return self.full_schema(combine_levels=('branch_version', ), verbosity='simple', data_class=data_class)
+
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
+                    separate_metadata=False):
+
+        # Handle default combine_levels argument.
+        if combine_levels is None:
+            combine_levels = tuple()
+
+        # Validate verbosity arguments.
+        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
+        if verbosity == 'descriptions':
+            if 'branches_versions' in combine_levels:
+                raise ValueError("Schema verbosity 'descriptions' requires that " +
+                                 "combine_levels not include branches_versions")
+
+        schema = SchemaDictionary()
+
+        # Add meta data about the archive, if requested
+        if verbosity == 'descriptions':
+            schema['pretty_name'] = "Pretty Name for Archive"
+
+        if separate_metadata:
+            if 'trait_name' in combine_levels:
+                schema_piece = schema.setdefault('trait_names', SchemaDictionary())
+            else:
+                schema_piece = schema.setdefault('trait_types', SchemaDictionary())
+        else:
+            schema_piece = schema
+
+        available_traits_schema = cls.available_traits.schema(
+                include_subtraits=include_subtraits,
+                data_class=data_class,
+                combine_levels=combine_levels,
+                verbosity=verbosity,
+                separate_metadata=separate_metadata
+            )
+
+        schema_piece.update(available_traits_schema)
+
+        return schema
 
     def define_available_traits(self):
         return NotImplementedError()

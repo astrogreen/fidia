@@ -3,6 +3,11 @@
 ++ HOME
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
+#page-content {
+  background-color: transparent !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
 .galaxy-dark {
   /*background: url('/static/img/galaxy-dark.jpg') no-repeat fixed center;*/
   background: #000000 url('../../img/aat.jpg') no-repeat fixed top center;
@@ -21,51 +26,59 @@
   text-align: left;
 }
 /* ++ WELCOME ++ */
-section.welcome .container {
+section.welcome {
   text-align: center;
 }
-section.welcome .container .content {
+section.welcome .content {
   display: inline-block;
   width: 640px;
 }
-section.welcome .container .content .row {
+section.welcome .content .row {
   margin-bottom: 30px;
 }
-section.welcome .container .content .logo {
+section.welcome .content .logo {
   text-align: center;
 }
-section.welcome .container .content .key-message {
+section.welcome .content .key-message {
   margin-bottom: 60px;
 }
-section.welcome .container .content .key-message p {
+section.welcome .content .key-message p {
   color: #ffffff;
 }
-section.welcome .container .content .key-message .left {
+section.welcome .content .key-message .left {
   border-right: 2px solid #ffffff;
 }
-section.welcome .container .content .key-message .left p {
+section.welcome .content .key-message .left p {
   line-height: 1.25;
   font-size: 32px;
   font-weight: 200;
   text-align: right;
 }
-section.welcome .container .content .key-message .right p {
+section.welcome .content .key-message .right p {
   line-height: 1.5;
   text-align: left;
 }
-section.welcome .container .content .infographic {
+section.welcome .content .category h1,
+section.welcome .content .category h2 {
+  color: #ffffff;
+}
+section.welcome .content .category p {
+  color: #ffffff;
+}
+section.welcome .content .infographic {
   margin-bottom: 60px;
   text-align: center;
 }
-section.welcome .container .content .infographic .circle {
+section.welcome .content .infographic .circle {
   position: relative;
   display: inline-block;
   width: 112px;
   height: 112px;
   border: 2px solid #ffffff;
   border-radius: 112px;
+  transition: all 0.2s ease-in-out;
 }
-section.welcome .container .content .infographic .circle .line {
+section.welcome .content .infographic .circle .line {
   position: absolute;
   top: 50%;
   left: 100%;
@@ -73,7 +86,7 @@ section.welcome .container .content .infographic .circle .line {
   width: 56px;
   border-top: 2px solid #ffffff;
 }
-section.welcome .container .content .infographic .circle i {
+section.welcome .content .infographic .circle i {
   color: #fff;
   font-size: 3em;
   weight: 100;
@@ -82,20 +95,35 @@ section.welcome .container .content .infographic .circle i {
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
 }
-section.welcome .container .content .infographic p {
+section.welcome .content .infographic .circle.disabled {
+  opacity: 0.4;
+}
+section.welcome .content .infographic .circle.disabled:hover {
+  cursor: not-allowed;
+}
+section.welcome .content .infographic .circle:hover {
+  background-color: rgba(251, 251, 251, 0.2);
+}
+section.welcome .content .infographic p {
   font-weight: 600;
   color: #ffffff;
   text-align: center;
   text-transform: uppercase;
 }
-section.welcome .container .content .cta {
+section.welcome .content .infographic p.disabled {
+  opacity: 0.4;
+}
+section.welcome .content .infographic p.disabled:hover {
+  cursor: not-allowed;
+}
+section.welcome .content .cta {
   margin-bottom: 60px;
 }
-section.welcome .container .content .cta a {
+section.welcome .content .cta a {
   display: inline-block;
   width: 200px;
   height: 40px;
-  line-height: 40px;
+  line-height: 36px;
   font-weight: 600;
   color: #ffffff;
   text-align: center;
@@ -103,44 +131,111 @@ section.welcome .container .content .cta a {
   border: 2px solid #ffffff;
   border-radius: 40px;
 }
-section.welcome .container .content .note {
-  margin-bottom: 0px;
+section.welcome .content .cta a.disabled {
+  opacity: 0.4;
 }
-section.welcome .container .content .note p {
+section.welcome .content .cta a.disabled:hover {
+  cursor: not-allowed;
+}
+section.welcome .content .cta p {
   color: #ffffff;
 }
-section.welcome .container .white-tooltip + .tooltip > .tooltip-inner {
+section.welcome .content .note {
+  margin-bottom: 0px;
+}
+section.welcome .content .note p {
+  color: #ffffff;
+}
+section.welcome .white-tooltip {
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+}
+section.welcome .white-tooltip:hover {
+  background-color: rgba(251, 251, 251, 0.2);
+}
+section.welcome .white-tooltip + .tooltip > .tooltip-inner {
   background-color: #67A8D5;
 }
-section.welcome .container .white-tooltip + .tooltip > .tooltip-arrow {
+section.welcome .white-tooltip + .tooltip > .tooltip-arrow {
   border-right-color: #67A8D5;
 }
+section.welcome .nav-pills {
+  background-color: rgba(251, 251, 251, 0.2);
+  padding: 30px;
+}
+section.welcome .nav-pills > li > a {
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  border: 2px solid #ffffff;
+  border-radius: 40px;
+}
+section.welcome .nav-pills > li.active > a,
+section.welcome .nav-pills > li.active > a:hover,
+section.welcome .nav-pills > li.active > a:focus {
+  color: #fff;
+  background-color: rgba(251, 251, 251, 0.2);
+}
+.whats-new {
+  position: absolute;
+  top: 100px;
+  right: 0;
+  margin-top: 15px;
+}
+.whats-new .well {
+  border: 0;
+  border-radius: 8px;
+  background-color: rgba(251, 251, 251, 0.8);
+}
+.whats-new .well h5 {
+  border-bottom: dotted 1px #a33731;
+}
+.whats-new dl a {
+  cursor: pointer;
+}
+.whats-new dl .sub-heading {
+  font-size: 10px;
+}
+.whats-new dl dh {
+  font-size: 12px;
+}
+#back-to-top {
+  display: none;
+}
 @media (max-width: 767px) {
-  section.welcome .container .content {
+  section.welcome .content {
     width: 100%;
   }
 }
-@media (max-width: 960px) {
-  section.welcome .container .content .key-message .left {
+@media (max-width: 992px) {
+  section.welcome .content .key-message .left {
     border-right: none;
     margin-bottom: 20px;
     text-align: center;
   }
-  section.welcome .container .content .key-message .left p {
+  section.welcome .content .key-message .left p {
     text-align: center;
   }
-  section.welcome .container .content .key-message .right p {
+  section.welcome .content .key-message .right p {
     text-align: center;
   }
 }
-@media (max-width: 960px) {
-  section.welcome .container .content .infographic .col {
+@media (max-width: 992px) {
+  section.welcome .content .infographic .col {
     margin-bottom: 20px;
   }
-  section.welcome .container .content .infographic .col:last-child {
+  section.welcome .content .infographic .col:last-child {
     margin-bottom: 0px;
   }
-  section.welcome .container .content .infographic .circle .line {
+  section.welcome .content .infographic .circle .line {
     display: none;
+  }
+}
+@media (max-width: 992px) {
+  .whats-new {
+    position: relative;
+    top: auto;
+    right: auto;
   }
 }

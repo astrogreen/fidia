@@ -32,8 +32,7 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# TODO TURN THIS OFF IN PRODUCTION! DUMPS EMAILS IN CONSOLE
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # ALLOWED_HOSTS = ['*']
 
@@ -48,16 +47,19 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'astrospark',
     'bootstrap3',
-    'cart',
-    'data_browser',
+    'documentation',
+    # 'download',
+    # 'data_browser',
     'django_extensions',
+    'hitcount',
     'mathfilters',
-    'query',
+    # 'query',
     'user',
     'restapi_app',
     'rest_framework',
-    # 'rest_framework_swagger',
+    'schema_browser',
     'sov',
+    'surveys',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -90,6 +92,10 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+)
+
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_URL = 'rest_framework:login'
 
@@ -98,7 +104,7 @@ WSGI_APPLICATION = 'asvo.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
+# DEVELOPMENT SQLite:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -106,7 +112,32 @@ DATABASES = {
     }
 }
 
-# Spark
+# PRODUCTION PostgreSQL
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'aaodc',
+#         # 'NAME': os.path.join(BASE_DIR, 'db.postgresql_psycopg2'),
+#         'USER': 'root',
+#         # 'PASSWORD': '',
+#         # 'HOST': '127.0.0.1',
+#         # 'PORT': '8000',
+#     }
+# }
+
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+
+# TURN THIS OFF IN PRODUCTION! Dumps email in console for testing
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'comsrv.aao.gov.au'
+EMAIL_PORT = 25
 
 # spark
 SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
@@ -152,8 +183,12 @@ STATICFILES_DIRS = (
 )
 
 
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = (
+#     os.path.join(BASE_DIR, "media_root"), '/var/www/media/',)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
+
 
 # Query results cache
 
@@ -194,20 +229,20 @@ LOGGING = {
     # },
     'handlers': {
         'null': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.NullHandler',
         },
         'file': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.FileHandler',
             'filename': os.path.dirname(__file__) + '/aatnode-django.log',
             'formatter': 'verbose_with_times'
         },
         'console': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
-            'filters': ['debug_filter']
+            # 'filters': ['debug_filter']
         }
         # 'mail_admins': {
         #     'level': 'ERROR',
@@ -217,9 +252,9 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'propagate': True,
-            'level': 'INFO',
+            'level': 'WARNING',
         },
         # 'django.request': {
         #     'handlers': ['mail_admins'],
@@ -228,15 +263,19 @@ LOGGING = {
         # },
         'aatnode': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG'
+            'level': 'WARNING'
         },
         'restapi_app': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG'
+            'level': 'WARNING'
+        },
+        'sov': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING'
         },
         'fidia': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG'
+            'level': 'WARNING'
         }
     }
 }
@@ -271,7 +310,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.TemplateHTMLRenderer',
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
     ),
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    # 'EXCEPTION_HANDLER': 'restapi_app.utils..exceptions.custom_exception_handler'
 }
 
 

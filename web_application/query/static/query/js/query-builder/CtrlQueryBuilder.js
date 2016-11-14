@@ -703,7 +703,7 @@
                 $('#query-builder-submit').attr('disabled', false);
                 $scope.fJoinStatus();
                 $scope.outputSQL = '';
-                $scope.outputSQLSELECT='SELECT ';
+                $scope.outputSQLSELECT='<code>SELECT</code> ';
                 $scope.outputSQLJOIN='';
                 $scope.outputSQLWHERE='';
 
@@ -725,9 +725,9 @@
                     };
 
                     if (operator=="BETWEEN"){
-                        text=" " + cbv + " " + operator+" " + $scope.outputLowerWhereValue[key] + " and " + $scope.outputWhereValue[key] + " ";
+                        text=" " + cbv + " <code>" + operator+"</code> " + $scope.outputLowerWhereValue[key] + " and " + $scope.outputWhereValue[key] + " ";
                     } else if (operator == "NULL"){
-                        text = 'IS '+cbv+'NULL ';
+                        text = '<code>IS</code> '+cbv+' <code>NULL</code> ';
                     } else {
                         text =" "+cbv+''+operator+" "+$scope.outputWhereValue[key];
                     }
@@ -795,7 +795,7 @@
                 // if joins are present
                 if (undefined != $scope.outputJoins[0]){
                     //first cat always first with this syntax:
-                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1]+" ";
+                    $scope.outputSQLJOIN='<code>FROM</code> '+tablenameArr[0][0]+' <code>AS</code> '+tablenameArr[0][1]+" ";
 
                     //sort out joins
                     angular.forEach($scope.outputJoins, function(value,key){
@@ -812,14 +812,14 @@
                             }
                         });
 
-                        $scope.outputSQLJOIN+='<br>'+$scope.outputJoinOperator[key][0].operator+' JOIN '
-                            + $scope.outputJoinsB[key][0].cat + ' AS ' + joinCatAliasB + ' ON ' +
-                            joinCatAliasB+'.'+$scope.outputJoinsB[key][0].name+' = '+joinCatAlias+'.'+$scope.outputJoins[key][0].name+' ';
+                        $scope.outputSQLJOIN+='<br><code>'+$scope.outputJoinOperator[key][0].operator+'</code> <code>JOIN</code> '
+                            + $scope.outputJoinsB[key][0].cat + ' <code>AS</code> ' + joinCatAliasB + ' <code>ON</code> ' +
+                            joinCatAliasB+'.'+$scope.outputJoinsB[key][0].name+' <code>=</code> '+joinCatAlias+'.'+$scope.outputJoins[key][0].name+' ';
 
                     });
                 } else {
                     //if no joins (single table) append FROM to statement
-                    $scope.outputSQLJOIN='FROM '+tablenameArr[0][0]+' AS '+tablenameArr[0][1]+" ";
+                    $scope.outputSQLJOIN='<code>FROM</code> '+tablenameArr[0][0]+' <code>AS</code> '+tablenameArr[0][1]+" ";
                 }
 
 
@@ -842,7 +842,7 @@
 
 
                 if (undefined != $scope.outputWheres[0]){
-                    $scope.outputSQLWHERE='WHERE ';
+                    $scope.outputSQLWHERE='<code>WHERE</code> ';
                     angular.forEach($scope.outputWheres, function(value,key){
                         var whereCatAlias ='';
 
@@ -868,7 +868,7 @@
                         };
 
                         if (key < $scope.outputWheres.length-1){
-                            $scope.outputSQLWHERE+=" AND ";
+                            $scope.outputSQLWHERE+=" <code>AND</code> ";
                         };
                         //key is row
                     });

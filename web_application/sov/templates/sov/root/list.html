@@ -1,0 +1,195 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Single Object Viewer{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/selectize/selectize.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Single Object Viewer{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page">Search for an object</a></li>
+        <li role="presentation"><a class="scroll" href="#">Objects by survey</a></li>
+        <li role="presentation"><a class="scroll" href="#features">Features</a></li>
+    </ul>
+</div>
+<hr>
+<h5>Quick Links</h5>
+<div class="quick-links">
+    <ul class="nav-sidebar">
+
+        <li>
+            {% if breadcrumblist %}
+            {% with breadcrumblist|length|add:"-2" as b %}
+            <a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+                {{breadcrumblist|key:b|key:0}}</a>
+            {% endwith %}
+            {% endif %}
+        </li>
+        <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Single Object
+            Viewer Documentation</a></li>
+        <li><a href="{% url 'schema_browser:root-list' %}">Schema
+            Browser</a></li>
+
+    </ul>
+</div>
+{% endblock %}
+
+{% block main %}
+
+<div class="row">
+    <h2 class="text-center"> View survey-derived data products on an object-by-object basis.</h2>
+    <br><br><br>
+
+    <div class="col-xs-12 col-sm-6 col-md-offset-1 col-md-4 vcenter">
+        <p class="lead text-center">Search for an object.</p>
+    <p class="text-center sub-heading">Use the dropdown to choose an individual object, or filtering the available options by survey below.</p>
+
+    </div><!--
+    --><div class="col-xs-12 col-sm-6 col-md-offset-2 col-md-4 vcenter">
+        <!--{% for value in response.data.surveys %}-->
+            <!--<label class="checkbox-inline {% if value.current_version == 0 %}disabled{% endif %}">-->
+                <!--<input type="checkbox" id="surveyOptions" value="{{value.survey}}" {% if value.current_version == 0 %}disabled{% else %}checked{% endif %}>-->
+                <!--<span class="tiny sub-heading"> <span class="status btn-xs btn-default text-success"> {{value.survey | uppercase}}  <i class="fa fa-map-marker"></i> {{value.current_version}}</span></span>-->
+            <!--</label>-->
+        <!--{% endfor %}-->
+
+
+        <select type="text" class="searchbox selectized text-center"
+                    id="autocomplete-widget" placeholder="SEARCH">
+                <option value="" disabled selected>Select an object</option>
+                {% for survey in response.data.surveys %}
+                {% for key, value in survey.astro_objects.items %}
+                    <option value="{{value}}">{{key}}</option>
+                {% endfor %}
+                {% endfor %}
+            </select>
+            <a class="btn btn-block btn-primary" type="button" href="" disabled
+               id="autocomplete-button">GO</a>
+            <br><br>
+    </div>
+
+
+
+<br><br><br><br><br><br>
+    <p class="lead text-center">Filter by survey.</p>
+    <!-- Nav tabs -->
+
+    {% for value in response.data.surveys %}
+        {% if forloop.first %}
+        <div class="row box-row">
+            {% endif %}
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <a href="{% if value.current_version != 0%}{{value.survey}}/{% endif %}"
+                   class="box {% if value.current_version == 0%}disabled{% endif%}">
+                    <div class="box-contents text-justify">
+                        <img class="img-responsive center-block" style="max-width:80px"
+                             src="/static/restapi_app/img/documentation/{{value.survey}}.png"><br>
+                        <div class="lead p text-center">{{value.survey | uppercase}}</div>
+                        <div class="sub text-center"><span class="sub-heading">{{value.count}} objects</span></div>
+
+                        {% with "sov/root/surveys/"|add:value.survey|add:".html" as template %}
+                        <!--<span class="sub">{% include template %}</span>-->
+                        {% endwith %}
+                        {% if value.current_version == 0%}
+                        <span class="status btn-xs btn-default"><i
+                                class="fa fa-hourglass-half"></i> in progress</span>
+                        {% else %}
+                        <span class="status btn-xs btn-default text-success"> <i class="fa fa-map-marker"></i> {{value.current_version}}</span>
+                        {% endif%}
+                    </div>
+                </a>
+            </div>
+            {% if forloop.counter|divisibleby:3 %}
+        </div>
+        <div class="row box-row">
+            {% endif %}
+            {% if forloop.last %}
+        </div>
+        {% endif %}
+
+        {% endfor %}
+
+</div>
+
+<h3 id="features">Features</h3>
+<p>Surveys are a collection of astronomical
+    objects, each with a unique set of data products. Each astronomical object's components are organised into a
+    tree-like structure, allowing you to discover derived properties and data products, along with any
+    associated meta-data.</p>
+<p>The Single Object Viewer tool provides the following functionality:</p>
+<ul class="p">
+    <li>Quick-look at each astronomical object's data products in a particular
+        data release, including visualizations, processing information and associated properties.
+    </li>
+    <li>Download individual data products as multi-extension FITS
+        files, with all relevant processing information contained within the FITS header.
+    </li>
+</ul>
+<br>
+<p>For more information, including articles on Single Object Viewer examples, head over to the <a
+        href="{% url 'documentation:topic-detail' slug='data-browser' %}">Single Object Viewer Documentation</a>.</p>
+
+
+{% endblock %}
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/selectize/selectize.js' %}"></script>
+<script src="{% static 'restapi_app/js/selectize/enter_key_submit.js' %}"></script>
+<script>
+
+    $(document).ready(function () {
+        var TYPED_VALUE = '';
+
+        $selector = $("#autocomplete-widget").selectize({
+            // load the plugin
+            plugins: ['enter_key_submit'],
+            readOnly: true,
+            selectOnTab: true,
+            placeholder: "SEARCH...",
+            create: false,
+            maxItems: 1,
+            onChange: function (value) {
+                if (value) {
+                    $('#autocomplete-button').attr('href', value).attr('disabled', false)
+                } else {
+                    $('#autocomplete-button').attr('href', "").attr('disabled', true);
+                }
+            },
+            // listen to submit events (enter_key_submit plugin binds submit event to enter key)
+            onInitialize: function () {
+                this.on('submit', function () {
+                    // call the click function on the href (to follow the link) not the instance of button itself
+                    $('#autocomplete-button')[0].click();
+                }, this);
+            },
+            onType: function (data) {
+                TYPED_VALUE = data;
+            },
+            onBlur: function (value) {
+                // on defocus (e.g., browser tab switch) capture the value currently entered
+//                console.log('defocus');
+//                console.log(TYPED_VALUE)
+            },
+            onFocus: function () {
+//                console.log('FOCUS');
+//                console.log(TYPED_VALUE);
+                this.setTextboxValue(TYPED_VALUE);
+
+            },
+//            onClose: function(){
+//                TYPED_VALUE = ''
+//            }
+        });
+    });
+
+</script>
+{% endblock %}

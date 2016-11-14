@@ -1,0 +1,149 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% load data_browser_tag %}
+{% block title %}Data Browser{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'data_browser/css/sample/sample.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Data Browser{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
+    </ul>
+</div><hr>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+
+     {% if breadcrumblist %}
+    {% with breadcrumblist|length|add:"-2" as b %}
+    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+        {{breadcrumblist|key:b|key:0}}</a></li>
+    {% endwith %}
+    {% endif %}
+
+    <li><a class="" target="_blank" href="{% url 'schema:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema
+        Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}">{{survey|uppercase}} Documentation</a>
+    </li>
+
+</ul>
+
+{% endblock %}
+{% block version_container %}
+
+{% endblock %}
+{% block main %}
+
+{% include "data_browser/layout/title.html" with db_title=astro_object %}
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#overview" id="overview_anchor" aria-controls="overview" role="tab" data-toggle="tab">Overview</a></li>
+        <li role="presentation"><a href="#products" aria-controls="products" role="tab" data-toggle="tab">Available Data</a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content add-padding">
+        <div role="tabpanel" class="tab-pane active" id="overview">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="table-responsive">
+                        <table class="table table-condensed">
+                            <tbody>
+                            <tr>
+                                <td class="p_light">{{survey|uppercase}} ID</td><td>{{astro_object}}</td>
+                            </tr>
+                            <tr><td class="p_light">RA</td><td>{{response.data.position.ra}}</td></tr>
+                            <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
+                            {% for f in feature_catalog_data %}
+                                <tr>
+                                    <td class="p_light">{{f.pretty_name}}</td>
+                                    <td>{{f.value}}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td class="p_light">GAMA
+                        Single Object Viewer</td>
+                                <td><a class="text-uppercase" target="_blank"
+                               href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}"> SOV <i class="fa fa-external-link"></i></a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Auxillary Data: SDSS
+                        </div>
+                        <div class="panel-body">
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                                 alt="..." class="img-responsive">
+                            <br>
+                            <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
+                                × 512 pixel, 0.2
+                                arcsec/pixel,
+                                5-band composite from SDSS DR7.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% with "data_browser/astro_object/survey/"|add:survey|add:"_feature.html" as template %}
+                {% include template %}
+            {% endwith %}
+
+            {% with "data_browser/astro_object/survey/"|add:survey|add:".html" as template %}
+                {% include template %}
+            {% endwith %}
+
+
+        </div>
+        <div role="tabpanel" class="tab-pane" id="products">
+            <p>To view a particular data product's properties, meta-data and where
+                available, an interactive visualization, click the link in the table below.
+            </p>
+            <p>To find out more
+                about the available branches, visit the <a
+                        href="{% url 'schema:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema Browser</a>.</p>
+            <div class="panel panel-default success">
+                <div class="panel-body">
+                    <div class="sub-heading"><strong>Note:</strong> Data products are grouped by their product-type (e.g., you
+                        can find the SAMI [OIII] (5007Å) and
+                        [NII] (6583Å) line maps under <em>Line Maps</em>). Use the search box to filter the
+                        products by a particular keyword.
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}" class="pull-right question tiny"><i class="fa fa-question-circle"></i> What is a branch?</a>
+
+
+            {% include 'data_browser/available_products/root.html' with traits=response.data.traits single=True %}
+
+            <hr>
+
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/2D_map.js'%}"></script>
+<script type="application/javascript" src="{% static 'data_browser/js/trait_plotting.js'%}"></script>
+
+
+
+{% endblock %}
+

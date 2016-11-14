@@ -1,0 +1,146 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Surveys{% endblock %}
+
+{% block head-extra %}
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active"> Surveys</li>
+{% endblock %}
+
+{% block page_title %} Surveys{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-list' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+{% block sidebar %}
+<h5>Page Contents</h5>
+
+<div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation">
+            <a href="#top-of-page" class="scroll">Overview</a>
+        </li>
+        <li role="presentation">
+            <a href="#sami" class="scroll">SAMI</a>
+        </li>
+        <li role="presentation"><a href="#gama" class="scroll">GAMA</a></li>
+        <li role="presentation"><a href="#galah" class="scroll">GALAH</a></li>
+
+    </ul>
+</div>
+<div class="quick-links">
+    <h5>Quick Links</h5>
+    <ul class="nav-sidebar">
+        <li>
+            <a href="{% url 'data-access' %}">Data Access Overview</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block no_sidebar %}
+<div class="jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <h1>Surveys @ ADC</h1>
+
+                <p class="lead">
+                    Select a survey to view the current data release.
+                </p>
+            </div>
+        </div>
+
+        {% for value in response.data.surveys %}
+              {% if forloop.first %}
+              <div class="row box-row">
+              {% endif %}
+              <div class="col-xs-12 col-sm-6 col-md-4">
+                  <a class="box {% if value.current_version == 0 %}disabled{% endif %}" href="{% if value.current_version != 0 %}{% url 'surveys:survey-list' survey_pk=value.survey %}{% endif %}">
+                      <div class="box-contents text-justify">
+                          <img class="img-responsive center-block" style="max-width:80px"
+                               src="/static/restapi_app/img/documentation/{{value.survey}}.png"><br>
+
+                          <div class="lead p text-center">{{value.survey | uppercase}}<br>
+                              <span class="tiny sub-heading">{{value.count}} objects</span>
+                          </div>
+
+
+                          {% with "sov/root/surveys/"|add:value.survey|add:".html" as template %}
+                          <span class="sub">{% include template %}</span>
+                          {% endwith %}
+
+                          {% if value.current_version == 0%}
+                          <span class="status btn-xs btn-default"><i
+                                  class="fa fa-hourglass-half"></i> in progress</span>
+                          {% else %}
+                          <span class="status btn-xs btn-default text-success"> <i class="fa fa-map-marker"></i> {{value.current_version}}</span>
+                          {% endif%}
+                          {% comment %}
+                              {% if value.current_version != 0 %}
+
+                              <table class="table table-overview margin-top-fifteen vertical_align_middle">
+                                  <tr>
+                                      <td class="">
+                                          {% for d in value.data_releases %}
+                                          <a href="{% url 'surveys:survey-list' survey_pk=value.survey %}"><i class="fa fa-map-marker"></i> {{d}}</a>
+                                          {% endfor %}
+                                          </td>
+                                      <td class="tiny sub-heading"> {{value.survey|uppercase}} data releases.
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td class=""><a href="{% url 'sov:survey-list' survey_pk=value.survey %}">Data
+                                          Browser</a></td>
+                                      <td class="tiny sub-heading">View and download {{value.survey|uppercase}} survey data products.
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td class=""><a href="{% url 'schema_browser:survey-list' survey_pk=value.survey %}">Schema
+                                          Browser</a></td>
+                                      <td class="tiny sub-heading">Descriptions of the data products in
+                                          {{value.survey|uppercase}}.
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td class=""><a href="" disabled class="disabled">Query Builder</a></td>
+                                      <td class="tiny sub-heading">Query across all surveys.</td>
+                                  </tr>
+                                  <tr>
+                                      <td class=""><a href="{% url 'documentation:topic-detail' slug=value.survey %}">Documentation</a>
+                                      </td>
+                                      <td class="tiny sub-heading">Documentation for {{value.survey|uppercase}}.</td>
+                                  </tr>
+                                  <tr>
+                                      <td class=""><a href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">RESTful API</a>
+                                      </td>
+                                      <td class="tiny sub-heading">Provides programmatic access to all survey data.</td>
+                                  </tr>
+                              </table>
+                              {% endif %}
+                          {% endcomment %}
+                      </div>
+                  </a>
+              </div>
+              {% if forloop.counter|divisibleby:3 %}
+              </div><div class="row box-row">
+              {% endif %}
+              {% if forloop.last %}
+              </div>
+              {% endif %}
+
+          {% endfor %}
+
+
+    </div>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,168 @@
+<div class="col-sm-6 col-sm-offset-1 col-xs-12 download-options">
+    <h3>Selection</h3>
+
+    <div class="panel panel-default panel-download">
+        <div class="panel-heading">
+            <span class="panel-title text-uppercase">Data Products per source</span>
+        </div>
+        {% verbatim %}
+        <table class="table">
+            <tbody>
+                <tr ng-repeat="p in ctrl.pretty_data.objects track by $index" ng-if="ctrl.items | isNotEmpty">
+                    <td>
+                        <div class="row">
+                            <div class="col-sm-9 col-xs-12">
+                                <div class="p">
+                                    {{p.sample}} / {{p.ao}} /
+                                    <a ng-href="{{p.url}}" ng-if="p.prettyname">{{p.prettyname}}</a>
+                                    <span ng-repeat="t in p.trait" ng-if="!p.prettyname">
+                                        <span ng-if="!$last">{{t}} /</span>
+                                        <a ng-if="$last" ng-href="{{p.url}}">{{t}}</a>
+                                    </span>
+                                </div>
+                                <div class="version p">
+                                    <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{p.format}}</span>&nbsp;
+                                    <span class="sub-heading"><i class="fa fa-map-marker"></i> {{p.version}} V1.0</span>&nbsp;
+                                    <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>&nbsp;
+                                </div>
+                            </div>
+                            <div class="col-sm-3 text-right col-xs-12 options">
+                                <a role="button" class="text-normal">
+                                    <i class="fa fa-times text-error" ng-click="ctrl.removeItem(p.id)"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-if="ctrl.pretty_data.objects | isEmpty">
+                    <td>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                 <h4 class="no-margin-top" style="border:0">
+
+                                    Empty!
+                                </h4>
+                                {% endverbatim %}
+                                <p>Visit the <a href="{% url 'data_browser:root-list'%}">Data
+                                    Browser</a> to add data products for individual objects.</p>
+                                {% verbatim %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel panel-default panel-download">
+        <div class="panel-heading">
+            <span class="panel-title text-uppercase">Data Products for a sample of sources</span>
+        </div>
+        <table class="table">
+            <tbody>
+                <tr ng-repeat="s in ctrl.pretty_data.products track by $index" ng-if="ctrl.items | isNotEmpty">
+                    <td ng-if="!s.format">
+                        <div class="row">
+                            <div class="col-sm-9 col-xs-12">
+                                <div class="p">
+                                    Data Products for available astronomical objects in Query Result #{{s.sample_id}}
+                                </div>
+                                <div class="version p">
+                                    <span class="sub-heading">Link to query results: <a href="{{s.url}}">Query History {{s.sample_id}}</a> </span>&nbsp;
+                                    <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>&nbsp;
+                                    <a href="{{s.url}}#select_data_products" class="btn btn-default btn-xs"><i class="fa fa-rotate-left"></i> Edit Selection?</a>&nbsp;
+                                </div>
+                            </div>
+                            <div class="col-sm-3 text-right col-xs-12 options">
+                                <a role="button" class="text-normal">
+                                    <i class="fa fa-times text-error" ng-click="ctrl.removeItem(s.id)"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-6 col-xs-12" ng-repeat="(survey, data) in s.options track by $index">
+                                <div class="p"><strong>{{survey}}</strong></div>
+                                <div class="" ng-repeat="product in data">{{product.pretty_name}}
+                                    <span class="sub-heading"><i class="fa fa-code-fork"></i> {{product.branch}}
+                                    </span>
+                                &nbsp;</div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-if="ctrl.pretty_data.products | isEmpty">
+                    <td>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                {% endverbatim %}
+                                {% if not user.is_authenticated %}
+                                <div class="panel">
+                                    <div class="panel-body warning">
+                                        <div class="p"><strong>Sign In Required</strong> <br>You must <a href="{% url 'rest_framework:login' %}">sign in</a> to use this feature.</div></div>
+                                </div>
+                                {% endif %}
+                                 <h4 class="no-margin-top" >
+                                     Empty!
+                                </h4>
+
+                                <p>Visit the <a href="{% url 'query-create-list' %}">Query Builder</a> to add
+                                                      data products for a sample of objects.</p>
+                                {% verbatim %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel panel-default panel-download">
+        <div class="panel-heading">
+            <span class="panel-title text-uppercase">Query Results</span>
+        </div>
+        <table class="table">
+            <tbody>
+                <tr ng-repeat="q in ctrl.pretty_data.samples track by $index" ng-if="ctrl.pretty_data.samples | isNotEmpty">
+                    <td ng-if="q.format && !q.options">
+                        <div class="row">
+                            <div class="col-sm-9 col-xs-12">
+                                <div class="p text-info">
+                                    <a href="{{q.url}}">Query Result {{q.sample_id}}</a>
+                                </div>
+                                <div class="version p">
+                                    <span class="sub-heading">Link to sample: <a href="{{q.url}}">Query History {{q.sample_id}}</a> </span>
+                                    <span class="sub-heading"><i class="fa fa-file-code-o"></i> {{q.format}}</span>
+                                    <span class="sub-heading"><i class="fa fa-database"></i> {{this.size}} XMB</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 text-right col-xs-12 options">
+                                <a role="button" class="text-normal">
+                                    <i class="fa fa-times text-error" ng-click="ctrl.removeItem(q.id)"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-if="ctrl.pretty_data.samples | isEmpty">
+                    <td>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                {% endverbatim %}
+                                {% if not user.is_authenticated %}
+                                <div class="panel">
+                                    <div class="panel-body warning">
+                                        <div class="p"><strong>Sign In Required</strong> <br>You must <a href="{% url 'rest_framework:login' %}">sign in</a> to use this feature.</div></div>
+                                </div>
+                                {% endif %}
+                                 <h4 class="no-margin-top" >
+                                     Empty!
+                                </h4>
+
+                                <p>Visit the <a href="{% url 'query-create-list' %}">Query Builder</a> to add samples of objects.</p>
+                                {% verbatim %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    {% endverbatim %}
+    </div>

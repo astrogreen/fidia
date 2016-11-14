@@ -1,0 +1,26 @@
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% if tpdata|key:tp|key:"description" %}
+<div class="sub-heading small"><em>{{tpdata|key:tp|key:"description"}}</em></div>
+{% endif %}
+<div class="heading"><strong>Value</strong>
+    <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click"
+       data-placement="top"
+       data-content="If the value is not a single value or string, the link to data is shown. Warning: the data size may be large."
+       data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
+
+</div>
+<div class="">
+
+    {% if tpdata|key:tp|key:"type" == "string" %}
+        <pre>{{tpdata|key:tp|key:"value"|linebreaks}}</pre>
+    {% else %}
+    {{tpdata|key:tp|key:"value"}}
+    {% endif %}
+</div>
+<div class="heading"><strong>Type</strong></div>
+<span class="sub-heading" style="margin-top:5px;"><code >{{tpdata|key:tp|key:"type"}}</code></span>
+<div class="heading"><strong>URL</strong></div>
+<div class=""><a href="{{tpdata|key:tp|key:'url'}}">{{tpdata|key:tp|key:"url"}}</a></div>
