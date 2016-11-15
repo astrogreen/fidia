@@ -1494,7 +1494,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile):
     value.set_description("Error in total star-formation rate (single component)")
 
 
-SFRMap.set_pretty_name("Star Formation Rate Map")
+SFRMap.set_pretty_name("Star-Formation-Rate Map")
 
 
 class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile):
@@ -1609,7 +1609,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile):
     value.set_description("Error in star-formation rate in component with broadest Hα line")
 
 
-SFRMap.set_pretty_name("Star Formation Rate Map")
+SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
 
 class EmissionClass(ClassificationMap, TraitFromFitsFile):
@@ -1692,7 +1692,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
     def shape(self):
         return self.value().shape
 
-EmissionClass.set_pretty_name("Emission Classification Map")
+EmissionClass.set_pretty_name("Emission-Classification Map")
 
 
 
