@@ -1377,9 +1377,14 @@ class LZIFULineSpectrum(SpectralMap):
 class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile):
     r"""Emission extinction map based on the Balmer decrement.
 
-    Extinction maps are calculated using the EmissionLineFitsV01 (which includes
-    Balmer flux errors incorporating continuum uncertainties) using the Balmer
-    decrement and the Cardelli+89 extinction law, using the code below.
+    Extinction maps for all SAMI galaxies in the DR0.9 release are are
+    calculated using the EmissionLineFitsV03 (which includes Balmer flux errors
+    incorporating continuum uncertainties) using the Balmer decrement and the
+    Cardelli+89 extinction law, using the code below.  Note that in the case of
+    multicomponent emission line fits, we use the total (summed over all
+    components) Balmer fluxes to estimate the typical extinction value in a
+    given spaxel.  Using the total flux produces more reliable Balmer decrements
+    because Hβ is sometimes only weakly detected in individual components.
 
     ```
     balmerdec = ha/hb
@@ -1389,12 +1394,21 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile):
     ```
 
     These maps will be in units of “attenuation correction factor” — such that
-    you can multiply this map by the Halpha cube to obtain de-extincted Halpha
+    you can multiply this map by the Halpha cube to obtain de-extincted Hα
     cubes.  Note that, when the Balmer decrement is less than 2.86, no
     correction will be applied (attenuation correction factor = 1., error = 0.).
 
+    Additionally, we have set to NaN the correction and error for spaxels with
+    Hα flux > $40 \times 10^{-16}$ erg/s/cm^2 and Balmer decrement > 10.  These
+    numbers were chosen to eliminate spurious Hα fits to the edges of the
+    fibre bundles.  (These fits appear in the EmissionLineFits, but are flagged.
+    Here we simply remove them because they are nonsense.)
+
     Errors (1-sigma uncertainties) in the extinction are included as a second
     extension in each file.
+
+    The files (one per galaxy per component fit) may be found on bill at
+    /export/bill1/sami_data/data_products/ExtinctCorrMaps/ExtinctCorrMapsV03
 
     """
 
@@ -1424,34 +1438,43 @@ BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 class SFRMap(StarFormationRateMap, TraitFromFitsFile):
     r"""Map of star formation rate based on Hα emission.
 
-    Star formation rate (SFR) map calculated using the EmissionLineFitsV01
-    (which includes Balmer flux errors incorporating continuum uncertainties),
-    ExtinctionCorrMapsV01, and SFMasksV01.  These are used to calculate star
-    formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$).
-    Note that we are using the flow-corrected redshifts z_tonry_1 from the
-    SAMI-matched GAMA catalog (SAMITargetGAMAregionsV02) to calculate distances.
+    We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
+    [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV03 to
+    determine whether the emission lines are dominated by photoionization from
+    HII regions or other sources like AGN or shocks, using the BPT/VO87
+    diagnostic diagrams and dividing lines from Kewley et al. 2006 (reproduced
+    here for completeness).  We only classify spaxels with ratios that have a
+    signal-to-noise ratio of at least 5.
 
+    Emission is classified as star-forming in a given diagnostic if:
     ```
-    H0 = 70.                                    ;; (km/s)/Mpc, SAMI official cosmology
-    distmpc = lumdist(z_tonry,H0=H0)            ;; in Mpc; defaults to omega_m=0.3
-    dist = distmpc[0] * 3.086d24                ;; in cm
-    kpcperarc = (distmpc[0]/(1+z_tonry[0])^2) * 1000./206265  ;; kiloparsecs per arcsecond
-    kpcperpix = kpcperarc*0.5                   ;; half arcsec pixels
-    halum = haflux * SFR_classmap * attencorr * 1d-16 * 4*!pi *dist^2   ;; now in erg/s
-    sfr = halum * 7.9d-42                       ;; now in Msun/yr, Kennicutt+94
-    sfrsd = sfr / kpcperpix^2                   ;; this one in Msun/yr/kpc^2
+    alog10([OIII]/Hβ) < (0.61 / (alog10([NII]/Hα)-0.05) + 1.3   ;Kauffmann+03
+    alog10([OIII]/Hβ) < (0.72 / (alog10([SII]/Hα)-0.32) + 1.3   ;Kewley+01
+    alog10([OIII]/Hβ) < (0.73 / (alog10([OI]/Hα) +0.59) + 1.33  ;Kewley+01
     ```
 
-    Errors (1-sigma uncertainty) in SFR are also included.
+    We additionally add a likely classification of "star-forming" to spaxels
+    with $\log(\textrm{[NII]}/\textrm{Hα}) < -0.4$ without an [OIII] detection and to spaxels with
+    Hα detections but no [N II], [S II], [O I], or [O III] detections.
 
-    A separate map is made for each set of LZIFU emission line fits for each
-    galaxy: 1 Gaussian component (`*_1_comp.fits`), 2 Gaussian components
-    (`*_2_comp.fits`), 3 Gaussian components (`*_3_comp.fits`), and the recommended
-    number of components for each spaxel (`*_recom_comp.fits`).  Each map has
-    dimensions of $(50,50,ncomp+1)$.  The slice `[*,*,0]` represents the total star
-    formation rate (from the total Halpha flux) summed over all components, and
-    the `[*,*,ncomp]` slices represent the star formation rate from each
-    individual component.
+    Each spaxel in the map is 1 (when star formation dominates the emission in
+    all available line ratios) or 0 (when other ionization mechanisms dominate),
+    so it may be simply multiplied by the Hα flux map to produce "Hα
+    from star formation" maps.
+
+    We note that these classifications are done only using the TOTAL EMISSION
+    LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
+    we classify the total emission in that spaxel, not the individual
+    components.
+
+    The files (one per galaxy per component fit) may be found on bill at
+    /export/bill1/sami_data/data_products/SFMasks/SFMasksV03
+
+    Each fits file is accompanied by an EPS figure showing the BPT and VO87
+    diagnostic diagrams with each spaxel (of S/N>5 in each relevant line)
+    plotted.  Blue points correspond to the unambiguous SF (SFMasks=1; in HII
+    region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
+    spaxels are plotted in black.
 
 
     ##format: markdown
@@ -1465,7 +1488,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile):
         branch_lzifu_m_comp: {'V02', 'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V03'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
     def fits_file_path(self):
         data_product_name = "SFRMaps"
@@ -1488,30 +1511,55 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
     r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
-    [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV01 to
+    [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV03 to
     determine whether the emission lines are dominated by photoionization from
     HII regions or other sources like AGN or shocks, using the BPT/VO87
-    diagnostic diagrams and dividing lines from Kewley et al. 2006.  We only
-    classify spaxels with ratios that have a signal-to-noise ratio of at least
-    5.
+    diagnostic diagrams and dividing lines from Kewley et al. 2006 (reproduced
+    here for completeness).  We only classify spaxels with ratios that have a
+    signal-to-noise ratio of at least 5.
+
+    Emission is classified as star-forming in a given diagnostic if:
+    ```
+    alog10([OIII]/Hβ) < (0.61 / (alog10([NII]/Hα)-0.05) + 1.3   ;Kauffmann+03
+    alog10([OIII]/Hβ) < (0.72 / (alog10([SII]/Hα)-0.32) + 1.3   ;Kewley+01
+    alog10([OIII]/Hβ) < (0.73 / (alog10([OI]/Hα) +0.59) + 1.33  ;Kewley+01
+    ```
 
     We additionally add a likely classification of "star-forming" to spaxels
-    with $\log(\rm{[NII]}/\rm{Hα}) < -0.4$ without an [OIII] detection.
+    with $\log(\textrm{[NII]}/\textrm{Hα}) < -0.4$ without an [OIII] detection and to spaxels with
+    Hα detections but no [N II], [S II], [O I], or [O III] detections.
 
-    Classifications are stored in the map as an integer with the following definitions:
+    Each spaxel in the map is 1 (when star formation dominates the emission in
+    all available line ratios) or 0 (when other ionization mechanisms dominate),
+    so it may be simply multiplied by the Hα flux map to produce "Hα
+    from star formation" maps.
 
-    | Pixel Value | Classification |
-    | ------------|----------------|
-    |   0         |  No data       |
-    |   1         | star formation dominates the emission in all available line ratios |
-    |   2         | other ionization mechanisms dominate |
-
-    We note that these classifications are done only using the *total emission
-    line flux* in a spectrum.  Thus, for spectra which contain 2 or 3 components,
+    We note that these classifications are done only using the TOTAL EMISSION
+    LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
     we classify the total emission in that spaxel, not the individual
     components.
 
+    The files (one per galaxy per component fit) may be found on bill at
+    /export/bill1/sami_data/data_products/SFMasks/SFMasksV03
+
+    Each fits file is accompanied by an EPS figure showing the BPT and VO87
+    diagnostic diagrams with each spaxel (of S/N>5 in each relevant line)
+    plotted.  Blue points correspond to the unambiguous SF (SFMasks=1; in HII
+    region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
+    spaxels are plotted in black.
+
     """
+    #
+    # Classifications are stored in the map as an integer with the following definitions:
+    #
+    # | Pixel Value | Classification |
+    # | ------------|----------------|
+    # |   0         |  No data       |
+    # |   1         | star formation dominates the emission in all available line ratios |
+    # |   2         | other ionization mechanisms dominate |
+    #
+    #
+    # """
 
     trait_type = 'emission_classification_map'
 
