@@ -1461,11 +1461,10 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile):
     trait_type = 'sfr_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V02'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V02'})
 
     def fits_file_path(self):
         data_product_name = "SFRMaps"
@@ -1476,10 +1475,139 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile):
              data_product_name + self.version,
              self.object_id + "_SFR_" + self.branch + ".fits"))
 
-    value = trait_property_from_fits_data('SFR', 'float.array.2', 'value')
-    value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
-    error = trait_property_from_fits_data('SFR_ERR', 'float.array.2', 'error')
-    error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
+    # value = trait_property_from_fits_data('SFR', 'float.array.2', 'value')
+    # value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
+    # error = trait_property_from_fits_data('SFR_ERR', 'float.array.2', 'error')
+    # error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
+
+    @trait_property('float.array.2')
+    def value(self):
+        value = self._hdu['SFR'].data[0, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+    value.set_description("Total star-formation rate (single component)")
+
+    @trait_property('float.array.2')
+    def error(self):
+        sigma = self._hdu['SFR_ERR'].data[0, :, :]
+        return sigma
+    value.set_description("Error in total star-formation rate (single component)")
+
+
+SFRMap.set_pretty_name("Star Formation Rate Map")
+
+
+class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile):
+    r"""Map of star formation rate based on Hα emission.
+
+    Star formation rate (SFR) map calculated using the EmissionLineFitsV01
+    (which includes Balmer flux errors incorporating continuum uncertainties),
+    ExtinctionCorrMapsV01, and SFMasksV01.  These are used to calculate star
+    formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$).
+    Note that we are using the flow-corrected redshifts z_tonry_1 from the
+    SAMI-matched GAMA catalog (SAMITargetGAMAregionsV02) to calculate distances.
+
+    ```
+    H0 = 70.                                    ;; (km/s)/Mpc, SAMI official cosmology
+    distmpc = lumdist(z_tonry,H0=H0)            ;; in Mpc; defaults to omega_m=0.3
+    dist = distmpc[0] * 3.086d24                ;; in cm
+    kpcperarc = (distmpc[0]/(1+z_tonry[0])^2) * 1000./206265  ;; kiloparsecs per arcsecond
+    kpcperpix = kpcperarc*0.5                   ;; half arcsec pixels
+    halum = haflux * SFR_classmap * attencorr * 1d-16 * 4*!pi *dist^2   ;; now in erg/s
+    sfr = halum * 7.9d-42                       ;; now in Msun/yr, Kennicutt+94
+    sfrsd = sfr / kpcperpix^2                   ;; this one in Msun/yr/kpc^2
+    ```
+
+    Errors (1-sigma uncertainty) in SFR are also included.
+
+    A separate map is made for each set of LZIFU emission line fits for each
+    galaxy: 1 Gaussian component (`*_1_comp.fits`), 2 Gaussian components
+    (`*_2_comp.fits`), 3 Gaussian components (`*_3_comp.fits`), and the recommended
+    number of components for each spaxel (`*_recom_comp.fits`).  Each map has
+    dimensions of $(50,50,ncomp+1)$.  The slice `[*,*,0]` represents the total star
+    formation rate (from the total Halpha flux) summed over all components, and
+    the `[*,*,ncomp]` slices represent the star formation rate from each
+    individual component.
+
+
+    ##format: markdown
+
+    """
+
+    trait_type = 'sfr_map'
+
+    branches_versions = {
+        branch_lzifu_m_comp: {'V02'}
+    }
+    defaults = DefaultsRegistry(version_defaults={branch_lzifu_m_comp[0]: 'V02'})
+
+    def fits_file_path(self):
+        data_product_name = "SFRMaps"
+
+        return "/".join(
+            (self.archive.vap_data_path,
+             data_product_name,
+             data_product_name + self.version,
+             self.object_id + "_SFR_" + self.branch + ".fits"))
+
+    # value = trait_property_from_fits_data('SFR', 'float.array.2', 'value')
+    # value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
+    # error = trait_property_from_fits_data('SFR_ERR', 'float.array.2', 'error')
+    # error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
+
+    @trait_property('float.array.2')
+    def value(self):
+        value = self._hdu['SFR'].data[0, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+    value.set_description("Total star-formation rate in all components")
+
+    @trait_property('float.array.2')
+    def error(self):
+        sigma = self._hdu['SFR_ERR'].data[0, :, :]
+        return sigma
+    value.set_description("Error in total star-formation rate in all components")
+
+    # 1-component
+    @trait_property('float.array.2')
+    def comp_1_flux(self):
+        value = self._hdu['SFR'].data[1, :, :]
+        return value
+    value.set_description("Star-formation rate in component with narrowest Hα line")
+
+    @trait_property('float.array.2')
+    def comp_1_error(self):
+        sigma = self._hdu['SFR_ERR'].data[1, :, :]
+        return sigma
+    value.set_description("Error in star-formation rate in component with narrowest Hα line")
+
+    # 2-component
+    @trait_property('float.array.2')
+    def comp_2_flux(self):
+        value = self._hdu['SFR'].data[2, :, :]
+        return value
+    value.set_description("Star-formation rate in component with middle-width Hα line")
+
+    @trait_property('float.array.2')
+    def comp_2_error(self):
+        sigma = self._hdu['SFR_ERR'].data[2, :, :]
+        return sigma
+    value.set_description("Error in star-formation rate in component with middle-width Hα line")
+
+    # 3-component
+    @trait_property('float.array.2')
+    def comp_3_flux(self):
+        value = self._hdu['SFR'].data[3, :, :]
+        return value
+    value.set_description("Star-formation rate in component with broadest Hα line")
+
+
+    @trait_property('float.array.2')
+    def comp_3_error(self):
+        sigma = self._hdu['SFR_ERR'].data[3, :, :]
+        return sigma
+    value.set_description("Error in star-formation rate in component with broadest Hα line")
+
 
 SFRMap.set_pretty_name("Star Formation Rate Map")
 
@@ -2033,6 +2161,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly)
 
         self.available_traits.register(SFRMap)
+        self.available_traits.register(SFRMapRecommendedComponent)
         self.available_traits.register(BalmerExtinctionMap)
 
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
