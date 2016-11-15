@@ -74,9 +74,9 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         'string',
         'float',
         'int',
-        'string.array',
-        'float.array',
-        'int.array'
+        re.compile(r"string\.array(?:\.\d+)?"),
+        re.compile(r"float\.array(?:\.\d+)?"),
+        re.compile(r"int\.array(?:\.\d+)?"),
     )
 
     catalog_types = [
@@ -85,11 +85,11 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         'int'
     ]
 
-    non_catalog_types = [
-        'string.array',
-        'float.array',
-        'int.array'
-    ]
+    non_catalog_types = RegexpGroup(
+        re.compile(r"string\.array(?:\.\d+)?"),
+        re.compile(r"float\.array(?:\.\d+)?"),
+        re.compile(r"int\.array(?:\.\d+)?")
+    )
 
     descriptions_allowed = 'instance'
 
