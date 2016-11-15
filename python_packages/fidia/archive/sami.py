@@ -731,12 +731,12 @@ class LZIFUDataMixin:
     """Mixin class to provide extra properties common to all LZIFU Data."""
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
 
     defaults = DefaultsRegistry(default_branch="1_comp",
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
     def init(self):
         data_product_name = "EmissionLineFits"
@@ -850,11 +850,11 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     qualifiers = {'ionized_gas'}
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
     # def init(self):
     #
@@ -966,8 +966,8 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
 
 
     trait_type = 'line_emission_map'
-    branches_versions = {branch_lzifu_1_comp: {"V02"}}
-    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={branch_lzifu_1_comp[0]: "V02"})
+    branches_versions = {branch_lzifu_1_comp: {"V03"}}
+    defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={branch_lzifu_1_comp[0]: "V03"})
 
     sub_traits = TraitRegistry()
 
@@ -1048,10 +1048,10 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
     ##format: markdown
     """
-    branches_versions ={branch_lzifu_m_comp: {"V02"}}
+    branches_versions ={branch_lzifu_m_comp: {"V03"}}
 
     # Extends 'line_map', so no defaults:
-    defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V02'})
+    defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V03'})
 
     # Individual component fluxes released for HALPHA only. See `TotalOnly` class below.
     line_name_map = {
@@ -1145,10 +1145,10 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
 
     ##format: markdown
     """
-    branches_versions = {branch_lzifu_m_comp: {"V02"}}
+    branches_versions = {branch_lzifu_m_comp: {"V03"}}
 
     # Extends 'line_map', so no defaults:
-    defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V02'})
+    defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V03'})
 
     line_name_map = {
         'OII3726': 'OII3726',
@@ -1218,11 +1218,11 @@ class LZIFUCombinedFit(SpectralMap):
     qualifiers = {'red', 'blue'}
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
     def init(self):
         data_product_name = "EmissionLineFits"
@@ -1401,11 +1401,11 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile):
     trait_type = 'extinction_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
     def fits_file_path(self):
         data_product_name = "ExtinctCorrMaps"
@@ -1461,11 +1461,11 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile):
     trait_type = 'sfr_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03'})
 
     def fits_file_path(self):
         data_product_name = "SFRMaps"
@@ -1516,11 +1516,11 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
     trait_type = 'emission_classification_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
     class_remap = {
         0: "No Data",
