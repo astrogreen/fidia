@@ -73,7 +73,8 @@ def filename_for_trait_path(trait_path):
             remaining_path_elements -= 1
 
     # Finally, get the filename
-    filename = format_trait_path_as_path(filename_element)
+    filename = trait_path['object_id'] + "-"
+    filename += format_trait_path_as_path(filename_element)
     filename += ".fits"
     path = os.path.join(path, filename)
 
