@@ -31,12 +31,12 @@ class ExampleSpectralMap(SpectralMap):
     def shape(self):
         return 0
 
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def value(self):
         """TheSpectralMapDocumentation"""
         assert not self._clean
         return np.random.random((20, 20, 50))
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def variance(self):
         assert not self._clean
         return np.random.random((20, 20, 50))
@@ -62,11 +62,11 @@ class ExampleSpectralMapExtra(SpectralMap):
     def shape(self):
         return 0
 
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def value(self):
         assert not self._clean
         return np.random.random((20, 20, 50))
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def variance(self):
         assert not self._clean
         return np.random.random((20, 20, 50))
@@ -94,13 +94,13 @@ class VelocityMap(Image):
     def unit(self):
         return None
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         # return np.random.random((5, 5))
         # return (np.random.uniform(-50, 50, [8, 10])).tolist()
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def variance(self):
         return np.random.random((20, 20))
 
@@ -119,11 +119,11 @@ class LineMap(Image):
     def unit(self):
         return None
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def variance(self):
         return np.random.random((20, 20))
 
@@ -140,11 +140,11 @@ class RedImage(Image):
         # Make an object have typically the same random data.
         np.random.seed(hash(self.object_id) % 500000)
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def variance(self):
         return np.random.random((20, 20))
 
@@ -165,11 +165,11 @@ class BlueImage(Image):
         # Make an object have typically the same random data.
         np.random.seed(hash(self.object_id) % 500000)
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         return np.random.random((20, 20))
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def variance(self):
         return np.random.random((20, 20))
 
@@ -199,12 +199,12 @@ class BlueImage(Image):
             # Make an object have typically the same random data.
             np.random.seed(hash(self.object_id) % 500000)
 
-        @trait_property('float.array')
+        @trait_property('float.array.2')
         def value(self):
             return np.random.random((20, 20))
 
 
-        @trait_property('float.array')
+        @trait_property('float.array.2')
         def variance(self):
             return np.random.random((20, 20))
 
@@ -223,11 +223,11 @@ class BlueImage(Image):
             # Make an object have typically the same random data.
             np.random.seed(hash(self.object_id) % 500000)
 
-        @trait_property('float.array')
+        @trait_property('float.array.2')
         def value(self):
             return np.random.random((20, 20))
 
-        @trait_property('float.array')
+        @trait_property('float.array.2')
         def variance(self):
             return np.random.random((20, 20))
 
@@ -257,10 +257,10 @@ class TestMissingProperty(SpectralMap):
     def shape(self):
         return 0
 
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def value(self):
         return np.random.random((20, 20, 50))
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def variance(self):
         return np.random.random((20, 20, 50))
 
@@ -291,7 +291,7 @@ class SimpleTrait(Trait):
     value.set_description("TheValue")
     value.set_pretty_name("Value")
 
-    @trait_property('float.array')
+    @trait_property('float.array.1')
     def non_catalog_data(self):
         return [1.1, 2.2, 3.3]
     non_catalog_data.set_description("Some Non-catalog data")
@@ -322,7 +322,7 @@ class SimpleTraitWithSubtraits(Trait):
     def value(self):
         return 5.5
 
-    @trait_property('float.array')
+    @trait_property('float.array.1')
     def non_catalog_data(self):
         return [1.1, 2.2, 3.3]
 
