@@ -1264,9 +1264,6 @@ class LZIFUCombinedFit(SpectralMap):
     def value(self):
         return self._hdu[self._color + '_CONTINUUM'].data + self._hdu[self._color + '_LINE'].data
 
-    @trait_property('float.array.3')
-    def error(self):
-        raise DataNotAvailable("No error data available for LZIFU combined spectral fit.")
 
     @trait_property('string')
     def _wcs_string(self):
