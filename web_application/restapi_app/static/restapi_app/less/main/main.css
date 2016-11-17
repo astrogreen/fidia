@@ -1258,6 +1258,12 @@ header .user a > a {
 .margin-bottom-ten {
   margin-bottom: 10px !important;
 }
+.padding-top-five {
+  padding-top: 5px;
+}
+.padding-top-ten {
+  padding-top: 10px;
+}
 .headline h2 {
   margin-top: 0;
 }
