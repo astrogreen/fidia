@@ -152,40 +152,52 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 <div id="filter_panel">
     <div class="row">
-        <div id="datatables_filter" class="col-xs-12"><span class="sub-heading">Search up to two columns between values</span> <a
-                role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click"
-                data-placement="top"
-                data-content="Show only rows that contain data in a particular column between two values."><i
-                class="fa fa-info-circle"></i></a>
-        <div class="row">
-            <div class="col-xs-12" id="filterset1">
-                <form class="filter_row">
-                    <div class="row">
-                        <div class="col-xs-3">
-                            <div class="form-group"><label class="sr-only">Minimum</label> <input type="text"
-                                                                                                  class="form-control minimum min_filter"
-                                                                                                  placeholder="MINIMUM"
-                                                                                                  disabled></div>
-                        </div>
-                        <div class="col-xs-3 no-padding">
-                            <div class="form-group"><label class="sr-only" for="column">Column</label> <select
-                                    type="text" class="form-control column_filter" id="column">
-                                <option value="" selected disabled>SELECT COLUMN</option>
-                            </select></div>
-                        </div>
-                        <div class="col-xs-3 ">
-                            <div class="form-group"><label class="sr-only">Maximum</label> <input type="text"
-                                                                                                  class="form-control max_filter"
-                                                                                                  placeholder="MAXIMUM"
-                                                                                                  disabled></div>
-                        </div>
-                        <div class="col-xs-3">
-                            <a role="button" id="new_filter" class="padding-top-five">add new filter</a>
-                        </div>
-                    </div>
-                </form>
+        <div id="datatables_filter" class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-8">
+                    <span class="sub-heading">Search up to two columns between values</span> <a
+                        role="button" class="sub-heading" data-container="body" data-toggle="popover"
+                        data-trigger="hover click"
+                        data-placement="top"
+                        data-content="Show only rows that contain data in a particular column between two values."><i
+                        class="fa fa-info-circle"></i></a>
+                </div>
+                <div class="col-xs-4"><span id="remove_filters" class="pull-right"></span></div>
             </div>
-        </div>
+
+            <div class="row">
+                <div class="col-xs-12" id="filterset1">
+                    <form class="filter_row">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="form-group"><label class="sr-only">Minimum</label> <input type="text"
+                                                                                                      class="form-control minimum min_filter"
+                                                                                                      placeholder="MINIMUM"
+                                                                                                      disabled></div>
+                            </div>
+                            <div class="col-xs-4 no-padding">
+                                <div class="form-group"><label class="sr-only" for="column">Column</label> <select
+                                        type="text" class="form-control column_filter" id="column">
+                                    <option value="" selected disabled>SELECT COLUMN</option>
+                                </select></div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group"><label class="sr-only">Maximum</label>
+                                    <div class="input-group">
+                                        <input type="text"
+                                               class="form-control max_filter"
+                                               placeholder="MAXIMUM"
+                                               disabled>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" id="new_filter" type="button">add</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <div class="col-xs-12 padding-top-five">
@@ -195,11 +207,11 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12 text-right">
-            <span id="remove_filters"></span>
-        </div>
-    </div>
+    <!--<div class="row">-->
+        <!--<div class="col-xs-12 text-right">-->
+            <!--<span id="remove_filters"></span>-->
+        <!--</div>-->
+    <!--</div>-->
 </div>
 
 <br><br>
@@ -630,7 +642,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             new $.fn.dataTable.Buttons(table, {
                 buttons: [
                     {
-                        text: '<small>remove all filters</small>',
+                        text: '<span>clear all filters</span>',
                         action: function () {
                             // clear existing searches on the table
                             $.fn.dataTable.ext.search = [];
@@ -653,7 +665,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             table.buttons(2,null).container()
                     .appendTo($('#remove_filters', table.table().container()));
 
-            $('#remove_filters .btn.btn-default').removeClass('btn btn-default');
+            $('#remove_filters .btn.btn-default').addClass('btn-xs');
 
 
             $(document).ready(function() {
@@ -688,10 +700,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
                     $('#datatables_filter .row #filterset1').append(
                     '<form class="filter_row padding-top-five additional_filter"><div class="row">' +
-                    '<div class="col-xs-3 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum min_filter" placeholder="MINIMUM" disabled> </div></div>' +
-                    '<div class="col-xs-3 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control column_filter"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
-                    '<div class="col-xs-3 "><div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control max_filter" placeholder="MAXIMUM" disabled></div></div>' +
-                    '<div class="col-xs-3"> <a role="button" class="padding-top-five remove_filter">remove filter</a></div>' +
+                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum min_filter" placeholder="MINIMUM" disabled> </div></div>' +
+                    '<div class="col-xs-4 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control column_filter"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
+                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="max">Maximum</label> ' +
+                    '<div class="input-group"> <input type="text" class="form-control max_filter" placeholder="MAXIMUM" disabled> <span class="input-group-btn"> <button class="btn btn-default remove_filter" type="button">remove</button> </span> </div></div></div>' +
                     '</div> </form>');
 
                     // disable any columns that are already selected
