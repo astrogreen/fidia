@@ -27,7 +27,17 @@ def sami_sample(sami_archive):
 def a_sami_galaxy(sami_sample):
     return sami_sample['24433']
 
+@pytest.fixture(scope='module')
+def a_duplicate_sami_galaxy(sami_sample):
+    return sami_sample['537171']
+
 class TestSAMILZIFU:
+
+    def test_data_available_for_duplicate_galaxy(self, a_duplicate_sami_galaxy):
+
+        vmap = a_duplicate_sami_galaxy['velocity_map-ionized_gas']
+
+        vmap.value.value
 
     def test_lzifu_velocity_map(self, sami_sample):
         vmap = sami_sample['24433']['velocity_map-ionized_gas']
@@ -47,7 +57,7 @@ class TestSAMILZIFU:
         themap = sami_sample['24433'][TraitKey('line_emission_map', 'HALPHA', "recom_comp")]
 
         assert hasattr(themap, 'comp_1_flux')
-        assert hasattr(themap, 'variance')
+        assert hasattr(themap, 'error')
 
     def test_wcs_on_both_branches(self, a_sami_galaxy):
 

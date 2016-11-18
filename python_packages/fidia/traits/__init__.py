@@ -10,7 +10,8 @@ from .catalog_traits import catalog_trait
 from .meta_data_traits import MetadataTrait, \
     OpticalTelescopeCharacteristics, DetectorCharacteristics, SpectrographCharacteristics
 
-from .galaxy_traits import VelocityMap, MorphologicalMeasurement
+from .galaxy_traits import VelocityMap, VelocityDispersionMap, MorphologicalMeasurement, StarFormationRateMap, \
+    LineEmissionMap, ExtinctionMap
 
 from .trait_property import TraitProperty, trait_property
 from .trait_key import TraitKey, TraitPath, \
