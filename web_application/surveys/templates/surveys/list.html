@@ -154,45 +154,50 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     <div class="row">
         <div id="datatables_filter" class="col-xs-12">
             <div class="row">
-                <div class="col-xs-8">
-                    <span class="sub-heading">Search up to two columns between values</span> <a
+                <div class="col-xs-9">
+                    <span class="bold">Filter rows by column</span> <a
                         role="button" class="sub-heading" data-container="body" data-toggle="popover"
                         data-trigger="hover click"
                         data-placement="top"
                         data-content="Show only rows that contain data in a particular column between two values."><i
                         class="fa fa-info-circle"></i></a>
                 </div>
-                <div class="col-xs-4"><span id="remove_filters" class="pull-right"></span></div>
+                <div class="col-xs-3"><span class="bold">Add/remove filter</span><a
+                        role="button" class="sub-heading" data-container="body" data-toggle="popover"
+                        data-trigger="hover click"
+                        data-placement="top"
+                        data-html="true"
+                        data-content="Add a new filter by pressing the <i class='fa fa-plus'></i> button. Remove a filter using the  <i class='fa fa-times'></i> button.">
+                        <i class="fa fa-info-circle"></i></a>
+                </div>
             </div>
 
             <div class="row">
                 <div class="col-xs-12" id="filterset1">
                     <form class="filter_row">
                         <div class="row">
-                            <div class="col-xs-4">
-                                <div class="form-group"><label class="sr-only">Minimum</label> <input type="text"
-                                                                                                      class="form-control minimum min_filter"
-                                                                                                      placeholder="MINIMUM"
-                                                                                                      disabled></div>
-                            </div>
-                            <div class="col-xs-4 no-padding">
+                            <div class="col-xs-3">
                                 <div class="form-group"><label class="sr-only" for="column">Column</label> <select
                                         type="text" class="form-control column_filter" id="column">
                                     <option value="" selected disabled>SELECT COLUMN</option>
                                 </select></div>
                             </div>
-                            <div class="col-xs-4">
+                            <div class="col-xs-3 no-padding">
+                                <div class="form-group"><label class="sr-only">Minimum</label> <input type="text"
+                                                                                                      class="form-control minimum min_filter"
+                                                                                                      placeholder="MINIMUM"
+                                                                                                      disabled></div>
+                            </div>
+                            <div class="col-xs-3">
                                 <div class="form-group"><label class="sr-only">Maximum</label>
-                                    <div class="input-group">
-                                        <input type="text"
-                                               class="form-control max_filter"
-                                               placeholder="MAXIMUM"
-                                               disabled>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" id="new_filter" type="button">add</button>
-                                        </span>
-                                    </div>
+                                    <input type="text"
+                                           class="form-control max_filter"
+                                           placeholder="MAXIMUM"
+                                           disabled>
                                 </div>
+                            </div>
+                            <div class="col-xs-3">
+                                <button class="btn btn-default" id="new_filter" type="button"><i class="fa fa-plus"></i></button>
                             </div>
                         </div>
                     </form>
@@ -202,16 +207,12 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
         <div class="col-xs-12 padding-top-five">
             <div class="row">
-                <div id="datatables_select" class="col-xs-6"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
-                <div id="datatables_search" class="col-xs-6 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                <div id="datatables_select" class="col-xs-3 "><span class="bold">Select filtered rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Select or unselect all rows, or, if a filtering is applied, select filtered rows. Alternatively, select individual rows by clicking them. "><i class="fa fa-info-circle"></i></a></div>
+                <div id="remove_filters" class="col-xs-3  no-padding"><span class="bold">Remove all filters</span></div>
+                <div id="datatables_search" class="col-xs-6"><span class="bold">Search filtered rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
             </div>
         </div>
     </div>
-    <!--<div class="row">-->
-        <!--<div class="col-xs-12 text-right">-->
-            <!--<span id="remove_filters"></span>-->
-        <!--</div>-->
-    <!--</div>-->
 </div>
 
 <br><br>
@@ -363,7 +364,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
             $("#returnTableResults_length")
                     .appendTo("#datatables_pagination");
-            $('#datatables_pagination').prepend('<small class="pull-right sub-heading"><i class="fa fa-arrows-h"></i> scroll for more </small>')
+            $('#datatables_pagination').prepend('<small class="pull-right sub-heading tiny"><i class="fa fa-arrows-h"></i> scroll for more </small>')
 
             //  EXPORT
             $('#datatables_export').append(
@@ -404,16 +405,28 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             };
 
             disable_columns = function(){
-                console.log('disable columns');
-                // on click to column - check existing values, disable if true.
-                $('.column_filter').each(function(){
+                // on click to column or adding a new filter - check existing values, disable if true.
 
-                    //console.log($(this));
-                    //console.log($(this).options);
-                    // $(this).val()
+                // get currently selected values
+                var option_values = [];
+                $('.column_filter').each(function(){
+                    option_values.push( $(this).find('option:selected').text());
+                });
+
+                // for each select, find and iterate over the options
+                $('.column_filter').each(function(){
+                    var this_selected = $(this).val();
+                    console.log(this_selected);
+                    $(this).find('option').each(function(){
+                        if (($.inArray($(this).val(), option_values)  > -1) && ($(this).val() != this_selected)) {
+                            // do not disable the selected value of the current select.column_filter
+
+                            // if this option is found in the selected option values, disable it
+                            $(this).attr('disabled', 'true');
+                        }
+                    });
                 });
             };
-
 
 
             // Range initialization code
@@ -424,8 +437,11 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 
             $('body').on('change', 'select.column_filter', function(e) {
-                // do something
+
                 console.log('change column');
+                // disable currently selected options
+                disable_columns();
+
                 // enable associated inputs
                 var min_ele = $(e.target).closest('.row').find('.min_filter');
                 var max_ele = $(e.target).closest('.row').find('.max_filter');
@@ -642,7 +658,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             new $.fn.dataTable.Buttons(table, {
                 buttons: [
                     {
-                        text: '<span>clear all filters</span>',
+                        text: '<span><i class="fa fa-trash-o"></i></span>',
                         action: function () {
                             // clear existing searches on the table
                             $.fn.dataTable.ext.search = [];
@@ -665,7 +681,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             table.buttons(2,null).container()
                     .appendTo($('#remove_filters', table.table().container()));
 
-            $('#remove_filters .btn.btn-default').addClass('btn-xs');
+            $('#remove_filters .btn.btn-default').addClass('btn-md').unwrap().wrap('<div class="input-group"></div>');
 
 
             $(document).ready(function() {
@@ -685,36 +701,40 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
                 $('#returnTableResults').click(function(){
                     update_button();
-                })
-
-                $('a#multiple_object[data-toggle="tab"]').one('shown.bs.tab', function (e) {
-                    // moved single and multiple objects into tabs, fire this once (.one) when the shown.bs.tab event
-                    // is triggered, to force datatables to redraw the table once the tab is visible (else the column headers
-                    // have incorrect widths calculated
-                    table.draw();
-                    // TODO REMOVE THIS no longer needed
                 });
+
+//                $('a#multiple_object[data-toggle="tab"]').one('shown.bs.tab', function (e) {
+//                    // moved single and multiple objects into tabs, fire this once (.one) when the shown.bs.tab event
+//                    // is triggered, to force datatables to redraw the table once the tab is visible (else the column headers
+//                    // have incorrect widths calculated
+//                    table.draw();
+//                    // TODO REMOVE THIS no longer needed
+//                });
 
                 $('#new_filter').click(function(){
                     // append another filter selection set
 
                     $('#datatables_filter .row #filterset1').append(
                     '<form class="filter_row padding-top-five additional_filter"><div class="row">' +
-                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum min_filter" placeholder="MINIMUM" disabled> </div></div>' +
-                    '<div class="col-xs-4 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control column_filter"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
-                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="max">Maximum</label> ' +
-                    '<div class="input-group"> <input type="text" class="form-control max_filter" placeholder="MAXIMUM" disabled> <span class="input-group-btn"> <button class="btn btn-default remove_filter" type="button">remove</button> </span> </div></div></div>' +
+                    '<div class="col-xs-3 "><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control column_filter"><option value="" selected disabled>SELECT COLUMN</option></select></div></div>' +
+                    '<div class="col-xs-3 no-padding"><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum min_filter" placeholder="MINIMUM" disabled> </div></div> ' +
+                    '<div class="col-xs-3"><div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control max_filter" placeholder="MAXIMUM" disabled> </div></div>' +
+                    '<div class="col-xs-3"> <button class="btn btn-default remove_filter" type="button"><i class="fa fa-times"></i></button></div>'+
                     '</div> </form>');
 
-                    // disable any columns that are already selected
+                    // populate with options
                     update_columns($('#filterset1 form.filter_row:last-of-type select.column_filter'));
+                    // disable any columns that are already selected
+                    disable_columns();
                 });
                 $('body').on('click', '.remove_filter', function(){
                      $(this).closest('form.filter_row').remove();
+
+                    // trigger a table redraw and update to the filter
                      $('.max_filter').keyup();
 
-                    // find closest filter_row
-                    // disable this row
+                    // update the select options, disabling only those that are currently selected
+                    disable_columns();
                 });
             });
 
