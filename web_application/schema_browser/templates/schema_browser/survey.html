@@ -102,7 +102,7 @@
         <tbody>
         {% for trait_type_key, trait_type_value in response.data.schema_catalog.trait_types.items %}
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
-                <tr>
+                <tr id="trait_type_key">
                     <td>
                         <a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">
                             {{trait_type_value.pretty_name}}

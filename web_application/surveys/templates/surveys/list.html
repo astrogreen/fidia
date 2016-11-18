@@ -23,9 +23,9 @@
 
     <ul class="nav nav-pills nav-stacked  nav-sidebar">
         <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
-        <li role="presentation"><a class="scroll" href="#data-access">Data</a></li>
         <li role="presentation"><a class="scroll" href="#project-overview">Project Overview</a></li>
-        <li role="presentation"><a class="scroll" href="#help">Help</a></li>
+        <li role="presentation"><a class="scroll" href="#data-access">Data</a></li>
+
     </ul>
 </div><hr>
 <div class="quick-links">
@@ -130,19 +130,36 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 </div>
 
+<h3 id="project-overview">Project Overview</h3>
+{% with "surveys/"|add:response.data.survey|add:"/about.html" as template %}
+{% include template %}
+{% endwith %}
+
 
 <h3 id="data-access">Data</h3>
 
 <!-- Tab panes -->
+<p>You have two options to browse the catalogue. If you are interested in a single object, click the ID in the table. If
+    you want to download data products for multiple objects, select your targets using the table filters, and then
+    choose the products to download.</p>
 
-<p> All {{survey|uppercase}} objects are shown in the table below. Search and
-    filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
+<p>For detailed descriptions of a particular data product, visit the <a
+        href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
+     Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
+    data product, view the
+    <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
+        Schema Browser</a>.
+</p>
+<p>
 
-<div class="well success">
-    <div class="p "> <span class="sub-heading">Click on the ID in the table to go to the Single Object Viewer for that object.</span></div>
-</div>
+    To access data via a
+    command line interface, read the documentation on <a
+        href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data
+    download</a>.</p>
+<br>
 <div class="well warning">
-    <div class="p "> <span class="sub-heading">Table filter functionality is in alpha. If you spot an error, please <a href="{% url 'support-bug' %}">report a bug</a>.</span></div>
+    <div class="p "><span class="sub-heading">Table filter functionality is in alpha. If you spot an error, please <a
+            href="{% url 'support-bug' %}">report a bug</a>.</span></div>
 </div>
 
 
@@ -219,51 +236,23 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 </div>
 
 <br><br>
-<h4 style="font-size:20px" id="data_products">Download Data Products</h4>
-
-<p>
-    Define a sample of SAMI objects (optionally filtering on some catalogue property) using the table above. Data products for this
-    selection can be downloaded for offline use.
-
-    To access data via a
-    command line interface, read the documentation on <a
-            href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data
-        download</a>.</p>
-<br>
-<div class="panel panel-default success">
+<p>In order to download data products you must first use the table above to create a sample of {{survey|uppercase}}
+    objects. Click a table row to select an object, or use the filters to search for rows that match a set of criteria.
+    <br> </p>
+<div class="panel panel-default success" id="data_products">
     <div class="panel-body">
-        <span class="sub-heading">In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+        <span class="sub-heading">
+            Select data products to be downloaded using the checkboxes. The default branch and version is shown, you can choose a specific branch and version using the dropdown menus for each product. For help with branches and versions, view the <a
+            href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}">documentation</a>.
         </span>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-12">
-
         {% include 'sov/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
-
     </div>
 
 </div>
-
-
-<h3 id="project-overview">Project Overview</h3>
-{% with "surveys/"|add:response.data.survey|add:"/about.html" as template %}
-{% include template %}
-{% endwith %}
-
-<h3 id="help">Help</h3>
-<p>The <a href="{% url 'surveys:survey-list' survey_pk=survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
-    {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
-<p>For detailed descriptions of a particular data product, visit the <a
-        href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
-     Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
-    data product, view the
-    <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
-        Schema Browser</a>.
-</p>
-<p>To learn more about the Single Object Viewer, view the <a
-        href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
-
 
 {% comment %}
 ------ TURN ON DATATABLES ------
