@@ -139,7 +139,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
 
 <div class="well success">
-    <div class="p "> <i class="fa fa-info"></i> <span class="sub-heading">Click on the ID in the table to go to the Single Object Viewer for that object.</span></div>
+    <div class="p "> <span class="sub-heading">Click on the ID in the table to go to the Single Object Viewer for that object.</span></div>
+</div>
+<div class="well warning">
+    <div class="p "> <span class="sub-heading">Table filter functionality is in alpha. If you spot an error, please <a href="{% url 'support-bug' %}">report a bug</a>.</span></div>
 </div>
 
 
@@ -229,7 +232,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 <br>
 <div class="panel panel-default success">
     <div class="panel-body">
-        <i class="fa fa-info"></i> <span class="sub-heading">In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+        <span class="sub-heading">In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
         </span>
     </div>
 </div>
@@ -384,7 +387,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
             // populate columns
             update_columns = function(element){
-                console.log(element);
+
                 // Append column options to the range select
                 for (var k=0;k<columns.length;k++){
                     // if you can parse as float, then append
@@ -416,7 +419,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 // for each select, find and iterate over the options
                 $('.column_filter').each(function(){
                     var this_selected = $(this).val();
-                    console.log(this_selected);
+
                     $(this).find('option').each(function(){
                         if (($.inArray($(this).val(), option_values)  > -1) && ($(this).val() != this_selected)) {
                             // do not disable the selected value of the current select.column_filter
@@ -438,7 +441,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
             $('body').on('change', 'select.column_filter', function(e) {
 
-                console.log('change column');
                 // disable currently selected options
                 disable_columns();
 
@@ -482,10 +484,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                         if (columns[k].title == selected_column) {
                             column_index = k;
 
-                            console.log(' - - - new filter - - - ');
-                            console.log($(this).attr('id'));
-                            console.log(selected_column, column_index);
-                            console.log(min, max);
+//                            console.log(' - - - new filter - - - ');
+//                            console.log($(this).attr('id'));
+//                            console.log(selected_column, column_index);
+//                            console.log(min, max);
 
                             a_col_index.push(column_index);
                             a_min.push(min);
@@ -522,7 +524,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
                 table.draw();
                 update_button();
-                console.log($.fn.dataTable.ext.search);
+                // console.log($.fn.dataTable.ext.search);
             });
 
 
@@ -702,14 +704,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 $('#returnTableResults').click(function(){
                     update_button();
                 });
-
-//                $('a#multiple_object[data-toggle="tab"]').one('shown.bs.tab', function (e) {
-//                    // moved single and multiple objects into tabs, fire this once (.one) when the shown.bs.tab event
-//                    // is triggered, to force datatables to redraw the table once the tab is visible (else the column headers
-//                    // have incorrect widths calculated
-//                    table.draw();
-//                    // TODO REMOVE THIS no longer needed
-//                });
 
                 $('#new_filter').click(function(){
                     // append another filter selection set

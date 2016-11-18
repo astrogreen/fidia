@@ -1595,6 +1595,7 @@ li {
 }
 .panel.warning,
 .panel-body.warning,
+.well.warning,
 .list-group-item.warning {
   border-left: 3px solid #f1cb76;
 }
