@@ -98,9 +98,11 @@
                 </div>
             </div>
 
+            {% comment %}
             {% with "sov/astro_object/survey/"|add:survey|add:"_feature.html" as template %}
                 {% include template %}
             {% endwith %}
+            {% endcomment %}
 
             {% with "sov/astro_object/survey/"|add:survey|add:".html" as template %}
                 {% include template %}
