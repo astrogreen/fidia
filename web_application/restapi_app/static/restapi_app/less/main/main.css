@@ -143,6 +143,7 @@ body .normal {
 }
 body .small {
   font-size: 12px;
+  line-height: 12px;
 }
 body a.small {
   font-size: 12px;
@@ -168,6 +169,12 @@ h2 .right-helper {
 h3,
 h4 {
   font-weight: 400;
+}
+.doc_p {
+  color: #333333;
+  font-family: Roboto, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+  font-size: 16px;
+  line-height: 25.6px;
 }
 h1,
 h2,

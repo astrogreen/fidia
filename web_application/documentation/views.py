@@ -39,20 +39,28 @@ class ArticleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
 def get_top_articles():
     # get the top topics and pass to renderer context
-    top_four = []
-    # try:
-    for t in HitCount.objects.all().order_by('hits')[:10]:
+    available_articles_sorted = []
+
+    for t in HitCount.objects.all().order_by('hits'):
+        # get local set of attributes on the t instance
         instance = t.__dict__
+
+        # find the corresponding article in the database, and get attributes of the instance
         _article = documentation.models.Article.objects.get(id=instance['object_pk'])
-        this = _article.__dict__
-        this['topic'] = documentation.models.Topic.objects.filter(id=this['topic_id']).only('title')[0].title
-        this['topic_slug'] = documentation.models.Topic.objects.filter(id=this['topic_id']).only('slug')[0].slug
+        _article = _article.__dict__
 
-        top_four.append(this)
+        # add the relevant topic and topic slug properties
+        _article['topic'] = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('title')[0].title
+        _article['topic_slug'] = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('slug')[0].slug
 
-    return top_four
-    # except:
-    #     pass
+        # figure out if topic is hidden
+        _topic_hidden = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('title')[0].hidden
+
+        # hide if the topic is hidden, or the article itself is hidden
+        if _article['hidden'] is False and _topic_hidden is False:
+            available_articles_sorted.append(_article)
+
+    return available_articles_sorted[:10]
 
 
 def get_all_topics():
