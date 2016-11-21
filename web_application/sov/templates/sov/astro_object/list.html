@@ -10,7 +10,7 @@
 
 {% block page_title %}Single Object Viewer{% endblock %}
 {% block useful_links %}
-<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Need Help?</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='sov' %}">Need Help?</a></li>
 {% endblock useful_links %}
 
 {% block sidebar %}
@@ -86,7 +86,7 @@
                             Auxillary Data: SDSS
                         </div>
                         <div class="panel-body">
-                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=IGPO&amp;width=512&amp;height=512"
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=GPO&amp;width=512&amp;height=512"
                                  alt="..." class="img-responsive">
                             <br>
                             <p class="text-justify small">Colour composite image, 19.5 arcsec on a side. False colour, 512
@@ -112,9 +112,13 @@
         </div>
         <div role="tabpanel" class="tab-pane" id="products">
             <p>To view a particular data product's properties, meta-data and where
-                available, an interactive visualization, click the link in the table below.
+                available, an interactive visualization, click the link in the table.
+
+                To download multiple data products for any {{survey|uppercase}} object, visit the <a href="{% url 'surveys:survey-list' survey_pk=survey %}">{{survey|uppercase}}</a> page.
             </p>
-            <p>To find out more
+
+            <p>For help with branches and versions, view the <a
+            href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}">documentation</a>. To find out more
                 about the available branches, visit the <a
                         href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema Browser</a>.</p>
             <div class="panel panel-default success">
@@ -122,7 +126,7 @@
                     <div class="sub-heading"><strong>Note:</strong> Data products are grouped by their product-type (e.g., you
                         can find the SAMI [OIII] (5007Å) and
                         [NII] (6583Å) line maps under <em>Line Maps</em>). Use the search box to filter the
-                        products by a particular keyword.
+                        products by keyword.
                     </div>
                 </div>
             </div>

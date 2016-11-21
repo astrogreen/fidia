@@ -105,11 +105,7 @@
     </table>
 
     <br><br><h2 id="all-articles">All Articles</h2><br>
-    <div class="row">
-        <div class="col-xs-12">
-            search help center
-        </div>
-    </div>
+
     {% for topic in response.data.results %}
         {% if not topic.hidden %}
             {% if forloop.first %}<div class="row">{% endif %}

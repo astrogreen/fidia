@@ -103,11 +103,11 @@
         {% for trait_type_key, trait_type_value in response.data.schema_catalog.trait_types.items %}
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                 <tr id="trait_type_key">
-                    <td>
-                        <a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">
+                    <td id="{{trait_type_key}}">
+
                             {{trait_type_value.pretty_name}}
                             {{trait_qualifier_value.pretty_name}}
-                        </a>
+
                     </td>
                     <!--<td><em> {{trait_qualifier_value.description|safe}}</em></td>-->
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
@@ -134,13 +134,12 @@
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                 <tr>
                     <td>
-                        <a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">{{trait_qualifier_value.pretty_name}}
+
+                        {{trait_qualifier_value.pretty_name}}
                             {% if not trait_qualifier_value.pretty_name %}
                                 {{trait_type_value.pretty_name}}
                             {% endif %}
-                        </a>
                     </td>
-                    <!--<td><em> {{trait_qualifier_value.description|safe}}</em></td>-->
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>
                 {% endfor %}

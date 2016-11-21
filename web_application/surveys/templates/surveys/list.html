@@ -130,11 +130,12 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 </div>
 
-<h3 id="project-overview">Project Overview</h3>
+<h3 id="project-overview">Project Overview <a role="button" class="tiny pull-right" id="toggle_project_overview">Hide</a></h3>
+<div id="project_overview_text">
 {% with "surveys/"|add:response.data.survey|add:"/about.html" as template %}
 {% include template %}
 {% endwith %}
-
+</div>
 
 <h3 id="data-access">Data</h3>
 
@@ -731,7 +732,14 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 {% block footer-extra %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
+<script>
+    $('#toggle_project_overview').click(function () {
+        $('#project_overview_text').toggle('slow');
 
+        var _text = $(this).text();
+        $(this).text(_text == "Hide" ? "Show" : "Hide");
+    });
+</script>
 {% endblock %}
 
 
