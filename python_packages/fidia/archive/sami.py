@@ -1194,8 +1194,8 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V02'})
 
     line_name_map = {
-        'OII3726': 'OII3726',
-        'OII3729': 'OII3729',
+        # 'OII3726': 'OII3726',
+        # 'OII3729': 'OII3729',
         'HBETA': 'HBETA',
         # Note missing OIII4959, which is fit as 1/3rd of OIII50007
         'OIII5007': 'OIII5007',
@@ -1245,7 +1245,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
 
 LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     "Line Emission Map",
-    OII3729="[OII] (3729Å)",
+    # OII3729="[OII] (3729Å)",
     HBETA='Hβ',
     OIII5007='[OIII] (5007Å)',
     OI6300='[OI] (6300Å)',
@@ -1253,6 +1253,48 @@ LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     SII6716='[SII] (6716Å)',
     SII6731='[SII] (6731Å)')
 
+class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiComponentLineMapTotalOnly):
+    """Emission-line-flux map from a single Gaussian fit.
+
+    The Emission-line-flux map for the [OII] doublet is the sum of the
+    individual fits for [OII] (3726Å) and [OII] (3729Å).
+
+    """
+
+    qualifiers = ['OII3727']
+
+    @trait_property('float.array')
+    def value(self):
+        """Line-emission-flux map for the [OII] doublet (3726Å/3729Å)
+
+        The Emission-line-flux map for the [OII] doublet is the sum of the
+        individual fits for [OII] (3726Å) and [OII] (3729Å)
+
+        """
+        value = self._hdu['OII3726'].data[0, :, :] + self._hdu['OII3729'].data[0, :, :]
+        log.debug("Returning type: %s", type(value))
+        return value
+
+    @trait_property('float.array')
+    def error(self):
+        """One-sigma uncertainty
+
+        The uncertainty is the sum in quadrature of the uncertainties in the
+        individual fits of [OII] (3726Å) and [OII] (3729Å).
+
+        """
+        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[0, :, :]**2 + self._hdu['OII3729_ERR'].data[0, :, :]**2)
+        log.debug("Returning type: %s", type(sigma))
+        return sigma
+
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu['OII3726'].header
+        return _wcs_string
+
+LZIFUOneComponent3727.set_pretty_name(
+    "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
 
 class LZIFUCombinedFit(SpectralMap):
 
