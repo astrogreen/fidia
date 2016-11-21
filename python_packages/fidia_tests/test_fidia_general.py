@@ -40,7 +40,7 @@ class TestSchemaDict:
 
     def test_update_extend(self, example_schema_dict):
         """Extend the dict with a valid extension"""
-        mine = deepcopy(example_schema_dict)
+        mine = SchemaDictionary(example_schema_dict)
 
         mine.update({'c': 3, 'subdict': {'sc': 3, 'sd': 4}})
 
@@ -48,7 +48,7 @@ class TestSchemaDict:
         assert mine['subdict']['sc'] == 3
 
     def test_update_change_value(self, example_schema_dict):
-        mine = deepcopy(example_schema_dict)
+        mine = SchemaDictionary(example_schema_dict)
 
         with pytest.raises(ValueError):
             mine.update({'a': 10})
@@ -56,19 +56,19 @@ class TestSchemaDict:
 
 
     def test_update_change_sub_value(self, example_schema_dict):
-        mine = deepcopy(example_schema_dict)
+        mine = SchemaDictionary(example_schema_dict)
 
         with pytest.raises(ValueError):
             mine.update({'subdict': {'sa': 10}})
             print(mine)
 
     def test_all_sub_dicts_same_type(self, example_schema_dict):
-        mine = deepcopy(example_schema_dict)
+        mine = SchemaDictionary(example_schema_dict)
 
         assert all_dicts_are_schema_dicts(mine)
 
     def test_updating_keeps_schema_dicts(self, example_schema_dict):
-        mine = deepcopy(example_schema_dict)
+        mine = SchemaDictionary(example_schema_dict)
 
         mine.update({'c': 3, 'subdict': {'sc': 3, 'sd': 4}})
         assert all_dicts_are_schema_dicts(mine)
