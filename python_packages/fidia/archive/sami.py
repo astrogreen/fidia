@@ -1373,53 +1373,6 @@ class LZIFULineSpectrum(SpectralMap):
 #       - Balmer Extinction estimates
 
 
-class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile):
-    r"""Emission extinction map based on the Balmer decrement.
-
-    Extinction maps are calculated using the EmissionLineFitsV01 (which includes
-    Balmer flux errors incorporating continuum uncertainties) using the Balmer
-    decrement and the Cardelli+89 extinction law, using the code below.
-
-    ```
-    balmerdec = ha/hb
-    balmerdecerr = balmerdec * sqrt((haerr/ha)^2 + (hberr/hb)^2)
-    attencorr = (balmerdec / 2.86)^2.36
-    attencorrerr = abs((attencorr * 2.36 * balmerdecerr)/balmerdec)
-    ```
-
-    These maps will be in units of “attenuation correction factor” — such that
-    you can multiply this map by the Halpha cube to obtain de-extincted Halpha
-    cubes.  Note that, when the Balmer decrement is less than 2.86, no
-    correction will be applied (attenuation correction factor = 1., error = 0.).
-
-    Errors (1-sigma uncertainties) in the extinction are included as a second
-    extension in each file.
-
-    """
-
-    trait_type = 'extinction_map'
-
-    branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
-    }
-    defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
-
-    def fits_file_path(self):
-        data_product_name = "ExtinctCorrMaps"
-
-        return "/".join(
-            (self.archive.vap_data_path,
-             data_product_name,
-             data_product_name + self.version,
-             self.object_id + "_extinction_" + self.branch + ".fits"))
-
-    value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
-    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
-BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
-
-
 class AnneVAP:
     """Mix in class to provide generic functions for Anne Medling's VAPs."""
 
@@ -1463,6 +1416,50 @@ class AnneVAP:
             fits_file_path = exists
         assert fits_file_path is not None
         return fits_file_path
+
+class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
+    r"""Emission extinction map based on the Balmer decrement.
+
+    Extinction maps are calculated using the EmissionLineFitsV01 (which includes
+    Balmer flux errors incorporating continuum uncertainties) using the Balmer
+    decrement and the Cardelli+89 extinction law, using the code below.
+
+    ```
+    balmerdec = ha/hb
+    balmerdecerr = balmerdec * sqrt((haerr/ha)^2 + (hberr/hb)^2)
+    attencorr = (balmerdec / 2.86)^2.36
+    attencorrerr = abs((attencorr * 2.36 * balmerdecerr)/balmerdec)
+    ```
+
+    These maps will be in units of “attenuation correction factor” — such that
+    you can multiply this map by the Halpha cube to obtain de-extincted Halpha
+    cubes.  Note that, when the Balmer decrement is less than 2.86, no
+    correction will be applied (attenuation correction factor = 1., error = 0.).
+
+    Errors (1-sigma uncertainties) in the extinction are included as a second
+    extension in each file.
+
+    """
+
+    trait_type = 'extinction_map'
+
+    branches_versions = {
+        branch_lzifu_1_comp: {'V02'},
+        branch_lzifu_m_comp: {'V02'}
+    }
+    defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
+                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+
+    def fits_file_path(self):
+
+        return self.find_file(data_product_name="ExtinctCorrMaps", data_product_filename="extinction")
+
+
+    value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
+    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
+BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
+
+
 
 class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     r"""Map of star formation rate based on Hα emission.
@@ -1511,13 +1508,8 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
                                 version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
 
     def fits_file_path(self):
-        data_product_name = "SFRMaps"
 
-        data_product_filename = "SFR"
-
-        fits_file_path = self.find_file(data_product_name, data_product_filename)
-
-        return fits_file_path
+        return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
@@ -1528,7 +1520,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
-class EmissionClass(ClassificationMap, TraitFromFitsFile):
+class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
@@ -1572,13 +1564,8 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile):
         2: "Other ionisation mechanisms"}
 
     def fits_file_path(self):
-        data_product_name = "SFMasks"
 
-        return "/".join(
-            (self.archive.vap_data_path,
-             data_product_name,
-             data_product_name + self.version,
-             self.object_id + "_SFMask_" + self.branch + ".fits"))
+        return self.find_file(data_product_name="SFMasks", data_product_filename="SFMask")
 
     @trait_property("int.array")
     def value(self):
