@@ -1,7 +1,8 @@
-function trait_plot(trait_url, trait_name, map_selector, options_selector) {
+function trait_plot(trait_url, trait_name, map_selector, options_selector, trait_description_url, trait_key) {
     var zmin = 0.01;
     var zmax = 0.99;
     var options_selector = 'extensions-select';
+
     function changePlotData(data, array_index, zmin, zmax) {
         // If single component
         var trait_data = data;
@@ -30,7 +31,6 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
         success: function (data) {
             // Parse NANs here
             var trait_value = JSON.parseMore(data);
-            console.log(trait_value.value);
 
             // flatten array
             var FlatArr = trait_value.value.reduce(function (p, c) {
@@ -150,4 +150,38 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector) {
             }
         }
     });
+    if (trait_description_url != undefined){
+        $.ajax({
+        url: trait_description_url,
+        // here, don't let ajax parse as json, NANs are a problem. set type to string and parse with parseMore
+        dataType: 'text',
+        type: 'GET',
+        success: function (data) {
+            var trait = JSON.parseMore(data);
+            console.log('#'+trait_key+'_trait_description')
+            console.log(trait.description);
+            $('#'+trait_key+'_trait_description').html(trait.description)
+        },
+        error: function (jqXHR, exception) {
+            alert("Error");
+            if (jqXHR.status === 0) {
+                console.log('Not connect.\n Verify Network.');
+            } else if (jqXHR.status == 404) {
+                console.log('Requested page not found. [404]');
+            } else if (jqXHR.status == 500) {
+                console.log('Internal Server Error [500].');
+            } else if (exception === 'parsererror') {
+                console.log('Requested JSON parse failed.');
+            } else if (exception === 'timeout') {
+                console.log('Time out error.');
+            } else if (exception === 'abort') {
+                console.log('Ajax request aborted.');
+            } else {
+                console.log('Uncaught Error.\n' + jqXHR.responseText);
+            }
+        }
+    });
+    }
+
+
 }

@@ -8,7 +8,9 @@
             <button type="button" class="btn btn-default btn-xs dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
-                <span class="sub-heading tiny"><i class="fa fa-code-fork"></i> Branch</span>
+                <span class="sub-heading tiny"><i class="fa fa-code-fork"></i> </span> {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                    {% if trait_qualifier_value.default_branch == trait_branch_key%}{{trait_branch_value.pretty_name}}{% endif %}
+                {% endfor %}
                 <i class="fa fa-caret-down"></i>
             </button>
             <ul class="dropdown-menu">
@@ -18,7 +20,8 @@
                     <li class="tiny">
                         <a href="{{request.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}/"
                            data-branch="{{trait_branch_value.pretty_name}}" data-branch-description="{{trait_branch_value.description}}">
-                            <strong> {{trait_branch_value.pretty_name}}{% if trait_qualifier_value.default_branch == trait_branch_key %}*{% endif %}</strong>
+                            {% if trait_qualifier_value.default_branch == trait_branch_key%}<i class="fa fa-angle-right"></i>{% endif %}
+                            <strong> {{trait_branch_value.pretty_name}}</strong>
                             <em class="">{{trait_branch_value.description}}</em>
                         </a>
                     </li>

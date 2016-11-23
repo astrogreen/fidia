@@ -12,10 +12,10 @@ import sov.views
 
 router = rest_framework.routers.SimpleRouter()
 
-router.register(r'single-object-viewer', sov.views.RootViewSet, base_name='root')
+router.register(r'sov', sov.views.RootViewSet, base_name='root')
 
 # Nested routes for survey (SAMI)
-survey_nested_router = NestedExtendDefaultRouter(router, r'single-object-viewer', lookup='root')
+survey_nested_router = NestedExtendDefaultRouter(router, r'sov', lookup='root')
 survey_nested_router.register(r'(?P<survey_pk>[^/]+)', sov.views.SurveyViewSet, base_name='survey')
 
 object_nested_router = NestedExtendDefaultRouter(survey_nested_router, r'(?P<survey_pk>[^/]+)', lookup='survey')

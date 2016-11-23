@@ -8,10 +8,6 @@
     <tr class="active">
          {% if single %}
         <th class="form-inline col-xs-6">
-        {% else %}
-        <th class="col-xs-4 form-inline" style="vertical-align:middle">
-         {% endif %}
-
             <div class="form-group">
                 <label for="product_search"><strong>Product</strong> <span class="sub-heading">
                 <a role="button"
@@ -26,8 +22,14 @@
                 <i class="fa fa-info-circle"></i>
                 </a></span>
                 </label>
-                <input type="text" class="search form-control" id="product_search" placeholder="Filter Products...">
+                <input type="text" class="search form-control" id="product_search" placeholder="FILTER ...">
             </div>
+        {% else %}
+        <th class="col-xs-4 form-inline" style="vertical-align:middle">
+            <div class="form-group">
+                <strong>Product</strong>
+            </div>
+         {% endif %}
         </th>
         {% if single %}
         <th class="col-xs-3" style="vertical-align:middle">
@@ -87,9 +89,7 @@
                                                 {% if value.description %}
                                                     <span class="sub-heading tiny" style="font-weight:400"><em>{{value.description|safe}}</em></span>
                                                 {% endif %}
-                                                <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}#{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_anchor tiny" target="_blank">
-                                                    View schema
-                                                </a>
+                                                <a class="pull-right" target="_blank" href="{% url 'schema_browser:survey-list' survey_pk=survey %}#{{trait_type_key}}">view schema <i class="fa fa-angle-right"></i></a>
                                             {% endwith %}
                                         {% endif %}
                                     {% endfor %}
@@ -113,7 +113,7 @@
                                 </span>
                             </a>
                         {% else %}
-                            <span class="text-info"> {{trait_qualifier_value.pretty_name}}
+                            <span class=""> {{trait_qualifier_value.pretty_name}}
                             {% if not trait_qualifier_value.pretty_name %}
                                 {{trait_type_value.pretty_name}}
                             {% endif %}
@@ -134,8 +134,11 @@
     {% endfor %}
     </tbody>
 </table>
+{% if single %}
+    {% include 'sov/available_products/product_filter.controller.html' %}
+{% else %}
 
-{% include 'sov/available_products/product_filter.controller.html' %}
+{% endif %}
 
 {% if not single %}
 
@@ -153,6 +156,7 @@
         </div>
         {% endif %}
 
+    <div id="download_info"></div>
     <div id="download_errors"></div>
     <div id="download_warnings"></div>
 

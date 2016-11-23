@@ -128,6 +128,10 @@ body p.heading {
   margin-bottom: 5px;
   margin-top: 5px;
 }
+body p.extranormal {
+  font-size: 14px;
+  line-height: 14px;
+}
 body p.small {
   margin-bottom: 0;
   font-size: 12px;
@@ -143,6 +147,7 @@ body .normal {
 }
 body .small {
   font-size: 12px;
+  line-height: 12px;
 }
 body a.small {
   font-size: 12px;
@@ -168,6 +173,12 @@ h2 .right-helper {
 h3,
 h4 {
   font-weight: 400;
+}
+.doc_p {
+  color: #333333;
+  font-family: Roboto, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+  font-size: 16px;
+  line-height: 25.6px;
 }
 h1,
 h2,
@@ -195,6 +206,9 @@ a.sub-heading {
 }
 .sub-heading {
   font-size: 14px;
+}
+.bold {
+  font-weight: bold;
 }
 .label {
   display: inline;
@@ -1258,6 +1272,15 @@ header .user a > a {
 .margin-bottom-ten {
   margin-bottom: 10px !important;
 }
+.padding-top-five {
+  padding-top: 5px;
+}
+.padding-top-ten {
+  padding-top: 10px;
+}
+.padding-top-fifteen {
+  padding-top: 15px;
+}
 .headline h2 {
   margin-top: 0;
 }
@@ -1583,6 +1606,7 @@ li {
 }
 .panel.warning,
 .panel-body.warning,
+.well.warning,
 .list-group-item.warning {
   border-left: 3px solid #f1cb76;
 }
@@ -1874,6 +1898,11 @@ li.nested_dropdown > a {
   vertical-align: middle;
   line-height: 1.2;
   font-size: 12px;
+}
+.table.normal td,
+.table.normal p {
+  line-height: 1.2;
+  font-size: 14px;
 }
 .table td.lead {
   font-size: 18px;

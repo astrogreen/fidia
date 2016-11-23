@@ -129,9 +129,9 @@
             <div class="col-xs-12">
                 <h2>Update</h2>
                 <div class="tab-pane" id="put-object-form">
-                    <form id="PUT_FORM" action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"
-                          class="form-horizontal" novalidate onsubmit="submitForm()">
+                    <form id="PUT_FORM" action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data" class="form-horizontal" novalidate onsubmit="submitForm(this)">
                         <fieldset>
+                            {% csrf_token %}
                             {{ put_form }}
                             <div class="form-actions">
                                 <button class="btn btn-default pull-right js-tooltip"
@@ -148,9 +148,12 @@
             $(document).ready(function(){
                 _selector = '#PUT_FORM input[type="file"]';
                 $(_selector).closest('.form-group .col-sm-10').append('<p class="tiny" id="current_file_info">Current file: '+$(_selector).attr('value')+' </p>');
-//                $(_selector).click(function(){
-//                    $('#current_file_info').html('<p class="tiny">Current file: '+$(this).attr('value')+' </p><p class="warning"><strong>Warning</strong> You are about to override the image on file.</p>');
-//                })
+
+                // warn user if leaving the page - if unsaved data
+                window.onbeforeunload = confirmExit;
+                function confirmExit() {
+                    return "You are leaving this page. If you have made any changes without clicking the Update button, your changes will be lost.  Are you sure you want to exit this page?";
+                }
             });
 
         </script>
@@ -201,14 +204,19 @@
             'fontawesome noneditable'
         ],
         toolbar: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | fontawesome',
-        content_css: 'https://netdna.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css',
+        content_css: "https://netdna.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css, {% static 'restapi_app/less/main/main.css' %}",
         noneditable_noneditable_class: 'fa',
-        extended_valid_elements: 'span[*]',
+        extended_valid_elements: 'span[*]'
     });
     function submitForm() {
-    tinymce.triggerSave();
-    document.forms[0].submit();
-}
+        console.log('submitform');
+        tinymce.triggerSave();
+        console.log('triggersave ok');
+        // unbind the warning for leaving the page
+//        window.onbeforeunload = null;
+        return false
+//        document.forms[0].submit();
+    }
 </script>
 
 {% if request.user.is_superuser %}
@@ -233,6 +241,7 @@
             $(".zoom").removeClass('transition');
         });
     });
+
 
 </script>
 

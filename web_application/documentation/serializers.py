@@ -27,7 +27,7 @@ class ListArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = documentation.models.Article
         fields = (
-            'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'edit_group', 'hidden', 'hit_count')
+            'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'hidden', 'hit_count')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
@@ -75,7 +75,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = documentation.models.Article
         fields = (
-            'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'edit_group', 'hit_count',
+            'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'hit_count',
             'all_articles_in_topic')
         lookup_field = 'slug'
         extra_kwargs = {
@@ -119,7 +119,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = documentation.models.Topic
-        fields = ('url', 'title', 'articles', 'created', 'updated', 'hidden')
+        fields = ('url', 'title', 'articles', 'created', 'updated', 'hidden', 'slug')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
