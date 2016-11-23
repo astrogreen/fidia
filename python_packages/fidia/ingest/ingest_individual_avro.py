@@ -2,7 +2,7 @@ from fidia.archive import example_archive
 from fidia.archive.sami import SAMITeamArchive, SAMIDR1PublicArchive
 from fidia.traits.base_trait import Trait
 from fidia.utilities import SchemaDictionary
-#from fidia.ingest.ingest_utility import *
+from fidia.ingest.ingest_utility import *
 from fidia.exceptions import *
 import traceback
 
@@ -23,7 +23,8 @@ def main(args):
     ar = SAMIDR1PublicArchive(args.input_dir, args.catalogue)
     #write_astro_objects(ar)
     #create_tables(ar)
-    create_avro_schema(ar)
+    schema_object = create_avro_schema(ar)
+    create_astro_object(ar, schema_object, args.output_file)
 
 
 def create_avro_schema(archive):
@@ -95,16 +96,18 @@ def create_avro_schema(archive):
         print(traceback.format_exc())
 
     print("Writing complete.")
-
+    return RecordSchema("astronomical_object", namespace_prefix, astro_record_fields, names=Names())
 
 def add_branch_and_version_records(trait_schema, qualifier_prefix):
     branch_records = list()
     branch_index = 0
     for branch in trait_schema:
-        branch_prefix = qualifier_prefix + '.' + branch
         versions = trait_schema[branch]
         version_records = list()
         version_index = 0
+        #TODO Prepend branch name with "b_" so it complies with AVRO naming standards. May change.
+        branch = "b_" + branch
+        branch_prefix = qualifier_prefix + '.' + branch
 
         # Branch is the key of the Map. Values of the Map is of Record type.
         # Record fields per branch are the version numbers. Types of those version numbers are Records
@@ -118,20 +121,11 @@ def add_branch_and_version_records(trait_schema, qualifier_prefix):
                                   version, version_index, False)
             version_records.append(version_field)
             version_index += 1
-
-
         branch_field = Field(RecordSchema(branch.capitalize(), branch_prefix.lower(), version_records, names=Names()),
                              branch, branch_index, False)
         branch_records.append(branch_field)
         branch_index += 1
     return branch_records
-
-def make_branch_maps(trait_schema):
-    # Branch is the key of the Map. Values of the Map is of Record type.
-    # Record fields per branch are the version numbers. Types of those version numbers are Records
-    for branch in trait_schema:
-        pass
-
 
 
 def make_trait_property_fields(version, namespace_prefix):
@@ -188,6 +182,92 @@ def make_trait_property_fields(version, namespace_prefix):
         prop_fields.append(subtrait_prop_field)
         prop_index += 1
     return prop_fields
+
+def create_astro_object(archive, schema_object, path_prefix):
+    """
+    Create the astro object according to AVRO schema. It is a dictionary with keys like object_id, trait_type etc.
+    trait_type is also a dictionary containing either trait_qualifiers or branches.
+    :param archive:
+    :return:
+    """
+    sample = archive.get_full_sample()
+    schema = archive.schema()
+    astro_obj_list = list()
+    try:
+        count = 0
+        for object_id in sample:
+            if count is 3:
+                break
+
+            writer = DataFileWriter(open(path_prefix + object_id + '.avro', "wb"), DatumWriter(), schema_object)
+            astro_record = dict()
+            astro_record['object_id'] = object_id
+
+            for trait_type in schema_object.field_map:
+                # key is trait_type
+                trait_field = schema_object.field_map[trait_type]
+                # skip object_id field
+                if not isinstance(trait_field.type, RecordSchema):
+                    continue
+                for key in trait_field.type.field_map:
+                    # key either be trait_qualifier or branch name
+                    key_field = trait_field.type.field_map[key]
+                    if key.startswith("b_"):
+                        #branch
+                        branch = key.replace("b_", "", 1)
+                        try:
+                            trait = sample[object_id]["{0}:{1}({2})".format(trait_type, branch, 'V02')]
+                        except DataNotAvailable:
+                            continue
+                    else:
+                        #qualifier
+                        try:
+                            trait = sample[object_id]["{0}-{1}:{1}({2})".format(trait_type, branch, 'V02')]
+                        except DataNotAvailable:
+                            continue
+            writer.append(astro_record)
+            writer.flush()
+            count += 1
+            writer.close()
+        print(str(count) + " objects ingested.")
+    except:
+        tb = traceback.format_exc()
+        print(tb)
+
+def get_branch_records(trait_schema):
+    # create branch_records
+    for branch in trait_schema:
+        pass
+
+def make_branch_maps(trait_schema, namespace_prefix):
+    """
+
+    :param trait_schema:
+    :param namespace_prefix: this should be prefix + trait_type[ + trait_qualifier]
+    :return:
+    """
+    # Branch is the key of the Map. Values of the Map is of Record type.
+    # Record fields per branch are the version numbers. Types of those version numbers are Records
+    for branch in trait_schema:
+        map_key = branch
+        b_name = 'b_' + branch
+        versions = trait_schema[branch]
+        version_fields = list()
+        version_index = 0
+        for version in versions:
+            # version_prefix = branch_prefix + '.' + version
+
+            trait_fields = make_trait_property_fields(versions[version], version_prefix)
+            # Add it to record
+            version_field = Field(RecordSchema(version.capitalize(), version_prefix.lower(), trait_fields, names=Names()),
+                                  version, version_index, False)
+            version_fields.append(version_field)
+            version_index += 1
+
+        map_values = RecordSchema(b_name, 'asvo.model.db.trait_type' + b_name, version_fields, names=Names())
+        # Now we have map_key and map_values schema. Key is not important. Key is only added when the map is populated.
+        # So all the values in the map should conform to the above map_values Record. Therefore trait_type's avro type
+        # has to be a record. Each field of the record is a Map
 
 
 
