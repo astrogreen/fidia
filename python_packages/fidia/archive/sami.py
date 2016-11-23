@@ -763,6 +763,8 @@ class LZIFUDataMixin:
             # The requested file exists as is
             self._lzifu_fits_file = exists
         else:
+            # This object may be a "duplicate observation" object, in which case
+            # the filename is different.
             match = re.match(sami_cube_re, self.archive.cube_file_index['red_cube_file'][self.object_id])
             if not match:
                 # The given cube_filename is not valid, something is wrong!
@@ -1467,11 +1469,52 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile):
     def fits_file_path(self):
         data_product_name = "SFRMaps"
 
-        return "/".join(
-            (self.archive.vap_data_path,
-             data_product_name,
-             data_product_name + self.version,
-             self.object_id + "_SFR_" + self.branch + ".fits"))
+        data_product_filename = "SFR"
+
+        if data_product_filename is not None:
+            data_product_filename = data_product_filename + "_"
+
+        fits_file_path = None
+
+        filepath = "/".join((
+            self.archive.vap_data_path,
+            data_product_name,
+            data_product_name + self.version,
+            self.object_id + "_" + data_product_filename + self.branch + ".fits"))
+
+        log.debug("Trying path for SFR Data: %s", filepath)
+
+        exists = file_or_gz_exists(filepath)
+        if exists:
+            # The requested file exists as is
+            fits_file_path = exists
+        else:
+            # This object may be a "duplicate observation" object, in which case
+            # the filename is different.
+            match = re.match(sami_cube_re, self.archive.cube_file_index['red_cube_file'][self.object_id])
+            if not match:
+                # The given cube_filename is not valid, something is wrong!
+                raise DataNotAvailable("The cube filename '%s' cannot be parsed." % self.archive.cube_file_index['red_cube_file'][self.object_id])
+
+            plate_id = match.group('plate_id')
+            n_comb = match.group('n_comb')
+
+            filepath = "/".join((
+                self.archive.vap_data_path,
+                data_product_name,
+                data_product_name + self.version,
+                self.object_id + "_" + n_comb + "_" + plate_id + "_" + data_product_filename + self.branch + ".fits"))
+
+            log.debug("Trying path for LZIFU Data: %s", filepath)
+
+        exists = file_or_gz_exists(filepath)
+        if not fits_file_path and exists:
+            # Try with the correct plate identifier appended (the case for duplicates)
+                fits_file_path = exists
+
+        assert fits_file_path is not None
+
+        return fits_file_path
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
     value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
