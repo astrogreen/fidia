@@ -6,7 +6,7 @@ from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
 from rest_framework.decorators import detail_route, list_route
 
-from hitcount.models import HitCount
+from hitcount.models import HitCount, Hit
 from hitcount.views import HitCountMixin
 
 import restapi_app.renderers
@@ -46,20 +46,28 @@ def get_top_articles():
         # get local set of attributes on the t instance
         instance = t.__dict__
 
-        # find the corresponding article in the database, and get attributes of the instance
-        _article = documentation.models.Article.objects.get(id=instance['object_pk'])
-        _article = _article.__dict__
+        try:
+            # find the corresponding article in the database, and get attributes of the instance
+            _article = documentation.models.Article.objects.get(id=instance['object_pk'])
+            _article = _article.__dict__
 
-        # add the relevant topic and topic slug properties
-        _article['topic'] = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('title')[0].title
-        _article['topic_slug'] = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('slug')[0].slug
+            # add the relevant topic and topic slug properties
+            _article['topic'] = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('title')[0].title
+            _article['topic_slug'] = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('slug')[0].slug
 
-        # figure out if topic is hidden
-        _topic_hidden = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('title')[0].hidden
+            # figure out if topic is hidden
+            _topic_hidden = documentation.models.Topic.objects.filter(id=_article['topic_id']).only('title')[0].hidden
 
-        # hide if the topic is hidden, or the article itself is hidden
-        if _article['hidden'] is False and _topic_hidden is False:
-            available_articles_sorted.append(_article)
+            # hide if the topic is hidden, or the article itself is hidden
+            if _article['hidden'] is False and _topic_hidden is False:
+                available_articles_sorted.append(_article)
+        except:
+            # these articles no longer exist
+            # clean up django hit count here
+            print(instance)
+            # hitcount_instance = HitCount.objects.get_for_object(instance)
+            pass
+
 
     return available_articles_sorted[:10]
 
@@ -108,6 +116,7 @@ class ArticleViewset(viewsets.ModelViewSet, HitCountMixin):
     lookup_field = 'slug'
     # permission_classes = [restapi_app.permissions.IsSurveyTeamOrAdminElseReadOnly]
     permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]
+    renderer_classes = (ArticleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -128,5 +137,3 @@ class ArticleViewset(viewsets.ModelViewSet, HitCountMixin):
         if self.action == 'list':
             return documentation.serializers.ListArticleSerializer
         return documentation.serializers.ArticleSerializer
-
-    renderer_classes = (ArticleRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)

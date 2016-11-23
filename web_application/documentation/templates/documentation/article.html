@@ -148,9 +148,12 @@
             $(document).ready(function(){
                 _selector = '#PUT_FORM input[type="file"]';
                 $(_selector).closest('.form-group .col-sm-10').append('<p class="tiny" id="current_file_info">Current file: '+$(_selector).attr('value')+' </p>');
-//                $(_selector).click(function(){
-//                    $('#current_file_info').html('<p class="tiny">Current file: '+$(this).attr('value')+' </p><p class="warning"><strong>Warning</strong> You are about to override the image on file.</p>');
-//                })
+
+                // warn user if leaving the page - if unsaved data
+                window.onbeforeunload = confirmExit;
+                function confirmExit() {
+                    return "You are leaving this page. If you have made any changes without clicking the Update button, your changes will be lost.  Are you sure you want to exit this page?";
+                }
             });
 
         </script>
@@ -239,11 +242,6 @@
         });
     });
 
-    // warn user if leaving the page - if unsaved data
-    window.onbeforeunload = confirmExit;
-    function confirmExit() {
-        return "You are leaving this page. If you have made any changes without clicking the Update button, your changes will be lost.  Are you sure you want to exit this page?";
-    }
 
 </script>
 
