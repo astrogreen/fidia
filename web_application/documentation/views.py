@@ -31,6 +31,7 @@ class TopicRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
 class ArticleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
     template = 'documentation/article.html'
+    # template = 'rest_framework/api.html'
 
     def get_context(self, data, accepted_media_type, renderer_context):
         context = super().get_context(data, accepted_media_type, renderer_context)
