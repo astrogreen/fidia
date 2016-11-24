@@ -6,6 +6,8 @@ import datetime
 import re
 from collections import OrderedDict
 
+import copy
+
 import numpy as np
 
 from astropy import wcs
@@ -813,6 +815,67 @@ class LZIFUDataMixin:
     lzifu_input_redshift.set_pretty_name("LZIFU Input Redshift")
 
 
+    @trait_property('int')
+    def lzifu_ncomp(self):
+        return self._hdu[0].header['NCOMP']
+    lzifu_ncomp.set_short_name('NCOMP')
+    lzifu_ncomp.set_description("Number of components fit by LZIFU.")
+    lzifu_ncomp.set_pretty_name(r"LZIFU $n_{\rm comp}$")
+
+class SAMIVAP(MetadataTrait):
+    
+    trait_type = 'vap_metadata'
+    
+    def preload(self):
+        with self._parent_trait.preloaded_context() as pt:
+            self._header = copy.copy(pt._hdu[0].header)
+            
+    
+    @trait_property('string')
+    def SAMI_VAP_Name(self):
+        return self._header['PRODUCT']
+    SAMI_VAP_Name.set_description("Name of the SAMI data product")
+    SAMI_VAP_Name.set_pretty_name("SAMI Product Name")
+    SAMI_VAP_Name.set_short_name("PRODUCT")
+
+    @trait_property('string')
+    def vap_version(self):
+        return self._header['VERSION']
+    vap_version.set_description("Version number of this SAMI data product")
+    vap_version.set_pretty_name("SAMI Product Version")
+    vap_version.set_short_name("VERSION")
+
+    @trait_property('string')
+    def sami_version(self):
+        return self._header['SAMI_VER']
+    sami_version.set_description("Version number of SAMI internal data release used (zero if none used)")
+    sami_version.set_pretty_name("SAMI Internal Release Version")
+    sami_version.set_short_name("SAMI_VER")
+
+    @trait_property('string')
+    def date(self):
+        return self._header['DATE']
+    date.set_description("Date of creation of VAP")
+    date.set_pretty_name("VAP Date")
+    date.set_short_name("VAP_DATE")
+
+    @trait_property('string')
+    def author(self):
+        return self._header['AUTHOR']
+    author.set_description("Author of this SAMI VAP")
+    author.set_pretty_name("Author")
+    author.set_short_name("AUTHOR")
+
+    @trait_property('string')
+    def contact(self):
+        return self._header['CONTACT']
+    contact.set_description("email address of contact person for this VAP")
+    contact.set_pretty_name("Contact Email")
+    contact.set_short_name("CONTACT")
+SAMIVAP.set_pretty_name("SAMI VAP Metadata")
+SAMIVAP.set_description("Metadata added by the SAMI quality control process for value added products")
+
+
 class LZIFUFlag(FlagMap):
 
     trait_type = 'flags'
@@ -907,6 +970,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(SAMIVAP)
 
 
     @sub_traits.register
@@ -949,6 +1013,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(SAMIVAP)
 
 
     @sub_traits.register
@@ -1024,6 +1089,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(SAMIVAP)
 
 
     @sub_traits.register
@@ -1127,6 +1193,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(SAMIVAP)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
@@ -1195,6 +1262,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(SAMIVAP)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
@@ -1278,6 +1346,7 @@ class LZIFUCombinedFit(SpectralMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(SAMIVAP)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
@@ -1457,6 +1526,11 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
     error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
+    
+    sub_traits = TraitRegistry()
+    sub_traits.register(SAMIVAP)
+
+    
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 
 
@@ -1516,6 +1590,9 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
     error = trait_property_from_fits_data('SFR_ERR', 'float.array', 'error')
     error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
+    
+    sub_traits = TraitRegistry()
+    sub_traits.register(SAMIVAP)
 
 SFRMap.set_pretty_name("Star Formation Rate Map")
 
@@ -1594,6 +1671,9 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     @property
     def shape(self):
         return self.value().shape
+
+    sub_traits = TraitRegistry()
+    sub_traits.register(SAMIVAP)
 
 EmissionClass.set_pretty_name("Emission Classification Map")
 
