@@ -267,6 +267,11 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     catalog = JSON.parse("{{ catalog|escapejs }}");
 
     // catalog.data = catalog.data.slice(0,20);
+    function convertToSlug(Text) {
+        return 'column_'+Text.toLowerCase()
+                .replace(/[^\w ]+/g, '')
+                .replace(/ +/g, '-');
+    }
 
     if (typeof catalog !== 'undefined'){
         $('#data-table-container').html(' ')
@@ -279,16 +284,16 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 
         if(catalog.data.length < render_limit){
-            var columns = [];
+            var columns = []; var units = [];
             var thead = '';
-
 
             $('#returnTableResults').find('thead > tr').empty();
             $('#returnTableResults').addClass("table-bordered cell-border");
 
             //APPEND COLUMN VALUES TO TABLE HEAD
             $.each(catalog.column_names, function(i,k){
-                var b = { title: k };
+
+                var b = { title: '<span>'+k+'</span><br><span>testunit</span>', name:convertToSlug(k) };
 
 //                if (k.indexOf("url_img") > -1){
 //                    b = {
@@ -301,23 +306,24 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
                 if (k.indexOf("ID") > -1){
                     b = {
+                        "name":convertToSlug(k),
                         "title":k,
                         "render": function(data, type, row) {
                             var temp_string = '<a href="'+SAMPLE_URL+data+'" target="_blank">'+data+'</a>';
                             return temp_string;
+
                         }
                     }
                 }
 
                 th = '<th>'+k+'</th>';
                 columns.push(b);
-
-                $('#returnTableResults').find('thead > tr').append(th);
+                $('#returnTableResults').find('thead > tr.first-tr').append(th);
             });
 
-            var table = $('#returnTableResults').DataTable( {
-                data : catalog.data,
-                columns : columns,
+            var table = $('#returnTableResults').DataTable({
+                data: catalog.data,
+                columns: columns,
                 orderClasses: false,
                 colReorder: false,
                 scrollX: true,
@@ -390,7 +396,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                     }
 
                     if (_column_append == true){
-                        $(element).append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
+                        $(element).append('<option value="'+columns[k].name+'">'+columns[k].title+'</option>');
                     }
 
                 }
@@ -470,8 +476,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                     // find the index of the selected column by matching to the option value (name)
                     var selected_column = $(this).val();
 
+
                     for (var k=0;k<columns.length;k++){
-                        if (columns[k].title == selected_column) {
+
+                        if (columns[k].name == selected_column) {
                             column_index = k;
 
 //                            console.log(' - - - new filter - - - ');
