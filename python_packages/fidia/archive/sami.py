@@ -850,11 +850,10 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     qualifiers = {'ionized_gas'}
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02'},
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_1_comp: {'V02'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V02', branch_lzifu_m_comp[0]: 'V02'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V02'})
 
     # def init(self):
     #
@@ -894,6 +893,96 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('float.array')
     def error(self):
         return self._hdu['V_ERR'].data[1, :, :]
+
+    @trait_property('string')
+    def _wcs_string(self):
+        _wcs_string = self._hdu['V'].header
+        return _wcs_string
+
+    #
+    # Sub Traits
+    #
+    sub_traits = TraitRegistry()
+    sub_traits.register(LZIFUFlag)
+
+
+    @sub_traits.register
+    class LZIFUWCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            return self._parent_trait._wcs_string.value
+
+
+class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
+
+    trait_type = "velocity_map"
+
+    qualifiers = {'ionized_gas'}
+
+    branches_versions = {
+        branch_lzifu_m_comp: {'V02'}
+    }
+    defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
+                                version_defaults={branch_lzifu_m_comp[0]: 'V02'})
+
+
+    @property
+    def shape(self):
+        return self.value().shape
+
+    @property
+    def unit(self):
+        return units.km / units.s
+
+    @trait_property('float.array')
+    def value(self):
+        return self._hdu['V'].data[1:, :, :]
+
+    @trait_property('float.array')
+    def error(self):
+        return self._hdu['V_ERR'].data[1:, :, :]
+
+    @trait_property('float.array')
+    def comp_1_velocity(self):
+        value = self._hdu['V'].data[1, :, :]
+        return value
+    comp_1_velocity.set_description("Velocity of narrowest component")
+    comp_1_velocity.set_short_name('COMP1_V')
+
+    @trait_property('float.array')
+    def comp_1_error(self):
+        sigma = self._hdu['V_ERR'].data[1, :, :]
+        return sigma
+    comp_1_error.set_description("Variance of Velocity of narrowest component")
+    comp_1_error.set_short_name('COMP1_VE')
+    
+    @trait_property('float.array')
+    def comp_2_velocity(self):
+        value = self._hdu['V'].data[2, :, :]
+        return value
+    comp_2_velocity.set_description("Velocity of narrowest component")
+    comp_2_velocity.set_short_name('COMP2_V')
+
+    @trait_property('float.array')
+    def comp_2_error(self):
+        sigma = self._hdu['V_ERR'].data[2, :, :]
+        return sigma
+    comp_2_error.set_description("Variance of Velocity of narrowest component")
+    comp_2_error.set_short_name('COMP2_VE')
+    
+    @trait_property('float.array')
+    def comp_3_velocity(self):
+        value = self._hdu['V'].data[3, :, :]
+        return value
+    comp_3_velocity.set_description("Velocity of narrowest component")
+    comp_3_velocity.set_short_name('COMP3_V')
+
+    @trait_property('float.array')
+    def comp_3_error(self):
+        sigma = self._hdu['V_ERR'].data[3, :, :]
+        return sigma
+    comp_3_error.set_description("Variance of Velocity of narrowest component")
+    comp_3_error.set_short_name('COMP3_VE')
 
     @trait_property('string')
     def _wcs_string(self):
@@ -2022,6 +2111,7 @@ class SAMIDR1PublicArchive(Archive):
 
 
         self.available_traits.register(LZIFUVelocityMap)
+        self.available_traits.register(LZIFURecommendedComponentVelocityMap)
         self.available_traits.register(LZIFUVelocityDispersionMap)
         self.available_traits.register(LZIFUOneComponentLineMap)
         self.available_traits.register(LZIFUCombinedFit)
