@@ -14,7 +14,7 @@ SHORT_TEST_LIST = ("9352", "273952")
 
 SERVER_TEST_LIST = ("9352", "273952", "144491")
 
-TEST_LIST = SERVER_TEST_LIST
+TEST_LIST = SHORT_TEST_LIST
 
 DOMAIN = "http://datacentral.aao.gov.au"
 
@@ -56,13 +56,13 @@ class TestSamiValueAddProvenance:
         with tempfile.TemporaryDirectory() as tempdir:
             yield tempdir
 
-    def test_velocity_map(self, tmpdir):
+    def test_velocity_map_1_comp(self, tmpdir):
 
 
         local_filename_template = LOCAL_DATA_PATH + "data_products/EmissionLineFits/EmissionLineFitsV02/1_comp/{filename}.fits" + GZIP
 
         for object_id in TEST_LIST:
-            url_template = "sami/{objid}/velocity_map-ionized_gas/"
+            url_template = "sami/{objid}/velocity_map-ionized_gas:1_comp/"
             remote_filename = download_fits_at_url(url_template.format(objid=object_id), tmpdir)
 
             local = fits.open(local_filename_template.format(filename=(object_id + "_1_comp")))
@@ -71,3 +71,42 @@ class TestSamiValueAddProvenance:
             assert local['V'].data[1, 25, 25] == remote[0].data[25, 25]
 
             assert_array_equal(local['V'].data[1], remote[0].data)
+
+
+    def test_velocity_map_m_comp(self, tmpdir):
+        local_filename_template = LOCAL_DATA_PATH + "data_products/EmissionLineFits/EmissionLineFitsV02/recom_comp/{filename}.fits" + GZIP
+
+        for object_id in TEST_LIST:
+            url_template = "sami/{objid}/velocity_map-ionized_gas:recom_comp/"
+            remote_filename = download_fits_at_url(url_template.format(objid=object_id), tmpdir)
+
+            local = fits.open(local_filename_template.format(filename=(object_id + "_recom_comp")))
+            remote = fits.open(remote_filename)
+
+            print(remote.info())
+
+            assert local['V'].data[1, 25, 25] == remote['COMP1_V'].data[25, 25]
+
+            assert_array_equal(local['V'].data[1], remote['COMP1_V'].data)
+
+            assert_array_equal(local['V'].data[2], remote['COMP2_V'].data)
+            assert_array_equal(local['V'].data[3], remote['COMP3_V'].data)
+
+    def test_velocity_dispersion_map_m_comp(self, tmpdir):
+        local_filename_template = LOCAL_DATA_PATH + "data_products/EmissionLineFits/EmissionLineFitsV02/recom_comp/{filename}.fits" + GZIP
+
+        for object_id in TEST_LIST:
+            url_template = "sami/{objid}/velocity_dispersion_map-ionized_gas:recom_comp/"
+            remote_filename = download_fits_at_url(url_template.format(objid=object_id), tmpdir)
+
+            local = fits.open(local_filename_template.format(filename=(object_id + "_recom_comp")))
+            remote = fits.open(remote_filename)
+
+            print(remote.info())
+
+            assert local['VDISP'].data[1, 25, 25] == remote['COMP1_VDISP'].data[25, 25]
+
+            assert_array_equal(local['VDISP'].data[1], remote['COMP1_VDISP'].data)
+
+            assert_array_equal(local['VDISP'].data[2], remote['COMP2_VDISP'].data)
+            assert_array_equal(local['VDISP'].data[3], remote['COMP3_VDISP'].data)
