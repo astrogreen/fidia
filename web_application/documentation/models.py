@@ -34,6 +34,7 @@ class Article(models.Model, HitCountMixin):
     updated = models.DateTimeField(auto_now=True, editable=False)
     edit_group = models.ForeignKey(Group, blank=True, null=True)
     hidden = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         self.slug = self.topic.slug + '-' + slugify(self.title)

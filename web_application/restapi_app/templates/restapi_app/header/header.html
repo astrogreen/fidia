@@ -29,6 +29,7 @@
 {% endblock %}
 
 <script type="text/javascript" src="{% static 'restapi_app/js/MathJax/MathJax.js'%}?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config"> MathJax.Hub.Config({"TeX": {Macros: {AA : "{\\unicode{x212B}}"}}, "HTML-CSS": {scale: 90}});</script>
 
 {% block multiselect %}{% endblock %}
 {% block datatables %}{% endblock %}
