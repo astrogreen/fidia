@@ -415,7 +415,7 @@ class SAMISpectralCube(SpectralMap):
 
     unit =  1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
 
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
@@ -997,50 +997,50 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
 
     unit = units.km / units.s
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         return self._hdu['V'].data[1:, :, :]
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def error(self):
         return self._hdu['V_ERR'].data[1:, :, :]
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_1_velocity(self):
         value = self._hdu['V'].data[1, :, :]
         return value
     comp_1_velocity.set_description("Velocity of narrowest component")
     comp_1_velocity.set_short_name('COMP1_V')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_1_error(self):
         sigma = self._hdu['V_ERR'].data[1, :, :]
         return sigma
     comp_1_error.set_description("Variance of Velocity of narrowest component")
     comp_1_error.set_short_name('COMP1_VE')
     
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_2_velocity(self):
         value = self._hdu['V'].data[2, :, :]
         return value
     comp_2_velocity.set_description("Velocity of narrowest component")
     comp_2_velocity.set_short_name('COMP2_V')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_2_error(self):
         sigma = self._hdu['V_ERR'].data[2, :, :]
         return sigma
     comp_2_error.set_description("Variance of Velocity of narrowest component")
     comp_2_error.set_short_name('COMP2_VE')
     
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_3_velocity(self):
         value = self._hdu['V'].data[3, :, :]
         return value
     comp_3_velocity.set_description("Velocity of narrowest component")
     comp_3_velocity.set_short_name('COMP3_V')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_3_error(self):
         sigma = self._hdu['V_ERR'].data[3, :, :]
         return sigma
@@ -1130,16 +1130,16 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     unit = units.km / units.s
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         return self._hdu['VDISP'].data[1:, :, :]
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def error(self):
         return self._hdu['VDISP_ERR'].data[1:, :, :]
     error.set_short_name('ERROR')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_1_velocity_dispersion(self):
         value = self._hdu['VDISP'].data[1, :, :]
         return value
@@ -1147,7 +1147,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     comp_1_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
     comp_1_velocity_dispersion.set_short_name('COMP1_VDISP')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_1_error(self):
         sigma = self._hdu['VDISP_ERR'].data[1, :, :]
         return sigma
@@ -1155,7 +1155,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     comp_1_error.set_description("Variance of Velocity Dispersion of narrowest component")
     comp_1_error.set_short_name('COMP1_VDISP_E')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_2_velocity_dispersion(self):
         value = self._hdu['VDISP'].data[2, :, :]
         return value
@@ -1163,14 +1163,14 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     comp_2_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
     comp_2_velocity_dispersion.set_short_name('COMP2_VDISP')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_2_error(self):
         sigma = self._hdu['VDISP_ERR'].data[2, :, :]
         return sigma
     comp_2_error.set_description("Variance of Velocity Dispersion of narrowest component")
     comp_2_error.set_short_name('COMP2_VDISP_E')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_3_velocity_dispersion(self):
         value = self._hdu['VDISP'].data[3, :, :]
         return value
@@ -1178,7 +1178,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     comp_3_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
     comp_3_velocity_dispersion.set_short_name('COMP3_VDISP')
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def comp_3_error(self):
         sigma = self._hdu['VDISP_ERR'].data[3, :, :]
         return sigma
@@ -1298,7 +1298,7 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
     qualifiers = ['OII3727']
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         """Line-emission-flux map for the [OII] doublet (3726Å/3729Å)
 
@@ -1310,7 +1310,7 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def error(self):
         """One-sigma uncertainty
 
@@ -1512,7 +1512,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 
     qualifiers = ['OII3727']
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def value(self):
         """Line-emission-flux map for the [OII] doublet (3726Å/3729Å)
 
@@ -1524,7 +1524,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array')
+    @trait_property('float.array.2')
     def error(self):
         """One-sigma uncertainty
 
@@ -1596,7 +1596,7 @@ class LZIFUCombinedFit(SpectralMap):
 
     unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
 
-    @trait_property('float.array')
+    @trait_property('float.array.3')
     def value(self):
         return self._hdu[self._color + '_CONTINUUM'].data + self._hdu[self._color + '_LINE'].data
 
@@ -1808,8 +1808,8 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     def units(self):
         return units.dimensionless_unscaled
 
-    value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
-    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
+    value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array.2', 'value')
+    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'value')
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -1912,9 +1912,9 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
         def fits_file_path(self):
             return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
-        value = trait_property_from_fits_data('SFRSurfDensity', 'float.array', 'value')
+        value = trait_property_from_fits_data('SFRSurfDensity', 'float.array.2', 'value')
         value.set_description(r"Star formation rate density maps")
-        error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array', 'error')
+        error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array.2', 'error')
         error.set_description(r"Errors (1-sigma uncertainty) in SFR Density.")
 
 SFRMap.set_pretty_name("Star-Formation-Rate Map")
