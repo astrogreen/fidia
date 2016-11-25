@@ -2148,18 +2148,18 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
     spaxels are plotted in black.
 
+    ## Classifications
+
+    Classifications are stored in the map as an integer with the following definitions:
+
+    | Pixel Value | Classification |
+    | ------------|----------------|
+    |   0         |  No data       |
+    |   1         | star formation dominates the emission in all available line ratios |
+    |   2         | other ionization mechanisms dominate |
+
+
     """
-    #
-    # Classifications are stored in the map as an integer with the following definitions:
-    #
-    # | Pixel Value | Classification |
-    # | ------------|----------------|
-    # |   0         |  No data       |
-    # |   1         | star formation dominates the emission in all available line ratios |
-    # |   2         | other ionization mechanisms dominate |
-    #
-    #
-    # """
 
     trait_type = 'emission_classification_map'
 
