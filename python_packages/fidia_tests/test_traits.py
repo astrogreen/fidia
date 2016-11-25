@@ -218,7 +218,7 @@ class TestTraits:
             class NonCatalogSubTrait(Trait):
                 trait_type = 'sub_trait_non_catalog_only'
 
-                @trait_property('float.array')
+                @trait_property('float.array.1')
                 def value(self):
                     return [1.0, 2.0]
 
@@ -226,7 +226,7 @@ class TestTraits:
             def value(self):
                 return 5.5
 
-            @trait_property('float.array')
+            @trait_property('float.array.1')
             def non_catalog_data(self):
                 return [1.1, 2.2, 3.3]
 

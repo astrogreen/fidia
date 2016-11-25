@@ -1,5 +1,6 @@
 # Standard Library Imports
 from abc import ABCMeta
+import re
 
 # Internal package imports
 from ..exceptions import *
@@ -11,6 +12,27 @@ log = slogging.getLogger(__name__)
 log.enable_console_logging()
 log.setLevel(slogging.WARNING)
 
+
+class RegexpGroup:
+    def __init__(self, *args):
+        self.regexes = []
+        self.plain_items = []
+        for item in args:
+            # Add all non-regex items to one list
+            if hasattr(item, 'match'):
+                self.regexes.append(item)
+            else:
+                self.plain_items.append(item)
+
+    def __contains__(self, item):
+        # First check plain list:
+        if item in self.plain_items:
+            return True
+        else:
+            for regex in self.regexes:
+                if regex.match(item):
+                    return True
+        return False
 
 
 def trait_property(func_or_type):
@@ -48,14 +70,18 @@ def trait_property(func_or_type):
 
 class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
 
-    allowed_types = [
+    allowed_types = RegexpGroup(
         'string',
         'float',
         'int',
-        'string.array',
-        'float.array',
-        'int.array'
-    ]
+        re.compile(r"string\.array\.\d+"),
+        re.compile(r"float\.array\.\d+"),
+        re.compile(r"int\.array\.\d+"),
+        # # Same as above, but with optional dimensionality
+        # re.compile(r"string\.array(?:\.\d+)?"),
+        # re.compile(r"float\.array(?:\.\d+)?"),
+        # re.compile(r"int\.array(?:\.\d+)?"),
+    )
 
     catalog_types = [
         'string',
@@ -63,11 +89,15 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         'int'
     ]
 
-    non_catalog_types = [
-        'string.array',
-        'float.array',
-        'int.array'
-    ]
+    non_catalog_types = RegexpGroup(
+        re.compile(r"string\.array\.\d+"),
+        re.compile(r"float\.array\.\d+"),
+        re.compile(r"int\.array\.\d+")
+        # # Same as above, but with optional dimensionality
+        # re.compile(r"string\.array(?:\.\d+)?"),
+        # re.compile(r"float\.array(?:\.\d+)?"),
+        # re.compile(r"int\.array(?:\.\d+)?"),
+    )
 
     descriptions_allowed = 'instance'
 
