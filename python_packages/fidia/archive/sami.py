@@ -995,9 +995,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     def shape(self):
         return self.value().shape
 
-    @property
-    def unit(self):
-        return units.km / units.s
+    unit = units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -1130,9 +1128,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     def shape(self):
         return self.value().shape
 
-    @property
-    def unit(self):
-        return units.km / units.s
+    unit = units.km / units.s
 
     @trait_property('float.array')
     def value(self):
