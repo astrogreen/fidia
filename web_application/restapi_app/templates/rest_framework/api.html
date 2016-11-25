@@ -350,11 +350,6 @@
 
 
 
-
-
-
-
-
       </div><!-- /.container -->
 
   </div><!-- ./wrapper -->
@@ -363,22 +358,24 @@
     {% include "restapi_app/header/footer.html" %}
   {% endblock %}
 
-  {% comment %}
-  <!--v2 jQuery sourced in header.html -->
-  <script src="{% static 'rest_framework/js/jquery-1.11.3.min.js' %}"></script>
-  {% endcomment %}
-  <script>
-    window.drf = {
-      csrfCookieName: "{{ csrf_cookie_name|default:'csrftoken' }}"
-    };
-  </script>
-  <script src="{% static 'rest_framework/js/ajax-form.js' %}"></script>
-  <script src="{% static 'rest_framework/js/csrf.js' %}"></script>
-  <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
-  <script src="{% static 'rest_framework/js/default.js' %}"></script>
-  <!--<script src="{% static 'js/buttons/buttons.js' %}"></script>-->
-  <script type="application/javascript" src="{% static 'restapi_app/js/readmore/readmore.js'%}"></script>
+
+    <script>
+      window.drf = {
+        csrfHeaderName: "{{ csrf_header_name|default:'X-CSRFToken' }}",
+        csrfCookieName: "{{ csrf_cookie_name|default:'csrftoken' }}"
+      };
+    </script>
+
+    <script src="{% static 'rest_framework/js/ajax-form.js' %}"></script>
+    <script src="{% static 'rest_framework/js/csrf.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/default.js' %}"></script>
+    <script>
+      $(document).ready(function() {
+        $('form').ajaxForm();
+      });
+    </script>
 
   <script>
       $(document).ready(function() {

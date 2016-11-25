@@ -71,7 +71,8 @@ def catalog_trait(TraitClass, trait_name, mapping):
     # if hasattr(TraitClass, 'unit'):
     input_unit = mapping.pop('unit', None)
 
-    new_trait.unit = property(lambda: input_unit)
+    if not input_unit is None:
+        new_trait.unit = input_unit
 
     for key in mapping:
         trait_property = trait_property_from_pandas_series(key, mapping[key])
@@ -84,5 +85,7 @@ def catalog_trait(TraitClass, trait_name, mapping):
     # new_trait.branches_versions = {trait_key.branch: {trait_key.version}}
 
     # assert issubclass(new_trait, Trait)
+
+    new_trait.__repr__ = lambda: "<catalog_trait: " + trait_name + ">"
 
     return new_trait

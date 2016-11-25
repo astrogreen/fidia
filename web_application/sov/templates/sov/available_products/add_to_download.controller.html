@@ -45,6 +45,8 @@
         // append error and warning panels
         var _errors = '';
         var _warnings = '';
+        var _num_products = 0;
+        var _objects = 0;
 
         function create_panel(message, type) {
 
@@ -53,15 +55,14 @@
 
         if (_products.length == 0 || typeof _products == "undefined") {
             _errors += create_panel('<strong>Error:</strong> You\'ve not added any data products to download. Use the checkboxes in the <a href="#data_products" class="scroll">data products table</a> above to make your selection.', 'error');
-        }
+        } else {_num_products = _products.length}
         if (data_download['objects'].length == 0) {
             _errors += create_panel('<strong>Error:</strong> You\'ve not selected any astronomical sources! Use the <a href="#objects" class="scroll">objects table</a> to chose objects.', 'error');
-        }
+        } else {_num_objects = data_download["objects"].length}
 
         if (data_download['objects'].length > 0) {
-            _objects = data_download['objects'];
-
-            var _objects = JSON.parse("[" + data_download['objects'] + "]");
+            // parse the string and get object length
+            _objects = JSON.parse("[" + data_download['objects'] + "]");
             if (_objects.length>100){
                 _warnings += create_panel('<strong>Warning:</strong> ' + _objects.length + ' objects selected. Download may take some time to complete. Please do not close your browser window. ', 'warning');
             }
@@ -76,6 +77,10 @@
         if (_warnings.length) {
             $('#download_warnings').show().html(_warnings);
         }
+
+        // populate information panel
+        $('#download_info').html(create_panel('<strong>Selected:</strong> '+_num_products + ' product(s) for ' + _objects.length + ' object(s)', 'success'));
+
         return _errors
     }
 

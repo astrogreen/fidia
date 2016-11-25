@@ -23,9 +23,9 @@
 
     <ul class="nav nav-pills nav-stacked  nav-sidebar">
         <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
-        <li role="presentation"><a class="scroll" href="#data-access">Data</a></li>
         <li role="presentation"><a class="scroll" href="#project-overview">Project Overview</a></li>
-        <li role="presentation"><a class="scroll" href="#help">Help</a></li>
+        <li role="presentation"><a class="scroll" href="#data-access">Data</a></li>
+
     </ul>
 </div><hr>
 <div class="quick-links">
@@ -130,16 +130,37 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 </div>
 
+<h3 id="project-overview">Project Overview <a role="button" class="tiny pull-right" id="toggle_project_overview">Hide</a></h3>
+<div id="project_overview_text">
+{% with "surveys/"|add:response.data.survey|add:"/about.html" as template %}
+{% include template %}
+{% endwith %}
+</div>
 
 <h3 id="data-access">Data</h3>
 
 <!-- Tab panes -->
+<p>You have two options to browse the catalogue. If you are interested in a single object, click the ID in the table. If
+    you want to download data products for multiple objects, select your targets using the table filters, and then
+    choose the products to download.</p>
 
-<p> All {{survey|uppercase}} objects are shown in the table below. Search and
-    filter rows based on a particular column, and export the resultant table in a variety of formats. </p>
+<p>For detailed descriptions of a particular data product, visit the <a
+        href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
+     Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
+    data product, view the
+    <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
+        Schema Browser</a>.
+</p>
+<p>
 
-<div class="well success">
-    <div class="p "> <i class="fa fa-info"></i> <span class="sub-heading">Click on the ID in the table to go to the Single Object Viewer for that object.</span></div>
+    To access data via a
+    command line interface, read the documentation on <a
+        href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data
+    download</a>.</p>
+<br>
+<div class="well warning">
+    <div class="p "><span class="sub-heading">Table filter functionality is in alpha. If you spot an error, please <a
+            href="{% url 'support-bug' %}">report a bug</a>.</span></div>
 </div>
 
 
@@ -152,67 +173,89 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 <div id="filter_panel">
     <div class="row">
-        <div id="datatables_select" class="col-xs-3"><span class="sub-heading">Select filtered objects</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Click row(s) to select objects. Alternatively, use the button below to select or unselect all rows, or, if a filtering is applied, select filtered rows."><i class="fa fa-info-circle"></i></a></div>
-        <div class="col-xs-9">
+        <div id="datatables_filter" class="col-xs-12">
             <div class="row">
-                <div id="datatables_filter" class="col-xs-12 col-sm-8"><span class="sub-heading">Search a column between values</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show only rows that contain data in a particular column between two values."><i class="fa fa-info-circle"></i></a></div>
-                <div id="datatables_search" class="col-xs-12 col-sm-4"><span class="sub-heading">Search all rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+                <div class="col-xs-9">
+                    <span class="bold">Filter rows by column</span> <a
+                        role="button" class="sub-heading" data-container="body" data-toggle="popover"
+                        data-trigger="hover click"
+                        data-placement="top"
+                        data-content="Show only rows that contain data in a particular column between two values."><i
+                        class="fa fa-info-circle"></i></a>
+                </div>
+                <div class="col-xs-3"><span class="bold">Add/remove filter</span><a
+                        role="button" class="sub-heading" data-container="body" data-toggle="popover"
+                        data-trigger="hover click"
+                        data-placement="top"
+                        data-html="true"
+                        data-content="Add a new filter by pressing the <i class='fa fa-plus'></i> button. Remove a filter using the  <i class='fa fa-times'></i> button.">
+                        <i class="fa fa-info-circle"></i></a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12" id="filterset1">
+                    <form class="filter_row">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <div class="form-group"><label class="sr-only" for="column">Column</label> <select
+                                        type="text" class="form-control column_filter" id="column">
+                                    <option value="" selected disabled>SELECT COLUMN</option>
+                                </select></div>
+                            </div>
+                            <div class="col-xs-3 no-padding">
+                                <div class="form-group"><label class="sr-only">Minimum</label> <input type="text"
+                                                                                                      class="form-control minimum min_filter"
+                                                                                                      placeholder="MINIMUM"
+                                                                                                      disabled></div>
+                            </div>
+                            <div class="col-xs-3">
+                                <div class="form-group"><label class="sr-only">Maximum</label>
+                                    <input type="text"
+                                           class="form-control max_filter"
+                                           placeholder="MAXIMUM"
+                                           disabled>
+                                </div>
+                            </div>
+                            <div class="col-xs-3">
+                                <button class="btn btn-default" id="new_filter" type="button"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 text-right">
-            <span id="remove_filters"></span>
+
+        <div class="col-xs-12 padding-top-five">
+            <div class="row">
+                <div id="datatables_select" class="col-xs-3 "><span class="bold">Select filtered rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Select or unselect all rows, or, if a filtering is applied, select filtered rows. Alternatively, select individual rows by clicking them. "><i class="fa fa-info-circle"></i></a></div>
+                <div id="remove_filters" class="col-xs-3  no-padding"><span class="bold">Remove all filters</span></div>
+                <div id="datatables_search" class="col-xs-6"><span class="bold">Search filtered rows</span> <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Show rows from any column that contain the search value."><i class="fa fa-info-circle"></i></a></div>
+            </div>
         </div>
     </div>
 </div>
 
 <br><br>
-<h4 style="font-size:20px" id="data_products">Download Data Products</h4>
-
-<p>
-    Define a sample of SAMI objects (optionally filtering on some catalogue property) using the table above. Data products for this
-    selection can be downloaded for offline use.
-
-    To access data via a
-    command line interface, read the documentation on <a
-            href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data
-        download</a>.</p>
-<br>
-<div class="panel panel-default success">
+<p>In order to download data products you must first use the table above to create a sample of {{survey|uppercase}}
+    objects. Click a table row to select an object, or use the filters to search for rows that match a set of criteria.
+    <br> </p>
+<div class="panel panel-default success" id="data_products">
     <div class="panel-body">
-        <i class="fa fa-info"></i> <span class="sub-heading">In order to download data products you must first use the table above to create a sample of {{survey|uppercase}} objects. Click a table row to select an object.
+        <span class="sub-heading">
+            Select data products to be downloaded using the checkboxes. The default branch and version is shown, you can choose a specific branch and version using the dropdown menus for each product. For help with branches and versions, view the <a
+            href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}">documentation</a>.
         </span>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-12">
-
+        {% comment %}
         {% include 'sov/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
-
+        {% endcomment %}
     </div>
 
 </div>
-
-
-<h3 id="project-overview">Project Overview</h3>
-{% with "surveys/"|add:response.data.survey|add:"/about.html" as template %}
-{% include template %}
-{% endwith %}
-
-<h3 id="help">Help</h3>
-<p>The <a href="{% url 'surveys:survey-list' survey_pk=survey %}">{{survey|uppercase}} page</a> provides a low-level description of Data Release
-    {{response.data.data_release}}, plus an overview of the {{survey|uppercase}} survey.</p>
-<p>For detailed descriptions of a particular data product, visit the <a
-        href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
-     Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
-    data product, view the
-    <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
-        Schema Browser</a>.
-</p>
-<p>To learn more about the Single Object Viewer, view the <a
-        href="{% url 'documentation:topic-detail' slug='data-browser' %}">Documentation</a>.</p>
-
 
 {% comment %}
 ------ TURN ON DATATABLES ------
@@ -224,11 +267,18 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     var SAMPLE_URL = "{% url 'sov:survey-list' survey_pk=survey %}";
 
     catalog = JSON.parse("{{ catalog|escapejs }}");
+    console.log(catalog);
+    // catalog.data = catalog.data.slice(0,20);
+    function convertToSlug(Text) {
+        return 'column_'+Text.toLowerCase()
+                .replace(/[^\w ]+/g, '')
+                .replace(/ +/g, '-');
+    }
 
     if (typeof catalog !== 'undefined'){
         $('#data-table-container').html(' ')
                 .append('<div class=""><table id="returnTableResults" class="table table-responsive table-condensed">' +
-                        '<thead><tr><th>Please wait, loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>')
+                        '<thead><tr><th>Please wait, loading... <i class="fa fa-refresh fa-spin"></i></th></tr></thead></table></div>');
 
         render_limit = 10000;
         catalog_data_row_length = catalog.data.length;
@@ -236,16 +286,17 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 
         if(catalog.data.length < render_limit){
-            var columns = [];
+            var columns = []; var units = [];
             var thead = '';
-
 
             $('#returnTableResults').find('thead > tr').empty();
             $('#returnTableResults').addClass("table-bordered cell-border");
 
+
             //APPEND COLUMN VALUES TO TABLE HEAD
             $.each(catalog.column_names, function(i,k){
-                var b = { title: k };
+
+                var b = { title: '<span>'+k+'</span><span class="small">&nbsp;'+catalog.units[i]+'</span>', name:convertToSlug(k) };
 
 //                if (k.indexOf("url_img") > -1){
 //                    b = {
@@ -258,23 +309,24 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
                 if (k.indexOf("ID") > -1){
                     b = {
-                        "title":k,
+                        "name":convertToSlug(k),
+                        "title":'<span>'+k+'</span><br><span>'+catalog.units[i]+'</span>',
                         "render": function(data, type, row) {
                             var temp_string = '<a href="'+SAMPLE_URL+data+'" target="_blank">'+data+'</a>';
                             return temp_string;
+
                         }
                     }
                 }
 
                 th = '<th>'+k+'</th>';
                 columns.push(b);
-
-                $('#returnTableResults').find('thead > tr').append(th);
+                $('#returnTableResults').find('thead > tr.first-tr').append(th);
             });
 
-            var table = $('#returnTableResults').DataTable( {
-                data : catalog.data,
-                columns : columns,
+            var table = $('#returnTableResults').DataTable({
+                data: catalog.data,
+                columns: columns,
                 orderClasses: false,
                 colReorder: false,
                 scrollX: true,
@@ -286,7 +338,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 select: {
                     style: 'multi'
                 }
-
             });
 
 
@@ -301,28 +352,21 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             $("#filter_panel")
                     .prependTo("#returnTableResults_wrapper");
 
+            // FILTER
+            $("#returnTableResults_filter")
+                    .appendTo("#datatables_search");
+            $("#returnTableResults_filter input").css('margin-left', '0px');
 
             $('#returnTableResults_wrapper').append('<div id="" class="row"><div class="col-xs-12 col-sm-12" id="datatables_export"></div></div>');
 
 
-            // FILTER
-            $('#datatables_filter').append(
-                    '<form class=""><div class="row">' +
-                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum" id="min" placeholder="MINIMUM" disabled> </div></div>' +
-                    '<div class="col-xs-4 no-padding"><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control" id="column"><option value="" selected disabled>SELECT COLUMN</option></select></div></div> ' +
-                    '<div class="col-xs-4 "><div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control" id="max" placeholder="MAXIMUM" disabled></div></div>' +
-                    '</div> </form>');
-
-
-            $("#returnTableResults_filter")
-                    .appendTo("#datatables_search");
 
             // PAGINATION
             $("#returnTableResults_info").parent('.col-sm-5').parent('.row').prepend('<div id="datatables_pagination" class="col-sm-12" style="padding-top:10px"></div>');
 
             $("#returnTableResults_length")
                     .appendTo("#datatables_pagination");
-            $('#datatables_pagination').prepend('<small class="pull-right sub-heading"><i class="fa fa-arrows-h"></i> scroll for more </small>')
+            $('#datatables_pagination').prepend('<small class="pull-right sub-heading tiny"><i class="fa fa-arrows-h"></i> scroll for more </small>')
 
             //  EXPORT
             $('#datatables_export').append(
@@ -339,95 +383,151 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             $('#returnTableResults_filter > div > input').removeClass('input-sm');
             $('#returnTableResults_filter > div > span > button').removeClass('btn-sm');
 
-            // Append column options to the range select
-            for (var k=0;k<columns.length;k++){
-                // if you can parse as float, then append
 
-                var _column_append = true;
+            // populate columns
+            update_columns = function(element){
 
-                for (var z=0;z<catalog.data.length;z++){
-                    if (!!parseFloat(catalog.data[z][k])){
-                    } else {_column_append = false;}
+                // Append column options to the range select
+                for (var k=0;k<columns.length;k++){
+                    // if you can parse as float, then append
+
+                    var _column_append = true;
+
+                    for (var z=0;z<catalog.data.length;z++){
+                        if (!!parseFloat(catalog.data[z][k])){
+                        } else {_column_append = false;}
+                    }
+
+                    if (_column_append == true){
+                        $(element).append('<option value="'+columns[k].name+'">'+columns[k].title+'</option>');
+                    }
+
                 }
 
-                if (_column_append == true){
-                    $('select#column').append('<option value="'+columns[k].title+'">'+columns[k].title+'</option>');
-                }
+            };
 
-            }
+            disable_columns = function(){
+                // on click to column or adding a new filter - check existing values, disable if true.
+
+                // get currently selected values
+                var option_values = [];
+                $('.column_filter').each(function(){
+                    option_values.push( $(this).find('option:selected').text());
+                });
+
+                // for each select, find and iterate over the options
+                $('.column_filter').each(function(){
+                    var this_selected = $(this).val();
+
+                    $(this).find('option').each(function(){
+                        if (($.inArray($(this).val(), option_values)  > -1) && ($(this).val() != this_selected)) {
+                            // do not disable the selected value of the current select.column_filter
+
+                            // if this option is found in the selected option values, disable it
+                            $(this).attr('disabled', 'true');
+                        }
+                    });
+                });
+            };
 
 
             // Range initialization code
             /* Custom filtering function which will search data in column four between two values */
             // this needs to be re-initialized on each selection of the column
+            // note bind to the parent node such that dynamically created nodes still trigger the event.
+            // attach event handler to parent element using on, pass selector via class argument
 
 
-            $('#column').on('change', function (e) {
-                // redraw table without any filtering
-                $.fn.dataTable.ext.search = [];
-                table.draw();
+            $('body').on('change', 'select.column_filter', function(e) {
 
-                var selected_column = $(e.currentTarget).val();
+                // disable currently selected options
+                disable_columns();
 
-                // console.log('selected '+selected_column);
+                // enable associated inputs
+                var min_ele = $(e.target).closest('.row').find('.min_filter');
+                var max_ele = $(e.target).closest('.row').find('.max_filter');
 
-                // find column index
-                for (var k=0;k<columns.length;k++){
-                    if (columns[k].title == selected_column){column_index = k;}
-                }
-                $('#min, #max').val('').addClass('form-control').attr("disabled",false);
-
-                console.log('column index in data '+column_index);
-
-                data = catalog.data;
-
-                $.fn.dataTable.ext.search.push(
-                    function (settings, data, dataIndex) {
-
-                        var min = parseFloat($('#min').val());
-                        var max = parseFloat($('#max').val());
-
-                        // TODO find type of data if string...
-                        var field = parseFloat(data[column_index]) || 0; // use data for the selected column
-
-                        if (( isNaN(min) && isNaN(max) ) ||
-                                ( isNaN(min) && field <= max ) ||
-                                ( min <= field && isNaN(max) ) ||
-                                ( min <= field && field <= max )) {
-                            return true;
-                        }
-                        return false;
-                    }
-                );
-
+                min_ele.attr("disabled",false);
+                max_ele.attr("disabled",false);
             });
 
 
-            $(document).ready(function() {
-                // Event listener to the two range filtering inputs to redraw on input
-                $('#min, #max').keyup( function() {
-                    table.draw();
-                    // console.log(get_filtered_ids());
-                    update_button();
-                } );
-                // update select button with initial number of rows
+            $('body').on('keyup', '.min_filter, .max_filter', function(e) {
+
+                // clear the existing searches
+                $.fn.dataTable.ext.search = [];
+
+                // redraw table without any filtering
+                table.draw();
+
+                // on change of the filter, change the filter to include all currently active column filters
+                data = catalog.data;
+
+                a_col_index=[];
+                a_min=[];
+                a_max=[];
+                // capture current searches
+                $('.column_filter').each(function(){
+
+                    // get min/max input values for this select
+                    var min_ele = $(this).closest('.row').find('.min_filter');
+                    var max_ele = $(this).closest('.row').find('.max_filter');
+
+                    var min = parseFloat(min_ele.val());
+                    var max = parseFloat(max_ele.val());
+
+                    // find the index of the selected column by matching to the option value (name)
+                    var selected_column = $(this).val();
+
+
+                    for (var k=0;k<columns.length;k++){
+
+                        if (columns[k].name == selected_column) {
+                            column_index = k;
+
+//                            console.log(' - - - new filter - - - ');
+//                            console.log($(this).attr('id'));
+//                            console.log(selected_column, column_index);
+//                            console.log(min, max);
+
+                            a_col_index.push(column_index);
+                            a_min.push(min);
+                            a_max.push(max);
+                        }
+                    }
+                });
+                function isTrue(element, index, array) {
+                  return element == true;
+                }
+
+                $.fn.dataTable.ext.search.push(
+                    function (settings, data, dataIndex) {
+                        // TODO find type of data if string...
+                        var passes_conditions = [];
+                        for (var c=0;c<a_col_index.length;c++){
+                            var field = parseFloat(data[a_col_index[c]]) || 0; // use data for the selected column
+                                if (( isNaN(a_min[c]) && isNaN(a_max[c]) ) ||
+                                    ( isNaN(a_min[c]) && field <= a_max[c] ) ||
+                                    ( a_min[c] <= field && isNaN(a_max[c]) ) ||
+                                    ( a_min[c] <= field && field <= a_max[c] )) {
+                                // console.log(a_col_index[c], a_min[c], a_max[c], field);
+                                passes_conditions.push(true);
+                            } else {passes_conditions.push(false);}
+                        }
+
+                        return passes_conditions.every(isTrue);   // true
+
+
+                    }
+                );
+                // for each column_filter, add a search clause
+
+
+                table.draw();
                 update_button();
+                // console.log($.fn.dataTable.ext.search);
+            });
 
-                $('#returnTableResults_filter input').keyup(function(){
-                    update_button();
-                });
-
-                $('#returnTableResults').click(function(){
-                    update_button();
-                })
-
-                $('a#multiple_object[data-toggle="tab"]').one('shown.bs.tab', function (e) {
-                    // moved single and multiple objects into tabs, fire this once (.one) when the shown.bs.tab event
-                    // is triggered, to force datatables to redraw the table once the tab is visible (else the column headers
-                    // have incorrect widths calculated
-                    table.draw();
-                });
-            } );
 
             // Get the IDs of selected items
             $('#returnTableResults').click(function(){
@@ -551,6 +651,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                             update_button();
 
                             get_ids();
+                            error_check();
                         }
                     }
                 ]
@@ -561,13 +662,21 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             new $.fn.dataTable.Buttons(table, {
                 buttons: [
                     {
-                        text: '<small>remove all filters</small>',
+                        text: '<span><i class="fa fa-trash-o"></i></span>',
                         action: function () {
-                            $('#max').val('');
-                            $('#min').val('');
+                            // clear existing searches on the table
+                            $.fn.dataTable.ext.search = [];
+
+                            // clear all inputs and reset select
+                            $('.min_filter').val('');
+                            $('.max_filter').val('');
                             $('#returnTableResults_filter input').val('');
+                            $('#column').val('');
+
+                            // remove additional rows
+                            $('.additional_filter').remove();
 //                            table.rows().deselect();
-                            table.search("").draw()
+                            table.search("").draw();
                             update_button();
                         }
                     }
@@ -575,8 +684,55 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             });
             table.buttons(2,null).container()
                     .appendTo($('#remove_filters', table.table().container()));
-            $('#remove_filters .btn.btn-default').removeClass('btn btn-default')
 
+            $('#remove_filters .btn.btn-default').addClass('btn-md').unwrap().wrap('<div class="input-group"></div>');
+
+
+            $(document).ready(function() {
+                update_columns($('#datatables_filter #filterset1 form.filter_row select.column_filter'));
+                disable_columns();
+
+                // Event listener to the two range filtering inputs to redraw on input
+                $('.max_filter, .min_filter').keyup( function() {
+                    update_button();
+                } );
+                // update select button with initial number of rows
+                update_button();
+
+                $('#returnTableResults_filter input').keyup(function(){
+                    update_button();
+                });
+
+                $('#returnTableResults').click(function(){
+                    update_button();
+                });
+
+                $('#new_filter').click(function(){
+                    // append another filter selection set
+
+                    $('#datatables_filter .row #filterset1').append(
+                    '<form class="filter_row padding-top-five additional_filter"><div class="row">' +
+                    '<div class="col-xs-3 "><div class="form-group"> <label class="sr-only" for="column">Column</label> <select type="text" class="form-control column_filter"><option value="" selected disabled>SELECT COLUMN</option></select></div></div>' +
+                    '<div class="col-xs-3 no-padding"><div class="form-group"> <label class="sr-only" for="min">Minimum</label> <input type="text" class="form-control minimum min_filter" placeholder="MINIMUM" disabled> </div></div> ' +
+                    '<div class="col-xs-3"><div class="form-group"> <label class="sr-only" for="max">Maximum</label> <input type="text" class="form-control max_filter" placeholder="MAXIMUM" disabled> </div></div>' +
+                    '<div class="col-xs-3"> <button class="btn btn-default remove_filter" type="button"><i class="fa fa-times"></i></button></div>'+
+                    '</div> </form>');
+
+                    // populate with options
+                    update_columns($('#filterset1 form.filter_row:last-of-type select.column_filter'));
+                    // disable any columns that are already selected
+                    disable_columns();
+                });
+                $('body').on('click', '.remove_filter', function(){
+                     $(this).closest('form.filter_row').remove();
+
+                    // trigger a table redraw and update to the filter
+                     $('.max_filter').keyup();
+
+                    // update the select options, disabling only those that are currently selected
+                    disable_columns();
+                });
+            });
 
         };
     };
@@ -588,7 +744,14 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 {% block footer-extra %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
+<script>
+    $('#toggle_project_overview').click(function () {
+        $('#project_overview_text').toggle('slow');
 
+        var _text = $(this).text();
+        $(this).text(_text == "Hide" ? "Show" : "Hide");
+    });
+</script>
 {% endblock %}
 
 

@@ -49,7 +49,7 @@ class AstronomicalObject(collections.MutableMapping):
         for archive in self.sample._archives:
             for trait_property_path in archive.feature_catalog_data:
                 value = trait_property_path.get_trait_property_value_for_object(self)
-                trait = trait_property_path.get_trait_class_for_archive(archive)
+                trait = trait_property_path.get_trait_class_for_archive(archive)  # type: fidia.traits.Trait
                 tp = trait_property_path.get_trait_property_for_archive(archive)
 
                 # Get the pretty name of the Trait
@@ -58,7 +58,11 @@ class AstronomicalObject(collections.MutableMapping):
                 if tp.name is not 'value':
                     pretty_name += " " + tp.get_pretty_name()
 
-                feature_data.append({"pretty_name": pretty_name, "value": value})
+                # Get the units if present
+                unit_string = trait.get_formatted_units()
+
+                feature_data.append({"pretty_name": pretty_name, "value": value, "unit": unit_string})
+
 
         return feature_data
 

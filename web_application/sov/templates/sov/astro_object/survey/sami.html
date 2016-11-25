@@ -15,8 +15,8 @@
                                 <!--Dynamic plotly rendering based on Trait Type-->
                                 <p><i class="fa fa-refresh fa-spin"></i> Fetching Data ...</p>
                             </div>
+                            <p class="text-justify small" id="{{trait_type_key}}_trait_description"></p>
                         </div>
-
                     </div>
                 </div>
                 <script type="text/javascript">
@@ -26,7 +26,11 @@
                         var trait_name = "{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}";
                         var map_selector = "{{trait_type_key}}_plotly_plot";
                         var options_selector = "{{trait_type_key}}_plotly_plot_options";
-                        trait_plot(trait_url, trait_name, map_selector, options_selector);
+                        var trait_key = "{{trait_type_key}}";
+                        var trait_description_url = "{{response.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{%endif%}?format=json";
+
+                        trait_plot(trait_url, trait_name, map_selector, options_selector, trait_description_url, trait_key);
+
                         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 
                             // if the overview tab is activated, once the shown.bs.tab event

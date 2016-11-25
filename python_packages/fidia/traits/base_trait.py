@@ -203,6 +203,8 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
                     separate_metadata=False):
 
+        log.debug("Creating schema for %s", str(cls))
+
         # Validate the verbosity option
         assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
         if verbosity == 'descriptions':
@@ -225,6 +227,13 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
             # Available export formats (see ASVO-695)
             schema['export_formats'] = cls.get_available_export_formats()
+
+            # Add unit information if present
+            formatted_unit = cls.get_formatted_units()
+            if formatted_unit:
+                schema['unit'] = formatted_unit
+            else:
+                schema['unit'] = ""
 
         # Add description information for this trait to the schema if requested
         if verbosity == 'descriptions':
@@ -304,6 +313,26 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             return True
         else:
             return False
+
+    @classmethod
+    def get_formatted_units(cls):
+        if hasattr(cls, 'unit'):
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.value:0.03g} {0.unit:latex_inline}".format(cls.unit)
+            else:
+                try:
+                    formatted_unit = cls.unit.to_string('latex_inline')
+                except:
+                    log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                    try:
+                        formatted_unit = cls.unit.to_string('latex')
+                    except:
+                        log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                        raise
+                        formatted_unit = ""
+            return formatted_unit
+        else:
+            return ""
 
     @classmethod
     def _validate_trait_class(cls):

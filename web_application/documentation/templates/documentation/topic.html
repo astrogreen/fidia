@@ -26,7 +26,7 @@
                     {% for topic in response.data.results %}
                         {% if not topic.hidden %}
                             <div class="col-sm-3 col-xs-6">
-                                <a href="{{topic.title|slug}}">
+                                <a href="{{topic.slug}}">
                                     <div class="well"><h4>{{topic.title}}</h4></div>
                                 </a>
                             </div>
@@ -92,6 +92,7 @@
     <table class="table">
         <tbody>
         {% for article in top_articles %}
+        {% if not article.hidden %}
         {% if forloop.first %}<tr>{% endif %}
             <td><a href="{% url 'documentation:article-detail' slug=article.slug %}">{{article.title}}</a>
                 <p class=""><span class="tiny sub-heading"> Last updated {{article.updated}}</span> <a
@@ -99,35 +100,31 @@
             </td>
             {% if forloop.counter|divisibleby:2 %}</tr><tr>{% endif %}
             {% if forloop.last %}</tr>{% endif %}
-
+        {% endif %}
         {% endfor %}
         </tbody>
     </table>
 
     <br><br><h2 id="all-articles">All Articles</h2><br>
-    <div class="row">
-        <div class="col-xs-12">
-            search help center
-        </div>
-    </div>
+
     {% for topic in response.data.results %}
         {% if not topic.hidden %}
             {% if forloop.first %}<div class="row">{% endif %}
-            <div class="col-xs-12 col-sm-4" style="margin-top:30px;">
+            <div class="col-xs-12 col-sm-6" style="margin-top:30px;">
                 <h4 style="border-bottom:1px solid #eee;padding-bottom:10px">{{topic.title}}</h4>
-            <ul class="p sub-heading">
-                {% if not topic.articles %}
-                <div class="sub-heading">No topics have been added yet.</div>
-                {% endif %}
-                {% for this in topic.articles %}
-                <li>
-                    <a href="{{this.url}}">{{this.title}}</a>
-                    <div class="tiny"><span class="tiny sub-heading"> Last updated {{this.updated}}</span></div>
-                </li>
-                {% endfor %}
-            </ul>
+                <ul class="p sub-heading">
+                    {% if not topic.articles %}
+                    <div class="sub-heading">No topics have been added yet.</div>
+                    {% endif %}
+                    {% for this in topic.articles %}
+                    <li>
+                        <a class="small" href="{{this.url}}">{{this.title}}</a>
+                        <div class="tiny"><span class="tiny sub-heading"> Last updated {{this.updated}}</span></div>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
-            {% if forloop.counter|divisibleby:3 %}</div><div class="row">{% endif %}
+            {% if forloop.counter|divisibleby:2 %}</div><div class="row">{% endif %}
             {% if forloop.last %}</div>{% endif %}
         {% endif %}
     {% endfor %}

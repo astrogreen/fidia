@@ -98,14 +98,6 @@ class SpectralMap(Trait, AbstractBaseArrayTrait, FITSExportMixin):
     @abstractproperty
     def value(self): pass
 
-    @abstractproperty
-    def variance(self): pass
-
-    # @abstractproperty
-    # def covariance(self): pass
-    #
-    # @abstractproperty
-    # def weight(self): pass
 
 class Classification(Trait, AbstractBaseClassification): pass
 

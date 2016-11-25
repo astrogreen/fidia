@@ -149,6 +149,9 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
             log.debug("Creating a bound trait property '%s.%s'", instance_type.__name__, self.name)
             return BoundTraitProperty(instance, self)
 
+    def __repr__(self):
+        return "<TraitProperty {}>".format(self.name)
+
 
 class BoundTraitProperty:
 
@@ -166,8 +169,8 @@ class BoundTraitProperty:
         if item not in ('loader',) and not item.startswith("_"):
             return getattr(self._trait_property, item)
 
-    def __str__(self):
-        return "<TraitProperty {} of {}>".format(self._trait_property.name, str(self._trait.trait_key))
+    def __repr__(self):
+        return "<BoundTraitProperty {} of {}>".format(self._trait_property.name, str(self._trait.trait_key))
 
     @property
     def name(self):
