@@ -382,9 +382,16 @@ class SAMISpectralCube(SpectralMap):
         self._binning = "05"
 
         # We don't currently support multiple observations, so set the plate ID
-        # to the first/only observation
-        self._plate_id = self.archive._cubes_directory.ix[self.object_id, self._color, self._binning]\
-            .reset_index()['plate_id'].iloc[0]
+        # to that from the master contents list
+        match = re.match(sami_cube_re, self.archive.cube_file_index['red_cube_file'][self.object_id])
+        if not match:
+            # The given cube_filename is not valid, something is wrong!
+            raise DataNotAvailable(
+                "The cube filename '%s' cannot be parsed." % self.archive.cube_file_index['red_cube_file'][
+                    self.object_id])
+
+        self._plate_id = match.group('plate_id')
+        self._n_comb = match.group('n_comb')
 
         # Confirm the requested data actually exists:
         try:
