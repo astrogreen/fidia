@@ -1868,11 +1868,10 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     trait_type = 'sfr_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'},
-        branch_lzifu_m_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V02', 'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
-                                version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
+                                version_defaults={branch_lzifu_1_comp[0]: 'V03'})
 
     def fits_file_path(self):
 
