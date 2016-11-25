@@ -1,4 +1,6 @@
 import traceback
+from numpy import ndarray
+from numpy import int64
 
 from fidia.exceptions import *
 
@@ -12,6 +14,12 @@ def get_traitproperty_data(trait):
         trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
         try:
             trait_property_data[trait_property_name] = getattr(trait, trait_property_name).value
+            if isinstance(trait_property_data[trait_property_name], ndarray):
+                trait_property_data[trait_property_name] = trait_property_data[trait_property_name].tolist()
+            #TODO convert numpy.int64 to native python type
+            if isinstance(trait_property_data[trait_property_name], int64):
+                print("wrong data type. int64")
+                trait_property_data[trait_property_name] = trait_property_data[trait_property_name].item()
         except DataNotAvailable:
             # No data for this particular TraitProperty, skip.
             trait_property_type[trait_property_name] = None
@@ -24,36 +32,11 @@ def get_traitproperty_data(trait):
             print(tb)
             trait_property_type[trait_property_name] = None
             trait_property_data[trait_property_name] = None
-            continue        # Not sure what this statement achieves?
-        if trait_property_data is None:
             continue
-        if 'array' in trait_property_type[trait_property_name]:
-            # This is an array trait, so it will have to be flattened, and have
-            # it's shape stored separately.
-            # array_dict = dict()
-            if hasattr(trait_property_data[trait_property_name], 'shape'):
-                # Shape attribute can provide the shape of the data (probably a
-                # numpy array).
-                # array_dict['shape'] = str(trait_property_data[trait_property_name].shape)
-                # array_dict['dataValues'] = trait_property_data[trait_property_name].flatten().tolist()
-                array_tuple = (trait_property_data[trait_property_name].flatten().tolist(),
-                               str(trait_property_data[trait_property_name].shape))
 
-            elif isinstance(trait_property_data[trait_property_name], list):
-                # A one-dimensional Python list.
-                # array_dict['shape'] = "({})".format(len(trait_property_data[trait_property_name]))
-                # array_dict['dataValues'] = trait_property_data[trait_property_name]
-                array_tuple = (trait_property_data[trait_property_name],
-                               "({})".format(len(trait_property_data[trait_property_name])))
-            else:
-                # Unknown array format. Skip.
-                continue
-
-            # Replace the trait_property_data with the modified, array-format version:
-            trait_property_data[trait_property_name] = array_tuple
-
-    return {"trait_property_types": trait_property_type,
-            "trait_property_data": trait_property_data}
+    # return {"trait_property_types": trait_property_type,
+    #         "trait_property_data": trait_property_data}
+    return trait_property_data
 
 
 def get_sub_trait_data(trait):
@@ -91,7 +74,7 @@ def get_sub_trait_data(trait):
 
         sub_trait = trait.sub_traits.retrieve_with_key(sub_trait_name)
         sub_trait_data[sub_trait_name] = get_trait_data(sub_trait)
-
+    return sub_trait_data
 
 def get_trait_data(trait):
     # type: (Trait) -> dict
@@ -107,6 +90,7 @@ def get_trait_data(trait):
     # Get data for sub-Traits
     sub_trait_data = get_sub_trait_data(trait)
     # Add sub_trait_data to result
-    result.update({"sub_trait_data": sub_trait_data})
+    #result.update({"sub_trait_data": sub_trait_data})
+    result.update(sub_trait_data)
 
     return result

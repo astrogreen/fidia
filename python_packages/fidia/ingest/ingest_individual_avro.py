@@ -6,6 +6,8 @@ from fidia.ingest.ingest_utility import *
 from fidia.exceptions import *
 import traceback
 
+from hdfs import InsecureClient
+from hdfs.ext.avro import AvroWriter
 from avro.datafile import DataFileWriter
 from avro.io import DatumWriter
 from avro import schema
@@ -54,6 +56,8 @@ def create_avro_schema(archive):
         # Iterate over the schema
         type_index = 0
         for trait_type in schema:
+            # if type_index is 3:
+            #     break
             trait_type_schema = schema[trait_type]
             type_prefix = namespace_prefix + '.' + trait_type
             qualifier_index = 0
@@ -199,14 +203,14 @@ def create_astro_object(archive, schema_object, path_prefix):
             if count is 3:
                 break
 
-            writer = DataFileWriter(open(path_prefix + object_id + '.avro', "wb"), DatumWriter(), schema_object)
+            # writer = DataFileWriter(open(path_prefix + object_id + '.avro', "wb"), DatumWriter(), schema_object)
             astro_record = dict()
             astro_record['object_id'] = object_id
 
             for trait_type in schema_object.field_map:
                 # key is trait_type
                 trait_field = schema_object.field_map[trait_type]
-                # skip object_id field
+                trait_type_data = dict()
                 if not isinstance(trait_field.type, RecordSchema):
                     continue
                 for key in trait_field.type.field_map:
@@ -215,20 +219,58 @@ def create_astro_object(archive, schema_object, path_prefix):
                     if key.startswith("b_"):
                         #branch
                         branch = key.replace("b_", "", 1)
-                        try:
-                            trait = sample[object_id]["{0}:{1}({2})".format(trait_type, branch, 'V02')]
-                        except DataNotAvailable:
-                            continue
+                        branch_data = dict()
+                        # Need to find the version.
+                        for version in key_field.type.field_map:
+                            try:
+                                trait = sample[object_id]["{0}:{1}({2})".format(trait_type, branch, version)]
+                                # Now get the trait property data
+                                version_data = get_trait_data(trait)
+                                branch_data[version] = version_data
+
+                                # data has 3 keys: trait_property_types, trait_property_data and sub_trait_data
+                                # we need to update version_data dictionary with trait_property_data + sub_trait_data.
+                                # trait_property_data
+                                # version_data = dict()
+                                # version_data.update(data['trait_property_data'])
+                                # for k in data['sub_trait_data']:
+                                #     sub_trait_data = data['sub_trait_data'][k]
+                                #     version_data.update(sub_trait_data['trait_property_data'])
+                                # Can we find how deep do sub_traits go? as in how many levels are there
+                            except DataNotAvailable:
+                                continue
+                        trait_type_data["b_" + branch] = branch_data
                     else:
-                        #qualifier
-                        try:
-                            trait = sample[object_id]["{0}-{1}:{1}({2})".format(trait_type, branch, 'V02')]
-                        except DataNotAvailable:
-                            continue
-            writer.append(astro_record)
-            writer.flush()
+                        # key is the qualifier. Now has to find the branch and version
+                        qualifier_data = dict()
+                        for branch in key_field.type.field_map:
+                            branch_field = key_field.type.field_map[branch]
+                            branch = branch.replace("b_", "", 1)
+                            branch_data = dict()
+                            for version in branch_field.type.field_map:
+                                try:
+                                    trait = sample[object_id]["{0}-{1}:{2}({3})".format(trait_type, key, branch, version)]
+                                    # Now get the trait property data
+                                    version_data = get_trait_data(trait)
+                                    branch_data[version] = version_data
+
+                                    # version_data = dict()
+                                    # version_data.update(data['trait_property_data'])
+                                    # for k in data['sub_trait_data']:
+                                    #     sub_trait_data = data['sub_trait_data'][k]
+                                    #     version_data.update(sub_trait_data['trait_property_data'])
+                                except DataNotAvailable:
+                                    continue
+                            qualifier_data["b_" + branch] = branch_data
+                        trait_type_data[key] = qualifier_data
+                astro_record[trait_type] = trait_type_data
+            with AvroWriter(get_hdfs_client(), path_prefix + object_id + '.avro', schema_object.to_json(),
+                            overwrite=True) as writer:
+                writer.write(astro_record)
+            # writer.append(astro_record)
+            # writer.flush()
+            # writer.close()
             count += 1
-            writer.close()
         print(str(count) + " objects ingested.")
     except:
         tb = traceback.format_exc()
@@ -269,7 +311,9 @@ def make_branch_maps(trait_schema, namespace_prefix):
         # So all the values in the map should conform to the above map_values Record. Therefore trait_type's avro type
         # has to be a record. Each field of the record is a Map
 
-
+def get_hdfs_client():
+    client = InsecureClient("http://asvotest1.aao.gov.au:50070", 'lharischandra')
+    return client
 
 def handleSubTraits(subtraits, col_type):
     for key in subtraits:
