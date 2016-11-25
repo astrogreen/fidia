@@ -814,10 +814,9 @@ class LZIFUDataMixin:
     lzifu_input_redshift.set_description("The starting redshift provided to LZIFU.")
     lzifu_input_redshift.set_pretty_name("LZIFU Input Redshift")
 
-
-    @trait_property('int')
+    @trait_property('string')
     def lzifu_ncomp(self):
-        return self._hdu[0].header['NCOMP']
+        return str(self._hdu[0].header['NCOMP'])
     lzifu_ncomp.set_short_name('NCOMP')
     lzifu_ncomp.set_description("Number of components fit by LZIFU.")
     lzifu_ncomp.set_pretty_name(r"LZIFU $n_{\rm comp}$")
