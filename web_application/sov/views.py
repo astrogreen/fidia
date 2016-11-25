@@ -151,6 +151,7 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.astro_object = astroobject_pk
         self.feature_catalog_data = astro_object.get_feature_catalog_data()
 
+
         # Endpoint-only
         serializer_class = sov.serializers.AstroObjectSerializer
         serializer = serializer_class(
@@ -220,6 +221,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.T
             context={
                 'request': request,
                 'trait_url': self.trait_url,
+                'trait_class':self.trait_class
             }
         )
 

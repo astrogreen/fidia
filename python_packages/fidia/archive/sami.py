@@ -413,6 +413,8 @@ class SAMISpectralCube(SpectralMap):
     def shape(self):
         return self.value().shape
 
+    unit =  1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
+
     @trait_property('float.array')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
@@ -946,9 +948,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     def shape(self):
         return self.value().shape
 
-    @property
-    def unit(self):
-        return units.km / units.s
+    unit = units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -995,9 +995,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     def shape(self):
         return self.value().shape
 
-    @property
-    def unit(self):
-        return units.km / units.s
+    unit = units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -1084,9 +1082,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     def shape(self):
         return self.value().shape
 
-    @property
-    def unit(self):
-        return units.km / units.s
+    unit = units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -1132,9 +1128,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     def shape(self):
         return self.value().shape
 
-    @property
-    def unit(self):
-        return units.km / units.s
+    unit = units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -1244,8 +1238,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     def shape(self):
         return self.value().shape
 
-    def unit(self):
-        return None
+    unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
 
     @trait_property('float.array')
     def value(self):
@@ -1601,6 +1594,8 @@ class LZIFUCombinedFit(SpectralMap):
     def shape(self):
         return self.value().shape
 
+    unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
+
     @trait_property('float.array')
     def value(self):
         return self._hdu[self._color + '_CONTINUUM'].data + self._hdu[self._color + '_LINE'].data
@@ -1809,6 +1804,10 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
         return self.find_file(data_product_name="ExtinctCorrMaps", data_product_filename="extinction")
 
 
+    @property
+    def units(self):
+        return units.dimensionless_unscaled
+
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array', 'value')
     error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array', 'value')
     
@@ -1879,6 +1878,8 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
         return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
+
+    unit = units.solMass / units.yr
 
     value = trait_property_from_fits_data('SFR', 'float.array', 'value')
     value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
@@ -2216,14 +2217,18 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.change_defaults('m_r-auto', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
         # z_helio
-        redshift = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_helio'])]))
+        redshift = catalog_trait(Redshift, 'redshift',
+                                 OrderedDict([('value', self.tabular_data['z_helio']),
+                                              ('unit', units.dimensionless_unscaled)]))
         redshift.branches_versions = {('helio', "Heliocentric", "Redshift in the heliocentric frame"): {"V02"}}
         redshift.set_description("Heliocentric redshift  [LocalFlowCorrectionv08 DistancesFramesv08 Z_HELIO]")
         self.available_traits.register(redshift)
         del redshift
 
         # z_tonry
-        redshift_tonry = catalog_trait(Redshift, 'redshift', OrderedDict([('value', self.tabular_data['z_tonry'])]))
+        redshift_tonry = catalog_trait(Redshift, 'redshift',
+                                       OrderedDict([('value', self.tabular_data['z_tonry']),
+                                                    ('unit', units.dimensionless_unscaled)]))
         redshift_tonry.branches_versions = {('tonry', "Flow Corrected", "Flow corrected redshift using Tonry model"): {"V02"}}
         redshift_tonry.set_description("Flow-corrected redshift using Tonry model")
         redshift_tonry.set_documentation(
@@ -2320,7 +2325,8 @@ class SAMIDR1PublicArchive(Archive):
 
         # ellip
         ellip = catalog_trait(MorphologicalMeasurement, 'ellipticy-r_band',
-                              OrderedDict([('value', self.tabular_data['ellip'])]))  # type: MorphologicalMeasurement
+                              OrderedDict([('value', self.tabular_data['ellip']),
+                                           ('unit', units.dimensionless_unscaled)]))  # type: MorphologicalMeasurement
         ellip.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         ellip.set_pretty_name("Ellipticity", r_band="r-band")
         ellip.set_description("Ellipticity from r-band Sersic fits")
@@ -2334,7 +2340,7 @@ class SAMIDR1PublicArchive(Archive):
         # pa
         pa = catalog_trait(MorphologicalMeasurement, 'position_angle-r_band',
                            OrderedDict([('value', self.tabular_data['PA']),
-                                        ('unit', units.deg)]))  # type: MorphologicalMeasurement
+                                        ('unit', units.degree)]))  # type: MorphologicalMeasurement
         pa.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         pa.set_pretty_name("Position Angle", r_band="r-band")
         pa.set_description("Position angle from r-band Sersic fits")
@@ -2376,7 +2382,8 @@ class SAMIDR1PublicArchive(Archive):
         del stellar_mass
 
         g_i = catalog_trait(Measurement, 'g_i',
-                           OrderedDict([('value', self.tabular_data['g_i'])]))  # type: Measurement
+                           OrderedDict([('value', self.tabular_data['g_i']),
+                                        ('unit', units.mag)]))  # type: Measurement
         g_i.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         g_i.set_pretty_name(r"Kron Colour")
         g_i.set_description(r"Kron colour (aperture-matched based on r-band), extinction corrected.")
