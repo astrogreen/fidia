@@ -36,7 +36,37 @@
                             you wish to report an issue, please use the <a href="{% url 'support-bug' %}">Bug Report
                                 Form</a>.
                         </li>
+                        <li class="list-group-item success">If you have a science-based comment or question about the data, please contact the survey teams directly.
+                        <br><br>
+                            <table class="table table-condensed">
+                                <thead>
+                                <tr class="">
+                                    <th>Survey</th>
+                                    <th>Contact</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>SAMI</td>
+                                    <td>
+                                        {% with "sov/survey/survey/"|add:"sami"|add:"/pi.html" as template %}
+                                            {% include template %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>GAMA</td>
+                                    <td>
+                                        {% with "sov/survey/survey/"|add:"gama"|add:"/pi.html" as template %}
+                                            {% include template %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </li>
                     </ul>
+
                 </div><!--
                 --><div class="col-xs-12 col-sm-offset-1 col-sm-6 vcenter animated fadeInUp">
                     {% if email_status == "success" %}

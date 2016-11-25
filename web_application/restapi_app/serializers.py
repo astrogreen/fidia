@@ -88,7 +88,7 @@ class ContactFormSerializer(serializers.Serializer):
             </table>
         """
 
-        subject, from_email, to = 'ADC Contact Form', from_email, 'liz.mannering@uwa.edu.au'
+        subject, from_email, to = 'ADC Contact Form', from_email, 'asvo-feedback@aao.gov.au'
 
         html_content = format_html(snippet, name=name, from_email=from_email, message=message, date=date)
 
@@ -108,7 +108,7 @@ class BugReportSerializer(serializers.Serializer):
                'base_template': 'textarea.html', 'rows': 6}
     )
     url = serializers.CharField(required=False, label='URL (optional)', max_length=100,
-                                style={'placeholder': 'e.g., /asvo/data-access/data-browser/'})
+                                style={'placeholder': 'e.g., /asvo/sov/'})
 
     name = serializers.CharField(
         max_length=100, required=True, label="Name*",
@@ -159,7 +159,7 @@ class BugReportSerializer(serializers.Serializer):
             </table>
         """
 
-        subject, from_email, to = 'ADC Bug Report', from_email, 'liz.mannering@uwa.edu.au'
+        subject, from_email, to = 'ADC Bug Report', from_email, 'adc-bugs@aao.gov.au'
 
         html_content = format_html(snippet, name=name, from_email=from_email, url=url, message=message, date=date,
                                    survey_team=survey_team)
