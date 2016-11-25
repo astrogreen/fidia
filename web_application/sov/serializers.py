@@ -139,6 +139,7 @@ class TraitSerializer(serializers.Serializer):
     pretty_name = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
+    units = serializers.SerializerMethodField()
 
     def get_description(self, trait):
         return trait.get_description()
@@ -165,6 +166,9 @@ class TraitSerializer(serializers.Serializer):
         _url += subtrait_str
 
         return _url
+
+    def get_units(self, trait):
+        return trait.get_formatted_units()
 
     def get_attribute(self, instance):
         """

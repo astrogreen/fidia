@@ -19,7 +19,7 @@ CONTEXT = {}
 CONTEXT['reserved_keywords'] = ['survey', 'data_release', 'astro_object', 'trait', 'trait_key', 'trait_key_array',
                                 'trait_url', 'sub_trait_key', 'parent_trait', 'parent_sub_trait', 'sub_traits',
                                 'pretty_name', 'short_name', 'name', 'branch', 'version', 'url', 'all_branches_versions',
-                                'documentation', 'description']
+                                'documentation', 'description', 'units']
 
 
 class FITSRenderer(renderers.BaseRenderer):

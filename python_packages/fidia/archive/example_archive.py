@@ -1,6 +1,8 @@
 
 import numpy as np
 
+from astropy import units
+
 from .archive import Archive
 from ..traits import *
 from ..traits.trait_property import trait_property_from_constant
@@ -91,8 +93,7 @@ class VelocityMap(Image):
     def shape(self):
         return self.value.shape
 
-    def unit(self):
-        return None
+    unit = units.km / units.s
 
     @trait_property('float.array')
     def value(self):
@@ -116,8 +117,7 @@ class LineMap(Image):
     def shape(self):
         return self.value.shape
 
-    def unit(self):
-        return None
+    unit = units.erg / units.s / units.cm**2
 
     @trait_property('float.array')
     def value(self):
@@ -246,8 +246,7 @@ class Redshift(Measurement):
     def value(self):
         return 3.14159
 
-    def unit(self):
-        return None
+    unit = units.dimensionless_unscaled
 
 class TestMissingProperty(SpectralMap):
 
