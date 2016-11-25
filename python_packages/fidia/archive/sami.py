@@ -1878,23 +1878,29 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
         return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
-
     unit = units.solMass / units.yr
 
-    value = trait_property_from_fits_data('SFR', 'float.array', 'value')
-    value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
-    error = trait_property_from_fits_data('SFR_ERR', 'float.array', 'error')
-    error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
+    # value = trait_property_from_fits_data('SFR', 'float.array', 'value')
+    # value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
+    # error = trait_property_from_fits_data('SFR_ERR', 'float.array', 'error')
+    # error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
     
-    sub_traits = TraitRegistry()
-    sub_traits.register(SAMIVAP)
-
     @trait_property('float.array.2')
     def value(self):
         value = self._hdu['SFR'].data[0, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total star-formation rate (single component)")
+
+    @trait_property('float.array.2')
+    def error(self):
+        sigma = self._hdu['SFR_ERR'].data[0, :, :]
+        return sigma
+    value.set_description("Error in total star-formation rate (single component)")
+
+    sub_traits = TraitRegistry()
+    sub_traits.register(SAMIVAP)
+
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
         """Surface density of star formation."""
@@ -1910,15 +1916,6 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
         value.set_description(r"Star formation rate density maps")
         error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array', 'error')
         error.set_description(r"Errors (1-sigma uncertainty) in SFR Density.")
-
-SFRMap.set_pretty_name("Star Formation Rate Map")
-
-    @trait_property('float.array.2')
-    def error(self):
-        sigma = self._hdu['SFR_ERR'].data[0, :, :]
-        return sigma
-    value.set_description("Error in total star-formation rate (single component)")
-
 
 SFRMap.set_pretty_name("Star-Formation-Rate Map")
 
@@ -1968,18 +1965,8 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile):
     defaults = DefaultsRegistry(version_defaults={branch_lzifu_m_comp[0]: 'V02'})
 
     def fits_file_path(self):
-        data_product_name = "SFRMaps"
 
-        return "/".join(
-            (self.archive.vap_data_path,
-             data_product_name,
-             data_product_name + self.version,
-             self.object_id + "_SFR_" + self.branch + ".fits"))
-
-    # value = trait_property_from_fits_data('SFR', 'float.array.2', 'value')
-    # value.set_description(r"Star formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$)")
-    # error = trait_property_from_fits_data('SFR_ERR', 'float.array.2', 'error')
-    # error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
+        return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
     @trait_property('float.array.2')
     def value(self):
@@ -2027,18 +2014,14 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile):
         return value
     value.set_description("Star-formation rate in component with broadest Hα line")
 
-
     @trait_property('float.array.2')
     def comp_3_error(self):
         sigma = self._hdu['SFR_ERR'].data[3, :, :]
         return sigma
     value.set_description("Error in star-formation rate in component with broadest Hα line")
-
-
 SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
 
-class EmissionClass(ClassificationMap, TraitFromFitsFile):
 class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
 
