@@ -382,9 +382,16 @@ class SAMISpectralCube(SpectralMap):
         self._binning = "05"
 
         # We don't currently support multiple observations, so set the plate ID
-        # to the first/only observation
-        self._plate_id = self.archive._cubes_directory.ix[self.object_id, self._color, self._binning]\
-            .reset_index()['plate_id'].iloc[0]
+        # to that from the master contents list
+        match = re.match(sami_cube_re, self.archive.cube_file_index['red_cube_file'][self.object_id])
+        if not match:
+            # The given cube_filename is not valid, something is wrong!
+            raise DataNotAvailable(
+                "The cube filename '%s' cannot be parsed." % self.archive.cube_file_index['red_cube_file'][
+                    self.object_id])
+
+        self._plate_id = match.group('plate_id')
+        self._n_comb = match.group('n_comb')
 
         # Confirm the requested data actually exists:
         try:
@@ -489,6 +496,12 @@ class SAMISpectralCube(SpectralMap):
         """Label assigned to the plate"""
         return self.hdu[0].header['LABEL']
 
+    @trait_property('string')
+    def standard_star_id(self):
+        """SAMI ID of the secondary standard star on the same plate"""
+        return self.hdu[0].header['STDNAME']
+
+
     @trait_property('float')
     def ra(self):
         """Catalog right-ascension of the galaxy"""
@@ -551,6 +564,84 @@ class SAMISpectralCube(SpectralMap):
                 del h['PLATEID']
                 w = wcs.WCS(h)
                 return w.to_header_string()
+
+    @sub_traits.register
+    class PSF(Trait):
+        r"""The spatial point-spread function of the observed data.
+
+        The PSF is determined from a circular Moffat profile fit to the
+        secondary standard star image (i.e. the flux calibrated red and blue
+        star cubes summed over the wavelength axis). The form of the Moffat
+        profile is:
+
+        $f = \frac{\beta - 1}{\pi \alpha^2}  \left(1 + (x/\alpha)^2 + (y/\alpha)^2 \right) - \beta$
+
+        The alpha and beta parameters of the fit are given in the secondary
+        standard headers. The given PSF is the luminosity weighted average over
+        the full (i.e. red + blue) SAMI wavelength range.
+
+        The PSF (i.e. the FWHM of the Moffat profile fit) is given by:
+
+        $fwhm = 2 \alpha  \sqrt{2^{(1/\beta)} - 1}$
+
+        and is in arc seconds.
+
+        """
+        # PSF information is stored in the secondary standard star cube, but not
+        # in the object cube. Therefore, we have to get the name of the standard
+        # star from the header, and then open the corresponding file to get the
+        # necessary info.
+        #
+        # The file will be in the same cube directory as this one, and will have
+        # the same extension part of the name.
+        #
+        # STDNAME = '10000722'           / Name of standard star
+        # BUNIT   = '10**(-16) erg /s /cm**2 /angstrom /pixel' / Units
+        # MAGG    =    16.98000689664848 / g mag before scaling
+        # MAGR    =    16.56172191560538 / r mag before scaling
+        # PSFALPHA=    1.496290560136887 / PSF parameter: alpha
+        # PSFBETA =    2.308254499400152 / PSF parameter: beta
+        # PSFFWHM =    1.771069994605021 / FWHM (arcsec) of PSF
+
+        trait_type = "psf"
+
+        def init(self):
+
+            self._stdname = self._parent_trait.standard_star_id.value
+
+            log.debug("Standard star name is %s", self._stdname)
+
+            # For some reason, standard stars aren't in the cubes_directory, so this code fails.
+            # self._fits_path = self.archive._cubes_directory.ix[
+            #     self._stdname, self._parent_trait._color, self._parent_trait._binning,
+            #     self._parent_trait._plate_id]['path']
+            #
+            # Instead we'll just replace the IDs:
+            self._fits_path = self._parent_trait._cube_path.replace(self.object_id, self._stdname)
+
+            log.debug("Standard star path is %s", self._fits_path)
+
+        def preload(self):
+            try:
+                self.hdu = fits.open(self._fits_path)
+            except:
+                log.exception("Could not open file for PSF trait %s", self._fits_path)
+                raise
+
+        def cleanup(self):
+            self.hdu.close()
+
+        @trait_property("float")
+        def alpha(self):
+            return self.hdu[0].header['PSFALPHA']
+
+        @trait_property("float")
+        def beta(self):
+            return self.hdu[0].header['PSFBETA']
+
+        @trait_property("float")
+        def fwhm(self):
+            return self.hdu[0].header['PSFFWHM']
 
     @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
@@ -2148,18 +2239,18 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
     spaxels are plotted in black.
 
+    ## Classifications
+
+    Classifications are stored in the map as an integer with the following definitions:
+
+    | Pixel Value | Classification |
+    | ------------|----------------|
+    |   0         |  No data       |
+    |   1         | star formation dominates the emission in all available line ratios |
+    |   2         | other ionization mechanisms dominate |
+
+
     """
-    #
-    # Classifications are stored in the map as an integer with the following definitions:
-    #
-    # | Pixel Value | Classification |
-    # | ------------|----------------|
-    # |   0         |  No data       |
-    # |   1         | star formation dominates the emission in all available line ratios |
-    # |   2         | other ionization mechanisms dominate |
-    #
-    #
-    # """
 
     trait_type = 'emission_classification_map'
 
