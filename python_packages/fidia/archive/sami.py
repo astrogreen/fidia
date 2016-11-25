@@ -1888,6 +1888,22 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
 
+    @sub_traits.register
+    class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
+        """Surface density of star formation."""
+
+        trait_type = 'sfr_density_map'
+
+        unit = units.solMass / units.year / units.kpc**2
+
+        def fits_file_path(self):
+            return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
+
+        value = trait_property_from_fits_data('SFRSurfDensity', 'float.array', 'value')
+        value.set_description(r"Star formation rate density maps")
+        error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array', 'error')
+        error.set_description(r"Errors (1-sigma uncertainty) in SFR Density.")
+
 SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
