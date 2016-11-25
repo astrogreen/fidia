@@ -13,6 +13,7 @@ class ListArticleSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     hit_count = serializers.SerializerMethodField()
+    order = serializers.IntegerField(default=0)
 
     def get_topic_info(self, obj):
         topic_info = {}
@@ -27,12 +28,12 @@ class ListArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = documentation.models.Article
         fields = (
-            'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'hidden', 'hit_count')
+            'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'hidden', 'hit_count', 'order')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
-        ordering = ('updated',)
+        ordering = ('order',)
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -46,6 +47,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     topic_info = serializers.SerializerMethodField()
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    order = serializers.IntegerField(default=0)
 
     hit_count = serializers.SerializerMethodField()
     all_articles_in_topic = serializers.SerializerMethodField()
@@ -76,12 +78,12 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = documentation.models.Article
         fields = (
             'url', 'title', 'content', 'topic', 'topic_info', 'created', 'updated', 'hit_count',
-            'all_articles_in_topic')
+            'all_articles_in_topic', 'order')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
-        ordering = ('updated',)
+        ordering = ('order',)
 
 
 class ArticleURLSerializer(serializers.Serializer):
