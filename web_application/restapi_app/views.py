@@ -46,27 +46,19 @@ def get_client_ip(request):
     return ip
 
 
-def validateRecaptcha(self, request):
-    # Validate the recaptcha box
+def validateQuestion(self, request):
 
-    # Get user's response
-    captcha_rs = request.POST.get('g-recaptcha-response')
+    try:
+        complex_answer = request.POST.get('complex_question')
+        int(complex_answer)
 
-    url = "https://www.google.com/recaptcha/api/siteverify"
-    params = {
-        'secret': '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn',
-        'response': captcha_rs,
-        'remoteip': get_client_ip(request)
-    }
+        if int(complex_answer) == 3:
+            return True
+        else:
+            return False
+    except:
+        return False
 
-    response_content = requests.post(url, data=params)
-    verify_rs = response_content.json()
-
-    recaptcha = {}
-    recaptcha["status"] = verify_rs.get("success", False)
-    recaptcha['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
-
-    return recaptcha
 
 
 class ContactForm(views.APIView):
@@ -99,9 +91,9 @@ class ContactForm(views.APIView):
 
         if serializer.is_valid():
 
-            recaptcha = validateRecaptcha(self, request)
-
-            if recaptcha['status'] is True:
+            is_human = validateQuestion(self,request)
+            print(is_human)
+            if is_human is True:
                 try:
                     serializer.send()
                     return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
@@ -113,7 +105,7 @@ class ContactForm(views.APIView):
                                     status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(
-                    {"email_status": "client_error", "message": "Recaptcha Failed.",
+                    {"email_status": "client_error", "message": "Submission Failed.",
                      'serializer': serializer,
                      'display_form': True},
                     status=status.HTTP_400_BAD_REQUEST)
@@ -156,9 +148,9 @@ class BugReport(views.APIView):
 
         if serializer.is_valid():
 
-            recaptcha = validateRecaptcha(self, request)
-
-            if recaptcha['status'] is True:
+            is_human = validateQuestion(self, request)
+            print(is_human)
+            if is_human is True:
                 try:
                     serializer.send()
                     return Response({"email_status": "success", 'display_form': False}, status=status.HTTP_202_ACCEPTED)
@@ -170,7 +162,7 @@ class BugReport(views.APIView):
                                     status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(
-                    {"email_status": "client_error", "message": "Recaptcha Failed.",
+                    {"email_status": "client_error", "message": "Submission Failed.",
                      'serializer': serializer,
                      'display_form': True},
                     status=status.HTTP_400_BAD_REQUEST)
@@ -195,7 +187,6 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-
         rootview = data_browser.views.RootViewSet()
 
         serializer_class = data_browser.serializers.RootSerializer

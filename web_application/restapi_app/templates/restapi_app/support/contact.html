@@ -7,7 +7,6 @@
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/support/contact.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'user/css/user/user.min.css' %}"/>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 {% endblock %}
 {% block bodyclass %}{% endblock %}
 {% block breadcrumbs %}
@@ -78,7 +77,7 @@
 
                         </div>
                         <ul class="list-group">
-                            <li class="list-group-item"><a href="{% url 'surveys' %}">Survey Overview <i class="fa fa-angle-right"></i></a></li>
+                            <li class="list-group-item"><a href="{% url 'surveys:root-list' %}">Survey Overview <i class="fa fa-angle-right"></i></a></li>
                             <li class="list-group-item"><a href="{% url 'data-access' %}">Data Access Overview <i class="fa fa-angle-right"></i></a></li>
 
                         </ul>
@@ -113,7 +112,6 @@
                                 <em class="sub-heading">* required. Please note: We will not share your details with any third
                                     parties.</em><br>
                             </div>
-                            <div class="g-recaptcha" data-sitekey="6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j"></div>
                             <button type="submit" class="btn text-uppercase btn-primary pull-right margin-top-fifteen"
                                     {% if email_status == "success" %}disabled="true"{% endif %}>Send</button>
                         </form>
@@ -130,6 +128,7 @@
     $("#support-form button").click(function(){
         $(this).html('Sending <i class="fa fa-circle-o-notch fa-spin"></i>');
     });
+    $('#support-form input[name="complex_question"]').attr('placeholder', '1+2');
 </script>
 
 {% endblock %}
