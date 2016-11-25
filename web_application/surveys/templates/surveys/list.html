@@ -250,7 +250,9 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 </div>
 <div class="row">
     <div class="col-xs-12">
+        {% comment %}
         {% include 'sov/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
+        {% endcomment %}
     </div>
 
 </div>
@@ -265,7 +267,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     var SAMPLE_URL = "{% url 'sov:survey-list' survey_pk=survey %}";
 
     catalog = JSON.parse("{{ catalog|escapejs }}");
-
+    console.log(catalog);
     // catalog.data = catalog.data.slice(0,20);
     function convertToSlug(Text) {
         return 'column_'+Text.toLowerCase()
@@ -290,10 +292,11 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             $('#returnTableResults').find('thead > tr').empty();
             $('#returnTableResults').addClass("table-bordered cell-border");
 
+
             //APPEND COLUMN VALUES TO TABLE HEAD
             $.each(catalog.column_names, function(i,k){
 
-                var b = { title: '<span>'+k+'</span><br><span>testunit</span>', name:convertToSlug(k) };
+                var b = { title: '<span>'+k+'</span><span class="small">&nbsp;'+catalog.units[i]+'</span>', name:convertToSlug(k) };
 
 //                if (k.indexOf("url_img") > -1){
 //                    b = {
@@ -307,7 +310,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 if (k.indexOf("ID") > -1){
                     b = {
                         "name":convertToSlug(k),
-                        "title":k,
+                        "title":'<span>'+k+'</span><br><span>'+catalog.units[i]+'</span>',
                         "render": function(data, type, row) {
                             var temp_string = '<a href="'+SAMPLE_URL+data+'" target="_blank">'+data+'</a>';
                             return temp_string;

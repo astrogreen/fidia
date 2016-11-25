@@ -30,6 +30,20 @@
             <td class="p_light"><i class="fa fa-map-pin"></i> Version </td>
             <td> {{version}} </td>
         </tr>
+
+        {% if response.data.units and response.data.units != '$\mathrm{}$' %}
+        <tr class="active">
+            <td colspan="2" align="middle">
+                <h6 class="text-uppercase" style="margin:0">Properties</h6></td>
+        </tr>
+
+        <tr>
+            <td class="p_light">Unit </td>
+            <td> {{response.data.units}} </td>
+        </tr>
+        {% endif %}
+
+
         <tr class="active">
             <td colspan="2" align="middle">
                 <h6 class="text-uppercase" style="margin:0">Actions</h6>

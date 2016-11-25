@@ -66,7 +66,7 @@
                             <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
                             {% for f in feature_catalog_data %}
                                 <tr>
-                                    <td class="p_light">{{f.pretty_name}}</td>
+                                    <td class="p_light">{{f.pretty_name}} {% if f.unit and f.unit != '$\mathrm{}$' %}[{{f.unit}}]{% endif %}</td>
                                     <td>{{f.value}}</td>
                                 </tr>
                             {% endfor %}
