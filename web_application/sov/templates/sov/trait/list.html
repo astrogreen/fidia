@@ -66,13 +66,12 @@
                                 <strong>{{branch_value.pretty_name}}:</strong>
                                 <em class="">{{branch_value.description}}</em>
                             </a>
-
                         </li>
                         {% else %}
-                        <li><a href="{{branch_value.url}}"><strong>{{branch_value.pretty_name}}:</strong>
-                            <em class="">{{branch_value.description}}</em>
-                        </a>
-
+                        <li>
+                            <a href="{{branch_value.url}}"><strong>{{branch_value.pretty_name}}:</strong>
+                                <em class="">{{branch_value.description}}</em>
+                            </a>
                         </li>
                         {% endif %}
                         {% endfor %}

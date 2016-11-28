@@ -12,7 +12,7 @@
     <td class="wrapword">
         {% if tpdata|key:tp|key:"type" == "string" %}
         {{tpdata|key:tp|key:"value"|linebreaks|truncatechars:60}}
-        {% elif tpdata|key:tp|key:"type" == "float.array" or tpdata|key:tp|key:"type" == "int.array" or tpdata|key:tp|key:"type" == "string.array"  %}
+        {% elif tpdata|key:tp|key:"type" == "float.array" or tpdata|key:tp|key:"type" == "int.array" or tpdata|key:tp|key:"type" == "string.array" or tpdata|key:tp|key:"value" == tpdata|key:tp|key:'url' %}
         <a href='{{tpdata|key:tp|key:"value"}}'>view <i class="fa fa-angle-right"></i> </a>
         {% else %}
         {{tpdata|key:tp|key:"value"}}

@@ -46,7 +46,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
             var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax) - 1];
 
             // if z_min == z_max
-            if ((NumArrSort[Math.floor(NumArr.length)] == NumArrSort[Math.floor(NumArr.length) - 1] )) {
+            if ((NumArrSort[Math.floor(NumArr.length)] == NumArrSort[Math.floor(NumArr.length) - 1] ) || (typeof _Zmin === undefined) || ( typeof _Zmax === undefined)) {
                 // exit
                 $('#visualization_status').html('<span class="text-error"><strong>Error:</strong> max/min values cannot be defined (likely: value object contains only NaN)</span>');
                 return

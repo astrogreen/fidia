@@ -284,6 +284,10 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
             self.fidia_type = "sub_trait"
             subtrait_pointer = trait_pointer[subtraitproperty_pk]
 
+            self.trait_2D_map = False
+            if isinstance(subtrait_pointer, traits.Map2D):
+                self.trait_2D_map = True
+
             serializer = sov.serializers.TraitSerializer(
                 instance=subtrait_pointer, many=False,
                 context={'request': request,
@@ -390,8 +394,22 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.h
         self.sub_trait = subtrait_pointer.trait_name
 
         self.trait_2D_map = False
-        if isinstance(self.trait, traits.Map2D):
+        if isinstance(traitproperty_pointer, traits.Map2D):
             self.trait_2D_map = True
+
+        if 'array' in traitproperty_pointer.type and 'string' not in traitproperty_pointer.type:
+            try:
+                n_axes = len(traitproperty_pointer.value.shape)
+            except AttributeError:
+                pass
+            except fidia.exceptions.DataNotAvailable:
+                message = 'No ' + subtraitproperty_pk + ' data available for ' + trait_pk
+                raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
+                                                              status_code=status.HTTP_404_NOT_FOUND)
+            else:
+                if n_axes == 2:
+                    self.trait_2D_map = True
+                    # @TODO: Handle arrays other than numpy ndarrays
 
         serializer = sov.serializers.TraitPropertySerializer(
             instance=traitproperty_pointer, many=False,
