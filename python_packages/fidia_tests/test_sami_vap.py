@@ -1,5 +1,7 @@
 import pytest
 
+import itertools
+
 import numpy
 from fidia.archive import sami
 from fidia.traits import TraitKey, Trait, WorldCoordinateSystem
@@ -107,20 +109,33 @@ class TestSAMISFRmaps:
 
         assert a_sami_galaxy['sfr_map'].value().shape == a_sami_galaxy['sfr_map'].error().shape
 
+    def test_sfr_map_present_for_duplicate_galaxy(self, a_duplicate_sami_galaxy):
 
+        assert isinstance(a_duplicate_sami_galaxy['sfr_map'], Trait)
 
-    def test_extinction_map_present(self, a_sami_galaxy):
-        assert isinstance(a_sami_galaxy['extinction_map'], Trait)
+        assert isinstance(a_duplicate_sami_galaxy['sfr_map'].value(), numpy.ndarray)
 
-    def test_emission_classification_maps_present(self, a_sami_galaxy):
+        assert isinstance(a_duplicate_sami_galaxy['sfr_map'].error(), numpy.ndarray)
+
+        assert a_duplicate_sami_galaxy['sfr_map'].value().shape == a_duplicate_sami_galaxy['sfr_map'].error().shape
+
+    def test_extinction_map_present(self, a_sami_galaxy, a_duplicate_sami_galaxy):
+
+        assert isinstance(a_sami_galaxy['extinction_map'].value(), numpy.ndarray)
+        assert isinstance(a_duplicate_sami_galaxy['extinction_map'].value(), numpy.ndarray)
+
+    def test_emission_classification_maps_present(self, a_sami_galaxy, a_duplicate_sami_galaxy):
         # type: (AstronomicalObject) -> None
 
 
-        trait_list = (
-            a_sami_galaxy['emission_classification_map'],
-            a_sami_galaxy['emission_classification_map:1_comp'],
-            a_sami_galaxy['emission_classification_map:recom_comp']
-        )
+        trait_list = [obj[trait] for obj, trait in itertools.product(
+                          (a_sami_galaxy, a_duplicate_sami_galaxy),
+                          ('emission_classification_map',
+                           'emission_classification_map:1_comp',
+                           'emission_classification_map:recom_comp')
+                        )
+                      ]
+
         for trait in trait_list:
             assert isinstance(trait, Trait)
             assert isinstance(trait.value(), numpy.ndarray)

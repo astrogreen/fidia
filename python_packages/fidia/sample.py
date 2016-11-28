@@ -172,8 +172,9 @@ class Sample(collections.MutableMapping):
                 data_table.append(row)
                 first_row = False
 
-        # Construct column names
+        # Construct column names and units
         column_names = ["ID"]
+        column_units = [""]
         for tp in trait_properties:
             # Get the pretty name of the Trait
             col_name = tp[0].get_pretty_name()
@@ -182,10 +183,14 @@ class Sample(collections.MutableMapping):
                 col_name += " " + tp[1].get_pretty_name()
             column_names.append(col_name)
 
+            # Get the unit associated with the trait
+            formatted_unit = tp[0].get_formatted_units()
+            column_units.append(formatted_unit)
 
         return {'data': data_table,
                 'column_names': column_names,
-                'trait_paths': trait_paths}
+                'trait_paths': trait_paths,
+                'units': column_units}
 
 
     @property

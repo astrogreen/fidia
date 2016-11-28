@@ -147,6 +147,10 @@ body {
     margin-bottom: 5px;
     margin-top: 5px;
   }
+  p.extranormal {
+    font-size: 14px;
+    line-height: 14px;
+  }
   p.small {
     margin-bottom: 0;
     font-size: 12px;
@@ -162,6 +166,7 @@ body {
   }
   .small {
     font-size: 12px;
+    line-height: 12px;
   }
   a.small {
     font-size: 12px;
@@ -192,6 +197,13 @@ h3, h4 {
   font-weight: 400;
 }
 
+.doc_p {
+  color: #333333;
+  font-family: Roboto, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+  font-size: 16px;
+  line-height: 25.6px;
+}
+
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   color: #232829;
   color: #404040;
@@ -208,6 +220,10 @@ small, .sub-heading, a.sub-heading {
 
 .sub-heading {
   font-size: 14px;
+}
+
+.bold {
+  font-weight: bold;
 }
 
 .label {
@@ -1239,10 +1255,21 @@ header {
   margin-bottom: 10px !important
 }
 
+.padding-top-five {
+  padding-top: 5px;
+}
+
+.padding-top-ten {
+  padding-top: 10px;
+}
+
+.padding-top-fifteen {
+  padding-top: 15px;
+}
+
 .headline {
   h2 {
     margin-top: 0;
-    //display:inline-block;
   }
   .options {
     line-height: 40px;
@@ -1632,7 +1659,7 @@ p.breakword {
   background: url("../../img/background/panel-background2.png") repeat-x;
 }
 
-.panel.warning, .panel-body.warning, .list-group-item.warning {
+.panel.warning, .panel-body.warning, .well.warning, .list-group-item.warning {
   border-left: 3px solid #f1cb76;
 }
 
@@ -1936,7 +1963,13 @@ li.nested_dropdown > a {
     //color: #777;
     vertical-align: middle;
     line-height: 1.2;
-    font-size:12px;
+    font-size: 12px;
+  }
+  &.normal{
+    td, p {
+    line-height: 1.2;
+    font-size: 14px;
+  }
   }
   td.lead {
 

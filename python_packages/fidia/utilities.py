@@ -7,7 +7,7 @@ import fcntl
 import functools
 from time import sleep
 
-# from sortedcontainers import SortedDict
+from sortedcontainers import SortedDict
 
 from . import slogging
 log = slogging.getLogger(__name__)
@@ -40,7 +40,7 @@ class WildcardDictionary(dict):
 
         return result
 
-class SchemaDictionary(dict):
+class SchemaDictionary(SortedDict):
     """A dictionary class that can update with nested dicts, but does not allow changes.
 
     Note that this is not fully implemented. It only prevents changes introduced through the `.update` method. See ASVO-
@@ -57,7 +57,7 @@ class SchemaDictionary(dict):
         return dictionary
 
     def __init__(self, *args, **kwargs):
-        super(SchemaDictionary, self).__init__(*args, **kwargs)
+        super(SchemaDictionary, self).__init__(str, *args, **kwargs)
 
         self.make_sub_dicts_schema_dicts()
 
@@ -74,9 +74,9 @@ class SchemaDictionary(dict):
             raise TypeError("A SchemaDictionary can only be updated with a dict-like object.")
         for key in other_dict.keys():
             if key not in self:
-                # New material. Add (a copy of) it. If it is a dictionary
-                # but not a SchemaDictonary, make it a SchemaDictionary
-                if isinstance(other_dict[key], dict) and not isinstance(other_dict[key], SchemaDictionary):
+                # New material. Add (a copy of) it. If it is a dictionary, make
+                # a copy as a SchemaDictionary
+                if isinstance(other_dict[key], dict):
                     to_add = SchemaDictionary(other_dict[key])
                 else:
                     to_add = deepcopy(other_dict[key])

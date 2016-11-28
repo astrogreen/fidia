@@ -1,5 +1,4 @@
 from time import gmtime, strftime
-from captcha.fields import ReCaptchaField
 from django.utils.html import escape, format_html
 from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
 from rest_framework import serializers
@@ -56,9 +55,9 @@ class ContactFormSerializer(serializers.Serializer):
         style={'placeholder': 'Message', 'base_template': 'textarea.html', 'rows': 6}
     )
 
-    captcha = ReCaptchaField(attrs={
-        'theme': 'clean',
-    })
+    complex_question = serializers.CharField(
+        max_length=1000, required=True, label="Solve this simple problem and enter the result.*",
+    )
 
     def send(self):
         from_email = str(self.validated_data.get('email'))
@@ -88,7 +87,7 @@ class ContactFormSerializer(serializers.Serializer):
             </table>
         """
 
-        subject, from_email, to = 'ADC Contact Form', from_email, 'liz.mannering@uwa.edu.au'
+        subject, from_email, to = 'ADC Contact Form', from_email, 'asvo-feedback@aao.gov.au'
 
         html_content = format_html(snippet, name=name, from_email=from_email, message=message, date=date)
 
@@ -108,7 +107,7 @@ class BugReportSerializer(serializers.Serializer):
                'base_template': 'textarea.html', 'rows': 6}
     )
     url = serializers.CharField(required=False, label='URL (optional)', max_length=100,
-                                style={'placeholder': 'e.g., /asvo/data-access/data-browser/'})
+                                style={'placeholder': 'e.g., /asvo/sov/'})
 
     name = serializers.CharField(
         max_length=100, required=True, label="Name*",
@@ -120,6 +119,10 @@ class BugReportSerializer(serializers.Serializer):
     )
     survey_team = serializers.ChoiceField(choices=['Not Applicable', 'GAMA', 'SAMI'], required=False,
                                           label='Survey Team (optional)', allow_blank=True)
+
+    complex_question = serializers.CharField(
+        max_length=1000, required=True, label="Solve this simple problem and enter the result.*",
+    )
 
     def send(self):
         from_email = str(self.validated_data.get('email'))
@@ -159,7 +162,7 @@ class BugReportSerializer(serializers.Serializer):
             </table>
         """
 
-        subject, from_email, to = 'ADC Bug Report', from_email, 'liz.mannering@uwa.edu.au'
+        subject, from_email, to = 'ADC Bug Report', from_email, 'adc-bugs@aao.gov.au'
 
         html_content = format_html(snippet, name=name, from_email=from_email, url=url, message=message, date=date,
                                    survey_team=survey_team)
