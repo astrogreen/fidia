@@ -252,7 +252,17 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     <div class="col-xs-12">
         {% include 'sov/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
     </div>
-
+    <div class="col-xs-12"><br><br>
+        <div class="well warning">
+            <div class="p ">
+                <span class="sub-heading">Data product download functionality is in alpha. If you spot an error, please <a
+                        href="{% url 'support-bug' %}">report a bug</a>.
+                        If you are unable to download products using this table, all data can be downloaded directly from ADC using the rsync or wget commands. For more information, read the documentation on <a
+                            href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data downloads</a>.
+                </span>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% comment %}
@@ -265,7 +275,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     var SAMPLE_URL = "{% url 'sov:survey-list' survey_pk=survey %}";
 
     catalog = JSON.parse("{{ catalog|escapejs }}");
-    console.log(catalog);
+    // console.log(catalog);
     // catalog.data = catalog.data.slice(0,20);
     function convertToSlug(Text) {
         return 'column_'+Text.toLowerCase()
@@ -295,7 +305,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             $.each(catalog.column_names, function(i,k){
 
                 var b = {};
-                console.log(catalog.units[i]);
 
                  // use these in the dropdown (ASVO-853)
                 b.units = catalog.units[i];
@@ -395,7 +404,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
             // populate columns
             update_columns = function(element){
-                console.log('update columns');
+
                 // Append column options to the range select
                 for (var k=0;k<columns.length;k++){
                     // if you can parse as float, then append
