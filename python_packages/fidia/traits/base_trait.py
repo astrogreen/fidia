@@ -319,7 +319,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     def get_formatted_units(cls):
         if hasattr(cls, 'unit'):
             if hasattr(cls.unit, 'value'):
-                formatted_unit = "{0.value:0.03g} {0.unit:latex_inline}".format(cls.unit)
+                formatted_unit = "{0.unit:latex_inline}".format(cls.unit)
             else:
                 try:
                     formatted_unit = cls.unit.to_string('latex_inline')
@@ -349,7 +349,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 if not formatted_unit.endswith("$"):
                     formatted_unit = formatted_unit + "$"
 
-            # Return the final value.
+            # Return the final value, with the multiplier attached
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.value:0.03g} {1}".format(cls.unit, formatted_unit)
             return formatted_unit
         else:
             return ""
