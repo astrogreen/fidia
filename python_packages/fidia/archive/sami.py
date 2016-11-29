@@ -1041,13 +1041,13 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     unit = units.km / units.s
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        return self._hdu['V'].data[1, :, :]
+        return self._hdu['V'].data[1:2, :, :]
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        return self._hdu['V_ERR'].data[1, :, :]
+        return self._hdu['V_ERR'].data[1:2, :, :]
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1088,11 +1088,11 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
 
     unit = units.km / units.s
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
         return self._hdu['V'].data[1:, :, :]
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
         return self._hdu['V_ERR'].data[1:, :, :]
 
@@ -1175,13 +1175,13 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
     unit = units.km / units.s
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        return self._hdu['VDISP'].data[1, :, :]
+        return self._hdu['VDISP'].data[1:2, :, :]
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        return self._hdu['VDISP_ERR'].data[1, :, :]
+        return self._hdu['VDISP_ERR'].data[1:2, :, :]
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1221,11 +1221,11 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     unit = units.km / units.s
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
         return self._hdu['VDISP'].data[1:, :, :]
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
         return self._hdu['VDISP_ERR'].data[1:, :, :]
     error.set_short_name('ERROR')
@@ -1636,7 +1636,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
 
-class LZIFUCombinedFit(SpectralMap):
+class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
 
     trait_type = 'spectral_fit_cube'
 
@@ -1649,37 +1649,6 @@ class LZIFUCombinedFit(SpectralMap):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
-    def init(self):
-        data_product_name = "EmissionLineFits"
-
-        self._lzifu_fits_file = "/".join((
-            self.archive.vap_data_path,
-            data_product_name,
-            data_product_name + self.version,
-            self.branch,
-            self.object_id + "_" + self.branch + ".fits"))
-
-        log.debug("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
-
-        if not os.path.exists(self._lzifu_fits_file):
-            if os.path.exists(self._lzifu_fits_file + ".gz"):
-                self._lzifu_fits_file += ".gz"
-            else:
-                raise DataNotAvailable("LZIFU file '%s' doesn't exist" % self._lzifu_fits_file)
-
-        # Determine which colour:
-        if self.trait_qualifier == "blue":
-            self._color = "B"
-        elif self.trait_qualifier == "red":
-            self._color = "R"
-        else:
-            raise UnknownTrait("'%s' is not a valid qualifier for '%s'", (self.trait_qualifier, self.trait_type))
-
-    def preload(self):
-        self._hdu = fits.open(self._lzifu_fits_file)
-
-    def cleanup(self):
-        self._hdu.close()
 
     @property
     def shape(self):
@@ -1689,12 +1658,23 @@ class LZIFUCombinedFit(SpectralMap):
 
     @trait_property('float.array.3')
     def value(self):
-        return self._hdu[self._color + '_CONTINUUM'].data + self._hdu[self._color + '_LINE'].data
+        # Determine which colour:
+        if self.trait_qualifier == "blue":
+            color = "B"
+        elif self.trait_qualifier == "red":
+            color = "R"
+        return self._hdu[color + '_CONTINUUM'].data + self._hdu[color + '_LINE'].data
 
 
     @trait_property('string')
     def _wcs_string(self):
-        _wcs_string = self._hdu[self._color + '_CONTINUUM'].header
+        # Determine which colour:
+        if self.trait_qualifier == "blue":
+            color = "B"
+        elif self.trait_qualifier == "red":
+            color = "R"
+        _wcs_string = str( self._hdu[color + '_CONTINUUM'].header)
+        log.debug(_wcs_string)
         return _wcs_string
 
 

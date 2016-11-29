@@ -3,6 +3,7 @@
 import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
+import re
 
 from contextlib import contextmanager
 
@@ -330,6 +331,25 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                         log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
                         raise
                         formatted_unit = ""
+            # For reasons that are not clear, astropy puts the \left and \right
+            # commands outside of the math environment, so we must fix that
+            # here.
+            #
+            # In fact, it appears that the units code is quite buggy.
+            # @TODO: Review units code!
+            if formatted_unit != "":
+                formatted_unit = formatted_unit.replace("\r", "\\r")
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+                formatted_unit = re.sub(r"\$\\(left|right)(\S)\$", r"\\\1\2", formatted_unit)
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+
+            # Return the final value.
             return formatted_unit
         else:
             return ""
@@ -854,7 +874,7 @@ class FITSExportMixin:
         # Value should/will always be the first item in the FITS File (unless it cannot
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
-        if type(self).value.type in ("float.array", "int.array"):
+        if type(self).value.type.startswith("float.array") or type(self).value.type.startswith("int.array"):
             primary_hdu = fits.PrimaryHDU(self.value())
         elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value()])
