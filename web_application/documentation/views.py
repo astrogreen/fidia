@@ -64,7 +64,6 @@ def get_top_articles():
         except:
             # these articles no longer exist
             # clean up django hit count here
-            print(instance)
             # hitcount_instance = HitCount.objects.get_for_object(instance)
             pass
 

@@ -107,17 +107,12 @@
         </div>
     </div>
 </footer>
+
 <script>
     if (location.pathname != '/asvo/under-construction/') {
         $('a[href="' + location.pathname + '"]').parents('li,ul').addClass('active');
     };
-    // Call MathJax after the content has been loaded...
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-    MathJax.Hub.Config({
-      tex2jax: {
-        inlineMath: [ ['$','$'], ['\\(','\\)'] ]
-      }
-    });
+
 
     $(document).ready(function () {
 
@@ -238,6 +233,20 @@
             affixSidebar();
             box_heights()
         });
+
+
+        // Call MathJax after the content has been loaded
+        // Configured to to use $ for inline math, and \\ for blocks
+        // unicode x212B for Angstrom
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            TeX: {Macros: {AA: "{\\unicode{x212B}}"}},
+            "HTML-CSS": {scale: 90}
+        });
+
 
     });
 </script>

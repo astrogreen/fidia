@@ -252,7 +252,17 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     <div class="col-xs-12">
         {% include 'sov/available_products/root.html' with traits=traits single=False survey=survey post_form=post_form csrf_token=csrf_token %}
     </div>
-
+    <div class="col-xs-12"><br><br>
+        <div class="well warning">
+            <div class="p ">
+                <span class="sub-heading">Data product download functionality is in alpha. If you spot an error, please <a
+                        href="{% url 'support-bug' %}">report a bug</a>.
+                        If you are unable to download products using this table, all data can be downloaded directly from ADC using the rsync or wget commands. For more information, read the documentation on <a
+                            href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data downloads</a>.
+                </span>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% comment %}
@@ -265,7 +275,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     var SAMPLE_URL = "{% url 'sov:survey-list' survey_pk=survey %}";
 
     catalog = JSON.parse("{{ catalog|escapejs }}");
-    console.log(catalog);
+    // console.log(catalog);
     // catalog.data = catalog.data.slice(0,20);
     function convertToSlug(Text) {
         return 'column_'+Text.toLowerCase()
@@ -294,7 +304,22 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             //APPEND COLUMN VALUES TO TABLE HEAD
             $.each(catalog.column_names, function(i,k){
 
-                var b = { title: '<span>'+k+'</span><span class="small">&nbsp;'+catalog.units[i]+'</span>', name:convertToSlug(k) };
+                var b = {};
+
+                 // use these in the dropdown (ASVO-853)
+                b.units = catalog.units[i];
+                b.title_plain = k;
+
+                // if units are available, add them to the title property for this column
+                if (b.units == "$\\mathrm{}$" || b.units == "") {
+                    b.title = k;
+                } else {
+                    b.title = k + ' [' + catalog.units[i] + ']';
+                }
+
+                // create a name property to use as a key when referencing this option value
+                b.name = convertToSlug(k);
+
 
 //                if (k.indexOf("url_img") > -1){
 //                    b = {
@@ -305,15 +330,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 //                    }
 //                }
 
-                if (k.indexOf("ID") > -1){
-                    b = {
-                        "name":convertToSlug(k),
-                        "title":'<span>'+k+'</span><br><span>'+catalog.units[i]+'</span>',
-                        "render": function(data, type, row) {
-                            var temp_string = '<a href="'+SAMPLE_URL+data+'" target="_blank">'+data+'</a>';
-                            return temp_string;
-
-                        }
+                if (k.indexOf("ID") > -1) {
+                    // render as a link to the sov
+                    b.render = function (data, type, row) {
+                        return '<a href="' + SAMPLE_URL + data + '" target="_blank">' + data + '</a>';
                     }
                 }
 
@@ -397,11 +417,9 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                     }
 
                     if (_column_append == true){
-                        $(element).append('<option value="'+columns[k].name+'">'+columns[k].title+'</option>');
+                        $(element).append('<option value="'+columns[k].name+'">'+columns[k].title_plain+'</option>');
                     }
-
                 }
-
             };
 
             disable_columns = function(){
