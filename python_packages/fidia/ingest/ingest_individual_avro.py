@@ -200,8 +200,8 @@ def create_astro_object(archive, schema_object, path_prefix):
     try:
         count = 0
         for object_id in sample:
-            if count is 3:
-                break
+            # if count is 10:
+            #     break
 
             # writer = DataFileWriter(open(path_prefix + object_id + '.avro', "wb"), DatumWriter(), schema_object)
             astro_record = dict()
@@ -238,7 +238,9 @@ def create_astro_object(archive, schema_object, path_prefix):
                                 #     version_data.update(sub_trait_data['trait_property_data'])
                                 # Can we find how deep do sub_traits go? as in how many levels are there
                             except DataNotAvailable:
-                                continue
+                                print("Data not available for object_id {0}, {1}, {2}, {3}".format(
+                                        object_id, trait_type, branch, version))
+                                raise
                         trait_type_data["b_" + branch] = branch_data
                     else:
                         # key is the qualifier. Now has to find the branch and version
@@ -260,7 +262,9 @@ def create_astro_object(archive, schema_object, path_prefix):
                                     #     sub_trait_data = data['sub_trait_data'][k]
                                     #     version_data.update(sub_trait_data['trait_property_data'])
                                 except DataNotAvailable:
-                                    continue
+                                    print("Data not available for object_id {0}, {1}, {2}, {3}, {4}".format(
+                                            object_id, trait_type, key, branch, version))
+                                    raise
                             qualifier_data["b_" + branch] = branch_data
                         trait_type_data[key] = qualifier_data
                 astro_record[trait_type] = trait_type_data
