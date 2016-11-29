@@ -1,5 +1,5 @@
 from rest_framework.reverse import reverse
-
+from pprint import pprint
 
 class TraitHelper:
     """ Returns all the useful information about this particular trait """
@@ -40,15 +40,20 @@ class TraitHelper:
         astro_object_url = reverse("sov:astroobject-list",
                                    kwargs={'astroobject_pk': astroobject_pk, 'survey_pk': survey_pk})
 
+        self.all_branches_versions = {}
+
         for tk in self.trait_registry.get_all_traitkeys(trait_name_filter=trait.trait_name):
+
             # trait_class for trait_key
             tc = self.trait_registry.retrieve_with_key(tk)
 
-            # tc.branches_versions has type: fidia.traits.trait_key.BranchesVersions
-            # {'branches_versions': {('1_comp', 'LZIFU 1 component', 'LZIFU fit with only a single component'): {'V02'}}
-            self.all_branches_versions[str(tk.branch)] = {
-                "description": tc.branches_versions.get_description(tk.branch),
-                "pretty_name": tc.branches_versions.get_pretty_name(tk.branch),
-                "url": astro_object_url + str(trait.trait_name) + ':' + str(tk.branch),
-                "versions": [str(tk.version)]
-            }
+            if str(tk.branch) in self.all_branches_versions:
+                # if this branch already exists, append the new version
+                self.all_branches_versions[str(tk.branch)]["versions"].append(str(tk.version))
+            else:
+                self.all_branches_versions[str(tk.branch)] = {
+                    "description": tc.branches_versions.get_description(tk.branch),
+                    "pretty_name": tc.branches_versions.get_pretty_name(tk.branch),
+                    "url": astro_object_url + str(trait.trait_name) + ':' + str(tk.branch),
+                    "versions": [str(tk.version)]
+                }
