@@ -874,7 +874,7 @@ class FITSExportMixin:
         # Value should/will always be the first item in the FITS File (unless it cannot
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
-        if type(self).value.type in ("float.array", "int.array"):
+        if type(self).value.type.startswith("float.array") or type(self).value.type.startswith("int.array"):
             primary_hdu = fits.PrimaryHDU(self.value())
         elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value()])
