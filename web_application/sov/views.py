@@ -40,7 +40,8 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def __init__(self, *args, **kwargs):
         self.surveys = [
-            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0}, "astro_objects":{}},
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0},
+             "astro_objects": {}},
             {"survey": "gama", "count": 0, "current_version": 0},
             {"survey": "galah", "count": 0, "current_version": 0}
         ]
@@ -151,7 +152,6 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.astro_object = astroobject_pk
         self.feature_catalog_data = astro_object.get_feature_catalog_data()
 
-
         # Endpoint-only
         serializer_class = sov.serializers.AstroObjectSerializer
         serializer = serializer_class(
@@ -182,13 +182,14 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.T
 
     permission_classes = [permissions.AllowAny]
     renderer_classes = (
-    sov.renderers.TraitRenderer, renderers.JSONRenderer, sov.renderers.FITSRenderer)
+        sov.renderers.TraitRenderer, renderers.JSONRenderer, sov.renderers.FITSRenderer)
 
     def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
-            self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk, trait.get_pretty_name()]
+            self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk,
+                                    trait.get_pretty_name()]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
@@ -221,7 +222,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.T
             context={
                 'request': request,
                 'trait_url': self.trait_url,
-                'trait_class':self.trait_class
+                'trait_class': self.trait_class
             }
         )
 
@@ -420,7 +421,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.h
                      }
         )
 
-        self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+        self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk,
+                                trait_pointer.get_pretty_name(),
                                 subtrait_pointer.get_pretty_name(), traitproperty_pointer.get_pretty_name()]
 
         return Response(serializer.data)
