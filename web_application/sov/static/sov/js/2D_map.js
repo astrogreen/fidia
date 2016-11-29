@@ -12,8 +12,7 @@ function range(start, count) {
 
 function bouncer(arr) {
     // Removes NAN from the array
-    var filteredArray = arr.filter(Boolean);
-    return filteredArray;
+    return arr.filter(Boolean);
 }
 
 function standardDeviation(values){
@@ -64,8 +63,9 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
     var colorscale = [];
     var numcolors = colors.length;
 
-    // Flatten array
+    // Flatten n x n array to 1D (in order to sort and get min/max values).
     var FlatArr = map_val.reduce(function (p, c) {
+        // type c == 1 x 50 arr
       return p.concat(c);
     });
 
@@ -76,22 +76,39 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
     // var Zmax_old = Math.max.apply(null, bouncer(FlatArr));
     // var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
 
-    // X percentile clip, i.e. 0.01 to 0.99 of the actual values.
-    var NumArrSort = NumArr.sort(function(a,b){return a - b});
+    // sort Num arr ascending
+    NumArr.sort(function(a,b){return a - b});
 
-    var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin_user)];
-    var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user) - 1];
+    // X percentile clip, i.e. 0.01 to 0.99 of the actual values.
+
+    // get closest indices to the 1% and 99% elements (-1 as array starts at 0)
+    var _min_index = Math.floor(NumArr.length * zmin_user);
+    var _max_index = ((Math.floor(NumArr.length * zmax_user) - 1) < 0 ?  0: (Math.floor(NumArr.length * zmax_user) - 1) );
+
+    // console.log(NumArr.length * zmax_user);
+    // console.log(_max_index);
+    // console.log(_min_index);
+
+    var _Zmin = NumArr[_min_index];
+    var _Zmax = NumArr[_max_index];
+
+    // console.log(_Zmax, _Zmin)
 
     if ($('#data-range').length>0){
 
         // $("#data-range").html( _Zmin.toPrecision(8) + "  - " + _Zmax.toPrecision(8));
-        if (_Zmin != 0.0){
+        if (_Zmin != 0.0 || undefined == _Zmin){
             $("#lv").html( _Zmin.toPrecision(6));
         } else {
             $("#lv").html( _Zmin);
         }
+        if (_Zmax != 0.0 || undefined == _Zmax){
+            $("#uv").html( _Zmax.toPrecision(6));
+        } else {
+            $("#uv").html( _Zmax);
+        }
 
-        $("#uv").html( _Zmax.toPrecision(6));
+
         $('#data-range button').click(function(){
             // console.log('clip')
             // figure out percentile clip of values

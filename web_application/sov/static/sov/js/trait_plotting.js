@@ -16,6 +16,9 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
             if (checkPlotData(trait_data) != false){
                 // Everything's good, clear the element
                 $('#'+map_selector).html('');
+                // reset the
+
+
                 // Call plotly
                 plot_map(trait_name, trait_data, map_selector, zmin, zmax);
 
@@ -82,9 +85,12 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
 
                 if ($("input[name=optionsRadios]").length > 0){
                     $("input[name=optionsRadios]").click(function () {
-                        // console.log($("input[name=optionsRadios]:checked").val());
+
                         var array_index = Number($("input[name=optionsRadios]:checked").val());
                         changePlotData(trait_value.value, array_index, zmin, zmax);
+
+                        // reset slider position
+                        resetSliderPosition();
                     });
                 }
             } else {
@@ -126,12 +132,20 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
                     // $("#uv").val($("#slider-range").slider("values", 0));
                     // $("#lv").val($("#slider-range").slider("values", 1));
 
+                    function resetSliderPosition(){
+                        // move slider back
+                        if ($("#slider-range").length > 0) {
+                            var $slider = $("#slider-range");
+                            $slider.slider("values", 0, zmin);
+                            $slider.slider("values", 1, zmax);
+                        }
+                    }
+
                     // RESET
                     $('#reset_2d_plot').click(function () {
-                        // move slider back
-                        var $slider = $("#slider-range");
-                        $slider.slider("values", 0, zmin);
-                        $slider.slider("values", 1, zmax);
+
+                        resetSliderPosition();
+
                         // replot
                         var array_index = null;
                             // if multiple extensions, get the currently selected option.
