@@ -4,24 +4,63 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
     var options_selector = 'extensions-select';
 
     function changePlotData(data, array_index, zmin, zmax) {
+
         // If single component
         var trait_data = data;
         if (array_index != null) {
             // If multi-component
             trait_data = data[array_index];
         }
-        if (getdim(trait_data) !== false) {
-            // Everything's good, clear the element
-            $('#'+map_selector).html('');
-            // Call plotly
-            plot_map(trait_name, trait_data, map_selector, zmin, zmax);
 
-            return trait_data;
+        if (getdim(trait_data) !== false) {
+            if (checkPlotData(trait_data) != false){
+                // Everything's good, clear the element
+                $('#'+map_selector).html('');
+                // reset the
+
+
+                // Call plotly
+                plot_map(trait_name, trait_data, map_selector, zmin, zmax);
+
+                return trait_data;
+            }
         }
         else {
-            return $('#'+map_selector).html('Validation Fail: value array is irregular. Contact support. ');
+            return $('#'+map_selector).html('<span class="text-error">Validation Fail: value array is irregular. Contact support. </span>');
         }
     };
+
+    function checkPlotData(data){
+        /**
+         * check data to be plotted has z_min and z_max that can be defined, and are not equal
+         */
+
+        // flatten array
+        var FlatArr = data.reduce(function (p, c) {
+            return p.concat(c);
+        });
+        // remove NANs
+        var NumArr = bouncer(FlatArr);
+
+        // can min/max exist?
+        var NumArrSort = NumArr.sort(function(a,b){return a - b});
+
+        var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin)];
+        var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax) - 1];
+
+        // if z_min == z_max or either are undefined
+        if ((_Zmin == _Zmax ) || (typeof _Zmin === undefined) || ( typeof _Zmax === undefined) || undefined == _Zmin || undefined == _Zmax) {
+            // exit
+            // remove previous nodes
+            // plotly clear
+            Plotly.purge(map_selector);
+            // display warning
+            $('#'+map_selector).html('<span class="text-error"><strong>Error:</strong> max/min values cannot be defined (likely: value object contains only NaN)</span>');
+            return false
+        } else {
+            return true
+        }
+    }
 
     $.ajax({
         url: trait_url,
@@ -31,26 +70,6 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
         success: function (data) {
             // Parse NANs here
             var trait_value = JSON.parseMore(data);
-
-            // flatten array
-            var FlatArr = trait_value.value.reduce(function (p, c) {
-                return p.concat(c);
-            });
-            // remove NANs
-            var NumArr = bouncer(FlatArr);
-
-            // can min/max exist?
-            var NumArrSort = NumArr.sort(function(a,b){return a - b});
-
-            var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin)];
-            var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax) - 1];
-
-            // if z_min == z_max
-            if ((NumArrSort[Math.floor(NumArr.length)] == NumArrSort[Math.floor(NumArr.length) - 1] )) {
-                // exit
-                $('#visualization_status').html('<span class="text-error"><strong>Error:</strong> max/min values cannot be defined (likely: value object contains only NaN)</span>');
-                return
-            };
 
             // EXTENSIONS
             // Does value have multiple extensions? If so, add in plot options.
@@ -66,9 +85,12 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
 
                 if ($("input[name=optionsRadios]").length > 0){
                     $("input[name=optionsRadios]").click(function () {
-                        // console.log($("input[name=optionsRadios]:checked").val());
+
                         var array_index = Number($("input[name=optionsRadios]:checked").val());
                         changePlotData(trait_value.value, array_index, zmin, zmax);
+
+                        // reset slider position
+                        resetSliderPosition();
                     });
                 }
             } else {
@@ -110,12 +132,20 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
                     // $("#uv").val($("#slider-range").slider("values", 0));
                     // $("#lv").val($("#slider-range").slider("values", 1));
 
+                    function resetSliderPosition(){
+                        // move slider back
+                        if ($("#slider-range").length > 0) {
+                            var $slider = $("#slider-range");
+                            $slider.slider("values", 0, zmin);
+                            $slider.slider("values", 1, zmax);
+                        }
+                    }
+
                     // RESET
                     $('#reset_2d_plot').click(function () {
-                        // move slider back
-                        var $slider = $("#slider-range");
-                        $slider.slider("values", 0, zmin);
-                        $slider.slider("values", 1, zmax);
+
+                        resetSliderPosition();
+
                         // replot
                         var array_index = null;
                             // if multiple extensions, get the currently selected option.
