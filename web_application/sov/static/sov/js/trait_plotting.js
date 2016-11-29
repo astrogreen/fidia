@@ -34,7 +34,7 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
         /**
          * check data to be plotted has z_min and z_max that can be defined, and are not equal
          */
-        console.log('checkplotdata');
+
         // flatten array
         var FlatArr = data.reduce(function (p, c) {
             return p.concat(c);
