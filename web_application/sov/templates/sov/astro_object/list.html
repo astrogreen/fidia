@@ -48,7 +48,8 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#overview" id="overview_anchor" aria-controls="overview" role="tab" data-toggle="tab">Overview</a></li>
-        <li role="presentation"><a href="#products" aria-controls="products" role="tab" data-toggle="tab">Available Data</a></li>
+        <li role="presentation"><a href="#products" aria-controls="products" role="tab" data-toggle="tab">Data Products</a></li>
+        <li role="presentation"><a href="#properties" aria-controls="properties" role="tab" data-toggle="tab">Properties</a></li>
     </ul>
 
     <!-- Tab panes -->
@@ -128,13 +129,13 @@
                 </div>
             </div>
 
+            {% include 'sov/available_products/root.html' with traits=response.data.non_catalog_traits single=True filter=False %}
 
-
-            {% include 'sov/available_products/root.html' with traits=response.data.traits single=True %}
-
-            <hr>
 
         </div>
+         <div role="tabpanel" class="tab-pane" id="properties">
+             {% include 'sov/available_products/root.html' with traits=response.data.catalog_traits single=True filter=True property=True %}
+         </div>
     </div>
 {% endblock %}
 

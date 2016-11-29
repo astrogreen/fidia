@@ -76,6 +76,7 @@ class SurveySerializer(sov.mixins.SurveyAttributesMixin):
 
     def get_astro_objects(self, obj):
         return self.astro_objects
+
     astro_objects = serializers.SerializerMethodField()
 
 
@@ -87,14 +88,22 @@ class DownloadSerializer(serializers.Serializer):
 class AstroObjectSerializer(serializers.Serializer):
     """ Returns list of available traits. """
 
-    def get_traits(self, obj):
-        return self.context['traits']
+    # def get_traits(self, obj):
+    #     return self.context['traits']
+
+    def get_catalog_traits(self, obj):
+        return self.context['catalog_traits']
+
+    def get_non_catalog_traits(self, obj):
+        return self.context['non_catalog_traits']
 
     def get_position(self, obj):
         return self.context['position']
 
-    traits = serializers.SerializerMethodField()
+    # traits = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
+    catalog_traits = serializers.SerializerMethodField()
+    non_catalog_traits = serializers.SerializerMethodField()
 
 
 class TraitSerializer(serializers.Serializer):
@@ -272,7 +281,6 @@ class TraitPropertySerializer(serializers.Serializer):
         if hasattr(trait_property, '_trait'):
             traitproperty_str = getattr(trait_property, 'name') + '/'
 
-
         if hasattr(trait_property, '_trait'):
             if hasattr(trait_property._trait, '_parent_trait'):
                 if hasattr(trait_property._trait._parent_trait, '_parent_trait'):
@@ -282,9 +290,7 @@ class TraitPropertySerializer(serializers.Serializer):
 
         return _url
 
-
     short_name = serializers.SerializerMethodField()
     pretty_name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
-

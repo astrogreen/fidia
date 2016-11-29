@@ -1,7 +1,7 @@
 {% load internal_extras %}
 
 <div class="row">
-    {% for trait_type_key, trait_type_value in response.data.traits.trait_types.items %}
+    {% for trait_type_key, trait_type_value in response.data.non_catalog_traits.trait_types.items %}
         {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
             {% if trait_type_key == 'velocity_map' and trait_qualifier_key == 'ionized_gas' or trait_type_key == 'sfr_map' %}
 

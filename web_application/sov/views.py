@@ -40,7 +40,8 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def __init__(self, *args, **kwargs):
         self.surveys = [
-            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0}, "astro_objects":{}},
+            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0},
+             "astro_objects": {}},
             {"survey": "gama", "count": 0, "current_version": 0},
             {"survey": "galah", "count": 0, "current_version": 0}
         ]
@@ -151,6 +152,17 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.astro_object = astroobject_pk
         self.feature_catalog_data = astro_object.get_feature_catalog_data()
 
+        schema_catalog = ar.full_schema(include_subtraits=True, data_class='catalog', combine_levels=None,
+                                         verbosity='descriptions', separate_metadata=True)
+
+        schema_non_catalog = ar.full_schema(include_subtraits=True, verbosity='descriptions', data_class='non-catalog',
+                                             combine_levels=None, separate_metadata=True)
+
+        # remove non-catalog traits from catalog schema
+        for key in schema_non_catalog["trait_types"]:
+            if key in schema_catalog["trait_types"]:
+                schema_catalog["trait_types"].pop(key)
+
 
         # Endpoint-only
         serializer_class = sov.serializers.AstroObjectSerializer
@@ -160,8 +172,9 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 'survey': survey_pk,
                 'astro_object': astroobject_pk,
                 'request': request,
-                'traits': ar.full_schema(include_subtraits=False, data_class='all', combine_levels=None,
-                                         verbosity='descriptions', separate_metadata=True),
+                # 'traits': ar.full_schema(include_subtraits=False, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True),
+                'non_catalog_traits': schema_non_catalog,
+                'catalog_traits': schema_catalog,
                 'position': {'ra': astro_object.ra, 'dec': astro_object.dec}
             }
         )
@@ -182,13 +195,14 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.T
 
     permission_classes = [permissions.AllowAny]
     renderer_classes = (
-    sov.renderers.TraitRenderer, renderers.JSONRenderer, sov.renderers.FITSRenderer)
+        sov.renderers.TraitRenderer, renderers.JSONRenderer, sov.renderers.FITSRenderer)
 
     def list(self, request, pk=None, survey_pk=None, astroobject_pk=None, trait_pk=None, format=None):
 
         try:
             trait = sami_dr1_sample[astroobject_pk][trait_pk]
-            self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk, trait.get_pretty_name()]
+            self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk,
+                                    trait.get_pretty_name()]
         except fidia.exceptions.NotInSample:
             message = 'Object ' + astroobject_pk + ' Not Found'
             raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
@@ -221,7 +235,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.T
             context={
                 'request': request,
                 'trait_url': self.trait_url,
-                'trait_class':self.trait_class
+                'trait_class': self.trait_class
             }
         )
 
@@ -420,7 +434,8 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.h
                      }
         )
 
-        self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk, trait_pointer.get_pretty_name(),
+        self.breadcrumb_list = ['Single Object Viewer', str(survey_pk).upper(), astroobject_pk,
+                                trait_pointer.get_pretty_name(),
                                 subtrait_pointer.get_pretty_name(), traitproperty_pointer.get_pretty_name()]
 
         return Response(serializer.data)
