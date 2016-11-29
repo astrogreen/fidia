@@ -1041,13 +1041,13 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     unit = units.km / units.s
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        return self._hdu['V'].data[1, :, :]
+        return self._hdu['V'].data[1:2, :, :]
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        return self._hdu['V_ERR'].data[1, :, :]
+        return self._hdu['V_ERR'].data[1:2, :, :]
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1175,13 +1175,13 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
     unit = units.km / units.s
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        return self._hdu['VDISP'].data[1, :, :]
+        return self._hdu['VDISP'].data[1:2, :, :]
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        return self._hdu['VDISP_ERR'].data[1, :, :]
+        return self._hdu['VDISP_ERR'].data[1:2, :, :]
 
     @trait_property('string')
     def _wcs_string(self):

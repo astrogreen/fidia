@@ -46,7 +46,7 @@ class TestSAMILZIFU:
 
         assert isinstance(vmap.value(), numpy.ndarray)
 
-        assert vmap.shape == (50, 50)
+        assert vmap.shape == (1, 50, 50)
 
     def test_lzifu_ha_map(self, sami_sample):
         themap = sami_sample['24433']['line_emission_map', 'HALPHA']
