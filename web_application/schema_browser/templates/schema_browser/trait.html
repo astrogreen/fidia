@@ -217,7 +217,7 @@
                 <tr class="active">
                     <th class="col-xs-3">Branch</th>
                     <th class="col-xs-5">Description</th>
-                    <th class="col-xs-2">Handle</th>
+                    <th class="col-xs-2">Machine Name</th>
                     <th class="col-xs-2">Versions</th>
                 </tr>
                 </thead>
@@ -234,7 +234,7 @@
                             <td>{{branch_key}}</td>
                             <td>
                                 {% for version_key, version_value in branch_value.versions.items %}
-                                    <i class="fa fa-map-pin"></i> {{version_value.pretty_name}} {% if not forloop.last%},{% endif %}
+                                    {{version_value.pretty_name}} {% if not forloop.last%},{% endif %}
                                 {% endfor %}
 
                             </td>
