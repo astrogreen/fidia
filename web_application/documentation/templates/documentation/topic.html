@@ -160,7 +160,7 @@
                         {% for article in response.data.articles %}
                             {% if not article.hidden %}
                                 <tr>
-                                    <td><a href="{{article.url}}">&nbsp;{{article.title}}</a></td>
+                                    <td><a href="{{article.url}}">&nbsp;{{article.title}} {{article.order}}</a></td>
                                     <td class="text-right">
                                         <small class="tiny sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
                                         </small>

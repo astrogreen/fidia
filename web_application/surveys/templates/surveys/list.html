@@ -48,7 +48,9 @@
         <li>
             <a class="" target="_blank" href="{% url 'documentation:topic-detail' slug=survey %}"> {{survey|uppercase}} Documentation </a>
         </li>
-
+        <li>
+            <a class="" target="_blank" href="{% url 'documentation:article-detail' slug='sami-acknowledgements' %}"> Acknowledging {{survey|uppercase}}</a>
+        </li>
 
     </ul>
 </div>
@@ -244,10 +246,9 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     <div class="panel-body">
         <span class="sub-heading">
             Select data products to be downloaded using the checkboxes.
-            "The default branch and version is shown, you can choose a specific branch and version using the dropdown
-            menus for each product. For information on different SAMI branches please see this link.” [link to be added to description of branches].
-
-            For an overview of branches and versions, view the <a
+            The default branch and version is shown, you can choose a specific branch and version using the dropdown
+            menus for each product. For information on the LZIFU branches please see this <a href="{% url 'documentation:article-detail' slug='sami-lzifu-data-products' %}#Emission_Line_Fitting">link</a>.
+            For a technical overview of branches in the ASVO framework, view the <a
             href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}">documentation</a>.
         </span>
     </div>
