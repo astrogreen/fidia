@@ -18,7 +18,6 @@
 <div class="page-contents">
     <ul class="nav nav-pills nav-stacked nav-sidebar">
         <li role="presentation"><a class="scroll" href="#top-of-page">Search for an object</a></li>
-        <li role="presentation"><a class="scroll" href="#">Objects by survey</a></li>
         <li role="presentation"><a class="scroll" href="#features">Features</a></li>
     </ul>
 </div>
@@ -35,7 +34,7 @@
             {% endwith %}
             {% endif %}
         </li>
-        <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='data-browser' %}">Single Object
+        <li role="presentation"><a href="{% url 'documentation:topic-detail' slug='sov' %}">Single Object
             Viewer Documentation</a></li>
         <li><a href="{% url 'schema_browser:root-list' %}">Schema
             Browser</a></li>
