@@ -403,7 +403,29 @@ class TestTraitKeys:
 
     def test_string_traitkeys_reconstruction(self, valid_traitkey_list):
         for tk in valid_traitkey_list:
+            print(tk)
             assert TraitKey.as_traitkey(str(tk)) == tk
+
+    def test_hyphen_string_roundtrip(self, valid_traitkey_list):
+        for tk in valid_traitkey_list:
+            print(tk)
+            hyphen_str = tk.ashyphenstr()
+            print(hyphen_str)
+            assert TraitKey.as_traitkey(hyphen_str) == tk
+
+    def test_trait_key_hyphen_str_construction(self):
+        # Check that TraitKeys can be created from their hyphen string notation:
+        TraitKey.as_traitkey("emission_map-Halpha-b1-v1")
+        TraitKey.as_traitkey("emission_map--b1-v1")
+        TraitKey.as_traitkey("emission_map-Halpha-b1")
+        TraitKey.as_traitkey("emission_map-Halpha")
+        TraitKey.as_traitkey("emission_map")
+        TraitKey.as_traitkey("emission_map-Halpha--v1")
+        TraitKey.as_traitkey("emission_map-Halpha--")
+        TraitKey.as_traitkey("emission_map--b1-v1")
+        TraitKey.as_traitkey("emission_map---v1")
+        TraitKey.as_traitkey("emission_map---")
+
 
     def test_traitkey_string_forms(self):
 
