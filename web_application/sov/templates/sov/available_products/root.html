@@ -7,22 +7,28 @@
      <thead>
     <tr class="active">
          {% if single %}
-        <th class="form-inline col-xs-6">
-            <div class="form-group">
-                <label for="product_search"><strong>Product</strong> <span class="sub-heading">
+        <th class="form-inline col-xs-6" style="vertical-align:middle">
+            <div class="row">
+                <div class="col-xs-6 vcenter"><strong>{% if property %}Property{% else %}Product{% endif %}</strong> <span class="sub-heading">
                 <a role="button"
                    class="sub-heading"
                    data-container="body"
                    data-toggle="popover"
                    data-trigger="hover click"
                    data-placement="top"
-                   data-content="View the default branch for this data product."
+                   data-content="View the default branch for this {% if property %}property{% else %}data product{% endif %}."
                    data-original-title=""
                    title="">
                 <i class="fa fa-info-circle"></i>
-                </a></span>
-                </label>
-                <input type="text" class="search form-control" id="product_search" placeholder="FILTER ...">
+                </a></span></div><!--
+                --><div class="col-xs-6 vcenter">
+                    {% if filter %}
+            <div class="form-group">
+                <label for="product_search" sr-only></label>
+                <input type="text" class="search form-control input-sm" id="product_search" placeholder="FILTER ...">
+            </div>
+            {% endif %}
+                </div>
             </div>
         {% else %}
         <th class="col-xs-4 form-inline" style="vertical-align:middle">
@@ -71,6 +77,7 @@
 
 <tbody id="product_menu"> 
     {% for trait_type_key, trait_type_value in traits.trait_types.items %}
+
         <tr data-trait-type-key="{{trait_type_key}}" class="bg-success">
              {% if single %}
             <td colspan="3">

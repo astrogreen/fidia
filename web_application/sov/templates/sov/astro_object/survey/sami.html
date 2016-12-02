@@ -1,14 +1,26 @@
 {% load internal_extras %}
 
 <div class="row">
-    {% for trait_type_key, trait_type_value in response.data.traits.trait_types.items %}
+    {% for trait_type_key, trait_type_value in response.data.non_catalog_traits.trait_types.items %}
         {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
             {% if trait_type_key == 'velocity_map' and trait_qualifier_key == 'ionized_gas' or trait_type_key == 'sfr_map' %}
 
                 <div class="col-sm-6 col-xs-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <a href="{{response.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{%endif%}/">{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}} </a>
+                            <a href="{{response.build_absolute_uri}}{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{%endif%}/">{{trait_type_value.pretty_name}} {{trait_qualifier_value.pretty_name}}
+
+                            <!--Get default branch&version unit for this product-->
+                            {% for branch_key, branch_value in trait_qualifier_value.branches.items  %}
+                                {% if branch_key == trait_qualifier_value.default_branch %}
+                                    {% for version_key, version_value in branch_value.versions.items %}
+                                        {% if version_key == branch_value.default_version %}
+                                            [{{version_value.trait.unit}}]
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            </a>
                         </div>
                         <div class="panel-body">
                             <div class="" id="{{trait_type_key}}_plotly_plot">

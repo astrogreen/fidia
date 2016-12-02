@@ -48,17 +48,13 @@
                                 <tr>
                                     <td>SAMI</td>
                                     <td>
-                                        {% with "sov/survey/survey/"|add:"sami"|add:"/pi.html" as template %}
-                                            {% include template %}
-                                        {% endwith %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>GAMA</td>
-                                    <td>
-                                        {% with "sov/survey/survey/"|add:"gama"|add:"/pi.html" as template %}
-                                            {% include template %}
-                                        {% endwith %}
+
+                                        <a id="contact_sami">Feedback</a>
+                                        <script>
+                                            var person = 'feedback';
+                                            var domain = 'sami-survey.org';
+                                                $('#contact_sami').attr('href', 'mailto:'+person+'@'+domain).text(person+'@'+domain);
+                                        </script>
                                     </td>
                                 </tr>
                                 </tbody>
