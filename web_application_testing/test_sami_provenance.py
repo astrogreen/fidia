@@ -18,7 +18,7 @@ TEST_LIST = SHORT_TEST_LIST
 
 DOMAIN = "http://datacentral.aao.gov.au"
 
-RESTFUL_BASE = "/asvo/single-object-viewer/"
+RESTFUL_BASE = "/asvo/sov/"
 
 AUTH = ('sami', 'aat_hexa_61')
 

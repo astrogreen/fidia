@@ -5,6 +5,7 @@ import re
 # Internal package imports
 from ..exceptions import *
 from ..descriptions import DescriptionsMixin
+from ..utilities import RegexpGroup
 
 # Logging import and setup
 from .. import slogging
@@ -12,27 +13,6 @@ log = slogging.getLogger(__name__)
 log.enable_console_logging()
 log.setLevel(slogging.WARNING)
 
-
-class RegexpGroup:
-    def __init__(self, *args):
-        self.regexes = []
-        self.plain_items = []
-        for item in args:
-            # Add all non-regex items to one list
-            if hasattr(item, 'match'):
-                self.regexes.append(item)
-            else:
-                self.plain_items.append(item)
-
-    def __contains__(self, item):
-        # First check plain list:
-        if item in self.plain_items:
-            return True
-        else:
-            for regex in self.regexes:
-                if regex.match(item):
-                    return True
-        return False
 
 
 def trait_property(func_or_type):

@@ -18,7 +18,7 @@ from .trait_key import TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
+from ..utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup
 from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 # This makes available all of the usual parts of this package for use here.
@@ -921,7 +921,9 @@ class FITSExportMixin:
         #     primary_hdu.header[trait.short_name + "_ERR"] = (trait.value, trait.short_comment)
 
         # Create extensions for additional array-like values
-        for trait_property in self.trait_properties(['float.array', 'int.array']):
+        for trait_property in self.trait_properties(
+                RegexpGroup(re.compile(r"float\.array\.\d+"),
+                            re.compile(r"int\.array\.\d+"))):
             if trait_property.name == 'value':
                 continue
             try:
