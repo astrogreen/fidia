@@ -244,9 +244,10 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.T
     def finalize_response(self, request, response, *args, **kwargs):
         response = super().finalize_response(request, response, *args, **kwargs)
         if response.accepted_renderer.format == 'fits':
-            filename = "{obj_id}-{trait}.fits".format(
+            trait = sami_dr1_sample[kwargs['astroobject_pk']][kwargs['trait_pk']]
+            filename = "{obj_id}-{trait_key}.fits".format(
                 obj_id=kwargs['astroobject_pk'],
-                trait=kwargs['trait_pk'])
+                trait_key=trait.trait_key.ashyphenstr())
             response['content-disposition'] = "attachment; filename=%s" % filename
         return response
 
