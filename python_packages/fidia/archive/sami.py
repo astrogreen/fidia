@@ -826,8 +826,8 @@ class LZIFUDataMixin:
     """Mixin class to provide extra properties common to all LZIFU Data."""
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'},
-        branch_lzifu_m_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
 
     defaults = DefaultsRegistry(default_branch="1_comp",
@@ -1000,6 +1000,27 @@ class LZIFUFlag(FlagMap):
         return output_data
 
 
+class LZIFUChiSq(Map2D):
+    """Final $\chi^2$ of LZIFU spectral fit."""
+
+    trait_type = 'chi_sq'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        data = self._hdu['CHI2'].data  # type: np.ndarray
+        assert len(data.shape) == 2
+        return data
+
+    @property
+    def shape(self):
+        return self.value().shape
+LZIFUChiSq.set_pretty_name("Chi Squared")
+
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     trait_type = "velocity_map"
@@ -1007,7 +1028,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     qualifiers = {'ionized_gas'}
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03'})
@@ -1059,6 +1080,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
 
@@ -1076,7 +1098,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     qualifiers = {'ionized_gas'}
 
     branches_versions = {
-        branch_lzifu_m_comp: {'V02', 'V03'}
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_m_comp[0]: 'V03'})
@@ -1148,6 +1170,8 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
+    sub_traits.register(SAMIVAP)
 
 
     @sub_traits.register
@@ -1164,7 +1188,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     qualifiers = {'ionized_gas'}
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03'})
@@ -1194,6 +1218,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
 
@@ -1210,7 +1235,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     qualifiers = {'ionized_gas'}
 
     branches_versions = {
-        branch_lzifu_m_comp: {'V02', 'V03'}
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_m_comp[0]: 'V03'})
@@ -1287,6 +1312,8 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
+    sub_traits.register(SAMIVAP)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
@@ -1304,7 +1331,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
 
 
     trait_type = 'line_emission_map'
-    branches_versions = {branch_lzifu_1_comp: {'V02', 'V03'}}
+    branches_versions = {branch_lzifu_1_comp: {'V03'}}
     defaults = DefaultsRegistry(default_branch="1_comp", version_defaults={branch_lzifu_1_comp[0]: "V03"})
 
     sub_traits = TraitRegistry()
@@ -1359,6 +1386,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
 
@@ -1429,7 +1457,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 
     ##format: markdown
     """
-    branches_versions ={branch_lzifu_m_comp: {'V02', 'V03'}}
+    branches_versions ={branch_lzifu_m_comp: {'V03'}}
 
     # Extends 'line_map', so no defaults:
     defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V03'})
@@ -1506,6 +1534,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
     @sub_traits.register
@@ -1527,7 +1556,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
 
     ##format: markdown
     """
-    branches_versions = {branch_lzifu_m_comp: {'V02', 'V03'}}
+    branches_versions = {branch_lzifu_m_comp: {'V03'}}
 
     # Extends 'line_map', so no defaults:
     defaults = DefaultsRegistry(None, {branch_lzifu_m_comp[0]: 'V03'})
@@ -1575,6 +1604,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
     @sub_traits.register
@@ -1643,8 +1673,8 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     qualifiers = {'red', 'blue'}
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'},
-        branch_lzifu_m_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
@@ -1683,6 +1713,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
     @sub_traits.register
@@ -1864,8 +1895,8 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     trait_type = 'extinction_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'},
-        branch_lzifu_m_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
@@ -1939,7 +1970,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     trait_type = 'sfr_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03'})
@@ -2041,9 +2072,9 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
     trait_type = 'sfr_map'
 
     branches_versions = {
-        branch_lzifu_m_comp: {'V02'}
+        branch_lzifu_m_comp: {'V03'}
     }
-    defaults = DefaultsRegistry(version_defaults={branch_lzifu_m_comp[0]: 'V02'})
+    defaults = DefaultsRegistry(version_defaults={branch_lzifu_m_comp[0]: 'V03'})
 
     def fits_file_path(self):
 
@@ -2235,8 +2266,8 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     trait_type = 'emission_classification_map'
 
     branches_versions = {
-        branch_lzifu_1_comp: {'V02', 'V03'},
-        branch_lzifu_m_comp: {'V02', 'V03'}
+        branch_lzifu_1_comp: {'V03'},
+        branch_lzifu_m_comp: {'V03'}
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
