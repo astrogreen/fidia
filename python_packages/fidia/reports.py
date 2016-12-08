@@ -19,19 +19,20 @@ def content_report(fidia_trait_registry):
         \author{Andy Green}
         \title{SAMI Traits}
 
+        \usepackage{hyperref}
         \usepackage{listings}
+        \lstset{% general command to set parameter(s)
+            basicstyle=\ttfamily\scriptsize,
+            showstringspaces=false,
+            numbers=left, numberstyle=\tiny, stepnumber=5, numbersep=5pt,
+            breaklines=true,
+            postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}}
         \lstset{language=Python}
         \usepackage{minted}
 
         \begin{document}
 
         \maketitle
-
-
-        \lstset{% general command to set parameter(s)
-            basicstyle=\small\ttfamily,
-            showstringspaces=false,
-            numbers=left, numberstyle=\tiny, stepnumber=5, numbersep=5pt}
 
         """
     ]
