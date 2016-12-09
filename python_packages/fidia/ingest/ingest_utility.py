@@ -3,17 +3,22 @@ from numpy import ndarray
 from numpy import int64
 
 from fidia.exceptions import *
+from fidia.ingest.properties import *
 
 def get_traitproperty_data(trait):
     # type: (Trait) -> dict
     """Retrieve data for all trait properties attached to the Trait."""
     # Get data for TraitProperties, and store it in the following dicts.
-    trait_property_type = dict()
+    # trait_property_type = dict()
     trait_property_data = dict()
     for trait_property_name in trait.trait_property_dir():
-        trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
+        # trait_property_type[trait_property_name] = getattr(trait, trait_property_name).type
+        t_p_name = trait_property_name
+        # If trait_property_name is an impala reserved_word add 'res_' prefix to it
+        if trait_property_name in IMPALA_RESERVED_WORDS:
+            trait_property_name = 'res_' + trait_property_name
         try:
-            trait_property_data[trait_property_name] = getattr(trait, trait_property_name).value
+            trait_property_data[trait_property_name] = getattr(trait, t_p_name).value
             if isinstance(trait_property_data[trait_property_name], ndarray):
                 trait_property_data[trait_property_name] = trait_property_data[trait_property_name].tolist()
             #TODO convert numpy.int64 to native python type
@@ -22,7 +27,7 @@ def get_traitproperty_data(trait):
                 trait_property_data[trait_property_name] = trait_property_data[trait_property_name].item()
         except DataNotAvailable:
             # No data for this particular TraitProperty, skip.
-            trait_property_type[trait_property_name] = None
+            # trait_property_type[trait_property_name] = None
             trait_property_data[trait_property_name] = None
             continue
         except:
@@ -30,7 +35,7 @@ def get_traitproperty_data(trait):
             # TODO: Provide a warning
             tb = traceback.format_exc()
             print(tb)
-            trait_property_type[trait_property_name] = None
+            # trait_property_type[trait_property_name] = None
             trait_property_data[trait_property_name] = None
             continue
 

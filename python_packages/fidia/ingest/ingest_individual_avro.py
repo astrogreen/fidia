@@ -20,6 +20,7 @@ import argparse
 
 from avro.schema import *
 
+from fidia.ingest.properties import *
 
 def main(args):
     ar = SAMIDR1PublicArchive(args.input_dir, args.catalogue)
@@ -73,7 +74,8 @@ def create_avro_schema(archive):
                     # Get the branch records
                     branch_records = add_branch_and_version_records(trait_schema, qualifier_prefix)
                     qualifier_field = Field(RecordSchema(trait_type.capitalize(), qualifier_prefix.lower(),
-                                                         branch_records, names=Names()), trait_type, type_index, False)
+                                                         branch_records, names=Names()),
+                                            trait_type, type_index, False, other_props={'trait_type': True})
 
                     # qualifier_field = Field(MapSchema(RecordSchema('branch', qualifier_prefix, version_fields, names=Names())),
                     #                         trait_type, type_index, False)
@@ -87,13 +89,14 @@ def create_avro_schema(archive):
 
                     branch_records = add_branch_and_version_records(trait_schema, qualifier_prefix)
                     qualifier_field = Field(RecordSchema(trait_qualifier.capitalize(), qualifier_prefix.lower(),
-                                                branch_records, names=Names()), trait_qualifier, qualifier_index, False)
+                                                branch_records, names=Names()),
+                                            trait_qualifier, qualifier_index, False, other_props={'trait_qualifier': True})
                     qualifier_records.append(qualifier_field)
                     qualifier_index += 1
             if not already_added:
                 # Add the qualifier_records to trait_type_field
                 type_field = Field(RecordSchema(trait_type.capitalize(), type_prefix.lower(), qualifier_records, names=Names()),
-                                   trait_type, type_index, False)
+                                   trait_type, type_index, False, other_props={'trait_type': True})
                 astro_record_fields.append(type_field)
                 type_index += 1
     except:
@@ -122,11 +125,11 @@ def add_branch_and_version_records(trait_schema, qualifier_prefix):
             trait_fields = make_trait_property_fields(versions[version], version_prefix)
             # Add it to record
             version_field = Field(RecordSchema(version.capitalize(), version_prefix.lower(), trait_fields, names=Names()),
-                                  version, version_index, False)
+                                  version, version_index, False, other_props={'version': True})
             version_records.append(version_field)
             version_index += 1
         branch_field = Field(RecordSchema(branch.capitalize(), branch_prefix.lower(), version_records, names=Names()),
-                             branch, branch_index, False)
+                             branch, branch_index, False, other_props={'branch': True})
         branch_records.append(branch_field)
         branch_index += 1
     return branch_records
@@ -143,6 +146,12 @@ def make_trait_property_fields(version, namespace_prefix):
 
         name = trait_properties[property]['name']
         type = trait_properties[property]['type']
+
+        # Now we need to check if name is an impala reserved word(or an SQL reserved word in broader case)
+        # get a set of reserved words and check if name is in that set
+        # get the reserved words list from a file
+        if name in IMPALA_RESERVED_WORDS:
+            name = 'res_' + name
 
         if 'array' in type:
             dtypes = type.split('.')
