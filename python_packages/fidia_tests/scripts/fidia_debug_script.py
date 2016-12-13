@@ -1,6 +1,11 @@
 import re
 import numpy as np
 
+import sys
+import os
+print(sys.path)
+print(os.getcwd())
+
 from fidia.archive import sami, example_archive
 
 
@@ -45,8 +50,11 @@ schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels
 # # schema = t.full_schema()
 # schema = t.full_schema()
 
-specfit = sample['9352']['spectral_fit_cube-red']
+instrument_metadata = sample['9352']['line_emission_map-HALPHA']
 
-specfit.as_fits("9352_specfit.fits")
+x = instrument_metadata._wcs_string()
+
+print(x)
+# specfit.as_fits("9352_specfit.fits")
 
 # print(schema)

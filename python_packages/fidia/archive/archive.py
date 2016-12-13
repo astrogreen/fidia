@@ -25,7 +25,8 @@ class Archive(BaseArchive):
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
-        self.cache = DummyCache()
+        if self.cache is None:
+            self.cache = DummyCache()
 
         self._schema = {'by_trait_type': None, 'by_trait_name': None}
 
