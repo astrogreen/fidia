@@ -258,3 +258,24 @@ class classorinstancemethod(object):
             else:
                 return self.method(objtype, *args, **kwargs)
         return _wrapper
+
+class RegexpGroup:
+    def __init__(self, *args):
+        self.regexes = []
+        self.plain_items = []
+        for item in args:
+            # Add all non-regex items to one list
+            if hasattr(item, 'match'):
+                self.regexes.append(item)
+            else:
+                self.plain_items.append(item)
+
+    def __contains__(self, item):
+        # First check plain list:
+        if item in self.plain_items:
+            return True
+        else:
+            for regex in self.regexes:
+                if regex.match(item):
+                    return True
+        return False

@@ -6,9 +6,9 @@
         </a>
 
     </td>
-    <td>{% if tpdata|key:tp|key:"description" %}
-            <span class="sub-heading small"><em>{{tpdata|key:tp|key:"description"}}</em></span>
-        {% endif %}</td>
+    <td>
+        {{tpdata|key:tp|key:"description"}}
+    </td>
     <td>
         {% if tpdata|key:tp|key:"type" == "string" %}
         {{tpdata|key:tp|key:"value"|linebreaks|truncatechars:60}}

@@ -188,8 +188,8 @@ function trait_plot(trait_url, trait_name, map_selector, options_selector, trait
         type: 'GET',
         success: function (data) {
             var trait = JSON.parseMore(data);
-            console.log('#'+trait_key+'_trait_description')
-            console.log(trait.description);
+            // console.log('#'+trait_key+'_trait_description')
+            // console.log(trait.description);
             $('#'+trait_key+'_trait_description').html(trait.description)
         },
         error: function (jqXHR, exception) {

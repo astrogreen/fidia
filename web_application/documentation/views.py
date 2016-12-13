@@ -111,7 +111,7 @@ class ArticleViewset(viewsets.ModelViewSet, HitCountMixin):
         self.all_topics = get_all_topics()
 
     serializer_class = documentation.serializers.ArticleSerializer
-    queryset = documentation.models.Article.objects.exclude(hidden=True)
+    queryset = documentation.models.Article.objects.exclude(hidden=True).order_by('-article_order')
     lookup_field = 'slug'
     # permission_classes = [restapi_app.permissions.IsSurveyTeamOrAdminElseReadOnly]
     permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]

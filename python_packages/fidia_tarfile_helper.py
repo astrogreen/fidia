@@ -31,7 +31,7 @@ def format_trait_path_as_path(trait_key, include_branch_version=False):
     """Reformat a TraitKey for use in file-system paths."""
 
     tk = traits.TraitKey.as_traitkey(trait_key)
-    return tk.trait_name
+    return tk.ashyphenstr()
 
 def filename_for_trait_path(trait_path):
     """Produce a filename for a trait_path, including a path section to deal with hierarchical data.

@@ -48,7 +48,9 @@
         <li>
             <a class="" target="_blank" href="{% url 'documentation:topic-detail' slug=survey %}"> {{survey|uppercase}} Documentation </a>
         </li>
-
+        <li>
+            <a class="" target="_blank" href="{% url 'documentation:article-detail' slug='sami-acknowledgements' %}"> Acknowledging {{survey|uppercase}}</a>
+        </li>
 
     </ul>
 </div>
@@ -131,7 +133,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 </div>
 
 <h3 id="project-overview">Project Overview <a role="button" class="tiny pull-right" id="toggle_project_overview">Hide</a></h3>
-<div id="project_overview_text">
+<div id="project_overview_text" class="text-justify">
 {% with "surveys/"|add:response.data.survey|add:"/about.html" as template %}
 {% include template %}
 {% endwith %}
@@ -140,30 +142,27 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 <h3 id="data-access">Data Access</h3>
 
 <!-- Tab panes -->
-<p>You have two options to browse the catalogue. If you are interested in a single object, click the ID in the table. If
+<p class="text-justify">You have two options to browse the catalogue. If you are interested in a single object, click the ID in the table. If
     you want to download data products for multiple objects, select your targets using the table filters, and then
     choose the products to download.</p>
 
-<p>For detailed descriptions of a particular data product, visit the <a
+<p class="text-justify">For detailed descriptions of a particular data product, visit the <a
         href="{% url 'documentation:topic-detail' slug=survey %}"><span>{{response.data.survey|uppercase}}
      Documentation</span></a>, or for in depth information/meta-data pertaining to a particular
     data product, view the
     <a href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{response.data.survey|uppercase}}
         Schema Browser</a>.
 </p>
-<p>
-
-    To access data via a
-    command line interface, read the documentation on <a
-        href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data
-    download</a>.</p>
+<p class="text-justify">
+    To access data via a command line interface, read the documentation on
+    <a href="{% url 'documentation:article-detail' slug='data-access-bulk-data-downloads' %}">bulk data
+    download</a>.
+</p>
 <br>
 <div class="well warning">
     <div class="p "><span class="sub-heading">Table filter functionality is in alpha. If you spot an error, please <a
             href="{% url 'support-bug' %}">report a bug</a>.</span></div>
 </div>
-
-
 
 <div class="row">
     <div class="col-xs-12" id="objects">
@@ -244,10 +243,9 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
     <div class="panel-body">
         <span class="sub-heading">
             Select data products to be downloaded using the checkboxes.
-            "The default branch and version is shown, you can choose a specific branch and version using the dropdown
-            menus for each product. For information on different SAMI branches please see this link.” [link to be added to description of branches].
-
-            For an overview of branches and versions, view the <a
+            The default branch and version is shown, you can choose a specific branch and version using the dropdown
+            menus for each product. For information on the LZIFU branches please see this <a href="{% url 'documentation:article-detail' slug='sami-lzifu-data-products' %}#Emission_Line_Fitting">link</a>.
+            For a technical overview of branches in the ADC framework, view the <a
             href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}">documentation</a>.
         </span>
     </div>
