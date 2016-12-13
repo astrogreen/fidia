@@ -1,9 +1,11 @@
 # Standard Library Imports
 from abc import ABCMeta
+import re
 
 # Internal package imports
 from ..exceptions import *
 from ..descriptions import DescriptionsMixin
+from ..utilities import RegexpGroup
 
 # Logging import and setup
 from .. import slogging
@@ -48,14 +50,18 @@ def trait_property(func_or_type):
 
 class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
 
-    allowed_types = [
+    allowed_types = RegexpGroup(
         'string',
         'float',
         'int',
-        'string.array',
-        'float.array',
-        'int.array'
-    ]
+        re.compile(r"string\.array\.\d+"),
+        re.compile(r"float\.array\.\d+"),
+        re.compile(r"int\.array\.\d+"),
+        # # Same as above, but with optional dimensionality
+        # re.compile(r"string\.array(?:\.\d+)?"),
+        # re.compile(r"float\.array(?:\.\d+)?"),
+        # re.compile(r"int\.array(?:\.\d+)?"),
+    )
 
     catalog_types = [
         'string',
@@ -63,11 +69,15 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         'int'
     ]
 
-    non_catalog_types = [
-        'string.array',
-        'float.array',
-        'int.array'
-    ]
+    non_catalog_types = RegexpGroup(
+        re.compile(r"string\.array\.\d+"),
+        re.compile(r"float\.array\.\d+"),
+        re.compile(r"int\.array\.\d+")
+        # # Same as above, but with optional dimensionality
+        # re.compile(r"string\.array(?:\.\d+)?"),
+        # re.compile(r"float\.array(?:\.\d+)?"),
+        # re.compile(r"int\.array(?:\.\d+)?"),
+    )
 
     descriptions_allowed = 'instance'
 
@@ -119,6 +129,9 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
             log.debug("Creating a bound trait property '%s.%s'", instance_type.__name__, self.name)
             return BoundTraitProperty(instance, self)
 
+    def __repr__(self):
+        return "<TraitProperty {}>".format(self.name)
+
 
 class BoundTraitProperty:
 
@@ -136,8 +149,8 @@ class BoundTraitProperty:
         if item not in ('loader',) and not item.startswith("_"):
             return getattr(self._trait_property, item)
 
-    def __str__(self):
-        return "<TraitProperty {} of {}>".format(self._trait_property.name, str(self._trait.trait_key))
+    def __repr__(self):
+        return "<BoundTraitProperty {} of {}>".format(self._trait_property.name, str(self._trait.trait_key))
 
     @property
     def name(self):

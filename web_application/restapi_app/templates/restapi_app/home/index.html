@@ -17,18 +17,9 @@
 {% endblock %}
 
 {% block page_title_banner %} {% endblock page_title_banner %}
-{% block call-to-action %}
-<!--<div class="container-fluid">-->
-<!--<div class="row">-->
-<!--<div class="col-sm-12 col-xs-hidden">-->
-<!--<span style="color:white;" class="pull-right"><i class="fa fa-question"></i> Not sure where to begin? </span>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-{% endblock %}
 
-{% block content_render %}
-<div class="row" style="margin-top:15px;margin-bottom:15px;">
+{% block no_sidebar %}
+<div style="margin-top:15px;margin-bottom:15px;">
     <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
         <div class="panel panel-default success branch_warning" style="background-color:rgba(255,255,255,0.8)">
             <div class="panel-body p">
@@ -72,7 +63,7 @@
                 <div class="row cta">
                     <div class="col-xs-6">
                         <p><a type="button" title=""
-                              class="white-tooltip" href="{% url 'surveys' %}">Surveys</a></p>
+                              class="white-tooltip" href="{% url 'surveys:root-list' %}">Surveys</a></p>
 
                         <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at ADC.</div>
                     </div>
@@ -109,7 +100,7 @@
                         <span class="disabled">Query the astronomical objects available at ADC and return a sample of objects across multiple surveys.</span>
                     </div>
                     <div class="col col-md-3 col-sm-3">
-                        <a href="{% url 'data_browser:root-list'%}">
+                        <a href="{% url 'sov:root-list'%}">
                             <div class="circle">
                                 <i class="fa fa-search"></i>
                                 <div class="line"></div>
@@ -173,16 +164,16 @@
             <h5 class="text-uppercase no-margin-top">What's New</h5>
             <dl>
                 <dt>
-                    <a href="{% url 'sami' %}">SAMI DATA RELEASE 1.0
+                    <a href="{% url 'surveys:survey-list' survey_pk='sami' %}">SAMI DATA RELEASE 1.0
                     </a>
                 </dt>
-                <dh class="text-justify">View the data release page <a href="{% url 'sami' %}">here</a>.
+                <dh class="text-justify">View the data release page <a href="{% url 'surveys:survey-list' survey_pk='sami' %}">here</a>.
                 </dh>
             </dl>
             <h5 class="text-uppercase no-margin-top">Get Started</h5>
             <dl class="text-left">
                 <dt>
-                    <a href="{% url 'surveys' %}">Surveys Overview</a>
+                    <a href="{% url 'surveys:root-list' %}">Surveys Overview</a>
                 </dt>
                 <dh class="text-justify">View all surveys hosted at ADC.</dh>
                 <dt>
@@ -190,7 +181,7 @@
                 </dt>
                 <dh class="text-justify">Information about accessing data at ADC.</dh>
                 <dt>
-                    <a href="{% url 'data_browser:root-list'%}">Data Browser</a>
+                    <a href="{% url 'sov:root-list'%}">Single Object Viewer</a>
                 </dt>
                 <dh class="text-justify">Browse data products per Survey object.</dh>
                 <dt>

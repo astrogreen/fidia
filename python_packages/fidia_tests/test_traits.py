@@ -86,7 +86,7 @@ class TestTraits:
 
     def test_get_trait_properties(self):
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         for prop in test_trait._trait_properties():
             assert isinstance(prop, TraitProperty)
@@ -96,7 +96,7 @@ class TestTraits:
 
     def test_trait_schema(self):
         """This test checks both versions of the schema."""
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Test the schema by trait_type
         schema_by_trait_type = test_trait.schema(by_trait_name=False)
@@ -122,7 +122,7 @@ class TestTraits:
 
     def test_trait_schema_with_subtraits(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Test the schema by trait_type
         schema_by_trait_type = test_trait.schema(by_trait_name=False)
@@ -160,7 +160,7 @@ class TestTraits:
 
     def test_trait_schema_catalog_non_catalog(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # This only tests the schema by trait_name
 
@@ -218,7 +218,7 @@ class TestTraits:
             class NonCatalogSubTrait(Trait):
                 trait_type = 'sub_trait_non_catalog_only'
 
-                @trait_property('float.array')
+                @trait_property('float.array.1')
                 def value(self):
                     return [1.0, 2.0]
 
@@ -226,7 +226,7 @@ class TestTraits:
             def value(self):
                 return 5.5
 
-            @trait_property('float.array')
+            @trait_property('float.array.1')
             def non_catalog_data(self):
                 return [1.1, 2.2, 3.3]
 
@@ -234,7 +234,7 @@ class TestTraits:
             def extra(self):
                 return "Extra info"
 
-        test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'),
+        test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
                                               object_id='1')
 
         # Test the catalog-only version of the schema:
@@ -258,13 +258,13 @@ class TestTraits:
 
     def test_retrieve_sub_trait_by_dictionary(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'),
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
                                                                   object_id='1')
 
         assert isinstance(test_trait['sub_trait'], Trait)
 
     def test_trait_descriptions(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         assert hasattr(test_trait, 'get_pretty_name')
         assert hasattr(test_trait, 'get_documentation')
@@ -274,7 +274,7 @@ class TestTraits:
 
     def test_trait_property_descriptions(self):
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Check that a trait property has the necessary description attributes
         assert hasattr(test_trait.value, 'get_pretty_name')
@@ -294,7 +294,7 @@ class TestTraits:
 
 
     def test_trait_documentation(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         print(type(test_trait.get_documentation))
         print(test_trait.get_documentation())
@@ -403,7 +403,29 @@ class TestTraitKeys:
 
     def test_string_traitkeys_reconstruction(self, valid_traitkey_list):
         for tk in valid_traitkey_list:
+            print(tk)
             assert TraitKey.as_traitkey(str(tk)) == tk
+
+    def test_hyphen_string_roundtrip(self, valid_traitkey_list):
+        for tk in valid_traitkey_list:
+            print(tk)
+            hyphen_str = tk.ashyphenstr()
+            print(hyphen_str)
+            assert TraitKey.as_traitkey(hyphen_str) == tk
+
+    def test_trait_key_hyphen_str_construction(self):
+        # Check that TraitKeys can be created from their hyphen string notation:
+        TraitKey.as_traitkey("emission_map-Halpha-b1-v1")
+        TraitKey.as_traitkey("emission_map--b1-v1")
+        TraitKey.as_traitkey("emission_map-Halpha-b1")
+        TraitKey.as_traitkey("emission_map-Halpha")
+        TraitKey.as_traitkey("emission_map")
+        TraitKey.as_traitkey("emission_map-Halpha--v1")
+        TraitKey.as_traitkey("emission_map-Halpha--")
+        TraitKey.as_traitkey("emission_map--b1-v1")
+        TraitKey.as_traitkey("emission_map---v1")
+        TraitKey.as_traitkey("emission_map---")
+
 
     def test_traitkey_string_forms(self):
 

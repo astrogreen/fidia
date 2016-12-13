@@ -1,0 +1,36 @@
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+<td>
+    <div class="row">
+        <div class="col-xs-12">
+             <div class="form-group" style="margin-bottom:0;">
+                <select multiple class="selectpicker form-control show-tick" id="select_{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">
+                {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                    <optgroup label='<i class="fa fa-code-fork sub"></i> {{trait_branch_value.pretty_name}}{% if trait_qualifier_value.default_branch == trait_branch_key%} <span class="tiny"><em>default</em></span>{% endif %}'>
+                    {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                        <option {% if trait_qualifier_value.default_branch == trait_branch_key and trait_branch_value.default_version == trait_version_key %}selected{% endif %}
+                            title='<span class="small"><i class="fa fa-code-fork sub-heading"></i> {{trait_branch_value.pretty_name}} </span><span class="tiny"><i class="fa fa-map-pin sub-heading"></i> {{trait_version_value.pretty_name}}</span>'
+                            data-formats="{{trait_version_value.trait.formats}}"
+                            data-trait_type_key="{{trait_type_key}}"
+                            data-trait_qualifier_key="{{trait_qualifier_key}}"
+                            data-trait_branch_key="{{trait_branch_key}}"
+                            data-trait_version_key="{{trait_version_key}}"
+                            data-content='<i class="fa fa-map-pin"></i> {{trait_version_value.pretty_name}}'
+                            value='["{{trait_type_key}}", "{{trait_qualifier_key}}", "{{trait_branch_key}}", "{{trait_version_key}}"]'>
+                        </option>
+                    {% endfor %}
+                    </optgroup>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+</td>
+<td>
+    <label class="checkbox-inline">
+      <input type="checkbox" name="add_to_download" id="check_{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" value="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}"> &nbsp;
+    </label>
+</td>

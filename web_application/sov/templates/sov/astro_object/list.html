@@ -1,0 +1,145 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Single Object Viewer{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'sov/css/sample/sample.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Single Object Viewer{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='sov' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page">Overview</a></li>
+    </ul>
+</div><hr>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+
+     {% if breadcrumblist %}
+    {% with breadcrumblist|length|add:"-2" as b %}
+    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+        {{breadcrumblist|key:b|key:0}}</a></li>
+    {% endwith %}
+    {% endif %}
+
+    <li><a class="" target="_blank" href="{% url 'schema_browser:survey-list' survey_pk=survey %}">{{survey|uppercase}} Schema
+        Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}">{{survey|uppercase}} Documentation</a>
+    </li>
+
+</ul>
+
+{% endblock %}
+{% block version_container %}
+
+{% endblock %}
+{% block main %}
+
+{% include "sov/layout/title.html" with db_title=astro_object %}
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#overview" id="overview_anchor" aria-controls="overview" role="tab" data-toggle="tab">Overview</a></li>
+        <li role="presentation"><a href="#products" aria-controls="products" role="tab" data-toggle="tab">Data Products</a></li>
+        <li role="presentation"><a href="#properties" aria-controls="properties" role="tab" data-toggle="tab">Properties</a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content add-padding">
+        <div role="tabpanel" class="tab-pane active" id="overview">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="table-responsive">
+                        <table class="table table-condensed">
+                            <tbody>
+                            <tr>
+                                <td class="p_light">{{survey|uppercase}} ID</td><td>{{astro_object}}</td>
+                            </tr>
+                            <tr><td class="p_light">RA</td><td>{{response.data.position.ra}}</td></tr>
+                            <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
+                            {% for f in feature_catalog_data %}
+                                <tr>
+                                    <td class="p_light">{{f.pretty_name}} {% if f.unit and f.unit != '$\mathrm{}$' %}[{{f.unit}}]{% endif %}</td>
+                                    <td>{{f.value}}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td class="p_light">GAMA
+                        Single Object Viewer</td>
+                                <td><a class="text-uppercase" target="_blank"
+                               href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}"> SOV <i class="fa fa-external-link"></i></a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Auxillary Data: SDSS
+                        </div>
+                        <div class="panel-body">
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=G&amp;width=512&amp;height=512"
+                                 alt="..." class="img-responsive">
+                            <br>
+                            <p class="text-justify small">$~1.7'\times ~1.7'$ 5-band composite image from SDSS DR7.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% with "sov/astro_object/survey/"|add:survey|add:".html" as template %}
+                {% include template %}
+            {% endwith %}
+
+
+        </div>
+        <div role="tabpanel" class="tab-pane" id="products">
+            <p>To view a particular data product's properties, meta-data and where
+                available, an interactive visualization, click the link in the table.
+
+                To download multiple data products for any {{survey|uppercase}} object, visit the <a href="{% url 'surveys:survey-list' survey_pk=survey %}">{{survey|uppercase}}</a> page.
+            </p>
+
+            <p>For information on the LZIFU branches please see this <a href="{% url 'documentation:article-detail' slug='sami-lzifu-data-products' %}#Emission_Line_Fitting">link</a>.
+            For a technical overview of branches in the ADC framework, view the <a
+            href="{% url 'documentation:article-detail' slug='data-central-what-is-a-branch' %}">documentation</a>.
+            </p>
+            <div class="panel panel-default success">
+                <div class="panel-body">
+                    <div class="sub-heading"><strong>Note:</strong> Data products are grouped by their product-type
+                        (e.g., you
+                        can find the SAMI [OIII] (5007Å) and
+                        [NII] (6583Å) line maps under <em>Line Maps</em>).
+                    </div>
+                </div>
+            </div>
+
+            {% include 'sov/available_products/root.html' with traits=response.data.non_catalog_traits single=True filter=False %}
+
+        </div>
+         <div role="tabpanel" class="tab-pane" id="properties">
+             {% include 'sov/available_products/root.html' with traits=response.data.catalog_traits single=True filter=True property=True %}
+         </div>
+    </div>
+{% endblock %}
+
+
+{% block footer-extra %}
+<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
+<script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
+<script type="application/javascript" src="{% static 'sov/js/2D_map.js'%}"></script>
+<script type="application/javascript" src="{% static 'sov/js/trait_plotting.js'%}"></script>
+
+
+
+{% endblock %}
+

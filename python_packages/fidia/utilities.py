@@ -7,6 +7,8 @@ import fcntl
 import functools
 from time import sleep
 
+from sortedcontainers import SortedDict
+
 from . import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
@@ -38,7 +40,7 @@ class WildcardDictionary(dict):
 
         return result
 
-class SchemaDictionary(dict):
+class SchemaDictionary(SortedDict):
     """A dictionary class that can update with nested dicts, but does not allow changes.
 
     Note that this is not fully implemented. It only prevents changes introduced through the `.update` method. See ASVO-
@@ -55,7 +57,7 @@ class SchemaDictionary(dict):
         return dictionary
 
     def __init__(self, *args, **kwargs):
-        super(SchemaDictionary, self).__init__(*args, **kwargs)
+        super(SchemaDictionary, self).__init__(str, *args, **kwargs)
 
         self.make_sub_dicts_schema_dicts()
 
@@ -72,9 +74,9 @@ class SchemaDictionary(dict):
             raise TypeError("A SchemaDictionary can only be updated with a dict-like object.")
         for key in other_dict.keys():
             if key not in self:
-                # New material. Add (a copy of) it. If it is a dictionary
-                # but not a SchemaDictonary, make it a SchemaDictionary
-                if isinstance(other_dict[key], dict) and not isinstance(other_dict[key], SchemaDictionary):
+                # New material. Add (a copy of) it. If it is a dictionary, make
+                # a copy as a SchemaDictionary
+                if isinstance(other_dict[key], dict):
                     to_add = SchemaDictionary(other_dict[key])
                 else:
                     to_add = deepcopy(other_dict[key])
@@ -256,3 +258,24 @@ class classorinstancemethod(object):
             else:
                 return self.method(objtype, *args, **kwargs)
         return _wrapper
+
+class RegexpGroup:
+    def __init__(self, *args):
+        self.regexes = []
+        self.plain_items = []
+        for item in args:
+            # Add all non-regex items to one list
+            if hasattr(item, 'match'):
+                self.regexes.append(item)
+            else:
+                self.plain_items.append(item)
+
+    def __contains__(self, item):
+        # First check plain list:
+        if item in self.plain_items:
+            return True
+        else:
+            for regex in self.regexes:
+                if regex.match(item):
+                    return True
+        return False

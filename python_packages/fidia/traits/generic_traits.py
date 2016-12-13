@@ -53,20 +53,7 @@ class MetadataTrait(Trait):
 
 
 class DetectorCharacteristics(MetadataTrait):
-    """
-
-    Trait Properties:
-
-        detector_id
-
-        detector_size
-
-        gain
-
-        read_noise
-
-
-    """
+    """Metadata describing the characteristics of the detector used"""
 
     required_trait_properties = {
         'detector_id': 'string',
@@ -76,42 +63,12 @@ class DetectorCharacteristics(MetadataTrait):
     }
 
 class SpectrographCharacteristics(Trait):
-    """
-
-    Trait Properties:
-
-        instrument_name
-
-        arm
-
-        disperser_id
-
-        disperser_configuration
-
-        control_software
-
-    """
+    """Metadata describing the characteristics of the spectrograph used"""
 
     pass
 
 class OpticalTelescopeCharacteristics(Trait):
-    """
-
-    Trait Properties:
-
-        observatory_name
-
-        latitude
-
-        longitude
-
-        altitude
-
-        focus_configuration
-
-
-
-    """
+    """Metadata describing the characteristics of the optical telescope used"""
     pass
 
 
@@ -136,37 +93,22 @@ class Image(Map2D):
 
 
 class SpectralMap(Trait, AbstractBaseArrayTrait, FITSExportMixin):
-    """
-
-    Required trait_properties:
-
-        value
-        variance
-        covariance
-        weight
-
-    """
+    """Spatially-resolved collection of spectra"""
 
     @abstractproperty
     def value(self): pass
 
-    @abstractproperty
-    def variance(self): pass
-
-    # @abstractproperty
-    # def covariance(self): pass
-    #
-    # @abstractproperty
-    # def weight(self): pass
 
 class Classification(Trait, AbstractBaseClassification): pass
 
 
 class ClassificationMap(Map2D):
+    """Spatially-resolved collection of classifications"""
 
     valid_classifications = None
 
 class FlagMap(Map2D):
+    """Spatially-resolved collection of data flags"""
 
     valid_flags = None
 

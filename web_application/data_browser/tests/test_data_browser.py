@@ -101,18 +101,22 @@ class DataBrowserTests(APITestCase):
     def test_unauthorized_endpoints(self, urls=URLS):
         """ Ensure delete/put/patch are not available """
         for url in urls:
-            _test_post = self.client.post(data={'not_allowed'}, path=url, content_type='application/json',
+            if url == '/asvo/data-access/data-browser/sami/':
+                _test_post = self.client.post(data={'download':'test'}, path=url, content_type='application/json',
                                           HTTP_ACCEPT='application/json')
-            _test_put = self.client.put(data={'not_allowed'}, path=url, content_type='application/json',
-                                        HTTP_ACCEPT='application/json')
-            _test_patch = self.client.patch(data={'not_allowed'}, path=url, content_type='application/json',
-                                            HTTP_ACCEPT='application/json')
-            _test_delete = self.client.delete(data={'not_allowed'}, path=url, content_type='application/json',
+            else:
+                _test_post = self.client.post(data={'not_allowed'}, path=url, content_type='application/json',
                                               HTTP_ACCEPT='application/json')
-            self.assertEqual(_test_post.data, {'detail': 'Method "POST" not allowed.'})
-            self.assertEqual(_test_put.data, {'detail': 'Method "PUT" not allowed.'})
-            self.assertEqual(_test_patch.data, {'detail': 'Method "PATCH" not allowed.'})
-            self.assertEqual(_test_delete.data, {'detail': 'Method "DELETE" not allowed.'})
+                _test_put = self.client.put(data={'not_allowed'}, path=url, content_type='application/json',
+                                            HTTP_ACCEPT='application/json')
+                _test_patch = self.client.patch(data={'not_allowed'}, path=url, content_type='application/json',
+                                                HTTP_ACCEPT='application/json')
+                _test_delete = self.client.delete(data={'not_allowed'}, path=url, content_type='application/json',
+                                                  HTTP_ACCEPT='application/json')
+                self.assertEqual(_test_post.data, {'detail': 'Method "POST" not allowed.'})
+                self.assertEqual(_test_put.data, {'detail': 'Method "PUT" not allowed.'})
+                self.assertEqual(_test_patch.data, {'detail': 'Method "PATCH" not allowed.'})
+                self.assertEqual(_test_delete.data, {'detail': 'Method "DELETE" not allowed.'})
 
     def test_content_negotiation(self, urls=URLS):
         """ Vary the ACCEPT header (application/json, text/html) """

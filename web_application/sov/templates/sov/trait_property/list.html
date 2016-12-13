@@ -1,0 +1,61 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %}Single Object Viewer{% endblock %}
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'sov/css/trait/jquery-ui.structure.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'sov/css/trait/jquery-ui.theme.min.css' %}"/>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+{% endblock %}
+
+{% block page_title %}Single Object Viewer{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='sov' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a href="#top-of-page" class="scroll">Data</a></li>
+    </ul>
+</div><hr>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+    {% if breadcrumblist %}
+    {% with breadcrumblist|length|add:"-2" as b %}
+    <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+        {{breadcrumblist|key:b|key:0}}</a></li>
+    {% endwith %}
+    {% endif %}
+    <li><a class="" target="_blank"
+           href="{% url 'schema_browser:survey-list' survey_pk=survey %}#{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}">
+        Schema Browser</a></li>
+    <li><a class="" href="{% url 'documentation:topic-detail' slug=survey %}" disabled> Documentation</a></li>
+</ul>
+
+{% endblock %}
+{% block version_container %}
+
+{% endblock %}
+{% block main %}
+
+{% include "sov/layout/title.html" with db_title=astro_object|add:" "|add:trait_pretty_name|add:" "|add:subtrait_pretty_name|add:" "|add:response.data.pretty_name %}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-8 documentation_fidia">
+        <!--visualization/data-->
+        {% include 'sov/interactive/panel.html' %}
+        {% if response.data.value|stringformat:"s"|length < 1000 %}
+        <pre>{{response.data.value|safe|linebreaks}}</pre>
+        {% endif %}
+    </div>
+    <div class="col-xs-12 col-sm-4">
+        <!--properties/interactive-->
+        {% include 'sov/tables/action.html' %}
+    </div>
+</div>
+{% endblock %}

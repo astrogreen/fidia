@@ -11,10 +11,10 @@
                         <td><h4><small><a class="text-uppercase disabled" href="" disabled>Query Builder</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'data_browser:root-list' %}">Data Browser</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'sov:root-list' %}">Single Object Viewer</a></small></h4></td>
                     </tr>
                     <tr>
-                        <td><h4><small><a class="text-uppercase" href="{% url 'schema:schema-list' %}">Schema Browser</a></small></h4></td>
+                        <td><h4><small><a class="text-uppercase" href="{% url 'schema_browser:root-list' %}">Schema Browser</a></small></h4></td>
                     </tr>
                     </tbody>
                 </table>
@@ -27,9 +27,6 @@
                     <tbody>
                     <tr>
                         <td><h4><small><a class="text-uppercase" href="{% url 'documentation:topic-list' %}">Documentation</a></small></h4></td>
-                    </tr>
-                    <tr>
-                        <td><h4><small><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></small></h4></td>
                     </tr>
                     <tr>
                         <td><h4><small><a class="text-uppercase" href="{% url 'support-contact' %}">Contact us</a></small></h4></td>
@@ -107,17 +104,12 @@
         </div>
     </div>
 </footer>
+
 <script>
     if (location.pathname != '/asvo/under-construction/') {
         $('a[href="' + location.pathname + '"]').parents('li,ul').addClass('active');
     };
-    // Call MathJax after the content has been loaded...
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-    MathJax.Hub.Config({
-      tex2jax: {
-        inlineMath: [ ['$','$'], ['\\(','\\)'] ]
-      }
-    });
+
 
     $(document).ready(function () {
 
@@ -152,7 +144,7 @@
         });
 
 
-        update_sidebar_size = function(){
+        update_sidebar_height = function(){
          /*
           * Sidebar menu height is at least right-panel height (but not smaller than the menu contents)
           */
@@ -167,26 +159,16 @@
             }
         };
 
-        $(window).load(function () {
-            update_sidebar_size();
-        });
-        $(window).resize(function () {
-            update_sidebar_size();
-        });
+
 
         // Hook method to collapse events on sidebar anchors to re-check size
         // - this is used in the trait property renderer, which is half navigation, half information
 
         $('.sidebar #sidebar').on('shown.bs.collapse', function () {
-            update_sidebar_size();
+            update_sidebar_height();
         }).on('hidden.bs.collapse', function () {
-            update_sidebar_size();
+            update_sidebar_height();
         });
-
-        popoverClose = function(e){
-            console.log(e);
-            console.log(e.target);
-        }
 
         // Hide branch warning message
         $('.dismissable_panel a.dismiss_button').click(function(){
@@ -195,24 +177,73 @@
         $('body').scrollspy({ target: '.sidebar .page-contents' });
 
         // Affix plugin
-        var pos = $('.sidebar-contents').eq(0).offset();
-        var pos_foot = $('.footer').outerHeight(true);
+        function affixSidebar() {
 
-        $('[data-spy="affix"]').attr("data-offset-top", pos.top);
-        $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot+30);
+            if ($('.sidebar-contents').length) {
+                // destroy any previous listeners
+                $('.sidebar-contents').off('.affix');
 
-        function affixWidth() {
-            // ensure the affix element maintains it width
-            var affix = $('.sidebar-contents');
-            var width = affix.width();
-            affix.width(width);
+                var pos = $('.sidebar-contents').eq(0).offset();
+                var pos_foot = $('.footer').outerHeight(true);
+
+                $('[data-spy="affix"]').attr("data-offset-top", pos.top);
+                $('[data-spy="affix"]').attr("data-offset-bottom", pos_foot + 30);
+
+                // ensure the affix element maintains it width
+                var affix = $('.sidebar-contents');
+                var width = affix.width();
+                var width = $('.sidebar').width();
+//            console.log('sidebar width '+$('.sidebar').width()+' affix width '+width);
+                affix.width(width);
+            }
+
         }
 
-        $(document).ready(function () {
+        affixSidebar()
 
-            affixWidth();
+       // BOX HEIGHTS
+        function box_heights() {
+            /*
+                For each box-row, find the largest box-contents height and map the others to it
+             */
+            if ($(".box-row").length) {
+                $(".box-row").each(function () {
+                    var heights, maxHeight;
+                    heights = $(this).find(".box .box-contents").map(function () {
+                        return $(this).height();
+                    }).get();
+                    maxHeight = Math.max.apply(null, heights);
 
+                    $(this).find(".box").height(maxHeight);
+                })
+            }
+        }
+
+
+         $(window).load(function () {
+            update_sidebar_height();
+            affixSidebar();
+             box_heights()
         });
+        $(window).resize(function () {
+            update_sidebar_height();
+            affixSidebar();
+            box_heights()
+        });
+
+
+        // Call MathJax after the content has been loaded
+        // Configured to to use $ for inline math, and \\ for blocks
+        // unicode x212B for Angstrom
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            TeX: {Macros: {AA: "{\\unicode{x212B}}"}},
+            "HTML-CSS": {scale: 90}
+        });
+
 
     });
 </script>

@@ -16,10 +16,10 @@ log.setLevel(logging.DEBUG)
 
 CONTEXT = {}
 
-CONTEXT['reserved_keywords'] = ['sample', 'data_release', 'astro_object', 'trait', 'trait_key', 'trait_key_array',
+CONTEXT['reserved_keywords'] = ['survey', 'data_release', 'astro_object', 'trait', 'trait_key', 'trait_key_array',
                                 'trait_url', 'sub_trait_key', 'parent_trait', 'parent_sub_trait', 'sub_traits',
-                                'pretty_name', 'short_name', 'branch', 'version', 'url', 'all_branches_versions',
-                                'documentation']
+                                'pretty_name', 'short_name', 'name', 'branch', 'version', 'url', 'all_branches_versions',
+                                'documentation', 'description']
 
 
 class FITSRenderer(renderers.BaseRenderer):
@@ -47,11 +47,17 @@ class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         return 'RootRenderer'
 
 
-class SampleRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+class SurveyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
     template = 'data_browser/survey/list.html'
 
     def __repr__(self):
-        return 'SampleRenderer'
+        return 'SurveyRenderer'
+
+    def get_context(self, data, accepted_media_type, renderer_context):
+        context = super().get_context(data, accepted_media_type, renderer_context)
+        context['catalog'] = renderer_context['view'].catalog
+        context['traits'] = renderer_context['view'].traits
+        return context
 
 
 class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
@@ -62,7 +68,8 @@ class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
     def get_context(self, data, accepted_media_type, renderer_context):
         context = super().get_context(data, accepted_media_type, renderer_context)
-        context['traits_to_render'] = {"sami": ['velocity_map', 'sfr_map']}
+        context['survey'] = renderer_context['view'].survey
+        context['astro_object'] = renderer_context['view'].astro_object
         context['feature_catalog_data'] = renderer_context['view'].feature_catalog_data
 
         return context
@@ -70,7 +77,6 @@ class AstroObjectRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
 class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
     def __init__(self, sub_trait_list_extended=None, *args, **kwargs):
-        # pass
         self.template = 'data_browser/trait/list.html'
 
     def __repr__(self):
@@ -82,36 +88,30 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
 
         context = super().get_context(data, accepted_media_type, renderer_context)
 
-        # These are not looped over for the top-level trait view (but appear in the properties panel)
-        context['side_bar_explicit_render'] = ['description']
+        context['fidia_type'] = renderer_context['view'].fidia_type
+        context['survey'] = renderer_context['view'].survey
+        context['astro_object'] = renderer_context['view'].astro_object
+        context['trait'] = renderer_context['view'].trait
+        context['trait_type'] = renderer_context['view'].trait_type
+        context['trait_key'] = renderer_context['view'].trait_key
+        context['trait_name'] = renderer_context['view'].trait_name
+        context['trait_pretty_name'] = renderer_context['view'].trait_pretty_name
+        context['branch'] = renderer_context['view'].branch
+        context['version'] = renderer_context['view'].version
+        context['all_branches_versions'] = renderer_context['view'].all_branches_versions
+        context['formats'] = renderer_context['view'].formats
+        context['sub_traits'] = renderer_context['view'].sub_traits
+        context['trait_2D_map'] = renderer_context['view'].trait_2D_map
+        context['trait_url'] = renderer_context['view'].trait_url
+
 
         # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
         context['trait_properties'] = ['value']
 
-        context['trait_property_keywords'] = ["short_name", "pretty_name", "description", "url",
-                                              "name", "type", "value", ]
-
-        trait = sami_dr1_sample[data['astro_object']][data['trait']]
-
-        context['sub_traits'] = [sub_trait.trait_name for sub_trait in trait.get_all_subtraits()]
-
         # These are not looped over for the html rendering
         context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
-                                       context['side_bar_explicit_render'] + \
-                                       context['trait_properties'] + \
                                        context['sub_traits']
-        # Formats
-        trait_name_formats = []
-        for r in data_browser.views.TraitViewSet.renderer_classes:
-            f = str(r.format)
-            if f != "api": trait_name_formats.append(f)
 
-        context['formats'] = trait_name_formats
-
-        context['trait_type'] = trait.trait_type
-
-        if isinstance(trait, traits.Map2D):
-            context['trait_2D_map'] = True
 
         return context
 
@@ -125,62 +125,37 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         they will be explicitly positioned. """
 
         context = super().get_context(data, accepted_media_type, renderer_context)
-        context['sample'] = renderer_context['view'].sample
+
+        context['fidia_type'] = renderer_context['view'].fidia_type
+        context['survey'] = renderer_context['view'].survey
         context['astro_object'] = renderer_context['view'].astro_object
         context['trait'] = renderer_context['view'].trait
-        context['trait_url'] = renderer_context['view'].trait_url
-        context['template'] = renderer_context['view'].template
-
-        context['fidia_keys'] = ['sample', 'astro_object', 'trait', 'trait_key', 'trait_key_array', 'sub_trait_key',
-                                 'data_release', 'documentation' ]
-        context['side_bar_explicit_render'] = ['description']
-
-        context['trait_property_keywords'] = ["short_name", "pretty_name", "description",
-                                              "name", "type", "value", ]
-
-        context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
-                                       context['side_bar_explicit_render'] + \
-                                       context['fidia_keys']
-
-        context['type'] = renderer_context['view'].type
-        context['formats'] = renderer_context['view'].formats
+        context['trait_type'] = renderer_context['view'].trait_type
+        context['trait_key'] = renderer_context['view'].trait_key
+        context['trait_name'] = renderer_context['view'].trait_name
+        context['trait_pretty_name'] = renderer_context['view'].trait_pretty_name
         context['branch'] = renderer_context['view'].branch
         context['version'] = renderer_context['view'].version
-
-        # trait_property = sami_dr1_sample[data['astro_object']][data['trait'][data['trait_property']]]
-
-        # if isinstance(trait, traits.Map2D):
-        #     context['trait_2D_map'] = True
-
+        context['all_branches_versions'] = renderer_context['view'].all_branches_versions
+        context['formats'] = renderer_context['view'].formats
         context['trait_2D_map'] = renderer_context['view'].trait_2D_map
+        context['trait_url'] = renderer_context['view'].trait_url
+        context['subtrait_pretty_name'] = renderer_context['view'].subtrait_pretty_name
+        context['sub_trait'] = renderer_context['view'].sub_trait
 
-        return context
-
-    @property
-    def template(self):
-        if hasattr(self.renderer_context['view'], "template"):
-            return self.renderer_context['view'].template
-        else:
-            return 'rest_framework/api.html'
-
-
-class TraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-    def __repr__(self):
-        return 'TraitPropertyRenderer'
-
-    def get_context(self, data, accepted_media_type, renderer_context):
-        """ Add reserved keys to the context so the template knows not to iterate over these keys, rather,
-        they will be explicitly positioned. """
-
-        context = super().get_context(data, accepted_media_type, renderer_context)
-        context['sample'] = renderer_context['view'].sample
-        context['astro_object'] = renderer_context['view'].astro_object
-        context['trait'] = renderer_context['view'].trait
-        context['subtrait'] = renderer_context['view'].subtrait
         context['template'] = renderer_context['view'].template
-        context['trait_2D_map'] = renderer_context['view'].trait_2D_map
-        context['url_above'] = renderer_context['view'].url_above
-        context['side_bar_explicit_render'] = ['description']
+
+        # - - - - - -
+
+        # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
+        context['trait_properties'] = ['value']
+
+        # Subtraits/traitproperties dont have any subtraits, so drop the parent_trait sub_trait property
+        context['sub_traits'] = []
+
+        # These are not looped over for the html rendering
+        context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
+                                       context['sub_traits']
 
         return context
 

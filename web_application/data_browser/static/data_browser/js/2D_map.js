@@ -83,16 +83,15 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
     var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user) - 1];
 
     if ($('#data-range').length>0){
-        console.log(_Zmin)
-        console.log(_Zmax)
+
         // $("#data-range").html( _Zmin.toPrecision(8) + "  - " + _Zmax.toPrecision(8));
         if (_Zmin != 0.0){
-            $("#lv").val( _Zmin.toPrecision(8));
+            $("#lv").html( _Zmin.toPrecision(6));
         } else {
-            $("#lv").val( _Zmin);
+            $("#lv").html( _Zmin);
         }
 
-        $("#uv").val( _Zmax.toPrecision(8));
+        $("#uv").html( _Zmax.toPrecision(6));
         $('#data-range button').click(function(){
             // console.log('clip')
             // figure out percentile clip of values
@@ -168,6 +167,7 @@ function plot_map(name, data, selector, zmin, zmax){
             type: 'heatmap',
             colorbar:{
                 lenmode:'fraction',
+                tickformat:'.2e',
                 leng:1,
                 thicknessmode: 'fraction',
                 thickness: 0.02,
@@ -185,10 +185,10 @@ function plot_map(name, data, selector, zmin, zmax){
         width:elementWidth,
         height:elementWidth,
         margin: {
-            l: 0.04*elementWidth,
-            r: 0.04*elementWidth,
-            b:0.05*elementWidth,
-            t: 0.03*elementWidth
+            l: 0.08*elementWidth,
+            r: 0.00*elementWidth,
+            b: 0.08*elementWidth,
+            t: 0.06*elementWidth
         },
         // title: map_title
     };

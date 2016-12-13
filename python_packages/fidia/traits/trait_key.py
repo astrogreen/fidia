@@ -38,6 +38,22 @@ TRAIT_KEY_RE = re.compile(
     re.VERBOSE
 )
 
+# This alternate TraitKey regular expression will match strings using the
+# "hyphen-only" notation.
+TRAIT_KEY_ALT_RE = re.compile(
+    r"""(?P<trait_type>{TRAIT_TYPE_RE})
+        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE})?
+            (?:-(?P<branch>{TRAIT_BRANCH_RE})?
+                (?:-(?P<version>{TRAIT_VERSION_RE})?)?
+            )?
+        )?""".format(
+        TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
+        TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern,
+        TRAIT_BRANCH_RE=TRAIT_BRANCH_RE.pattern,
+        TRAIT_VERSION_RE=TRAIT_VERSION_RE.pattern),
+    re.VERBOSE
+)
+
 def validate_trait_name(trait_name):
     if TRAIT_NAME_RE.fullmatch(trait_name) is None:
         raise ValueError("'%s' is not a valid trait_name" % trait_name)
@@ -109,6 +125,12 @@ class TraitKey(tuple):
                     trait_qualifier=match.group('trait_qualifier'),
                     branch=match.group('branch'),
                     version=match.group('version'))
+            match = TRAIT_KEY_ALT_RE.fullmatch(key)
+            if match:
+                return cls(trait_type=match.group('trait_type'),
+                    trait_qualifier=match.group('trait_qualifier'),
+                    branch=match.group('branch'),
+                    version=match.group('version'))
         raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
 
     @classmethod
@@ -151,6 +173,20 @@ class TraitKey(tuple):
         if kwds:
             raise ValueError('Got unexpected field names: %r' % kwds.keys())
         return result
+
+    def ashyphenstr(self):
+        s = self.trait_type
+        if self.trait_qualifier or self.branch or self.version:
+            s += "-"
+            if self.trait_qualifier:
+                s += self.trait_qualifier
+            if self.branch or self.version:
+                s += "-"
+                if self.branch:
+                    s += self.branch
+                if self.version:
+                    s += "-" + self.version
+        return s
 
     def __getnewargs__(self):
         """Return self as a plain tuple.  Used by copy and pickle."""

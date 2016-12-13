@@ -43,7 +43,7 @@ def get_object_name(url, request=None):
     return name
 
 
-def get_breadcrumbs_by_viewname(url, request=None, breadcrumb_list=None):
+def get_breadcrumbs_by_viewname(url, request=None, breadcrumb_list=None, url_list=None):
     """
     Given a url returns a list of breadcrumbs, which are each a
     tuple of (name, url).
@@ -60,19 +60,11 @@ def get_breadcrumbs_by_viewname(url, request=None, breadcrumb_list=None):
         assert isinstance(breadcrumb_list, list)
         breadcrumb_list_from_view = breadcrumb_list
 
-    # # The breadcrumb list will override the view name from the last array to the first
-    # try:
-    #     (view, unused_args, unused_kwargs) = resolve(url)
-    # except Exception:
-    #     pass
-    # else:
-    #     cls = getattr(view, 'cls', None)
-    #     breadcrumb_list_from_view = []
-    #     if hasattr(cls, 'breadcrumb_list'):
-    #         assert isinstance(cls.breadcrumb_list, list)
-    #         breadcrumb_list_from_view = cls.breadcrumb_list
+    if url_list is not None:
+        assert isinstance(url_list, list)
+        url_list_from_view = url_list
 
-    def breadcrumbs_recursive(url, breadcrumbs_list, prefix, seen, breadcrumb_list_from_view):
+    def breadcrumbs_recursive(url, breadcrumbs_list, prefix, seen, breadcrumb_list_from_view, url_list_from_view):
         """
         Add tuples of (name, url) to the breadcrumbs list,
         progressively chomping off parts of the url.
@@ -97,15 +89,20 @@ def get_breadcrumbs_by_viewname(url, request=None, breadcrumb_list=None):
                     name = view_name_func(cls, suffix)
                     # new_name = get_object_name(url, request)
 
-                    # if new_name != '':
-                    #     name = new_name
-
                     if breadcrumb_list_from_view:
                         if breadcrumb_list_from_view.__len__() > 0:
                             name = breadcrumb_list_from_view.pop()
+
+                    if url_list_from_view:
+                        if url_list_from_view.__len__() > 0:
+                            url = url_list_from_view.pop()
+                        else:
+                            # only append that this view has been 'seen' once all the urls have been processed
+                            # remembering that custom urls can only be set once in a particular view
+                            seen.append(view)
+
                     insert_url = preserve_builtin_query_params(prefix + url, request)
                     breadcrumbs_list.insert(0, (name, insert_url))
-                    seen.append(view)
 
         if url == '':
             # All done
@@ -115,16 +112,16 @@ def get_breadcrumbs_by_viewname(url, request=None, breadcrumb_list=None):
             # Drop trailing slash off the end and continue to try to
             # resolve more breadcrumbs
             url = url.rstrip('/')
-            return breadcrumbs_recursive(url, breadcrumbs_list, prefix, seen, breadcrumb_list_from_view)
+            return breadcrumbs_recursive(url, breadcrumbs_list, prefix, seen, breadcrumb_list_from_view, url_list_from_view)
 
         # Drop trailing non-slash off the end and continue to try to
         # resolve more breadcrumbs
         url = url[:url.rfind('/') + 1]
-        return breadcrumbs_recursive(url, breadcrumbs_list, prefix, seen, breadcrumb_list_from_view)
+        return breadcrumbs_recursive(url, breadcrumbs_list, prefix, seen, breadcrumb_list_from_view, url_list_from_view)
 
     prefix = get_script_prefix().rstrip('/')
     url = url[len(prefix):]
-    return breadcrumbs_recursive(url, [], prefix, [], breadcrumb_list_from_view)
+    return breadcrumbs_recursive(url, [], prefix, [], breadcrumb_list_from_view, url_list_from_view)
 
 
 

@@ -210,7 +210,19 @@ class DescriptionsMixin:
         # Confirm if the requested usage (on class or instance) is allowed.
         instance_check(self)
 
-        self._documentation = value
+        # Split the input into individual lines.
+        input_lines = value.splitlines()
+
+        # Rejoin all but the first line:
+        documentation = "\n".join(input_lines[1:])
+
+        # Remove leading spaces from these lines
+        documentation = textwrap.dedent(documentation)
+
+        # Rejoin the first line:
+        documentation = "\n".join((input_lines[0], documentation))
+
+        self._documentation = documentation
         self._documentation_format = format
 
     @classorinstancemethod

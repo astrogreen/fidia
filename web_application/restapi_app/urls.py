@@ -14,11 +14,11 @@ urlpatterns = [
             url(r'^$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/home/index.html'), name='index'),
 
 
-            url(r'^surveys/$', restapi_app.views.Surveys.as_view(), name='surveys'),
+            # url(r'^surveys/$', restapi_app.views.Surveys.as_view(), name='surveys'),
             url(r'^data-access/$', restapi_app.views.DataAccess.as_view(), name='data-access'),
 
 
-            url(r'^(?i)SAMI/$', restapi_app.views.SAMI.as_view(), name='sami'),
+            # url(r'^(?i)SAMI/$', restapi_app.views.SAMI.as_view(), name='sami'),
             # url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
 
 
@@ -33,6 +33,7 @@ urlpatterns = [
                 name='about-team'),
 
             url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
+            url(r'^(?i)support/bug-report/$', restapi_app.views.BugReport.as_view(), name='support-bug'),
 
 
 

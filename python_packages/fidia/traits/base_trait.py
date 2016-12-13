@@ -3,7 +3,7 @@
 import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
-from copy import copy
+import re
 
 from contextlib import contextmanager
 
@@ -18,7 +18,7 @@ from .trait_key import TraitKey, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set, Inherit, DefaultsRegistry
+from ..utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup
 from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 # This makes available all of the usual parts of this package for use here.
@@ -204,6 +204,8 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
                     separate_metadata=False):
 
+        log.debug("Creating schema for %s", str(cls))
+
         # Validate the verbosity option
         assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
         if verbosity == 'descriptions':
@@ -226,6 +228,13 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
             # Available export formats (see ASVO-695)
             schema['export_formats'] = cls.get_available_export_formats()
+
+            # Add unit information if present
+            formatted_unit = cls.get_formatted_units()
+            if formatted_unit:
+                schema['unit'] = formatted_unit
+            else:
+                schema['unit'] = ""
 
         # Add description information for this trait to the schema if requested
         if verbosity == 'descriptions':
@@ -307,6 +316,47 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             return False
 
     @classmethod
+    def get_formatted_units(cls):
+        if hasattr(cls, 'unit'):
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.unit:latex_inline}".format(cls.unit)
+            else:
+                try:
+                    formatted_unit = cls.unit.to_string('latex_inline')
+                except:
+                    log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                    try:
+                        formatted_unit = cls.unit.to_string('latex')
+                    except:
+                        log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                        raise
+                        formatted_unit = ""
+            # For reasons that are not clear, astropy puts the \left and \right
+            # commands outside of the math environment, so we must fix that
+            # here.
+            #
+            # In fact, it appears that the units code is quite buggy.
+            # @TODO: Review units code!
+            if formatted_unit != "":
+                formatted_unit = formatted_unit.replace("\r", "\\r")
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+                formatted_unit = re.sub(r"\$\\(left|right)(\S)\$", r"\\\1\2", formatted_unit)
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+
+            # Return the final value, with the multiplier attached
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.value:0.03g} {1}".format(cls.unit, formatted_unit)
+            return formatted_unit
+        else:
+            return ""
+
+    @classmethod
     def _validate_trait_class(cls):
         assert cls.trait_type is not None, "trait_type must be defined"
         validate_trait_type(cls.trait_type)
@@ -357,10 +407,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         self._trait_cache = OrderedDict()
 
         if parent_trait is not None:
-            self.trait_path = copy(parent_trait.trait_path)
-            self.trait_path.append(self.trait_key)
+            self.trait_path = parent_trait.trait_path + tuple(self.trait_key)
         else:
-            self.trait_path = [self.trait_key]
+            self.trait_path = tuple(self.trait_key)
 
 
         # The preload count is used to track how many accesses there are to this
@@ -408,14 +457,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
             current_value = getattr(trait_key, attribute)
 
-            if current_value not in (None, Inherit):
+            if current_value is not None:
                 # We have been given a (branch/version) value, check that it
                 # is valid for this Trait:
                 if valid is not None:
                     assert current_value in valid, \
                         "%s '%s' not valid for trait '%s'" % (attribute, current_value, self)
                 return current_value
-            elif current_value is Inherit:
+            elif current_value is None:
                 # We have been asked to inherit the branch/version from the
                 # parent trait. If the parent_trait is defined (i.e. this is
                 # not a top level trait), then take its value if it is valid
@@ -423,15 +472,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 if parent_trait is not None:
                     parent_value = getattr(parent_trait, attribute)
                     # This is a sub trait. Inherit branch from parent unless not valid.
-                    if valid is not None and parent_value in valid:
+                    if valid is None:
+                        # All options are valid.
+                        return parent_value
+                    elif valid is not None and parent_value in valid:
                         return parent_value
                     else:
                         # Parent is not valid here, so leave as None
                         return None
-            elif current_value is None:
-                # Currently no way to define the branch/version for this
-                # trait, so leave it as None.
-                return None
 
         # Determine the branch given the options.
         self.branch = validate_and_inherit(trait_key, self._parent_trait, self.branches_versions, 'branch')
@@ -828,7 +876,7 @@ class FITSExportMixin:
         # Value should/will always be the first item in the FITS File (unless it cannot
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
-        if type(self).value.type in ("float.array", "int.array"):
+        if type(self).value.type.startswith("float.array") or type(self).value.type.startswith("int.array"):
             primary_hdu = fits.PrimaryHDU(self.value())
         elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value()])
@@ -873,7 +921,9 @@ class FITSExportMixin:
         #     primary_hdu.header[trait.short_name + "_ERR"] = (trait.value, trait.short_comment)
 
         # Create extensions for additional array-like values
-        for trait_property in self.trait_properties(['float.array', 'int.array']):
+        for trait_property in self.trait_properties(
+                RegexpGroup(re.compile(r"float\.array\.\d+"),
+                            re.compile(r"int\.array\.\d+"))):
             if trait_property.name == 'value':
                 continue
             try:

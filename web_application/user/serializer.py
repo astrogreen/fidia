@@ -82,11 +82,11 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     User Profile serializer allows only first/last name & email to be updated
     """
     username = serializers.CharField(read_only=True)
-    query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True)
+    # query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True)
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'query')
+        fields = ('username', 'first_name', 'last_name', 'email')
         extra_kwargs = {
             "username": {
                 "read_only": True,
