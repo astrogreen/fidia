@@ -179,12 +179,17 @@ class Sample(collections.MutableMapping):
         # Construct column names and units
         column_names = ["ID"]
         column_units = [""]
-        for tp in trait_properties:
+        for tp, path in zip(trait_properties, trait_paths):
             # Get the pretty name of the Trait
-            col_name = tp[0].get_pretty_name()
+            qualifier = path[-1].trait_qualifier
+            col_name = tp[0].get_pretty_name(qualifier)
             # Append the TraitProperty name only if it is not the default
             if tp[1].name is not 'value':
                 col_name += " " + tp[1].get_pretty_name()
+            # Append the Trait's branch name
+            branch = path[-1].branch
+            if branch:
+                col_name += " (" + tp[0].branches_versions.get_pretty_name(branch) + ")"
             column_names.append(col_name)
 
             # Get the unit associated with the trait
