@@ -20,6 +20,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import collections
 
 import pandas as pd
+import numpy as np
 
 from .astro_object import AstronomicalObject
 from .archive.base_archive import BaseArchive
@@ -162,7 +163,10 @@ class Sample(collections.MutableMapping):
             for id in self:
                 row = [id]
                 for trait_property_path in archive.feature_catalog_data:
-                    row.append(trait_property_path.get_trait_property_value_for_object(self[id]))
+                    value = trait_property_path.get_trait_property_value_for_object(self[id])
+                    if isinstance(value, (np.int64, np.int32)):
+                        value = int(value)
+                    row.append(value)
                     if first_row:
                         trait_properties.append(
                             (trait_property_path.get_trait_class_for_archive(archive),

@@ -563,6 +563,7 @@ class SAMISpectralCube(SpectralMap):
                 # the WCS object
                 del h['PLATEID']
                 w = wcs.WCS(h)
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", w.wcs.ctype[2]]
                 return w.to_header_string()
 
     @sub_traits.register
@@ -968,9 +969,19 @@ SAMIVAP.set_pretty_name("SAMI VAP Metadata")
 SAMIVAP.set_description("Metadata added by the SAMI quality control process for value added products")
 
 
+class LZIFUWCS(WorldCoordinateSystem):
+    @trait_property('string')
+    def _wcs_string(self):
+        header_str = self._parent_trait._wcs_string.value
+        w = wcs.WCS(header_str)
+        if w.naxis == 3:
+            w = w.dropaxis(2)
+        w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
+        return w.to_header_string()
+
 class LZIFUFlag(FlagMap):
 
-    trait_type = 'flags'
+    trait_type = 'qf_bincode'
 
     valid_flags = [
         ('BADSKY', "Bad Sky Subtraction"),
@@ -1000,10 +1011,27 @@ class LZIFUFlag(FlagMap):
         return output_data
 
 
+class LZIFUFlagCount(Map2D):
+
+    trait_type = 'qf'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        return self._hdu['QF'].data  # type: np.ndarray
+
+    @property
+    def shape(self):
+        return self.value().shape
+
 class LZIFUChiSq(Map2D):
     """Final $\chi^2$ of LZIFU spectral fit."""
 
-    trait_type = 'chi_sq'
+    trait_type = 'chi2'
 
     # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
     init = LZIFUDataMixin.init
@@ -1080,15 +1108,11 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
@@ -1170,16 +1194,11 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
-
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
@@ -1218,15 +1237,12 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
@@ -1312,14 +1328,11 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     r"""Emission line flux map from a single Gaussian fit.
@@ -1386,15 +1399,13 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
+
 
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Emission Map",
@@ -1534,14 +1545,11 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
     # End of class LZIFURecommendedMultiComponentLineMap
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
@@ -1604,14 +1612,11 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     "Line Emission Map",
@@ -1713,6 +1718,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1720,7 +1726,10 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+            header_str = self._parent_trait._wcs_string.value
+            w = wcs.WCS(header_str)
+            w.wcs.ctype = ["RA---TAN", "DEC--TAN", w.wcs.ctype[2]]
+            return w.to_header_string()
 
 
 class LZIFUContinuum(SpectralMap):
@@ -1911,7 +1920,7 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
         return units.dimensionless_unscaled
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array.2', 'value')
-    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'value')
+    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'error')
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -2209,7 +2218,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
 
-class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
+class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
@@ -2263,7 +2272,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
 
     """
 
-    trait_type = 'emission_classification_map'
+    trait_type = 'star_formation_mask'
 
     branches_versions = {
         branch_lzifu_1_comp: {'V03'},
@@ -2272,10 +2281,6 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
-    class_remap = {
-        0: "No Data",
-        1: "Star formation",
-        2: "Other ionisation mechanisms"}
 
     def fits_file_path(self):
 
@@ -2283,27 +2288,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
 
     @trait_property("int.array.2")
     def value(self):
-        input_data = self._hdu[1].data
-
-        # Change the input array into an integer array for storage.
-        class_remap = {
-            np.nan: 0,
-            1.0: 1,
-            0.0: 2}
-        output_data = np.empty(input_data.shape, dtype=np.int)
-        output_data[:] = -1
-        for key in class_remap:
-            if key is np.nan:
-                # Must use alternate logic for nans
-                output_data[np.isnan(input_data)] = class_remap[key]
-            output_data[input_data == key] = class_remap[key]
-
-        if np.count_nonzero(output_data == -1) > 0:
-            # For some reason, not all pixels have matched the categories.
-            raise Exception("Data corruption in '%s'" % self)
-
-
-        return output_data
+        return self._hdu[1].data
 
     @property
     def shape(self):
@@ -2312,7 +2297,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
 
-EmissionClass.set_pretty_name("Emission Classification Map")
+SFMask.set_pretty_name("Emission Classification Map")
 
 
 
@@ -2465,9 +2450,22 @@ class SAMIDR1PublicArchive(Archive):
         TraitPath("iau_id"),
         TraitPath("catalog_coordinate", trait_property='_ra'),
         TraitPath("catalog_coordinate", trait_property='_dec'),
+        TraitPath("m_r-petrosian"),
+        TraitPath("m_r-auto"),
         TraitPath("redshift:helio"),
+        TraitPath("redshift:tonry"),
         TraitPath("M_r-auto"),
-        TraitPath("mass")
+        TraitPath("effective_radius"),
+        TraitPath("surface_brightness:central"),
+        TraitPath("surface_brightness:1re"),
+        TraitPath("surface_brightness:2re"),
+        TraitPath("ellipticy-r_band"),
+        TraitPath("position_angle-r_band"),
+        TraitPath("mass"),
+        TraitPath("g_i"),
+        TraitPath("A_gal-g_band"),
+        TraitPath("priority_class"),
+        TraitPath("visual_classification_flag")
     ]
 
     def define_available_traits(self):
@@ -2742,7 +2740,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.change_defaults('priority_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
-        bad_class = catalog_trait(Measurement, 'visual_class',
+        bad_class = catalog_trait(Measurement, 'visual_classification_flag',
                             OrderedDict([('value', self.tabular_data['BAD_CLASS'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
         bad_class.branches_versions = {sami_gama_catalog_branch: {"V02"}}
@@ -2769,7 +2767,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(bad_class)
         del bad_class
 
-        self.available_traits.change_defaults('visual_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+        self.available_traits.change_defaults('visual_classification_flag', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
 
@@ -2788,6 +2786,7 @@ class SAMIDR1PublicArchive(Archive):
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
         self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
         self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly)
+        self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly3727)
 
         self.available_traits.register(SFRMap)
         self.available_traits.register(SFRMapRecommendedComponent)
@@ -2796,7 +2795,7 @@ class SAMIDR1PublicArchive(Archive):
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
 
-        self.available_traits.register(EmissionClass)
+        self.available_traits.register(SFMask)
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")
@@ -2927,39 +2926,4 @@ class SAMITeamArchive(Archive):
                 log.debug("   Key: %s", key)
 
         return self.available_traits
-
-
-
-
-
-
-
-
-
-
-#
-# LZIFUOneComponentLineMap.set_pretty_name(
-#     "Line Map",
-#     OII3726="[OII] (33726A)",
-#     HBETA='Hβ',
-#     OIII5007='[OIII] (5007A)',
-#     OI6300='[OI] (6300A)',
-#     HALPHA='Hα',
-#     NII6583='[NII] (6583)',
-#     SII6716='[SII] (6716)',
-#     SII6731='[SII] (6731)')
-#
-# LZIFURecommendedMultiComponentLineMap.set_pretty_name(
-#     "Line Map",
-#     OII3726="[OII] (3726Å)",
-#     HBETA='Hβ',
-#     OIII5007='[OIII] (5007Å)',
-#     OI6300='[OI] (6300Å)',
-#     HALPHA='Hα',
-#     NII6583='[NII] (6583Å)',
-#     SII6716='[SII] (6716Å)',
-#     SII6731='[SII] (6731Å)')
-
-BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
-SFRMap.set_pretty_name("Star Formation Rate Map")
 

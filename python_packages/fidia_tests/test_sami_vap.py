@@ -124,15 +124,15 @@ class TestSAMISFRmaps:
         assert isinstance(a_sami_galaxy['extinction_map'].value(), numpy.ndarray)
         assert isinstance(a_duplicate_sami_galaxy['extinction_map'].value(), numpy.ndarray)
 
-    def test_emission_classification_maps_present(self, a_sami_galaxy, a_duplicate_sami_galaxy):
+    def test_sf_mask_maps_present(self, a_sami_galaxy, a_duplicate_sami_galaxy):
         # type: (AstronomicalObject) -> None
 
 
         trait_list = [obj[trait] for obj, trait in itertools.product(
                           (a_sami_galaxy, a_duplicate_sami_galaxy),
-                          ('emission_classification_map',
-                           'emission_classification_map:1_comp',
-                           'emission_classification_map:recom_comp')
+                          ('star_formation_mask',
+                           'star_formation_mask:1_comp',
+                           'star_formation_mask:recom_comp')
                         )
                       ]
 
@@ -141,5 +141,5 @@ class TestSAMISFRmaps:
             assert isinstance(trait.value(), numpy.ndarray)
 
             # Check that the data is in the correct range (three classes)
-            assert numpy.min(trait.value()) == 0
-            assert numpy.max(trait.value()) == 2
+            assert numpy.nanmin(trait.value()) == 0.0
+            assert numpy.nanmax(trait.value()) == 1.0
