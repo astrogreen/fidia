@@ -2465,7 +2465,7 @@ class SAMIDR1PublicArchive(Archive):
         TraitPath("g_i"),
         TraitPath("A_gal-g_band"),
         TraitPath("priority_class"),
-        TraitPath("visual_class")
+        TraitPath("visual_classification_flag")
     ]
 
     def define_available_traits(self):
@@ -2740,7 +2740,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.change_defaults('priority_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
-        bad_class = catalog_trait(Measurement, 'visual_class',
+        bad_class = catalog_trait(Measurement, 'visual_classification_flag',
                             OrderedDict([('value', self.tabular_data['BAD_CLASS'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
         bad_class.branches_versions = {sami_gama_catalog_branch: {"V02"}}
@@ -2767,7 +2767,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(bad_class)
         del bad_class
 
-        self.available_traits.change_defaults('visual_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+        self.available_traits.change_defaults('visual_classification_flag', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
 
