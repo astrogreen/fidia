@@ -2914,38 +2914,3 @@ class SAMITeamArchive(Archive):
 
         return self.available_traits
 
-
-
-
-
-
-
-
-
-
-#
-# LZIFUOneComponentLineMap.set_pretty_name(
-#     "Line Map",
-#     OII3726="[OII] (33726A)",
-#     HBETA='Hβ',
-#     OIII5007='[OIII] (5007A)',
-#     OI6300='[OI] (6300A)',
-#     HALPHA='Hα',
-#     NII6583='[NII] (6583)',
-#     SII6716='[SII] (6716)',
-#     SII6731='[SII] (6731)')
-#
-# LZIFURecommendedMultiComponentLineMap.set_pretty_name(
-#     "Line Map",
-#     OII3726="[OII] (3726Å)",
-#     HBETA='Hβ',
-#     OIII5007='[OIII] (5007Å)',
-#     OI6300='[OI] (6300Å)',
-#     HALPHA='Hα',
-#     NII6583='[NII] (6583Å)',
-#     SII6716='[SII] (6716Å)',
-#     SII6731='[SII] (6731Å)')
-
-BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
-SFRMap.set_pretty_name("Star Formation Rate Map")
-

@@ -2,7 +2,7 @@ import re
 import numpy as np
 
 from fidia.archive import sami, example_archive
-
+from fidia import reports
 
 # ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
 #                           "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
@@ -29,7 +29,9 @@ ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test
 # schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('branch_version', ), verbosity='data_only')
 # schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('branch_version', ), verbosity='metadata')
 # schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='descriptions')
-schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='descriptions', separate_metadata=True)
+
+# schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='descriptions', separate_metadata=True)
+
 # schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('no_trait_qualifier',), verbosity='descriptions')
 # schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('trait_name',), verbosity='descriptions')
 # schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels=('branch_version',), verbosity='simple')
@@ -45,8 +47,10 @@ schema = ar.full_schema(include_subtraits=True, data_class='all', combine_levels
 # # schema = t.full_schema()
 # schema = t.full_schema()
 
-specfit = sample['9352']['spectral_fit_cube-red']
+# specfit = sample['9352']['spectral_fit_cube-red']
+#
+# specfit.as_fits("9352_specfit.fits")
 
-specfit.as_fits("9352_specfit.fits")
+latex_lines = reports.content_report(ar.available_traits)
 
 # print(schema)

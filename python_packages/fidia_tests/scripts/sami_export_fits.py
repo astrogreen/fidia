@@ -30,35 +30,37 @@ sample = ar.get_full_sample()
 #
 # specfit.as_fits("9352_specfit.fits")
 
+em_map = sample['24433']['line_emission_map-HALPHA']
+em_map.as_fits("24433_ha_map.fits")
 
 # ___       __    __  __
 #  |   /\  |__)  / _`  /
 #  |  /~~\ |  \ .\__> /_
 
 
-import fidia_tarfile_helper
-
-trait_path_list = [
-    {'sample': 'SAMI',
-     'object_id': '9352',
-     'trait_path': [
-         "velocity_map-ionized_gas"
-     ]},
-    {'sample': 'SAMI',
-     'object_id': '9352',
-     'trait_path': [
-         "velocity_dispersion_map-ionized_gas"
-     ]},
-    {'sample': 'SAMI',
-     'object_id': '24433',
-     'trait_path': [
-         "spectral_cube-blue"
-     ]}
-]
-
-tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sample, trait_path_list)
-
-stream = fidia_tarfile_helper.Streaming(tar_stream,
-                   "example.tar.gz")
-stream.filename = "example.tar.gz"
-stream.stream()
+# import fidia_tarfile_helper
+#
+# trait_path_list = [
+#     {'sample': 'SAMI',
+#      'object_id': '9352',
+#      'trait_path': [
+#          "velocity_map-ionized_gas"
+#      ]},
+#     {'sample': 'SAMI',
+#      'object_id': '9352',
+#      'trait_path': [
+#          "velocity_dispersion_map-ionized_gas"
+#      ]},
+#     {'sample': 'SAMI',
+#      'object_id': '24433',
+#      'trait_path': [
+#          "spectral_cube-blue"
+#      ]}
+# ]
+#
+# tar_stream = fidia_tarfile_helper.fidia_tar_file_generator(sample, trait_path_list)
+#
+# stream = fidia_tarfile_helper.Streaming(tar_stream,
+#                    "example.tar.gz")
+# stream.filename = "example.tar.gz"
+# stream.stream()
