@@ -2209,7 +2209,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
 
-class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
+class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
@@ -2263,7 +2263,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
 
     """
 
-    trait_type = 'emission_classification_map'
+    trait_type = 'star_formation_mask'
 
     branches_versions = {
         branch_lzifu_1_comp: {'V03'},
@@ -2272,10 +2272,6 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
-    class_remap = {
-        0: "No Data",
-        1: "Star formation",
-        2: "Other ionisation mechanisms"}
 
     def fits_file_path(self):
 
@@ -2283,27 +2279,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
 
     @trait_property("int.array.2")
     def value(self):
-        input_data = self._hdu[1].data
-
-        # Change the input array into an integer array for storage.
-        class_remap = {
-            np.nan: 0,
-            1.0: 1,
-            0.0: 2}
-        output_data = np.empty(input_data.shape, dtype=np.int)
-        output_data[:] = -1
-        for key in class_remap:
-            if key is np.nan:
-                # Must use alternate logic for nans
-                output_data[np.isnan(input_data)] = class_remap[key]
-            output_data[input_data == key] = class_remap[key]
-
-        if np.count_nonzero(output_data == -1) > 0:
-            # For some reason, not all pixels have matched the categories.
-            raise Exception("Data corruption in '%s'" % self)
-
-
-        return output_data
+        return self._hdu[1].data
 
     @property
     def shape(self):
@@ -2312,7 +2288,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
 
-EmissionClass.set_pretty_name("Emission Classification Map")
+SFMask.set_pretty_name("Emission Classification Map")
 
 
 
@@ -2796,7 +2772,7 @@ class SAMIDR1PublicArchive(Archive):
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
 
-        self.available_traits.register(EmissionClass)
+        self.available_traits.register(SFMask)
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")
