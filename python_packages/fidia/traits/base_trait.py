@@ -28,7 +28,7 @@ from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.INFO)
 log.enable_console_logging()
 
 
@@ -320,9 +320,11 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         if hasattr(cls, 'unit'):
             if hasattr(cls.unit, 'value'):
                 formatted_unit = "{0.unit:latex_inline}".format(cls.unit)
+                # formatted_unit = "{0.unit}".format(cls.unit)
             else:
                 try:
                     formatted_unit = cls.unit.to_string('latex_inline')
+                    # formatted_unit = cls.unit.to_string()
                 except:
                     log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
                     try:
@@ -331,6 +333,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                         log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
                         raise
                         formatted_unit = ""
+
+            log.info("Units formatting before modification for trait %s: %s", str(cls), formatted_unit)
+
             # For reasons that are not clear, astropy puts the \left and \right
             # commands outside of the math environment, so we must fix that
             # here.
@@ -349,9 +354,12 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 if not formatted_unit.endswith("$"):
                     formatted_unit = formatted_unit + "$"
 
+                formatted_unit = formatted_unit.replace("{}^{\\prime\\prime}", "arcsec")
+
             # Return the final value, with the multiplier attached
             if hasattr(cls.unit, 'value'):
                 formatted_unit = "{0.value:0.03g} {1}".format(cls.unit, formatted_unit)
+            log.info("Units final formatting for trait %s: %s", str(cls), formatted_unit)
             return formatted_unit
         else:
             return ""
