@@ -2450,9 +2450,22 @@ class SAMIDR1PublicArchive(Archive):
         TraitPath("iau_id"),
         TraitPath("catalog_coordinate", trait_property='_ra'),
         TraitPath("catalog_coordinate", trait_property='_dec'),
+        TraitPath("m_r-petrosian"),
+        TraitPath("m_r-auto"),
         TraitPath("redshift:helio"),
+        TraitPath("redshift:tonry"),
         TraitPath("M_r-auto"),
-        TraitPath("mass")
+        TraitPath("effective_radius"),
+        TraitPath("surface_brightness:central"),
+        TraitPath("surface_brightness:1re"),
+        TraitPath("surface_brightness:2re"),
+        TraitPath("ellipticy-r_band"),
+        TraitPath("position_angle-r_band"),
+        TraitPath("mass"),
+        TraitPath("g_i"),
+        TraitPath("A_gal-g_band"),
+        TraitPath("priority_class"),
+        TraitPath("visual_class")
     ]
 
     def define_available_traits(self):
