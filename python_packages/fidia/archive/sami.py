@@ -970,7 +970,7 @@ SAMIVAP.set_description("Metadata added by the SAMI quality control process for 
 
 class LZIFUFlag(FlagMap):
 
-    trait_type = 'flags'
+    trait_type = 'qf_bincode'
 
     valid_flags = [
         ('BADSKY', "Bad Sky Subtraction"),
@@ -1000,10 +1000,27 @@ class LZIFUFlag(FlagMap):
         return output_data
 
 
+class LZIFUFlagCount(Map2D):
+
+    trait_type = 'qf'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        return self._hdu['QF'].data  # type: np.ndarray
+
+    @property
+    def shape(self):
+        return self.value().shape
+
 class LZIFUChiSq(Map2D):
     """Final $\chi^2$ of LZIFU spectral fit."""
 
-    trait_type = 'chi_sq'
+    trait_type = 'chi2'
 
     # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
     init = LZIFUDataMixin.init
@@ -1080,6 +1097,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1170,6 +1188,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1218,6 +1237,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1312,6 +1332,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1386,6 +1407,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1534,6 +1556,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1604,6 +1627,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
@@ -1713,6 +1737,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
