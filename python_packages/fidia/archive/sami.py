@@ -563,6 +563,7 @@ class SAMISpectralCube(SpectralMap):
                 # the WCS object
                 del h['PLATEID']
                 w = wcs.WCS(h)
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", w.wcs.ctype[2]]
                 return w.to_header_string()
 
     @sub_traits.register
@@ -968,6 +969,16 @@ SAMIVAP.set_pretty_name("SAMI VAP Metadata")
 SAMIVAP.set_description("Metadata added by the SAMI quality control process for value added products")
 
 
+class LZIFUWCS(WorldCoordinateSystem):
+    @trait_property('string')
+    def _wcs_string(self):
+        header_str = self._parent_trait._wcs_string.value
+        w = wcs.WCS(header_str)
+        if w.naxis == 3:
+            w = w.dropaxis(2)
+        w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
+        return w.to_header_string()
+
 class LZIFUFlag(FlagMap):
 
     trait_type = 'qf_bincode'
@@ -1101,12 +1112,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
@@ -1192,13 +1198,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
-
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
@@ -1242,11 +1242,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     sub_traits.register(SAMIVAP)
 
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
@@ -1336,11 +1332,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     r"""Emission line flux map from a single Gaussian fit.
@@ -1412,11 +1404,8 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     sub_traits.register(SAMIVAP)
 
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
+
 
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Emission Map",
@@ -1560,11 +1549,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
     # End of class LZIFURecommendedMultiComponentLineMap
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
@@ -1631,11 +1616,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     "Line Emission Map",
@@ -1745,7 +1726,10 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+            header_str = self._parent_trait._wcs_string.value
+            w = wcs.WCS(header_str)
+            w.wcs.ctype = ["RA---TAN", "DEC--TAN", w.wcs.ctype[2]]
+            return w.to_header_string()
 
 
 class LZIFUContinuum(SpectralMap):
