@@ -14,7 +14,7 @@ from astropy.io import fits
 from .abstract_base_traits import *
 from ..exceptions import *
 from .trait_property import TraitProperty
-from .trait_key import TraitKey, TRAIT_NAME_RE, \
+from .trait_key import TraitKey, TraitPath, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
@@ -407,9 +407,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         self._trait_cache = OrderedDict()
 
         if parent_trait is not None:
-            self.trait_path = parent_trait.trait_path + tuple(self.trait_key)
+            self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
         else:
-            self.trait_path = tuple(self.trait_key)
+            self.trait_path = TraitPath([self.trait_key])
 
 
         # The preload count is used to track how many accesses there are to this
@@ -661,6 +661,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             yield tp.name
 
     def trait_properties(self, trait_property_types=None, include_hidden=False):
+        # type: (List, Bool) -> List[TraitProperty]
         """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -878,6 +879,13 @@ class FITSExportMixin:
 
         if type(self).value.type.startswith("float.array") or type(self).value.type.startswith("int.array"):
             primary_hdu = fits.PrimaryHDU(self.value())
+            # Add unit information to header if present
+            if hasattr(self, 'unit'):
+                if hasattr(self.unit, 'value'):
+                    primary_hdu.header['BUNIT'] = str(self.unit.value) + self.unit.unit.to_string()
+                else:
+                    primary_hdu.header['BUNIT'] = self.unit.to_string()
+
         elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value()])
         else:
@@ -889,6 +897,14 @@ class FITSExportMixin:
         # Add the newly created PrimaryHDU to the FITS file.
         add_wcs(primary_hdu)
         hdulist.append(primary_hdu)
+
+        # Add documentation information to PrimaryHDU
+        primary_hdu.header['OBJECT'] = self.object_id
+        primary_hdu.header['DATAPROD'] = (self.trait_name, "Data product ID")
+        # primary_hdu.header['DATANAME'] = (self.get_pretty_name().encode('ascii', errors='ignore'), "Data Product Name")
+        # primary_hdu.header['SHRTDESC'] = (self.get_description().encode('ascii', errors='ignore'))
+        primary_hdu.header['BRANCH'] = (self.branch, "Data Branch ID")
+        primary_hdu.header['VER'] = (self.version, "Data Version ID")
 
         # Attach all "meta-data" Traits to Header of Primary HDU
         from . import meta_data_traits
@@ -931,6 +947,10 @@ class FITSExportMixin:
                 extension.name = trait_property.get_short_name()
                 # Add the same WCS if appropriate
                 add_wcs(extension)
+                extension.header['EXTID'] = (trait_property.name, "Data Product Extension ID")
+                # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Data Product Extension Name")
+                # extension.header['SHRTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
+
                 hdulist.append(extension)
                 del extension
             except DataNotAvailable:
@@ -975,6 +995,21 @@ class FITSExportMixin:
                     "Trait Property '%s' not added to FITS file because it's data is not available.",
                     trait_property)
 
+
+        # Create extensions for sub-traits:
+        for trait in self.get_all_subtraits():
+            for trait_property in trait.trait_properties(
+                RegexpGroup(re.compile(r"float\.array\.\d+"),
+                            re.compile(r"int\.array\.\d+"))):
+                extension = fits.ImageHDU(trait_property.value)
+                extension.name = str(trait.trait_name)
+                extension.header['SUBTRAIT'] = (trait.trait_name, "Sub-trait ID")
+                # extension.header['ST_NAME'] = (trait.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Name")
+                # extension.header['ST_DESC'] = (trait.get_description().encode('ascii', errors='ignore'))
+                extension.header['EXTID'] = (trait_property.name, "Sub-trait Data ID")
+                # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Data Name")
+                # extension.header['EXTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
+                hdulist.append(extension)
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
         # for trait_property in self.trait_property_values('catalog'):
