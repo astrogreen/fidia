@@ -1920,7 +1920,7 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
         return units.dimensionless_unscaled
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array.2', 'value')
-    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'value')
+    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'error')
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -2773,6 +2773,7 @@ class SAMIDR1PublicArchive(Archive):
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
         self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
         self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly)
+        self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly3727)
 
         self.available_traits.register(SFRMap)
         self.available_traits.register(SFRMapRecommendedComponent)
