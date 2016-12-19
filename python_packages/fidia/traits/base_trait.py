@@ -908,11 +908,11 @@ class FITSExportMixin:
 
         # Add documentation information to PrimaryHDU
         primary_hdu.header['OBJECT'] = self.object_id
-        primary_hdu.header['DATAPROD'] = (self.trait_name, "Data product ID")
+        primary_hdu.header['DATAPROD'] = (self.trait_name, "Data Central product ID")
         # primary_hdu.header['DATANAME'] = (self.get_pretty_name().encode('ascii', errors='ignore'), "Data Product Name")
         # primary_hdu.header['SHRTDESC'] = (self.get_description().encode('ascii', errors='ignore'))
-        primary_hdu.header['BRANCH'] = (self.branch, "Data Branch ID")
-        primary_hdu.header['VER'] = (self.version, "Data Version ID")
+        primary_hdu.header['BRANCH'] = (self.branch, "Data Central Branch ID")
+        primary_hdu.header['VER'] = (self.version, "Data Central Version ID")
 
         # Attach all "meta-data" Traits to Header of Primary HDU
         from . import meta_data_traits
@@ -1011,10 +1011,10 @@ class FITSExportMixin:
                             re.compile(r"int\.array\.\d+"))):
                 extension = fits.ImageHDU(trait_property.value)
                 extension.name = str(trait.trait_name)
-                extension.header['SUBTRAIT'] = (trait.trait_name, "Sub-trait ID")
+                extension.header['SUBTRAIT'] = (trait.trait_name, "Data Central Sub-trait ID")
                 # extension.header['ST_NAME'] = (trait.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Name")
                 # extension.header['ST_DESC'] = (trait.get_description().encode('ascii', errors='ignore'))
-                extension.header['EXTID'] = (trait_property.name, "Sub-trait Data ID")
+                extension.header['EXTID'] = (trait_property.name, "Data Central Sub-trait Data ID")
                 # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Data Name")
                 # extension.header['EXTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
                 hdulist.append(extension)
