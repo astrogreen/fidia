@@ -1,5 +1,5 @@
 
-var app = angular.module("DCApp", [ "isteven-multi-select", 'ngSanitize', 'ngCookies'])
+var app = angular.module("DCApp", [ "isteven-multi-select", 'ngSanitize', 'ngCookies', 'ui.bootstrap'])
 .config(['$cookiesProvider', function($cookiesProvider) {
     // Set $cookies defaults
     $cookiesProvider.defaults.path = '/';

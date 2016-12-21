@@ -46,123 +46,159 @@
 
 {% block content-filter-form %}{% endblock %}
 {% block content-header %}{% endblock %}
-
+{% block page_title_banner_class %}yellow{% endblock %}
 {% block page_title %}Query{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation' %}" title="Query Documentation">Documentation</a></li>
-<li role="presentation" ><a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='query' %}">Need Help?</a></li>
+
 {% endblock useful_links %}
 
 {% block content_render %}
-    {% comment %}
-    ------ NEW QUERY FORM ------
-    {% endcomment %}
+<div class="row">
+    <div class="col-sm-3 sidebar">
+        <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a href="#query-builder" class="scroll">Query Builder</a></li>
+                <li><a href="#sql" class="scroll">SQL</a></li>
+                <li><a href="#overview" class="scroll">What does the Query Builder do?</a></li>
+            </ul>
+            <h5>Catalogue Schema
+                <a href="" data-toggle="popover" data-html="true" class="popover-anchor" role="button"
+                   data-content="<p>View available properties and further information from the survey teams. To start, click the dropdown and select a catalogue.</p>"
+                     data-placement="top"><i class="fa fa-info-circle"></i></a>
+            </h5>
 
-    {% if display_edit_forms %}
-        {% if post_form or raw_data_post_form %}
-            {% if not response.data.queryResults %}
+            {% block schema-query %}
+            {% include "query/schema-browser-module.html" %}
+            {% endblock %}
 
-                <div class="row">
-                    <div class="col-sm-8">
-                        <p class="lead">Create a sample of astronomical objects - no coding necessary. </p>
+            <h5>Quick Links</h5>
+            <ul class="nav nav-pills nav-stacked docs-sidebar">
+                <li role="presentation" ><a href="{% url 'query-list' %}" title="Re-visit previous queries.">Query History</a></li>
+            </ul>
 
-                        <p>Construct a sample of objects using the <a
-                                onclick="fTabSwitch('query-builder-form')"
-                                title="Create simple SQL queries with ease.">Query Builder</a>. Use the Schema
-                            Browser to view available properties and further information from the survey teams.
-                            Complicated queries can be constructed using the <a
-                                    onclick="fTabSwitch('post-object-form')"
-                                    title="Query the ASVO-AAT Node database.">SQL</a> form. Re-visit and manage
-                            your past queries in <a href="{% url 'query-list' %}"
-                                                    title="Re-visit previous queries.">Query History</a>. Check the
-                            <a href="{% url 'documentation-query-builder' %}">Documentation</a> for help and
-                            examples. </p>
-                    </div>
+        </div>
+    </div>
+    <div class="col-sm-9 main-content">
+        <h2>Query the survey data at ADC.</h2>
+        <p class="lead">Create a sample of astronomical objects - no coding necessary.</p>
+
+        <div class="panel panel-default warning dismissable_panel">
+            <div class="panel-body">
+                <div class="sub-heading">Hint: use the <strong>Catalogue Schema</strong> dropdown in the sidebar to quickly learn more
+                    about a particular catalogue and/or property.
+
+                    For more information
+                    on using the Query Builder,
+                    <a href="{% url 'documentation:article-detail' slug='query-a-guide-to-using-the-query-builder' %}">
+                        view the documentation.</a><br>
+                    <a href="" role="button" class="branch_warning_button pull-right">Hide this message</a>
                 </div>
-                {% if response.status_code == 201 %}
-                <div class="row">
-                    <div class="col-xs-12">
-                        <h2 class="headline">
-                            <span>Success</span>
-                        </h2>
-                    </div>
-                    <div class="col-sm-3">
-                        <div class="panel panel-default">
-                            <div class="panel-heading panel-background-grey">
-                                <h3 class="panel-title">Success</h3>
-                            </div>
-                            <div class="panel-body">
-                                <p>Query {{response.data.title}} submitted on {{response.data.created}} has completed.</p>
-                                <p>If you are not redirected to your query, please click the link below. </p>
-                                <p>
-                                <div class="half-br"></div>
-                                <a type="button" class=" text-uppercase pull-right" href="{{response.data.url}}">Go to Result</a>
-                                </p>
+            </div>
+        </div>
 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                {% if response.status_code == 200 %}
-                <div class="row">
-                    <div class="col-sm-8">
-                         <h2 class="headline" id="new-query">
-                            <span>New Query</span>
-                        </h2>
-                        <div class="tabbable" id="query-options">
-                            {% if post_form %}
-                            <ul class="nav nav-tabs form-switcher">
-                                <li>
-                                    <a name='raw-tab' href="#query-builder-form" data-toggle="tab">Query Builder</a>
-                                </li>
-                                <li>
-                                    <a name='html-tab' href="#post-object-form" data-toggle="tab">SQL</a>
-                                </li>
-                            </ul>
-                            {% endif %}
-                            <div class="well tab-content">
-                                <div id="query-builder-form" class="tab-pane">
-                                    {% block query-builder %}
-                                        {% include "query/query-builder-module.html" %}
-                                    {% endblock %}
-                                </div>
 
-                                {% if post_form %}
-                                <div class="tab-pane" id="post-object-form">
-                                    {% with form=post_form %}
-                                    <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
-                                        <fieldset>
-                                            {% csrf_token %}
-                                            {{ post_form }}
-                                            <div class="form-actions">
-                                                <button class="button button-primary button-small pull-right" title="Make a POST request on the {{ name }} resource" id="button-sql-submit">SUBMIT</button>
-                                            </div>
-                                        </fieldset>
-                                    </form>
-                                    {% endwith %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="panel panel-default" style="display:none" id="progress-indicator">
-                            <div class="panel-body success"></div>
-                        </div>
+        {% comment %}
+        ------ NEW QUERY FORM ------
+        {% endcomment %}
 
-                    </div>
-                    <div class="col-sm-4">
-                         <h2 class="headline">
-                            <span>Schema Browser</span>
-                        </h2>
-                        {% block schema-browser %}
-                            {% include "query/schema-browser-module.html" %}
+        {% if display_edit_forms %}
+            {% if post_form or raw_data_post_form %}
+                {% if not response.data.queryResults %}
+                    {% if response.status_code == 200 %}
+                    <!--<a href="{% url 'documentation:article-detail' slug='query-a-guide-to-using-the-query-builder' %}" class="margin-top-twelve-px question pull-right"><i class="fa fa-question-circle"></i> How do I use the Query Builder tool?</a>-->
+                    <h3 id="query-builder">Query Builder</h3>
+                    <div id="query-builder-form" class="tab-pane">
+                        {% block query-builder %}
+                            {% include "query/query-builder-module.html" %}
                         {% endblock %}
                     </div>
-                </div>
+                    <div class="panel panel-default" style="display:none" id="progress-indicator">
+                        <div class="panel-body success"></div>
+                    </div>
+
+                    <hr><br>
+                    <h3 id="sql">SQL</h3>
+                    <p>For more control over your query, use this form to submit valid SQL. Use the Queriable Properties dropdown in the sidebar to view the query schema.</p>
+                    {% if post_form %}
+                    <div class="" id="post-object-form">
+                        {% with form=post_form %}
+                        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                            <fieldset>
+                                {% csrf_token %}
+                                {{ post_form }}
+                                <div class="form-actions">
+                                    <button class="btn btn-default pull-right" title="Submit your query" id="button-sql-submit">SUBMIT</button>
+                                </div>
+                            </fieldset>
+                        </form>
+                        {% endwith %}
+                    </div>
+                    {% endif %}
+                    <h3 id="overview">What does the Query Builder do?</h3>
+                    <p>To access most astronomy databases, a user must be proficient in the language of databases - SQL. However, we
+                        appreciate that some users may not want to learn another language in order to perform a relatively simple
+                        request, namely, <em>show me these rows from this table&nbsp;if they satisify some condition</em>.&nbsp;</p>
+                    <p>The Query Builder form allows you to construct complicated queries on the database with ease, without writing
+                        any code. It writes the SQL for you, reducing the time spent writing out code&nbsp;and navigating obtuse SQL
+                        errors, and more time accessing&nbsp;and exploring the data.&nbsp;</p>
+                    <p>Queries can be made on any querable-property in the ADC database (the schema alongside the Query Builder
+                        displays a list of properties that can be queried, and relevant meta data (descriptions etc).&nbsp;</p>
+                    <p>The&nbsp;<span>Query Builder</span> is sufficient for most use cases, however particularly complicated
+                        queries can still be submitted via the SQL form. In many cases, the Query Builder can be useful to write out
+                        the bulk of a long query, which can be copy-pasted into the SQL box for further user-editing.&nbsp;</p>
+
+
+                    <h4>Why do I need to log in to use the Query Builder?</p>
+                    <p>Once you've submitted a successful query, it's stored in your personal <a href="{% url 'query-list' %}"
+                                                                                        title="Re-visit previous queries.">Query
+                        History</a>. You can re-visit, update and manage your past queries, meaning you don't need to
+                        save SQL scripts locally, or remember how you got to a particular table of results 12 months
+                        ago! Give each query a meaningful name, and we'll store it.
+                    </p>
+        
+                    <p>For more help and examples querying ADC, check the
+                        <a href="{% url 'documentation:topic-detail' slug='query' %}">Documentation</a>.</p>
+
+                    {% endif %}
+
+                        {% if response.status_code == 201 %}
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>
+                                    <span>Success</span>
+                                </h3>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading panel-background-grey">
+                                        <h3 class="panel-title">Success</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <p>Query {{response.data.title}} submitted on {{response.data.created}} has completed.</p>
+                                        <p>If you are not redirected to your query, please click the link below. </p>
+                                        <p>
+                                        <div class="half-br"></div>
+                                        <a type="button" class=" text-uppercase pull-right" href="{{response.data.url}}">Go to Result</a>
+                                        </p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    {% endif %}
                 {% endif %}
             {% endif %}
-        {% endif %}
-    {% endif %}
+    </div>
+
+</div>
+
+
+
+
 
 
 {% endblock %}
@@ -267,6 +303,8 @@
                 .append('<em><p class="loading">Processing <span>.</span><span>.</span><span>.</span></p></em><p> Please do not close this page, you will be automatically redirected to the result.</p>')
         }, 500)
     };
+
+
 
 </script>
 

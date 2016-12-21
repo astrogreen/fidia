@@ -6,29 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="ASVO AAT Node">
     <meta name="author" content="AA0">
-    <link rel="icon" href="/static/images/aao.ico">
+    <link rel="icon" href="/static/img/aao.ico">
 {% endblock %}
 {% block style %}
     <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/bootstrap/bootstrap.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/font-awesome/font-awesome.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/font-awesome.min.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static '/static/css/animate.css' %}"/>
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'css/buttons/buttons.css' %}"/>-->
-    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/main/main.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/main/main.css' %}"/>
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic&subset=latin,greek,latin-ext' rel='stylesheet' type='text/css'>
-
-    <script type="text/javascript" src="{% static 'js/angular/angular.1.5.0.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/angular/angular.1.5.0.cookies.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/angular/angular-sanitize.1.5.0.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/angular/app.js' %}"></script>
-    <script type="text/javascript" src="{% static 'restapi_app/js/isteven-multi-select/isteven-multi-select.js' %}"></script>
-
-    <script type="text/javascript" src="{% static 'download/js/services.js' %}"></script>
-    <script type="text/javascript" src="{% static 'download/js/directives.js' %}"></script>
 
 {% endblock %}
 
 <script type="text/javascript" src="{% static 'restapi_app/js/MathJax/MathJax.js'%}?config=TeX-MML-AM_CHTML"></script>
-
+<!--<script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>-->
 {% block multiselect %}{% endblock %}
 {% block datatables %}{% endblock %}
 {% block sign-in %}{% endblock %}
@@ -39,3 +29,4 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 <script src="{% static 'restapi_app/js/jquery/jquery-2.2.3.min.js' %}"></script>
+<!--<script src="{% static 'rest_framework/js/jquery-1.12.4.min.js' %}"></script>-->

@@ -1,0 +1,39 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Download{% endblock %}
+
+{% block bodyclass %}aat_outer{% endblock %}
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active"><a href="">Download</a></li>
+{% endblock %}
+
+{% block page_title %}Download{% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="{% url 'documentation:topic-list' %}">Documentation</a></li>
+{% endblock useful_links %}
+
+{% block content-test %}
+<div class="row">
+    <div class="col-xs-12 col-sm-12">
+        <br>
+            Download Status: {{download_status}}
+
+            <div class="row">
+                <div class="col-md-offset-4 col-sm-offset-3 col-sm-6 col-md-4 col-xs-12">
+                    <div class="panel panel-default ">
+                    <div class="panel-body">
+                    <form action="{% url 'data_browser:data-browser-download' %}" method="post" novalidate>
+                    {% csrf_token %}
+                    {% render_form serializer  %}
+                    <button type="submit" class="btn text-uppercase btn-primary pull-right">Submit</button>
+                </form>
+                    </div></div>
+                </div>
+            </div>
+    </div>
+</div>
+{% endblock %}
+{% block footer-extra %}{% endblock %}

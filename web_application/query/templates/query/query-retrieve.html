@@ -3,7 +3,7 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-{% block title %}Query{% endblock %}
+{% block title %}Query Result{% endblock %}
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/data-tables/data-tables.css' %}"/>
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/ace/ace.css' %}"/>
@@ -17,25 +17,132 @@
 
 {% endblock %}
 
-{% block page_title %}Query History{% endblock %}
+{% block page_title %}Query Result{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation' %}" title="Query Documentation">Documentation</a></li>
-<li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='query' %}" title="Query Documentation">Documentation</a></li>
 {% endblock useful_links %}
+{% block page_title_banner_class %}yellow{% endblock %}
 
-{% block content_render %}
-    {% if response.data.queryResults %}
-    <div class="row">
-        <div class="col-xs-12">
-            <p class="lead">View the results of your query, <a href="#download">download</a> the table of results or additional data products for the returned objects. </p>
 
+{% block content-test %}
+<div class="row">
+    <div class="col-sm-2 col-xs-12 sidebar">
+        <div class="sidebar-contents">
+            <h5>Page Contents</h5>
+            <ul  class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a href="#results" class="scroll">Results</a></li>
+                <li><a href="#download" class="scroll">Download</a></li>
+                <li><a href="#select_data_products" class="scroll">Select Data Products to Download</a></li>
+                <li><a href="#update" class="scroll">Update or Delete this Query</a></li>
+            </ul>
+            <h5>Quick Links</h5>
+            <ul  class="nav nav-pills nav-stacked docs-sidebar">
+                <li><a href="{% url 'query-list' %}" class=""><i class="fa fa-reply"></i> Back to Query History</a></li>
+                <li role="presentation" ><a href="{% url 'query-create-list' %}">New Query</a></li>
+            </ul>
         </div>
+
+
+    </div>
+    <div class="col-sm-10 main-content">
+    <div class="row">
+        <div class="col-xs-8"><h2>{{response.data.title}} <small class="sub-heading" style="margin-top:18px;">Last updated: {{response.data.updated}}</small></h2></div>
+        <div class="col-xs-4">
+            <a class="sub-heading pull-right" href="{% url 'user-profile-detail' username=user %}" title="Go to My Account">
+                <span class="fa-stack fa-lg">
+                  <i class="fa fa-circle fa-stack-2x"></i>
+                  <i class="fa fa-user fa-stack-1x fa-inverse"></i>
+                </span>
+                {{user|upper}}
+            </a>
+        </div>
+    </div>
+    {% if response.data.queryResults %}
+    {# ------ ACTIONS ------#}
+    <div class="row">
+        <div class="col-xs-12"><br>
+            <div class="well">
+                <p class="lead no-margin-bottom">
+                    What can I do?
+                </p>
+                <ul class="p">
+                    <li>View the <a href="#result" class="scroll">result</a> of <em>{{response.data.title}}</em>.</li>
+                    <li><a href="#download" class="scroll">Download</a> the table of results.</li>
+                    <li>If your query returned astronomical objects, you can <a href="#select_data_products" class="scroll">select</a> data products to download.</li>
+                    <li><a href="#update" class="scroll">Update or delete</a> the query from your Query History.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {# ------RESULT ------#}
+    <div class="row" id="result">
+        <div class="col-sm-12">
+            <h2>Result</h2>
+            <div id="TableResultsWarning"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
+        </div>
+    </div>
+
+    {# ------DOWNLOAD ------#}
+    <div class="row">
+        <div class="col-xs-12" id="download">
+            <h3 class="headline"><span>Download</span> </h3>
+            <h4 class="headline" id="download"><span>Catalogue Data</span> </h4>
+            <p>Download the results of you query in json or csv format. If your preferred format isn't available, make a feature request.</p>
+            {% for f in available_formats %}
+                {% if f != "api" %}
+                    <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
+                        <span class="fa-custom-stack">
+                          <i class="fa fa-file-o"></i>
+                            <span class="fa-custom-filetype">{{f}}</span>
+                        </span>{{f}}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            <!--<add-download-button url='{{ request.get_full_path }}' formats='[{% for f in available_formats %}{% if f != "api" %}"{{f}}"{% endif %}{% if not forloop.last and f != "api" %},{% endif %}{%endfor%}]'></add-download-button>-->
+        </div>
+    </div>
+    <div class="row" id="select_data_products">
+        <div class="col-xs-12">
+            <h4 class="headline"><span>Additional Products</span> </h4>
+        </div>
+        <div class="col-xs-12">
+            <p>Download additional data products for the objects in this query.</p>
+            <div class="panel panel-default info">
+                <div class="panel-body">
+                    <strong class="text-uppercase">Note</strong>
+                    <p class="small">
+                        This selection tool displays all available types of data product hosted at ADC.
+                        However, not all data products are available for all objects (e.g., some GAMA galaxies will
+                        <strong>not</strong> have
+                        SAMI data). Once you have made your selection and downloaded the data, check the download package for
+                        details on unavailable products.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% block data-download %}
+            <div class="col-xs-12">
+                <!--<available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>-->
+                <available-products schemaurls="{'SAMI':'{% url 'schema:sample-list' sample_pk='sami' %}'}"></available-products>
+            </div>
+        {% endblock %}
+    </div>
+
+    {# ------UPDATE ------#}
+    <div class="row" id="update">
         <div class="col-sm-offset-0 col-sm-8 col-xs-12">
-            <h2>{% if response.data.title %}{{response.data.title}}{% else %}Query{% endif %} <small class="pull-right sub-heading" style="margin-top:18px;">{{response.data.updated}}</small></h2>
+            <h3>Update  <small class="pull-right sub-heading" style="margin-top:18px;">Last Updated: {{response.data.updated}}</small></h3>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <span class="panel-title">Update</span>
-                    <a href="{% url 'documentation-download' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Query Help?</a>
+                    <a href="{% url 'documentation:topic-detail' slug='query' %}" class="pull-right question"><i class="fa fa-question-circle"></i> Need Query Help?</a>
                 </div>
                 <div class="panel-body">
                     <p>Update the SQL for this query and re-run (if you change only the title, the SQL will not be re-run).
@@ -63,7 +170,7 @@
             </div>
         </div>
         <div class="col-sm-4 col-xs-12">
-            <h2>Summary</h2>
+            <h3>Summary</h3>
             <div class="panel panel-default" ng-if="ctrl.items | isNotEmpty">
                 <!-- List group -->
                 <ul class="list-group summary">
@@ -103,73 +210,13 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
-    </div>
-
-    {# ------DATATABLES ------#}
-
-
-    <div class="row">
-        <div class="col-sm-12">
-            <h2>Result</h2>
-            <div id="TableResultsWarning"></div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="data-table-container" id="data-table-container"><p><i class="fa fa-refresh fa-spin"></i> Fetching Data...</p></div>
-        </div>
-
-    </div>
-
-    <div class="row">
-        <div class="col-xs-12">
-            <h2 class="headline"><span>Download</span> </h2>
-            <h3 class="headline" id="download"><span>Catalogue Data</span> </h3>
-            <p>Download the results of you query in a variety of formats. If your preferred format isn't available, make a feature request.</p>
-            {% for f in available_formats %}
-                {% if f != "api" %}
-                    <a href="{{request.get_full_path}}?format={{f}}" class="btn btn-default">
-                        <span class="fa-custom-stack">
-                          <i class="fa fa-file-o"></i>
-                            <span class="fa-custom-filetype">{{f}}</span>
-                        </span>{{f}}
-                    </a>
-                {% endif %}
-            {% endfor %}
-
-            <add-download-button url='{{ request.get_full_path }}' formats='[{% for f in available_formats %}{% if f != "api" %}"{{f}}"{% endif %}{% if not forloop.last and f != "api" %},{% endif %}{%endfor%}]'></add-download-button>
-        </div>
-    </div>
-    <div class="row" id="select_data_products">
-        <div class="col-xs-12">
-            <h3 class="headline"><span>Additional Products</span> </h3>
-        </div>
-        <div class="col-xs-12">
-            <p>Download additional data products for the objects in this query.</p>
-            <div class="panel panel-default info">
-                <div class="panel-body">
-                    <strong class="text-uppercase">Note</strong>
-                    <p class="small">
-                        This selection tool displays all available types of data product hosted at AAODC.
-                        However, not all data products are available for all objects (e.g., some GAMA galaxies will
-                        <strong>not</strong> have
-                        SAMI data). Once you have made your selection and downloaded the data, check the download package for
-                        details on unavailable products.
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% block data-download %}
-            <div class="col-xs-12">
-                <available-products schemaurls="{'SAMI':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}', 'GAMA':'{% url 'schema:astroobject-list' sample_pk='sami' astroobject_pk='9352' %}'}"></available-products>
-            </div>
-        {% endblock %}
     </div>
     {% endif %}
+    </div>
+</div>
 {% endblock %}
 
 
@@ -227,12 +274,10 @@
 
 {% autoescape off %}
  <script type="text/javascript">
-    var SAMI_URL = "";
-    var GAMA_URL = "";
-    {% comment %}
-    var SAMI_URL = "{% url 'data_browser:sample-list' sample_pk='sami' %}";
-    var GAMA_URL = "{% url 'data_browser:sample-list' sample_pk='gama' %}";
-    {% endcomment %}
+
+    var SAMI_URL = "{% url 'data_browser:survey-list' sample_pk='sami' %}";
+    var GAMA_URL = "{% url 'data_browser:survey-list' sample_pk='gama' %}";
+
 
     var DOWNLOAD_URL = "{% url 'download-create'%}";
 
@@ -345,6 +390,47 @@
         $('[href=#'+id+']').tab('show');
     }
 
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $(".scroll").click(function (event) {
+            // stop the hash being appended to the url, and scroll to the value
+            event.preventDefault();
+            $('html, body').animate({scrollTop: $(this.hash).offset().top}, 800);
+        });
+    });
+</script>
+
+{# ----- Change the text shown in the branch button. ----- #}
+<script>
+    $('.branch_dropdown ul.dropdown-menu > li > a').click(function (event) {
+        console.log(event);
+        // note, currentTarget gets the element to which the event handler was attached to (rather than target, which gets the element on which the event occurred)
+        var _anchor = $(event.currentTarget);
+        // get nearest button
+
+        // optional version description
+        var _vers_description_colon = '';
+        var _branch_description_colon = '';
+        if (!!_anchor.attr('data-version-description')){_vers_description_colon=':'}
+        if (!!_anchor.attr('data-branch-description')){_branch_description_colon=':'}
+
+        var _branch = "<span class='sub-heading'><i class='fa fa-code-fork'></i> Branch </span><strong>" + _anchor.attr('data-branch') + _branch_description_colon + "</strong> " + _anchor.attr('data-branch-description') + " <i class='fa fa-caret-down'></i>";
+        var _version = "<span class='sub-heading'><i class='fa fa-map-pin'></i> Version </span><strong>" + _anchor.attr('data-version') + _vers_description_colon + "</strong> " + _anchor.attr('data-version-description') + " <i class='fa fa-caret-down'></i>";
+
+        if (!!_anchor.attr('data-version')){
+            _anchor.closest('ul.version-selector').find('a.branch_button').html(_version)
+        } else {
+            _anchor.closest('ul.branch-selector').find('a.branch_button').html(_branch)
+        }
+
+        // Update the branch_warning message with this branch and version
+        _anchor.closest('.trait').find('span.branch_warning-branch').html(_anchor.attr('data-branch'));
+        _anchor.closest('.trait').find('span.branch_warning-version').html(_anchor.attr('data-version'));
+
+    });
 </script>
 {% endblock %}
 

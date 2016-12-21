@@ -16,16 +16,46 @@
 
 {% block page_title %}Download History{% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'documentation-download' %}">Documentation</a></li>
+<li role="presentation" ><a href="{% url 'documentation:topic-detail' slug='downloading-data' %}">Documentation</a></li>
 {% endblock useful_links %}
 
 {% block content_render %}
 <div class="row">
-    <div class="col-xs-12 col-sm-12">
-        <p class="lead">Re-download previous selections of data products and manage your storage. </p>
+    <div class="col-sm-2 sidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-content">
+                <h5>Page Contents</h5>
+                <ul  class="nav nav-pills nav-stacked docs-sidebar">
+                    <li><a href="#previous-downloads" class="scroll">Previous Downloads</a></li>
+                    <li><a href="#usage" class="scroll">Usage Summary</a></li>
+                </ul>
+                <h5>Quick Links</h5>
+                <ul  class="nav nav-pills nav-stacked docs-sidebar">
+                    <li role="presentation"><a href="{% url 'download-create' %}">New Download</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
-    <div class="col-xs-12 col-sm-6 col-sm-offset-1">
-        <h2>Previous Downloads</h2>
+    <div class="col-sm-10 main-content">
+        <div class="row">
+            <div class="col-xs-8"><h2>Download History</h2></div>
+            <div class="col-xs-4">
+                <a class="sub-heading pull-right" href="{% url 'user-profile-detail' username=user %}" title="Go to My Account">
+                    <span class="fa-stack fa-lg">
+                      <i class="fa fa-circle fa-stack-2x"></i>
+                      <i class="fa fa-user fa-stack-1x fa-inverse"></i>
+                    </span>
+                    {{user|upper}}
+                </a>
+            </div>
+        </div>
+
+
+        <p class="lead">Re-download previous selections of data products and manage your storage. </p>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-0">
+        <h3 id="previous-downloads">Previous Downloads</h3>
         <div class="panel panel-default">
             <div class="panel-heading">
                 Download History
@@ -69,10 +99,13 @@
     </div>
 
     <div class="col-sm-4 col-xs-12">
-        <h2>Usage Summary</h2>
+        <h3 id="usage">Usage Summary</h3>
         <div class="panel panel-default panel-statistics">
+            <div class="panel-body">
+                <em>In development</em>
+            </div>
             <!-- List group -->
-            <ul class="list-group">
+            <ul class="list-group" style="opacity:0.4">
                 <li class="list-group-item text-right">
                     <div id="statistics"><!-- Plotly chart will be drawn inside this DIV --></div>
                     <div class="sub-heading">
@@ -92,6 +125,10 @@
             </ul>
         </div>
     </div>
+        </div>
+    </div>
+
+
 </div>
 <script src="{% static 'restapi_app/js/plotly/plotly.latest.min.js' %}"></script>
 <script src="{% static 'restapi_app/js/plotly/custom/usage.js' %}"></script>

@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 class BaseArchive(object):
 
+    cache = None
+
     def writeable(self):
         raise NotImplementedError("")
 

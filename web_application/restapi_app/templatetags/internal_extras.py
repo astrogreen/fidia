@@ -3,6 +3,7 @@ from __future__ import unicode_literals, absolute_import
 import re, json
 from django import template
 from django.template import Library
+from django.utils.text import slugify
 from django.core.urlresolvers import reverse, NoReverseMatch, reverse_lazy, resolve
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import QueryDict
@@ -32,15 +33,15 @@ def optional_logout(request, user):
     except NoReverseMatch:
         snippet = format_html('<li class="navbar-text">{user}</li>', user=escape(user))
         return mark_safe(snippet)
-    try:
-        querylist_url = reverse('query-list')
-    except NoReverseMatch:
-        return ''
-
-    try:
-        downloadlist_url = reverse('download-list')
-    except NoReverseMatch:
-        return ''
+    # try:
+    #     querylist_url = reverse('query-list')
+    # except NoReverseMatch:
+    #     querylist_url = ''
+    #
+    # try:
+    #     downloadlist_url = reverse('download-list')
+    # except NoReverseMatch:
+    #     downloadlist_url = ''
 
     try:
         user = request.user
@@ -48,25 +49,38 @@ def optional_logout(request, user):
     except NoReverseMatch:
         return ''
 
+    # snippet = """<li class="dropdown user">
+    #     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+    #         {user}
+    #         <b class="caret"></b>
+    #     </a>
+    #     <ul class="dropdown-menu">
+    #         <li><a href="{profile}">Profile</a></li>
+    #         <li><a href="{requests}">Query History</a></li>
+    #         <li><a href="{download}">Download History</a></li>
+    #         <li><a href='{logout_url}'>Sign out </a></li>
+    #     </ul>
+    # </li>"""
+    # snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, download=downloadlist_url)
+
     snippet = """<li class="dropdown user">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            {user}
-            <b class="caret"></b>
-        </a>
-        <ul class="dropdown-menu">
-            <li><a href="{profile}">Profile</a></li>
-            <li><a href="{requests}">Query History</a></li>
-            <li><a href="{download}">Download History</a></li>
-            <li><a href='{logout_url}'>Sign out </a></li>
-        </ul>
-    </li>"""
-    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, download=downloadlist_url )
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {user}
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="{profile}">Profile</a></li>
+                <li><a href='{logout_url}'>Sign out </a></li>
+            </ul>
+        </li>"""
+
+    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile)
 
     return mark_safe(snippet)
 
 
 @register.simple_tag
-def optional_login(request):
+def optional_login(request, header):
     """
     Include a login snippet if REST framework's login view is in the URLconf.
     """
@@ -79,16 +93,41 @@ def optional_login(request):
     except NoReverseMatch:
         return ''
 
-    # On successful sign-in, prevent user being directed back to logout, register or login
-    next_page = request.path
-    next_url = escape(resolve(request.path_info).url_name)
-    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout', 'rest_framework:logout', ]
+    # Once signed in, user is redirected back to next_page
+    # if cannot get next_url (e.g., page does not exist) then blank.
+    # unless logout, register or login
+    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout',
+                     'rest_framework:logout', ]
 
-    if request.user != 'AnonymousUser':
-        if next_url in urls_to_avoid:
+    try:
+                                                                    # Prepend namespace and get kwargs
+        url_name = escape(resolve(request.path_info).url_name)      # astroobject-list
+        _kwargs = resolve(request.path_info).kwargs if resolve(
+            request.path_info).kwargs else ""                       # {'astroobject_pk': '24433', 'survey_pk': 'sami'}
+        # _namespace = request.resolver_match.namespace             # data_browser
+        next_url_name = request.resolver_match.namespace \
+                        + ':' + url_name if request.resolver_match.namespace else url_name  # data_browser:astroobject-list
+
+        if next_url_name in urls_to_avoid and request.user != 'AnonymousUser':
             next_page = reverse('index')
+        else:
+            next_page = reverse(next_url_name, kwargs=_kwargs)
+    except Exception:
+        next_page = ""
 
-    snippet = """<div class='user'>
+    if header == True:
+        snippet = """<li class="background-white">
+                        <a href='{login}?next={next}'>
+                            Sign In <i class="fa fa-lock"></i>
+                        </a>
+                        </li>
+                        <li class="background-white">
+                        <a href="{register}">
+                            Register <i class="fa fa-pencil-square-o"></i>
+                        </a>
+                    </li>"""
+    else:
+        snippet = """<div class='user'>
                 <a href='{login}?next={next}' class="text-error text-uppercase">
                     <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
 
@@ -103,41 +142,6 @@ def optional_login(request):
     return mark_safe(snippet)
 
 
-@register.simple_tag
-def optional_login_header(request):
-    """
-    Include a login snippet if REST framework's login view is in the URLconf.
-    """
-    try:
-        login_url = reverse('rest_framework:login')
-    except NoReverseMatch:
-        return ''
-    try:
-        register_url = reverse('user-register')
-    except NoReverseMatch:
-        return ''
-
-    # On successful sign-in, prevent user being directed back to logout, register or login
-    next_page = request.path
-    next_url = escape(resolve(request.path_info).url_name)
-    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout', 'rest_framework:logout', ]
-
-    if request.user != 'AnonymousUser':
-        if next_url in urls_to_avoid:
-            next_page = reverse('index')
-
-    snippet = """<li class="background-white">
-                <a href='{login}?next={next}'>
-                    Sign In <i class="fa fa-lock"></i>
-                </a>
-                </li>
-                <li class="background-white">
-                <a href="{register}">
-                    Register <i class="fa fa-pencil-square-o"></i>
-                </a>
-            </li>"""
-    snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
-    return mark_safe(snippet)
 
 @register.filter
 def of_key(value, arg):
@@ -326,7 +330,10 @@ def key(d, key_name):
     """ Get a supplied key value from a dictionary"""
     if key_name == "None":
         return d
+    # if hasattr(d, key_name):
     return d[key_name]
+    # else:
+    #     return ''
 
 
 @register.filter
@@ -337,3 +344,7 @@ def get_type(value):
 @register.filter
 def stringify(list):
     return json.dumps(str(list))
+
+@register.filter
+def slug(_str):
+    return slugify(_str)

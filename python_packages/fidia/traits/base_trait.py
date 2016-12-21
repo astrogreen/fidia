@@ -3,6 +3,7 @@
 import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
+import re
 
 from contextlib import contextmanager
 
@@ -14,9 +15,10 @@ from .abstract_base_traits import *
 from ..exceptions import *
 from .trait_property import TraitProperty
 from .trait_key import TraitKey, TRAIT_NAME_RE, \
-    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch
+    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
+    BranchesVersions
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set, Inherit
+from ..utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup
 from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 # This makes available all of the usual parts of this package for use here.
@@ -49,7 +51,7 @@ log.enable_console_logging()
 #         return 0
 
 def validate_trait_branches_versions_dict(branches_versions):
-    # type: ([dict, None]) -> None
+    # type: ([BranchesVersions, None]) -> None
     if branches_versions is None:
         return
     assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
@@ -75,70 +77,216 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     descriptions_allowed = 'class'
 
     @classmethod
-    def schema(cls, include_subtraits=True, by_trait_name=False):
+    def schema(cls, include_subtraits=True, by_trait_name=False, data_class='all'):
         """Provide the schema of data in this trait as a dictionary.
 
         The schema is presented as a dictionary, where the keys are strings
         giving the name of the attributes defined, and the values are the FIDIA
         type strings for each attribute.
 
-        Only attributes which are TraitProperties are included in the schema.
+        Only attributes which are TraitProperties are included in the schema,
+        unless `include_subtraits` is True.
 
         Examples:
 
             >>> galaxy['redshift'].schema()
             {'value': 'float', 'variance': 'float'}
 
+        Parameters:
+
+            include_subtraits:
+                Recurse on any sub-traits attached to this Trait. The key will
+                be the sub-trait name, and the value will be the schema
+                dictionary describing the sub-trait.
+
+            by_trait_name:
+                Control how the sub-traits will be grouped. If True, then the
+                key for a sub-Trait will be the sub_trait's full trait_name
+                (trait_type + trait_qualifier), and the value will be the
+                sub-Trait's schema.
+
+                If False, then the key is the trait_type (only), and the value
+                is a dictionary of trait_qualifiers (or the single key `None` if
+                there are no qualifiers). This nested dictionary has values
+                which are the sub-Trait's schema.
+
+                See Archive.schema for an example of each.
+
+            data_class:
+                One of 'all', 'catalog', or 'non-catalog'
+
+                'all' returns the full schema.
+
+                'catalog' returns only items which contain TraitProperties of catalog type.
+
+                'non-catalog' returns only items which contain TraitProperties of non-catalog type.
+
+                Both 'catalog' and 'non-catalog' will not include Traits that
+                consist only of TraitProperties not matching the request.
+
         """
-
         if by_trait_name:
-            schema = SchemaDictionary()
-            for trait_property in cls._trait_properties():
-                schema[trait_property.name] = trait_property.type
-
-            if include_subtraits:
-                for trait_name in cls.sub_traits.get_trait_names():
-                    # Create empty this sub-trait type:
-                    schema[trait_name] = SchemaDictionary()
-                    # Populate the dict with schema from each sub-type:
-                    for trait_class in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
-                        subtrait_schema = trait_class.schema()
-                        try:
-                            schema[trait_name].update(subtrait_schema)
-                        except ValueError:
-                            log.error("Schema mis-match in traits: sub-trait '%s' cannot be added " +
-                                      "to schema for '%s' containing: '%s'",
-                                      trait_class, trait_name, schema[trait_name])
-                            raise SchemaError("Schema mis-match in traits: sub-trait '%s' cannot be added " +
-                                              "to schema for '%s' containing: '%s'",
-                                              trait_class, trait_name, schema[trait_name])
-
+            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
+                                   combine_levels=['trait_name', 'branch_version'],
+                                   separate_metadata=False, verbosity='simple')
         else:
-            schema = SchemaDictionary()
-            for trait_property in cls._trait_properties():
-                    schema[trait_property.name] = trait_property.type
+            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
+                                   combine_levels=['branch_version'],
+                                   separate_metadata=False, verbosity='simple')
 
-            if include_subtraits:
-                log.debug("Building a schema for subtraits of '%s'", cls)
-                trait_types = cls.sub_traits.get_trait_types()
-                for trait_type in trait_types:
-                    log.debug("    Processing traits with trait_name '%s'", trait_type)
-                    schema[trait_type] = SchemaDictionary()
-                    trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
-                    for trait_name in trait_names:
-                        trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
-                        for trait in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
-                            log.debug("        Attempting to add Trait class '%s'", trait)
-                            trait_schema = trait.schema()
-                            if trait_name not in schema[trait_type]:
-                                schema[trait_type][trait_qualifier] = SchemaDictionary()
-                            try:
-                                schema[trait_type][trait_qualifier].update(trait_schema)
-                            except ValueError:
-                                log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
-                                          "to schema for '%s' containing: '%s'",
-                                          trait, trait_type, schema[trait_type][trait_name])
-                                raise SchemaError("Schema mis-match in traits")
+                # assert data_class in ('all', 'catalog', 'non-catalog', None)
+        # if data_class is None:
+        #     data_class = 'all'
+        #
+        # schema = SchemaDictionary()
+        # for trait_property in cls._trait_properties():
+        #     if data_class == 'all' or \
+        #             (data_class == 'catalog' and trait_property.type in TraitProperty.catalog_types) or \
+        #             (data_class == 'non-catalog' and trait_property.type in TraitProperty.non_catalog_types):
+        #         schema[trait_property.name] = trait_property.type
+        #
+        # if include_subtraits:
+        #
+        #     if by_trait_name:
+        #         for trait_name in cls.sub_traits.get_trait_names():
+        #             # Create empty this sub-trait type:
+        #             schema[trait_name] = SchemaDictionary()
+        #
+        #             # Populate the dict with schema from each sub-type:
+        #             for trait_class in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
+        #                 # Recurse with the same options.
+        #                 subtrait_schema = trait_class.schema(include_subtraits=include_subtraits,
+        #                                                      by_trait_name=by_trait_name, data_class=data_class)
+        #                 try:
+        #                     schema[trait_name].update(subtrait_schema)
+        #                 except ValueError:
+        #                     log.error("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+        #                               "to schema for '%s' containing: '%s'",
+        #                               trait_class, trait_name, schema[trait_name])
+        #                     raise SchemaError("Schema mis-match in traits: sub-trait '%s' cannot be added " +
+        #                                       "to schema for '%s' containing: '%s'",
+        #                                       trait_class, trait_name, schema[trait_name])
+        #
+        #     else:  # not by_trait_name
+        #         log.debug("Building a schema for subtraits of '%s'", cls)
+        #         trait_types = cls.sub_traits.get_trait_types()
+        #         for trait_type in trait_types:
+        #             log.debug("    Processing traits with trait_name '%s'", trait_type)
+        #             schema[trait_type] = SchemaDictionary()
+        #             trait_names = cls.sub_traits.get_trait_names(trait_type_filter=trait_type)
+        #             for trait_name in trait_names:
+        #                 trait_qualifier = TraitKey.split_trait_name(trait_name)[1]
+        #                 if trait_name not in schema[trait_type]:
+        #                     schema[trait_type][trait_qualifier] = SchemaDictionary()
+        #
+        #                 # Populate the dict with schema from each sub-type:
+        #                 for trait_class in cls.sub_traits.get_trait_classes(trait_name_filter=trait_name):
+        #                     log.debug("        Attempting to add Trait class '%s'", trait_class)
+        #                     # Recurse with the same options.
+        #                     sub_trait_schema = trait_class.schema(include_subtraits=include_subtraits,
+        #                                                           by_trait_name=by_trait_name, data_class=data_class)
+        #                     try:
+        #                         schema[trait_type][trait_qualifier].update(sub_trait_schema)
+        #                     except ValueError:
+        #                         log.exception("Schema mis-match in traits: trait '%s' cannot be added " +
+        #                                   "to schema for '%s' containing: '%s'",
+        #                                   trait_class, trait_type, schema[trait_type][trait_name])
+        #                         raise SchemaError("Schema mis-match in traits")
+        #
+        # if data_class != 'all':
+        #     # Check for empty Trait schemas and remove:
+        #     schema.delete_empty()
+        #
+        # return schema
+
+
+    @classmethod
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
+                    separate_metadata=False):
+
+        log.debug("Creating schema for %s", str(cls))
+
+        # Validate the verbosity option
+        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
+        if verbosity == 'descriptions':
+            if 'branches_versions' in combine_levels:
+                raise ValueError("Schema verbosity 'descriptions' requires that " +
+                                 "combine_levels not include branches_versions")
+
+        # Validate the data_class flag
+        assert data_class in ('all', 'catalog', 'non-catalog', None)
+        if data_class is None:
+            data_class = 'all'
+
+        # Create the empty schema for this Trait
+        schema = SchemaDictionary()
+
+        # Add basic metadata about this trait, if requested
+        if verbosity in ('metadata', 'descriptions'):
+            schema['trait_type'] = cls.trait_type
+            # schema['branches_versions'] = cls.branches_versions
+
+            # Available export formats (see ASVO-695)
+            schema['export_formats'] = cls.get_available_export_formats()
+
+            # Add unit information if present
+            formatted_unit = cls.get_formatted_units()
+            if formatted_unit:
+                schema['unit'] = formatted_unit
+            else:
+                schema['unit'] = ""
+
+        # Add description information for this trait to the schema if requested
+        if verbosity == 'descriptions':
+            cls.copy_descriptions_to_dictionary(schema)
+
+        # Add TraitProperties of this Trait to the schema
+        trait_properties_schema = SchemaDictionary()
+        for trait_property in cls._trait_properties():
+            if data_class == 'all' or \
+                    (data_class == 'catalog' and trait_property.type in TraitProperty.catalog_types) or \
+                    (data_class == 'non-catalog' and trait_property.type in TraitProperty.non_catalog_types):
+                if verbosity == 'simple':
+                    trait_property_schema = trait_property.type
+                else:
+                    trait_property_schema = SchemaDictionary(
+                        type=trait_property.type,
+                        name=trait_property.name
+                    )
+                if verbosity == 'descriptions':
+                    trait_property.copy_descriptions_to_dictionary(trait_property_schema)
+
+                trait_properties_schema[trait_property.name] = trait_property_schema
+        if verbosity == 'simple':
+            schema.update(trait_properties_schema)
+        else:
+            schema['trait_properties'] = trait_properties_schema
+
+        # Add sub-trait information to the schema.
+        if include_subtraits:
+
+            # Sub-traits cannot have branch/version information currently, so we
+            # do not enumerate branches and versions in sub-traits.
+            if 'branch_version' not in combine_levels:
+                combine_levels += ('branch_version', )
+
+            # Request the schema from the registry.
+            sub_traits_schema = cls.sub_traits.schema(
+                include_subtraits=include_subtraits,
+                data_class=data_class,
+                combine_levels=combine_levels,
+                verbosity=verbosity,
+                separate_metadata=separate_metadata)
+
+            if verbosity == 'simple':
+                schema.update(sub_traits_schema)
+            else:
+                schema['sub_traits'] = sub_traits_schema
+
+        if data_class != 'all':
+            # Check for empty Trait schemas and remove (only necessary if there
+            # has been filtering on catalog/non-catalog data)
+            schema.delete_empty()
 
         return schema
 
@@ -168,6 +316,47 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             return False
 
     @classmethod
+    def get_formatted_units(cls):
+        if hasattr(cls, 'unit'):
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.unit:latex_inline}".format(cls.unit)
+            else:
+                try:
+                    formatted_unit = cls.unit.to_string('latex_inline')
+                except:
+                    log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                    try:
+                        formatted_unit = cls.unit.to_string('latex')
+                    except:
+                        log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                        raise
+                        formatted_unit = ""
+            # For reasons that are not clear, astropy puts the \left and \right
+            # commands outside of the math environment, so we must fix that
+            # here.
+            #
+            # In fact, it appears that the units code is quite buggy.
+            # @TODO: Review units code!
+            if formatted_unit != "":
+                formatted_unit = formatted_unit.replace("\r", "\\r")
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+                formatted_unit = re.sub(r"\$\\(left|right)(\S)\$", r"\\\1\2", formatted_unit)
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+
+            # Return the final value, with the multiplier attached
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.value:0.03g} {1}".format(cls.unit, formatted_unit)
+            return formatted_unit
+        else:
+            return ""
+
+    @classmethod
     def _validate_trait_class(cls):
         assert cls.trait_type is not None, "trait_type must be defined"
         validate_trait_type(cls.trait_type)
@@ -179,8 +368,17 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         # assert cls.available_versions is not None
 
         if cls.branches_versions is not None:
-            assert getattr(cls, 'defaults', None) is not None, \
-                ("Trait class '%s' has branches_versions, but no defaults have been supplied." %
+            if not isinstance(cls.branches_versions, BranchesVersions):
+                cls.branches_versions = BranchesVersions(cls.branches_versions)
+            if getattr(cls, 'defaults', None) is None:
+                # Defaults not provided. See if only one branch/version are supplied
+                if cls.branches_versions.has_single_branch_and_version():
+                    # Set the defaults to be the only branch/version:
+                    cls.defaults = cls.branches_versions.as_defaults()  # type: DefaultsRegistry
+                    log.debug(cls.defaults._default_branch)
+                    log.debug(cls.defaults._version_defaults)
+                else:
+                    raise Exception("Trait class '%s' has branches_versions, but no defaults have been supplied." %
                  cls)
 
         try:
@@ -259,14 +457,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
             current_value = getattr(trait_key, attribute)
 
-            if current_value not in (None, Inherit):
+            if current_value is not None:
                 # We have been given a (branch/version) value, check that it
                 # is valid for this Trait:
                 if valid is not None:
                     assert current_value in valid, \
                         "%s '%s' not valid for trait '%s'" % (attribute, current_value, self)
                 return current_value
-            elif current_value is Inherit:
+            elif current_value is None:
                 # We have been asked to inherit the branch/version from the
                 # parent trait. If the parent_trait is defined (i.e. this is
                 # not a top level trait), then take its value if it is valid
@@ -274,15 +472,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 if parent_trait is not None:
                     parent_value = getattr(parent_trait, attribute)
                     # This is a sub trait. Inherit branch from parent unless not valid.
-                    if valid is not None and parent_value in valid:
+                    if valid is None:
+                        # All options are valid.
+                        return parent_value
+                    elif valid is not None and parent_value in valid:
                         return parent_value
                     else:
                         # Parent is not valid here, so leave as None
                         return None
-            elif current_value is None:
-                # Currently no way to define the branch/version for this
-                # trait, so leave it as None.
-                return None
 
         # Determine the branch given the options.
         self.branch = validate_and_inherit(trait_key, self._parent_trait, self.branches_versions, 'branch')
@@ -423,7 +620,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
     #  |  |  \ /~~\ |  |  |    |  \ \__/ |    |___ |  \  |   |     |  | /~~\ | \| |__/ |___ | | \| \__>
 
     @classmethod
-    def _trait_properties(cls, trait_property_types=None):
+    def _trait_properties(cls, trait_property_types=None, include_hidden=False):
         """Generator which iterates over the TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -450,6 +647,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
+                if obj.name.startswith("_") and not include_hidden:
+                    log.debug("Trait property '%s' ignored because it is hidden.", attr)
+                    continue
                 log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
                 if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
@@ -460,7 +660,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         for tp in cls._trait_properties():
             yield tp.name
 
-    def trait_properties(self, trait_property_types=None):
+    def trait_properties(self, trait_property_types=None, include_hidden=False):
         """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -488,6 +688,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         for attr in dir(cls):
             descriptor_obj = getattr(cls, attr)
             if isinstance(descriptor_obj, TraitProperty):
+                if descriptor_obj.name.startswith("_") and not include_hidden:
+                    log.debug("Trait property '%s' ignored because it is hidden.", attr)
+                    continue
                 log.debug("Found trait property '{}' of type '{}'".format(attr, descriptor_obj.type))
                 if (trait_property_types is None) or (descriptor_obj.type in trait_property_types):
                     # Retrieve the attribute for this object (which will create
@@ -596,15 +799,39 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             pickle.dump(dict_to_serialize, byte_file)
             return byte_file.getvalue()
 
+    @classmethod
+    def get_available_export_formats(cls):
+        export_formats = []
+        if hasattr(cls, 'as_fits'):
+            export_formats.append("FITS")
+        return export_formats
+
+    #      ___          ___         ___            __  ___    __        __
+    # |  |  |  | |    |  |  \ /    |__  |  | |\ | /  `  |  | /  \ |\ | /__`
+    # \__/  |  | |___ |  |   |     |    \__/ | \| \__,  |  | \__/ | \| .__/
+    #
+    # Functions to augment behaviour in Python
 
     def __getitem__(self, key):
         # type: (TraitKey) -> Trait
         """Provide dictionary-like retrieve of sub-traits"""
         return self.get_sub_trait(key)
 
+    def __str__(self):
+        return "<Trait class '{classname}': {trait_type}>".format(classname=self.__class__.__name__, trait_type=self.trait_type)
 
-# class FITSExportMixin:
-#     """A Trait Mixin class which adds FITS Export to the export options for a Trait."""
+
+#  __       ___          ___      __   __   __  ___                        __
+# |  \  /\   |   /\     |__  \_/ |__) /  \ |__)  |      |\/| | \_/ | |\ | /__`
+# |__/ /~~\  |  /~~\    |___ / \ |    \__/ |  \  |      |  | | / \ | | \| .__/
+#
+# Mixin classes to handle various special kinds of data export.
+#
+# These are provided as mix-in classes because they may not be appropriate to any/all Traits.
+
+
+class FITSExportMixin:
+    """A Trait Mixin class which adds FITS Export to the export options for a Trait."""
 
     def as_fits(self, file):
         """FITS Exporter
@@ -635,18 +862,21 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         try:
             wcs_smarttrait = self['wcs']
         except KeyError:
+            log.debug("No WCS information available for export to FITS in Trait %s", self)
             def add_wcs(hdu):
+                # type: (fits.PrimaryHDU) -> fits.PrimaryHDU
                 return hdu
         else:
             def add_wcs(hdu):
                 # type: (fits.PrimaryHDU) -> fits.PrimaryHDU
+                log.debug("Adding WCS information to extension %s", hdu)
                 hdu.header.extend(wcs_smarttrait.to_header())
                 return hdu
 
         # Value should/will always be the first item in the FITS File (unless it cannot
         # be put in a PrimaryHDU, e.g. because it is not "image-like")
 
-        if type(self).value.type in ("float.array", "int.array"):
+        if type(self).value.type.startswith("float.array") or type(self).value.type.startswith("int.array"):
             primary_hdu = fits.PrimaryHDU(self.value())
         elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value()])
@@ -671,13 +901,19 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             # be appended individually, so we iterate over each Trait's
             # TraitProperties
             for trait_property in sub_trait.trait_properties(['float', 'int', 'string']):
-                keyword_name = trait_property.get_short_name()
-                keyword_value = trait_property.value
-                keyword_comment = trait_property.get_description()
-                log.debug("Adding metadata TraitProperty '%s' to header", keyword_name)
-                primary_hdu.header[keyword_name] = (
-                    keyword_value,
-                    keyword_comment)
+                try:
+                    keyword_name = trait_property.get_short_name()
+                    keyword_value = trait_property.value
+                    keyword_comment = trait_property.get_description()
+                    log.debug("Adding metadata TraitProperty '%s' to header", keyword_name)
+                    primary_hdu.header[keyword_name] = (
+                        keyword_value,
+                        keyword_comment)
+                    del keyword_name, keyword_value, keyword_comment
+                except DataNotAvailable:
+                    log.warning(
+                        "Trait Property '%s' not added to FITS file because it's data is not available.",
+                        trait_property)
 
         # Attach all simple value Traits to header of Primary HDU:
         # for trait in self.get_sub_trait(Measurement):
@@ -685,38 +921,60 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         #     primary_hdu.header[trait.short_name + "_ERR"] = (trait.value, trait.short_comment)
 
         # Create extensions for additional array-like values
-        for trait_property in self.trait_properties(['float.array', 'int.array']):
-            extension = fits.ImageHDU(trait_property.value)
-            extension.name = trait_property.get_short_name()
-            # Add the same WCS if appropriate
-            add_wcs(extension)
-            hdulist.append(extension)
+        for trait_property in self.trait_properties(
+                RegexpGroup(re.compile(r"float\.array\.\d+"),
+                            re.compile(r"int\.array\.\d+"))):
+            if trait_property.name == 'value':
+                continue
+            try:
+                extension = fits.ImageHDU(trait_property.value)
+                extension.name = trait_property.get_short_name()
+                # Add the same WCS if appropriate
+                add_wcs(extension)
+                hdulist.append(extension)
+                del extension
+            except DataNotAvailable:
+                log.warning(
+                    "Trait Property '%s' not added to FITS file because it's data is not available.",
+                    trait_property)
 
         # Add single-numeric-value TraitProperties to the primary header:
         for trait_property in self.trait_properties(['float', 'int']):
-            keyword_name = trait_property.get_short_name()
-            keyword_value = trait_property.value
-            keyword_comment = trait_property.get_description()
-            log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
-            primary_hdu.header[keyword_name] = (
-                keyword_value,
-                keyword_comment)
-        # del keyword_name, keyword_comment, keyword_value
+            try:
+                keyword_name = trait_property.get_short_name()
+                keyword_value = trait_property.value
+                keyword_comment = trait_property.get_description()
+                log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
+                primary_hdu.header[keyword_name] = (
+                    keyword_value,
+                    keyword_comment)
+                del keyword_name, keyword_comment, keyword_value
+            except DataNotAvailable:
+                log.warning(
+                    "Trait Property '%s' not added to FITS file because it's data is not available.",
+                    trait_property)
 
         # Add string value TraitProperties to the primary header
         for trait_property in self.trait_properties(['string']):
-            keyword_name = trait_property.get_short_name()
-            keyword_value = trait_property.value
-            keyword_comment = trait_property.get_description()
-            if len(keyword_value) >= 80:
-                # This value won't fit, so skip it.
-                # @TODO: Issue a warning?
-                log.warning("TraitProperty '%s' skipped because it is to long to fit in header", trait_property)
-                continue
-            log.debug("Adding string TraitProperty '%s' to header", keyword_name)
-            primary_hdu.header[keyword_name] = (
-                keyword_value,
-                keyword_comment)
+            try:
+                keyword_name = trait_property.get_short_name()
+                keyword_value = trait_property.value
+                keyword_comment = trait_property.get_description()
+                if len(keyword_value) >= 80:
+                    # This value won't fit, so skip it.
+                    # @TODO: Issue a warning?
+                    log.warning("TraitProperty '%s' skipped because it is to long to fit in header", trait_property)
+                    continue
+                log.debug("Adding string TraitProperty '%s' to header", keyword_name)
+                primary_hdu.header[keyword_name] = (
+                    keyword_value,
+                    keyword_comment)
+                del keyword_name, keyword_comment, keyword_value
+            except DataNotAvailable:
+                log.warning(
+                    "Trait Property '%s' not added to FITS file because it's data is not available.",
+                    trait_property)
+
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
         # for trait_property in self.trait_property_values('catalog'):
@@ -728,3 +986,4 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         # If necessary, close the open file handle.
         file_cleanup()
+

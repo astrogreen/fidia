@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pytest
 
 from fidia.traits.abstract_base_traits import *
-from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry
+from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry, TraitPath
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
@@ -86,7 +86,7 @@ class TestTraits:
 
     def test_get_trait_properties(self):
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         for prop in test_trait._trait_properties():
             assert isinstance(prop, TraitProperty)
@@ -96,7 +96,7 @@ class TestTraits:
 
     def test_trait_schema(self):
         """This test checks both versions of the schema."""
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Test the schema by trait_type
         schema_by_trait_type = test_trait.schema(by_trait_name=False)
@@ -122,7 +122,7 @@ class TestTraits:
 
     def test_trait_schema_with_subtraits(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         # Test the schema by trait_type
         schema_by_trait_type = test_trait.schema(by_trait_name=False)
@@ -158,15 +158,113 @@ class TestTraits:
         assert isinstance(schema_by_trait_name['sub_trait'], dict)
         assert 'value' in schema_by_trait_name['sub_trait']
 
+    def test_trait_schema_catalog_non_catalog(self):
+
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
+
+        # This only tests the schema by trait_name
+
+        schema_by_catalog = test_trait.schema(by_trait_name=True, data_class='catalog')
+
+        assert 'value' in schema_by_catalog
+        assert 'extra' in schema_by_catalog
+        assert 'non_catalog_data' not in schema_by_catalog
+
+        # Hierarchical part of schema:
+        assert 'sub_trait' in schema_by_catalog
+        assert 'value' in schema_by_catalog['sub_trait']
+        assert 'extra' in schema_by_catalog['sub_trait']
+        assert 'non_catalog_data' not in schema_by_catalog['sub_trait']
+
+        del schema_by_catalog
+
+
+        schema_by_non_catalog = test_trait.schema(by_trait_name=True, data_class='non-catalog')
+
+        assert 'value' not in schema_by_non_catalog
+        assert 'extra' not in schema_by_non_catalog
+        assert 'non_catalog_data' in schema_by_non_catalog
+
+        # Hierarchical part of schema:
+        assert 'sub_trait' in schema_by_non_catalog
+        assert 'value' not in schema_by_non_catalog['sub_trait']
+        assert 'extra' not in schema_by_non_catalog['sub_trait']
+        assert 'non_catalog_data' in schema_by_non_catalog['sub_trait']
+
+    def test_trait_schema_catalog_non_catalog_trims_empty(self):
+
+        # This only tests the schema by trait_name
+
+        class SimpleTraitWithSubtraits(Trait):
+            # NOTE: Tests rely on this class, so changing it will require updating the tests!
+
+            trait_type = "simple_heir_trait"
+
+            sub_traits = TraitRegistry()
+
+            @sub_traits.register
+            class SubTrait(example_archive.SimpleTrait):
+                trait_type = 'sub_trait'
+
+            @sub_traits.register
+            class CatalogSubTrait(Trait):
+                trait_type ='sub_trait_catalog_only'
+
+                @trait_property('float')
+                def value(self):
+                    return 1.0
+
+            @sub_traits.register
+            class NonCatalogSubTrait(Trait):
+                trait_type = 'sub_trait_non_catalog_only'
+
+                @trait_property('float.array.1')
+                def value(self):
+                    return [1.0, 2.0]
+
+            @trait_property('float')
+            def value(self):
+                return 5.5
+
+            @trait_property('float.array.1')
+            def non_catalog_data(self):
+                return [1.1, 2.2, 3.3]
+
+            @trait_property('string')
+            def extra(self):
+                return "Extra info"
+
+        test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
+                                              object_id='1')
+
+        # Test the catalog-only version of the schema:
+
+        schema_by_catalog = test_trait.schema(by_trait_name=True, data_class='catalog')
+
+        # Hierarchical part of schema:
+        assert 'sub_trait_non_catalog_only' not in schema_by_catalog
+        assert 'sub_trait_catalog_only' in schema_by_catalog
+
+        del schema_by_catalog
+
+        # Test the non-catalog version of the schema:
+
+        schema_by_non_catalog = test_trait.schema(by_trait_name=True, data_class='non-catalog')
+
+        # Hierarchical part of schema:
+        assert 'sub_trait_non_catalog_only' in schema_by_non_catalog
+        assert 'sub_trait_catalog_only' not in schema_by_non_catalog
+
+
     def test_retrieve_sub_trait_by_dictionary(self):
 
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey('test_trait'),
+        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
                                                                   object_id='1')
 
         assert isinstance(test_trait['sub_trait'], Trait)
 
     def test_trait_descriptions(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         assert hasattr(test_trait, 'get_pretty_name')
         assert hasattr(test_trait, 'get_documentation')
@@ -174,23 +272,39 @@ class TestTraits:
 
         assert test_trait.get_description() == "Description for SimpleTrait."
 
+    def test_trait_property_descriptions(self):
+
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
+
+        # Check that a trait property has the necessary description attributes
+        assert hasattr(test_trait.value, 'get_pretty_name')
+        assert hasattr(test_trait.value, 'get_documentation')
+        assert hasattr(test_trait.value, 'get_description')
+        assert hasattr(test_trait.value, 'get_short_name')
+
+        # Check that descriptions are set correctly:
+        assert test_trait.value.get_description() == "TheValue"
+        assert test_trait.non_catalog_data.get_description() == "Some Non-catalog data"
+        assert test_trait.extra.get_description() == "ExtraInformation"
+
+        # Check that descriptions are set correctly:
+        assert test_trait.value.get_pretty_name() == "Value"
+        assert test_trait.non_catalog_data.get_pretty_name() == "Non-catalog Data"
+        assert test_trait.extra.get_pretty_name() == "Extra Info"
+
+
     def test_trait_documentation(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
+        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
 
         print(type(test_trait.get_documentation))
         print(test_trait.get_documentation())
         assert "Extended documentation" in test_trait.get_documentation()
-        assert "Description for SimpleTrait" in test_trait.get_documentation()
+        # The description should not be in the documentation
+        assert test_trait.get_description() not in test_trait.get_documentation()
         assert test_trait._documentation_format == 'markdown'
 
         assert "<strong>text</strong>" in test_trait.get_documentation('html')
 
-
-    def test_trait_property_description(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey('test_trait'), object_id='1')
-
-        assert test_trait.value.description == "TheValue"
-        assert test_trait.extra.description == "ExtraInformation"
 
 class TestTraitsInArchives:
 
@@ -224,6 +338,11 @@ class TestTraitsInArchives:
         # type: (example_archive.ExampleArchive) -> None
         blue_image_trait = a_astro_object['image-blue']
         assert blue_image_trait.value.get_short_name() == 'VALUE'
+
+    def test_trait_property_pretty_names(self, a_astro_object):
+        # type: (example_archive.ExampleArchive) -> None
+        blue_image_trait = a_astro_object['image-blue']
+        assert blue_image_trait.value.get_pretty_name() == 'Value'
 
     def test_trait_qualifer_pretty_name(self, example_archive):
         # type: (example_archive.ExampleArchive) -> None
@@ -284,7 +403,29 @@ class TestTraitKeys:
 
     def test_string_traitkeys_reconstruction(self, valid_traitkey_list):
         for tk in valid_traitkey_list:
+            print(tk)
             assert TraitKey.as_traitkey(str(tk)) == tk
+
+    def test_hyphen_string_roundtrip(self, valid_traitkey_list):
+        for tk in valid_traitkey_list:
+            print(tk)
+            hyphen_str = tk.ashyphenstr()
+            print(hyphen_str)
+            assert TraitKey.as_traitkey(hyphen_str) == tk
+
+    def test_trait_key_hyphen_str_construction(self):
+        # Check that TraitKeys can be created from their hyphen string notation:
+        TraitKey.as_traitkey("emission_map-Halpha-b1-v1")
+        TraitKey.as_traitkey("emission_map--b1-v1")
+        TraitKey.as_traitkey("emission_map-Halpha-b1")
+        TraitKey.as_traitkey("emission_map-Halpha")
+        TraitKey.as_traitkey("emission_map")
+        TraitKey.as_traitkey("emission_map-Halpha--v1")
+        TraitKey.as_traitkey("emission_map-Halpha--")
+        TraitKey.as_traitkey("emission_map--b1-v1")
+        TraitKey.as_traitkey("emission_map---v1")
+        TraitKey.as_traitkey("emission_map---")
+
 
     def test_traitkey_string_forms(self):
 
@@ -378,4 +519,31 @@ class TestTraitRegistry:
     #
     #     TraitRegistry().register(SubTraitClass)
 
+
+class TestTraitPaths:
+
+    def test_trait_path_creation(self):
+
+        # Basic creation: elements are fully qualified TraitKeys
+        tp = TraitPath([TraitKey("my_type"), TraitKey("my_sub_type")])
+        assert isinstance(tp, TraitPath)
+        for i in tp:
+            assert isinstance(i, TraitKey)
+        assert len(tp) == 2
+
+
+        # creation from string trait_keys
+        tp = TraitPath(["image-r", "wcs"])
+        assert isinstance(tp, TraitPath)
+        for i in tp:
+            assert isinstance(i, TraitKey)
+        assert len(tp) == 2
+
+
+        # creation from path string
+        tp = TraitPath("image-r/wcs")
+        assert isinstance(tp, TraitPath)
+        for i in tp:
+            assert isinstance(i, TraitKey)
+        assert len(tp) == 2
 

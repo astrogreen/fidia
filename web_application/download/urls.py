@@ -22,6 +22,3 @@ urlpatterns = [
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
-
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) allows
-# Django to serve these files (without explicitly writing them out per view)

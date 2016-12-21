@@ -5,6 +5,7 @@ import numpy as np
 from fidia.archive import MemoryArchive, BaseArchive
 from fidia.archive.archive import Archive
 from fidia.traits import *
+from fidia import traits
 from fidia.exceptions import DataNotAvailable
 from fidia.archive.example_archive import ExampleArchive, ExampleSpectralMap, ExampleSpectralMapExtra
 
@@ -91,31 +92,31 @@ class TestArchive:
         ar = simple_archive()
         trait = ar.available_traits.retrieve_with_key(TraitKey('spectral_map', branch='other'))
         schema = trait.schema()
-        assert schema == {'value': 'float.array', 'variance': 'float.array'}
+        assert schema == {'value': 'float.array.3', 'variance': 'float.array.3'}
 
     def test_trait_extra_has_correct_schema(self, simple_archive):
         ar = simple_archive()
         trait = ar.available_traits.retrieve_with_key(TraitKey('spectral_map', branch='extra'))
         schema = trait.schema()
         print(trait.schema())
-        assert schema == {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}
+        assert schema == {'value': 'float.array.3', 'variance': 'float.array.3', 'extra_value': 'float'}
 
 
     def test_trait_inherited_has_correct_schema(self, simple_archive):
         ar = simple_archive()
         trait = ar.available_traits.retrieve_with_key(TraitKey('spectral_map', branch='extra'))
         schema = trait.schema()
-        assert schema == {'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}
+        assert schema == {'value': 'float.array.3', 'variance': 'float.array.3', 'extra_value': 'float'}
 
     def test_archive_has_correct_schema(self, simple_archive):
         ar = simple_archive()
         schema_by_trait_type = ar.schema(by_trait_name=False)
         assert schema_by_trait_type == {'spectral_map': {None: {
-            'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}}
+            'value': 'float.array.3', 'variance': 'float.array.3', 'extra_value': 'float'}}}
 
         schema_by_trait_name = ar.schema(by_trait_name=True)
         assert schema_by_trait_name == {'spectral_map': {
-            'value': 'float.array', 'variance': 'float.array', 'extra_value': 'float'}}
+            'value': 'float.array.3', 'variance': 'float.array.3', 'extra_value': 'float'}}
 
     def test_all_object_traits_in_schema(self, simple_archive):
         ar = simple_archive()
@@ -147,6 +148,16 @@ class TestArchive:
         trait = sample['Gal1']['spectral_map:other']
         for trait_property, expected in zip(trait._trait_properties(), ('value', 'variance')):
             assert trait_property.name == expected
+
+    # Feature data functionality
+
+    def test_archive_has_feature_data(self, example_archive):
+        # type: (ExampleArchive) -> None
+        assert example_archive.feature_catalog_data is not None
+
+        for elem in example_archive.feature_catalog_data:
+            assert isinstance(elem, TraitPath)
+
 
     #
     # Schema related Tests

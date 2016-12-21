@@ -2,60 +2,129 @@
 {% load staticfiles %}
 {% load rest_framework %}
 {% load internal_extras %}
-{% block title %}Contact{% endblock %}
+{% block title %}Contact Form{% endblock %}
 
 {% block head-extra %}
 <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/support/contact.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'user/css/user/user.min.css' %}"/>
 {% endblock %}
-
+{% block bodyclass %}{% endblock %}
 {% block breadcrumbs %}
 <li><a href="{% url 'index' %}">Home</a></li>
-<li class="active"><a href="">Contact</a></li>
+<li class="active"><a href="{% url 'support-contact' %}">Contact</a></li>
 {% endblock %}
 
-{% block page_title %}Contact{% endblock %}
+{% block page_title %}ADC {% endblock %}
 {% block useful_links %}
-<li role="presentation" ><a href="{% url 'faq' %}">FAQ</a></li>
-<li role="presentation" ><a href="{% url 'documentation' %}">Documentation</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-list' %}">Help Center</a></li>
 {% endblock useful_links %}
 
-{% block content_render %}
-    <div class="row">
-        <div class="col-xs-12">
-            <p class="lead">If you've a question about AAODC, you can check the <a href="{% url 'faq' %}">FAQ</a> or <a href="{% url 'documentation' %}">Documentation</a>
-                for answers. <br>Otherwise, fill in the form below and we'll get back to you as soon as possible!</p>
+{% block no_sidebar %}
+<div class="main-content">
+    <div class="jumbotron">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-5 vcenter  animated fadeIn">
+                    <h1 style="line-height:64px">Contact Us.</h1>
+                    <p class="lead"><i class="fa fa-send-o"></i> If you've a question about ADC, visit the <a
+                            href="{% url 'documentation:topic-list' %}">Help Center</a> for answers.
+                        Otherwise, fill in the form below and we'll get back to you as soon as possible!</p>
+                    <h6 class="text-uppercase">Contact Form guidelines</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item success">This form is for contacting ADC with questions, feedback and ideas! If
+                            you wish to report an issue, please use the <a href="{% url 'support-bug' %}">Bug Report
+                                Form</a>.
+                        </li>
+                        <li class="list-group-item success">If you have a science-based comment or question about the data, please contact the survey teams directly.
+                        <br><br>
+                            <table class="table table-condensed">
+                                <thead>
+                                <tr class="">
+                                    <th>Survey</th>
+                                    <th>Contact</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>SAMI</td>
+                                    <td>
 
-            {% if email_status == "success" %}
-            <div class="panel panel-default success">
-                <div class="panel-body"><strong class="text-uppercase">Success <i class="fa fa-check-circle-o text-success"></i></strong>
-                    <p>Your email has been sent.</p>
+                                        <a id="contact_sami">Feedback</a>
+                                        <script>
+                                            var person = 'feedback';
+                                            var domain = 'sami-survey.org';
+                                                $('#contact_sami').attr('href', 'mailto:'+person+'@'+domain).text(person+'@'+domain);
+                                        </script>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </li>
+                    </ul>
+
+                </div><!--
+                --><div class="col-xs-12 col-sm-offset-1 col-sm-6 vcenter animated fadeInUp">
+                    {% if email_status == "success" %}
+                    <div class="panel panel-default success">
+                        <div class="panel-body"><strong class="text-uppercase">Success <i
+                                class="fa fa-check-circle-o text-success"></i></strong>
+                            <div class="p">Your email has been sent.</div>
+                            <div class="">Thanks for getting in touch!</div>
+
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item"><a href="{% url 'surveys:root-list' %}">Survey Overview <i class="fa fa-angle-right"></i></a></li>
+                            <li class="list-group-item"><a href="{% url 'data-access' %}">Data Access Overview <i class="fa fa-angle-right"></i></a></li>
+
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% if email_status == "server_error" %}
+                    <div class="panel panel-default error">
+                        <div class="panel-body"><strong class="text-uppercase">Error <i
+                                class="fa fa-times-circle-o text-error"></i></strong>
+                            <p>Something went wrong. Please email us at <a
+                                    href="mailto:adc-bugs@aao.gov">adc-bugs@aao.gov</a> and let us know.</p>
+                            <p>{{message}}</p>
+                            <p>{% for key, value in data.items %}<strong>{{key}}</strong> {{value}}<br>{% endfor %}</p>
+                        </div>
+                    </div>
+                    {% elif email_status == "client_error" %}
+                        <div class="panel panel-default error">
+                            <div class="panel-body"><strong class="text-uppercase">Error <i
+                                    class="fa fa-times-circle-o text-error"></i></strong>
+                                    Please check the form below for errors.<br>
+                                    <em class="text-error">{{message}}</em>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if display_form %}
+                        <form action="{% url 'support-contact' %}" method="post" novalidate id="support-form">
+                            {% csrf_token %}
+                            {% render_form serializer %}
+
+                            <div>
+                                <em class="sub-heading">* required. Please note: We will not share your details with any third
+                                    parties.</em><br>
+                            </div>
+                            <button type="submit" class="btn text-uppercase btn-primary pull-right margin-top-fifteen"
+                                    {% if email_status == "success" %}disabled="true"{% endif %}>Send</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
-            {% if email_status == "error" %}
-            <div class="panel panel-default error">
-                <div class="panel-body"><strong class="text-uppercase">Error <i class="fa fa-times-circle-o text-error"></i></strong>
-                    <p>Something went wrong. Please email us at <a href="mailto:asvo@aao.gov.au">asvo@aao.gov.au</a> and let us know.</p>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        <div class="col-sm-6">
-            <h4>Email AAODC</h4>
-            <form action="{% url 'support-contact' %}" method="post" novalidate>
-                {% csrf_token %}
-                {% render_form serializer  %}
-                <button type="submit" class="btn btn-default pull-right" {% if email_status == "success" %}disabled="true"{% endif %}>Submit</button>
-            </form>
-        </div>
-        <div class="col-sm-6">
-            <h4>Finding Us</h4>
-            <p>AAO Data Central is based at the <a href="https://www.aao.gov.au/" target="_blank">AAO</a> North Ryde.</p>
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3315.6156037094906!2d151.14305211520838!3d-33.79642338067633!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b08fe7877ced22f%3A0x3d98d19820feb711!2sAustralian+Astronomical+Observatory!5e0!3m2!1sen!2sau!4v1461113727378"
-                    width="100%" height="100%" class="google-maps" frameborder="0" style="border:0"
-                    allowfullscreen></iframe>
         </div>
     </div>
+</div>
 
 {% endblock %}
-{% block footer-extra %}{% endblock %}
+{% block footer-extra %}
+<script>
+    $("#support-form button").click(function(){
+        $(this).html('Sending <i class="fa fa-circle-o-notch fa-spin"></i>');
+    });
+    $('#support-form input[name="complex_question"]').attr('placeholder', '1+2');
+</script>
+
+{% endblock %}

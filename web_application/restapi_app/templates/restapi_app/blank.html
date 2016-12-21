@@ -1,0 +1,29 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %} {% endblock %}
+
+{% block head-extra %}
+<!--<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/about/about.min.css' %}"/>-->
+{% endblock %}
+
+
+{% block breadcrumbs %}
+<li><a href="{% url 'index' %}">Home</a></li>
+<li class="active"><a href="{% url 'under-construction' %}"> TEST</a></li>
+{% endblock %}
+
+{% block page_title %} TEST {% endblock %}
+{% block useful_links %}
+<li role="presentation" ><a href="#">useful link</a></li>
+<li role="presentation" ><a href="#">useful link</a></li>
+{% endblock useful_links %}
+
+{% block content-test %}
+
+    content
+{% endblock %}
+{% block footer-extra %}
+
+{% endblock %}

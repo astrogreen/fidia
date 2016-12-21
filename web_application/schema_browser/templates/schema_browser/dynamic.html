@@ -1,0 +1,64 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %} Schema Browser {% endblock %}
+{% block head-extra %}
+    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/documentation-fidia/documentation-fidia.min.css' %}"/>
+{% endblock %}
+
+{% block page_title %}Schema Browser{% endblock %}
+
+{% block bodyclass %}schema-browser{% endblock %}
+
+{% block page_title_banner_class %}blue{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Need Help?</a></li>
+{% endblock useful_links %}
+
+
+{% block sidebar %}
+<div class="page-contents">
+    <h5>Page Contents</h5>
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        {% if response.data.sub_trait %}
+        <li role="presentation" class="active"><a href="#top-of-page" >Documentation</a></li>
+        <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
+        <li role="presentation"><a href="#formats" class="scroll">Downloadable Formats</a></li>
+        {% elif response.data.trait_property %}
+            {% if response.data.trait_property.html_documentation %}
+                <li role="presentation" class="active"><a href="#top-of-page" >Documentation</a></li>
+            {% endif %}
+            <li role="presentation"><a href="#properties" class="scroll">Properties</a></li>
+        {% endif %}
+    </ul>
+    <h5>Quick Links</h5>
+    <ul class="nav-sidebar">
+
+         {% if breadcrumblist %}
+        {% with breadcrumblist|length|add:"-2" as b %}
+        <li><a href="{{breadcrumblist|key:b|key:1}}"> <i class="fa fa-angle-left"></i> Back to
+            {{breadcrumblist|key:b|key:0}}</a></li>
+        {% endwith %}
+        {% endif %}
+
+    </ul>
+</div>
+{% endblock %}
+
+{% block main %}
+<div class="schema-contents">
+
+    {% if response.data.sub_trait %}
+        {% with response.data.sub_trait as value %}
+            {% include "schema_browser/dynamic_inner.html" %}
+          {% endwith %}
+    {% elif response.data.trait_property %}
+        {% with response.data as value %}
+            {% include "schema_browser/tables/trait_property.html" %}
+          {% endwith %}
+    {% endif %}
+
+
+</div>
+{% endblock %}

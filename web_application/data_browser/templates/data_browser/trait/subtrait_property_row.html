@@ -1,0 +1,28 @@
+{% load internal_extras %}
+<tr class="">
+    <td style="padding-left:30px;">
+        <i class="fa fa-level-up fa-rotate-90"></i> &nbsp;<a href="{{tpdata|key:tp|key:'url'}}">
+            {{ tpdata|key:tp |key:'pretty_name' }}
+        </a>
+
+    </td>
+    <td>{% if tpdata|key:tp|key:"description" %}
+            <span class="sub-heading small"><em>{{tpdata|key:tp|key:"description"}}</em></span>
+        {% endif %}</td>
+    <td>
+        {% if tpdata|key:tp|key:"type" == "string" %}
+        {{tpdata|key:tp|key:"value"|linebreaks|truncatechars:60}}
+
+
+        {% elif tpdata|key:tp|key:"type" == "float.array" or tpdata|key:tp|key:"type" == "int.array" %}
+        <a href='{{tpdata|key:tp|key:"value"}}'>view <i class="fa fa-angle-right"></i> </a>
+        {% else %}
+        {{tpdata|key:tp|key:"value"}}
+        {% endif %}
+    </td>
+    <td>
+        {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
+        {% captureas dynamic_link %}{{s}}/{{tpdata|key:tp|key:'name'}}{% endcaptureas %}
+        <a class="" target="_blank" href="{% url 'schema_browser:dynamic-list' survey_pk=survey trait_pk=schema_link dynamic_pk=dynamic_link %}">view <i class="fa fa-angle-right"></i></a>
+    </td>
+</tr>

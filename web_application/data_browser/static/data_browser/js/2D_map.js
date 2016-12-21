@@ -78,13 +78,28 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
 
     // X percentile clip, i.e. 0.01 to 0.99 of the actual values.
     var NumArrSort = NumArr.sort(function(a,b){return a - b});
-    var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin_user) + 1];
-    var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user)];
-    // console.log(zmin_user, zmax_user);
-    // console.log(_Zmin, _Zmax);
+
+    var _Zmin = NumArrSort[Math.floor(NumArr.length * zmin_user)];
+    var _Zmax = NumArrSort[Math.floor(NumArr.length * zmax_user) - 1];
 
     if ($('#data-range').length>0){
-        $("#data-range").html( _Zmin.toPrecision(8) + "  - " + _Zmax.toPrecision(8));
+
+        // $("#data-range").html( _Zmin.toPrecision(8) + "  - " + _Zmax.toPrecision(8));
+        if (_Zmin != 0.0){
+            $("#lv").html( _Zmin.toPrecision(6));
+        } else {
+            $("#lv").html( _Zmin);
+        }
+
+        $("#uv").html( _Zmax.toPrecision(6));
+        $('#data-range button').click(function(){
+            // console.log('clip')
+            // figure out percentile clip of values
+            // _Zmin = $("#lv").val();
+            // _Zmax = $("#uv").val();
+
+        })
+
     }
 
     var Zscale = _Zmax-_Zmin;
@@ -152,6 +167,7 @@ function plot_map(name, data, selector, zmin, zmax){
             type: 'heatmap',
             colorbar:{
                 lenmode:'fraction',
+                tickformat:'.2e',
                 leng:1,
                 thicknessmode: 'fraction',
                 thickness: 0.02,
@@ -163,16 +179,16 @@ function plot_map(name, data, selector, zmin, zmax){
     ];
 
     // Force responsive layout
-    var elementWidth=$(map_selector).parent().width();
+    var elementWidth=$('#'+map_selector).parent().width();
     var layout = {
         autosize:true,
         width:elementWidth,
         height:elementWidth,
         margin: {
-            l: 0.04*elementWidth,
-            r: 0.04*elementWidth,
-            b:0.05*elementWidth,
-            t: 0.03*elementWidth
+            l: 0.08*elementWidth,
+            r: 0.00*elementWidth,
+            b: 0.08*elementWidth,
+            t: 0.06*elementWidth
         },
         // title: map_title
     };
@@ -192,7 +208,7 @@ function plot_map(name, data, selector, zmin, zmax){
 
     // RESPONSIVE TO CHANGING WINDOW SIZE
     $(window).on("resize",function(e){
-        var elementWidth=$(map_selector).parent().width();
+        var elementWidth=$('#'+map_selector).parent().width();
         var update = {
           width: elementWidth,
           height:elementWidth
@@ -200,6 +216,7 @@ function plot_map(name, data, selector, zmin, zmax){
 
         Plotly.relayout(map_selector, update);
     });
+
 };
 
 

@@ -33,7 +33,21 @@ def prettify(string):
 def parse_short_description_from_doc_string(doc_string):
     """Get a short description from the first line of a doc-string."""
     if "\n" in doc_string:
-        return doc_string.split("\n")[0]
+        # Doc-string is multiple lines. Split the description either:
+        #    - at the first place there is a blank line.
+        #    - at the end of the first line if there are no blank lines
+        #    - at a maximum of 200 characters regardless.
+        match = re.match(r"\n[ \t]*\n", doc_string)
+        if match:
+            # A blank line was found.
+            description = doc_string[0:match.start()]
+        else:
+            description = doc_string.split("\n")[0]
+
+        # Now check length
+        if len(description) > 200:
+            description = description[:200]
+        return description
     else:
         return doc_string
 
@@ -139,6 +153,22 @@ class DescriptionsMixin:
         # Rejoin first line:
         documentation = "\n".join((doc_lines[0], documentation))
 
+        # Check if the documentation starts with the short description, and in
+        # that case remove the short description from the documentation. (This
+        # occurs because both the description and the documentation have been
+        # set from the doc-string.)
+        if documentation.startswith(self.get_description()):
+            log.debug("Removing duplicated description from start of documentation")
+            characters_to_trim = len(self.get_description())
+            documentation = documentation[characters_to_trim:]
+            doc_lines = documentation.splitlines()
+            # Strip blank lines at start
+            while re.match(r"^\s*$", doc_lines[0]) is not None:
+                log.debug("Removing line '%s' from start of doc", doc_lines[-1])
+                del doc_lines[0]
+            documentation = "\n".join(doc_lines)
+
+
         # Update either the class or the instance as appropriate:
         try:
             instance_check(self)
@@ -180,20 +210,39 @@ class DescriptionsMixin:
         # Confirm if the requested usage (on class or instance) is allowed.
         instance_check(self)
 
-        self._documentation = value
+        # Split the input into individual lines.
+        input_lines = value.splitlines()
+
+        # Rejoin all but the first line:
+        documentation = "\n".join(input_lines[1:])
+
+        # Remove leading spaces from these lines
+        documentation = textwrap.dedent(documentation)
+
+        # Rejoin the first line:
+        documentation = "\n".join((input_lines[0], documentation))
+
+        self._documentation = documentation
         self._documentation_format = format
 
-    @classmethod
+    @classorinstancemethod
     def get_pretty_name(cls):
         if hasattr(cls, '_pretty_name'):
             return getattr(cls, '_pretty_name')
 
-        # No name explicitly provided, so we do our best with the class name.
-        return prettify(cls.__name__)
+        if hasattr(cls, 'name'):
+            # Instance description object have a name attribute (e.g. TraitProperties)
+            return prettify(cls.name)
+        else:
+            # No name explicitly provided, so we do our best with the class name.
+            return prettify(cls.__name__)
 
-    @classmethod
-    def set_pretty_name(cls, value):
-        cls._pretty_name = value
+    @classorinstancemethod
+    def set_pretty_name(self, value):
+        # Confirm if the requested usage (on class or instance) is allowed.
+        instance_check(self)
+
+        self._pretty_name = value
 
     @classorinstancemethod
     def get_description(cls):
@@ -207,10 +256,7 @@ class DescriptionsMixin:
                 else:
                     return cls.doc
             if hasattr(cls, '__doc__') and cls.__doc__ is not None:
-                if "\n" in cls.__doc__:
-                    return cls.__doc__.split("\n")[0]
-                else:
-                    return cls.__doc__
+                return parse_short_description_from_doc_string(cls.__doc__)
         except:
             return None
 
@@ -253,6 +299,23 @@ class DescriptionsMixin:
             raise ValueError("Invalid Short Name '%s': Short names can only consist of letters, numbers and underscores" % value)
         self._short_name = value_upper
 
+    @classorinstancemethod
+    def copy_descriptions_to_dictionary(self, other_dictionary):
+        # type: (dict) -> None
+        """Convenience function that handles copying all of the description data to a dictionary.
+
+        This is useful for e.g. Django where we are often copying all of this
+        information into a dictionary to be returned as JSON. This brings
+        together all of the work in one place and reduces duplication.
+
+        """
+
+        other_dictionary['short_name'] = self.get_short_name()
+        other_dictionary['pretty_name'] = self.get_pretty_name()
+        other_dictionary['description'] = self.get_description()
+        other_dictionary['html_documentation'] = self.get_documentation('html')
+
+
 class TraitDescriptionsMixin(DescriptionsMixin):
     """Extends Descriptions Mixin to include support for qualifiers on Traits
 
@@ -272,7 +335,7 @@ class TraitDescriptionsMixin(DescriptionsMixin):
 
     @classorinstancemethod
     def get_qualifier_pretty_name(self, qualifier=None):
-        """Return the pretty name for this Trait, building it from the Trait type and qualifier if necessary."""
+        """Return a pretty version of the Trait's qualifier."""
 
         # This function is designed to work on either a class or an instance.
         #

@@ -1,6 +1,6 @@
 {% load staticfiles %}
+{% load internal_extras %}
 <header>
-
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -11,7 +11,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/"><img src="{% static 'restapi_app/img/logo/aao_90x40.png' %}" alt="AAO - Australian Astronomical Observatory"></a></a>
+                <a class="navbar-brand" href="/"><img src="{% static 'restapi_app/img/logo/aao_90x40.png' %}" alt="AAO - Australian Astronomical Observatory"></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -19,96 +19,81 @@
                 <ul class="nav navbar-nav">
                     <li><a href="{% url 'index' %}">Home</a></li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Query </a>
-                        <ul class="dropdown-menu">
-                            <li class="dropdown-header">New Query</li>
-                            {% url 'query-create-list' as the_url %}
-                            <li class="li-query"><a href="{{the_url}}">Query Builder</a></li>
-                            <li class="li-query"><a href="{{the_url}}#post-object-form">SQL</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Browse</a>
+                           aria-expanded="false">Surveys</a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'data_browser:data-browser-list' %}">Data Browser</a></li>
+                            <li class="dropdown-header">Surveys</li>
+                            <li><a href="{% url 'surveys:root-list' %}">Overview</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">by Survey</li>
-                            <li><a href="{% url 'data_browser:sample-list' sample_pk='sami' %}">SAMI</a></li>
-                            <li><a href="{% url 'data_browser:sample-list' sample_pk='gama' %}">GAMA</a></li>
+                            <li class="dropdown-header">Extragalactic</li>
+                            <li><a href="{% url 'surveys:survey-list' survey_pk='sami' %}">SAMI</a></li>
+                            <li class="disabled"><a href="" disabled>GAMA</a></li>
                             <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">by Object</li>
-                            <li><a href="{% url 'under-construction' %}">Search AAODC</a></li>
+                            <li class="dropdown-header">Galactic</li>
+                            <li class="disabled"><a href="" disabled>GALAH</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Schema</a>
+                           aria-haspopup="true" aria-expanded="false">Data</a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'schema:schema-list' %}">Data Browser</a></li>
+                            <li class="dropdown-header">Data Access</li>
+                            <li><a href="{% url 'data-access' %}">Overview</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">View and download survey data products</li>
+                            <li><a href="{% url 'sov:root-list' %}">Single Object Viewer</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Query catalogue properties</li>
+                            <li class="disabled"><a href="" disabled>Define a sample</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Revisit previous queries</li>
+                            <li class="disabled"><a href="" disabled>My Query History</a></li>
 
-                            <li><a href="{% url 'documentation-schema-browser' %}">Query</a></li>
                         </ul>
                     </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-haspopup="true" aria-expanded="false">Documentation</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url 'under-construction' %}">Data Browser</a></li>
-                            <li><a href="{% url 'documentation-query-builder' %}">Query</a></li>
-                            <li><a href="{% url 'documentation-schema-browser' %}">Schema</a></li>
-                            <!--<li><a href="{% url "documentation" %}">Accessing Data</a></li>-->
-                            <!--<li><a href="{% url "documentation" %}#docs-examples">Examples</a></li>-->
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'documentation-syntax' %}">Syntax</a></li>
-                            <li><a href="{% url 'faq' %}">FAQ</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">About</li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">RESTful API</a></li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">FIDIA</a></li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">AAODC Hadoop</a></li>
-                            <!--<li role="separator" class="divider"></li>-->
-                            <!--<li class="dropdown-header">About</li>-->
-                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Datasets</a></li>-->
-                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Facilities</a></li>-->
-                            <!--<li class="disabled"><a href="{% url 'under-construction' %}">Surveys</a></li>-->
-                        </ul>
-                    </li>
+
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">Support</a>
+                           aria-expanded="false">Documentation </a>
+
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'support-contact' %}">Contact</a></li>
+                            <li class="dropdown-header">Documentation and FAQs</li>
+                            <li style="margin-top:4px;"><a href="{% url 'documentation:topic-list' %}">Help Center</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Schema browser for survey data products</li>
+                            <li><a href="{% url 'schema_browser:root-list' %}">Schema Browser</a></li>
+
+
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">About </a>
                         <ul class="dropdown-menu">
-                            <li class="disabled"><a href="{% url 'under-construction' %}">Referencing AAT</a>
-                            </li>
-                            <li class="disabled"><a href="{% url 'under-construction' %}">Publications</a></li>
-                            <li role="separator" class="divider"></li>
                             <li><a href="{% url 'about-team' %}">Meet the Team</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Support</li>
+                            <li><a href="{% url 'support-contact' %}">Contact</a></li>
+                            <li><a href="{% url 'support-bug' %}">Report an Issue</a></li>
                         </ul>
                     </li>
 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                <li class="download-li">
-                    <a href="{% url 'download-create' %}" class="download-icon">
+                <li class="download-li disabled">
+                    <a href="" disabled class="download-icon">
                         <i class="fa fa-download icon fa-lg"></i>
                         <div class="badge" id="mini-download" mini-download></div>
                     </a>
                 </li>
                 {% block userlinks %}
+
                     {% if user.is_authenticated %}
-                        {% load internal_extras %}
                         {% optional_logout request user %}
                     {% else %}
-                        {% optional_login_header request %}
+                        {% optional_login request True %}
                     {% endif %}
+
                 {% endblock %}
 
             </ul>

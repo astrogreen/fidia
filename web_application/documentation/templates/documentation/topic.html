@@ -1,0 +1,189 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Help Center{% endblock %}
+
+{% block head-extra %}
+<link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
+<style>
+.affix {
+  top: 20px;
+}
+</style>
+{% endblock %}
+
+
+{% block page_title_banner_class %}blue{% endblock %}
+
+    {% block page_title_banner %}
+    <div class="page_title_banner {% if response.data.results %}title_info{% else %}{% endif %} blue">
+        <div class="container">
+            <h1>Help Center <a href="{% url 'documentation:topic-list' %}" title="Help Center Home" class="underline-link"><i class="fa fa-home"></i></a></h1>
+            {% if response.data.results and not response.data.results.articles %}
+            <p class="lead">Choose a category to find out more about a particular topic. If you can't find an answer, feel free to <a href="{% url 'support-contact' %}">contact us</a>.</p>
+                <div class="row attention-seeker">
+                    {% for topic in response.data.results %}
+                        {% if not topic.hidden %}
+                            <div class="col-sm-3 col-xs-6">
+                                <a href="{{topic.slug}}">
+                                    <div class="well"><h4>{{topic.title}}</h4></div>
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endblock page_title_banner %}
+
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:article-detail' slug='data-central-syntax' %}">Syntax</a></li>
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='faq' %}">FAQ</a></li>
+{% endblock useful_links %}
+
+{% block sidebar %}
+    <div class="page-contents">
+    {% if response.data.results %}
+        <h5>Page Contents</h5>
+        <div class="page-contents">
+
+    <ul class="nav nav-pills nav-stacked  nav-sidebar">
+        <li role="presentation"><a class="scroll" href="#top-of-page"> FAQ</a></li>
+        <li role="presentation"><a class="scroll" href="#all-articles">All Articles</a></li>
+    </ul>
+</div>
+    {% endif %}
+    </div>
+    {% if not response.data.results %}
+        <h5>Topics</h5>
+        <ul class="nav-sidebar">
+        {% for topic in all_topics %}
+            <li role="presentation">
+                <a href="{% url 'documentation:topic-detail' slug=topic.slug %}">
+                {% if topic.title == response.data.title %}
+                    <strong class="p_dark">{{topic.title}}</strong>
+                {% else %}
+                    {{topic.title}}
+                {% endif %}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+{% block version_container %}
+    {% if not response.data.results %}
+        <li>
+            <a href="{% url 'documentation:topic-list' %}" class=""><i class="fa fa-reply"></i> Back to Help Center</a>
+            {% if request.user.is_superuser %}
+                &nbsp;&nbsp;<a href="{% url 'documentation:article-list' %}" class="text-success">Add New <i class="fa fa-plus"></i> </a>
+            {% endif %}
+        </li>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+<div class="jumbotron">
+<div class="container">
+{% if response.data.results %}
+    <h2>Frequently Asked Questions</h2>
+    <table class="table">
+        <tbody>
+        {% for article in top_articles %}
+        {% if not article.hidden %}
+        {% if forloop.first %}<tr>{% endif %}
+            <td><a href="{% url 'documentation:article-detail' slug=article.slug %}">{{article.title}}</a>
+                <p class=""><span class="tiny sub-heading"> Last updated {{article.updated}}</span> <a
+                        href="{% url 'documentation:topic-detail' slug=article.topic_slug %}">#{{article.topic}}</a></p>
+            </td>
+            {% if forloop.counter|divisibleby:2 %}</tr><tr>{% endif %}
+            {% if forloop.last %}</tr>{% endif %}
+        {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <br><br><h2 id="all-articles">All Articles</h2><br>
+
+    {% for topic in response.data.results %}
+        {% if not topic.hidden %}
+            {% if forloop.first %}<div class="row">{% endif %}
+            <div class="col-xs-12 col-sm-6" style="margin-top:30px;">
+                <h4 style="border-bottom:1px solid #eee;padding-bottom:10px">{{topic.title}}</h4>
+                <ul class="p sub-heading">
+                    {% if not topic.articles %}
+                    <div class="sub-heading">No topics have been added yet.</div>
+                    {% endif %}
+                    {% for this in topic.articles %}
+                    <li>
+                        <a class="small" href="{{this.url}}">{{this.title}}</a>
+                        <div class="tiny"><span class="tiny sub-heading"> Last updated {{this.updated}}</span></div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% if forloop.counter|divisibleby:2 %}</div><div class="row">{% endif %}
+            {% if forloop.last %}</div>{% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if post_form %}<br><br>
+        <h2>New Topic</h2>
+        <div class="p">Add a new topic to the AAODC documentation. You can tag articles with your new topic in the <a href="{% url 'documentation:article-list' %}">articles</a> page.</div>
+        {% with form=post_form %}
+        <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data"
+              class="form-horizontal" novalidate onsubmit="submitForm()">
+            <fieldset>
+                {% csrf_token %}
+                {{ post_form }}
+                <div class="form-actions">
+                    <button class="btn btn-default pull-right"
+                            title="Make a POST request on the {{ name }} resource">SUBMIT
+                    </button>
+                </div>
+            </fieldset>
+        </form>
+        {% endwith %}
+    {% endif %}
+
+    {% else %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>{{response.data.title}}</h2>
+
+            <table class="table">
+                <tbody>
+                    {% if response.data.articles %}
+                        {% for article in response.data.articles %}
+                            {% if not article.hidden %}
+                                <tr>
+                                    <td><a href="{{article.url}}">&nbsp;{{article.title}}</a></td>
+                                    <td class="text-right">
+                                        <small class="tiny sub-heading" style="margin-top:16px;">Last Updated: {{article.updated}}
+                                        </small>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <tr><td>No articles have been added yet.</td></tr>
+                    {% endif %}
+
+
+                </tbody>
+            </table>
+            <ul class="p sub-heading">
+
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+</div>
+
+{% endblock %}

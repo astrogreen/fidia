@@ -47,16 +47,19 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'astrospark',
     'bootstrap3',
-    'download',
-    'data_browser',
+    'documentation',
+    # 'download',
+    # 'data_browser',
     'django_extensions',
+    'hitcount',
     'mathfilters',
-    'query',
+    # 'query',
     'user',
     'restapi_app',
     'rest_framework',
-    'schema',
+    'schema_browser',
     'sov',
+    'surveys',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -88,6 +91,10 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+)
 
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_URL = 'rest_framework:login'
@@ -176,8 +183,12 @@ STATICFILES_DIRS = (
 )
 
 
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = (
+#     os.path.join(BASE_DIR, "media_root"), '/var/www/media/',)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
+
 
 # Query results cache
 
@@ -258,7 +269,7 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'level': 'WARNING'
         },
-        'data_browser': {
+        'sov': {
             'handlers': ['console', 'file'],
             'level': 'WARNING'
         },
@@ -299,6 +310,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.TemplateHTMLRenderer',
         # 'restapi_app.renderers_custom.renderer_flat_csv.FlatCSVRenderer'
     ),
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    # 'EXCEPTION_HANDLER': 'restapi_app.utils..exceptions.custom_exception_handler'
 }
+
 

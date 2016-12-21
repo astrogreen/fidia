@@ -1,3 +1,7 @@
+#page-content {
+  background-color: transparent;
+  box-shadow: none;
+}
 .aat_outer {
   background: #000 url(../../img/aatjul08-exteriors_19_small.jpg) no-repeat fixed top;
   background-size: cover;

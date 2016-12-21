@@ -7,6 +7,8 @@ import fcntl
 import functools
 from time import sleep
 
+from sortedcontainers import SortedDict
+
 from . import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
@@ -38,7 +40,7 @@ class WildcardDictionary(dict):
 
         return result
 
-class SchemaDictionary(dict):
+class SchemaDictionary(SortedDict):
     """A dictionary class that can update with nested dicts, but does not allow changes.
 
     Note that this is not fully implemented. It only prevents changes introduced through the `.update` method. See ASVO-
@@ -55,37 +57,64 @@ class SchemaDictionary(dict):
         return dictionary
 
     def __init__(self, *args, **kwargs):
-        super(SchemaDictionary, self).__init__(*args, **kwargs)
+        super(SchemaDictionary, self).__init__(str, *args, **kwargs)
 
+        self.make_sub_dicts_schema_dicts()
+
+    def make_sub_dicts_schema_dicts(self):
         # Walk the new dictionary, replacing any plain dicts with SchemaDicts:
         for key in self:
             if isinstance(self[key], dict):
                 self[key] = self._convert_to_schema_dictionary(self[key])
 
 
-    def update(self, other_dict):
+    def update(self, other_dict, set_updates_allowed=True):
 
         if not hasattr(other_dict, 'keys'):
             raise TypeError("A SchemaDictionary can only be updated with a dict-like object.")
         for key in other_dict.keys():
             if key not in self:
-                # New material. Add (a copy of) it. If it is a dictionary
-                # but not a SchemaDictonary, make it a SchemaDictionary
-                if isinstance(other_dict[key], dict) and not isinstance(other_dict[key], SchemaDictionary):
+                # New material. Add (a copy of) it. If it is a dictionary, make
+                # a copy as a SchemaDictionary
+                if isinstance(other_dict[key], dict):
                     to_add = SchemaDictionary(other_dict[key])
                 else:
                     to_add = deepcopy(other_dict[key])
                 self[key] = to_add
-            elif key in self and not isinstance(self[key], dict):
-                # Key already exists and is not a dictionary, so check that the value has not changed.
-                if self[key] != other_dict[key]:
-                    raise ValueError("Invalid attempt to change value at key '%s' in update" % key)
+            elif key in self and not isinstance(self[key], SchemaDictionary):
+                # Key already exists so see if we can either check it does not change or update it
+                if set_updates_allowed and hasattr(self[key], 'update'):
+                    self[key].update(other_dict[key])
+                else:
+                    if self[key] != other_dict[key]:
+                        raise ValueError("Invalid attempt to change value at key '%s' in update from '%s' to '%s'" %
+                                         (key, self[key], other_dict[key]))
             elif key in self and isinstance(self[key], dict) and isinstance(other_dict[key], dict):
                 # Key already exists and is a dictionary, so recurse the update.
                 self[key].update(other_dict[key])
             else:
                 # Something's wrong, probably a type mis-match.
                 raise Exception("The SchemaDictionary %s can not be updated with %s" % (self, other_dict[key]))
+
+    def delete_empty(self):
+        """Remove any empty dictionaries in this and nested dictionaries."""
+
+        self.make_sub_dicts_schema_dicts()
+
+        to_delete = set()
+
+        for key in self.keys():
+            if isinstance(self[key], SchemaDictionary):
+                if len(self[key].keys()) == 0:
+                    to_delete.add(key)
+                else:
+                    self[key].delete_empty()
+                    # Check if the previously un-empty dictionary is now truly empty.
+                    if len(self[key].keys()) == 0:
+                        to_delete.add(key)
+
+        for key in to_delete:
+            del self[key]
 
 class Inherit: pass
 
@@ -119,7 +148,10 @@ class DefaultsRegistry:
         if branch is None:
             return None
         else:
-            return self._version_defaults[branch]
+            try:
+                return self._version_defaults[branch]
+            except KeyError:
+                raise KeyError("%s has no default for branch '%s'" % (self, branch))
 
     def set_default_branch(self, branch, override=False):
         # type: (str, bool) -> None
@@ -147,6 +179,10 @@ class DefaultsRegistry:
         self.set_default_branch(other_defaults._default_branch, override=override)
         self._version_defaults.update(other_defaults._version_defaults)
 
+    def __str__(self):
+        return "DefaultsRegistry(default_branch=%s, version_defaults=%s" % (
+            self._default_branch, self._version_defaults
+        )
 
 class Default: pass
 
@@ -222,3 +258,24 @@ class classorinstancemethod(object):
             else:
                 return self.method(objtype, *args, **kwargs)
         return _wrapper
+
+class RegexpGroup:
+    def __init__(self, *args):
+        self.regexes = []
+        self.plain_items = []
+        for item in args:
+            # Add all non-regex items to one list
+            if hasattr(item, 'match'):
+                self.regexes.append(item)
+            else:
+                self.plain_items.append(item)
+
+    def __contains__(self, item):
+        # First check plain list:
+        if item in self.plain_items:
+            return True
+        else:
+            for regex in self.regexes:
+                if regex.match(item):
+                    return True
+        return False

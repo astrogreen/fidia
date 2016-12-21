@@ -1,0 +1,134 @@
+{% load staticfiles %}
+{% load internal_extras %}
+
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered">
+        <tr class="active">
+            <td colspan="2" align="middle">
+                <h6 class="text-uppercase" style="margin:0">Branch & Version
+                <a role="button" class="sub-heading pull-right" data-container="body" data-toggle="popover"
+                   data-trigger="hover click" data-placement="top" data-html="true"
+                   {% if fidia_type == "trait" %}
+                   data-content="This page shows data for branch <em>{{branch}}</em>. To switch branches (and/or versions), use the dropdowns in the top right corner."
+                   {% else %}
+                   data-content="This page shows data for branch <em>{{branch}}</em> of the data type <em>{{trait_pretty_name}}</em>. To switch branches (and/or versions), use the dropdowns on the <a href='{{trait_url}}'>{{trait_pretty_name}}</a> page."
+                   {% endif %}
+                   data-original-title="" title=""><i class="fa fa-info-circle"></i></a>
+
+                </h6>
+            </td>
+        </tr>
+        <tr>
+            <td class="p_light"><i class="fa fa-code-fork"></i> Branch
+
+            </td>
+            <td> {{branch}}
+
+            </td>
+        </tr>
+        <tr>
+            <td class="p_light"><i class="fa fa-map-pin"></i> Version </td>
+            <td> {{version}} </td>
+        </tr>
+
+        {% if response.data.units and response.data.units != '$\mathrm{}$' %}
+        <tr class="active">
+            <td colspan="2" align="middle">
+                <h6 class="text-uppercase" style="margin:0">Properties</h6></td>
+        </tr>
+
+        <tr>
+            <td class="p_light">Units </td>
+            <td> {{response.data.units}} </td>
+        </tr>
+        {% endif %}
+
+
+        <tr class="active">
+            <td colspan="2" align="middle">
+                <h6 class="text-uppercase" style="margin:0">Actions</h6>
+            </td>
+        </tr>
+        <tr>
+            <td class="p_light">Schema</td>
+            <td>
+                {% if fidia_type == "sub_trait" or fidia_type == "trait_property" %}
+
+                    {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
+                    {% captureas dynamic_link %}{% if sub_trait %}{{sub_trait}}/{% endif %}{{response.data.name}}{% endcaptureas %}
+                    <a class="" target="_blank" href="{% url 'schema_browser:dynamic-list' survey_pk=survey trait_pk=schema_link dynamic_pk=dynamic_link %}">view <i class="fa fa-angle-right"></i></a>
+
+                {% else %}
+                    {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
+                    <a class="" target="_blank" href="{% url 'schema_browser:trait-list' survey_pk=survey trait_pk=schema_link %}">view <i class="fa fa-angle-right"></i></a>
+                {% endif %}
+            </td>
+        </tr>
+    {% if fidia_type == "trait" or fidia_type == "sub_trait" %}
+
+        {% if fidia_type = "trait" %}
+            <tr>
+                <td class="p_light">Download</td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% for f in formats %}
+                        <a href="{{request.get_full_path}}?format={{f|lowercase}}" class="btn btn-default btn-xs">
+                            <span class="fa-custom-stack">
+                              <i class="fa fa-file-o"></i>
+                                <span class="fa-custom-filetype">{{f}}</span>
+                            </span>{{f}}
+                        </a>
+                        {% endfor %}
+                        <a href="{{request.get_full_path}}?format=json" class="btn btn-default btn-xs">
+                            <span class="fa-custom-stack">
+                              <i class="fa fa-file-o"></i>
+                                <span class="fa-custom-filetype">json</span>
+                            </span>json
+                        </a>
+                    </div>
+
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td class="p_light">Data</td>
+                <td>
+                    <a href="{{response.data.url}}?format=json" class="btn btn-default btn-xs">
+                            <span class="fa-custom-stack">
+                              <i class="fa fa-file-o"></i>
+                                <span class="fa-custom-filetype">json</span>
+                            </span>json
+                        </a>
+                </td>
+            </tr>
+        {% endif %}
+
+    {% else %}
+
+        <tr class="active">
+            <td colspan="2" align="middle">
+                <h6 class="text-uppercase" style="margin:0">Properties</h6>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="p_light">Description</td>
+            <td>{{response.data.description}}</td>
+        </tr>
+        <tr>
+            <td class="p_light">Data</td>
+            <td>
+                <a href="{{response.data.url}}?format=json" class="btn btn-default btn-xs">
+                        <span class="fa-custom-stack">
+                          <i class="fa fa-file-o"></i>
+                            <span class="fa-custom-filetype">json</span>
+                        </span>json
+                    </a>
+            </td>
+        </tr>
+    {% endif %}
+
+    {% include 'sov/interactive/panel_controls.html' %}
+
+    </table>
+</div>

@@ -22,9 +22,6 @@
   border-left: 0;
   border-right: 0;
 }
-.meta-data .panel-default .panel-heading {
-  background-color: #f3f3f3;
-}
 .meta-data .panel-default .nested-sidebar {
   padding: 0;
   border-top: 0 !important;
@@ -39,6 +36,10 @@
 }
 .meta-data .panel-default .nested-sidebar .panel-default .panel-body {
   padding-left: 45px;
+}
+.interactive ul li strong {
+  display: inline-block;
+  margin-bottom: 5px;
 }
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

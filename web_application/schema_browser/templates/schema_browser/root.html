@@ -1,0 +1,103 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+{% block title %}Schema{% endblock %}
+{% block head-extra %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'documentation/css/documentation/documentation.min.css' %}"/>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbclass %}{% endblock %}
+
+{% block page_title %}Schema Browser{% endblock %}
+{% block page_title_banner_class %}blue{% endblock %}
+{% block useful_links %}
+<li role="presentation"><a href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Documentation</a></li>
+{% endblock useful_links %}
+
+{% block sidebar %}
+<h5>Page Contents</h5>
+<div class="page-contents">
+    <ul class="nav nav-pills nav-stacked nav-sidebar">
+        <li role="presentation"><a href="#top-of-page" class="scroll">Schema Browser Access</a></li>
+        <li role="presentation"><a href="#what-does-the-schema-browser-do" class="scroll">Features</a></li>
+    </ul>
+</div>
+<h5>Quick Links</h5>
+<ul class="nav-sidebar">
+    {% for value in response.data.surveys %}
+    <li role="presentation"><a href="{{value.survey}}/"><span>Schema Browser for {{value.survey|uppercase}}
+                <i class="fa fa-angle-right"></i></span></a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
+{% block version_container %}
+
+{% endblock %}
+{% block main %}
+<h2 class="text-center">How was that derived?</h2>
+<p class="lead text-center ">Find detailed descriptions of the data products available in a survey. </p>
+
+
+<!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#survey" aria-controls="survey" role="tab" data-toggle="tab">By Survey</a></li>
+        <li role="presentation" class=""><a href="#astroobject" aria-controls="" role="tab" data-toggle="tab">By Astronomical Object</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content" id="data-access">
+      <div role="tabpanel" class="tab-pane active" id="survey">
+          {% for value in response.data.surveys %}
+              {% if forloop.first %}
+              <div class="row box-row">
+              {% endif %}
+              <div class="col-xs-12 col-sm-6 col-md-4">
+                  <a href="{% if value.current_version != 0%}{{value.survey}}/{% endif %}"
+                     class="box {% if value.current_version == 0%}disabled{% endif%}">
+                      <div class="box-contents text-justify">
+                          <img class="img-responsive center-block" style="max-width:80px"
+                               src="/static/restapi_app/img/documentation/{{value.survey}}.png"><br>
+                          <div class="lead p text-center">{{value.survey | uppercase}}</div>
+                          <div class="sub text-center"><span class="sub-heading">{{value.count}} objects</span></div>
+
+                          {% with "sov/root/surveys/"|add:value.survey|add:".html" as template %}
+                          <!--<span class="sub">{% include template %}</span>-->
+                          {% endwith %}
+                          {% if value.current_version == 0%}
+                          <span class="status btn-xs btn-default"><i
+                                  class="fa fa-hourglass-half"></i> in progress</span>
+                          {% else %}
+                          <span class="status btn-xs btn-default text-success"> <i class="fa fa-map-marker"></i> {{value.current_version}}</span>
+                          {% endif%}
+                      </div>
+                  </a>
+              </div>
+              {% if forloop.counter|divisibleby:3 %}
+              </div><div class="row box-row">
+              {% endif %}
+              {% if forloop.last %}
+              </div>
+              {% endif %}
+
+          {% endfor %}
+
+       </div>
+      <div role="tabpanel" class="tab-pane" id="astroobject">Coming soon...</div>
+  </div>
+
+
+<h3 id="features">Features</h3>
+<p class="text-justify">While the <a href="{% url 'sov:root-list' %}"> SOV</a> provides a portal to the
+    data products hosted at ADC, the Schema Browser provides a description of those data products and derived
+    properties. The Schema Browser displays an extensive explaination of each type of data product, along with
+    any relevant analysis and publiction information.
+</p>
+<p class="text-justify">The Schema Browser reflects the tree-like organisational structure we've adopted here at ADC. Each survey
+    is a collection of astronomical objects with a certain set of properties, and the schema displays astronomical properties available for the selected survey <strong>only</strong>. </p>
+
+<p class="text-justify">For more information, including articles on Schema Browser examples, head over to the <a
+            href="{% url 'documentation:topic-detail' slug='schema-browser' %}">Schema Browser Documentation</a>. </p>
+<hr>
+{% endblock %}
