@@ -47,9 +47,57 @@ def content_report(fidia_trait_registry):
 
 def schema_hierarchy(fidia_trait_registry):
     # type: (TraitRegistry) -> str
+    """Create a diagram showing the hierarchy of a a FIDIA Trait Registry."""
+
     assert isinstance(fidia_trait_registry, TraitRegistry)
 
-    schema = fidia_trait_registry.schema(include_subtraits=True, data_class='all', combine_levels=tuple(), verbosity='data_only', separate_metadata=True)
+    schema = fidia_trait_registry.schema(include_subtraits=True, data_class='all',
+                                         combine_levels=('branch_version', ),
+                                         verbosity='data_only')
+    from graphviz import Digraph
+
+    graph = Digraph('FIDIA Data Model', filename='tmp.gv')
+    graph.body.append('size="6,6"')
+    graph.node_attr.update(color='lightblue2', style='filled')
+
+    graph.node("Archive")
+
+
+    def graph_from_schema(schema, top, branch_versions=False):
+        schema_type = schema
+        for trait_type in schema_type:
+            schema_qualifier = schema_type[trait_type]
+            for trait_qualifier in schema_qualifier:
+
+                if trait_qualifier:
+                    trait_name = trait_type + "-" + trait_qualifier
+                else:
+                    trait_name = trait_type
+
+                graph.attr('node', shape='ellipse')
+                graph.node(top + trait_name, trait_name)
+                graph.edge(top, top + trait_name)
+
+                for trait_property in schema_qualifier[trait_qualifier]['trait_properties']:
+                    graph.attr('node', shape='box')
+                    graph.node(top + trait_name + trait_property, trait_property)
+                    graph.edge(top + trait_name, top + trait_name + trait_property)
+
+                sub_trait_schema = schema_qualifier[trait_qualifier]['sub_traits']
+                if len(sub_trait_schema) > 0:
+                    graph_from_schema(sub_trait_schema, top + trait_name)
+
+
+                # if branch_versions:
+                #     schema_branch = schema_qualifier[trait_qualifier]['branches']
+                #     for branch in schema_branch:
+                #         schema_version = schema_branch['versions']
+                #         for version in schema_version:
+                #             pass
+
+    graph_from_schema(schema, "Archive")
+
+    graph.render("out.pdf")
 
 
 def trait_report(fidia_trait_registry):
