@@ -563,7 +563,8 @@ class SAMISpectralCube(SpectralMap):
                 # the WCS object
                 del h['PLATEID']
                 w = wcs.WCS(h)
-                w.wcs.ctype = ["RA---TAN", "DEC--TAN", w.wcs.ctype[2]]
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
+                w.wcs.cunit = ["deg", "deg", "Angstrom"]
                 return w.to_header_string()
 
     @sub_traits.register
@@ -977,6 +978,7 @@ class LZIFUWCS(WorldCoordinateSystem):
         if w.naxis == 3:
             w = w.dropaxis(2)
         w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
+        w.wcs.cunit = ["deg", "deg"]
         return w.to_header_string()
 
 class LZIFUFlag(FlagMap):
@@ -1601,7 +1603,8 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
         def _wcs_string(self):
             header_str = self._parent_trait._wcs_string.value
             w = wcs.WCS(header_str)
-            w.wcs.ctype = ["RA---TAN", "DEC--TAN", w.wcs.ctype[2]]
+            w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
+            w.wcs.cunit = ["deg", "deg", "Angstrom"]
             return w.to_header_string()
 
 
