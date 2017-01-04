@@ -1349,7 +1349,15 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         individual fits for [OII] (3726Å) and [OII] (3729Å)
 
         """
-        value = self._hdu['OII3726'].data[1:2, :, :] + self._hdu['OII3729'].data[1:2, :, :]
+        line1 = self._hdu['OII3726'].data[1:2, :, :]
+        line2 = self._hdu['OII3729'].data[1:2, :, :]
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        value = line1 + line2
         log.debug("Returning type: %s", type(value))
         return value
 
@@ -1361,7 +1369,17 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         individual fits of [OII] (3726Å) and [OII] (3729Å).
 
         """
-        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[1:2, :, :]**2 + self._hdu['OII3729_ERR'].data[1:2, :, :]**2)
+
+        line1 = self._hdu['OII3726_ERR'].data[1:2, :, :]
+        line2 = self._hdu['OII3729_ERR'].data[1:2, :, :]
+
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        sigma = np.sqrt(line1 ** 2 + line2 ** 2)
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
@@ -1521,7 +1539,15 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         individual fits for [OII] (3726Å) and [OII] (3729Å)
 
         """
-        value = self._hdu['OII3726'].data[:, :, :] + self._hdu['OII3729'].data[:, :, :]
+        line1 = self._hdu['OII3726'].data[0:1, :, :]
+        line2 = self._hdu['OII3729'].data[0:1, :, :]
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        value = line1 + line2
         log.debug("Returning type: %s", type(value))
         return value
 
@@ -1533,7 +1559,18 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         individual fits of [OII] (3726Å) and [OII] (3729Å).
 
         """
-        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[:, :, :]**2 + self._hdu['OII3729_ERR'].data[:, :, :]**2)
+
+        line1 = self._hdu['OII3726_ERR'].data[0:1, :, :]
+        line2 = self._hdu['OII3729_ERR'].data[0:1, :, :]
+
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        sigma = np.sqrt(line1 ** 2 + line2 ** 2)
+
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
