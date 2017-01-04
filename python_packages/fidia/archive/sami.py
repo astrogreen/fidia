@@ -11,7 +11,7 @@ import copy
 import numpy as np
 
 from astropy import wcs
-from astropy.io import fits
+from astropy.io import fits, ascii
 from astropy import units
 
 import pandas as pd
@@ -501,6 +501,17 @@ class SAMISpectralCube(SpectralMap):
         """SAMI ID of the secondary standard star on the same plate"""
         return self.hdu[0].header['STDNAME']
 
+
+    @trait_property('float')
+    def heliocentric_velocity_correction(self):
+        """Heliocentric velocity correction for observed data"""
+        red_cube_name = self.archive.cube_file_index['red_cube_file'][self.object_id]
+        if red_cube_name[-3:] == ".gz":
+            red_cube_name = red_cube_name[:-3]
+        helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
+
+        return helio_corr
+    heliocentric_velocity_correction.set_short_name("HELIOCOR")
 
     @trait_property('float')
     def ra(self):
@@ -1100,6 +1111,17 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     def error(self):
         return self._hdu['V_ERR'].data[1:2, :, :]
 
+    @trait_property('float')
+    def heliocentric_velocity_correction(self):
+        """Heliocentric velocity correction for observed data"""
+        red_cube_name = self.archive.cube_file_index['red_cube_file'][self.object_id]
+        if red_cube_name[-3:] == ".gz":
+            red_cube_name = red_cube_name[:-3]
+        helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
+
+        return helio_corr
+    heliocentric_velocity_correction.set_short_name("HELIOCOR")
+
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['V'].header
@@ -1143,6 +1165,17 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('float.array.3')
     def error(self):
         return self._hdu['V_ERR'].data[:, :, :]
+
+    @trait_property('float')
+    def heliocentric_velocity_correction(self):
+        """Heliocentric velocity correction for observed data"""
+        red_cube_name = self.archive.cube_file_index['red_cube_file'][self.object_id]
+        if red_cube_name[-3:] == ".gz":
+            red_cube_name = red_cube_name[:-3]
+        helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
+
+        return helio_corr
+    heliocentric_velocity_correction.set_short_name("HELIOCOR")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -2190,6 +2223,16 @@ class SAMIDR1PublicArchive(Archive):
 
         # Local cache for traits
         self._trait_cache = dict()
+
+
+        # Table of heliocentric corrections:
+        self._helio_corr = ascii.read(self.catalog_path + "heliocentric_corr/" +
+                                      "mean_helio_v0.9.1.dat")
+        self._helio_corr.add_index('CUBE_NAME')
+        # Rename the "MEAN (KM/S)" column to be easier to address.
+        self._helio_corr.columns['MEAN(KM/S)'].name = 'MEAN'
+
+
 
         super(SAMIDR1PublicArchive, self).__init__()
 
