@@ -53,13 +53,15 @@ class TestSAMILZIFU:
 
         assert isinstance(themap.value(), numpy.ndarray)
 
-        assert themap.shape == (50, 50)
+        assert themap.shape == (1, 50, 50)
 
     def test_lzifu_ha_map_multicomponent(self, sami_sample):
         themap = sami_sample['24433'][TraitKey('line_emission_map', 'HALPHA', "recom_comp")]
 
-        assert hasattr(themap, 'comp_1_flux')
+        assert hasattr(themap, 'value')
         assert hasattr(themap, 'error')
+
+        assert themap.shape == (4, 50, 50)
 
     def test_wcs_on_both_branches(self, a_sami_galaxy):
 

@@ -1136,53 +1136,11 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
 
     @trait_property('float.array.3')
     def value(self):
-        return self._hdu['V'].data[1:, :, :]
+        return self._hdu['V'].data[:, :, :]
 
     @trait_property('float.array.3')
     def error(self):
-        return self._hdu['V_ERR'].data[1:, :, :]
-
-    @trait_property('float.array.2')
-    def comp_1_velocity(self):
-        value = self._hdu['V'].data[1, :, :]
-        return value
-    comp_1_velocity.set_description("Velocity of narrowest component")
-    comp_1_velocity.set_short_name('COMP1_V')
-
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu['V_ERR'].data[1, :, :]
-        return sigma
-    comp_1_error.set_description("Variance of Velocity of narrowest component")
-    comp_1_error.set_short_name('COMP1_VE')
-    
-    @trait_property('float.array.2')
-    def comp_2_velocity(self):
-        value = self._hdu['V'].data[2, :, :]
-        return value
-    comp_2_velocity.set_description("Velocity of narrowest component")
-    comp_2_velocity.set_short_name('COMP2_V')
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu['V_ERR'].data[2, :, :]
-        return sigma
-    comp_2_error.set_description("Variance of Velocity of narrowest component")
-    comp_2_error.set_short_name('COMP2_VE')
-    
-    @trait_property('float.array.2')
-    def comp_3_velocity(self):
-        value = self._hdu['V'].data[3, :, :]
-        return value
-    comp_3_velocity.set_description("Velocity of narrowest component")
-    comp_3_velocity.set_short_name('COMP3_V')
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu['V_ERR'].data[3, :, :]
-        return sigma
-    comp_3_error.set_description("Variance of Velocity of narrowest component")
-    comp_3_error.set_short_name('COMP3_VE')
+        return self._hdu['V_ERR'].data[:, :, :]
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1264,59 +1222,12 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     @trait_property('float.array.3')
     def value(self):
-        return self._hdu['VDISP'].data[1:, :, :]
+        return self._hdu['VDISP'].data[:, :, :]
 
     @trait_property('float.array.3')
     def error(self):
-        return self._hdu['VDISP_ERR'].data[1:, :, :]
+        return self._hdu['VDISP_ERR'].data[:, :, :]
     error.set_short_name('ERROR')
-
-    @trait_property('float.array.2')
-    def comp_1_velocity_dispersion(self):
-        value = self._hdu['VDISP'].data[1, :, :]
-        return value
-
-    comp_1_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
-    comp_1_velocity_dispersion.set_short_name('COMP1_VDISP')
-
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu['VDISP_ERR'].data[1, :, :]
-        return sigma
-
-    comp_1_error.set_description("Variance of Velocity Dispersion of narrowest component")
-    comp_1_error.set_short_name('COMP1_VDISP_E')
-
-    @trait_property('float.array.2')
-    def comp_2_velocity_dispersion(self):
-        value = self._hdu['VDISP'].data[2, :, :]
-        return value
-
-    comp_2_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
-    comp_2_velocity_dispersion.set_short_name('COMP2_VDISP')
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu['VDISP_ERR'].data[2, :, :]
-        return sigma
-    comp_2_error.set_description("Variance of Velocity Dispersion of narrowest component")
-    comp_2_error.set_short_name('COMP2_VDISP_E')
-
-    @trait_property('float.array.2')
-    def comp_3_velocity_dispersion(self):
-        value = self._hdu['VDISP'].data[3, :, :]
-        return value
-
-    comp_3_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
-    comp_3_velocity_dispersion.set_short_name('COMP3_VDISP')
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu['VDISP_ERR'].data[3, :, :]
-        return sigma
-
-    comp_3_error.set_description("Variance of Velocity Dispersion of narrowest component")
-    comp_3_error.set_short_name('COMP3_VDISP_E')
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1369,17 +1280,17 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     def shape(self):
         return self.value().shape
 
-    unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
+    unit = 1e-16 * units.erg / units.s / units.cm**2
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1:2, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1:2, :, :]
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
@@ -1428,7 +1339,7 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
     qualifiers = ['OII3727']
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
         """Line-emission-flux map for the [OII] doublet (3726Å/3729Å)
 
@@ -1436,11 +1347,11 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         individual fits for [OII] (3726Å) and [OII] (3729Å)
 
         """
-        value = self._hdu['OII3726'].data[1, :, :] + self._hdu['OII3729'].data[1, :, :]
+        value = self._hdu['OII3726'].data[1:2, :, :] + self._hdu['OII3729'].data[1:2, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
         """One-sigma uncertainty
 
@@ -1448,7 +1359,7 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         individual fits of [OII] (3726Å) and [OII] (3729Å).
 
         """
-        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[1, :, :]**2 + self._hdu['OII3729_ERR'].data[1, :, :]**2)
+        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[1:2, :, :]**2 + self._hdu['OII3729_ERR'].data[1:2, :, :]**2)
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
@@ -1484,56 +1395,18 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total Line Flux in all components")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
         return sigma
     value.set_description("Variance of Total Line Flux in all components")
-
-    # 1-component
-    @trait_property('float.array.2')
-    def comp_1_flux(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
-        return value
-    value.set_description("Line Flux in narrowest component")
-
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
-        return sigma
-    value.set_description("Variance of Line Flux in narrowest component")
-
-    @trait_property('float.array.2')
-    def comp_2_flux(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[2, :, :]
-        return value
-    value.set_description("Line Flux in middle-width component")
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
-        return sigma
-    value.set_description("Variance of Line Flux in middle-width component")
-
-    @trait_property('float.array.2')
-    def comp_3_flux(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[3, :, :]
-        return value
-    value.set_description("Line Flux in broadest component")
-
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
-        return sigma
-    value.set_description("Variance of Line Flux in broadest component")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1588,16 +1461,16 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total Line Flux in all components")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
         return sigma
     value.set_description("Variance of Total Line Flux in all components")
 
@@ -1638,7 +1511,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 
     qualifiers = ['OII3727']
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
         """Line-emission-flux map for the [OII] doublet (3726Å/3729Å)
 
@@ -1646,11 +1519,11 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         individual fits for [OII] (3726Å) and [OII] (3729Å)
 
         """
-        value = self._hdu['OII3726'].data[0, :, :] + self._hdu['OII3729'].data[0, :, :]
+        value = self._hdu['OII3726'].data[:, :, :] + self._hdu['OII3729'].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
         """One-sigma uncertainty
 
@@ -1658,7 +1531,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         individual fits of [OII] (3726Å) and [OII] (3729Å).
 
         """
-        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[0, :, :]**2 + self._hdu['OII3729_ERR'].data[0, :, :]**2)
+        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[:, :, :]**2 + self._hdu['OII3729_ERR'].data[:, :, :]**2)
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
