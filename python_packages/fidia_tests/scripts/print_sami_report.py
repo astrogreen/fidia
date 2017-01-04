@@ -18,8 +18,8 @@ ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test
 
 latex_lines = reports.content_report(ar.available_traits)
 
-for line in latex_lines:
-    print(line)
+# for line in latex_lines:
+#     print(line)
 
 output = "\n".join(latex_lines)
 
@@ -29,11 +29,11 @@ output = "\n".join(latex_lines)
 # with open('/Users/agreen/Documents/ASVO/meetings/sami_team/data-structure/traits.tex', 'w') as f:
 #     f.write(output)
 
+#
+# latex_lines = reports.schema_hierarchy_tikz(ar.available_traits)
+#
+# # Also write it to a file on the desktop...
+# with open('/Users/agreen/Desktop/tikz-tree/fidia.tex', 'w') as f:
+#     f.write(latex_lines)
 
-latex_lines = reports.schema_hierarchy_tikz(ar.available_traits)
-
-# Also write it to a file on the desktop...
-with open('/Users/agreen/Desktop/tikz-tree/fidia.tex', 'w') as f:
-    f.write(latex_lines)
-
-#reports.schema_hierarchy(ar.available_traits)
+reports.schema_hierarchy(ar.available_traits)

@@ -60,8 +60,8 @@ def schema_hierarchy(fidia_trait_registry):
     from graphviz import Digraph
 
     graph = Digraph('FIDIA Data Model', filename='tmp.gv')
-    graph.body.append('size="6,6"')
-    graph.node_attr.update(color='lightblue2', style='filled')
+    graph.body.append('size="12,6"')
+    # graph.node_attr.update(color='lightblue2', style='filled')
 
     graph.node("Archive")
 
@@ -77,14 +77,21 @@ def schema_hierarchy(fidia_trait_registry):
                 else:
                     trait_name = trait_type
 
-                graph.attr('node', shape='ellipse')
-                graph.node(top + trait_name, trait_name)
-                graph.edge(top, top + trait_name)
+                node_text = "<<TABLE BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\">"
+                node_text += "<TR><TD><B>{label}</B></TD></TR>".format(
+                    label=trait_name
+                )
 
                 for trait_property in schema_qualifier[trait_qualifier]['trait_properties']:
-                    graph.attr('node', shape='box')
-                    graph.node(top + trait_name + trait_property, trait_property)
-                    graph.edge(top + trait_name, top + trait_name + trait_property)
+                    node_text += "<TR><TD PORT=\"{port}\">{label}</TD></TR>".format(
+                        port=top + trait_name + trait_property,
+                        label=trait_property
+                    )
+                node_text += "</TABLE>>"
+
+                graph.node(top + trait_name, node_text, shape='none')
+                graph.edge(top, top + trait_name)
+
 
                 sub_trait_schema = schema_qualifier[trait_qualifier]['sub_traits']
                 if len(sub_trait_schema) > 0:
