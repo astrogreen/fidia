@@ -1,8 +1,11 @@
 import inspect
 import tokenize
 
+from indenter import Indenter
+
 import pylatex
 
+from .utilities import is_list_or_set
 from .traits import TraitRegistry, Trait
 
 
@@ -99,6 +102,134 @@ def schema_hierarchy(fidia_trait_registry):
 
     graph.render("out.pdf")
 
+def schema_hierarchy_tikz(fidia_trait_registry):
+    # type: (TraitRegistry) -> str
+    """Create a diagram showing the hierarchy of a a FIDIA Trait Registry."""
+
+    assert isinstance(fidia_trait_registry, TraitRegistry)
+
+    schema = fidia_trait_registry.schema(include_subtraits=True, data_class='all',
+                                         combine_levels=('branch_version', ),
+                                         verbosity='data_only')
+
+    latex_lines = r"""
+    \documentclass{standalone}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+
+    \usepackage{tikz-qtree}
+    \usetikzlibrary{shadows,trees}
+    \begin{document}
+    \tikzset{font=\small,
+    edge from parent fork down,
+    level distance=1.75cm,
+    every node/.style=
+        {anchor=north,
+        rectangle,rounded corners,
+        minimum height=8mm,
+        draw=blue!75,
+        very thick,
+        align=center
+        },
+    edge from parent/.style=
+        {draw=blue!50,
+        thick
+        }}
+
+    \centering
+    \begin{tikzpicture}
+    \Tree """
+
+
+    class TikZTree:
+        leaf_close = " ]\n"
+        def __init__(self, name, **kwargs):
+            self._latex = ""
+            self.add_leaf(name, **kwargs)
+            # Delete the closing off of the leaf to cause it to be the start of a new tree
+            self._latex = self._latex[:-len(self.leaf_close)]
+            self._latex += "\n"
+            self._ready_for_export = False
+        def add_leaf(self, name, escape=True, as_node=None):
+            if escape:
+                escape = pylatex.utils.escape_latex
+            else:
+                escape = lambda x: x
+            if is_list_or_set(name):
+                proc_name = "\\\\".join(map(escape, name))
+            else:
+                proc_name = escape(name)
+            if as_node:
+                self._latex += "[ .\\node[" + as_node + "]{" + proc_name + "};" + self.leaf_close
+            else:
+                self._latex += "[ .{" + proc_name + "}" + self.leaf_close
+        def __enter__(self):
+            return self
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self._latex += "]\n"
+            self._ready_for_export = True
+        def get_tex(self):
+            if self._ready_for_export:
+                ind = Indenter(enforce_spacing=False)
+                ind.add_many_lines(self._latex)
+
+                return ind.code
+            else:
+                raise Exception("TikZTree instance incomplete: cannot create latex.")
+        def add_sub_tree(self, sub_tree):
+            assert isinstance(sub_tree, TikZTree)
+            self._latex += sub_tree.get_tex()
+
+
+    texescape = pylatex.utils.escape_latex
+
+    def graph_from_schema(schema, top, branch_versions=False):
+        with TikZTree(top) as ttree:
+            schema_type = schema
+            for trait_type in schema_type:
+                schema_qualifier = schema_type[trait_type]
+                for trait_qualifier in schema_qualifier:
+
+                    if trait_qualifier:
+                        trait_name = trait_type + "-" + trait_qualifier
+                    else:
+                        trait_name = trait_type
+
+                    trait_text = "\\textbf{" + texescape(trait_name) + "}"
+                    for trait_property in schema_qualifier[trait_qualifier]['trait_properties']:
+                        trait_text += "\\\\" + texescape(trait_property)
+
+                    sub_trait_schema = schema_qualifier[trait_qualifier]['sub_traits']
+                    if len(sub_trait_schema) > 0:
+                        with TikZTree(trait_text, escape=False, as_node="anchor=north") as trait_tree:
+                            sub_trait_tree = graph_from_schema(sub_trait_schema, trait_name)
+
+                            trait_tree.add_sub_tree(sub_trait_tree)
+                        ttree.add_sub_tree(trait_tree)
+                    else:
+                        if isinstance(trait_name, str) and is_list_or_set(trait_name):
+                            raise Exception()
+                        else:
+                            ttree.add_leaf(trait_text, escape=False, as_node="anchor=north")
+
+
+                    # if branch_versions:
+                    #     schema_branch = schema_qualifier[trait_qualifier]['branches']
+                    #     for branch in schema_branch:
+                    #         schema_version = schema_branch['versions']
+                    #         for version in schema_version:
+                    #             pass
+        return ttree
+
+    tree = graph_from_schema(schema, "Archive")
+
+    latex_lines += tree.get_tex()
+
+    latex_lines += r"""\end{tikzpicture}
+                       \end{document}"""
+
+
+    return latex_lines
 
 def trait_report(fidia_trait_registry):
     # type: (TraitRegistry) -> str
