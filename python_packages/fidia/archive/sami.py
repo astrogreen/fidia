@@ -1871,16 +1871,16 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     # error = trait_property_from_fits_data('SFR_ERR', 'float.array', 'error')
     # error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
     
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu['SFR'].data[0, :, :]
+        value = self._hdu['SFR'].data[1:2, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total star-formation rate (single component)")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu['SFR_ERR'].data[0, :, :]
+        sigma = self._hdu['SFR_ERR'].data[1:2, :, :]
         return sigma
     value.set_description("Error in total star-formation rate (single component)")
 
@@ -1900,17 +1900,17 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
         # value = trait_property_from_fits_data('SFRSurfDensity', 'float.array.2', 'value')
 
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def value(self):
-            value = self._hdu['SFRSurfDensity'].data[0, :, :]
+            value = self._hdu['SFRSurfDensity'].data[1:2, :, :]
             log.debug("Returning type: %s", type(value))
             return value
         value.set_description(r"Star formation rate density map")
 
         # error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array.2', 'error')
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[0, :, :]
+            sigma = self._hdu['SFRSurfDensity_ERR'].data[1:2, :, :]
             return sigma
         error.set_description(r"Errors (1-sigma uncertainty) in SFR Density")
 
@@ -1965,57 +1965,18 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
         return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu['SFR'].data[0, :, :]
+        value = self._hdu['SFR'].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total star-formation rate in all components")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu['SFR_ERR'].data[0, :, :]
+        sigma = self._hdu['SFR_ERR'].data[:, :, :]
         return sigma
     error.set_description("Error in total star-formation rate in all components")
-
-    # 1-component
-    @trait_property('float.array.2')
-    def comp_1_flux(self):
-        value = self._hdu['SFR'].data[1, :, :]
-        return value
-    comp_1_flux.set_description("Star-formation rate in component with narrowest Hα line")
-
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu['SFR_ERR'].data[1, :, :]
-        return sigma
-    comp_1_error.set_description("Error in star-formation rate in component with narrowest Hα line")
-
-    # 2-component
-    @trait_property('float.array.2')
-    def comp_2_flux(self):
-        value = self._hdu['SFR'].data[2, :, :]
-        return value
-    comp_2_flux.set_description("Star-formation rate in component with middle-width Hα line")
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu['SFR_ERR'].data[2, :, :]
-        return sigma
-    comp_2_error.set_description("Error in star-formation rate in component with middle-width Hα line")
-
-    # 3-component
-    @trait_property('float.array.2')
-    def comp_3_flux(self):
-        value = self._hdu['SFR'].data[3, :, :]
-        return value
-    comp_3_flux.set_description("Star-formation rate in component with broadest Hα line")
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu['SFR_ERR'].data[3, :, :]
-        return sigma
-    comp_3_error.set_description("Error in star-formation rate in component with broadest Hα line")
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -2031,65 +1992,21 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
         def fits_file_path(self):
             return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def value(self):
-            value = self._hdu['SFRSurfDensity'].data[0, :, :]
+            value = self._hdu['SFRSurfDensity'].data[:, :, :]
             log.debug("Returning type: %s", type(value))
             return value
 
         value.set_description("Total star-formation rate density in all components")
 
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[0, :, :]
+            sigma = self._hdu['SFRSurfDensity_ERR'].data[:, :, :]
             return sigma
 
         error.set_description("Error in total star-formation rate density in all components")
 
-        # 1-component
-        @trait_property('float.array.2')
-        def comp_1_flux(self):
-            value = self._hdu['SFRSurfDensity'].data[1, :, :]
-            return value
-
-        comp_1_flux.set_description("Star-formation rate density in component with narrowest Hα line")
-
-        @trait_property('float.array.2')
-        def comp_1_error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[1, :, :]
-            return sigma
-
-        comp_1_error.set_description("Error in star-formation rate density in component with narrowest Hα line")
-
-        # 2-component
-        @trait_property('float.array.2')
-        def comp_2_flux(self):
-            value = self._hdu['SFRSurfDensity'].data[2, :, :]
-            return value
-
-        comp_2_flux.set_description("Star-formation rate density in component with middle-width Hα line")
-
-        @trait_property('float.array.2')
-        def comp_2_error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[2, :, :]
-            return sigma
-
-        comp_2_error.set_description("Error in star-formation rate density in component with middle-width Hα line")
-
-        # 3-component
-        @trait_property('float.array.2')
-        def comp_3_flux(self):
-            value = self._hdu['SFRSurfDensity'].data[3, :, :]
-            return value
-
-        comp_3_flux.set_description("Star-formation rate density in component with broadest Hα line")
-
-        @trait_property('float.array.2')
-        def comp_3_error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[3, :, :]
-            return sigma
-
-        comp_3_error.set_description("Error in star-formation rate density in component with broadest Hα line")
 
 SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
