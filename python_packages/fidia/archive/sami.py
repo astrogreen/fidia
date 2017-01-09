@@ -2560,7 +2560,7 @@ class SAMIDR1PublicArchive(Archive):
 
         # r_e: effective radius
         r_e = catalog_trait(Measurement, 'effective_radius',
-                            OrderedDict([('value', self.tabular_data['mu_within_1re']),
+                            OrderedDict([('value', self.tabular_data['r_e']),
                                          ('unit', units.arcsecond)]))
         r_e.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         r_e.defaults = DefaultsRegistry(sami_gama_catalog_branch[0], {sami_gama_catalog_branch[0]: "V02"})
