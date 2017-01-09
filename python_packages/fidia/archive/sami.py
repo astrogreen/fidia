@@ -628,7 +628,7 @@ class SAMISpectralCube(SpectralMap):
                 # the WCS object
                 del h['PLATEID']
                 w = wcs.WCS(h)
-                w.wcs.radecsys = 'FK5a'
+                w.wcs.radesys = 'FK5a'
                 w.wcs.cunit = ["deg", "deg", "Angstrom"]
                 w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
                 return w.to_header_string()
