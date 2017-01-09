@@ -504,7 +504,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('string')
     def history(self):
-        return self.hdu[0].header['history']
+        return str(self.hdu[0].header['history'])
 
     # Add links to sub_traits
     # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
@@ -628,8 +628,9 @@ class SAMISpectralCube(SpectralMap):
                 # the WCS object
                 del h['PLATEID']
                 w = wcs.WCS(h)
-                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
+                w.wcs.radecsys = 'FK5a'
                 w.wcs.cunit = ["deg", "deg", "Angstrom"]
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
                 return w.to_header_string()
 
         @trait_property('string')

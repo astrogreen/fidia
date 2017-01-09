@@ -984,6 +984,11 @@ class FITSExportMixin:
 
         # Add string value TraitProperties to the primary header
         for trait_property in self.trait_properties(['string']):
+
+            # Skip "HISTORY" which is handled below
+            if trait_property.name == "history":
+                continue
+
             try:
                 keyword_name = trait_property.get_short_name()
                 keyword_value = trait_property.value
@@ -1003,9 +1008,17 @@ class FITSExportMixin:
                     "Trait Property '%s' not added to FITS file because it's data is not available.",
                     trait_property)
 
+        # Add history information
+        if hasattr(self, 'history'):
+            for line in self.history.value.splitlines():
+                primary_hdu.header['HISTORY'] = line
 
         # Create extensions for sub-traits:
         for trait in self.get_all_subtraits():
+            if hasattr(trait, 'as_fits_extension'):
+                extension = trait.as_fits_extension()
+                hdulist.append(extension)
+                continue
             for trait_property in trait.trait_properties(
                 RegexpGroup(re.compile(r"float\.array\.\d+"),
                             re.compile(r"int\.array\.\d+"))):
@@ -1017,6 +1030,51 @@ class FITSExportMixin:
                 extension.header['EXTID'] = (trait_property.name, "Data Central Sub-trait Data ID")
                 # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Data Name")
                 # extension.header['EXTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
+
+                # Add single-numeric-value TraitProperties to the primary header:
+                for trait_property in trait.trait_properties(['float', 'int']):
+                    try:
+                        keyword_name = trait_property.get_short_name()
+                        keyword_value = trait_property.value
+                        keyword_comment = trait_property.get_description()
+                        log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
+                        extension.header[keyword_name] = (
+                            keyword_value,
+                            keyword_comment)
+                        del keyword_name, keyword_comment, keyword_value
+                    except DataNotAvailable:
+                        log.warning(
+                            "Trait Property '%s' not added to FITS file because it's data is not available.",
+                            trait_property)
+
+                # Add string value TraitProperties to the primary header
+                for trait_property in trait.trait_properties(['string']):
+
+                    # Skip "HISTORY" which is handled below
+                    if trait_property.name == "history":
+                        continue
+
+                    try:
+                        keyword_name = trait_property.get_short_name()
+                        keyword_value = trait_property.value
+                        keyword_comment = trait_property.get_description()
+                        if len(keyword_value) >= 80:
+                            # This value won't fit, so skip it.
+                            # @TODO: Issue a warning?
+                            log.warning("TraitProperty '%s' skipped because it is to long to fit in header",
+                                        trait_property)
+                            continue
+                        log.debug("Adding string TraitProperty '%s' to header", keyword_name)
+                        extension.header[keyword_name] = (
+                            keyword_value,
+                            keyword_comment)
+                        del keyword_name, keyword_comment, keyword_value
+                    except DataNotAvailable:
+                        log.warning(
+                            "Trait Property '%s' not added to FITS file because it's data is not available.",
+                            trait_property)
+
+
                 hdulist.append(extension)
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
