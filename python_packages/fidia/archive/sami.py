@@ -410,6 +410,9 @@ class SAMISpectralCube(SpectralMap):
 
         self._cube_path = path
 
+        with self.preloaded_context():
+            self._covar_header = self.hdu['COVAR'].header
+
     def preload(self):
         self.hdu = fits.open(self._cube_path)
 
@@ -438,38 +441,6 @@ class SAMISpectralCube(SpectralMap):
         """
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('VARIANCE')].data
-
-    @trait_property('float.array.5')
-    def covariance(self):
-        r"""Compressed description of the covariance introduced by the drizzling.
-
-        The full covariance matrix for a SAMI cube is both very large and highly
-        redundant. Therefore, we calculate and store the covariance only (i) at
-        a subset of wavelength slices, and (ii) over small spatial scales only.
-        Our testing shows that covariance is only significant over a ~2 spaxel
-        radius, therefore, a $5 \times 5$ covariance sub-array is sufficient to
-        record all of the covariance for a given pixel. The covariance varies
-        significantly along the spectral direction only when the resampling is
-        updated to account for the effects of chromatic differential atmospheric
-        refraction. Therefore we densely sample only these wavelength slices,
-        and sparsely sample slices in between.
-
-        The full $50\times 50 \times 5 \times 5 \times 2048$ covariance
-        hyper-cube can be reconstructed from the included covariance data as
-        described by [Sharp et al.
-        (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
-        Briefly, missing values in the full hyper-cube should be replaced with
-        the nearest measured value along the wavelength axis. Then, each of the
-        25 $50\times 50 \times 2048$ cubes (one per element of the $5 \times 5$
-        covariance sub-arrays) must be multiplied by the variance cube to
-        recover the full covariance. Our testing has shown that this approach
-        recovers $> 91\%$ of the covariance in the blue cubes, and $> 97\%$ in
-        the red cubes.
-
-        """
-
-        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
-        return self.hdu[str('COVAR')].data
 
     @trait_property('float.array.3')
     def weight(self):
@@ -560,6 +531,74 @@ class SAMISpectralCube(SpectralMap):
     #
     # Sub Traits
     #
+
+
+    class Covariance(Trait):
+
+        r"""Compressed description of the covariance introduced by the drizzling.
+
+        The full covariance matrix for a SAMI cube is both very large and highly
+        redundant. Therefore, we calculate and store the covariance only (i) at
+        a subset of wavelength slices, and (ii) over small spatial scales only.
+        Our testing shows that covariance is only significant over a ~2 spaxel
+        radius, therefore, a $5 \times 5$ covariance sub-array is sufficient to
+        record all of the covariance for a given pixel. The covariance varies
+        significantly along the spectral direction only when the resampling is
+        updated to account for the effects of chromatic differential atmospheric
+        refraction. Therefore we densely sample only these wavelength slices,
+        and sparsely sample slices in between.
+
+        The full $50\times 50 \times 5 \times 5 \times 2048$ covariance
+        hyper-cube can be reconstructed from the included covariance data as
+        described by [Sharp et al.
+        (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
+        Briefly, missing values in the full hyper-cube should be replaced with
+        the nearest measured value along the wavelength axis. Then, each of the
+        25 $50\times 50 \times 2048$ cubes (one per element of the $5 \times 5$
+        covariance sub-arrays) must be multiplied by the variance cube to
+        recover the full covariance. Our testing has shown that this approach
+        recovers $> 91\%$ of the covariance in the blue cubes, and $> 97\%$ in
+        the red cubes.
+
+        """
+
+        trait_type = 'covariance'
+
+        @trait_property('float.array.5')
+        def covariance(self):
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['COVAR'].data
+
+        @trait_property("int")
+        def n_covariance_locations(self):
+            """Number of covariance locations"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['COVAR'].header['COVAR_N']
+        n_covariance_locations.set_short_name("COVAR_N")
+
+        @trait_property("string")
+        def covariance_mode(self):
+            """Covariance mode"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['COVAR'].header['COVARMOD']
+        covariance_mode.set_short_name("COVARMOD")
+
+
+    for loc_n in range(1, 900):
+        tp = TraitProperty(type="int", name="covarloc_" + str(loc_n))
+        def tmp(loc_n):
+            def fload(self):
+                pt = self._parent_trait
+                try:
+                    return pt._covar_header['COVARLOC_' + str(loc_n)]
+                except KeyError:
+                    return 0
+            return fload
+        tp.fload = tmp(loc_n)
+        setattr(Covariance, 'covarloc_' + str(loc_n), tp)
+        del tp
+    sub_traits.register(Covariance)
+
 
 
     @sub_traits.register
