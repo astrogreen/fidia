@@ -455,7 +455,7 @@ class SAMISpectralCube(SpectralMap):
         and sparsely sample slices in between.
 
         The full $50\times 50 \times 5 \times 5 \times 2048$ covariance
-        hyper-cube can be reconstruced from the included covariance data as
+        hyper-cube can be reconstructed from the included covariance data as
         described by [Sharp et al.
         (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
         Briefly, missing values in the full hyper-cube should be replaced with
@@ -480,16 +480,19 @@ class SAMISpectralCube(SpectralMap):
     def total_exposure(self):
         """Total exposure time for this cube"""
         return self.hdu[0].header['TOTALEXP']
+    total_exposure.set_short_name("TOTALEXP")
 
     @trait_property('string')
     def cubing_code_version(self):
         """Version of the cubing code used"""
         return self.hdu[0].header['HGCUBING']
+    cubing_code_version.set_short_name("HGCUBING")
 
     @trait_property('string')
     def plate_id(self):
         """Plate identification string"""
         return self.hdu[0].header['PLATEID']
+    plate_id.set_short_name("PLATEID")
 
     @trait_property('string')
     def plate_label(self):
@@ -500,7 +503,6 @@ class SAMISpectralCube(SpectralMap):
     def standard_star_id(self):
         """SAMI ID of the secondary standard star on the same plate"""
         return self.hdu[0].header['STDNAME']
-
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -523,6 +525,16 @@ class SAMISpectralCube(SpectralMap):
         """Catalog declination of the galaxy."""
         return self.hdu[0].header['CATADEC']
 
+    @trait_property('float')
+    def data_rescale(self):
+        """Scaling applied to the data"""
+        return self.hdu[0].header['RESCALE']
+    data_rescale.set_short_name("RESCALE")
+
+    @trait_property('string')
+    def history(self):
+        return self.hdu[0].header['history']
+
     # Add links to sub_traits
     # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
     # self._sub_traits[TraitKey('rss', None, None, None)] = SAMIRowStackedSpectra
@@ -541,6 +553,9 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
+    @trait_property("int")
+    def n_source_rss_frames(self):
+        return len(self.source_rss_frames.value)
 
     #
     # Sub Traits
@@ -577,6 +592,12 @@ class SAMISpectralCube(SpectralMap):
                 w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
                 w.wcs.cunit = ["deg", "deg", "Angstrom"]
                 return w.to_header_string()
+
+        @trait_property('string')
+        def wcs_source(self):
+            with self._parent_trait.preloaded_context() as pt:
+                h = pt.hdu[0].header['WCS_SRC']
+                return h
 
     @sub_traits.register
     class PSF(Trait):
