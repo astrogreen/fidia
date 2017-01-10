@@ -11,7 +11,7 @@ import copy
 import numpy as np
 
 from astropy import wcs
-from astropy.io import fits
+from astropy.io import fits, ascii
 from astropy import units
 
 import pandas as pd
@@ -412,6 +412,9 @@ class SAMISpectralCube(SpectralMap):
 
         self._cube_path = path
 
+        with self.preloaded_context():
+            self._covar_header = self.hdu['COVAR'].header
+
     def preload(self):
         self.hdu = fits.open(self._cube_path)
 
@@ -441,38 +444,6 @@ class SAMISpectralCube(SpectralMap):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('VARIANCE')].data
 
-    @trait_property('float.array.5')
-    def covariance(self):
-        r"""Compressed description of the covariance introduced by the drizzling.
-
-        The full covariance matrix for a SAMI cube is both very large and highly
-        redundant. Therefore, we calculate and store the covariance only (i) at
-        a subset of wavelength slices, and (ii) over small spatial scales only.
-        Our testing shows that covariance is only significant over a ~2 spaxel
-        radius, therefore, a $5 \times 5$ covariance sub-array is sufficient to
-        record all of the covariance for a given pixel. The covariance varies
-        significantly along the spectral direction only when the resampling is
-        updated to account for the effects of chromatic differential atmospheric
-        refraction. Therefore we densely sample only these wavelength slices,
-        and sparsely sample slices in between.
-
-        The full $50\times 50 \times 5 \times 5 \times 2048$ covariance
-        hyper-cube can be reconstruced from the included covariance data as
-        described by [Sharp et al.
-        (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
-        Briefly, missing values in the full hyper-cube should be replaced with
-        the nearest measured value along the wavelength axis. Then, each of the
-        25 $50\times 50 \times 2048$ cubes (one per element of the $5 \times 5$
-        covariance sub-arrays) must be multiplied by the variance cube to
-        recover the full covariance. Our testing has shown that this approach
-        recovers $> 91\%$ of the covariance in the blue cubes, and $> 97\%$ in
-        the red cubes.
-
-        """
-
-        # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
-        return self.hdu[str('COVAR')].data
-
     @trait_property('float.array.3')
     def weight(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
@@ -482,16 +453,19 @@ class SAMISpectralCube(SpectralMap):
     def total_exposure(self):
         """Total exposure time for this cube"""
         return self.hdu[0].header['TOTALEXP']
+    total_exposure.set_short_name("TOTALEXP")
 
     @trait_property('string')
     def cubing_code_version(self):
         """Version of the cubing code used"""
         return self.hdu[0].header['HGCUBING']
+    cubing_code_version.set_short_name("HGCUBING")
 
     @trait_property('string')
     def plate_id(self):
         """Plate identification string"""
         return self.hdu[0].header['PLATEID']
+    plate_id.set_short_name("PLATEID")
 
     @trait_property('string')
     def plate_label(self):
@@ -503,6 +477,16 @@ class SAMISpectralCube(SpectralMap):
         """SAMI ID of the secondary standard star on the same plate"""
         return self.hdu[0].header['STDNAME']
 
+    @trait_property('float')
+    def heliocentric_velocity_correction(self):
+        """Heliocentric velocity correction for observed data"""
+        red_cube_name = self.archive.cube_file_index['red_cube_file'][self.object_id]
+        if red_cube_name[-3:] == ".gz":
+            red_cube_name = red_cube_name[:-3]
+        helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
+
+        return helio_corr
+    heliocentric_velocity_correction.set_short_name("HELIOCOR")
 
     @trait_property('float')
     def ra(self):
@@ -513,6 +497,16 @@ class SAMISpectralCube(SpectralMap):
     def dec(self):
         """Catalog declination of the galaxy."""
         return self.hdu[0].header['CATADEC']
+
+    @trait_property('float')
+    def data_rescale(self):
+        """Scaling applied to the data"""
+        return self.hdu[0].header['RESCALE']
+    data_rescale.set_short_name("RESCALE")
+
+    @trait_property('string')
+    def history(self):
+        return str(self.hdu[0].header['history'])
 
     # Add links to sub_traits
     # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
@@ -532,10 +526,81 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
+    @trait_property("int")
+    def n_source_rss_frames(self):
+        return len(self.source_rss_frames.value)
 
     #
     # Sub Traits
     #
+
+
+    class Covariance(Trait):
+
+        r"""Compressed description of the covariance introduced by the drizzling.
+
+        The full covariance matrix for a SAMI cube is both very large and highly
+        redundant. Therefore, we calculate and store the covariance only (i) at
+        a subset of wavelength slices, and (ii) over small spatial scales only.
+        Our testing shows that covariance is only significant over a ~2 spaxel
+        radius, therefore, a $5 \times 5$ covariance sub-array is sufficient to
+        record all of the covariance for a given pixel. The covariance varies
+        significantly along the spectral direction only when the resampling is
+        updated to account for the effects of chromatic differential atmospheric
+        refraction. Therefore we densely sample only these wavelength slices,
+        and sparsely sample slices in between.
+
+        The full $50\times 50 \times 5 \times 5 \times 2048$ covariance
+        hyper-cube can be reconstructed from the included covariance data as
+        described by [Sharp et al.
+        (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
+        Briefly, missing values in the full hyper-cube should be replaced with
+        the nearest measured value along the wavelength axis. Then, each of the
+        25 $50\times 50 \times 2048$ cubes (one per element of the $5 \times 5$
+        covariance sub-arrays) must be multiplied by the variance cube to
+        recover the full covariance. Our testing has shown that this approach
+        recovers $> 91\%$ of the covariance in the blue cubes, and $> 97\%$ in
+        the red cubes.
+
+        """
+
+        trait_type = 'covariance'
+
+        @trait_property('float.array.5')
+        def covariance(self):
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['COVAR'].data
+
+        @trait_property("int")
+        def n_covariance_locations(self):
+            """Number of covariance locations"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['COVAR'].header['COVAR_N']
+        n_covariance_locations.set_short_name("COVAR_N")
+
+        @trait_property("string")
+        def covariance_mode(self):
+            """Covariance mode"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['COVAR'].header['COVARMOD']
+        covariance_mode.set_short_name("COVARMOD")
+
+
+    for loc_n in range(1, 900):
+        tp = TraitProperty(type="int", name="covarloc_" + str(loc_n))
+        def tmp(loc_n):
+            def fload(self):
+                pt = self._parent_trait
+                try:
+                    return pt._covar_header['COVARLOC_' + str(loc_n)]
+                except KeyError:
+                    return 0
+            return fload
+        tp.fload = tmp(loc_n)
+        setattr(Covariance, 'covarloc_' + str(loc_n), tp)
+        del tp
+    sub_traits.register(Covariance)
+
 
 
     @sub_traits.register
@@ -565,7 +630,16 @@ class SAMISpectralCube(SpectralMap):
                 # the WCS object
                 del h['PLATEID']
                 w = wcs.WCS(h)
+                w.wcs.radesys = 'FK5a'
+                w.wcs.cunit = ["deg", "deg", "Angstrom"]
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
                 return w.to_header_string()
+
+        @trait_property('string')
+        def wcs_source(self):
+            with self._parent_trait.preloaded_context() as pt:
+                h = pt.hdu[0].header['WCS_SRC']
+                return h
 
     @sub_traits.register
     class PSF(Trait):
@@ -970,9 +1044,21 @@ SAMIVAP.set_pretty_name("SAMI VAP Metadata")
 SAMIVAP.set_description("Metadata added by the SAMI quality control process for value added products")
 
 
-class LZIFUFlag(FlagMap):
+class LZIFUWCS(WorldCoordinateSystem):
+    @trait_property('string')
+    def _wcs_string(self):
+        header_str = self._parent_trait._wcs_string.value
+        w = wcs.WCS(header_str)
+        if w.naxis == 3:
+            w = w.dropaxis(2)
+        w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
+        w.wcs.cunit = ["deg", "deg"]
+        return w.to_header_string()
 
-    trait_type = 'flags'
+class LZIFUFlag(FlagMap):
+    """Map of flags set by LZIFU."""
+
+    trait_type = 'qf_bincode'
 
     valid_flags = [
         ('BADSKY', "Bad Sky Subtraction"),
@@ -1002,10 +1088,27 @@ class LZIFUFlag(FlagMap):
         return output_data
 
 
+class LZIFUFlagCount(Map2D):
+    """Map of number of flags set by LZIFU."""
+    trait_type = 'qf'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        return self._hdu['QF'].data  # type: np.ndarray
+
+    @property
+    def shape(self):
+        return self.value().shape
+
 class LZIFUChiSq(Map2D):
     """Final $\chi^2$ of LZIFU spectral fit."""
 
-    trait_type = 'chi_sq'
+    trait_type = 'chi2'
 
     # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
     init = LZIFUDataMixin.init
@@ -1022,6 +1125,30 @@ class LZIFUChiSq(Map2D):
     def shape(self):
         return self.value().shape
 LZIFUChiSq.set_pretty_name("Chi Squared")
+
+
+class LZIFUDOF(Map2D):
+    """Degrees of freedom in LZIFU spectral fit."""
+
+    trait_type = 'degrees_of_freedom'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        data = self._hdu['DOF'].data  # type: np.ndarray
+        assert len(data.shape) == 2
+        return data
+
+    @property
+    def shape(self):
+        return self.value().shape
+LZIFUDOF.set_pretty_name("Degrees of Freedom")
+LZIFUDOF.set_short_name("DOF")
+
 
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
@@ -1072,6 +1199,17 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     def error(self):
         return self._hdu['V_ERR'].data[1:2, :, :]
 
+    @trait_property('float')
+    def heliocentric_velocity_correction(self):
+        """Heliocentric velocity correction for observed data"""
+        red_cube_name = self.archive.cube_file_index['red_cube_file'][self.object_id]
+        if red_cube_name[-3:] == ".gz":
+            red_cube_name = red_cube_name[:-3]
+        helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
+
+        return helio_corr
+    heliocentric_velocity_correction.set_short_name("HELIOCOR")
+
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['V'].header
@@ -1082,15 +1220,12 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
-
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
@@ -1114,53 +1249,22 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
 
     @trait_property('float.array.3')
     def value(self):
-        return self._hdu['V'].data[1:, :, :]
+        return self._hdu['V'].data[:, :, :]
 
     @trait_property('float.array.3')
     def error(self):
-        return self._hdu['V_ERR'].data[1:, :, :]
+        return self._hdu['V_ERR'].data[:, :, :]
 
-    @trait_property('float.array.2')
-    def comp_1_velocity(self):
-        value = self._hdu['V'].data[1, :, :]
-        return value
-    comp_1_velocity.set_description("Velocity of narrowest component")
-    comp_1_velocity.set_short_name('COMP1_V')
+    @trait_property('float')
+    def heliocentric_velocity_correction(self):
+        """Heliocentric velocity correction for observed data"""
+        red_cube_name = self.archive.cube_file_index['red_cube_file'][self.object_id]
+        if red_cube_name[-3:] == ".gz":
+            red_cube_name = red_cube_name[:-3]
+        helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
 
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu['V_ERR'].data[1, :, :]
-        return sigma
-    comp_1_error.set_description("Variance of Velocity of narrowest component")
-    comp_1_error.set_short_name('COMP1_VE')
-    
-    @trait_property('float.array.2')
-    def comp_2_velocity(self):
-        value = self._hdu['V'].data[2, :, :]
-        return value
-    comp_2_velocity.set_description("Velocity of narrowest component")
-    comp_2_velocity.set_short_name('COMP2_V')
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu['V_ERR'].data[2, :, :]
-        return sigma
-    comp_2_error.set_description("Variance of Velocity of narrowest component")
-    comp_2_error.set_short_name('COMP2_VE')
-    
-    @trait_property('float.array.2')
-    def comp_3_velocity(self):
-        value = self._hdu['V'].data[3, :, :]
-        return value
-    comp_3_velocity.set_description("Velocity of narrowest component")
-    comp_3_velocity.set_short_name('COMP3_V')
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu['V_ERR'].data[3, :, :]
-        return sigma
-    comp_3_error.set_description("Variance of Velocity of narrowest component")
-    comp_3_error.set_short_name('COMP3_VE')
+        return helio_corr
+    heliocentric_velocity_correction.set_short_name("HELIOCOR")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1172,16 +1276,12 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
-
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
-
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
@@ -1220,15 +1320,13 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
@@ -1250,59 +1348,12 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     @trait_property('float.array.3')
     def value(self):
-        return self._hdu['VDISP'].data[1:, :, :]
+        return self._hdu['VDISP'].data[:, :, :]
 
     @trait_property('float.array.3')
     def error(self):
-        return self._hdu['VDISP_ERR'].data[1:, :, :]
+        return self._hdu['VDISP_ERR'].data[:, :, :]
     error.set_short_name('ERROR')
-
-    @trait_property('float.array.2')
-    def comp_1_velocity_dispersion(self):
-        value = self._hdu['VDISP'].data[1, :, :]
-        return value
-
-    comp_1_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
-    comp_1_velocity_dispersion.set_short_name('COMP1_VDISP')
-
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu['VDISP_ERR'].data[1, :, :]
-        return sigma
-
-    comp_1_error.set_description("Variance of Velocity Dispersion of narrowest component")
-    comp_1_error.set_short_name('COMP1_VDISP_E')
-
-    @trait_property('float.array.2')
-    def comp_2_velocity_dispersion(self):
-        value = self._hdu['VDISP'].data[2, :, :]
-        return value
-
-    comp_2_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
-    comp_2_velocity_dispersion.set_short_name('COMP2_VDISP')
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu['VDISP_ERR'].data[2, :, :]
-        return sigma
-    comp_2_error.set_description("Variance of Velocity Dispersion of narrowest component")
-    comp_2_error.set_short_name('COMP2_VDISP_E')
-
-    @trait_property('float.array.2')
-    def comp_3_velocity_dispersion(self):
-        value = self._hdu['VDISP'].data[3, :, :]
-        return value
-
-    comp_3_velocity_dispersion.set_description("Velocity Dispersion of narrowest component")
-    comp_3_velocity_dispersion.set_short_name('COMP3_VDISP')
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu['VDISP_ERR'].data[3, :, :]
-        return sigma
-
-    comp_3_error.set_description("Variance of Velocity Dispersion of narrowest component")
-    comp_3_error.set_short_name('COMP3_VDISP_E')
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1314,14 +1365,12 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     r"""Emission line flux map from a single Gaussian fit.
@@ -1358,17 +1407,17 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     def shape(self):
         return self.value().shape
 
-    unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
+    unit = 1e-16 * units.erg / units.s / units.cm**2
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1:2, :, :]
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1:2, :, :]
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
@@ -1388,15 +1437,14 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
+
 
 LZIFUOneComponentLineMap.set_pretty_name(
     "Line Emission Map",
@@ -1419,7 +1467,7 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
     qualifiers = ['OII3727']
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
         """Line-emission-flux map for the [OII] doublet (3726Å/3729Å)
 
@@ -1427,11 +1475,19 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         individual fits for [OII] (3726Å) and [OII] (3729Å)
 
         """
-        value = self._hdu['OII3726'].data[1, :, :] + self._hdu['OII3729'].data[1, :, :]
+        line1 = self._hdu['OII3726'].data[1:2, :, :]
+        line2 = self._hdu['OII3729'].data[1:2, :, :]
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        value = line1 + line2
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
         """One-sigma uncertainty
 
@@ -1439,7 +1495,17 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         individual fits of [OII] (3726Å) and [OII] (3729Å).
 
         """
-        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[1, :, :]**2 + self._hdu['OII3729_ERR'].data[1, :, :]**2)
+
+        line1 = self._hdu['OII3726_ERR'].data[1:2, :, :]
+        line2 = self._hdu['OII3729_ERR'].data[1:2, :, :]
+
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        sigma = np.sqrt(line1 ** 2 + line2 ** 2)
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
@@ -1475,56 +1541,18 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total Line Flux in all components")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
         return sigma
     value.set_description("Variance of Total Line Flux in all components")
-
-    # 1-component
-    @trait_property('float.array.2')
-    def comp_1_flux(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1, :, :]
-        return value
-    value.set_description("Line Flux in narrowest component")
-
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1, :, :]
-        return sigma
-    value.set_description("Variance of Line Flux in narrowest component")
-
-    @trait_property('float.array.2')
-    def comp_2_flux(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[2, :, :]
-        return value
-    value.set_description("Line Flux in middle-width component")
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[2, :, :]
-        return sigma
-    value.set_description("Variance of Line Flux in middle-width component")
-
-    @trait_property('float.array.2')
-    def comp_3_flux(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[3, :, :]
-        return value
-    value.set_description("Line Flux in broadest component")
-
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[3, :, :]
-        return sigma
-    value.set_description("Variance of Line Flux in broadest component")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1536,14 +1564,12 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
     # End of class LZIFURecommendedMultiComponentLineMap
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
@@ -1582,16 +1608,16 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total Line Flux in all components")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
         return sigma
     value.set_description("Variance of Total Line Flux in all components")
 
@@ -1606,14 +1632,12 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
-    @sub_traits.register
-    class LZIFUWCS(WorldCoordinateSystem):
-        @trait_property('string')
-        def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+    sub_traits.register(LZIFUWCS)
 
 LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     "Line Emission Map",
@@ -1635,7 +1659,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 
     qualifiers = ['OII3727']
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
         """Line-emission-flux map for the [OII] doublet (3726Å/3729Å)
 
@@ -1643,11 +1667,19 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         individual fits for [OII] (3726Å) and [OII] (3729Å)
 
         """
-        value = self._hdu['OII3726'].data[0, :, :] + self._hdu['OII3729'].data[0, :, :]
+        line1 = self._hdu['OII3726'].data[0:1, :, :]
+        line2 = self._hdu['OII3729'].data[0:1, :, :]
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        value = line1 + line2
         log.debug("Returning type: %s", type(value))
         return value
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
         """One-sigma uncertainty
 
@@ -1655,7 +1687,18 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         individual fits of [OII] (3726Å) and [OII] (3729Å).
 
         """
-        sigma = np.sqrt(self._hdu['OII3726_ERR'].data[0, :, :]**2 + self._hdu['OII3729_ERR'].data[0, :, :]**2)
+
+        line1 = self._hdu['OII3726_ERR'].data[0:1, :, :]
+        line2 = self._hdu['OII3729_ERR'].data[0:1, :, :]
+
+        # Check for places where one line is NaN but the other is finite, and replace NaN with 0 in that case.
+        line1_mask = np.logical_and(np.isnan(line1), np.logical_not(np.isnan(line2)))
+        line1[line1_mask] = 0
+        line2_mask = np.logical_and(np.logical_not(np.isnan(line1)), np.isnan(line2))
+        line2[line2_mask] = 0
+
+        sigma = np.sqrt(line1 ** 2 + line2 ** 2)
+
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
@@ -1715,14 +1758,20 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     #
     sub_traits = TraitRegistry()
     sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
+    sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            return self._parent_trait._wcs_string.value
+            header_str = self._parent_trait._wcs_string.value
+            w = wcs.WCS(header_str)
+            w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
+            w.wcs.cunit = ["deg", "deg", "Angstrom"]
+            return w.to_header_string()
 
 
 class LZIFUContinuum(SpectralMap):
@@ -1913,7 +1962,7 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
         return units.dimensionless_unscaled
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array.2', 'value')
-    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'value')
+    error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'error')
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -1988,16 +2037,16 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     # error = trait_property_from_fits_data('SFR_ERR', 'float.array', 'error')
     # error.set_description(r"Errors (1-sigma uncertainty) in SFR.")
     
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu['SFR'].data[0, :, :]
+        value = self._hdu['SFR'].data[1:2, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total star-formation rate (single component)")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu['SFR_ERR'].data[0, :, :]
+        sigma = self._hdu['SFR_ERR'].data[1:2, :, :]
         return sigma
     value.set_description("Error in total star-formation rate (single component)")
 
@@ -2017,17 +2066,17 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
         # value = trait_property_from_fits_data('SFRSurfDensity', 'float.array.2', 'value')
 
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def value(self):
-            value = self._hdu['SFRSurfDensity'].data[0, :, :]
+            value = self._hdu['SFRSurfDensity'].data[1:2, :, :]
             log.debug("Returning type: %s", type(value))
             return value
         value.set_description(r"Star formation rate density map")
 
         # error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array.2', 'error')
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[0, :, :]
+            sigma = self._hdu['SFRSurfDensity_ERR'].data[1:2, :, :]
             return sigma
         error.set_description(r"Errors (1-sigma uncertainty) in SFR Density")
 
@@ -2082,57 +2131,18 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
         return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def value(self):
-        value = self._hdu['SFR'].data[0, :, :]
+        value = self._hdu['SFR'].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total star-formation rate in all components")
 
-    @trait_property('float.array.2')
+    @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu['SFR_ERR'].data[0, :, :]
+        sigma = self._hdu['SFR_ERR'].data[:, :, :]
         return sigma
     error.set_description("Error in total star-formation rate in all components")
-
-    # 1-component
-    @trait_property('float.array.2')
-    def comp_1_flux(self):
-        value = self._hdu['SFR'].data[1, :, :]
-        return value
-    comp_1_flux.set_description("Star-formation rate in component with narrowest Hα line")
-
-    @trait_property('float.array.2')
-    def comp_1_error(self):
-        sigma = self._hdu['SFR_ERR'].data[1, :, :]
-        return sigma
-    comp_1_error.set_description("Error in star-formation rate in component with narrowest Hα line")
-
-    # 2-component
-    @trait_property('float.array.2')
-    def comp_2_flux(self):
-        value = self._hdu['SFR'].data[2, :, :]
-        return value
-    comp_2_flux.set_description("Star-formation rate in component with middle-width Hα line")
-
-    @trait_property('float.array.2')
-    def comp_2_error(self):
-        sigma = self._hdu['SFR_ERR'].data[2, :, :]
-        return sigma
-    comp_2_error.set_description("Error in star-formation rate in component with middle-width Hα line")
-
-    # 3-component
-    @trait_property('float.array.2')
-    def comp_3_flux(self):
-        value = self._hdu['SFR'].data[3, :, :]
-        return value
-    comp_3_flux.set_description("Star-formation rate in component with broadest Hα line")
-
-    @trait_property('float.array.2')
-    def comp_3_error(self):
-        sigma = self._hdu['SFR_ERR'].data[3, :, :]
-        return sigma
-    comp_3_error.set_description("Error in star-formation rate in component with broadest Hα line")
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -2148,70 +2158,26 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
         def fits_file_path(self):
             return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
 
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def value(self):
-            value = self._hdu['SFRSurfDensity'].data[0, :, :]
+            value = self._hdu['SFRSurfDensity'].data[:, :, :]
             log.debug("Returning type: %s", type(value))
             return value
 
         value.set_description("Total star-formation rate density in all components")
 
-        @trait_property('float.array.2')
+        @trait_property('float.array.3')
         def error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[0, :, :]
+            sigma = self._hdu['SFRSurfDensity_ERR'].data[:, :, :]
             return sigma
 
         error.set_description("Error in total star-formation rate density in all components")
 
-        # 1-component
-        @trait_property('float.array.2')
-        def comp_1_flux(self):
-            value = self._hdu['SFRSurfDensity'].data[1, :, :]
-            return value
-
-        comp_1_flux.set_description("Star-formation rate density in component with narrowest Hα line")
-
-        @trait_property('float.array.2')
-        def comp_1_error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[1, :, :]
-            return sigma
-
-        comp_1_error.set_description("Error in star-formation rate density in component with narrowest Hα line")
-
-        # 2-component
-        @trait_property('float.array.2')
-        def comp_2_flux(self):
-            value = self._hdu['SFRSurfDensity'].data[2, :, :]
-            return value
-
-        comp_2_flux.set_description("Star-formation rate density in component with middle-width Hα line")
-
-        @trait_property('float.array.2')
-        def comp_2_error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[2, :, :]
-            return sigma
-
-        comp_2_error.set_description("Error in star-formation rate density in component with middle-width Hα line")
-
-        # 3-component
-        @trait_property('float.array.2')
-        def comp_3_flux(self):
-            value = self._hdu['SFRSurfDensity'].data[3, :, :]
-            return value
-
-        comp_3_flux.set_description("Star-formation rate density in component with broadest Hα line")
-
-        @trait_property('float.array.2')
-        def comp_3_error(self):
-            sigma = self._hdu['SFRSurfDensity_ERR'].data[3, :, :]
-            return sigma
-
-        comp_3_error.set_description("Error in star-formation rate density in component with broadest Hα line")
 
 SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
 
-class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
+class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
@@ -2265,7 +2231,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
 
     """
 
-    trait_type = 'emission_classification_map'
+    trait_type = 'star_formation_mask'
 
     branches_versions = {
         branch_lzifu_1_comp: {'V03'},
@@ -2274,10 +2240,6 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
-    class_remap = {
-        0: "No Data",
-        1: "Star formation",
-        2: "Other ionisation mechanisms"}
 
     def fits_file_path(self):
 
@@ -2285,27 +2247,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
 
     @trait_property("int.array.2")
     def value(self):
-        input_data = self._hdu[1].data
-
-        # Change the input array into an integer array for storage.
-        class_remap = {
-            np.nan: 0,
-            1.0: 1,
-            0.0: 2}
-        output_data = np.empty(input_data.shape, dtype=np.int)
-        output_data[:] = -1
-        for key in class_remap:
-            if key is np.nan:
-                # Must use alternate logic for nans
-                output_data[np.isnan(input_data)] = class_remap[key]
-            output_data[input_data == key] = class_remap[key]
-
-        if np.count_nonzero(output_data == -1) > 0:
-            # For some reason, not all pixels have matched the categories.
-            raise Exception("Data corruption in '%s'" % self)
-
-
-        return output_data
+        return self._hdu[1].data
 
     @property
     def shape(self):
@@ -2314,7 +2256,7 @@ class EmissionClass(ClassificationMap, TraitFromFitsFile, AnneVAP):
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
 
-EmissionClass.set_pretty_name("Emission Classification Map")
+SFMask.set_pretty_name("Emission Classification Map")
 
 
 
@@ -2380,6 +2322,16 @@ class SAMIDR1PublicArchive(Archive):
 
         # Local cache for traits
         self._trait_cache = dict()
+
+
+        # Table of heliocentric corrections:
+        self._helio_corr = ascii.read(self.catalog_path + "heliocentric_corr/" +
+                                      "mean_helio_v0.9.1.dat")
+        self._helio_corr.add_index('CUBE_NAME')
+        # Rename the "MEAN (KM/S)" column to be easier to address.
+        self._helio_corr.columns['MEAN(KM/S)'].name = 'MEAN'
+
+
 
         super(SAMIDR1PublicArchive, self).__init__()
 
@@ -2470,9 +2422,22 @@ class SAMIDR1PublicArchive(Archive):
         TraitPath("iau_id"),
         TraitPath("catalog_coordinate", trait_property='_ra'),
         TraitPath("catalog_coordinate", trait_property='_dec'),
+        TraitPath("m_r-petrosian"),
+        TraitPath("m_r-auto"),
         TraitPath("redshift:helio"),
+        TraitPath("redshift:tonry"),
         TraitPath("M_r-auto"),
-        TraitPath("mass")
+        TraitPath("effective_radius"),
+        TraitPath("surface_brightness:central"),
+        TraitPath("surface_brightness:1re"),
+        TraitPath("surface_brightness:2re"),
+        TraitPath("ellipticy-r_band"),
+        TraitPath("position_angle-r_band"),
+        TraitPath("mass"),
+        TraitPath("g_i"),
+        TraitPath("A_gal-g_band"),
+        TraitPath("priority_class"),
+        TraitPath("visual_classification_flag")
     ]
 
     def define_available_traits(self):
@@ -2600,7 +2565,7 @@ class SAMIDR1PublicArchive(Archive):
 
         # r_e: effective radius
         r_e = catalog_trait(Measurement, 'effective_radius',
-                            OrderedDict([('value', self.tabular_data['mu_within_1re']),
+                            OrderedDict([('value', self.tabular_data['r_e']),
                                          ('unit', units.arcsecond)]))
         r_e.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         r_e.defaults = DefaultsRegistry(sami_gama_catalog_branch[0], {sami_gama_catalog_branch[0]: "V02"})
@@ -2747,7 +2712,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.change_defaults('priority_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
-        bad_class = catalog_trait(Measurement, 'visual_class',
+        bad_class = catalog_trait(Measurement, 'visual_classification_flag',
                             OrderedDict([('value', self.tabular_data['BAD_CLASS'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
         bad_class.branches_versions = {sami_gama_catalog_branch: {"V02"}}
@@ -2774,7 +2739,7 @@ class SAMIDR1PublicArchive(Archive):
         self.available_traits.register(bad_class)
         del bad_class
 
-        self.available_traits.change_defaults('visual_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+        self.available_traits.change_defaults('visual_classification_flag', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
 
@@ -2793,6 +2758,7 @@ class SAMIDR1PublicArchive(Archive):
         # self.available_traits[TraitKey('line_map', None, "recommended", None)] = LZIFURecommendedMultiComponentLineMap
         self.available_traits.register(LZIFURecommendedMultiComponentLineMap)
         self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly)
+        self.available_traits.register(LZIFURecommendedMultiComponentLineMapTotalOnly3727)
 
         self.available_traits.register(SFRMap)
         self.available_traits.register(SFRMapRecommendedComponent)
@@ -2801,7 +2767,7 @@ class SAMIDR1PublicArchive(Archive):
         # self.available_traits[TraitKey('spectral_line_cube', None, None, None)] = LZIFULineSpectrum
         # self.available_traits[TraitKey('spectral_continuum_cube', None, None, None)] = LZIFUContinuum
 
-        self.available_traits.register(EmissionClass)
+        self.available_traits.register(SFMask)
 
         if log.isEnabledFor(slogging.DEBUG):
             log.debug("------Available traits--------")
@@ -2932,39 +2898,4 @@ class SAMITeamArchive(Archive):
                 log.debug("   Key: %s", key)
 
         return self.available_traits
-
-
-
-
-
-
-
-
-
-
-#
-# LZIFUOneComponentLineMap.set_pretty_name(
-#     "Line Map",
-#     OII3726="[OII] (33726A)",
-#     HBETA='Hβ',
-#     OIII5007='[OIII] (5007A)',
-#     OI6300='[OI] (6300A)',
-#     HALPHA='Hα',
-#     NII6583='[NII] (6583)',
-#     SII6716='[SII] (6716)',
-#     SII6731='[SII] (6731)')
-#
-# LZIFURecommendedMultiComponentLineMap.set_pretty_name(
-#     "Line Map",
-#     OII3726="[OII] (3726Å)",
-#     HBETA='Hβ',
-#     OIII5007='[OIII] (5007Å)',
-#     OI6300='[OI] (6300Å)',
-#     HALPHA='Hα',
-#     NII6583='[NII] (6583Å)',
-#     SII6716='[SII] (6716Å)',
-#     SII6731='[SII] (6731Å)')
-
-BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
-SFRMap.set_pretty_name("Star Formation Rate Map")
 

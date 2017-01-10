@@ -14,7 +14,7 @@ from astropy.io import fits
 from .abstract_base_traits import *
 from ..exceptions import *
 from .trait_property import TraitProperty
-from .trait_key import TraitKey, TRAIT_NAME_RE, \
+from .trait_key import TraitKey, TraitPath, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
@@ -320,9 +320,11 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         if hasattr(cls, 'unit'):
             if hasattr(cls.unit, 'value'):
                 formatted_unit = "{0.unit:latex_inline}".format(cls.unit)
+                # formatted_unit = "{0.unit}".format(cls.unit)
             else:
                 try:
                     formatted_unit = cls.unit.to_string('latex_inline')
+                    # formatted_unit = cls.unit.to_string()
                 except:
                     log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
                     try:
@@ -331,6 +333,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                         log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
                         raise
                         formatted_unit = ""
+
+            log.info("Units formatting before modification for trait %s: %s", str(cls), formatted_unit)
+
             # For reasons that are not clear, astropy puts the \left and \right
             # commands outside of the math environment, so we must fix that
             # here.
@@ -349,9 +354,12 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 if not formatted_unit.endswith("$"):
                     formatted_unit = formatted_unit + "$"
 
+                formatted_unit = formatted_unit.replace("{}^{\\prime\\prime}", "arcsec")
+
             # Return the final value, with the multiplier attached
             if hasattr(cls.unit, 'value'):
                 formatted_unit = "{0.value:0.03g} {1}".format(cls.unit, formatted_unit)
+            log.info("Units final formatting for trait %s: %s", str(cls), formatted_unit)
             return formatted_unit
         else:
             return ""
@@ -407,9 +415,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         self._trait_cache = OrderedDict()
 
         if parent_trait is not None:
-            self.trait_path = parent_trait.trait_path + tuple(self.trait_key)
+            self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
         else:
-            self.trait_path = tuple(self.trait_key)
+            self.trait_path = TraitPath([self.trait_key])
 
 
         # The preload count is used to track how many accesses there are to this
@@ -661,6 +669,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
             yield tp.name
 
     def trait_properties(self, trait_property_types=None, include_hidden=False):
+        # type: (List, Bool) -> List[TraitProperty]
         """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -878,6 +887,13 @@ class FITSExportMixin:
 
         if type(self).value.type.startswith("float.array") or type(self).value.type.startswith("int.array"):
             primary_hdu = fits.PrimaryHDU(self.value())
+            # Add unit information to header if present
+            if hasattr(self, 'unit'):
+                if hasattr(self.unit, 'value'):
+                    primary_hdu.header['BUNIT'] = str(self.unit.value) + self.unit.unit.to_string()
+                else:
+                    primary_hdu.header['BUNIT'] = self.unit.to_string()
+
         elif type(self).value.type in ("float", "int"):
             primary_hdu = fits.PrimaryHDU([self.value()])
         else:
@@ -889,6 +905,14 @@ class FITSExportMixin:
         # Add the newly created PrimaryHDU to the FITS file.
         add_wcs(primary_hdu)
         hdulist.append(primary_hdu)
+
+        # Add documentation information to PrimaryHDU
+        primary_hdu.header['OBJECT'] = self.object_id
+        primary_hdu.header['DATAPROD'] = (self.trait_name, "Data Central product ID")
+        # primary_hdu.header['DATANAME'] = (self.get_pretty_name().encode('ascii', errors='ignore'), "Data Product Name")
+        # primary_hdu.header['SHRTDESC'] = (self.get_description().encode('ascii', errors='ignore'))
+        primary_hdu.header['BRANCH'] = (self.branch, "Data Central Branch ID")
+        primary_hdu.header['VER'] = (self.version, "Data Central Version ID")
 
         # Attach all "meta-data" Traits to Header of Primary HDU
         from . import meta_data_traits
@@ -931,6 +955,10 @@ class FITSExportMixin:
                 extension.name = trait_property.get_short_name()
                 # Add the same WCS if appropriate
                 add_wcs(extension)
+                extension.header['EXTID'] = (trait_property.name, "Data Product Extension ID")
+                # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Data Product Extension Name")
+                # extension.header['SHRTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
+
                 hdulist.append(extension)
                 del extension
             except DataNotAvailable:
@@ -956,6 +984,11 @@ class FITSExportMixin:
 
         # Add string value TraitProperties to the primary header
         for trait_property in self.trait_properties(['string']):
+
+            # Skip "HISTORY" which is handled below
+            if trait_property.name == "history":
+                continue
+
             try:
                 keyword_name = trait_property.get_short_name()
                 keyword_value = trait_property.value
@@ -975,6 +1008,74 @@ class FITSExportMixin:
                     "Trait Property '%s' not added to FITS file because it's data is not available.",
                     trait_property)
 
+        # Add history information
+        if hasattr(self, 'history'):
+            for line in self.history.value.splitlines():
+                primary_hdu.header['HISTORY'] = line
+
+        # Create extensions for sub-traits:
+        for trait in self.get_all_subtraits():
+            if hasattr(trait, 'as_fits_extension'):
+                extension = trait.as_fits_extension()
+                hdulist.append(extension)
+                continue
+            for trait_property in trait.trait_properties(
+                RegexpGroup(re.compile(r"float\.array\.\d+"),
+                            re.compile(r"int\.array\.\d+"))):
+                extension = fits.ImageHDU(trait_property.value)
+                extension.name = str(trait.trait_name)
+                extension.header['SUBTRAIT'] = (trait.trait_name, "Data Central Sub-trait ID")
+                # extension.header['ST_NAME'] = (trait.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Name")
+                # extension.header['ST_DESC'] = (trait.get_description().encode('ascii', errors='ignore'))
+                extension.header['EXTID'] = (trait_property.name, "Data Central Sub-trait Data ID")
+                # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Data Name")
+                # extension.header['EXTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
+
+                # Add single-numeric-value TraitProperties to the primary header:
+                for trait_property in trait.trait_properties(['float', 'int']):
+                    try:
+                        keyword_name = trait_property.get_short_name()
+                        keyword_value = trait_property.value
+                        keyword_comment = trait_property.get_description()
+                        log.debug("Adding numeric TraitProperty '%s' to header", keyword_name)
+                        extension.header[keyword_name] = (
+                            keyword_value,
+                            keyword_comment)
+                        del keyword_name, keyword_comment, keyword_value
+                    except DataNotAvailable:
+                        log.warning(
+                            "Trait Property '%s' not added to FITS file because it's data is not available.",
+                            trait_property)
+
+                # Add string value TraitProperties to the primary header
+                for trait_property in trait.trait_properties(['string']):
+
+                    # Skip "HISTORY" which is handled below
+                    if trait_property.name == "history":
+                        continue
+
+                    try:
+                        keyword_name = trait_property.get_short_name()
+                        keyword_value = trait_property.value
+                        keyword_comment = trait_property.get_description()
+                        if len(keyword_value) >= 80:
+                            # This value won't fit, so skip it.
+                            # @TODO: Issue a warning?
+                            log.warning("TraitProperty '%s' skipped because it is to long to fit in header",
+                                        trait_property)
+                            continue
+                        log.debug("Adding string TraitProperty '%s' to header", keyword_name)
+                        extension.header[keyword_name] = (
+                            keyword_value,
+                            keyword_comment)
+                        del keyword_name, keyword_comment, keyword_value
+                    except DataNotAvailable:
+                        log.warning(
+                            "Trait Property '%s' not added to FITS file because it's data is not available.",
+                            trait_property)
+
+
+                hdulist.append(extension)
 
         # Create extensions for additional record-array-like values (e.g. tabular values)
         # for trait_property in self.trait_property_values('catalog'):

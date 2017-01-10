@@ -122,18 +122,25 @@
         // add an id to the download form
         $('#post-object-form form').find('input[name=download]').attr('id', 'textarea-download');
 
-        $('#download_button').click(function () {
+        $('#download_button').click(function (e) {
+            // note: necessary to include the event as a parameter to the click handler here, as IE/Chrome will handle globally, Firefox will not: see issue ASVO-878
+            // console.log(e);
 
             // get data list (stored on button as data attributes)
             var data_download = {
-                'products': $(event.target).attr("data-products"),
-                'objects': $(event.target).attr("data-objects")
+                'products': $(this).attr("data-products"),
+                'objects': $(this).attr("data-objects")
             };
+
+//            var data_download = {
+//                'products': $(e.target).attr("data-products"),
+//                'objects': $(e.target).attr("data-objects")
+//            };
 
             $(this).attr('disabled', 'disabled');
             $(this).html('SUBMITTING... <i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>');
 
-            //console.log(JSON.stringify(data_download));
+            // console.log(JSON.stringify(data_download));
 
             $('#textarea-download').val(JSON.stringify(data_download));
 
