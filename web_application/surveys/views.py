@@ -45,13 +45,14 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             {"survey": "galah", "count": 0, "current_version": 0}
         ]
 
-    class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'surveys/root.html'
+    # class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+    # # class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
+    #     template = 'surveys/root.html'
+    #
+    #     def __repr__(self):
+    #         return 'RootRenderer'
 
-        def __repr__(self):
-            return 'RootRenderer'
-
-    renderer_classes = (RootRenderer, renderers.JSONRenderer)
+    renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, format=None):
