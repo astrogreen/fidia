@@ -12,7 +12,7 @@ import surveys.views
 
 router = rest_framework.routers.SimpleRouter()
 
-router.register(r'surveys', surveys.views.RootViewSet, base_name='root')
+router.register(r'surveys', surveys.views.SurveysViewSet, base_name='root')
 
 # Nested routes for survey (SAMI)
 survey_nested_router = NestedExtendDefaultRouter(router, r'surveys', lookup='root')
