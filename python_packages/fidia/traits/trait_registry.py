@@ -415,7 +415,9 @@ class TraitRegistry:
                 data_class=data_class,
                 combine_levels=combine_levels,
                 verbosity=verbosity,
-                separate_metadata=separate_metadata)
+                separate_metadata=separate_metadata,
+                include_hidden_properties=include_hidden_properties
+            )
             piece.update(trait_schema)
 
         if data_class != 'all':
