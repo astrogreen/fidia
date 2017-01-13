@@ -412,6 +412,9 @@ class SAMISpectralCube(SpectralMap):
 
         self._cube_path = path
 
+        self._covar_locations_arr = None
+        self._n_covar_locations = None
+
         with self.preloaded_context():
             self._covar_header = self.hdu['COVAR'].header
 
@@ -526,6 +529,20 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
+
+    @trait_property('int.array.1')
+    def _covar_locations(self):
+        arr = []
+        n_elements =  self.hdu['COVAR'].header['COVAR_N']
+        for i in range(1, n_elements + 1):
+            loc = int(self.hdu['COVAR'].header['COVARLOC_' + str(i)])
+            arr.append(loc)
+
+        # Store this value locally so that it can be picked up quickly without hitting the database.
+        self._covar_locations_arr = np.array(arr)
+        self._n_covar_locations = n_elements
+        return np.array(arr)
+
     @trait_property("int")
     def n_source_rss_frames(self):
         return len(self.source_rss_frames.value)
@@ -586,19 +603,47 @@ class SAMISpectralCube(SpectralMap):
         covariance_mode.set_short_name("COVARMOD")
 
 
+    # Below is a hack I'm not proud of.
+    #
+    # SAMI has COVARIANCE LOCATIONs stored as a long list of header key-words in the FITS files.
+    # This wreaks havoc on the database because of some limits on the number of
+    # items in a column struct (ask Lloyd) and because it leads to lots of of
+    # database requests to retrieve the data.
+    #
+    # First, we must get all of the COVARLOC keywords into FIDIA. To avoid
+    # having 800 copies of basically the same trait property definition,
+    # I add the trait properties after the class has been created using the code
+    # block below.
+    #
+    # Next, to avoid the limits on the database side, these have been set to
+    # reference another TraitProperty on the SAMISpectralCube Trait (which is
+    # the parent trait). This trait is an array of the values (much more
+    # sensible). We then add a special catch to the database ingestion code that
+    # causes these trait properties to be ignored, and only the parent trait
+    # property, which is a single value, to be ingested.
+    #
+    # Then, to avoid 900 database hits, we add a line in the cache mechanism for
+    # the database which causes these trait properties to always appear not to
+    # be present in the database. Furthermore, we cache the array as a regular
+    # attribute of the parent trait, so that it can be retrieved without any
+    # interference from the DB.
+
     for loc_n in range(1, 900):
         tp = TraitProperty(type="int", name="covarloc_" + str(loc_n))
         def tmp(loc_n):
             def fload(self):
-                pt = self._parent_trait
+                pt = self._parent_trait  # type: SAMISpectralCube
                 try:
-                    return pt._covar_header['COVARLOC_' + str(loc_n)]
-                except KeyError:
+                    if pt._covar_locations_arr is not None:
+                        return pt._covar_locations_arr[loc_n]
+                    else:
+                        return pt._covar_locations.value[loc_n]
+                except IndexError:
                     return 0
             return fload
         tp.fload = tmp(loc_n)
         setattr(Covariance, 'covarloc_' + str(loc_n), tp)
-        del tp
+        del tp, tmp
     sub_traits.register(Covariance)
 
 
