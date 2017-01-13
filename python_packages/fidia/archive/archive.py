@@ -245,7 +245,7 @@ class Archive(BaseArchive):
             return self.full_schema(combine_levels=('branch_version', ), verbosity='simple', data_class=data_class)
 
     def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
-                    separate_metadata=False):
+                    separate_metadata=False, include_hidden_properties=False):
 
         # Handle default combine_levels argument.
         if combine_levels is None:
@@ -277,7 +277,8 @@ class Archive(BaseArchive):
                 data_class=data_class,
                 combine_levels=combine_levels,
                 verbosity=verbosity,
-                separate_metadata=separate_metadata
+                separate_metadata=separate_metadata,
+                include_hidden_properties=include_hidden_properties
             )
 
         schema_piece.update(available_traits_schema)
