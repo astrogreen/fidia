@@ -197,7 +197,7 @@ class TraitRegistry:
 
 
     def schema(self, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
-               separate_metadata=False):
+               separate_metadata=False, include_hidden_properties=False):
         """Construct the schema for all Trait classes registered.
 
         The schema is constructed by calling the `schema` function on the class
@@ -426,7 +426,8 @@ class TraitRegistry:
             # Handle filtering of verbosities other than 'data-only'
             if verbosity != 'data_only':
                 filter_schema = self.schema(include_subtraits=True, data_class=data_class, combine_levels=[],
-                                            verbosity='data_only', separate_metadata=False)
+                                            verbosity='data_only', separate_metadata=False,
+                                            include_hidden_properties=include_hidden_properties)
                 keys_to_delete = []
                 for key in schema:
                     if key not in filter_schema.keys():
