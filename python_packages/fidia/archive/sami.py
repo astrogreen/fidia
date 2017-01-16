@@ -796,11 +796,11 @@ class SAMISpectralCube(SpectralMap):
 
         telescope = trait_property_from_fits_header('TELESCOP', 'string', 'telescope')
 
-        altitude = trait_property_from_fits_header('ALT_OBS', 'string', 'altitude')
+        altitude = trait_property_from_fits_header('ALT_OBS', 'float', 'altitude')
 
-        latitude = trait_property_from_fits_header('LAT_OBS', 'string', 'latitude')
+        latitude = trait_property_from_fits_header('LAT_OBS', 'float', 'latitude')
 
-        longitude = trait_property_from_fits_header('LONG_OBS', 'string', 'longitude')
+        longitude = trait_property_from_fits_header('LONG_OBS', 'float', 'longitude')
 
 
     @sub_traits.register
@@ -838,10 +838,10 @@ class SAMISpectralCube(SpectralMap):
         detector_id = trait_property_from_fits_header('DETECTOR', 'string', 'detector_id')
         # detector_id.set_short_name("DETECTOR")
 
-        gain = trait_property_from_fits_header('RO_GAIN', 'string', 'gain')
+        gain = trait_property_from_fits_header('RO_GAIN', 'float', 'gain')
         # gain.set_short_name("RO_GAIN")
 
-        read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
+        read_noise = trait_property_from_fits_header('RO_NOISE', 'float', 'read_noise')
         # read_noise.set_short_name('RO_NOISE')
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
@@ -907,7 +907,7 @@ class SAMISpectralCube(SpectralMap):
 
         disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
 
-        disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
+        disperser_tilt = trait_property_from_fits_header('GRATTILT', 'float', 'disperser_tilt')
 
         instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
 
@@ -1160,7 +1160,7 @@ class LZIFUChiSq(Map2D):
     preload = LZIFUDataMixin.preload
     cleanup = LZIFUDataMixin.cleanup
 
-    @trait_property("int.array.2")
+    @trait_property("float.array.2")
     def value(self):
         data = self._hdu['CHI2'].data  # type: np.ndarray
         assert len(data.shape) == 2
@@ -1182,7 +1182,7 @@ class LZIFUDOF(Map2D):
     preload = LZIFUDataMixin.preload
     cleanup = LZIFUDataMixin.cleanup
 
-    @trait_property("int.array.2")
+    @trait_property("float.array.2")
     def value(self):
         data = self._hdu['DOF'].data  # type: np.ndarray
         assert len(data.shape) == 2
@@ -2290,7 +2290,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
         return self.find_file(data_product_name="SFMasks", data_product_filename="SFMask")
 
-    @trait_property("int.array.2")
+    @trait_property("float.array.2")
     def value(self):
         return self._hdu[1].data
 
@@ -2324,8 +2324,9 @@ class SAMIDR1PublicArchive(Archive):
         self.vap_data_path = self.base_path + "data_products/"
         self.catalog_path = self.base_path + "catalogues/"
 
-        log.info("Setting up cache")
-        self.cache = PrestoCache()
+        # Disable presto cache to prevent data ingestion from falling back to db to get data
+        # log.info("Setting up cache")
+        # self.cache = PrestoCache()
 
         if not os.path.isdir(self.cache_dir):
             os.mkdir(self.cache_dir)

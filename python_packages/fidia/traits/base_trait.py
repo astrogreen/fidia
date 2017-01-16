@@ -664,9 +664,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                     yield obj
 
     @classmethod
-    def trait_property_dir(cls):
+    def trait_property_dir(cls, include_hidden=False):
         """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
-        for tp in cls._trait_properties():
+        for tp in cls._trait_properties(include_hidden=include_hidden):
             yield tp.name
 
     def trait_properties(self, trait_property_types=None, include_hidden=False):

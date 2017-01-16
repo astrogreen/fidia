@@ -43,15 +43,13 @@ def create_avro_schema(archive):
     :param archive:
     :return:
     """
-    schema = archive.full_schema()
+    schema = archive.full_schema(include_hidden_properties=True)
 
     # First, object_id field
     astro_record_fields = list()
     astro_record_fields.append(Field(PrimitiveSchema(STRING), 'object_id', 0, False))
 
     # Now we have separated sub traits from traits. So we know what are subtraits and what are traits
-    schema = archive.full_schema()
-    sample = archive.get_full_sample()
     namespace_prefix = 'asvo.model.db'
     try:
         # Iterate over the schema
@@ -144,6 +142,8 @@ def make_trait_property_fields(version, namespace_prefix):
         # col_type += trait_properties[property]['name'] + ' ' + \
         #             trait_properties[property]['type'] + ','
 
+        if property.startswith("covarloc_"):
+            continue
         name = trait_properties[property]['name']
         type = trait_properties[property]['type']
 
@@ -157,25 +157,30 @@ def make_trait_property_fields(version, namespace_prefix):
             dtypes = type.split('.')
 
             if dtypes[2] is '1':
-                items = ArraySchema(PrimitiveSchema(dtypes[0]))
+                property_field = Field(UnionSchema([PrimitiveSchema(NULL), ArraySchema(
+                        PrimitiveSchema(dtypes[0]))]), name, prop_index, False)
             elif dtypes[2] is '2':
-                items = ArraySchema(ArraySchema(PrimitiveSchema(dtypes[0])))
-            elif dtypes[2] is '3':
-                items = ArraySchema(ArraySchema(ArraySchema(PrimitiveSchema(dtypes[0]))))
-            elif dtypes[2] is '4':
-                items = ArraySchema(ArraySchema(ArraySchema(ArraySchema(PrimitiveSchema(dtypes[0])))))
-            elif dtypes[2] is '5':
-                items = ArraySchema(ArraySchema(ArraySchema(ArraySchema(ArraySchema(
-                        PrimitiveSchema(dtypes[0]))))))
-            elif dtypes[2] is '6':
-                items = ArraySchema(ArraySchema(ArraySchema(ArraySchema(ArraySchema(
-                        ArraySchema(PrimitiveSchema(dtypes[0])))))))
-            else:
-                print("Array size is not supported. Size : ")
-                continue
+                property_field = Field(UnionSchema([PrimitiveSchema(NULL), ArraySchema(
+                        ArraySchema(PrimitiveSchema(dtypes[0])))]), name, prop_index, False)
 
-            property_field = Field(UnionSchema([PrimitiveSchema(NULL), items]), name,
-                                   prop_index, False)
+            # elif dtypes[2] is '3':
+            #     items = ArraySchema(ArraySchema(ArraySchema(PrimitiveSchema(dtypes[0]))))
+            # elif dtypes[2] is '4':
+            #     items = ArraySchema(ArraySchema(ArraySchema(ArraySchema(PrimitiveSchema(dtypes[0])))))
+            # elif dtypes[2] is '5':
+            #     items = ArraySchema(ArraySchema(ArraySchema(ArraySchema(ArraySchema(
+            #             PrimitiveSchema(dtypes[0]))))))
+            # elif dtypes[2] is '6':
+            #     items = ArraySchema(ArraySchema(ArraySchema(ArraySchema(ArraySchema(
+            #             ArraySchema(PrimitiveSchema(dtypes[0])))))))
+            # else:
+            #     print("Array size is not supported. Size : ")
+            #     continue
+
+            # if it's 3 or more, put it in a separate file and just keep the path
+            else:
+                property_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(STRING)]), name,
+                                       prop_index, False)
             prop_fields.append(property_field)
         else:
             property_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(type)]), name,
@@ -186,6 +191,10 @@ def make_trait_property_fields(version, namespace_prefix):
 
     #process subtrait properties.
     for key in subtrait_properties:
+
+        # we have to do something here
+
+
         #key is the name of the field. Field type is record
         subtrait_fields = make_trait_property_fields(subtrait_properties[key][None], namespace_prefix + '.' + key)
 
@@ -209,8 +218,8 @@ def create_astro_object(archive, schema_object, path_prefix):
     try:
         count = 0
         for object_id in sample:
-            # if count is 10:
-            #     break
+            if count is 6:
+                break
 
             # writer = DataFileWriter(open(path_prefix + object_id + '.avro', "wb"), DatumWriter(), schema_object)
             astro_record = dict()
