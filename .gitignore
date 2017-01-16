@@ -4,3 +4,5 @@
 .idea
 db.sqlite3
 *.iml
+documentation/uml-diagrams/*.dot
+documentation/uml-diagrams/*.pdf
