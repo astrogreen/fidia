@@ -1258,7 +1258,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['V'].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1314,7 +1314,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['V'].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1357,7 +1357,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['VDISP'].header
-        return _wcs_string
+        return str(_wcs_string)
 
 
     #
@@ -1403,7 +1403,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['VDISP'].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1474,7 +1474,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
-        return _wcs_string
+        return str(_wcs_string)
 
 
     #
@@ -1558,7 +1558,7 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
-        return _wcs_string
+        return str(_wcs_string)
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
@@ -1602,7 +1602,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1670,7 +1670,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1751,7 +1751,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
-        return _wcs_string
+        return str(_wcs_string)
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
@@ -1795,7 +1795,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
             color = "R"
         _wcs_string = str( self._hdu[color + '_CONTINUUM'].header)
         log.debug(_wcs_string)
-        return _wcs_string
+        return str(_wcs_string)
 
 
     #
