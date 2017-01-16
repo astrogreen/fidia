@@ -1608,14 +1608,14 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
 
     @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0:1, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total Line Flux in all components")
 
     @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0:1, :, :]
         return sigma
     value.set_description("Variance of Total Line Flux in all components")
 
