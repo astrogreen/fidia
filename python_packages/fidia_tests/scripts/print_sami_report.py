@@ -36,4 +36,8 @@ output = "\n".join(latex_lines)
 # with open('/Users/agreen/Desktop/tikz-tree/fidia.tex', 'w') as f:
 #     f.write(latex_lines)
 
-reports.schema_hierarchy(ar.available_traits)
+# output = reports.schema_hierarchy(ar.available_traits)
+output = reports.schema_hierarchy3(ar.available_traits)
+
+with open('/Users/agreen/Desktop/sami_diagram.dot', 'w') as f:
+    f.write(output)

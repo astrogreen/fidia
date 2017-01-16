@@ -48,6 +48,65 @@ def content_report(fidia_trait_registry):
 
     return latex_lines
 
+def schema_hierarchy3(fidia_trait_registry):
+    # type: (TraitRegistry) -> str
+    """Create a diagram showing the hierarchy of a a FIDIA Trait Registry."""
+
+    assert isinstance(fidia_trait_registry, TraitRegistry)
+
+    nodes = dict()
+
+    sames = dict()
+
+    links = []
+
+    def do_level(trait_registry, level, parent):
+        if level not in sames:
+            sames[level] = []
+        for trait in trait_registry._registry:
+            trait_classname = trait.__name__
+
+            keys = []
+            for tk in trait_registry._trait_lookup:
+                if trait_registry._trait_lookup[tk] is trait:
+                    keys.append(str(tk))
+
+            properties = []
+            for tp in trait._trait_properties(include_hidden=True):
+                properties.append(tp.name + ": " + tp.type)
+
+            label = "{" + trait_classname + "|" + "\\l".join(keys) + "|" + "\\l".join(properties) + "}"
+
+            nodes[trait_classname] = label
+            sames[level].append(trait_classname)
+            if parent is not None:
+                links.append((parent, trait_classname))
+
+            if trait.sub_traits is not None and len(trait.sub_traits._registry) > 0:
+                do_level(trait.sub_traits, level + 1, trait_classname)
+
+    do_level(fidia_trait_registry, 1, None)
+
+    output = 'digraph "classes_sami_fidia" {\ncharset="utf-8"\nrankdir=TB\n'
+
+    for trait in nodes:
+        output += '{id:30s} [label="{label}", shape="record"]; \n'.format(
+            id='"' + trait + '"', label=nodes[trait]
+        )
+
+    for link in links:
+        output += '"{left}" -> "{right}" [arrowhead="empty", arrowtail="none"];\n'.format(
+            left=link[0], right=link[1]
+        )
+
+    for level in sames:
+        output += '{{rank=same; "{nodes}" }}\n'.format(nodes='"; "'.join(sames[level]))
+
+    output += "}\n"
+
+    return output
+
+
 def schema_hierarchy(fidia_trait_registry):
     # type: (TraitRegistry) -> str
     """Create a diagram showing the hierarchy of a a FIDIA Trait Registry."""
@@ -89,13 +148,13 @@ def schema_hierarchy(fidia_trait_registry):
                     )
                 node_text += "</TABLE>>"
 
-                graph.node(top + trait_name, node_text, shape='none')
-                graph.edge(top, top + trait_name)
+                graph.node(top + "+" + trait_name, node_text, shape='none')
+                graph.edge(top, top + "+" + trait_name)
 
 
                 sub_trait_schema = schema_qualifier[trait_qualifier]['sub_traits']
                 if len(sub_trait_schema) > 0:
-                    graph_from_schema(sub_trait_schema, top + trait_name)
+                    graph_from_schema(sub_trait_schema, top + "+" + trait_name)
 
 
                 # if branch_versions:
@@ -107,7 +166,9 @@ def schema_hierarchy(fidia_trait_registry):
 
     graph_from_schema(schema, "Archive")
 
-    graph.render("out.pdf")
+    # graph.render("out.pdf")
+
+    return graph.source
 
 def schema_hierarchy_tikz(fidia_trait_registry):
     # type: (TraitRegistry) -> str
