@@ -30,7 +30,7 @@ from fidia.traits.trait_property import trait_property_from_fits_header
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.INFO)
 log.enable_console_logging()
 
 
@@ -1191,7 +1191,7 @@ LZIFUDOF.set_short_name("DOF")
 
 
 class LZIFUNComp(Map2D):
-    """Degrees of freedom in LZIFU spectral fit."""
+    """Map of number of components included in final fit."""
 
     trait_type = 'number_of_components_map'
 
