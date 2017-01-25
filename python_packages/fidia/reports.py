@@ -50,7 +50,11 @@ def content_report(fidia_trait_registry):
 
 def schema_hierarchy3(fidia_trait_registry):
     # type: (TraitRegistry) -> str
-    """Create a diagram showing the hierarchy of a a FIDIA Trait Registry."""
+    """Create a diagram showing the hierarchy of a a FIDIA Plugin.
+
+    This produces the best output. -- AWG (Jan 2017)
+
+    """
 
     assert isinstance(fidia_trait_registry, TraitRegistry)
 

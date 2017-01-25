@@ -4,5 +4,5 @@
 .idea
 db.sqlite3
 *.iml
-documentation/uml-diagrams/*.dot
-documentation/uml-diagrams/*.pdf
+documentation/fidia/uml-diagrams/*.dot
+documentation/fidia/uml-diagrams/*.pdf
