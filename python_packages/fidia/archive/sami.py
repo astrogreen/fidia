@@ -599,7 +599,29 @@ class SAMISpectralCube(SpectralMap):
         del tp
     sub_traits.register(Covariance)
 
+    @sub_traits.register
+    class Dust(Trait):
 
+        trait_type = 'dust'
+
+        @trait_property("float.array.1")
+        def value(self):
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].data
+
+        @trait_property('float')
+        def mw_reding_SFD(self):
+            """MW reddening E(B-V) from SFD98"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].header['EBVSFD98']
+        mw_reding_SFD.set_short_name('EBVSFD98')
+
+        @trait_property('float')
+        def mw_reding_plank(self):
+            """MW reddening E(B-V) from Planck v1.20"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].header['EBVPLNCK']
+        mw_reding_plank.set_short_name('EBVPLNCK')
 
     @sub_traits.register
     class CatCoordinate(SkyCoordinate):
@@ -640,7 +662,7 @@ class SAMISpectralCube(SpectralMap):
                 return h
 
     @sub_traits.register
-    class PSF(Trait):
+    class PSF(MetadataTrait):
         r"""The spatial point-spread function of the observed data.
 
         The PSF is determined from a circular Moffat profile fit to the
@@ -708,14 +730,17 @@ class SAMISpectralCube(SpectralMap):
         @trait_property("float")
         def alpha(self):
             return self.hdu[0].header['PSFALPHA']
+        alpha.set_short_name('PSFALPHA')
 
         @trait_property("float")
         def beta(self):
             return self.hdu[0].header['PSFBETA']
+        beta.set_short_name('PSFBETA')
 
         @trait_property("float")
         def fwhm(self):
             return self.hdu[0].header['PSFFWHM']
+        fwhm.set_short_name('PSFFWHM')
 
     @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
