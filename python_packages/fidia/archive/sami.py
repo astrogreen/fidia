@@ -565,7 +565,7 @@ class SAMISpectralCube(SpectralMap):
         trait_type = 'covariance'
 
         @trait_property('float.array.5')
-        def covariance(self):
+        def value(self):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['COVAR'].data
 
@@ -583,6 +583,8 @@ class SAMISpectralCube(SpectralMap):
                 return pt.hdu['COVAR'].header['COVARMOD']
         covariance_mode.set_short_name("COVARMOD")
 
+    Covariance.set_short_name('COVAR')
+
 
     for loc_n in range(1, 900):
         tp = TraitProperty(type="int", name="covarloc_" + str(loc_n))
@@ -599,7 +601,30 @@ class SAMISpectralCube(SpectralMap):
         del tp
     sub_traits.register(Covariance)
 
+    @sub_traits.register
+    class Dust(Trait):
 
+        trait_type = 'dust'
+
+        @trait_property("float.array.1")
+        def value(self):
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].data
+
+        @trait_property('float')
+        def mw_reding_SFD(self):
+            """MW reddening E(B-V) from SFD98"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].header['EBVSFD98']
+        mw_reding_SFD.set_short_name('EBVSFD98')
+
+        @trait_property('float')
+        def mw_reding_plank(self):
+            """MW reddening E(B-V) from Planck v1.20"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].header['EBVPLNCK']
+        mw_reding_plank.set_short_name('EBVPLNCK')
+    Dust.set_short_name("DUST")
 
     @sub_traits.register
     class CatCoordinate(SkyCoordinate):
@@ -630,7 +655,7 @@ class SAMISpectralCube(SpectralMap):
                 w = wcs.WCS(h)
                 w.wcs.radesys = 'FK5a'
                 w.wcs.cunit = ["deg", "deg", "Angstrom"]
-                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'Wavelength']
                 return w.to_header_string()
 
         @trait_property('string')
@@ -640,7 +665,7 @@ class SAMISpectralCube(SpectralMap):
                 return h
 
     @sub_traits.register
-    class PSF(Trait):
+    class PSF(MetadataTrait):
         r"""The spatial point-spread function of the observed data.
 
         The PSF is determined from a circular Moffat profile fit to the
@@ -708,14 +733,17 @@ class SAMISpectralCube(SpectralMap):
         @trait_property("float")
         def alpha(self):
             return self.hdu[0].header['PSFALPHA']
+        alpha.set_short_name('PSFALPHA')
 
         @trait_property("float")
         def beta(self):
             return self.hdu[0].header['PSFBETA']
+        beta.set_short_name('PSFBETA')
 
         @trait_property("float")
         def fwhm(self):
             return self.hdu[0].header['PSFFWHM']
+        fwhm.set_short_name('PSFFWHM')
 
     @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
@@ -1076,15 +1104,27 @@ class LZIFUFlag(FlagMap):
     def value(self):
         input_data = self._hdu['QF_BINCODE'].data  # type: np.ndarray
 
-        # The array is stored as a unsigned integer array.
-        output_data = input_data.astype(np.uint64, casting='unsafe', copy=False)
+        log.debug("LZIFU QF_BINCODE input type: %s", input_data.dtype)
+
+        # The array should be stored as a unsigned integer array, but there are
+        # issues with this: FITS doesn't actually support unsigned integers, so
+        # PyFITS instead stores it as a signed integer with a BZERO offset to
+        # shift the whole scale into the positive range.  However, there seems
+        # to be some trouble with how most software (CFITSIO) does the
+        # calculation with large BZERO values that leads to a loss of precision.
+        # (I don't really understand).
+        #
+        # Anyway, for now we do no conversion, and leave this to the SAMI team,
+        # so the code below is disabled.
+
+        # output_data = input_data.astype(np.uint64, casting='unsafe', copy=False)
 
         # Confirm that the cast was safe:
-        if not (output_data == input_data).all():
-            raise FIDIAException("FIDIA Data type error")
+        # if not (output_data == input_data).all():
+        #     raise FIDIAException("FIDIA Data type error")
 
-        return output_data
-
+        return input_data
+LZIFUFlag.set_short_name('QF_BINCODE')
 
 class LZIFUFlagCount(Map2D):
     """Map of number of flags set by LZIFU."""
@@ -1102,6 +1142,8 @@ class LZIFUFlagCount(Map2D):
     @property
     def shape(self):
         return self.value().shape
+LZIFUFlagCount.set_short_name('QF')
+
 
 class LZIFUChiSq(Map2D):
     """Final $\chi^2$ of LZIFU spectral fit."""
@@ -1123,7 +1165,7 @@ class LZIFUChiSq(Map2D):
     def shape(self):
         return self.value().shape
 LZIFUChiSq.set_pretty_name("Chi Squared")
-
+LZIFUChiSq.set_short_name('CHI2')
 
 class LZIFUDOF(Map2D):
     """Degrees of freedom in LZIFU spectral fit."""
@@ -1147,6 +1189,28 @@ class LZIFUDOF(Map2D):
 LZIFUDOF.set_pretty_name("Degrees of Freedom")
 LZIFUDOF.set_short_name("DOF")
 
+
+class LZIFUNComp(Map2D):
+    """Map of number of components included in final fit."""
+
+    trait_type = 'number_of_components_map'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        data = self._hdu['NCOMP_MAP'].data  # type: np.ndarray
+        assert len(data.shape) == 2
+        return data
+
+    @property
+    def shape(self):
+        return self.value().shape
+LZIFUNComp.set_pretty_name("Number of Components Map")
+LZIFUNComp.set_short_name("NCOMP_MAP")
 
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
@@ -1277,6 +1341,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1366,6 +1431,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1565,6 +1631,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1633,6 +1700,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1759,6 +1827,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     @sub_traits.register
@@ -1964,6 +2033,7 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
 
     
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
@@ -2050,6 +2120,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2144,6 +2215,8 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
+
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2253,6 +2326,8 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
+
 
 SFMask.set_pretty_name("Emission Classification Map")
 
