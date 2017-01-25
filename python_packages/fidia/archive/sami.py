@@ -1190,6 +1190,28 @@ LZIFUDOF.set_pretty_name("Degrees of Freedom")
 LZIFUDOF.set_short_name("DOF")
 
 
+class LZIFUNComp(Map2D):
+    """Degrees of freedom in LZIFU spectral fit."""
+
+    trait_type = 'number_of_components_map'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        data = self._hdu['NCOMP_MAP'].data  # type: np.ndarray
+        assert len(data.shape) == 2
+        return data
+
+    @property
+    def shape(self):
+        return self.value().shape
+LZIFUNComp.set_pretty_name("Number of Components Map")
+LZIFUNComp.set_short_name("NCOMP_MAP")
+
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     trait_type = "velocity_map"
@@ -1319,6 +1341,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1408,6 +1431,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1607,6 +1631,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1675,6 +1700,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1801,6 +1827,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     @sub_traits.register
@@ -2006,6 +2033,7 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
 
     
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
@@ -2092,6 +2120,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2186,6 +2215,8 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
+
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2295,6 +2326,8 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    sub_traits.register(LZIFUWCS)
+
 
 SFMask.set_pretty_name("Emission Classification Map")
 
