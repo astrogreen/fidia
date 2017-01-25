@@ -30,7 +30,7 @@ from fidia.traits.trait_property import trait_property_from_fits_header
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.INFO)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
@@ -565,7 +565,7 @@ class SAMISpectralCube(SpectralMap):
         trait_type = 'covariance'
 
         @trait_property('float.array.5')
-        def covariance(self):
+        def value(self):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['COVAR'].data
 
@@ -582,6 +582,8 @@ class SAMISpectralCube(SpectralMap):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['COVAR'].header['COVARMOD']
         covariance_mode.set_short_name("COVARMOD")
+
+    Covariance.set_short_name('COVAR')
 
 
     for loc_n in range(1, 900):
@@ -622,6 +624,7 @@ class SAMISpectralCube(SpectralMap):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['DUST'].header['EBVPLNCK']
         mw_reding_plank.set_short_name('EBVPLNCK')
+    Dust.set_short_name("DUST")
 
     @sub_traits.register
     class CatCoordinate(SkyCoordinate):
@@ -652,7 +655,7 @@ class SAMISpectralCube(SpectralMap):
                 w = wcs.WCS(h)
                 w.wcs.radesys = 'FK5a'
                 w.wcs.cunit = ["deg", "deg", "Angstrom"]
-                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'Wavelength']
                 return w.to_header_string()
 
         @trait_property('string')
@@ -1101,15 +1104,27 @@ class LZIFUFlag(FlagMap):
     def value(self):
         input_data = self._hdu['QF_BINCODE'].data  # type: np.ndarray
 
-        # The array is stored as a unsigned integer array.
-        output_data = input_data.astype(np.uint64, casting='unsafe', copy=False)
+        log.debug("LZIFU QF_BINCODE input type: %s", input_data.dtype)
+
+        # The array should be stored as a unsigned integer array, but there are
+        # issues with this: FITS doesn't actually support unsigned integers, so
+        # PyFITS instead stores it as a signed integer with a BZERO offset to
+        # shift the whole scale into the positive range.  However, there seems
+        # to be some trouble with how most software (CFITSIO) does the
+        # calculation with large BZERO values that leads to a loss of precision.
+        # (I don't really understand).
+        #
+        # Anyway, for now we do no conversion, and leave this to the SAMI team,
+        # so the code below is disabled.
+
+        # output_data = input_data.astype(np.uint64, casting='unsafe', copy=False)
 
         # Confirm that the cast was safe:
-        if not (output_data == input_data).all():
-            raise FIDIAException("FIDIA Data type error")
+        # if not (output_data == input_data).all():
+        #     raise FIDIAException("FIDIA Data type error")
 
-        return output_data
-
+        return input_data
+LZIFUFlag.set_short_name('QF_BINCODE')
 
 class LZIFUFlagCount(Map2D):
     """Map of number of flags set by LZIFU."""
@@ -1127,6 +1142,8 @@ class LZIFUFlagCount(Map2D):
     @property
     def shape(self):
         return self.value().shape
+LZIFUFlagCount.set_short_name('QF')
+
 
 class LZIFUChiSq(Map2D):
     """Final $\chi^2$ of LZIFU spectral fit."""
@@ -1148,7 +1165,7 @@ class LZIFUChiSq(Map2D):
     def shape(self):
         return self.value().shape
 LZIFUChiSq.set_pretty_name("Chi Squared")
-
+LZIFUChiSq.set_short_name('CHI2')
 
 class LZIFUDOF(Map2D):
     """Degrees of freedom in LZIFU spectral fit."""
