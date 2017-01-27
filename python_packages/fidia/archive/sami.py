@@ -2033,7 +2033,12 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
-    sub_traits.register(LZIFUWCS)
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
     
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
@@ -2120,7 +2125,13 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
-    sub_traits.register(LZIFUWCS)
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
+
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2215,8 +2226,12 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
-    sub_traits.register(LZIFUWCS)
-
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2326,7 +2341,12 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
-    sub_traits.register(LZIFUWCS)
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 
 SFMask.set_pretty_name("Emission Classification Map")
