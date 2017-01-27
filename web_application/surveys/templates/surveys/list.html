@@ -324,8 +324,8 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                     b.title = k + ' [' + catalog.units[i] + ']';
                 }
 
-                (b.units == "$\\mathrm{}$" || b.units == "") ?  export_header.push(k) : export_header.push(k + ' [' + catalog.units[i] + ']')
-
+//                (b.units == "$\\mathrm{}$" || b.units == "") ?  export_header.push(k) : export_header.push(k + ' [' + catalog.units[i] + ']')
+                export_header.push(k);
                 // create a name property to use as a key when referencing this option value
                 b.name = convertToSlug(k);
 
@@ -685,7 +685,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                         },
                         header: false,
                         customize: function (csv) {
-                            console.log(export_header.join(", "));
                             return export_header.join(", ")+"\n\n" + csv;
                         }
 
