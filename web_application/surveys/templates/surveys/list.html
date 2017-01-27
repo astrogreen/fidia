@@ -274,6 +274,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 {% autoescape off %}
  <script type="text/javascript">
+
     function round(value, decimals) {
         return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
     }
@@ -301,7 +302,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
         if(catalog.data.length < render_limit){
             var columns = []; var units = []; var targets=[];
-            var thead = '';
+            var thead = ''; var export_header = [];
 
             $('#returnTableResults').find('thead > tr').empty();
             $('#returnTableResults').addClass("table-bordered cell-border");
@@ -322,6 +323,8 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 } else {
                     b.title = k + ' [' + catalog.units[i] + ']';
                 }
+
+                (b.units == "$\\mathrm{}$" || b.units == "") ?  export_header.push(k) : export_header.push(k + ' [' + catalog.units[i] + ']')
 
                 // create a name property to use as a key when referencing this option value
                 b.name = convertToSlug(k);
@@ -645,6 +648,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 $('#select_button_text').html(_text);
             };
 
+            addHeader = function(data){
+                console.log(data);
+                return data
+            }
 
             // obtain a jQuery object that holds the container element of the button set. Then can insert the element as per styling
             new $.fn.dataTable.Buttons(table, {
@@ -670,11 +677,18 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                     },
                     {
                         extend: 'csvHtml5',
+                        fieldBoundary: '',
                         exportOptions: {
                             modifier: {
                                 selected: true
                             }
+                        },
+                        header: false,
+                        customize: function (csv) {
+                            console.log(export_header.join(", "));
+                            return export_header.join(", ")+"\n\n" + csv;
                         }
+
                     },
                     {
                         extend: 'print',
