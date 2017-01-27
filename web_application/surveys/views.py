@@ -39,9 +39,8 @@ class SurveysViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def __init__(self, *args, **kwargs):
         self.surveys = [
-            {"name": "sami", "current_version": 1.0, "data_releases": {1.0},"astro_objects": []},
-            {"name": "gama", "current_version": 0.0, "data_releases": {0}, "astro_objects": []},
-            {"name": "galah", "current_version": 0.0, "data_releases": {0}, "astro_objects": []},
+            {"name": "sami", "currentVersion": 1.0, "dataReleases": {1.0},"astroObjects": []},
+            {"name": "gama", "currentVersion": 0.0, "dataReleases": {0}, "astroObjects": []}
         ]
 
     renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
@@ -60,7 +59,7 @@ class SurveysViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     #     'survey_pk': 'sami'
                     # }
                     # url = reverse("sov:astroobject-list", kwargs=url_kwargs)
-                    survey["astro_objects"].append(str(astro_object))
+                    survey["astroObjects"].append(str(astro_object))
 
         serializer_class = sov.serializers.RootSerializer
         serializer = serializer_class(
