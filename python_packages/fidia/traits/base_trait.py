@@ -1024,7 +1024,7 @@ class FITSExportMixin:
                 RegexpGroup(re.compile(r"float\.array\.\d+"),
                             re.compile(r"int\.array\.\d+"))):
                 extension = fits.ImageHDU(trait_property.value)
-                extension.name = str(trait.trait_name)
+                extension.name = str(trait.get_short_name())
                 extension.header['SUBTRAIT'] = (trait.trait_name, "Data Central Sub-trait ID")
                 # extension.header['ST_NAME'] = (trait.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Name")
                 # extension.header['ST_DESC'] = (trait.get_description().encode('ascii', errors='ignore'))
