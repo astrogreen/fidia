@@ -3,7 +3,7 @@ from .base_trait import Trait
 from .smart_traits import WorldCoordinateSystem, SkyCoordinate
 
 from .generic_traits import Measurement, TimeSeries, SpectralMap, Map, Map2D, Image, \
-    Classification, ClassificationMap, FlagMap, Redshift
+    Classification, ClassificationMap, FlagMap, Redshift, FractionalMaskMap
 
 from .catalog_traits import catalog_trait
 

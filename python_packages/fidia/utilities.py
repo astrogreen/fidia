@@ -188,7 +188,7 @@ class Default: pass
 
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
-    return isinstance(obj, Iterable) and isinstance(obj, Sized)
+    return isinstance(obj, Iterable) and isinstance(obj, Sized) and not isinstance(obj, str) and not isinstance(obj, bytes)
 
 class exclusive_file_lock:
     """A context manager which will block while another process holds a lock on the named file.

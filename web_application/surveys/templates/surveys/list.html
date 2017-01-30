@@ -274,6 +274,11 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 {% autoescape off %}
  <script type="text/javascript">
+
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
     var SAMPLE_URL = "{% url 'sov:survey-list' survey_pk=survey %}";
 
     catalog = JSON.parse("{{ catalog|escapejs }}");
@@ -296,8 +301,8 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 
         if(catalog.data.length < render_limit){
-            var columns = []; var units = [];
-            var thead = '';
+            var columns = []; var units = []; var targets=[];
+            var thead = ''; var export_header = [];
 
             $('#returnTableResults').find('thead > tr').empty();
             $('#returnTableResults').addClass("table-bordered cell-border");
@@ -319,9 +324,16 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                     b.title = k + ' [' + catalog.units[i] + ']';
                 }
 
+//                (b.units == "$\\mathrm{}$" || b.units == "") ?  export_header.push(k) : export_header.push(k + ' [' + catalog.units[i] + ']')
+                export_header.push(k);
                 // create a name property to use as a key when referencing this option value
                 b.name = convertToSlug(k);
 
+                // FLOATING POINT FIX
+                // get columns that contain floating point values
+                if (!!parseFloat(catalog.data[0][i])) {
+                    targets.push(i);
+                }
 
 //                if (k.indexOf("url_img") > -1){
 //                    b = {
@@ -331,6 +343,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 //                        }
 //                    }
 //                }
+
 
                 if (k.indexOf("ID") > -1) {
                     // render as a link to the sov
@@ -357,8 +370,44 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 },
                 select: {
                     style: 'multi'
-                }
+                },
+//                formatNumber: function (toFormat){
+//                    console.log(toFormat);
+//                    // if can parse as float, do so and truncate
+//                    return !!parseFloat(toFormat) ? parseFloat(toFormat).toFixed(6) : toFormat;
+//                },
+                columnDefs: [
+                    {
+                        render: function (data, type, row) {
+                            // function for truncating and rounding floating point numbers
+                            // targets provided by columns whose first index contain floating point
+                            // values.
+
+                            var _new = data;
+
+                            // check for a decimal point
+                            if ((data.toString()).indexOf(".") != -1) {
+                                // split the string and truncate to 6 DP
+
+                                // to test:
+                                // data = 25.2000007629;
+                                // data = 15.699999809265137;
+                                // console.log((Math.floor(1E6 * data) / 1E6));
+                                // bring up to a whole number, floor (truncate) to the 6th place
+                                // round to 5th place
+                                // => 25.2
+                                // => 15.7
+
+                                // _new = (Math.floor(1E6 * data) / 1E6);
+                                  _new = round((Math.floor(1E6 * data) / 1E6).toFixed(6), 5);
+                            }
+                            return _new;
+                        },
+                        targets: targets
+                    }
+                ]
             });
+
 
 
             $('#returnTableResults_filter input').unwrap().wrap("<div class='input-group' role='search'></div>")
@@ -425,7 +474,8 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
             };
 
             disable_columns = function(){
-                // on click to column or adding a new filter - check existing values, disable if true.
+                // on click to column or adding a new filter
+                // - check existing values, disable if true.
 
                 // get currently selected values
                 var option_values = [];
@@ -598,6 +648,10 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 $('#select_button_text').html(_text);
             };
 
+            addHeader = function(data){
+                console.log(data);
+                return data
+            }
 
             // obtain a jQuery object that holds the container element of the button set. Then can insert the element as per styling
             new $.fn.dataTable.Buttons(table, {
@@ -623,11 +677,17 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                     },
                     {
                         extend: 'csvHtml5',
+                        fieldBoundary: '',
                         exportOptions: {
                             modifier: {
                                 selected: true
                             }
+                        },
+                        header: false,
+                        customize: function (csv) {
+                            return export_header.join(", ")+"\n\n" + csv;
                         }
+
                     },
                     {
                         extend: 'print',

@@ -342,6 +342,7 @@ class TraitPath(tuple):
     # __slots__ = ()
 
     def __new__(cls, trait_path_tuple=None, trait_property=None):
+        log.debug("Creating new TraitPath with tuple %s and property %s", trait_path_tuple, trait_property)
 
         if isinstance(trait_path_tuple, str):
             trait_path_tuple = trait_path_tuple.split("/")
@@ -354,7 +355,17 @@ class TraitPath(tuple):
 
     def __init__(self, *args, trait_property=None):
         # super(TraitPath, self).__init__(*args)
+        log.debug("Initialising TraitPath with trait_property=%s", trait_property)
         self.trait_property_name = trait_property
+
+    def __repr__(self):
+        return "TraitPath((%s), %s)" % (", ".join([repr(tk) for tk in self]) + ", ", self.trait_property_name)
+
+    def __str__(self):
+        s =  "/".join([str(tk) for tk in self])
+        if self.trait_property_name:
+            s += "/" + self.trait_property_name
+        return s
 
     def as_traitpath(self, trait_path):
         if isinstance(trait_path, TraitPath):

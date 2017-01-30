@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'astrospark',
     'bootstrap3',
+    'corsheaders',
     'documentation',
     # 'download',
     # 'data_browser',
@@ -64,6 +65,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -314,4 +316,11 @@ REST_FRAMEWORK = {
     # 'EXCEPTION_HANDLER': 'restapi_app.utils..exceptions.custom_exception_handler'
 }
 
+
+CORS_ORIGIN_WHITELIST = (
+    # 'google.com.au',
+    'localhost:3000',
+    'localhost:8000',
+    '127.0.0.1:9000'
+)
 

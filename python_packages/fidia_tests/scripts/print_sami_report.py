@@ -1,8 +1,7 @@
-import re
-import numpy as np
+import json
 
 from fidia.archive import sami, example_archive
-
+from fidia import reports
 
 # ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
 #                           "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
@@ -12,18 +11,33 @@ from fidia.archive import sami, example_archive
 #                           "sami_small_test_cat.fits")
 # ar = sami.SAMITeamArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
 #                           "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
+# ar = example_archive.ExampleArchive()
+
 ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
                                "dr1_catalog/dr1_20160720.txt")
 
+latex_lines = reports.content_report(ar.available_traits)
 
-sample = ar.get_full_sample()
+# for line in latex_lines:
+#     print(line)
 
-# sfrmap = sample['9352']['sfr_map']
+output = "\n".join(latex_lines)
+
+# print(output)
 #
-# cube = sample['24433']['spectral_cube-red']
+# # Also write it to a file on the desktop...
+# with open('/Users/agreen/Documents/ASVO/meetings/sami_team/data-structure/traits.tex', 'w') as f:
+#     f.write(output)
+
 #
-# ao = sample['9352']
+# latex_lines = reports.schema_hierarchy_tikz(ar.available_traits)
+#
+# # Also write it to a file on the desktop...
+# with open('/Users/agreen/Desktop/tikz-tree/fidia.tex', 'w') as f:
+#     f.write(latex_lines)
 
-ext_map = sample['9352']['extinction_map']
+# output = reports.schema_hierarchy(ar.available_traits)
+output = reports.schema_hierarchy3(ar.available_traits)
 
-error = ext_map.error()
+with open('/Users/agreen/Desktop/sami_diagram.dot', 'w') as f:
+    f.write(output)

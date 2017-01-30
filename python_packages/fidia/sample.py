@@ -20,6 +20,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import collections
 
 import pandas as pd
+import numpy as np
 
 from .astro_object import AstronomicalObject
 from .archive.base_archive import BaseArchive
@@ -162,7 +163,10 @@ class Sample(collections.MutableMapping):
             for id in self:
                 row = [id]
                 for trait_property_path in archive.feature_catalog_data:
-                    row.append(trait_property_path.get_trait_property_value_for_object(self[id]))
+                    value = trait_property_path.get_trait_property_value_for_object(self[id])
+                    if isinstance(value, (np.int64, np.int32)):
+                        value = int(value)
+                    row.append(value)
                     if first_row:
                         trait_properties.append(
                             (trait_property_path.get_trait_class_for_archive(archive),
@@ -175,12 +179,17 @@ class Sample(collections.MutableMapping):
         # Construct column names and units
         column_names = ["ID"]
         column_units = [""]
-        for tp in trait_properties:
+        for tp, path in zip(trait_properties, trait_paths):
             # Get the pretty name of the Trait
-            col_name = tp[0].get_pretty_name()
+            qualifier = path[-1].trait_qualifier
+            col_name = tp[0].get_pretty_name(qualifier)
             # Append the TraitProperty name only if it is not the default
             if tp[1].name is not 'value':
                 col_name += " " + tp[1].get_pretty_name()
+            # Append the Trait's branch name
+            branch = path[-1].branch
+            if branch:
+                col_name += " (" + tp[0].branches_versions.get_pretty_name(branch) + ")"
             column_names.append(col_name)
 
             # Get the unit associated with the trait

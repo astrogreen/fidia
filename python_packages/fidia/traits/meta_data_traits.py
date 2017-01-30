@@ -38,7 +38,7 @@ class DetectorCharacteristics(MetadataTrait):
         'read_noise': 'float'
     }
 
-class SpectrographCharacteristics(Trait):
+class SpectrographCharacteristics(MetadataTrait):
     """
 
     Trait Properties:
@@ -57,7 +57,7 @@ class SpectrographCharacteristics(Trait):
 
     pass
 
-class OpticalTelescopeCharacteristics(Trait):
+class OpticalTelescopeCharacteristics(MetadataTrait):
     """
 
     Trait Properties:
