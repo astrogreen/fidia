@@ -990,6 +990,7 @@ class LZIFUDataMixin:
         log.info("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
 
     def preload(self):
+
         self._hdu = fits.open(self._lzifu_fits_file)
 
     def cleanup(self):
@@ -1417,6 +1418,18 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     def error(self):
         return self._hdu['VDISP_ERR'].data[:, :, :]
     error.set_short_name('ERROR')
+
+    @trait_property('float')
+    def heliocentric_velocity_correction(self):
+        """Heliocentric velocity correction for observed data"""
+        red_cube_name = self.archive.cube_file_index['red_cube_file'][self.object_id]
+        if red_cube_name[-3:] == ".gz":
+            red_cube_name = red_cube_name[:-3]
+        helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
+
+        return helio_corr
+
+    heliocentric_velocity_correction.set_short_name("HELIOCOR")
 
     @trait_property('string')
     def _wcs_string(self):
