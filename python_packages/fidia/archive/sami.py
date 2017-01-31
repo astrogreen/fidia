@@ -374,7 +374,6 @@ class SAMISpectralCube(SpectralMap):
                                 version_defaults={'drizzle_05': 'V1'})
 
     def init(self):
-
         log.debug("TraitKey: %s", self.trait_key)
         self._color = self.trait_qualifier
 
@@ -990,7 +989,6 @@ class LZIFUDataMixin:
         log.info("LZIFU Fits file for trait '%s' is '%s'", self, self._lzifu_fits_file)
 
     def preload(self):
-
         self._hdu = fits.open(self._lzifu_fits_file)
 
     def cleanup(self):
@@ -1201,11 +1199,20 @@ class LZIFUNComp(Map2D):
     preload = LZIFUDataMixin.preload
     cleanup = LZIFUDataMixin.cleanup
 
+    # @trait_property("int.array.2")
+    # def value(self):
+    #     data = self._hdu['NCOMP_MAP'].data  # type: np.ndarray
+    #     assert len(data.shape) == 2
+    #     return data
+
     @trait_property("int.array.2")
     def value(self):
-        data = self._hdu['NCOMP_MAP'].data  # type: np.ndarray
-        assert len(data.shape) == 2
-        return data
+        if 'NCOMP_MAP' in self._hdu:
+            data = self._hdu['NCOMP_MAP'].data  # type: np.ndarray
+            assert len(data.shape) == 2
+            return data
+        else:
+            return np.full((50, 50), 1)
 
     @property
     def shape(self):
@@ -2050,7 +2057,6 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     class WCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            print('hi')
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
     
@@ -2142,7 +2148,6 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     class WCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            print('hi')
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 
@@ -2172,6 +2177,10 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
             sigma = self._hdu['SFRSurfDensity_ERR'].data[1:2, :, :]
             return sigma
         error.set_description(r"Errors (1-sigma uncertainty) in SFR Density")
+
+        @trait_property('string')
+        def new_prop(self):
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 SFRMap.set_pretty_name("Star-Formation-Rate Map")
 
@@ -2243,7 +2252,6 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
     class WCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            print('hi')
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
     @sub_traits.register
@@ -2358,7 +2366,6 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     class WCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
-            print('hi')
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 
