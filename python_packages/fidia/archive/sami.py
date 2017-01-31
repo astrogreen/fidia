@@ -2280,6 +2280,9 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
         error.set_description("Error in total star-formation rate density in all components")
 
+        @trait_property('string')
+        def new_prop(self):
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
