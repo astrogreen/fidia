@@ -40,7 +40,7 @@ class SurveysViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def __init__(self, *args, **kwargs):
         self.surveys = [
             {"name": "sami", "currentVersion": 1.0, "dataReleases": {1.0},"astroObjects": []},
-            {"name": "gama", "currentVersion": 0.0, "dataReleases": {0}, "astroObjects": []}
+            {"name": "gama", "currentVersion": 0.0, "dataReleases": {0}, "astroObjects": ["65406"]}
         ]
 
     renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
