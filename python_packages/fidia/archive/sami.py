@@ -2178,9 +2178,9 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
             return sigma
         error.set_description(r"Errors (1-sigma uncertainty) in SFR Density")
 
-        @trait_property('string')
-        def new_prop(self):
-            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
+        # @trait_property('string')
+        # def new_prop(self):
+        #     return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 SFRMap.set_pretty_name("Star-Formation-Rate Map")
 
