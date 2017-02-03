@@ -100,10 +100,14 @@ class AstroObjectSerializer(serializers.Serializer):
     def get_position(self, obj):
         return self.context['position']
 
+    def get_overview_catalog(self, obj):
+        return self.context['overview_catalog']
+
     # traits = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
     catalog_traits = serializers.SerializerMethodField()
     non_catalog_traits = serializers.SerializerMethodField()
+    overview_catalog = serializers.SerializerMethodField()
 
 
 class TraitSerializer(serializers.Serializer):
