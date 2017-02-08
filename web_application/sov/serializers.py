@@ -100,14 +100,22 @@ class AstroObjectSerializer(serializers.Serializer):
     def get_position(self, obj):
         return self.context['position']
 
-    def get_overview_catalog(self, obj):
-        return self.context['overview_catalog']
+    def get_catalogs(self, obj):
+        # each catalog should carry its group info as sometimes appears detatched from
+        # a parent group object
+        return [{'name': 'overview_catalog',
+                 'data': self.context['overview_catalog'],
+                 'pretty_name': 'Overview Catalog',
+                 'group': 'summary',
+                 'group_pretty_name': 'Summary',
+                 'group_info': 'Information about the group/DMI'
+                 }]
 
     # traits = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
     catalog_traits = serializers.SerializerMethodField()
     non_catalog_traits = serializers.SerializerMethodField()
-    overview_catalog = serializers.SerializerMethodField()
+    catalogs = serializers.SerializerMethodField()
 
 
 class TraitSerializer(serializers.Serializer):
