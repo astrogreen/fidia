@@ -896,7 +896,7 @@ class SAMISpectralCube(SpectralMap):
         dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
 
 SAMISpectralCube.set_pretty_name("Spectral Cube")
-SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy")
+SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy [all spectral cube types, regardless of qualifier (red/blue)]")
 
 # SAMISpectralCube.value.set_description
 # SAMISpectralCube.variance.set_description
@@ -1221,6 +1221,9 @@ LZIFUNComp.set_pretty_name("Number of Components Map")
 LZIFUNComp.set_short_name("NCOMP_MAP")
 
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
+    """ LZIFUVelocityMap description [velocity map 1_comp]
+
+    """
 
     trait_type = "velocity_map"
 
@@ -1299,6 +1302,9 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
 
 class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
+    """ LZIFUVelocityMap description [velocity map recom_comp]
+
+    """
 
     trait_type = "velocity_map"
 
@@ -1355,6 +1361,9 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUWCS)
 
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
+    """ LZIFUVelocityDispersionMap description [velocity map 1_comp]
+
+    """
 
     trait_type = "velocity_dispersion_map"
 
@@ -1401,6 +1410,9 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
 
 class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
+    """ LZIFUVelocityDispersionMap description [velocity map recom_comp]
+
+    """
     trait_type = "velocity_dispersion_map"
 
     qualifiers = {'ionized_gas'}
@@ -1457,7 +1469,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     sub_traits.register(LZIFUWCS)
 
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
-    r"""Emission line flux map from a single Gaussian fit.
+    r"""Emission line flux map from a single Gaussian fit. [line emission maps for HBETA, OIII5007, OI6300, HALPHA, NII6583, SII6716, SII6731 for branch (1_comp)]
 
     Documentation from SAMI Team here...
 
@@ -1542,7 +1554,7 @@ LZIFUOneComponentLineMap.set_pretty_name(
     SII6731='[SII] (6731Å)')
 
 class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
-    """Emission-line-flux map from a single Gaussian fit.
+    """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727 for branch (1_comp)]
 
     The Emission-line-flux map for the [OII] doublet is the sum of the
     individual fits for [OII] (3726Å) and [OII] (3729Å).
@@ -1601,9 +1613,11 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
+LZIFUOneComponent3727.set_documentation("The Emission-line-flux map for the [OII] doublet is the sum of the individual fits for [OII] (3726Å) and [OII] (3729Å).")
+
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
-    r"""Emission line flux map from one to three Gaussian fits.
+    r"""Emission line flux map from one to three Gaussian fits. [line emission maps: HALPHA for branch (m_comp)]
 
     Documentation from SAMI Team here...
 
@@ -1660,10 +1674,13 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
     "Line Emission Map",
     HALPHA='Hα')
+LZIFURecommendedMultiComponentLineMap.set_documentation(
+    "Documentation from SAMI Team here... [all line emission maps branch (m_comp)]")
+
 
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
-    r"""Total Emission line flux map from one to three Gaussian fits.
+    r"""Total Emission line flux map from one to three Gaussian fits. [line emission maps: HBETA, OIII5007, OI6300, NII6583, SII6716, SII6731 for branch (m_comp)]
 
     Documentation from SAMI Team here...
 
@@ -1736,7 +1753,7 @@ LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     SII6731='[SII] (6731Å)')
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiComponentLineMapTotalOnly):
-    """Emission-line-flux map from a single Gaussian fit.
+    """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727, branch (m_comp)]
 
     The Emission-line-flux map for the [OII] doublet is the sum of the
     individual fits for [OII] (3726Å) and [OII] (3729Å).
@@ -1796,8 +1813,13 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
+LZIFUOneComponent3727.set_documentation("Documentation from SAMI Team here")
 
 class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
+    """a description string for spectral_fit_cubes [all spectral fit cubes, regardless of qualifier (red/blue) or branch (1_comp/m_comp)]
+
+    documentation string for spectral_fit_cubes
+    """
 
     trait_type = 'spectral_fit_cube'
 
@@ -1993,7 +2015,7 @@ class AnneVAP:
         return fits_file_path
 
 class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
-    r"""Emission extinction map based on the Balmer decrement.
+    r"""Emission extinction map based on the Balmer decrement. [all balmer extinction maps regardless of branch (1_comp/m_comp)]
 
     Extinction maps for all SAMI galaxies in the DR0.9 release are are
     calculated using the EmissionLineFitsV03 (which includes Balmer flux errors
@@ -2065,7 +2087,7 @@ BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 
 
 class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-    r"""Map of star formation rate based on Hα emission.
+    r"""Map of star formation rate based on Hα emission. [1_comp branch of type: sfr_map]
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
     [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV03 to
@@ -2186,7 +2208,7 @@ SFRMap.set_pretty_name("Star-Formation-Rate Map")
 
 
 class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-    r"""Map of star formation rate based on Hα emission.
+    r"""Map of star formation rate based on Hα emission. [multi_comp_branch of type: sfr_map]
 
     Star formation rate (SFR) map calculated using the EmissionLineFitsV01
     (which includes Balmer flux errors incorporating continuum uncertainties),
@@ -2288,7 +2310,7 @@ SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
 
 
 class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
-    r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms.
+    r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms. [all star formation masks regardless of branch (1comp/recom_comp)]
 
     We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
     [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV03 to

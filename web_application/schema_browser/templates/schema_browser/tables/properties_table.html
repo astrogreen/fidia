@@ -5,10 +5,11 @@
          <thead>
             <tr class="active">
                 <th class="p_dark col-xs-2">Name</th>
+                <th class="p_dark col-xs-1">Short Name</th>
                 <th class="p_dark col-xs-4">Description</th>
-                <th class="p_dark col-xs-1">Units</th>
+                <th class="p_dark col-xs-1">Unit</th>
                 <th class="p_dark col-xs-1">Type</th>
-                <th class="p_dark col-xs-2">URL segment <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Locate a piece of data in the single object viewers by combining URL segments to make a path. e.g., sami/24433/spectral_cube-blue/detector_metadata/" data-original-title="" title=""><i class="fa fa-info-circle"></i></a></th>
+                <th class="p_dark col-xs-1">URL segment <a role="button" class="sub-heading" data-container="body" data-toggle="popover" data-trigger="hover click" data-placement="top" data-content="Locate a piece of data in the single object viewers by combining URL segments to make a path. e.g., sami/24433/spectral_cube-blue/detector_metadata/" data-original-title="" title=""><i class="fa fa-info-circle"></i></a></th>
                 <th class="p_dark col-xs-2">Schema</th>
             </tr>
         </thead>
@@ -17,7 +18,10 @@
         {% for trait_property_key, trait_property_value in value.trait_properties.items %}
             <tr id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}({{trait_version_key}})_{{trait_property_key}}">
                 <td>{{trait_property_value.pretty_name}}</td>
-                <td>{{trait_property_value.description|safe}}</td>
+                <td>{{trait_property_value.short_name}}</td>
+                <td>{{trait_property_value.description|safe}} <br/>
+                    <span class="bg-trait-prop"><strong>{{trait_type_key}}-{{trait_qualifier_key}}:{{trait_branch_key}}({{trait_version_key}}).{{trait_property_key}}</strong> [description]</span>
+                </td>
                 <td>{{trait_property_value.unit}} {% if value.unit and trait_property_value.name == 'value' %}{{value.unit}}{% endif %}</td>
                 <td>{{trait_property_value.type}}</td>
                 <td>{{trait_property_value.name}}</td>
@@ -28,7 +32,7 @@
         <!--Iterate over sub-traits-->
         {% for sub_trait_key, sub_trait_value in value.sub_traits.items %}
              <tr class="bg-success" id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}({{trait_version_key}})_{{sub_trait_key}}">
-                <td colspan="6" style="border-right:0" align="middle">
+                <td colspan="7" style="border-right:0" align="middle">
                     <h6 class="" style="margin:0"><span class="text-uppercase">{{sub_trait_value.pretty_name}}</span></h6>
                 </td>
             </tr>
@@ -36,8 +40,10 @@
             {% for sub_trait_qualifier_key, sub_trait_qualifier_value in sub_trait_value.trait_qualifiers.items %}
                 {% with sub_trait_qualifier_value.trait as sub_value %}
                          <tr>
-                             <td colspan="6" style="padding:15px;" align="middle">
-                                 <em>{{sub_value.description|safe}}</em> &nbsp;<a class="" href="{{sub_value.trait_type}}/">view schema <i class="fa fa-angle-right"></i></a>
+                             <td colspan="7" style="padding:15px;" align="middle">
+                                 <em>{{sub_value.description|safe}}</em>
+                                 <span class="bg-trait-prop"><strong>{{trait_type_key}}-{{trait_qualifier_key}}:{{trait_branch_key}}({{trait_version_key}})_{{sub_trait_key}}</strong> [description]</span>
+                                 &nbsp;<a class="" href="{{sub_value.trait_type}}/">view schema <i class="fa fa-angle-right"></i></a>
                              </td>
                          </tr>
 
@@ -53,7 +59,12 @@
                                 <i class="fa fa-level-up fa-rotate-90"></i>&nbsp;
                                 {{sub_trait_property_value.pretty_name}}
                             </td>
-                            <td>{{sub_trait_property_value.description}}</td>
+                            <td>{{sub_trait_property_value.short_name}}</td>
+                            <td>{{sub_trait_property_value.description}}
+                            <br/>
+                                <span class="bg-trait-prop"><strong>{{trait_type_key}}-{{trait_qualifier_key}}:{{trait_branch_key}}({{trait_version_key}}).{{sub_trait_key}}.{{sub_trait_property_key}}</strong> [description]</span>
+
+                            </td>
                             <td>{{sub_trait_property_value.units}}{% if sub_value.unit and sub_trait_property_value.name == 'value' %}{{sub_value.unit}}{% endif %}</td>
 
                             <td><span>{{sub_trait_property_value.type}}</span></td>

@@ -116,7 +116,10 @@
 {% include "sov/layout/title.html" with db_title=astro_object|add:" "|add:response.data.pretty_name %}
 
 {% if response.data.description %}
-    <p><em>{{ response.data.description}}</em></p>
+
+<p><em>{{ response.data.description}}</em> <span class="bg-trait-version"><em>description. also features in the schema</em></span></p>
+
+
 {% endif %}
 
         <div class="row">

@@ -162,13 +162,20 @@
     <br>
 
     {% with response.data.trait as value %}
+        <span class="bg-trait-version"><em>DESCRIPTION</em> also present in SOV (e.g.,)
 
-        <!--<p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>-->
+        {% captureas schema_link %}{{trait_type}}{% if trait_qualifier %}-{{trait_qualifier}}{% endif %}{% endcaptureas %}
+        <a class="" target="_blank" href="{% url 'sov:trait-list' survey_pk=survey astroobject_pk='24433' trait_pk=schema_link %}">24433 {{trait_pretty_name}} </a>
 
+        </span>
 
+        <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
 
         <!-- Documentation -->
         <h3 id="documentation">Documentation</h3>
+        <!--<span class="bg-trait-version"><em>trait_type-trait_qualifier:branch(version)</em> <strong>{{trait_type}}-{{trait_qualifier}}:{{branch}}({{version}})</strong> [HTML_DOCUMENTATION]</span>-->
+        <span class="bg-trait-version"><em>DOCUMENTATION</em></span>
+
         <div class="documentation_fidia">
             {{value.html_documentation|safe}}
         </div>
@@ -177,7 +184,7 @@
         <h3 id="properties">Properties</h3>
         <div class="row">
             <div class="col-xs-12">
-                {% include 'schema_browser/tables/properties_table.html' %}
+                {% include 'schema_browser/tables/properties_table.html' with trait_type_key=trait_type trait_qualifier_key=trait_qualifier trait_branch_key=branch trait_version_key=version %}
             </div>
         </div>
 
@@ -230,7 +237,9 @@
                                 <small>DEFAULT</small>
                                 {% endif %}
                             </td>
-                            <td>{{branch_value.description}}</td>
+                            <td>{{branch_value.description}}
+                                <span class="bg-trait-branch"><em>trait_type-trait_qualifier:branch </em> <strong>{{trait_type}}-{{trait_qualifier}}:{{branch}}</strong> [description]</span>
+                            </td>
                             <td>{{branch_key}}</td>
                             <td>
                                 {% for version_key, version_value in branch_value.versions.items %}

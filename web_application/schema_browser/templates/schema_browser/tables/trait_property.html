@@ -24,9 +24,10 @@
             <table class="table table-condensed table-bordered" id="properties-table">
                 <thead>
                 <tr class="active">
-                    <th class="p_dark col-xs-4">Name</th>
-                    <th class="p_dark col-xs-4">Description</th>
-                    <th class="p_dark col-xs-1">Units</th>
+                    <th class="p_dark col-xs-2">Name</th>
+                    <th class="p_dark col-xs-1">Short Name</th>
+                    <th class="p_dark col-xs-5">Description</th>
+                    <th class="p_dark col-xs-1">Unit</th>
                     <th class="p_dark col-xs-1">Type</th>
                     <th class="p_dark col-xs-2">URL segment <a role="button" class="sub-heading" data-container="body"
                                                                data-toggle="popover" data-trigger="hover click"
@@ -42,8 +43,9 @@
 
                 <tr>
                     <td>{{value.trait_property.pretty_name}}</td>
+                    <td>{{value.trait_property.short_name}}</td>
                     <td>{{value.trait_property.description|safe}}</td>
-                    <td></td>
+                    <td>{{value.trait_property.unit}}</td>
                     <td><span>{{value.trait_property.type}}</span></td>
                     <td>{{value.trait_property.name}}</td>
                 </tr>

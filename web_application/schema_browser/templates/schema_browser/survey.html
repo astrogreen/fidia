@@ -95,7 +95,6 @@
             <thead>
             <tr class="active">
                 <th class="col-xs-3 col-sm-3">Type</th>
-                <!--<th class="col-xs-6 col-sm-8">Description</th>-->
                 <th class="col-xs-3 col-sm-2">Schema</th>
             </tr>
             </thead>
@@ -104,12 +103,12 @@
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                 <tr id="trait_type_key">
                     <td id="{{trait_type_key}}">
-
-                            {{trait_type_value.pretty_name}}
-                            {{trait_qualifier_value.pretty_name}}
-
+                        {{trait_type_value.pretty_name}}
+                        {{trait_qualifier_value.pretty_name}}
+                        <br/>
+                        <em> {{trait_type_value.description|safe}}</em> <span class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</span>
+                        <br/>
                     </td>
-                    <!--<td><em> {{trait_qualifier_value.description|safe}}</em></td>-->
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>
                 {% endfor %}
@@ -121,6 +120,7 @@
     {% for trait_type_key, trait_type_value in response.data.schema_non_catalog.trait_types.items %}
         <h3 id="{{trait_type_key}}">{{trait_type_value.pretty_name}}</h3>
         {{trait_type_value.description|safe}}
+        <span class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</span>
 
         <table class="table table-bordered table-condensed margin-top-thirty">
             <thead>
@@ -134,11 +134,15 @@
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                 <tr>
                     <td>
-
                         {{trait_qualifier_value.pretty_name}}
-                            {% if not trait_qualifier_value.pretty_name %}
-                                {{trait_type_value.pretty_name}}
-                            {% endif %}
+
+                        {% if not trait_qualifier_value.pretty_name %}
+                            {{trait_type_value.pretty_name}}
+                        {% endif %}
+                        <br/>
+
+                        <!--<span class="bg-trait-qual"><em>trait_qualifier</em></span>-->
+
                     </td>
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>
