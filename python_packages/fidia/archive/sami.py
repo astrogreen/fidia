@@ -2744,7 +2744,7 @@ class SAMIDR1PublicArchive(Archive):
         surf_bright = catalog_trait(Measurement, 'surface_brightness',
                             OrderedDict([('value', self.tabular_data['mu_within_1re']),
                                          ('unit',  units.mag/units.arcsec**2)]))
-        surf_bright.branches_versions = {('1R_e_AVG', "$1R_{e \mathrm{AVG}}$", "Surface Brightness within $1R_e$"): {"V02"}}
+        surf_bright.branches_versions = {('1R_e_AVG', "1R_e_AVG", "Surface Brightness within $1R_e$"): {"V02"}}
         surf_bright.set_description(r"r-band surface brightness from GAMA single sersic fits.")
         surf_bright.set_documentation(r"""
             r-band surface brightness in mags arcsec^-2 based on GAMA single
