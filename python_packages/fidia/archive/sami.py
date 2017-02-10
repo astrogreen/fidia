@@ -2920,8 +2920,8 @@ class SAMIDR1PublicArchive(Archive):
             """This value comes from the GAMA data release
             [InputCatAv06 GalacticExtinctionv02 A_g] and was
             calculated as A_g = (3.793) * E(B-V), with the
-            value of E(B-V) taken from the dust maps of Schlegel
-            et al. (1998), interpolating from the nearest 4 pixels.""")
+            value of E(B-V) taken from the dust maps of <a href="http://adsabs.harvard.edu/abs/1998ApJ...500..525S"
+            target="_blank">Schlegel et al. (1998)</a>, interpolating from the nearest 4 pixels.""")
         self.available_traits.register(A_g)
         del A_g
 
