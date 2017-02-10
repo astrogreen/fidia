@@ -2554,6 +2554,7 @@ class SAMIDR1PublicArchive(Archive):
 
 
     feature_catalog_data = [
+        # TraitPath("cat_id"),
         TraitPath("iau_id"),
         TraitPath("catalog_coordinate", trait_property='_ra'),
         TraitPath("catalog_coordinate", trait_property='_dec'),
@@ -2563,7 +2564,7 @@ class SAMIDR1PublicArchive(Archive):
         TraitPath("redshift:tonry"),
         TraitPath("M_r-auto"),
         TraitPath("effective_radius"),
-        TraitPath("surface_brightness:central"),
+        TraitPath("surface_brightness:1R_e_AVG"),
         TraitPath("surface_brightness:1re"),
         TraitPath("surface_brightness:2re"),
         TraitPath("ellipticy-r_band"),
@@ -2572,7 +2573,7 @@ class SAMIDR1PublicArchive(Archive):
         TraitPath("g_i"),
         TraitPath("A_gal-g_band"),
         TraitPath("priority_class"),
-        TraitPath("visual_classification_flag")
+        TraitPath("bad_class")
     ]
 
     def define_available_traits(self):
@@ -2588,11 +2589,27 @@ class SAMIDR1PublicArchive(Archive):
 
         sami_gama_catalog_branch = ('sami_gama', 'SAMI-GAMA', 'SAMI-GAMA Target Catalog')
 
+        # # CATID (SAMI Identifier)
+        # print('hi')
+        # sami_name = catalog_trait(Measurement, 'cat_id',
+        #                          OrderedDict([('value', self.tabular_data['CATID'])]))
+        # sami_name.set_pretty_name(r"SAMI Identifier")
+        # sami_name.set_description("Unique integer identifier for each galaxy that is identical to the GAMA CATAID number.")
+        # sami_name.branches_versions = {('sami', "Unique integer identifier for each object."): {"V02"}}
+        # self.available_traits.register(sami_name)
+        # self.available_traits.change_defaults('cat_id', DefaultsRegistry(default_branch='sami'))
+        # del sami_name
+
         # name (IAU Identifier)
         iau_name = catalog_trait(Measurement, 'iau_id',
                                 OrderedDict([('value', self.tabular_data['name'])]))
         iau_name.set_pretty_name(r"IAU Identifier")
-        iau_name.set_description("IAU format object name")
+        iau_name.set_description("IAU target identifier")
+        iau_name.set_documentation("""
+            IAU format target identifier based on catalogued coordinates
+            (RA and Dec from this catalogue, including any offset to
+            coordinates if visual class = 5).
+        """)
         iau_name.branches_versions = {('iau', "IAU Standard"): {"V02"}}
         self.available_traits.register(iau_name)
         self.available_traits.change_defaults('iau_id', DefaultsRegistry(default_branch='iau'))
@@ -2601,9 +2618,9 @@ class SAMIDR1PublicArchive(Archive):
         # RA and DEC
         cat_coord = catalog_trait(SkyCoordinate, 'catalog_coordinate',
                                   OrderedDict([('_ra', self.tabular_data['RA']),
-                                               ('_dec', self.tabular_data['Dec'])]))
-        cat_coord.set_description("J2000 Right Ascension and Declination")
-        cat_coord.set_documentation(r"Source: GAMA catalogs [InputCatv29 TilingCatv29 RA/DEC]")
+                                               ('_dec', self.tabular_data['Dec']), ('unit', units.degree)]))
+        cat_coord.set_description("Right ascension and Declination coordinates in J2000.")
+        cat_coord.set_documentation(r"Object coordinates taken from GAMA input catalogue table [InputCatv06].  The original source of the coordinates is SDSS DR7.  A small number of coordinates have been adjusted to better centre the galaxy in the IFU or to capture both galaxies in the case of very close pairs.  Those that have had their coordinates offset have the “Visual Class” set to 5.")
         cat_coord.set_pretty_name("Catalog Coordinate")
         cat_coord.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         self.available_traits.register(cat_coord)
@@ -2614,9 +2631,14 @@ class SAMIDR1PublicArchive(Archive):
         r_petro = catalog_trait(Measurement, 'm_r-petrosian',
                                 OrderedDict([('value', self.tabular_data['r_petro']),
                                              ('unit', units.mag)]))
-        r_petro.set_pretty_name(r"r-band Magnitude", petrosian="Petrosian")
-        r_petro.set_description("Extinction-corrected SDSS DR7 Petrosian mag")
-        r_petro.set_documentation(r"Source: GAMA catalogs [InputCatv29 TilingCatv29 R_PETRO]")
+        r_petro.set_pretty_name(r"Mag Petrosian r-band")
+        r_petro.set_description("Petrosian r-band magnitude from SDSS, extinction corrected.")
+        r_petro.set_documentation(r"""
+            Petrosian magnitude in SDSS r-band from SDSS DR7.  Taken from GAMA input catalogue [InputCatAv06 R_PETRO].
+            Extinction corrected using the <a href="http://adsabs.harvard.edu/abs/1998ApJ...500..525S"
+            target="_blank">Schlegel et al. (1998)</a> dust maps
+            (see also <a href="http://datacentral.aao.gov.au/asvo/schema-browser/sami/A_gal-g_band" target="_blank">this link</a>).
+        """)
         r_petro.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         self.available_traits.register(r_petro)
         self.available_traits.change_defaults('m_r-petrosian', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
@@ -2627,12 +2649,14 @@ class SAMIDR1PublicArchive(Archive):
                                 OrderedDict([('value', self.tabular_data['r_auto']),
                                              ('unit', units.mag)]))
         r_auto.set_pretty_name(r"r-band Mag", auto="Auto")
-        r_auto.set_description("Extinction-corrected Kron magnitude (r band)")
-        r_auto.set_documentation("""The magntidues in the GAMA table ApMatchedCatv03 are not extinction-corrected,
-                                    so we corrected them using extinction values from GalacticExtinctionv02.
-
-                                    Source: GAMA catalogs [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_R - A_r]""",
-                                 format='markdown')
+        r_auto.set_description("Aperture r-band magnitude using Sextractor AUTO apertures, extinction corrected. ")
+        r_auto.set_documentation("""
+            Aperture magnitude in SDSS r-band using GAMA aperture photometry measurements
+            [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_R- A_r].
+            Uses Sextractor AUTO apertures and corrected for galactic
+            extinction using the <a href="http://adsabs.harvard.edu/abs/1998ApJ...500..525S"
+            target="_blank">Schlegel et al. (1998)</a> dust maps (see also <a href="http://datacentral.aao.gov.au/asvo/schema-browser/sami/A_gal-g_band" target="_blank">this link</a>).
+            """)
         r_auto.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         self.available_traits.register(r_auto)
         del r_auto
@@ -2643,7 +2667,8 @@ class SAMIDR1PublicArchive(Archive):
                                  OrderedDict([('value', self.tabular_data['z_helio']),
                                               ('unit', units.dimensionless_unscaled)]))
         redshift.branches_versions = {('helio', "Heliocentric", "Redshift in the heliocentric frame"): {"V02"}}
-        redshift.set_description("Heliocentric redshift  [LocalFlowCorrectionv08 DistancesFramesv08 Z_HELIO]")
+        redshift.set_description("Redshift estimates obtained from either SDSS or GAMA optical spectra.")
+        redshift.set_documentation("Heliocentric = Heliocentric Redshift. Obtained from the GAMA data release [SpecAll SpecCatv08]")
         self.available_traits.register(redshift)
         del redshift
 
@@ -2652,21 +2677,15 @@ class SAMIDR1PublicArchive(Archive):
                                        OrderedDict([('value', self.tabular_data['z_tonry']),
                                                     ('unit', units.dimensionless_unscaled)]))
         redshift_tonry.branches_versions = {('tonry', "Flow Corrected", "Flow corrected redshift using Tonry model"): {"V02"}}
-        redshift_tonry.set_description("Flow-corrected redshift using Tonry model")
+        redshift_tonry.set_description("Redshift estimates obtained from either SDSS or GAMA optical spectra.")
         redshift_tonry.set_documentation(
-            r"""Source: GAMA catalogs [LocalFlowCorrectionv08 DistancesFramesv08 Z_TONRY]
+            r"""
+            Flow corrected redshift applying the Tonry model to the heliocentric estimate,
+            as described in section 2.3 of <a href="http://adsabs.harvard.edu/abs/2012MNRAS.421..621B" target="_blank">Baldry et al. (2012)</a>.
+            The effect on the distance
+            moduli is significant at $z < 0.03$, see figure 2 of the paper.
 
-            The GAMA source catalogue contains the following notes regarding
-            this column "This column provides a redshift corrected for peculiar
-            velocities due to local flows, using the Tonry et~al. (2000, ApJ,
-            530, 625) flow model described in the Appendix of that paper. Note
-            there are triple-valued solutions of $z_\textrm{cmb} \rightarrow z_\textrm{tonry}$ over a small
-            range in G12 (near Virgo cluster), here the average distance is use
-            The solution is tapered to $z_\textrm{cmb}$ from $z_\textrm{cmb}=0.02$ to $z_\textrm{cmb}=0.03$. Thus
-            $z_\textrm{tonry} = z_\textrm{cmb}$ at $z_\textrm{cmb} > 0.03$. $z_\textrm{tonry}$ is close to but not exactly
-            equal to $z_\textrm{lg}$ (Local Group frame redshift) at $< \sim10$ Mpc."
-            """,
-            format='latex'
+            """
         )
         self.available_traits.register(redshift_tonry)
         del redshift_tonry
@@ -2678,18 +2697,23 @@ class SAMIDR1PublicArchive(Archive):
         r_abs = catalog_trait(Measurement, 'M_r-auto',
                                 OrderedDict([('value', self.tabular_data['M_r']),
                                              ('unit', units.mag)]))
-        r_abs.set_pretty_name(r"Absolute r-band Mag", auto="Auto")
+        r_abs.set_pretty_name(r"Absolute Mag Auto r-band", auto="Auto")
         r_abs.set_description(r"Absolute magnitude in restframe r-band from SED fits")
         r_abs.set_documentation(
-            r"""Source: GAMA catalogs [StellarMassesv08 absmag_r]
+            r"""Absolute magnitude in the rest-frame r-band from stellar population synthesis SED fits.
 
-            The GAMA source catalogue contains the following notes regarding
-            this column which must be taken into account before using $M_r$ for
-            science analysis "The values in this table are based on aperture
-            (AUTO) photometry, which may miss a significant fraction of a
-            galaxy's light. Make sure you understand the need for and meaning of
-            the quantity <fluxscale>, which is described under 'based on matched
-            aperture photometry' [in the StellarMassesv08 notes file]."
+            This value comes from the GAMA data release [StellarMassesv08]
+            and has been obtained from Kron (MAG_AUTO in Sextractor) magnitudes
+            in AB zeropoints, k-corrected to redshift 0, with no evolution
+            corrections. Distances have been computed using the flow-corrected
+            redshifts derived from the Tonry et al. (2000) flow model for
+            very low redshifts, and then tapering to a CMB-centric frame
+            for z > 0.03, as described by Baldry et al. (2012).  As the
+            magnitudes used come from aperture photometry, a fraction of
+            the flux will be missed.  An aperture correction is not applied,
+            but if needed is given in the GAMA StellarMassesv08 catalogue as
+            FLUXSCALE.  The change in linear flux from FLUXSCALE is typically
+            between a factor of 0.8 and 1.2 (i.e. approximately a 20% change in flux).
 
             """,
             format='markdown')
@@ -2704,9 +2728,15 @@ class SAMIDR1PublicArchive(Archive):
                                          ('unit', units.arcsecond)]))
         r_e.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         r_e.defaults = DefaultsRegistry(sami_gama_catalog_branch[0], {sami_gama_catalog_branch[0]: "V02"})
-        r_e.set_pretty_name(r"Effective Radius")
-        r_e.set_description(r"Effective radius in r-band (hl rad) (semi-major)")
-        r_e.set_documentation(r"Source: GAMA catalogs [SersicPhotometryv07 SersicCatAllv07 GAL_RE_R]")
+        r_e.set_pretty_name(r"r-band Effective Radius")
+        r_e.set_description(r"r-band sersic fit effective radius in arcsec.")
+        r_e.set_documentation(r"""
+            The major axis effective radius in the SDSS r-band based on
+            GAMA sersic fits [SersicPhotometryv07 SersicCatAllv07 GAL_RE_R]
+            and has been obtained by fitting single Sersic profiles
+            to the SDSS r-band images.  Detailed description given by
+            <a target="_blank" href="http://adsabs.harvard.edu/abs/2012MNRAS.421.1007K">Kelvin et al. (2012)</a>.
+        """)
         self.available_traits.register(r_e)
         del r_e
 
@@ -2714,9 +2744,23 @@ class SAMIDR1PublicArchive(Archive):
         surf_bright = catalog_trait(Measurement, 'surface_brightness',
                             OrderedDict([('value', self.tabular_data['mu_within_1re']),
                                          ('unit',  units.mag/units.arcsec**2)]))
-        surf_bright.branches_versions = {('central', "Central", "Surface Brightness within $1R_e$"): {"V02"}}
-        surf_bright.set_description(r"Effective r-band surface brightness within r_e")
-        surf_bright.set_documentation(r"Source: GAMA catalogs [SersicPhotometryv07 SersicCatAllv07 GAL_MU_E_AVG_R]")
+        surf_bright.branches_versions = {('1R_e_AVG', "$1R_{e \mathrm{AVG}}$", "Surface Brightness within $1R_e$"): {"V02"}}
+        surf_bright.set_description(r"r-band surface brightness from GAMA single sersic fits.")
+        surf_bright.set_documentation(r"""
+            r-band surface brightness in mags arcsec^-2 based on GAMA single
+            sersic fits [SersicPhotometryv07 SersicCatAllv07] to SDSS r-band imaging data.
+
+            * 1R_eAVG = Average surface brightness within one effective radius
+            taken directly from the GAMA sersic fits catalogue [SersicCatAllv07 GAL_MU_E_AVG_R]
+
+            * 1R_e = surface brightness at one effective radius taken directly from
+            GAMA Sersic fits catalogue [SersicCatAllv07 GAL_MU_E_R]
+
+            * 2R_e = surface brightness at two effective radii estimated from the
+            surface brightness at 1R_e and the fitted Sersic index from the GAMA Sersic
+            fits catalogue [SersicCatAllv07 using GAL_MU_E_R and GAL_INDEX_R]
+
+        """, format="markdown")
         self.available_traits.register(surf_bright)
         del surf_bright
 
@@ -2725,8 +2769,22 @@ class SAMIDR1PublicArchive(Archive):
                             OrderedDict([('value', self.tabular_data['mu_1re']),
                                          ('unit', units.mag/units.arcsec**2)]))
         surf_bright.branches_versions = {('1re', "1R_e", "Surface Brightness at $1R_e$"): {"V02"}}
-        surf_bright.set_description(r"Effective r-band surface brightness at r_e")
-        surf_bright.set_documentation(r"Source: GAMA catalogs [SersicPhotometryv07 SersicCatAllv07 GAL_MU_E_R]")
+        surf_bright.set_description(r"r-band surface brightness from GAMA single sersic fits.")
+        surf_bright.set_documentation(r"""
+            r-band surface brightness in mags arcsec^-2 based on GAMA single
+            sersic fits [SersicPhotometryv07 SersicCatAllv07] to SDSS r-band imaging data.
+
+            * 1R_eAVG = Average surface brightness within one effective radius
+            taken directly from the GAMA sersic fits catalogue [SersicCatAllv07 GAL_MU_E_AVG_R]
+
+            * 1R_e = surface brightness at one effective radius taken directly from
+            GAMA Sersic fits catalogue [SersicCatAllv07 GAL_MU_E_R]
+
+            * 2R_e = surface brightness at two effective radii estimated from the
+            surface brightness at 1R_e and the fitted Sersic index from the GAMA Sersic
+            fits catalogue [SersicCatAllv07 using GAL_MU_E_R and GAL_INDEX_R]
+
+        """, format="markdown")
         self.available_traits.register(surf_bright)
         del surf_bright
 
@@ -2735,13 +2793,27 @@ class SAMIDR1PublicArchive(Archive):
                             OrderedDict([('value', self.tabular_data['mu_2re']),
                                          ('unit',  units.mag/units.arcsec**2)]))
         surf_bright.branches_versions = {('2re', "2R_e", "Surface Brightness at $2R_e$"): {"V02"}}
-        surf_bright.set_description(r"Effective r-band surface brightness at 2r_e")
-        surf_bright.set_documentation(r"Source: GAMA catalogs [SersicPhotometryv07 SersicCatAllv07 GAL_MU_E_2R]")
+        surf_bright.set_description(r"r-band surface brightness from GAMA single sersic fits.")
+        surf_bright.set_documentation(r"""
+            r-band surface brightness in mags arcsec^-2 based on GAMA single
+            sersic fits [SersicPhotometryv07 SersicCatAllv07] to SDSS r-band imaging data.
+
+            * 1R_eAVG = Average surface brightness within one effective radius
+            taken directly from the GAMA sersic fits catalogue [SersicCatAllv07 GAL_MU_E_AVG_R]
+
+            * 1R_e = surface brightness at one effective radius taken directly from
+            GAMA Sersic fits catalogue [SersicCatAllv07 GAL_MU_E_R]
+
+            * 2R_e = surface brightness at two effective radii estimated from the
+            surface brightness at 1R_e and the fitted Sersic index from the GAMA Sersic
+            fits catalogue [SersicCatAllv07 using GAL_MU_E_R and GAL_INDEX_R]
+
+        """, format="markdown")
         self.available_traits.register(surf_bright)
         del surf_bright
 
         log.debug("Setting surface_brightness default.")
-        self.available_traits.change_defaults('surface_brightness', DefaultsRegistry(default_branch='central'))
+        self.available_traits.change_defaults('surface_brightness', DefaultsRegistry(default_branch='1R_e_AVG'))
         log.debug(self.available_traits._trait_name_defaults['surface_brightness']._default_branch)
 
 
@@ -2751,8 +2823,13 @@ class SAMIDR1PublicArchive(Archive):
                                            ('unit', units.dimensionless_unscaled)]))  # type: MorphologicalMeasurement
         ellip.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         ellip.set_pretty_name("Ellipticity", r_band="r-band")
-        ellip.set_description("Ellipticity from r-band Sersic fits")
-        ellip.set_documentation(r"Source: GAMA catalogs [SersicPhotometryv07 SersicCatAllv07 GAL_ELLIP_R]")
+        ellip.set_description("Ellipticity (1-b/a) in r-band from Sersic fits.")
+        ellip.set_documentation(r"""
+            Ellipticity in the SDSS r-band from GAMA Sersic fits [SersicPhotometryv07
+            SersicCatAllv07 GAL_ELLIP_R] and has been obtained by fitting
+            single Sersic profiles to the SDSS r-band image.  Detailed
+            description given by <a href="http://adsabs.harvard.edu/abs/2012MNRAS.421.1007K" target="_blank">Kelvin et al. (2012)</a>.
+        """)
         self.available_traits.register(ellip)
         del ellip
 
@@ -2765,8 +2842,19 @@ class SAMIDR1PublicArchive(Archive):
                                         ('unit', units.degree)]))  # type: MorphologicalMeasurement
         pa.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         pa.set_pretty_name("Position Angle", r_band="r-band")
-        pa.set_description("Position angle from r-band Sersic fits")
-        pa.set_documentation(r"Source: GAMA catalogs [SersicPhotometryv07 SersicCatAllv07 GAL_PA_R]")
+        pa.set_description("Position angle from Sersic fit to SDSS r-band image.")
+        pa.set_documentation(r"""
+            Position angle measured from single Sersic profile files to SDSS r-band images from GAMA
+            [SersicPhotometryv07 SersicCatAllv07 GAL_PA_R].  This is defined from the
+            positive x-axis of the image, increasing from zero anti-clockwise.
+            There are small differences (typically less than a degree, plus an
+            offset of 90 degrees) between this angle and the position angles on the sky.
+            The true on-sky position angle can be recovered by using the difference
+            between the on-sky and on-image position angle in the GAMA aperture photometry
+             catalogue [ApMatchedCatv03], such that GAL_PA_J2000_R = GAL_PA_R +
+             (THETA_J2000 - THETA_IMAGE), where THETA_J2000 and THETA_IMAGE are from
+             [ApMatchedCatv03]. See documentation for GAMA Sersic catalogue [SersicPhotometryv07] for details.
+        """)
         self.available_traits.register(pa)
         del pa
 
@@ -2784,7 +2872,7 @@ class SAMIDR1PublicArchive(Archive):
             r"""The stellar mass values in this catalogue are not based on SED fitting, but are
             proxies for stellar mass based on colours to aid the selection of galaxies for
             the SAMI survey.  We calculated the stellar mass proxy for the SAMI survey from
-            observed-frame Milky Way-extinction-corrected apparent magnitudes (\emph{g} and \emph{i}),
+            observed-frame Milky Way-extinction-corrected apparent magnitudes (g-band and i-band AUTO mags),
             and limited the colours to reasonable values of $-0.2 < g - i < 1.6$. The
             relation is:
 
@@ -2807,14 +2895,14 @@ class SAMIDR1PublicArchive(Archive):
                            OrderedDict([('value', self.tabular_data['g_i']),
                                         ('unit', units.mag)]))  # type: Measurement
         g_i.branches_versions = {sami_gama_catalog_branch: {"V02"}}
-        g_i.set_pretty_name(r"Kron Colour")
-        g_i.set_description(r"Kron colour (aperture-matched based on r-band), extinction corrected.")
+        g_i.set_pretty_name(r"Colour Auto g-i")
+        g_i.set_description(r"Aperture photometry g-i colour corrected for Galactic extinction.")
         g_i.set_documentation(
-            r"""Source: GAMA catalogs [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_G -MAG_AUTO_I -A_g +A_i]
-
-            NOTE: The magntidues in the GAMA table ApMatchedCatv03 are not
-            extinction-corrected, so we corrected them using extinction values
-            from GalacticExtinctionv02
+            r"""The SDSS g-i colour from GAMA  [ApMatchedPhotomv03 ApMatchedCatv03 MAG_AUTO_G -MAG_AUTO_I -A_g +A_i]
+            using Kron (MAG_AUTO in Sextractor) apertures, corrected for extinction using the
+            <a href="http://adsabs.harvard.edu/abs/1998ApJ...500..525S" target="_blank">
+            Schlegel et al. (1998)</a>
+            dust maps (see also this <a href="http://datacentral.aao.gov.au/asvo/schema-browser/sami/A_gal-g_band/">this link</a>).
             """
         )
         self.available_traits.register(g_i)
@@ -2824,11 +2912,16 @@ class SAMIDR1PublicArchive(Archive):
 
 
         A_g = catalog_trait(Measurement, 'A_gal-g_band',
-                            OrderedDict([('value', self.tabular_data['A_g'])]))  # type: Measurement
+                            OrderedDict([('value', self.tabular_data['A_g']), ('unit', units.mag)]))  # type: Measurement
         A_g.branches_versions = {sami_gama_catalog_branch: {"V02"}}
         A_g.set_pretty_name("Galactic extinction", g_band='g-band')
-        A_g.set_description("Galactic extinction in SDSS g band.")
-        A_g.set_documentation("""Source: GAMA catalogs [InputCatv29 GalacticExtinctionv02 A_g]""")
+        A_g.set_description("Galactic extinction in SDSS g-band.")
+        A_g.set_documentation(
+            """This value comes from the GAMA data release
+            [InputCatAv06 GalacticExtinctionv02 A_g] and was
+            calculated as A_g = (3.793) * E(B-V), with the
+            value of E(B-V) taken from the dust maps of Schlegel
+            et al. (1998), interpolating from the nearest 4 pixels.""")
         self.available_traits.register(A_g)
         del A_g
 
@@ -2839,42 +2932,52 @@ class SAMIDR1PublicArchive(Archive):
                             OrderedDict([('value', self.tabular_data['SURV_SAMI'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
         surv_sami.branches_versions = {sami_gama_catalog_branch: {"V02"}}
-        surv_sami.set_description("Sample priority class")
-        surv_sami.set_documentation(r"""Classifications: primary = 8; high-mass fillers = 4; remaining fillers = 3.""")
+        surv_sami.set_description("Class denoting whether primary or other target.")
+        surv_sami.set_documentation(r"""
+            Flag indicating whether the target galaxy belongs to the primary or secondary SAMI sample.
+
+            * 8= Primary target
+            * 4= High mass filler targets ($\log(M_{*}/M_{sun}) \geq 10.9$)
+            * 3= Other filler targets
+
+            See the [SAMI Target selection page](http://datacentral.aao.gov.au/asvo/docs/articles/sami-sami-survey-target-selection/) for more info.
+        """, format='markdown')
         self.available_traits.register(surv_sami)
         del surv_sami
 
         self.available_traits.change_defaults('priority_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
-        bad_class = catalog_trait(Measurement, 'visual_classification_flag',
+        bad_class = catalog_trait(Measurement, 'bad_class',
                             OrderedDict([('value', self.tabular_data['BAD_CLASS'])]))  # type: Measurement
         # @TODO: Change to Classification type or similar as appropriate.
         bad_class.branches_versions = {sami_gama_catalog_branch: {"V02"}}
-        bad_class.set_description("Classification based on visual inspection (see Bryant et al. 2015).")
+        bad_class.set_description("Classification of problems with input catalogue objects.")
         bad_class.set_documentation(
-            r"""The BAD\_CLASS flag measures the visual classification as follows:
-            \begin{description}
-                \item[0] object is OK;
-                \item[1] nearby bright star;
-                \item[2] target is a star;
-                \item[3] subcomponent of a galaxy;
-                \item[4] very large, low redshift galaxy;
-                \item[5] needs re-centring;
-                \item[6] poor redshift;
-                \item[7] other problems,
-                \item[8] smaller component of a close pair of galaxies, where the second
-                     galaxy is outside of the bundle radius. Only objects with BAD\_CLASS =
-                    0, 5 or 8 will be in the sample that may be observed.
-            \end{description}
+            r"""Object classification based on visual inspection used during
+            the target selection procedure. See [Bryant et al. (2015)](http://adsabs.harvard.edu/abs/2015MNRAS.447.2857B) for more info.
+            The different integer classifications are:
+
+            * 0=object is OK
+            * 1=nearby bright star
+            * 2=target is a star
+            * 3=subcomponent of a galaxy
+            * 4=very large, low redshift galaxy
+            * 5=needs re-centring
+            * 6=poor redshift
+            * 7=other problems
+            * 8= smaller component of a close pair of galaxies, where the second galaxy is outside of the bundle radius
+
+
+            Only objects with BAD_CLASS = 0, 5 or 8 will be observed by SAMI.
 
             """,
-            format='latex'
+            format='markdown'
         )
         self.available_traits.register(bad_class)
         del bad_class
 
-        self.available_traits.change_defaults('visual_classification_flag', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
+        self.available_traits.change_defaults('bad_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
 
 
