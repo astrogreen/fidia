@@ -105,9 +105,23 @@
                     <td id="{{trait_type_key}}">
                         {{trait_type_value.pretty_name}}
                         {{trait_qualifier_value.pretty_name}}
+
+                        <!-- Hack: use the default branch/version description here, as all catalog
+                         properties inherit from a single "Measurement" class and therefore inherit a single
+                         trait_type description
+                         -->
+                         {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                    {% with trait_version_value.trait as value %}
+                                    <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
                         <br/>
-                        <em> {{trait_type_value.description|safe}}</em> <span class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</span>
-                        <br/>
+                        <p class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</p>
+
                     </td>
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>

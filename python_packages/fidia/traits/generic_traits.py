@@ -17,7 +17,6 @@ log.enable_console_logging()
 # class Measurement(Trait, AbstractMeasurement): pass
 class Measurement(Trait): pass
 
-
 class Velocity(Measurement): pass
 
 class Redshift(Trait): pass
