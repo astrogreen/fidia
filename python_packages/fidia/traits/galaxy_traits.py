@@ -5,7 +5,7 @@ class StarFormationRate(Measurement):
     pass
 
 class StarFormationRateMap(Image):
-    """Spatially-resolved map of the rate of star formation"""
+    """Spatially resolved map of the star formation rate"""
     pass
 
 class LineEmissionMap(Image):

@@ -920,8 +920,8 @@ SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees
 #    |___ /_ | |    \__/    |__/ /~~\  |  /~~\
 #
 
-branch_lzifu_1_comp = ("1_comp", "LZIFU 1 component", "LZIFU fit with only a single component")
-branch_lzifu_m_comp = ('recom_comp', "LZIFU multi component", "LZIFU fits using up to three components")
+branch_lzifu_1_comp = ("1_comp", "LZIFU 1 component", "LZIFU emission line fits using a single Gaussian component")
+branch_lzifu_m_comp = ('recom_comp', "LZIFU multi component", "LZIFU emission line fits using up to three Gaussian components")
 
 class LZIFUDataMixin:
     """Mixin class to provide extra properties common to all LZIFU Data."""
@@ -979,6 +979,7 @@ class LZIFUDataMixin:
             log.debug("Trying path for LZIFU Data: %s", filepath)
 
         exists = file_or_gz_exists(filepath)
+        print(exists)
         if not self._lzifu_fits_file and exists:
             # Try with the correct plate identifier appended (the case for duplicates)
                 self._lzifu_fits_file = exists
@@ -1027,14 +1028,14 @@ class SAMIVAP(MetadataTrait):
     @trait_property('string')
     def SAMI_VAP_Name(self):
         return self._header['PRODUCT']
-    SAMI_VAP_Name.set_description("Name of the SAMI data product")
+    SAMI_VAP_Name.set_description("Name of the SAMI value-added product")
     SAMI_VAP_Name.set_pretty_name("SAMI Product Name")
     SAMI_VAP_Name.set_short_name("PRODUCT")
 
     @trait_property('string')
     def vap_version(self):
         return self._header['VERSION']
-    vap_version.set_description("Version number of this SAMI data product")
+    vap_version.set_description("Version number of the SAMI value-added product")
     vap_version.set_pretty_name("SAMI Product Version")
     vap_version.set_short_name("VERSION")
 
@@ -1048,25 +1049,26 @@ class SAMIVAP(MetadataTrait):
     @trait_property('string')
     def date(self):
         return self._header['DATE']
-    date.set_description("Date of creation of VAP")
+    date.set_description("Date of creation of the SAMI value-added product")
     date.set_pretty_name("VAP Date")
     date.set_short_name("VAP_DATE")
 
     @trait_property('string')
     def author(self):
         return self._header['AUTHOR']
-    author.set_description("Author of this SAMI VAP")
+    author.set_description("Author of the SAMI value-added product")
     author.set_pretty_name("Author")
     author.set_short_name("AUTHOR")
 
-    @trait_property('string')
-    def contact(self):
-        return self._header['CONTACT']
-    contact.set_description("email address of contact person for this VAP")
-    contact.set_pretty_name("Contact Email")
-    contact.set_short_name("CONTACT")
+    # @trait_property('string')
+    # def contact(self):
+    #     return self._header['CONTACT']
+    # contact.set_description("email address of contact person for this VAP")
+    # contact.set_pretty_name("Contact Email")
+    # contact.set_short_name("CONTACT")
+
 SAMIVAP.set_pretty_name("SAMI VAP Metadata")
-SAMIVAP.set_description("Metadata added by the SAMI quality control process for value added products")
+SAMIVAP.set_description("Metadata added by the SAMI quality control process for value-added products")
 
 
 class LZIFUWCS(WorldCoordinateSystem):
@@ -2087,46 +2089,39 @@ BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 
 
 class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-    r"""Map of star formation rate based on Hα emission. [1_comp branch of type: sfr_map]
+    r"""Map of star formation rate based on one-component Hα emission line fits. [1_comp branch of type: sfr_map]
 
-    We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
-    [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV03 to
-    determine whether the emission lines are dominated by photoionization from
-    HII regions or other sources like AGN or shocks, using the BPT/VO87
-    diagnostic diagrams and dividing lines from Kewley et al. 2006 (reproduced
-    here for completeness).  We only classify spaxels with ratios that have a
-    signal-to-noise ratio of at least 5.
+    Star formation rate (SFR) maps (in $\rm M_{Sun}~yr^{-1}$) obtained from
+    extinction-corrected H$\alpha$ maps. The relevant Star Formation Masks
+    have been applied to zero out $H\alpha$ emission that may be
+    contaminated by AGN, LINER, or shock emission. When calculating the distances,
+    we are using the flow-corrected redshifts z_tonry from the SAMI-matched
+    GAMA catalog for the GAMA regions and the cluster redshift from
+    Owers et al. in prep. for cluster galaxies. We assume
+    $H_{0} = 70.$, $\Omega_{m}$=0.3 and $\Omega_{\Lambda}$=0.7.
 
-    Emission is classified as star-forming in a given diagnostic if:
-    ```
-    alog10([OIII]/Hβ) < (0.61 / (alog10([NII]/Hα)-0.05) + 1.3   ;Kauffmann+03
-    alog10([OIII]/Hβ) < (0.72 / (alog10([SII]/Hα)-0.32) + 1.3   ;Kewley+01
-    alog10([OIII]/Hβ) < (0.73 / (alog10([OI]/Hα) +0.59) + 1.33  ;Kewley+01
-    ```
+    $SFR = L(H\alpha) \times 7.9\times 10^{-42}$ [$\rm M_{sun}~yr^{-1}$]
+    following [Kennicutt 1998](http://adsabs.harvard.edu/abs/1998ARA%26A..36..189K)
 
-    We additionally add a likely classification of "star-forming" to spaxels
-    with $\log(\textrm{[NII]}/\textrm{Hα}) < -0.4$ without an [OIII] detection and to spaxels with
-    Hα detections but no [N II], [S II], [O I], or [O III] detections.
+    where $L(H\alpha)$ is the H$\alpha$ luminosity in each spaxel corrected for
+    internal extinction via the Balmer decrement. Errors (1-sigma uncertainty)
+    in SFR are included as an extension in each file.
 
-    Each spaxel in the map is 1 (when star formation dominates the emission in
-    all available line ratios) or 0 (when other ionization mechanisms dominate),
-    so it may be simply multiplied by the Hα flux map to produce "Hα
-    from star formation" maps.
+    Star formation rate density and error maps (in units of $\rm M_{sun}~yr^{-1}~kpc^{-2}$)
+    are also provided as additional extensions to the SFR maps.
 
-    We note that these classifications are done only using the TOTAL EMISSION
-    LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
-    we classify the total emission in that spaxel, not the individual
-    components.
+    We emphasize that these SFR maps are not appropriate for calculating a global
+    (total) SFR, for two reasons: a) These maps use a clean sample of star-forming
+    spaxels, not a complete one.  Thus, it is possible (and likely) that some
+    regions of star formation may be excluded, particularly in ambiguous cases,
+    and b) Measurements of derived quantities will have more reliable
+    measurements if the spectra are summed and then emission lines refit,
+    rather than summing together many low-S/N fits.
 
-    The files (one per galaxy per component fit) may be found on bill at
-    /export/bill1/sami_data/data_products/SFMasks/SFMasksV03
-
-    Each fits file is accompanied by an EPS figure showing the BPT and VO87
-    diagnostic diagrams with each spaxel (of S/N>5 in each relevant line)
-    plotted.  Blue points correspond to the unambiguous SF (SFMasks=1; in HII
-    region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
-    spaxels are plotted in black.
-
+    In all branches, SFR maps retain the same dimensions as the the H$\alpha$
+    emission line maps.  Note that this means the input $50 \times 50$
+    extinction maps and star formation masks are applied to all components
+    of the multicomponent H$\alpha$ maps.
 
     ##format: markdown
 
@@ -2156,26 +2151,26 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
         value = self._hdu['SFR'].data[1:2, :, :]
         log.debug("Returning type: %s", type(value))
         return value
-    value.set_description("Total star-formation rate (single component)")
+    value.set_description("Star formation rate calculated from $H\\alpha$ emission")
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu['SFR_ERR'].data[1:2, :, :]
         return sigma
-    value.set_description("Error in total star-formation rate (single component)")
+    error.set_description("1-sigma uncertainty in star formation rate")
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
-
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-        """Surface density of star formation."""
+        """Star formation rate surface density map based on $H\\alpha$ emission."""
 
         trait_type = 'sfr_density_map'
 
@@ -2191,54 +2186,54 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
             value = self._hdu['SFRSurfDensity'].data[1:2, :, :]
             log.debug("Returning type: %s", type(value))
             return value
-        value.set_description(r"Star formation rate density map")
+        value.set_description(r"Star formation rate surface density calculated from $H\alpha$ emission")
 
         # error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array.2', 'error')
         @trait_property('float.array.3')
         def error(self):
             sigma = self._hdu['SFRSurfDensity_ERR'].data[1:2, :, :]
             return sigma
-        error.set_description(r"Errors (1-sigma uncertainty) in SFR Density")
+        error.set_description("1-sigma uncertainty in star formation rate surface density")
 
-        # @trait_property('string')
-        # def new_prop(self):
-        #     return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
+    SFRDensity.set_pretty_name("SFR Surface Density Map")
 
-SFRMap.set_pretty_name("Star-Formation-Rate Map")
+SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
 class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-    r"""Map of star formation rate based on Hα emission. [multi_comp_branch of type: sfr_map]
+    r"""Map of star formation rate based on $H\alpha$ emission line fits of up to three components. [multi_comp_branch of type: sfr_map]
 
-    Star formation rate (SFR) map calculated using the EmissionLineFitsV01
-    (which includes Balmer flux errors incorporating continuum uncertainties),
-    ExtinctionCorrMapsV01, and SFMasksV01.  These are used to calculate star
-    formation rate maps (in $M_\odot \, \rm{yr}^{-1} \, \rm{spaxel}^{-1}$).
-    Note that we are using the flow-corrected redshifts z_tonry_1 from the
-    SAMI-matched GAMA catalog (SAMITargetGAMAregionsV02) to calculate distances.
+    Star formation rate (SFR) maps (in $\rm M_{Sun}~yr^{-1}$) obtained from
+    extinction-corrected H$\alpha$ maps. The relevant Star Formation Masks
+    have been applied to zero out $H\alpha$ emission that may be
+    contaminated by AGN, LINER, or shock emission. When calculating the distances,
+    we are using the flow-corrected redshifts z_tonry from the SAMI-matched
+    GAMA catalog for the GAMA regions and the cluster redshift from
+    Owers et al. in prep. for cluster galaxies. We assume
+    $H_{0} = 70.$, $\Omega_{m}$=0.3 and $\Omega_{\Lambda}$=0.7.
 
-    ```
-    H0 = 70.                                    ;; (km/s)/Mpc, SAMI official cosmology
-    distmpc = lumdist(z_tonry,H0=H0)            ;; in Mpc; defaults to omega_m=0.3
-    dist = distmpc[0] * 3.086d24                ;; in cm
-    kpcperarc = (distmpc[0]/(1+z_tonry[0])^2) * 1000./206265  ;; kiloparsecs per arcsecond
-    kpcperpix = kpcperarc*0.5                   ;; half arcsec pixels
-    halum = haflux * SFR_classmap * attencorr * 1d-16 * 4*!pi *dist^2   ;; now in erg/s
-    sfr = halum * 7.9d-42                       ;; now in Msun/yr, Kennicutt+94
-    sfrsd = sfr / kpcperpix^2                   ;; this one in Msun/yr/kpc^2
-    ```
+    $SFR = L(H\alpha) \times 7.9\times 10^{-42}$ [$\rm M_{sun}~yr^{-1}$]
+    following [Kennicutt 1998](http://adsabs.harvard.edu/abs/1998ARA%26A..36..189K)
 
-    Errors (1-sigma uncertainty) in SFR are also included.
+    where $L(H\alpha)$ is the H$\alpha$ luminosity in each spaxel corrected for
+    internal extinction via the Balmer decrement. Errors (1-sigma uncertainty)
+    in SFR are included as an extension in each file.
 
-    A separate map is made for each set of LZIFU emission line fits for each
-    galaxy: 1 Gaussian component (`*_1_comp.fits`), 2 Gaussian components
-    (`*_2_comp.fits`), 3 Gaussian components (`*_3_comp.fits`), and the recommended
-    number of components for each spaxel (`*_recom_comp.fits`).  Each map has
-    dimensions of $(50,50,ncomp+1)$.  The slice `[*,*,0]` represents the total star
-    formation rate (from the total Halpha flux) summed over all components, and
-    the `[*,*,ncomp]` slices represent the star formation rate from each
-    individual component.
+    Star formation rate density and error maps (in units of $\rm M_{sun}~yr^{-1}~kpc^{-2}$)
+    are also provided as additional extensions to the SFR maps.
 
+    We emphasize that these SFR maps are not appropriate for calculating a global
+    (total) SFR, for two reasons: a) These maps use a clean sample of star-forming
+    spaxels, not a complete one.  Thus, it is possible (and likely) that some
+    regions of star formation may be excluded, particularly in ambiguous cases,
+    and b) Measurements of derived quantities will have more reliable
+    measurements if the spectra are summed and then emission lines refit,
+    rather than summing together many low-S/N fits.
+
+    In all branches, SFR maps retain the same dimensions as the the H$\alpha$
+    emission line maps.  Note that this means the input $50 \times 50$
+    extinction maps and star formation masks are applied to all components
+    of the multicomponent H$\alpha$ maps.
 
     ##format: markdown
 
@@ -2260,13 +2255,13 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
         value = self._hdu['SFR'].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
-    value.set_description("Total star-formation rate in all components")
+    value.set_description("Star formation rate calculated from $H\\alpha$ emission")
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu['SFR_ERR'].data[:, :, :]
         return sigma
-    error.set_description("Error in total star-formation rate in all components")
+    error.set_description("1-sigma uncertainty in star formation rate")
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -2278,7 +2273,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-        """Surface density of star formation."""
+        """Star formation rate surface density map based on $H\\alpha$ emission."""
 
         trait_type = 'sfr_density_map'
 
@@ -2292,21 +2287,18 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
             value = self._hdu['SFRSurfDensity'].data[:, :, :]
             log.debug("Returning type: %s", type(value))
             return value
-
-        value.set_description("Total star-formation rate density in all components")
+        value.set_description(r"Star formation rate surface density calculated from $H\alpha$ emission")
 
         @trait_property('float.array.3')
         def error(self):
             sigma = self._hdu['SFRSurfDensity_ERR'].data[:, :, :]
             return sigma
 
-        error.set_description("Error in total star-formation rate density in all components")
+        error.set_description("1-sigma uncertainty in star formation rate surface density")
 
-        @trait_property('string')
-        def new_prop(self):
-            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
+    SFRDensity.set_pretty_name("SFR Surface Density Map")
 
-SFRMapRecommendedComponent.set_pretty_name("Star-Formation-Rate Map")
+SFRMapRecommendedComponent.set_pretty_name("Star Formation Rate Map")
 
 
 class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
