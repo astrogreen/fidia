@@ -107,7 +107,7 @@ class ClassificationMap(Map2D):
     valid_classifications = None
 
 class FractionalMaskMap(Map2D):
-    """Mask with fractional opacity between 0 and 1"""
+    """Mask identifying the spatial regions with emission dominated by star formation"""
     pass
 
 class FlagMap(Map2D):

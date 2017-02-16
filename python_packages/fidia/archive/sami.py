@@ -896,7 +896,7 @@ class SAMISpectralCube(SpectralMap):
         dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
 
 SAMISpectralCube.set_pretty_name("Spectral Cube")
-SAMISpectralCube.set_description("Spatially resolved spectra across the galaxy [all spectral cube types, regardless of qualifier (red/blue)]")
+SAMISpectralCube.set_description("Fully reduced and flux calibrated SAMI cubes")
 
 # SAMISpectralCube.value.set_description
 # SAMISpectralCube.variance.set_description
@@ -2246,6 +2246,8 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
     }
     defaults = DefaultsRegistry(version_defaults={branch_lzifu_m_comp[0]: 'V03'})
 
+    unit = units.solMass / units.yr
+
     def fits_file_path(self):
 
         return self.find_file(data_product_name="SFRMaps", data_product_filename="SFR")
@@ -2302,56 +2304,41 @@ SFRMapRecommendedComponent.set_pretty_name("Star Formation Rate Map")
 
 
 class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
-    r"""Classification of emission in each spaxel as star forming or as other ionisation mechanisms. [all star formation masks regardless of branch (1comp/recom_comp)]
+    r"""Classification of emission in each spaxel as pure star formation (mask=1) or as contaminated by other ionisation mechanisms (mask=0).
 
-    We classify each spaxel using (when possible) [OIII]/Hβ, [NII]/Hα,
-    [SII]/Hα, and [OI]/Hα flux ratios from EmissionLineFitsV03 to
-    determine whether the emission lines are dominated by photoionization from
-    HII regions or other sources like AGN or shocks, using the BPT/VO87
-    diagnostic diagrams and dividing lines from Kewley et al. 2006 (reproduced
-    here for completeness).  We only classify spaxels with ratios that have a
-    signal-to-noise ratio of at least 5.
 
-    Emission is classified as star-forming in a given diagnostic if:
+    We classify each spaxel using (when possible) [OIII]/H$\beta$, [NII]/H$\alpha$,
+    [SII]/H$\alpha$, and [OI]/H$\alpha$ flux ratios to determine whether the
+    emission lines are dominated by photoionization from HII regions or other
+    sources like AGN or shocks, using the BPT/VO87 diagnostic diagrams and
+    dividing lines from (Kewley et al. 2006). We only classify spaxels with
+    ratios that have a signal-to-noise ratio of at least 5. Emission is
+    classified as star-forming in a given diagnostic if:
+
     ```
-    alog10([OIII]/Hβ) < (0.61 / (alog10([NII]/Hα)-0.05) + 1.3   ;Kauffmann+03
-    alog10([OIII]/Hβ) < (0.72 / (alog10([SII]/Hα)-0.32) + 1.3   ;Kewley+01
-    alog10([OIII]/Hβ) < (0.73 / (alog10([OI]/Hα) +0.59) + 1.33  ;Kewley+01
-    ```
+    $\log([OIII]/H\beta) < (0.61 / (\log([NII]/H\alpha)-0.05) + 1.3$ Kauffmann et al. 2003
 
+    $\log([OIII]/H\beta) < (0.72 / (\log([SII]/H\alpha)-0.32) + 1.3$ Kewley et al. 2001
+
+    $\log([OIII]/H\beta) < (0.73 / (\log([OI]/H\alpha) +0.59) + 1.33$ Kewley et al. 2001
+    ```
     We additionally add a likely classification of "star-forming" to spaxels
-    with $\log(\textrm{[NII]}/\textrm{Hα}) < -0.4$ without an [OIII] detection and to spaxels with
-    Hα detections but no [N II], [S II], [O I], or [O III] detections.
+    with $\log([NII]/H\alpha) <-0.4$ without an [OIII] detection and to spaxels
+     with H$\alpha$ detections but no [N II], [S II], [O I], or [O III] detections.
 
-    Each spaxel in the map is 1 (when star formation dominates the emission in
-    all available line ratios) or 0 (when other ionization mechanisms dominate),
-    so it may be simply multiplied by the Hα flux map to produce "Hα
-    from star formation" maps.
+    Each spaxel in the mask is 1 (when star formation dominates the emission
+    in all available line ratios) or 0 (when other ionization mechanisms dominate),
+    so that it may be simply multiplied by the H$\alpha$ flux map to produce
+    "H$\alpha$ from star formation" maps. We emphasize that this mask idenfies
+    a clean sample of star formation, not a complete one.  Spectra with low
+    signal-to-noise or ambiguous line ratios might be partially or completely
+    due to star formation, but are excluded here.
 
-    We note that these classifications are done only using the TOTAL EMISSION
-    LINE FLUX in a spectrum.  Thus, for spectra which contain 2 or 3 components,
-    we classify the total emission in that spaxel, not the individual
-    components.
+    For the multi-component branch, we only provide star formation masks based
+    on the total fluxes of the emission lines in each spaxel (i.e., we do not
+    provide maps for each individual kinematic component).
 
-    The files (one per galaxy per component fit) may be found on bill at
-    /export/bill1/sami_data/data_products/SFMasks/SFMasksV03
-
-    Each fits file is accompanied by an EPS figure showing the BPT and VO87
-    diagnostic diagrams with each spaxel (of S/N>5 in each relevant line)
-    plotted.  Blue points correspond to the unambiguous SF (SFMasks=1; in HII
-    region of all available diagrams); shocked/AGN/LINER/composite/ambiguous
-    spaxels are plotted in black.
-
-    ## Classifications
-
-    Classifications are stored in the map as an integer with the following definitions:
-
-    | Pixel Value | Classification |
-    | ------------|----------------|
-    |   0         |  No data       |
-    |   1         | star formation dominates the emission in all available line ratios |
-    |   2         | other ionization mechanisms dominate |
-
+    Thus, all extinction maps are $50 \times 50$ arrays.
 
     """
 
@@ -2372,6 +2359,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     @trait_property("int.array.2")
     def value(self):
         return self._hdu[1].data
+    value.set_description("Mask identifying pure star formation")
 
     @property
     def shape(self):
@@ -2386,7 +2374,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 
-SFMask.set_pretty_name("Emission Classification Map")
+SFMask.set_pretty_name("Star Formation Mask")
 
 
 
@@ -2672,7 +2660,17 @@ class SAMIDR1PublicArchive(Archive):
         redshift.branches_versions = {('helio', "Heliocentric", "Redshift in the heliocentric frame"): {"V02"}}
         redshift.set_description("Redshift estimates obtained from either SDSS or GAMA optical spectra.")
         redshift.value.set_description(redshift.get_description())
-        redshift.set_documentation("Heliocentric = Heliocentric Redshift. Obtained from the GAMA data release [SpecAll SpecCatv08]")
+        redshift.set_documentation(
+            """Two different branches are available:
+
+            * Heliocentric (this branch) = Heliocentric Redshift. Obtained from the GAMA data release [SpecAll SpecCatv08]
+
+            * Flow Corrected = Flow corrected redshift applying the Tonry model to the heliocentric estimate,
+            as described in section 2.3 of <a href="http://adsabs.harvard.edu/abs/2012MNRAS.421..621B" target="_blank">Baldry et al. (2012)</a>.
+            The effect on the distance
+            moduli is significant at $z < 0.03$, see figure 2 of the paper.
+
+            """, format="markdown")
         self.available_traits.register(redshift)
         del redshift
 
@@ -2684,14 +2682,16 @@ class SAMIDR1PublicArchive(Archive):
         redshift_tonry.set_description("Redshift estimates obtained from either SDSS or GAMA optical spectra.")
         redshift_tonry.value.set_description(redshift_tonry.get_description())
         redshift_tonry.set_documentation(
-            r"""
-            Flow corrected redshift applying the Tonry model to the heliocentric estimate,
+            """Two different branches are available:
+
+            * Flow Corrected (this branch) = Flow corrected redshift applying the Tonry model to the heliocentric estimate,
             as described in section 2.3 of <a href="http://adsabs.harvard.edu/abs/2012MNRAS.421..621B" target="_blank">Baldry et al. (2012)</a>.
             The effect on the distance
             moduli is significant at $z < 0.03$, see figure 2 of the paper.
 
-            """
-        )
+            * Heliocentric = Heliocentric Redshift. Obtained from the GAMA data release [SpecAll SpecCatv08]
+
+            """, format="markdown")
         self.available_traits.register(redshift_tonry)
         del redshift_tonry
 
@@ -2758,7 +2758,7 @@ class SAMIDR1PublicArchive(Archive):
             r-band surface brightness in mags arcsec^-2 based on GAMA single
             sersic fits [SersicPhotometryv07 SersicCatAllv07] to SDSS r-band imaging data.
 
-            Three different versions are available:
+            Three different branches are available:
 
             * 1R_eAVG = Average surface brightness within one effective radius
             taken directly from the GAMA sersic fits catalogue [SersicCatAllv07 GAL_MU_E_AVG_R]
@@ -2785,7 +2785,7 @@ class SAMIDR1PublicArchive(Archive):
             r-band surface brightness in mags arcsec^-2 based on GAMA single
             sersic fits [SersicPhotometryv07 SersicCatAllv07] to SDSS r-band imaging data.
 
-            Three different versions are available:
+            Three different branches are available:
 
             * 1R_eAVG = Average surface brightness within one effective radius
             taken directly from the GAMA sersic fits catalogue [SersicCatAllv07 GAL_MU_E_AVG_R]
@@ -2812,7 +2812,7 @@ class SAMIDR1PublicArchive(Archive):
             r-band surface brightness in mags arcsec^-2 based on GAMA single
             sersic fits [SersicPhotometryv07 SersicCatAllv07] to SDSS r-band imaging data.
 
-            Three different versions are available:
+            Three different branches are available:
 
             * 1R_eAVG = Average surface brightness within one effective radius
             taken directly from the GAMA sersic fits catalogue [SersicCatAllv07 GAL_MU_E_AVG_R]
@@ -2896,7 +2896,7 @@ class SAMIDR1PublicArchive(Archive):
             relation is:
 
             \begin{align}
-            \log \left( \frac{M_*}{M_\cdot}\right) = -0.4i + 0.4D - \log(1.0 + z) + (1.2117 - 0.5893z) + (0.7106 - 0.1467z) \times (g i)
+            \log \left( \frac{M_*}{M_\cdot}\right) = -0.4i + 0.4D - \log(1.0 + z) + (1.2117 - 0.5893z) + (0.7106 - 0.1467z) \times (g - i)
             \end{align}
 
             where D is the distance modulus.  For SED-based stellar masses,
