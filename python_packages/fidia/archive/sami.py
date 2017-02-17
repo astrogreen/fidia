@@ -2315,13 +2315,13 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     ratios that have a signal-to-noise ratio of at least 5. Emission is
     classified as star-forming in a given diagnostic if:
 
-    ```
-    $\log([OIII]/H\beta) < (0.61 / (\log([NII]/H\alpha)-0.05) + 1.3$ Kauffmann et al. 2003
 
-    $\log([OIII]/H\beta) < (0.72 / (\log([SII]/H\alpha)-0.32) + 1.3$ Kewley et al. 2001
+    $\log([OIII]/H\beta) < (0.61 / (\log([NII]/H\alpha)-0.05) + 1.3$ [Kauffmann et al. 2003](http://adsabs.harvard.edu/abs/2003MNRAS.346.1055K)
 
-    $\log([OIII]/H\beta) < (0.73 / (\log([OI]/H\alpha) +0.59) + 1.33$ Kewley et al. 2001
-    ```
+    $\log([OIII]/H\beta) < (0.72 / (\log([SII]/H\alpha)-0.32) + 1.3$ [Kewley et al. 2001](http://adsabs.harvard.edu/abs/2001ApJ...556..121K)
+
+    $\log([OIII]/H\beta) < (0.73 / (\log([OI]/H\alpha) +0.59) + 1.33$ [Kewley et al. 2001](http://adsabs.harvard.edu/abs/2001ApJ...556..121K)
+
     We additionally add a likely classification of "star-forming" to spaxels
     with $\log([NII]/H\alpha) <-0.4$ without an [OIII] detection and to spaxels
      with H$\alpha$ detections but no [N II], [S II], [O I], or [O III] detections.
@@ -2340,6 +2340,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     Thus, all extinction maps are $50 \times 50$ arrays.
 
+    ##format: markdown
     """
 
     trait_type = 'star_formation_mask'
