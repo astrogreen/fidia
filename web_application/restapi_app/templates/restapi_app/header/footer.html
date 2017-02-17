@@ -244,6 +244,25 @@
             "HTML-CSS": {scale: 90}
         });
 
+        // #### FITS DOWNLOAD BUTTON TRIGGER MODAL ON CLICK THEN GET DATA
+        $('.modal-download-btn').click(function(e){
+
+            const helpful = '<br/><div class="alert alert-info alert-dismissible" role="alert" style="padding:5px;margin-bottom:5px;margin-top:3px"> ' +
+                '<button type="button" class="close" style="float:right; top:-1px;right:auto" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button> ' +
+                '<i class="fa fa-loading"></i> Downloading...' +
+                '</div>';
+
+            if ($(event.target.closest('a')).parent().hasClass('btn-group')) {
+                // append to the super parent if btn-group is in the way
+                $(event.target.closest('a')).parent().parent().append(helpful);
+            } else {$(event.target.closest('a')).parent().append(helpful);}
+
+//            event.preventDefault();
+//            return false;
+        });
+
+        $()
+
 
     });
 </script>
