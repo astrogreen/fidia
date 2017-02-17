@@ -76,7 +76,7 @@
                         Note: Data are grouped by their product type, e.g., [OII] (3729Å) and Hα line emission maps are
                         found in the <strong>Line Emission Map</strong> section.
                         It is recommended
-                        that you also use the <a href="">{{survey|uppercase}} Documentation</a> in
+                        that you also use the <a class="" target="_blank" href="{% url 'documentation:topic-detail' slug=survey %}"> {{survey|uppercase}} Documentation </a> in
                         conjunction
                         with the
                         Schema
@@ -106,7 +106,11 @@
                     <td id="{{trait_type_key}}">
                         {{trait_type_value.pretty_name}}
                         {{trait_qualifier_value.pretty_name}}
+
+
+                        <br/>
                         <!--<p class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</p>-->
+
                     </td>
                     <td>
                         <!-- Hack: use the default branch/version description here, as all catalog

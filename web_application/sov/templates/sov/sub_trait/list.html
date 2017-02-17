@@ -64,7 +64,7 @@
         {% include 'sov/tables/action.html' %}
     </div>
     <div class="col-xs-12">
-        {% include 'sov/trait/properties_table.html' %}
+        {% include 'sov/trait/properties_table.html' with optional_sub_trait=response.data.name %}
     </div>
 </div>
 
