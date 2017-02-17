@@ -473,13 +473,21 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
                 // Append column options to the range select
                 for (var k=0;k<columns.length;k++){
+
                     // if you can parse as float, then append
 
                     var _column_append = true;
 
                     for (var z=0;z<catalog.data.length;z++){
-                        if (!!parseFloat(catalog.data[z][k])){
-                        } else {_column_append = false;}
+
+                        if (!(parseFloat(catalog.data[z][k]) || catalog.data[z][k] === 0 )) {
+                            // here we add a check for zeros, which are false in javascript
+                            _column_append = false;
+                        }
+
+//                        if (z < 1) {
+//                            console.log(k, columns[k].name, catalog.data[z][k], typeof(catalog.data[z][k]), !!parseFloat(catalog.data[z][k]), parseFloat(catalog.data[z][k]), _column_append);
+//                        }
                     }
 
                     if (_column_append == true){
