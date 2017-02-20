@@ -10,9 +10,20 @@ function range(start, count) {
     return temp;
 };
 
-function bouncer(arr) {
-    // Removes NAN from the array
-    return arr.filter(Boolean);
+
+function removeNan(arr) {
+    // should only remove NaN values from array.
+    // previously:
+    // return arr.filter(Boolean);
+    // which also removes zeros - which we don't want!!
+
+    return arr.filter(function(value) {
+        // console.log(value, typeof value == "number", value >= 0, isNaN(value));
+        // this effectively replicates isNaN(value) but will
+        // also filter for 'true' and 'null' values, which isNaN
+        // says is false (ie. they are a number).
+        return (typeof value == "string" && parseFloat(value)) || (typeof value == "number" && value >= 0);
+    });
 }
 
 function standardDeviation(values){
@@ -70,11 +81,11 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
     });
 
     // Remove NaN
-    var NumArr = bouncer(FlatArr);
+    var NumArr = removeNan(FlatArr);
 
     //ZMIN ZMAX (without sigma clip)
-    // var Zmax_old = Math.max.apply(null, bouncer(FlatArr));
-    // var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
+    // var Zmax_old = Math.max.apply(null, removeNan(FlatArr));
+    // var Zmin_old = Math.min.apply(null, removeNan(FlatArr));
 
     // sort Num arr ascending
     NumArr.sort(function(a,b){return a - b});

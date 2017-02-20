@@ -979,7 +979,7 @@ class LZIFUDataMixin:
             log.debug("Trying path for LZIFU Data: %s", filepath)
 
         exists = file_or_gz_exists(filepath)
-        print(exists)
+
         if not self._lzifu_fits_file and exists:
             # Try with the correct plate identifier appended (the case for duplicates)
                 self._lzifu_fits_file = exists
