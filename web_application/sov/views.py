@@ -426,7 +426,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.h
                 raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                               status_code=status.HTTP_404_NOT_FOUND)
             else:
-                if n_axes == 2:
+                if n_axes == 2 or n_axes == 3:
                     self.trait_2D_map = True
                     # @TODO: Handle arrays other than numpy ndarrays
 

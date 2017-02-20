@@ -979,7 +979,6 @@ class LZIFUDataMixin:
             log.debug("Trying path for LZIFU Data: %s", filepath)
 
         exists = file_or_gz_exists(filepath)
-
         if not self._lzifu_fits_file and exists:
             # Try with the correct plate identifier appended (the case for duplicates)
                 self._lzifu_fits_file = exists
@@ -1066,7 +1065,6 @@ class SAMIVAP(MetadataTrait):
     # contact.set_description("email address of contact person for this VAP")
     # contact.set_pretty_name("Contact Email")
     # contact.set_short_name("CONTACT")
-
 SAMIVAP.set_pretty_name("SAMI VAP Metadata")
 SAMIVAP.set_description("Metadata added by the SAMI quality control process for value-added products")
 
@@ -1447,9 +1445,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
         if red_cube_name[-3:] == ".gz":
             red_cube_name = red_cube_name[:-3]
         helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
-
         return helio_corr
-
     heliocentric_velocity_correction.set_short_name("HELIOCOR")
 
     @trait_property('string')
@@ -1470,6 +1466,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     sub_traits.register(LZIFUWCS)
 
+
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     r"""Emission line flux map from a single Gaussian fit. [line emission maps for HBETA, OIII5007, OI6300, HALPHA, NII6583, SII6716, SII6731 for branch (1_comp)]
 
@@ -1477,7 +1474,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
 
     ##format: markdown
     """
-
 
     trait_type = 'line_emission_map'
     branches_versions = {branch_lzifu_1_comp: {'V03'}}
@@ -1509,7 +1505,9 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
 
     @trait_property('float.array.3')
     def value(self):
+        print('loading value')
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1:2, :, :]
+        print('loaded value')
         log.debug("Returning type: %s", type(value))
         return value
 
@@ -1529,7 +1527,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
         return _wcs_string
 
-
     #
     # Sub Traits
     #
@@ -1539,7 +1536,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
-
 
     sub_traits.register(LZIFUWCS)
 
@@ -1554,6 +1550,7 @@ LZIFUOneComponentLineMap.set_pretty_name(
     NII6583='[NII] (6583Å)',
     SII6716='[SII] (6716Å)',
     SII6731='[SII] (6731Å)')
+
 
 class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
     """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727 for branch (1_comp)]
@@ -1607,7 +1604,6 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
-
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
@@ -1615,7 +1611,8 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
-LZIFUOneComponent3727.set_documentation("The Emission-line-flux map for the [OII] doublet is the sum of the individual fits for [OII] (3726Å) and [OII] (3729Å).")
+LZIFUOneComponent3727.set_documentation("""The Emission-line-flux map for the [OII] doublet is the sum of the individual
+fits for [OII] (3726Å) and [OII] (3729Å).""")
 
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
@@ -1636,7 +1633,6 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     }
 
     qualifiers = line_name_map.keys()
-
 
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
@@ -1676,9 +1672,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
     "Line Emission Map",
     HALPHA='Hα')
-LZIFURecommendedMultiComponentLineMap.set_documentation(
-    "Documentation from SAMI Team here... [all line emission maps branch (m_comp)]")
-
+LZIFURecommendedMultiComponentLineMap.set_documentation("Documentation from SAMI Team here... [all line emission maps branch (m_comp)]")
 
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
@@ -1707,7 +1701,6 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     }
 
     qualifiers = line_name_map.keys()
-
 
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
@@ -1753,6 +1746,7 @@ LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     NII6583='[NII] (6583Å)',
     SII6716='[SII] (6716Å)',
     SII6731='[SII] (6731Å)')
+
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiComponentLineMapTotalOnly):
     """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727, branch (m_comp)]
@@ -1807,7 +1801,6 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
-
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
@@ -1816,6 +1809,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
 LZIFUOneComponent3727.set_documentation("Documentation from SAMI Team here")
+
 
 class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     """a description string for spectral_fit_cubes [all spectral fit cubes, regardless of qualifier (red/blue) or branch (1_comp/m_comp)]
@@ -1834,7 +1828,6 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
-
     @property
     def shape(self):
         return self.value().shape
@@ -1850,7 +1843,6 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
             color = "R"
         return self._hdu[color + '_CONTINUUM'].data + self._hdu[color + '_LINE'].data
 
-
     @trait_property('string')
     def _wcs_string(self):
         # Determine which colour:
@@ -1861,7 +1853,6 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
         _wcs_string = str( self._hdu[color + '_CONTINUUM'].header)
         log.debug(_wcs_string)
         return _wcs_string
-
 
     #
     # Sub Traits
@@ -1918,6 +1909,7 @@ class LZIFUContinuum(SpectralMap):
     @trait_property('float.array.3')
     def error(self):
         raise DataNotAvailable("No error data available for LZIFU continuum spectral fit.")
+
 
 class LZIFULineSpectrum(SpectralMap):
 
@@ -2016,6 +2008,7 @@ class AnneVAP:
         assert fits_file_path is not None
         return fits_file_path
 
+
 class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     r"""Emission extinction map based on the Balmer decrement. [all balmer extinction maps regardless of branch (1_comp/m_comp)]
 
@@ -2085,7 +2078,6 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
 
     
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
-
 
 
 class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2267,6 +2259,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
         @trait_property('string')
@@ -2351,7 +2344,6 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
 
-
     def fits_file_path(self):
 
         return self.find_file(data_product_name="SFMasks", data_product_filename="SFMask")
@@ -2367,6 +2359,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
         @trait_property('string')
@@ -2375,8 +2368,6 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
 
 SFMask.set_pretty_name("Star Formation Mask")
-
-
 
 
 def update_path(path):
@@ -2411,7 +2402,6 @@ class SAMIDR1PublicArchive(Archive):
                       dtype={'SAMI_ID': str, 'red_cube_file': str}).set_index('SAMI_ID')
         self.contents = master_cat.index
 
-
         # The master catalog only has red cube file names, so create a column with blue names as well:
         red_files = master_cat['red_cube_file']
         blue_files = red_files.apply(lambda x: x.replace("red", "blue"))
@@ -2438,15 +2428,12 @@ class SAMIDR1PublicArchive(Archive):
         # Local cache for traits
         self._trait_cache = dict()
 
-
         # Table of heliocentric corrections:
         self._helio_corr = ascii.read(self.catalog_path + "heliocentric_corr/" +
                                       "mean_helio_v0.9.1.dat")
         self._helio_corr.add_index('CUBE_NAME')
         # Rename the "MEAN (KM/S)" column to be easier to address.
         self._helio_corr.columns['MEAN(KM/S)'].name = 'MEAN'
-
-
 
         super(SAMIDR1PublicArchive, self).__init__()
 
@@ -2525,13 +2512,12 @@ class SAMIDR1PublicArchive(Archive):
         cube_ids = map(os.path.basename, glob(self._base_directory_path + "*/cubed/*"))
 
         # Note, there may be duplicates; the following prints a list of duplicates
-        #print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
+        # print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
         return cube_ids
 
     @property
     def name(self):
         return 'SAMI'
-
 
     feature_catalog_data = [
         # TraitPath("cat_id"),
@@ -3002,12 +2988,9 @@ class SAMIDR1PublicArchive(Archive):
 
         self.available_traits.change_defaults('bad_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
-
-
         #      __    ___          __       ___
         # |     / | |__  |  |    |  \  /\   |   /\
         # |___ /_ | |    \__/    |__/ /~~\  |  /~~\
-
 
         self.available_traits.register(LZIFUVelocityMap)
         self.available_traits.register(LZIFURecommendedComponentVelocityMap)
@@ -3125,7 +3108,7 @@ class SAMITeamArchive(Archive):
         cube_ids = map(os.path.basename, glob(self._base_directory_path + "*/cubed/*"))
 
         # Note, there may be duplicates; the following prints a list of duplicates
-        #print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
+        # print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
         return cube_ids
 
     @property
