@@ -17,6 +17,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from fidia.archive.asvo_spark import AsvoSparkArchive
+from fidia.archive.presto import PrestoArchive
 
 # log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
@@ -40,6 +41,11 @@ def run_sql_query(request_string):
     # log.debug(json_table)
     data = json.loads(json_table)
     return data
+
+
+def get_sql_schema():
+    schema = PrestoArchive().get_sql_schema()
+    return json.dumps(schema)
 
 
 class QueryCreateView(viewsets.GenericViewSet, mixins.CreateModelMixin):

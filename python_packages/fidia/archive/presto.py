@@ -17,11 +17,12 @@ class PrestoArchive():
                             "X-Presto-User":    "lharischandra"
                             }
 
-        self.__url = 'http://asvotest1.aao.gov.au:8092/v1/statement'
+        self.__url = 'http://asvotest1.aao.gov.au:8092/v1/execute'
 
 
-    def execute_query(self, query):
+    def execute_query(self, query, database=None):
 
+        self.__headers.update({"X-Presto-Schema": database})
         result = requests.post(self.__url, data=query, headers=self.__headers)
         #r = requests.get(url, data={})
         return result
@@ -41,6 +42,60 @@ class PrestoArchive():
             return result.json()['data']
         else:
             return result.status_code + result.reason
+
+
+    def get_dmu_data(self):
+        result = self.execute_query("Select * from DMUs", "default")
+        if result.ok:
+            return result.json()
+        else:
+            return result.status_code + result.reason
+
+    def get_tables_by_dmu(self, dmuid):
+        result = self.execute_query("Select * from tables where dmuid=" + str(dmuid), "default")
+        if result.ok:
+            return result.json()
+        else:
+            return result.status_code + result.reason
+
+    def get_columns_by_table(self, tableid):
+        result = self.execute_query("Select * from columns where tableid=" + str(tableid), "default")
+        if result.ok:
+            return result.json()
+        else:
+            return result.status_code + result.reason
+
+    def get_sql_schema(self):
+        dmu_data = self.get_dmu_data()
+        dmus_list = list()
+        for dmu in dmu_data['data']:
+            dmu_dict = dict()
+            dmu_id = dmu[0]
+            dmu_dict['name'] = dmu[1]
+            table_data = self.get_tables_by_dmu(dmu_id)
+            tables_list = list()
+            for tbl in table_data['data']:
+                table = dict()
+                table_id = tbl[0]
+                table['name'] = tbl[1]
+                table['version'] = tbl[4]
+                table['shortdescription'] = tbl[7]
+                column_data = self.get_columns_by_table(table_id)
+                columns_list = list()
+                for col in column_data['data']:
+                    column = dict()
+                    column['name'] = col[2]
+                    meta = dict()
+                    meta['ucd'] = col[4]
+                    meta['description'] = col[5]
+                    column['meta'] = meta
+                    columns_list.append(column)
+                table['cols'] = columns_list
+                tables_list.append(table)
+            dmu_dict['cats'] = tables_list
+            dmus_list.append(dmu_dict)
+
+        return dmus_list
 
 
     def getSpectralMapsById(self, object_id):

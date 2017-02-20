@@ -7,7 +7,7 @@ class TestPresto():
     #     assert isinstance(r, list)
     #
     # def test_get_columnnames(self):
-    #     r = PrestoArchive().get_columnnames('sami_spectral_maps')
+    #     r = PrestoArchive().get_columnnames('InputCatA')
     #     assert isinstance(r, list)
     #
     # def test_execute_query(self):
@@ -16,6 +16,22 @@ class TestPresto():
     #
     #     print(r.text)
 
-    def test_getSpectralMapTraitPropertyById(self):
-        r = PrestoArchive().getSpectralMapTraitPropertyById('covariance', '31509')
-        assert r is not None
+    def test_get_sql_schema(self):
+        r = PrestoArchive().get_sql_schema()
+        assert isinstance(r, list)
+
+    # def test_get_dmus(self):
+    #     r = PrestoArchive().get_dmu_data()
+    #     assert isinstance(r, list)
+    #
+    # def test_get_tables_by_dmu(self):
+    #     r = PrestoArchive().get_tables_by_dmu(32)
+    #     assert isinstance(r, list)
+    #
+    # def test_get_columns_by_table(self):
+    #     r = PrestoArchive().get_columns_by_table(4)
+    #     assert isinstance(r, list)
+
+    # def test_getSpectralMapTraitPropertyById(self):
+    #     r = PrestoArchive().getSpectralMapTraitPropertyById('covariance', '31509')
+    #     assert r is not None
