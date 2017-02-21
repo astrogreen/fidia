@@ -248,7 +248,7 @@ function plot_map(name, data, selector, zmin, zmax){
         var plotWidth = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().width;
         var plotHeight = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().height;
 
-        console.log('CURRENT PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
+        // console.log('CURRENT PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
 
         // here we take away the extra space between the plot and
         // the container that plotly has added that isn't accounted for in the documentation
@@ -271,7 +271,7 @@ function plot_map(name, data, selector, zmin, zmax){
             var plotWidth = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().width;
             var plotHeight = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().height;
 
-            console.log('NEW PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
+            // console.log('NEW PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
             // console.log('-------------------------------------------')
         });
     }
