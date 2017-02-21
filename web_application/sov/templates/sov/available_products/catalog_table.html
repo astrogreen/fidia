@@ -1,0 +1,139 @@
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+TEST THIS
+<table class="table table-condensed table-bordered vertical_align_middle" > 
+     <thead>
+    <tr class="active">
+
+        <th class="form-inline col-xs-6" style="vertical-align:middle">
+            <div class="row">
+                <div class="col-xs-6 vcenter"><strong>Property</strong></div><!--
+                --><div class="col-xs-6 vcenter">
+                    {% if filter %}
+                        <div class="form-group">
+                            <label for="product_search" sr-only></label>
+                            <input type="text" class="search form-control input-sm" id="product_search" placeholder="FILTER ...">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </th>
+
+        <th class="col-xs-4" style="vertical-align:middle">
+            <strong>Value</strong>
+
+        </th>
+        <th class="col-xs-2" style="vertical-align:middle">
+            <strong>Unit</strong>
+        </th>
+    </tr>
+</thead>
+
+<tbody id="product_menu"> 
+    {% for trait_type_key, trait_type_value in traits.trait_types.items %}
+
+        <!--<tr data-trait-type-key="{{trait_type_key}}" class="bg-success">-->
+            <!--<td colspan="3">-->
+                <!--<h6 class="no-margin-top"><span class="text-uppercase" style="margin-right:15px">{{trait_type_value.pretty_name}}</span>-->
+                    <!--&lt;!&ndash;Hack as trait_type descriptions don't exist on the schema on the trait-type, but rather on the trait-type-qualifier:branch(version)&ndash;&gt;-->
+                    <!--{% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}-->
+                        <!--{% if forloop.first %}-->
+                            <!--{% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}-->
+                                <!--{% if forloop.first %}-->
+                                    <!--{% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}-->
+                                        <!--{% if forloop.first %}-->
+                                            <!--{% with trait_version_value.trait as value %}-->
+                                                <!--{% if value.description %}-->
+                                                    <!--<span class="sub-heading tiny" style="font-weight:400"><em>{{value.description|safe}}</em></span>-->
+                                                <!--{% endif %}-->
+                                                <!--<a class="pull-right" target="_blank" href="{% url 'schema_browser:survey-list' survey_pk=survey %}#{{trait_type_key}}">view schema <i class="fa fa-angle-right"></i></a>-->
+                                            <!--{% endwith %}-->
+                                        <!--{% endif %}-->
+                                    <!--{% endfor %}-->
+                                <!--{% endif %}-->
+                            <!--{% endfor %}-->
+                        <!--{% endif %}-->
+                    <!--{% endfor %}-->
+                <!--</h6>-->
+            <!--</td>-->
+        <!--</tr>-->
+        {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+            <tr data-trait-type-key="{{trait_type_key}}">
+                <td style="padding-left:30px">
+
+                    <a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}" class="trait_anchor">
+                        <span class="text-info"> {{trait_qualifier_value.pretty_name}}
+                        {% if not trait_qualifier_value.pretty_name %}
+                            {{trait_type_value.pretty_name}}
+                        {% endif %}
+                        </span>
+                    </a>
+
+                    {% if trait_qualifier_value.description != None %}
+                        <div class="p">{{trait_qualifier_value.description}}</div>
+                    {%endif%}
+                </td>
+
+                <td>
+                    {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                        {{trait_branch_key}}
+                    <br>
+                    {% endfor %}
+                </td>
+                <td>
+
+                </td>
+                {% comment %}
+                    {% include 'sov/available_products/single_object.html' with trait_qualifier_value=trait_qualifier_value %}
+                {% endcomment %}
+
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+{% comment %}
+    {% include 'sov/available_products/product_filter.controller.html' %}
+{% endcomment %}
+
+<table class="table table-condensed table-bordered">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+            <th>Unit</th>
+            <th>Description</th>
+            <th>Schema</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for el in feature_catalog_data %}
+        <tr>
+            <td>
+                {{el.pretty_name}}
+                <span class="sub-heading">
+                <!--Get the branch pretty name-->
+                {% for trait_type_key, trait_type_value in traits.trait_types.items %}
+                    {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+                        {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                            {% if trait_branch_key == el.trait_key.branch %}
+                                {{trait_branch_value.pretty_name}}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+                </span>
+            </td>
+            <td>{{el.value}}</td>
+            <td>{{el.unit}}</td>
+            <td>{{el.description}}
+            </td>
+            <td>{{el.trait_key.trait_type}}-{{el.trait_key.trait_qualifier}}:{{el.trait_key.branch}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

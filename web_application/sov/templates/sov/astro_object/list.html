@@ -55,6 +55,8 @@
     <!-- Tab panes -->
     <div class="tab-content add-padding">
         <div role="tabpanel" class="tab-pane active" id="overview">
+            {% include 'sov/available_products/catalog_table.html' with traits=response.data.catalog_traits single=True filter=True property=True data=feature_catalog_data %}
+
             <div class="row">
                 <div class="col-xs-12 col-sm-6">
                     <div class="table-responsive">
@@ -67,8 +69,10 @@
                             <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
                             {% for f in feature_catalog_data %}
                                 <tr>
-                                    <td class="p_light">{{f.pretty_name}} {% if f.unit and f.unit != '$\mathrm{}$' %}[{{f.unit}}]{% endif %}</td>
-                                    <td>{{f.value}}</td>
+                                    <td class="p_light">
+                                        {{f.pretty_name}} {% if f.unit and f.unit != '$\mathrm{}$' %}[{{f.unit}}]{% endif %}</td>
+                                    <td class="roundValue">{{f.value}}</td>
+                                    <td>{{f.trait_property_path}}</td>
                                 </tr>
                             {% endfor %}
                             <tr>
@@ -139,7 +143,42 @@
 <script type="application/javascript" src="{% static 'sov/js/2D_map.js'%}"></script>
 <script type="application/javascript" src="{% static 'sov/js/trait_plotting.js'%}"></script>
 
+<script>
+    // HACK - truncation of floating point values
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
 
+    $(document).ready(function() {
+
+        $('.roundValue').each(function (i, obj) {
+            // An intermediate fix for the floating-point problem
+
+            var data = obj.innerHTML;
+            var _new = data;
+
+            // check for a decimal point
+            if ((data.toString()).indexOf(".") != -1 && parseFloat(data)) {
+                // split the string and truncate to 6 DP
+
+                // to test:
+                // data = 25.2000007629;
+                // data = 15.699999809265137;
+                // console.log((Math.floor(1E6 * data) / 1E6));
+                // bring up to a whole number, floor (truncate) to the 6th place
+                // round to 5th place
+                // => 25.2
+                // => 15.7
+
+                // _new = (Math.floor(1E6 * data) / 1E6);
+                _new = round((Math.floor(1E6 * data) / 1E6).toFixed(6), 5);
+            }
+            data = _new;
+            obj.innerHTML = data;
+
+        });
+    });
+</script>
 
 {% endblock %}
 

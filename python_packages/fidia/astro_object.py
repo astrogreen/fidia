@@ -61,8 +61,16 @@ class AstronomicalObject(collections.MutableMapping):
                 # Get the units if present
                 unit_string = trait.get_formatted_units()
 
-                feature_data.append({"pretty_name": pretty_name, "value": value, "unit": unit_string})
-
+                feature_data.append({
+                    "pretty_name": pretty_name,
+                    "value": value,
+                    "unit": unit_string,
+                    "description": trait.get_description,
+                    "trait_key": {
+                        "trait_type": trait_property_path[0].trait_type,
+                        "trait_qualifier": trait_property_path[0].trait_qualifier,
+                        "branch": trait_property_path[0].branch
+                    }})
 
         return feature_data
 
