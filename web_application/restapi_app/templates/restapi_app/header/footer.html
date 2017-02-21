@@ -231,19 +231,5 @@
             box_heights()
         });
 
-
-        // Call MathJax after the content has been loaded
-        // Configured to to use $ for inline math, and \\ for blocks
-        // unicode x212B for Angstrom
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-        MathJax.Hub.Config({
-            tex2jax: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
-            },
-            TeX: {Macros: {AA: "{\\unicode{x212B}}"}},
-            "HTML-CSS": {scale: 90}
-        });
-
-
     });
 </script>
