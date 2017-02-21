@@ -189,7 +189,7 @@ function plot_map(name, data, selector, zmin, zmax){
             x:cols,
             y:rows,
             z: map_val,
-            colorscale:colorscale,
+            // colorscale:colorscale,
             zmin: Zmin,
             zmax: Zmax,
             type: 'heatmap',
@@ -201,24 +201,33 @@ function plot_map(name, data, selector, zmin, zmax){
                 thickness: 0.02,
                 outlinewidth: 0,
                 xpad:0, ypad:0,
-                x: 1.02
+                x: 1.0
             }
         }
     ];
 
     // Force responsive layout
     var elementWidth=$('#'+map_selector).parent().width();
+
     var layout = {
-        autosize:true,
+        autosize:false,
         width:elementWidth,
         height:elementWidth,
         margin: {
-            l: 0.08*elementWidth,
-            r: 0.00*elementWidth,
-            b: 0.08*elementWidth,
-            t: 0.06*elementWidth
+            l: 0,
+            r: 0,
+            b: 0,
+            t: 0,
+            pad: 0
         },
-        // title: map_title
+        xaxis: {
+            ticks: '',
+            showticklabels: false
+        },
+        yaxis: {
+            ticks: '',
+            showticklabels: false
+        }
     };
 
     var raw_id = map_selector.replace("#","");
@@ -231,8 +240,41 @@ function plot_map(name, data, selector, zmin, zmax){
         showLink: false,
         displayModeBar: true,
         scrollZoom: false
-    });
+    }).then(plotlyMarginHandler);
 
+    // ONLOAD, AFTER INITIAL RENDER, RE-RENDER WITH SIZES
+    function plotlyMarginHandler() {
+        // get current inner plot dimensions
+        var plotWidth = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().width;
+        var plotHeight = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().height;
+
+        console.log('CURRENT PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
+
+        // here we take away the extra space between the plot and
+        // the container that plotly has added that isn't accounted for in the documentation
+        // therefore margin top and bottom need to share this
+
+        var newMargin = Math.abs((plotHeight-plotWidth)/2);
+
+        // console.log('newmargin', newMargin);
+
+        var update = {
+            margin: {
+                l: 0,
+                r: 0,
+                b: newMargin,
+                t: newMargin
+            }
+        };
+
+        Plotly.relayout(map_selector, update).then(function() {
+            var plotWidth = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().width;
+            var plotHeight = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().height;
+
+            console.log('NEW PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
+            // console.log('-------------------------------------------')
+        });
+    }
 
     // RESPONSIVE TO CHANGING WINDOW SIZE
     $(window).on("resize",function(e){
@@ -241,8 +283,7 @@ function plot_map(name, data, selector, zmin, zmax){
           width: elementWidth,
           height:elementWidth
         };
-
-        Plotly.relayout(map_selector, update);
+        Plotly.relayout(map_selector, update).then(plotlyMarginHandler);
     });
 
 };
