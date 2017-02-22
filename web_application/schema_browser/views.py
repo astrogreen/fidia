@@ -19,13 +19,13 @@ import restapi_app.utils.helpers
 
 import schema_browser.serializers
 
-import data_browser.views
+import sov.views
 
 import fidia.exceptions
 from fidia.traits import Trait, TraitProperty, TraitRegistry, TraitKey, TraitPath
 
 
-class SchemaViewSet(data_browser.views.RootViewSet):
+class SchemaViewSet(sov.views.RootViewSet):
     class SchemaRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         template = 'schema_browser/root.html'
 

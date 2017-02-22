@@ -142,10 +142,15 @@
                                     {% block sidebar %}
                                         <h5>REST API</h5>
                                         <div class="page-contents">
-                                            <ul class="nav nav-pills nav-stacked  nav-sidebar">
+                                            <ul class="nav nav-pills nav-stacked nav-sidebar">
                                                 <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
-                                                <li role="presentation"><a class="scroll" href="">Endpoints</a></li>
+                                                <h5>Endpoints</h5>
+                                                <h6>Query</h6>
+                                                <li role="presentation"><a href="{% url 'query-list' %}">List</a></li>
+                                                <li role="presentation"><a href="{% url 'query-schema' %}">Schema</a></li>
+                                                <h5>Authentication and Headers</h5>
                                                 <li role="presentation"><a class="scroll" href="">Authentication and Headers</a></li>
+                                                <h5>Errors</h5>
                                                 <li role="presentation"><a class="scroll" href="">Errors</a></li>
                                             </ul>
                                         </div>
@@ -449,8 +454,6 @@
                 </footer>
 
             </div><!-- ./wrapper -->
-
-
 
             {% if filter_form %}
                 {{ filter_form }}

@@ -9,8 +9,8 @@ import restapi_app.exceptions
 import restapi_app.serializers
 import restapi_app.renderers
 import restapi_app.permissions
-import data_browser.serializers
-import data_browser.views
+import sov.serializers
+import sov.views
 
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
@@ -187,9 +187,9 @@ class Surveys(views.APIView):
     renderer_classes = (SurveyRenderer,) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
 
     def get(self, request):
-        rootview = data_browser.views.RootViewSet()
+        rootview = sov.views.RootViewSet()
 
-        serializer_class = data_browser.serializers.RootSerializer
+        serializer_class = sov.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,
@@ -282,7 +282,7 @@ class DataAccess(views.APIView):
         surveys = [{"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0,
                     'data_releases': [1.0, ]}]
 
-        serializer_class = data_browser.serializers.RootSerializer
+        serializer_class = sov.serializers.RootSerializer
         _dummy = object
         serializer = serializer_class(
             many=False, instance=_dummy,

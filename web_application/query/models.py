@@ -7,6 +7,7 @@ class Query(models.Model):
     updated = models.DateTimeField(auto_now=True, editable=False)
     title = models.CharField(max_length=100, blank=True, default="My Query")
     SQL = models.TextField()
+    queryBuilderState = JSONField(default="")
     queryResults = JSONField(default="")
     owner = models.ForeignKey('auth.User', related_name='query')
 

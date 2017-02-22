@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^asvo/', include('documentation.urls', namespace='documentation')),
     # url(r'^asvo/', include('download.urls')),
     # url(r'^asvo/', include('data_browser.urls', namespace='data_browser')),
-    # url(r'^asvo/', include('query.urls')),
+    url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),
     url(r'^asvo/', include('sov.urls', namespace='sov')),
     url(r'^asvo/', include('surveys.urls', namespace='surveys')),

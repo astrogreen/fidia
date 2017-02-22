@@ -54,7 +54,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'hitcount',
     'mathfilters',
-    # 'query',
+    'query',
     'user',
     'restapi_app',
     'rest_framework',

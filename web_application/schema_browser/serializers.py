@@ -16,7 +16,7 @@ from fidia.archive.archive import Archive
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
-import data_browser.serializers
+import sov.serializers
 
 
 class SchemaSerializer(serializers.Serializer):
