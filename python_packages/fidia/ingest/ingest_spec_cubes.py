@@ -8,8 +8,13 @@ import traceback
 
 from avro.datafile import DataFileWriter
 from avro.io import DatumWriter
+from hdfs import InsecureClient
+from hdfs.ext.avro import AvroWriter
+from tempfile import TemporaryFile
 from avro import schema
 from avro import io
+
+import numpy as np
 
 import time
 import json
@@ -18,17 +23,6 @@ from fidia.cache.data_retriver import DataRetriever
 import argparse
 
 from avro.schema import *
-
-#ar = example_archive.ExampleArchive()
-
-# ar = SAMITeamArchive(
-#         '/Users/lharischandra/AAO/AAT_ASVO/Data/SAMI/Django/sami_test_release',
-#        '/Users/lharischandra/AAO/AAT_ASVO/Data/SAMI/Django/sami_test_release/sami_small_test_cat.fits')
-
-# ar = SAMITeamArchive(
-#         '/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/',
-#         '/net/aaolxz/iscsi/data/SAMI/catalogues/sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits')
-
 
 def get_traitproperty_data(trait):
     # type: (Trait) -> dict
@@ -59,25 +53,104 @@ def get_traitproperty_data(trait):
         if 'array' in trait_property_type[trait_property_name]:
             # This is an array trait, so it will have to be flattened, and have
             # it's shape stored separately.
-            array_dict = dict()
+
             if hasattr(trait_property_data[trait_property_name], 'shape'):
                 # Shape attribute can provide the shape of the data (probably a
                 # numpy array).
-                array_dict['shape'] = str(trait_property_data[trait_property_name].shape)
-                array_dict['dataValues'] = trait_property_data[trait_property_name].flatten().tolist()
+                # array_dict['shape'] = str(trait_property_data[trait_property_name].shape)
+                # array_dict['dataValues'] = trait_property_data[trait_property_name].flatten().tolist()
+                if trait.trait_type is 'spectral_map':
+                    record_fields = list()
+                    sch = ""
+                    shape = trait_property_data[trait_property_name].shape
+                    if len(shape) is 3:
+                        sch = {
+                            "type": "array",
+                            "items": {"type": "array",
+                                      "items": {"type": "array",
+                                                "items": "float"}
+                                      }
+                            }
+                        items = ArraySchema(ArraySchema(ArraySchema(PrimitiveSchema(FLOAT))))
+                    elif len(shape) is 5:
+                        sch = {
+                            "type": "array",
+                            "items": {"type": "array",
+                                      "items": {"type": "array",
+                                                "items": {"type": "array",
+                                                          "items": {"type": "array",
+                                                                    "items": "float"}
+                                                        }
+                                                }
+                                    }
+                        }
+                        items = ArraySchema(ArraySchema(ArraySchema(ArraySchema(ArraySchema(PrimitiveSchema(FLOAT))))))
+                    else:
+                        print("Array size is not supported. Object id: " + trait.object_id)
+                        continue
+
+                    meta_fields = list()
+                    meta_fields.append(Field(PrimitiveSchema(STRING), "object_id", 1, False))
+                    meta_fields.append(Field(PrimitiveSchema(STRING), "trait_type", 2, False))
+                    meta_fields.append(Field(PrimitiveSchema(STRING), "trait_qualifier", 3, False))
+                    meta_fields.append(Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(STRING)]),
+                                                         "branch", 4, False))
+                    meta_fields.append(Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(STRING)]),
+                                                         "version", 5, False))
+                    meta_fields.append(Field(PrimitiveSchema(STRING), "trait_property", 6, False))
+                    metadata_field = Field(RecordSchema("metadata", "trait_property", meta_fields, names=Names()),
+                                           "metadata", 1, False)
+
+                    data_field = Field(items, "data", 2, False)
+                    record_schema = RecordSchema("spectral_map_property", "asvo.model.astro_object",
+                                          [metadata_field, data_field], names=Names())
+                    record_json = record_schema.to_json()
+
+                    if trait.branch is None:
+                        branch_version = 'No_branch'
+                    else:
+                        branch_version = trait.branch + '-' + trait.version
+                    base_path = 'Sami_Test/Sami_Spec_Cubes_2/' + trait.object_id + '-' + trait.trait_name + '-' + branch_version
+                    fname = base_path + '-' + trait_property_name + '.avro'
+
+                    spec_record = dict()
+                    meta_record = dict()
+
+                    meta_record['object_id'] = trait.object_id
+                    meta_record['trait_type'] = trait.trait_type
+                    meta_record['trait_qualifier'] = trait.trait_qualifier
+                    meta_record['branch'] = trait.branch
+                    meta_record['version'] = trait.version
+                    meta_record['trait_property'] = trait_property_name
+
+                    spec_record['metadata'] = meta_record
+                    spec_record['data'] = trait_property_data[trait_property_name]
+
+
+                    with AvroWriter(get_hdfs_client(), fname, record_json, overwrite=True) as writer:
+                        writer.write(spec_record)
+                    # tf = TemporaryFile()
+                    # np.save(tf, trait_property_data[trait_property_name])
+                    # tf.seek(0)
+                    # get_hdfs_client().write(fname, tf.read(), overwrite=True, encoding=None)
+                    trait_property_data[trait_property_name] = fname
+
             elif isinstance(trait_property_data[trait_property_name], list):
                 # A one-dimensional Python list.
+                array_dict = dict()
                 array_dict['shape'] = "({})".format(len(trait_property_data[trait_property_name]))
                 array_dict['dataValues'] = trait_property_data[trait_property_name]
+                trait_property_data[trait_property_name] = array_dict
             else:
                 # Unknown array format. Skip.
                 continue
 
             # Replace the trait_property_data with the modified, array-format version:
-            trait_property_data[trait_property_name] = array_dict
+            # trait_property_data[trait_property_name] = array_dict  # this needs to be the path
 
     return {"trait_property_types": trait_property_type,
             "trait_property_data": trait_property_data}
+
 
 def get_sub_trait_data(trait):
     # type: (Trait) -> dict
@@ -141,14 +214,9 @@ def main(args):
 
     trait_schema = ar.schema()
 
-    # Now we need to build the schema.
-    # schema_string = createSchema(trait_schema)
-
     schema_object = get_avro_schema(trait_schema)
 
     #schema_object = schema.Parse(schema_string)
-
-    field_map = schema_object.field_map
 
     writer = DataFileWriter(open(args.output_file, "wb"), DatumWriter(), schema_object)
     startTime = time.clock()
@@ -173,7 +241,9 @@ def removeIngestedObjects(sample, table):
     print('Remaining ids:\n' + str(remaining_ids))
     return remaining_ids
 
-
+def get_hdfs_client():
+    client = InsecureClient("http://asvotest1.aao.gov.au:50070", 'lharischandra')
+    return client
 
 
 def write_astro_objects(archive, schema, writer):
@@ -182,13 +252,15 @@ def write_astro_objects(archive, schema, writer):
     try:
         count = 0
         for object_id in sample:
-            if count is 3:
-                break
+            # if count is 3:
+            #     break
             astro_record = dict()
             astro_record['object_id'] = object_id
             trait_types = dict()
 
             for trait_type in schema:
+                if not trait_type is "spectral_map":
+                    continue
                 trait_type_schema = schema[trait_type]
 
                 trait_type_data = dict()
@@ -236,11 +308,12 @@ def write_astro_objects(archive, schema, writer):
             writer.flush()
             count += 1
         writer.close()
+        print(str(count) + " objects ingested.")
     except:
         tb = traceback.format_exc()
         print(tb)
 
-    #return astro_obj_list
+        #return astro_obj_list
 
 def get_record_data(schema, trait_data):
     data = dict()
@@ -280,6 +353,8 @@ def get_avro_schema(schema):
     astro_record_fields.append(Field(PrimitiveSchema(STRING), 'object_id', 0, False))
     field_index = 1
     for trait_type in schema:
+        if not trait_type is 'spectral_map':
+            continue
         trait_type_schema = schema[trait_type]
         trait_type_field = process_trait_type_schema(trait_type_schema, trait_type, field_index, 'asvo.model', True)
         astro_record_fields.append(trait_type_field)
@@ -328,13 +403,18 @@ def create_avro_record(trait_schema, name, namespace):
         else:
             dtypes = trait_prop_type.split('.')
             if 'array' in trait_prop_type:
-                data_vals = Field(ArraySchema(PrimitiveSchema(dtypes[0])), 'dataValues', 0, False)
-                shape = Field(PrimitiveSchema(STRING), 'shape', 1, False)
-                trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), RecordSchema(trait_prop_key.capitalize(),
-                                                                   namespace + "." + trait_prop_key, [data_vals, shape],
-                                                                   names=Names())]),
-                                         trait_prop_key, field_index, False)
-                trait_fields.append(trait_prop_field)
+                if trait_prop_key is 'source_rss_frames':
+                    data_vals = Field(ArraySchema(PrimitiveSchema(dtypes[0])), 'dataValues', 0, False)
+                    shape = Field(PrimitiveSchema(STRING), 'shape', 1, False)
+                    trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), RecordSchema(trait_prop_key.capitalize(),
+                                                                namespace + "." + trait_prop_key, [data_vals, shape],
+                                                                names=Names())]),
+                                             trait_prop_key, field_index, False)
+                    trait_fields.append(trait_prop_field)
+                else:
+                    trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(STRING)]),
+                                             trait_prop_key, field_index, False)
+                    trait_fields.append(trait_prop_field)
             else:
                 trait_prop_field = Field(UnionSchema([PrimitiveSchema(NULL), PrimitiveSchema(dtypes[0])]),
                                          trait_prop_key, field_index, False)

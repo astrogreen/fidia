@@ -202,7 +202,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
     @classmethod
     def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
-                    separate_metadata=False):
+                    separate_metadata=False, include_hidden_properties=False):
 
         log.debug("Creating schema for %s", str(cls))
 
@@ -242,7 +242,7 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         # Add TraitProperties of this Trait to the schema
         trait_properties_schema = SchemaDictionary()
-        for trait_property in cls._trait_properties():
+        for trait_property in cls._trait_properties(include_hidden=include_hidden_properties):
             if data_class == 'all' or \
                     (data_class == 'catalog' and trait_property.type in TraitProperty.catalog_types) or \
                     (data_class == 'non-catalog' and trait_property.type in TraitProperty.non_catalog_types):
@@ -276,7 +276,8 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 data_class=data_class,
                 combine_levels=combine_levels,
                 verbosity=verbosity,
-                separate_metadata=separate_metadata)
+                separate_metadata=separate_metadata,
+                include_hidden_properties=include_hidden_properties)
 
             if verbosity == 'simple':
                 schema.update(sub_traits_schema)
@@ -663,9 +664,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                     yield obj
 
     @classmethod
-    def trait_property_dir(cls):
+    def trait_property_dir(cls, include_hidden=False):
         """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
-        for tp in cls._trait_properties():
+        for tp in cls._trait_properties(include_hidden=include_hidden):
             yield tp.name
 
     def trait_properties(self, trait_property_types=None, include_hidden=False):
@@ -1023,7 +1024,7 @@ class FITSExportMixin:
                 RegexpGroup(re.compile(r"float\.array\.\d+"),
                             re.compile(r"int\.array\.\d+"))):
                 extension = fits.ImageHDU(trait_property.value)
-                extension.name = str(trait.trait_name)
+                extension.name = str(trait.get_short_name())
                 extension.header['SUBTRAIT'] = (trait.trait_name, "Data Central Sub-trait ID")
                 # extension.header['ST_NAME'] = (trait.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Name")
                 # extension.header['ST_DESC'] = (trait.get_description().encode('ascii', errors='ignore'))

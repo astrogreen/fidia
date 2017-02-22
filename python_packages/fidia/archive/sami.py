@@ -28,6 +28,8 @@ from ..utilities import WildcardDictionary, DefaultsRegistry, exclusive_file_loc
 from fidia.traits import *
 from fidia.traits.trait_property import trait_property_from_fits_header
 
+from fidia.cache.aaodc_presto_cache import PrestoCache
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.INFO)
@@ -410,6 +412,9 @@ class SAMISpectralCube(SpectralMap):
 
         self._cube_path = path
 
+        self._covar_locations_arr = None
+        self._n_covar_locations = None
+
         with self.preloaded_context():
             self._covar_header = self.hdu['COVAR'].header
 
@@ -524,6 +529,20 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
 
+
+    @trait_property('int.array.1')
+    def _covar_locations(self):
+        arr = []
+        n_elements =  self.hdu['COVAR'].header['COVAR_N']
+        for i in range(1, n_elements + 1):
+            loc = int(self.hdu['COVAR'].header['COVARLOC_' + str(i)])
+            arr.append(loc)
+
+        # Store this value locally so that it can be picked up quickly without hitting the database.
+        self._covar_locations_arr = np.array(arr)
+        self._n_covar_locations = n_elements
+        return np.array(arr)
+
     @trait_property("int")
     def n_source_rss_frames(self):
         return len(self.source_rss_frames.value)
@@ -565,7 +584,7 @@ class SAMISpectralCube(SpectralMap):
         trait_type = 'covariance'
 
         @trait_property('float.array.5')
-        def covariance(self):
+        def value(self):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['COVAR'].data
 
@@ -583,23 +602,76 @@ class SAMISpectralCube(SpectralMap):
                 return pt.hdu['COVAR'].header['COVARMOD']
         covariance_mode.set_short_name("COVARMOD")
 
+    Covariance.set_short_name('COVAR')
+
+
+    # Below is a hack I'm not proud of.
+    #
+    # SAMI has COVARIANCE LOCATIONs stored as a long list of header key-words in the FITS files.
+    # This wreaks havoc on the database because of some limits on the number of
+    # items in a column struct (ask Lloyd) and because it leads to lots of of
+    # database requests to retrieve the data.
+    #
+    # First, we must get all of the COVARLOC keywords into FIDIA. To avoid
+    # having 800 copies of basically the same trait property definition,
+    # I add the trait properties after the class has been created using the code
+    # block below.
+    #
+    # Next, to avoid the limits on the database side, these have been set to
+    # reference another TraitProperty on the SAMISpectralCube Trait (which is
+    # the parent trait). This trait is an array of the values (much more
+    # sensible). We then add a special catch to the database ingestion code that
+    # causes these trait properties to be ignored, and only the parent trait
+    # property, which is a single value, to be ingested.
+    #
+    # Then, to avoid 900 database hits, we add a line in the cache mechanism for
+    # the database which causes these trait properties to always appear not to
+    # be present in the database. Furthermore, we cache the array as a regular
+    # attribute of the parent trait, so that it can be retrieved without any
+    # interference from the DB.
 
     for loc_n in range(1, 900):
         tp = TraitProperty(type="int", name="covarloc_" + str(loc_n))
         def tmp(loc_n):
             def fload(self):
-                pt = self._parent_trait
+                pt = self._parent_trait  # type: SAMISpectralCube
                 try:
-                    return pt._covar_header['COVARLOC_' + str(loc_n)]
-                except KeyError:
+                    if pt._covar_locations_arr is not None:
+                        return pt._covar_locations_arr[loc_n]
+                    else:
+                        return pt._covar_locations.value[loc_n]
+                except IndexError:
                     return 0
             return fload
         tp.fload = tmp(loc_n)
         setattr(Covariance, 'covarloc_' + str(loc_n), tp)
-        del tp
+        del tp, tmp
     sub_traits.register(Covariance)
 
+    @sub_traits.register
+    class Dust(Trait):
 
+        trait_type = 'dust'
+
+        @trait_property("float.array.1")
+        def value(self):
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].data
+
+        @trait_property('float')
+        def mw_reding_SFD(self):
+            """MW reddening E(B-V) from SFD98"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].header['EBVSFD98']
+        mw_reding_SFD.set_short_name('EBVSFD98')
+
+        @trait_property('float')
+        def mw_reding_plank(self):
+            """MW reddening E(B-V) from Planck v1.20"""
+            with self._parent_trait.preloaded_context() as pt:
+                return pt.hdu['DUST'].header['EBVPLNCK']
+        mw_reding_plank.set_short_name('EBVPLNCK')
+    Dust.set_short_name("DUST")
 
     @sub_traits.register
     class CatCoordinate(SkyCoordinate):
@@ -630,7 +702,7 @@ class SAMISpectralCube(SpectralMap):
                 w = wcs.WCS(h)
                 w.wcs.radesys = 'FK5a'
                 w.wcs.cunit = ["deg", "deg", "Angstrom"]
-                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'AWAV']
+                w.wcs.ctype = ["RA---TAN", "DEC--TAN", 'Wavelength']
                 return w.to_header_string()
 
         @trait_property('string')
@@ -640,7 +712,7 @@ class SAMISpectralCube(SpectralMap):
                 return h
 
     @sub_traits.register
-    class PSF(Trait):
+    class PSF(MetadataTrait):
         r"""The spatial point-spread function of the observed data.
 
         The PSF is determined from a circular Moffat profile fit to the
@@ -708,14 +780,17 @@ class SAMISpectralCube(SpectralMap):
         @trait_property("float")
         def alpha(self):
             return self.hdu[0].header['PSFALPHA']
+        alpha.set_short_name('PSFALPHA')
 
         @trait_property("float")
         def beta(self):
             return self.hdu[0].header['PSFBETA']
+        beta.set_short_name('PSFBETA')
 
         @trait_property("float")
         def fwhm(self):
             return self.hdu[0].header['PSFFWHM']
+        fwhm.set_short_name('PSFFWHM')
 
     @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
@@ -749,11 +824,11 @@ class SAMISpectralCube(SpectralMap):
 
         telescope = trait_property_from_fits_header('TELESCOP', 'string', 'telescope')
 
-        altitude = trait_property_from_fits_header('ALT_OBS', 'string', 'altitude')
+        altitude = trait_property_from_fits_header('ALT_OBS', 'float', 'altitude')
 
-        latitude = trait_property_from_fits_header('LAT_OBS', 'string', 'latitude')
+        latitude = trait_property_from_fits_header('LAT_OBS', 'float', 'latitude')
 
-        longitude = trait_property_from_fits_header('LONG_OBS', 'string', 'longitude')
+        longitude = trait_property_from_fits_header('LONG_OBS', 'float', 'longitude')
 
 
     @sub_traits.register
@@ -791,10 +866,10 @@ class SAMISpectralCube(SpectralMap):
         detector_id = trait_property_from_fits_header('DETECTOR', 'string', 'detector_id')
         # detector_id.set_short_name("DETECTOR")
 
-        gain = trait_property_from_fits_header('RO_GAIN', 'string', 'gain')
+        gain = trait_property_from_fits_header('RO_GAIN', 'float', 'gain')
         # gain.set_short_name("RO_GAIN")
 
-        read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
+        read_noise = trait_property_from_fits_header('RO_NOISE', 'float', 'read_noise')
         # read_noise.set_short_name('RO_NOISE')
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
@@ -860,7 +935,7 @@ class SAMISpectralCube(SpectralMap):
 
         disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
 
-        disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
+        disperser_tilt = trait_property_from_fits_header('GRATTILT', 'float', 'disperser_tilt')
 
         instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
 
@@ -1076,15 +1151,27 @@ class LZIFUFlag(FlagMap):
     def value(self):
         input_data = self._hdu['QF_BINCODE'].data  # type: np.ndarray
 
-        # The array is stored as a unsigned integer array.
-        output_data = input_data.astype(np.uint64, casting='unsafe', copy=False)
+        log.debug("LZIFU QF_BINCODE input type: %s", input_data.dtype)
+
+        # The array should be stored as a unsigned integer array, but there are
+        # issues with this: FITS doesn't actually support unsigned integers, so
+        # PyFITS instead stores it as a signed integer with a BZERO offset to
+        # shift the whole scale into the positive range.  However, there seems
+        # to be some trouble with how most software (CFITSIO) does the
+        # calculation with large BZERO values that leads to a loss of precision.
+        # (I don't really understand).
+        #
+        # Anyway, for now we do no conversion, and leave this to the SAMI team,
+        # so the code below is disabled.
+
+        # output_data = input_data.astype(np.uint64, casting='unsafe', copy=False)
 
         # Confirm that the cast was safe:
-        if not (output_data == input_data).all():
-            raise FIDIAException("FIDIA Data type error")
+        # if not (output_data == input_data).all():
+        #     raise FIDIAException("FIDIA Data type error")
 
-        return output_data
-
+        return input_data
+LZIFUFlag.set_short_name('QF_BINCODE')
 
 class LZIFUFlagCount(Map2D):
     """Map of number of flags set by LZIFU."""
@@ -1102,6 +1189,8 @@ class LZIFUFlagCount(Map2D):
     @property
     def shape(self):
         return self.value().shape
+LZIFUFlagCount.set_short_name('QF')
+
 
 class LZIFUChiSq(Map2D):
     """Final $\chi^2$ of LZIFU spectral fit."""
@@ -1113,7 +1202,7 @@ class LZIFUChiSq(Map2D):
     preload = LZIFUDataMixin.preload
     cleanup = LZIFUDataMixin.cleanup
 
-    @trait_property("int.array.2")
+    @trait_property("float.array.2")
     def value(self):
         data = self._hdu['CHI2'].data  # type: np.ndarray
         assert len(data.shape) == 2
@@ -1123,7 +1212,7 @@ class LZIFUChiSq(Map2D):
     def shape(self):
         return self.value().shape
 LZIFUChiSq.set_pretty_name("Chi Squared")
-
+LZIFUChiSq.set_short_name('CHI2')
 
 class LZIFUDOF(Map2D):
     """Degrees of freedom in LZIFU spectral fit."""
@@ -1135,7 +1224,7 @@ class LZIFUDOF(Map2D):
     preload = LZIFUDataMixin.preload
     cleanup = LZIFUDataMixin.cleanup
 
-    @trait_property("int.array.2")
+    @trait_property("float.array.2")
     def value(self):
         data = self._hdu['DOF'].data  # type: np.ndarray
         assert len(data.shape) == 2
@@ -1147,6 +1236,28 @@ class LZIFUDOF(Map2D):
 LZIFUDOF.set_pretty_name("Degrees of Freedom")
 LZIFUDOF.set_short_name("DOF")
 
+
+class LZIFUNComp(Map2D):
+    """Map of number of components included in final fit."""
+
+    trait_type = 'number_of_components_map'
+
+    # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
+    init = LZIFUDataMixin.init
+    preload = LZIFUDataMixin.preload
+    cleanup = LZIFUDataMixin.cleanup
+
+    @trait_property("int.array.2")
+    def value(self):
+        data = self._hdu['NCOMP_MAP'].data  # type: np.ndarray
+        assert len(data.shape) == 2
+        return data
+
+    @property
+    def shape(self):
+        return self.value().shape
+LZIFUNComp.set_pretty_name("Number of Components Map")
+LZIFUNComp.set_short_name("NCOMP_MAP")
 
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
@@ -1211,7 +1322,7 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['V'].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1267,7 +1378,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['V'].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1277,6 +1388,7 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1310,7 +1422,7 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['VDISP'].header
-        return _wcs_string
+        return str(_wcs_string)
 
 
     #
@@ -1356,7 +1468,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['VDISP'].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1366,6 +1478,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1427,7 +1540,7 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
-        return _wcs_string
+        return str(_wcs_string)
 
 
     #
@@ -1511,7 +1624,7 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
-        return _wcs_string
+        return str(_wcs_string)
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
@@ -1555,7 +1668,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1565,6 +1678,7 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1608,14 +1722,14 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
 
     @trait_property('float.array.3')
     def value(self):
-        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
+        value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0:1, :, :]
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Total Line Flux in all components")
 
     @trait_property('float.array.3')
     def error(self):
-        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
+        sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0:1, :, :]
         return sigma
     value.set_description("Variance of Total Line Flux in all components")
 
@@ -1623,7 +1737,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
-        return _wcs_string
+        return str(_wcs_string)
 
     #
     # Sub Traits
@@ -1633,6 +1747,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     sub_traits.register(LZIFUWCS)
@@ -1704,7 +1819,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
-        return _wcs_string
+        return str(_wcs_string)
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
@@ -1748,7 +1863,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
             color = "R"
         _wcs_string = str( self._hdu[color + '_CONTINUUM'].header)
         log.debug(_wcs_string)
-        return _wcs_string
+        return str(_wcs_string)
 
 
     #
@@ -1759,6 +1874,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     sub_traits.register(LZIFUFlagCount)
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
+    sub_traits.register(LZIFUNComp)
     sub_traits.register(SAMIVAP)
 
     @sub_traits.register
@@ -1964,6 +2080,12 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
     
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
@@ -2050,6 +2172,13 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
+
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2144,6 +2273,12 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2243,7 +2378,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
         return self.find_file(data_product_name="SFMasks", data_product_filename="SFMask")
 
-    @trait_property("int.array.2")
+    @trait_property("float.array.2")
     def value(self):
         return self._hdu[1].data
 
@@ -2253,6 +2388,13 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+    @sub_traits.register
+    class WCS(WorldCoordinateSystem):
+        @trait_property('string')
+        def _wcs_string(self):
+            print('hi')
+            return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
+
 
 SFMask.set_pretty_name("Emission Classification Map")
 
@@ -2276,6 +2418,10 @@ class SAMIDR1PublicArchive(Archive):
         self.core_data_path = self.base_path + "data_releases/v0.9/"
         self.vap_data_path = self.base_path + "data_products/"
         self.catalog_path = self.base_path + "catalogues/"
+
+        # Disable presto cache to prevent data ingestion from falling back to db to get data
+        # log.info("Setting up cache")
+        # self.cache = PrestoCache()
 
         if not os.path.isdir(self.cache_dir):
             os.mkdir(self.cache_dir)
