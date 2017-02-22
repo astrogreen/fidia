@@ -2528,7 +2528,7 @@ class SAMIDR1PublicArchive(Archive):
         r_petro = catalog_trait(Measurement, 'm_r-petrosian',
                                 OrderedDict([('value', self.tabular_data['r_petro']),
                                              ('unit', units.mag)]))
-        r_petro.set_pretty_name(r"mag r-band", petrosian="petrosian")
+        r_petro.set_pretty_name(r"mag r-band", petrosian="Petrosian")
         r_petro.set_description("Petrosian r-band magnitude from SDSS, extinction corrected.")
         r_petro.value.set_description(r_petro.get_description())
         r_petro.set_documentation(r"""

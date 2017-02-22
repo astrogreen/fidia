@@ -69,7 +69,8 @@ class AstronomicalObject(collections.MutableMapping):
                     "trait_key": {
                         "trait_type": trait_property_path[0].trait_type,
                         "trait_qualifier": trait_property_path[0].trait_qualifier,
-                        "branch": trait_property_path[0].branch
+                        "branch": trait_property_path[0].branch,
+                        "version": trait_property_path[0].version
                     }})
 
         return feature_data

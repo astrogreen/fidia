@@ -244,6 +244,9 @@ function plot_map(name, data, selector, zmin, zmax){
 
     // ONLOAD, AFTER INITIAL RENDER, RE-RENDER WITH SIZES
     function plotlyMarginHandler() {
+        var elementWidth=$('#'+map_selector).parent().width();
+        // console.log('current total width AT handler', elementWidth);
+
         // get current inner plot dimensions
         var plotWidth = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().width;
         var plotHeight = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().height;
@@ -279,11 +282,15 @@ function plot_map(name, data, selector, zmin, zmax){
     // RESPONSIVE TO CHANGING WINDOW SIZE
     $(window).on("resize",function(e){
         var elementWidth=$('#'+map_selector).parent().width();
+        // console.log('current total width before handler', elementWidth);
         var update = {
-          width: elementWidth,
-          height:elementWidth
+            width: elementWidth,
+            height: elementWidth
         };
-        Plotly.relayout(map_selector, update).then(plotlyMarginHandler);
+        Plotly.relayout(map_selector, update);
+        // looks like plotly will scale all values by the updated plot size
+        // so
+        // Plotly.relayout(map_selector, update).then(plotlyMarginHandler);
     });
 
 };

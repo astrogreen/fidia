@@ -49,60 +49,67 @@
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#overview" id="overview_anchor" aria-controls="overview" role="tab" data-toggle="tab">Overview</a></li>
         <li role="presentation"><a href="#products" aria-controls="products" role="tab" data-toggle="tab">Data Products</a></li>
-        <li role="presentation"><a href="#properties" aria-controls="properties" role="tab" data-toggle="tab">Properties</a></li>
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content add-padding">
         <div role="tabpanel" class="tab-pane active" id="overview">
-            {% include 'sov/available_products/catalog_table.html' with traits=response.data.catalog_traits single=True filter=True property=True data=feature_catalog_data %}
 
             <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <div class="table-responsive">
-                        <table class="table table-condensed">
-                            <tbody>
-                            <tr>
-                                <td class="p_light">{{survey|uppercase}} ID</td><td>{{astro_object}}</td>
-                            </tr>
-                            <tr><td class="p_light">RA</td><td>{{response.data.position.ra}}</td></tr>
-                            <tr><td class="p_light">DEC</td><td>{{response.data.position.dec}}</td></tr>
-                            {% for f in feature_catalog_data %}
-                                <tr>
-                                    <td class="p_light">
-                                        {{f.pretty_name}} {% if f.unit and f.unit != '$\mathrm{}$' %}[{{f.unit}}]{% endif %}</td>
-                                    <td class="roundValue">{{f.value}}</td>
-                                    <td>{{f.trait_property_path}}</td>
-                                </tr>
-                            {% endfor %}
-                            <tr>
-                                <td class="p_light">GAMA
-                        Single Object Viewer</td>
-                                <td><a class="text-uppercase" target="_blank"
-                               href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}"> SOV <i class="fa fa-external-link"></i></a></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <!-- OVERVIEW -->
+                <div class="col-xs-12 col-sm-8">
+                    <table class="table table-striped table-condensed table-bordered">
+                        <tbody>
+                        <tr>
+                            <td><strong>{{survey|uppercase}} ID</strong></td>
+                            <td>{{astro_object}}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RA</strong></td>
+                            <td>{{response.data.position.ra}}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dec</strong></td>
+                            <td>{{response.data.position.dec}}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GAMA Single Object Viewer</strong></td>
+                            <td><a class="text-uppercase" target="_blank" href="http://www.gama-survey.org/dr2/tools/sov.php?cataid={{astro_object}}"> SOV <i class="fa fa-external-link"></i></a></td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    {% with "sov/astro_object/survey/"|add:survey|add:".html" as template %}
+                        {% include template %}
+                    {% endwith %}
                 </div>
-                <div class="col-xs-12 col-sm-6">
+
+                <!--SDSS Image-->
+                <div class="col-xs-12 col-sm-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             Auxillary Data: SDSS
                         </div>
-                        <div class="panel-body">
-                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=G&amp;width=512&amp;height=512"
-                                 alt="..." class="img-responsive">
-                            <br>
-                            <p class="text-justify small">$~1.7'\times ~1.7'$ 5-band composite image from SDSS DR7.</p>
+                        <div class="panel-body" style="padding:0">
+                            <img src="http://casjobs.sdss.org/ImgCutoutDR7/getjpeg.aspx?ra={{response.data.position.ra}}&amp;dec={{response.data.position.dec}}&amp;scale=0.2&amp;opt=G&amp;width=512&amp;height=512" alt="..." class="img-responsive">
+                            <p class="text-justify small" style="padding:15px;">~$1.7'\times ~1.7'$ 5-band composite image from SDSS DR7.</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- KEY PRODUCTS-->
+                <div class="col-xs-12 col-sm-8">
+
+                </div>
+
+                <!-- ALL PROPERTIES -->
+                <div class="col-xs-12 col-sm-12">
+                    {% include 'sov/available_products/catalog_table.html' with traits=response.data.catalog_traits single=True filter=True property=True data=feature_catalog_data %}
+                </div>
+
             </div>
 
-            {% with "sov/astro_object/survey/"|add:survey|add:".html" as template %}
-                {% include template %}
-            {% endwith %}
+
 
 
         </div>
@@ -130,9 +137,6 @@
             {% include 'sov/available_products/root.html' with traits=response.data.non_catalog_traits single=True filter=False %}
 
         </div>
-         <div role="tabpanel" class="tab-pane" id="properties">
-             {% include 'sov/available_products/root.html' with traits=response.data.catalog_traits single=True filter=True property=True %}
-         </div>
     </div>
 {% endblock %}
 
