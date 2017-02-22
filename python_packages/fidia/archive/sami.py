@@ -281,86 +281,21 @@ class SAMIRowStackedSpectra(SpectralMap):
 
 
 class SAMISpectralCube(SpectralMap):
-    r"""Flux cubes from optical integral-field spectroscopy.
+    r"""Two spectral cubes are provided for each SAMI object.
 
+    The Blue SAMI cube covers the ~3700-5700 $\AA$ wavelength range with a central resolution
+    of R=1812, a dispersion of 1.04 $\AA$/pixel and a spaxel spatial scale of 0.5 arcsec/pixel.
 
-    The data cubes
-    are taken from version 0.9 of the SAMI reduction pipeline (see [Sharp et al.
-    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy)
-    and [Allen et al. (2014)](http://sami-survey.org/paper/early-data-release)
-    for details).  There are two cubes for each galaxy, one in the blue, and a
-    second in the red.  Note that the red and blue cubes do not overlap in
-    wavelength coverage.  Some basic characteristics of the data are given
-    below:
+    The Red SAMI cube covers the ~6250-7350 $\AA$ wavelength range with a central resolution
+    of R=4263, a dispersion of 0.57 $\AA$/pixel and a spaxel spatial scale of 0.5 arcsec/pixel.
 
-    - Blue cube covers ~3700-5700A with a resolution of $R\simeq 1750$ and a
-      dispersion of 1.0 Angstrom per pixel.
-    - Red cube covers ~6300-7400A with a resolution of $R\simeq 4500$ and a
-      dispersion of 0.57 Angstroms per pixel.
-    - The cubes are each $50\times 50$ spatial pixels by $2048$ spectral pixels
-      with the spatial sampling at 0.5 arcsec.
-    - Data are flux calibrated and corrected for telluric absorption to within
-      6% in relative flux.
-    - The included world coordinate system is centred on catalogue coordinates.
-      The acuracy of the astronometry is about 1-2 arcseconds (RMS).
-    - Primary HDU contains the data cube: $50\times50$ spatial elements, $2048$
-      spectral elements ($50\times50\times2048$).
-    - Variance cube ($50\times 50\times 2048$), weight-map cube ($50\times
-      50\times 2048$) and covariance hyper-cube ($50\times 50\times 5\times
-      5\times n$, where $n$ can vary) are included as extensions.  See below for
-      discussion of covariance.
+    SAMI data cubes consist of four main extensions: flux (primary), variance, weight map and
+    covariance hypercube, as well as accompanying metadata and a galactic extinction correction
+    vector.  The flux, variance and weight cubes are a $2048 \times 50 \times 50$ array, whereas
+    the covariance hypercube is a $N \times 50 \times 50 \times 5 \times 5$ array.
 
-    # Variance and Covariance
-
-    During the reduction, SAMI hexabundles are dithered and resampled onto a regular
-    grid, which causes nearby output spaxels to have correlated noise in the spatial
-    dimension. This spatial covariance is included in the 'COVAR' extension of the
-    cube. (N.B. spectral covariance is small enough to be safely ignored, and is not
-    included). Full details of how covariance is handled in SAMI data is included in
-    [Sharp et al.
-    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
-
-    We leave the choice of how to apply (or otherwise) this covariance
-    information to subsequent analysis up to the user, but strongly encourage
-    users to read the description in [Sharp et al.
-    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy)
-    in detail.
-
-    # Acknowledgements and citations for using the data
-
-    If using SAMI data products, please include this acknowledgement:
-
-    > The SAMI Galaxy Survey is based on observations made at the
-    > Anglo-Australian Telescope. The Sydney-AAO Multi-object Integral field
-    > spectrograph (SAMI) was developed jointly by the University of Sydney and
-    > the Australian Astronomical Observatory. The SAMI input catalogue is based
-    > on data taken from the Sloan Digital Sky Survey, the GAMA Survey and the VST
-    > ATLAS Survey. The SAMI Galaxy Survey is funded by the Australian Research
-    > Council Centre of Excellence for All-sky Astrophysics (CAASTRO), through
-    > project number CE110001020, and other participating institutions. The SAMI
-    > Galaxy Survey website is http://sami-survey.org/ ."
-
-    Please also cite the following papers:
-
-    - ["The Sydney-AAO Multi-object Integral field spectrograph", Croom et al.
-    (2012), MNRAS, 421, 872](http://adsabs.harvard.edu/abs/2012MNRAS.421..872C).
-    Instrument description paper.
-    - ["The SAMI Galaxy Survey: Target selection and instrument specification",
-    Bryant et al., MNRAS 447, 2857 (2015)](http://sami-survey.org/paper/sami-survey-target-selection-and-instrument-specification). Details of survey target selection and revised
-    instrument description for upgraded SAMI instrument.
-    - ["The SAMI Galaxy Survey: Cubism and covariance, putting round pegs into
-    square holes", Sharp et al., MNRAS, 446, 1551
-    (2015)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
-     Data processing pipeline, including flux calibration and drizzle cubing.
-    - ["The SAMI Galaxy Survey: Early Data Release", Allen et al., MNRAS, 446, 1567
-    (2015)](http://sami-survey.org/paper/early-data-release).  Description of
-    early data release, including quality metrics and details of data products.
-
-    # Feedback
-
-    The SAMI Galaxy Survey team welcome feedback on this data release and the
-    products contained within it.  If you are actively using the data and/or
-    find issues, please contact us on feedback@sami-survey.org.
+    More information about each cube extension, metadata and covariance can be found in the
+    [SAMI documentation](http://datacentral.aao.gov.au/asvo/docs/articles/sami-data-cube-structure/).
 
     """
 
@@ -422,13 +357,14 @@ class SAMISpectralCube(SpectralMap):
     def shape(self):
         return self.value().shape
 
-    unit =  1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
+    unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
 
     @trait_property('float.array.3')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
         return self.hdu[key].data
+    value.set_description("Flux measurements")
 
     @trait_property('float.array.3')
     def variance(self):
@@ -438,6 +374,8 @@ class SAMISpectralCube(SpectralMap):
         the flux information, which is stored separately.
 
         """
+        # TODO set units on trait properties
+        unit = 1e-32 * units.erg ** 2 / units.s ** 2 / units.cm ** 4 / units.Angstrom ** 2
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('VARIANCE')].data
 
@@ -445,6 +383,7 @@ class SAMISpectralCube(SpectralMap):
     def weight(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('WEIGHT')].data
+    weight.set_description("Weight map applied to flux and variance cubes")
 
     @trait_property('float')
     def total_exposure(self):
@@ -457,6 +396,7 @@ class SAMISpectralCube(SpectralMap):
         """Version of the cubing code used"""
         return self.hdu[0].header['HGCUBING']
     cubing_code_version.set_short_name("HGCUBING")
+    cubing_code_version.set_description("Mercurial changeset ID of the SAMI cubing code used to create this cube")
 
     @trait_property('string')
     def plate_id(self):
@@ -488,22 +428,30 @@ class SAMISpectralCube(SpectralMap):
     @trait_property('float')
     def ra(self):
         """Catalog right-ascension of the galaxy"""
+        unit = units.degree
         return self.hdu[0].header['CATARA']
+    ra.set_pretty_name("RA")
 
     @trait_property('float')
     def dec(self):
         """Catalog declination of the galaxy."""
+        unit = units.degree
         return self.hdu[0].header['CATADEC']
 
     @trait_property('float')
     def data_rescale(self):
-        """Scaling applied to the data"""
+        """Flux re-scaling applied to the data"""
+        unit = units.km / units.s
         return self.hdu[0].header['RESCALE']
     data_rescale.set_short_name("RESCALE")
+    data_rescale.set_documentation("""The flux and variance are rescaled by a single value, the
+     ratio of the observed and catalogue magnitudes (SDSS psf magnitudes) of the secondary
+     standard star in each field. Final flux = observed flux * data rescale""")
 
     @trait_property('string')
     def history(self):
         return str(self.hdu[0].header['history'])
+    history.set_description("Details of data reduction steps applied to the cube")
 
     # Add links to sub_traits
     # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
@@ -511,6 +459,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('string.array.1')
     def source_rss_frames(self):
+        unit = units.s
         source_rss_frames = []
         index = 1
         while True:
@@ -522,15 +471,16 @@ class SAMISpectralCube(SpectralMap):
                 source_rss_frames.append(rss_filename)
                 index += 1
         return source_rss_frames
+    source_rss_frames.set_description("File names of RSS frames contributing to cube")
 
     @trait_property("int")
     def n_source_rss_frames(self):
         return len(self.source_rss_frames.value)
+    n_source_rss_frames.set_description("Number of RSS frames combined to create cube")
 
     #
     # Sub Traits
     #
-
 
     class Covariance(Trait):
 
@@ -616,6 +566,7 @@ class SAMISpectralCube(SpectralMap):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['DUST'].header['EBVSFD98']
         mw_reding_SFD.set_short_name('EBVSFD98')
+        mw_reding_SFD.set_description('MW Reddening SFD')
 
         @trait_property('float')
         def mw_reding_plank(self):
@@ -623,7 +574,13 @@ class SAMISpectralCube(SpectralMap):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['DUST'].header['EBVPLNCK']
         mw_reding_plank.set_short_name('EBVPLNCK')
+        mw_reding_plank.set_description('MW Reddening Planck')
+
     Dust.set_short_name("DUST")
+    Dust.set_description("MW dust correction spectrum derived from Planck reddening")
+    Dust.set_documentation("""Using the Planck extinction E(B-V) value, we derive a dust correction spectrum following
+    Cardelli, Clayton & Mathis (1989). This correction has not been applied to the cubes. To correct for dust, multiply
+    each spatial pixel by the dust correction spectrum.""")
 
     @sub_traits.register
     class CatCoordinate(SkyCoordinate):
@@ -733,16 +690,21 @@ class SAMISpectralCube(SpectralMap):
         def alpha(self):
             return self.hdu[0].header['PSFALPHA']
         alpha.set_short_name('PSFALPHA')
+        alpha.set_description("$\\alpha$ coefficient of Moffat profile fit")
 
         @trait_property("float")
         def beta(self):
             return self.hdu[0].header['PSFBETA']
         beta.set_short_name('PSFBETA')
+        beta.set_description("$\\beta$ coefficient of Moffat profile fit")
 
         @trait_property("float")
         def fwhm(self):
+            unit = units.arcsecond
             return self.hdu[0].header['PSFFWHM']
         fwhm.set_short_name('PSFFWHM')
+        fwhm.set_description('FWHM of the Moffat profile fit')
+    PSF.set_pretty_name("PSF")
 
     @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
@@ -786,24 +748,6 @@ class SAMISpectralCube(SpectralMap):
     @sub_traits.register
     class AAOmegaDetector(DetectorCharacteristics):
         """AAOmega Detector characteristics defined by FITS header
-
-        Relevant section from the header:
-
-            DCT_DATE= 'Sep 12 2014'        / DCT release date
-            DCT_VER = 'r3_110_2_3'         / DCT version number
-            DETECXE =                 2048 / Last column of detector
-            DETECXS =                    1 / First column of detector
-            DETECYE =                 4102 / Last row of detector
-            DETECYS =                    1 / First row of detector
-            DETECTOR= 'E2V2A   '           / Detector name
-            XPIXSIZE=                  15. / X Pixel size in microns
-            YPIXSIZE=                  15. / Y Pixel size in microns
-            METHOD  = 'CCD Charge shuffling technique' / Observing method
-            SPEED   = 'NORMAL  '           / Readout speed
-            READAMP = 'RIGHT   '           / Readout amplifier
-            RO_GAIN =                 1.88 / Readout amplifier (inverse) gain (e-/ADU)
-            RO_NOISE=                 3.61 / Readout noise (electrons)
-
         """
 
         trait_type = 'detector_metadata'
@@ -823,6 +767,7 @@ class SAMISpectralCube(SpectralMap):
 
         read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
         # read_noise.set_short_name('RO_NOISE')
+        # read_noise unit = units.electrons
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
         # read_speed.set_short_name('SPEED')
@@ -840,31 +785,6 @@ class SAMISpectralCube(SpectralMap):
     @sub_traits.register
     class SAMICharacteristics(SpectrographCharacteristics):
         """Characteristics of the SAMI Instrument
-
-        Relevant Header Sections:
-
-            RCT_VER = 'r3_71HB '           / Run Control Task version number
-            RCT_DATE= '19-Oct-2013'        / Run Control Task version date
-            RADECSYS= 'FK5     '           / FK5 reference system
-            INSTRUME= 'AAOMEGA-SAMI'       / Instrument in use
-            SPECTID = 'BL      '           / Spectrograph ID
-            GRATID  = '580V    '           / Disperser ID
-            GRATTILT=                  0.7 / Grating tilt to be symmetric (degree)
-            GRATLPMM=                582.0 / Disperser ruling (lines/mm)
-            ORDER   =                    1 / Spectrum order
-            TDFCTVER= 'r11_33A '           / 2dF Control Task Version
-            TDFCTDAT= '17-Oct-2014'        / 2dF Control Task Version Date
-            DICHROIC= 'X5700   '           / Dichroic name
-            OBSTYPE = 'OBJECT  '           / Observation type
-            TOPEND  = 'PF      '           / Telescope top-end
-            AXIS    = 'REF     '           / Current optical axis
-            AXIS_X  =                   0. / Optical axis x (mm)
-            AXIS_Y  =                   0. / Optical axis y (mm)
-            TRACKING= 'TRACKING'           / Telescope is tracking.
-            TDFDRVER= '1.34    '           / 2dfdr version
-            PLATEID = 'Y14SAR3_P005_12T056_15T080' / Plate ID (from config file)
-            LABEL   = 'Y14SAR3_P005_12T056 - Run 16 galaxy plate 5 - field 1' / Configuratio
-
         """
 
         trait_type = 'instrument_metadata'
@@ -888,6 +808,7 @@ class SAMISpectralCube(SpectralMap):
         disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
 
         disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
+        # disperser_tilt unit = units.degree
 
         instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
 
@@ -2308,13 +2229,13 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     ratios that have a signal-to-noise ratio of at least 5. Emission is
     classified as star-forming in a given diagnostic if:
 
-    ```
-    $\log([OIII]/H\beta) < (0.61 / (\log([NII]/H\alpha)-0.05) + 1.3$ Kauffmann et al. 2003
 
-    $\log([OIII]/H\beta) < (0.72 / (\log([SII]/H\alpha)-0.32) + 1.3$ Kewley et al. 2001
+    $\log([OIII]/H\beta) < (0.61 / (\log([NII]/H\alpha)-0.05) + 1.3$ [Kauffmann et al. 2003](http://adsabs.harvard.edu/abs/2003MNRAS.346.1055K)
 
-    $\log([OIII]/H\beta) < (0.73 / (\log([OI]/H\alpha) +0.59) + 1.33$ Kewley et al. 2001
-    ```
+    $\log([OIII]/H\beta) < (0.72 / (\log([SII]/H\alpha)-0.32) + 1.3$ [Kewley et al. 2001](http://adsabs.harvard.edu/abs/2001ApJ...556..121K)
+
+    $\log([OIII]/H\beta) < (0.73 / (\log([OI]/H\alpha) +0.59) + 1.33$ [Kewley et al. 2001](http://adsabs.harvard.edu/abs/2001ApJ...556..121K)
+
     We additionally add a likely classification of "star-forming" to spaxels
     with $\log([NII]/H\alpha) <-0.4$ without an [OIII] detection and to spaxels
      with H$\alpha$ detections but no [N II], [S II], [O I], or [O III] detections.
@@ -2333,6 +2254,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     Thus, all extinction maps are $50 \times 50$ arrays.
 
+    ##format: markdown
     """
 
     trait_type = 'star_formation_mask'

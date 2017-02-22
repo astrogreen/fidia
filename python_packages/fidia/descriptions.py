@@ -208,6 +208,11 @@ class DescriptionsMixin:
     @classorinstancemethod
     def set_documentation(self, value, format=DEFAULT_FORMAT):
         # Confirm if the requested usage (on class or instance) is allowed.
+        """
+
+        Returns:
+            object:
+        """
         instance_check(self)
 
         # Split the input into individual lines.

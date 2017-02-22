@@ -5,46 +5,41 @@
         {% include "sov/layout/title.html" with db_title=value.trait_property.pretty_name %}
     </div>
 </div>
-{% if value.description %}<p><em>{{value.description}}</em></p>{% endif %}
+{% if value.trait_property.description %}<p><em>{{value.trait_property.description|safe}}</em></p>{% endif %}
 
-{% if value.html_documentation %}
+{% if value.trait_property.html_documentation %}
+<h3>Documentation</h3>
 <!-- Documentation -->
-<h3 id="documentation">Documentation</h3>
 <div class="documentation_fidia">
-    {{value.html_documentation|safe}}
+    {{value.trait_property.html_documentation|safe}}
 </div>
 {% endif %}
-<!-- Properties-->
-<h3 id="properties">Properties</h3>
-
 <div class="row">
     <div class="col-xs-12">
-
+        <h3>Properties</h3>
         <div class="table-responsive">
             <table class="table table-condensed table-bordered" id="properties-table">
                 <thead>
-                <tr class="active">
-                    <th class="p_dark col-xs-2">Name</th>
-                    <th class="p_dark col-xs-1">Short Name</th>
-                    <th class="p_dark col-xs-5">Description</th>
-                    <th class="p_dark col-xs-1">Unit</th>
-                    <th class="p_dark col-xs-1">Type</th>
-                    <th class="p_dark col-xs-2">URL segment <a role="button" class="sub-heading" data-container="body"
-                                                               data-toggle="popover" data-trigger="hover click"
-                                                               data-placement="top"
-                                                               data-content="Locate a piece of data in the single object viewers by combining URL segments to make a path. e.g., sami/24433/spectral_cube-blue/detector_metadata/"
-                                                               data-original-title="" title=""><i
-                            class="fa fa-info-circle"></i></a>
-                    </th>
+                    <tr class="active">
+                        <th class="p_dark">Name</th>
+                        <th class="p_dark">Short Name</th>
+                        <th class="p_dark">Unit</th>
+                        <th class="p_dark">Type</th>
+                        <th class="p_dark">URL segment <a role="button" class="sub-heading" data-container="body"
+                                                                   data-toggle="popover" data-trigger="hover click"
+                                                                   data-placement="top"
+                                                                   data-content="Locate a piece of data in the single object viewers by combining URL segments to make a path. e.g., sami/24433/spectral_cube-blue/detector_metadata/"
+                                                                   data-original-title="" title=""><i
+                                class="fa fa-info-circle"></i></a>
+                        </th>
 
-                </tr>
+                    </tr>
                 </thead>
                 <tbody>
 
                 <tr>
                     <td>{{value.trait_property.pretty_name}}</td>
                     <td>{{value.trait_property.short_name}}</td>
-                    <td>{{value.trait_property.description|safe}}</td>
                     <td>{{value.trait_property.unit}}</td>
                     <td><span>{{value.trait_property.type}}</span></td>
                     <td>{{value.trait_property.name}}</td>
