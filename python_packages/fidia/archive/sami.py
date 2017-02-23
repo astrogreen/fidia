@@ -1814,9 +1814,23 @@ LZIFUOneComponent3727.set_pretty_name(
 LZIFUOneComponent3727.set_documentation("Documentation from SAMI Team here")
 
 class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
-    """a description string for spectral_fit_cubes [all spectral fit cubes, regardless of qualifier (red/blue) or branch (1_comp/m_comp)]
+    r"""Model spectral cube incorporating stellar continuum and emission line fits for direct comparison to observed spectral cubes
 
-    documentation string for spectral_fit_cubes
+    The SAMI emission line spectral analysis is carried out using the LZIFU software
+    package described in [Ho et al. 2016](http://adsabs.harvard.edu/abs/2016Ap%26SS.361..280H)
+    and summarized in the
+    [Spectral Analysis Documentation](http://datacentral.aao.gov.au/asvo/docs/articles/sami-emission-line-fit-data-products/#Spectral_Analysis).
+    This analysis produces stellar continuum models and single
+    or multi-Gaussian emission line fits for eleven strong lines simultaneously
+    for each spectrum in each data cube.  The emission line fit properties and
+    further data products are distilled into maps available as other downloadable
+    data products in the database.
+
+    For direct comparison to the data cubes, model spectral cubes that incorporate
+    the total (continuum plus all emission line components) fits are provided for
+    each of the red and blue spectral segments.
+
+
     """
 
     trait_type = 'spectral_fit_cube'
@@ -1845,7 +1859,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
         elif self.trait_qualifier == "red":
             color = "R"
         return self._hdu[color + '_CONTINUUM'].data + self._hdu[color + '_LINE'].data
-
+    value.set_description("Model spectral cube incorporating stellar continuum and emission line fits")
 
     @trait_property('string')
     def _wcs_string(self):
