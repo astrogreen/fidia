@@ -23,27 +23,29 @@
                     <tr class="active">
                         <th class="p_dark">Name</th>
                         <th class="p_dark">Short Name</th>
+                        <th class="p_dark">Description</th>
                         <th class="p_dark">Unit</th>
                         <th class="p_dark">Type</th>
-                        <th class="p_dark">URL segment <a role="button" class="sub-heading" data-container="body"
-                                                                   data-toggle="popover" data-trigger="hover click"
-                                                                   data-placement="top"
-                                                                   data-content="Locate a piece of data in the single object viewers by combining URL segments to make a path. e.g., sami/24433/spectral_cube-blue/detector_metadata/"
-                                                                   data-original-title="" title=""><i
-                                class="fa fa-info-circle"></i></a>
-                        </th>
+                        <!--<th class="p_dark">URL segment <a role="button" class="sub-heading" data-container="body"-->
+                                                                   <!--data-toggle="popover" data-trigger="hover click"-->
+                                                                   <!--data-placement="top"-->
+                                                                   <!--data-content="Locate a piece of data in the single object viewers by combining URL segments to make a path. e.g., sami/24433/spectral_cube-blue/detector_metadata/"-->
+                                                                   <!--data-original-title="" title=""><i-->
+                                <!--class="fa fa-info-circle"></i></a>-->
+                        <!--</th>-->
 
                     </tr>
                 </thead>
                 <tbody>
 
-                <tr>
-                    <td>{{value.trait_property.pretty_name}}</td>
-                    <td>{{value.trait_property.short_name}}</td>
-                    <td>{{value.trait_property.unit}}</td>
-                    <td><span>{{value.trait_property.type}}</span></td>
-                    <td>{{value.trait_property.name}}</td>
-                </tr>
+                    <tr>
+                        <td>{{value.trait_property.pretty_name}}</td>
+                        <td>{{value.trait_property.short_name}}</td>
+                        <td>{{value.trait_property.description|safe}}</td>
+                        <td>{{value.trait_property.unit}}</td>
+                        <td><span>{{value.trait_property.type}}</span></td>
+                        <!--<td>{{value.trait_property.name}}</td>-->
+                    </tr>
 
                 </tbody>
             </table>
