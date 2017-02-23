@@ -40,13 +40,12 @@ class QuerySerializer(serializers.HyperlinkedModelSerializer):
     """
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
-    queryBuilderState = serializers.JSONField(required=False,
-                                              label='Query Builder State (do not populate this field manually)')
-    queryResults = serializers.JSONField(required=False, label='Result')
-    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
-                                style={'base_template': 'textarea.html'})
-    title = serializers.CharField(default='My Query', max_length=100)
 
+    queryBuilderState = serializers.JSONField(label='QB State', default={}, allow_null=True, required=False)
+    queryResults = serializers.JSONField(label='Result', default={"results": ""}, required=False)
+
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
+    title = serializers.CharField(default='My Query', max_length=100, required=False)
 
     class Meta:
         model = query.models.Query

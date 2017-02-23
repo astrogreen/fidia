@@ -32,12 +32,16 @@ class Query(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Query History.
-
-        This view should return a list of all queries for the currently authenticated user.
+        Return a list of all queries for the currently authenticated user.
         """
         user = self.request.user
         return query.models.Query.objects.filter(owner=user).order_by('-updated')
+
+    def perform_create(self, serializer):
+        """
+        Override CreateModelMixin perform_create to save object instance with ownership
+        """
+        serializer.save(owner=self.request.user)
 
 
 class QuerySchema(views.APIView):
