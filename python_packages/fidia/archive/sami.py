@@ -1830,7 +1830,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     the total (continuum plus all emission line components) fits are provided for
     each of the red and blue spectral segments.
 
-
+    ##format:markdown
     """
 
     trait_type = 'spectral_fit_cube'
