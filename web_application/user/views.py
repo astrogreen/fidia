@@ -15,23 +15,16 @@ import restapi_app.permissions
 import user.serializer
 import user.exceptions
 import user.models
-import user.renderers
 
 
 class CreateUserView(generics.ListCreateAPIView):
     """
-    User View to allow registration
-    Throttle by IP to twice a day?
+    Register a new user.
     """
     model = User
     permission_classes = [restapi_app.permissions.IsNotAuthenticated]
     serializer_class = user.serializer.CreateUserSerializer
     throttle_classes = [throttling.AnonRateThrottle]
-
-    class CreateUserRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'user/register/register.html'
-
-    renderer_classes = [CreateUserRenderer]
 
     def get_queryset(self):
         queryset = User.objects.none()
@@ -47,7 +40,6 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = user.serializer.UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'username'
-    renderer_classes = [user.renderers.UserProfileBrowsableAPIRenderer, renderers.JSONRenderer]
 
     def get_queryset(self):
         """
