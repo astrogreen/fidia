@@ -1284,9 +1284,24 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUWCS)
 
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
-    """ LZIFUVelocityDispersionMap description [velocity map 1_comp]
+    r"""Line-of-sight velocity dispersion map of ionized gas fit with a single Gaussian component
 
-    """
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
+        """
 
     trait_type = "velocity_dispersion_map"
 
@@ -1307,10 +1322,14 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['VDISP'].data[1:2, :, :]
+    value.set_description("Line-of-sight velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[1:2, :, :]
+    error.set_description(
+        "1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1327,15 +1346,28 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
-
-
     sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
-    """ LZIFUVelocityDispersionMap description [velocity map recom_comp]
+    r"""Line-of-sight velocity dispersion maps of up to three kinematic components of ionized gas
 
-    """
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
+        """
     trait_type = "velocity_dispersion_map"
 
     qualifiers = {'ionized_gas'}
@@ -1355,11 +1387,14 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['VDISP'].data[:, :, :]
+    value.set_description("Line-of-sight velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[:, :, :]
     error.set_short_name('ERROR')
+    error.set_description("1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
