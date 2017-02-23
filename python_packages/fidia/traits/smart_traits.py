@@ -98,4 +98,3 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
         return None
 WorldCoordinateSystem.set_pretty_name("World Coordinate System")
 WorldCoordinateSystem.set_short_name("WCS")
-WorldCoordinateSystem.set_description("WCS general description")

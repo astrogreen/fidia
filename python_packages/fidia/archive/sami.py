@@ -597,7 +597,7 @@ class SAMISpectralCube(SpectralMap):
 
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
-
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         trait_type = 'wcs'
 
         @trait_property('string')
@@ -993,6 +993,7 @@ SAMIVAP.set_description("Metadata added by the SAMI quality control process for 
 
 
 class LZIFUWCS(WorldCoordinateSystem):
+    """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
     @trait_property('string')
     def _wcs_string(self):
         header_str = self._parent_trait._wcs_string.value
@@ -1004,7 +1005,7 @@ class LZIFUWCS(WorldCoordinateSystem):
         return w.to_header_string()
 
 class LZIFUFlag(FlagMap):
-    """Map of flags set by LZIFU."""
+    """Map encoding which quality control flags were set by LZIFU"""
 
     trait_type = 'qf_bincode'
 
@@ -1046,10 +1047,11 @@ class LZIFUFlag(FlagMap):
         #     raise FIDIAException("FIDIA Data type error")
 
         return input_data
+    value.set_description("Binary codes describing which quality control flags were set by LZIFU")
 LZIFUFlag.set_short_name('QF_BINCODE')
 
 class LZIFUFlagCount(Map2D):
-    """Map of number of flags set by LZIFU."""
+    """Map of number of quality control flags set by LZIFU"""
     trait_type = 'qf'
 
     # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
@@ -1060,6 +1062,7 @@ class LZIFUFlagCount(Map2D):
     @trait_property("int.array.2")
     def value(self):
         return self._hdu['QF'].data  # type: np.ndarray
+    value.set_description("Number of quality control flags set by LZIFU")
 
     @property
     def shape(self):
@@ -1068,7 +1071,7 @@ LZIFUFlagCount.set_short_name('QF')
 
 
 class LZIFUChiSq(Map2D):
-    """Final $\chi^2$ of LZIFU spectral fit."""
+    """Map of final reduced $\chi^2$ values of LZIFU spectral fits"""
 
     trait_type = 'chi2'
 
@@ -1082,6 +1085,7 @@ class LZIFUChiSq(Map2D):
         data = self._hdu['CHI2'].data  # type: np.ndarray
         assert len(data.shape) == 2
         return data
+    value.set_description("Final reduced $\chi^2$ values of LZIFU spectral fits")
 
     @property
     def shape(self):
@@ -1090,7 +1094,7 @@ LZIFUChiSq.set_pretty_name("Chi Squared")
 LZIFUChiSq.set_short_name('CHI2')
 
 class LZIFUDOF(Map2D):
-    """Degrees of freedom in LZIFU spectral fit."""
+    """Map of degrees of freedom in LZIFU spectral fits"""
 
     trait_type = 'degrees_of_freedom'
 
@@ -1104,6 +1108,7 @@ class LZIFUDOF(Map2D):
         data = self._hdu['DOF'].data  # type: np.ndarray
         assert len(data.shape) == 2
         return data
+    value.set_description("Degrees of freedom in LZIFU spectral fits")
 
     @property
     def shape(self):
@@ -1144,8 +1149,23 @@ LZIFUNComp.set_pretty_name("Number of Components Map")
 LZIFUNComp.set_short_name("NCOMP_MAP")
 
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
-    """ LZIFUVelocityMap description [velocity map 1_comp]
+    r"""Line-of-sight velocity map of ionized gas fit with a single Gaussian component
 
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
     """
 
     trait_type = "velocity_map"
@@ -1190,10 +1210,13 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['V'].data[1:2, :, :]
+    value.set_description("Line-of-sight velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[1:2, :, :]
+    error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1225,8 +1248,23 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
 
 class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
-    """ LZIFUVelocityMap description [velocity map recom_comp]
+    r"""Line-of-sight velocity maps of up to three kinematic components of ionized gas
 
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
     """
 
     trait_type = "velocity_map"
@@ -1239,7 +1277,6 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_m_comp[0]: 'V03'})
 
-
     @property
     def shape(self):
         return self.value().shape
@@ -1249,10 +1286,13 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['V'].data[:, :, :]
+    value.set_description("Line-of-sight velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[:, :, :]
+    error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1832,6 +1872,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             header_str = self._parent_trait._wcs_string.value
@@ -2034,6 +2075,7 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     sub_traits.register(SAMIVAP)
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
@@ -2119,6 +2161,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
@@ -2224,6 +2267,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
     sub_traits.register(SAMIVAP)
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
@@ -2325,6 +2369,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     sub_traits.register(SAMIVAP)
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
