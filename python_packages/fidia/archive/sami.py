@@ -1938,41 +1938,38 @@ class AnneVAP:
         return fits_file_path
 
 class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
-    r"""Emission extinction map based on the Balmer decrement. [all balmer extinction maps regardless of branch (1_comp/m_comp)]
+    r"""Map of $H\alpha$ attenuation correction factor based on the Balmer decrement
 
-    Extinction maps for all SAMI galaxies in the DR0.9 release are are
-    calculated using the EmissionLineFitsV03 (which includes Balmer flux errors
-    incorporating continuum uncertainties) using the Balmer decrement and the
-    Cardelli+89 extinction law, using the code below.  Note that in the case of
-    multicomponent emission line fits, we use the total (summed over all
-    components) Balmer fluxes to estimate the typical extinction value in a
-    given spaxel.  Using the total flux produces more reliable Balmer decrements
-    because Hβ is sometimes only weakly detected in individual components.
+    Balmer extinction maps are calculated using the Balmer decrement and the
+    [Cardelli et al. 1989](http://adsabs.harvard.edu/abs/1989ApJ...345..245C) extinction law. For each spaxel:
 
-    ```
-    balmerdec = ha/hb
-    balmerdecerr = balmerdec * sqrt((haerr/ha)^2 + (hberr/hb)^2)
-    attencorr = (balmerdec / 2.86)^2.36
-    attencorrerr = abs((attencorr * 2.36 * balmerdecerr)/balmerdec)
-    ```
 
-    These maps will be in units of “attenuation correction factor” — such that
-    you can multiply this map by the Halpha cube to obtain de-extincted Hα
-    cubes.  Note that, when the Balmer decrement is less than 2.86, no
-    correction will be applied (attenuation correction factor = 1., error = 0.).
+    $balmerdec = \frac{H\alpha}{H\beta}$
+
+    $balmerdecerr = balmerdec * [(H\alpha_{err}/H\alpha)^2 + (H\beta_{err}/H\beta)^2]^{0.5}$
+
+    $attencorr = (\frac{balmerdec}{2.86})^{2.36}$
+
+    $attencorrerr = |\frac{attencorr * 2.36 * balmerdecerr}{balmerdec}|$
+
+    These maps are in units of attenuation correction factor — such that you can
+    multiply this map by the H$\alpha$ cube to obtain de-extincted H$\alpha$ cubes.
+    Note that, when the Balmer decrement is less than 2.86, no correction will be
+    applied (attenuation correction factor = 1., error = 0.).
 
     Additionally, we have set to NaN the correction and error for spaxels with
-    Hα flux > $40 \times 10^{-16}$ erg/s/cm^2 and Balmer decrement > 10.  These
-    numbers were chosen to eliminate spurious Hα fits to the edges of the
-    fibre bundles.  (These fits appear in the EmissionLineFits, but are flagged.
-    Here we simply remove them because they are nonsense.)
+    H$\alpha$ flux > 40 ($\times 10^{-16} erg~s^{-1}~cm^{-2}$) and Balmer
+    decrement > 10. These numbers were chosen to eliminate spurious H$\alpha$
+    fits to the edges of the fibre bundles. Errors (1-sigma uncertainties) in
+    the Balmer extinction are included as an extension in each file.
 
-    Errors (1-sigma uncertainties) in the extinction are included as a second
-    extension in each file.
+    For the multi-component branch, we only provide Balmer extinction maps based on the
+    total fluxes of the emission lines in each spaxel (i.e., we do not provide
+    maps for each individual kinematic component).
 
-    The files (one per galaxy per component fit) may be found on bill at
-    /export/bill1/sami_data/data_products/ExtinctCorrMaps/ExtinctCorrMapsV03
+    Thus, all Balmer extinction maps are $50\times50$ arrays.
 
+    ##format: markdown
     """
 
     trait_type = 'extinction_map'
@@ -1994,7 +1991,9 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
         return units.dimensionless_unscaled
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array.2', 'value')
+    value.set_description("Extinction map from Balmer decrement")
     error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'error')
+    error.set_description("1-sigma uncertainty in the extinction map from Balmer decrement")
     
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
