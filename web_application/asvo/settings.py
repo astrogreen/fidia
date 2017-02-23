@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'query',
     'user',
     'restapi_app',
+    'rest_framework.authtoken',
     'rest_framework',
     'schema_browser',
     'sov',
@@ -302,6 +303,7 @@ REST_FRAMEWORK = {
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '5/day',

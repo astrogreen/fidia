@@ -42,7 +42,7 @@ class QuerySerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
 
     queryBuilderState = serializers.JSONField(label='QB State', default={}, allow_null=True, required=False)
-    queryResults = serializers.JSONField(label='Result', default={"results": ""}, required=False)
+    queryResults = serializers.JSONField(label='Result', required=False)
 
     SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
     title = serializers.CharField(default='My Query', max_length=100, required=False)
