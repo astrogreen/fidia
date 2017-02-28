@@ -58,13 +58,10 @@ class QuerySchema(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, format=None):
-        # schema = PrestoArchive().get_sql_schema()
+        schema = PrestoArchive().get_sql_schema()
         # data = json.dumps(schema)
-        data = {"schema": []}
-        return Response(data)
+        return Response({"schema": schema})
 
-
-#
 #
 # def run_sql_query(request_string):
 #     try:
