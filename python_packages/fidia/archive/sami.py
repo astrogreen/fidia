@@ -1507,18 +1507,18 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     @trait_property('float.array.3')
     def value(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1:2, :, :]
-        # unit = 1e-16 * units.erg / units.s / units.cm**2
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("[line name] flux from a single Gaussian fit")
+    value.unit = 1e-16 * units.erg / units.s / units.cm**2
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1:2, :, :]
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         log.debug("Returning type: %s", type(sigma))
         return sigma
     error.set_description("1-sigma uncertainty in line flux from a single Gaussian fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     # @trait_property('string')
     # def _wcs_string(self):
@@ -1587,9 +1587,9 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
         value = line1 + line2
         log.debug("Returning type: %s", type(value))
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return value
     value.set_description("Total flux in [OII] 3726Å+3729Å doublet from a single Gaussian fit to each line")
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('float.array.3')
     def error(self):
@@ -1611,9 +1611,9 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
         sigma = np.sqrt(line1 ** 2 + line2 ** 2)
         log.debug("Returning type: %s", type(sigma))
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return sigma
     error.set_description("1-sigma uncertainty in line flux from a single Gaussian fit to each line")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1655,16 +1655,16 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     def value(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
         log.debug("Returning type: %s", type(value))
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return value
     value.set_description("Halpha line flux from up to three Gaussian components: [total, component 1, component 2, component 3]")
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return sigma
-    value.set_description("1-sigma uncertainty in line flux from multicomponent fit")
+    error.set_description("1-sigma uncertainty in line flux from multicomponent fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1729,16 +1729,16 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
     def value(self):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0:1, :, :]
         log.debug("Returning type: %s", type(value))
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return value
     value.set_description("Total [line name] flux summing up to three Gaussian components")
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0:1, :, :]
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return sigma
-    value.set_description("1-sigma uncertainty in total line flux from multicomponent fit")
+    error.set_description("1-sigma uncertainty in total line flux from multicomponent fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1801,8 +1801,8 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 
         value = line1 + line2
         log.debug("Returning type: %s", type(value))
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return value
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
     value.set_description("Total flux in [OII] 3726Å+3729Å doublet from up to three Gaussian components fit to each line")
 
     @trait_property('float.array.3')
@@ -1826,9 +1826,9 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         sigma = np.sqrt(line1 ** 2 + line2 ** 2)
 
         log.debug("Returning type: %s", type(sigma))
-        # unit = 1e-16 * units.erg / units.s / units.cm ** 2
         return sigma
     error.set_description("1-sigma uncertainty in line flux from multicomponent fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
