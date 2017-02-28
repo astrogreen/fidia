@@ -10,6 +10,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+
             {% if fidia_type == "trait" %}
                 var trait_url = "{{request.build_absolute_uri}}value/?format=json";
             {% elif fidia_type == "sub_trait" %}
@@ -26,8 +27,6 @@
             trait_plot(trait_url, trait_name, map_selector, options_selector);
         });
     </script>
-
-
 
 {% else %}
     {% if fidia_type != "trait_property" %}

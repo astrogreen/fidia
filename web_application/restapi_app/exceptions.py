@@ -1,4 +1,5 @@
 from django.utils.encoding import force_text
+from django.conf import settings
 
 from rest_framework.exceptions import APIException
 from rest_framework import status
@@ -15,7 +16,7 @@ class Conflict(APIException):
     detail = 'Already Exists'
 
 
-class CustomValidation(APIException):
+class CustomValidation(APIException if not settings.DEBUG else Exception):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     default_detail = 'A server error occurred.'
 

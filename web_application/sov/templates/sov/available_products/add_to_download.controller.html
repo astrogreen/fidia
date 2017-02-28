@@ -1,5 +1,9 @@
 <script>
 
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
     function error_check() {
         /*
          *  Check for any errors in the objects DataTable and the Data Products table.
@@ -48,6 +52,18 @@
         var _num_products = 0;
         var _objects = 0;
 
+        // mapping between trait types and approx data sizes on disk (MB)
+        var mapping = {
+            extinction_map: 0.029,
+            line_emission_map: 0.075,
+            sfr_map: 0.075,
+            spectral_cube: 317.5,
+            spectral_fit_cube: 20.6,
+            star_formation_mask: 0.014,
+            velocity_dispersion_map: 0.092,
+            velocity_map: 0.092
+        };
+
         function create_panel(message, type) {
 
             return '<div class="panel panel-default ' + type + '"> <div class="panel-body"> <div class="sub-heading">' + message + '</div></div> </div>'
@@ -66,7 +82,41 @@
             if (_objects.length>100){
                 _warnings += create_panel('<strong>Warning:</strong> ' + _objects.length + ' objects selected. Download may take some time to complete. Please do not close your browser window. ', 'warning');
             }
+        }
 
+        if (_products.length > 0 && _objects.length > 0) {
+
+            var countMap = {};
+            var totalSingularSize = 0;
+            var totalObjectSize = 0;
+            var tableInner = '';
+
+            _products.forEach(function(product) {
+               if (mapping.hasOwnProperty(product.trait_key_arr[0])) {
+                   if (countMap.hasOwnProperty(product.trait_key_arr[0])) {
+                       countMap[product.trait_key_arr[0]] += 1;
+                   } else {
+                       countMap[product.trait_key_arr[0]] = 1;
+                   }
+               }
+            });
+
+            for (const key in countMap) {
+              if (countMap.hasOwnProperty(key)) {
+                tableInner += '<tr><td class="sub-heading">' + key + '</td><td class="sub-heading">' + round(countMap[key] * mapping[key], 2) + '</td><td class="sub-heading">' + round(countMap[key] * mapping[key] * _objects.length,2) + '</td></tr>';
+                totalSingularSize += countMap[key]*mapping[key];
+                totalObjectSize += countMap[key]*mapping[key]*_objects.length;
+
+              }
+            }
+
+            tableInner += '<tr><td class=""><strong>TOTAL</strong></td><td class="sub-heading">'+round(totalSingularSize,2)+'</td><td class="sub-heading"><strong>'+round(totalObjectSize,2)+'</strong></td></tr>';
+
+            var tableOuter = '<table class="table table-condensed" style="margin-top:10px"><tbody><thead><tr><th>Type</th><th>size / object (MB)</th><th>Total size (MB)</th></tr></thead>'+tableInner+'</tbody></table>';
+            var downloadWarning = '<strong>Warning:</strong> Estimated download size  ~' + round(totalObjectSize,1) + ' MB. Download may take some time to complete. Please do not close your browser window.';
+
+            _warnings += create_panel('<strong>Selected:</strong> ' + _num_products + ' product' + (_products.length > 1 ? 's' : '') + ' for ' + _objects.length + ' object' + (_objects.length > 1 ? 's' : '') +
+                tableOuter + downloadWarning, 'warning');
         }
 
         if (_errors.length) {
@@ -77,9 +127,6 @@
         if (_warnings.length) {
             $('#download_warnings').show().html(_warnings);
         }
-
-        // populate information panel
-        $('#download_info').html(create_panel('<strong>Selected:</strong> '+_num_products + ' product(s) for ' + _objects.length + ' object(s)', 'success'));
 
         return _errors
     }

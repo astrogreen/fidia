@@ -20,7 +20,11 @@
     </td>
     <td>
         {% captureas schema_link %}{{trait_key|key:0}}{% if trait_key|key:1 %}-{{trait_key|key:1}}{% endif %}{% if branch %}:{{branch}}{% endif %}{% if version %}({{version}}){% endif %}{% endcaptureas %}
-        {% captureas dynamic_link %}{{tpdata|key:tp|key:"name"}}{% endcaptureas %}
+        {% if optional_sub_trait %}
+            {% captureas dynamic_link %}{{optional_sub_trait}}/{{tpdata|key:tp|key:'name'}}{% endcaptureas %}
+        {% else %}
+            {% captureas dynamic_link %}{{tpdata|key:tp|key:"name"}}{% endcaptureas %}
+        {% endif %}
         <a class="" target="_blank" href="{% url 'schema_browser:dynamic-list' survey_pk=survey trait_pk=schema_link dynamic_pk=dynamic_link %}">view <i class="fa fa-angle-right"></i></a>
     </td>
 </tr>

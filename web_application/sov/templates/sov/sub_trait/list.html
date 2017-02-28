@@ -64,38 +64,10 @@
         {% include 'sov/tables/action.html' %}
     </div>
     <div class="col-xs-12">
-        {% include 'sov/trait/properties_table.html' %}
+        {% include 'sov/trait/properties_table.html' with optional_sub_trait=response.data.name %}
     </div>
 </div>
 
 <!--<add-download-button url='{{ request.get_full_path }}' options='' formats='{{formats}}' prettyname='{{response.data.pretty_name}}'></add-download-button>-->
-
-{% endblock %}
-
-{% block footer-extra %}
-
-{% if trait_2D_map == True %}
-<script src="{% static 'restapi_app/js/jsonparsemore/json_parseMore.js' %}"></script>
-<script type="application/javascript" src="{% static 'restapi_app/js/plotly/plotly.latest.min.js'%}"></script>
-<script type="application/javascript" src="{% static 'sov/js/2D_map.js'%}"></script>
-<script type="application/javascript" src="{% static 'sov/js/trait_plotting.js'%}"></script>
-<script type="text/javascript">
-
-    $(document).ready(function () {
-        var trait_url = "{{request.build_absolute_uri}}value/?format=json";
-        var trait_name = "{{response.data.pretty_name}}";
-        var map_selector = "{{trait_type}}_plotly_plot";
-        var options_selector = "{{trait_type}}_plotly_plot_options";
-
-        trait_plot(trait_url, trait_name, map_selector, options_selector);
-
-    });
-</script>
-{% else %}
-<script>
-    $('#visualization_status').html('Visualization for {{response.data.pretty_name}} is in development.')
-    $('#interactive').html("<div class='well'><p>Interactivity in development</p></div>");
-</script>
-{% endif %}
 
 {% endblock %}

@@ -281,86 +281,21 @@ class SAMIRowStackedSpectra(SpectralMap):
 
 
 class SAMISpectralCube(SpectralMap):
-    r"""Flux cubes from optical integral-field spectroscopy.
+    r"""Two spectral cubes are provided for each SAMI object.
 
+    The Blue SAMI cube covers the ~3700-5700 $\AA$ wavelength range with a central resolution
+    of R=1812, a dispersion of 1.04 $\AA$/pixel and a spaxel spatial scale of 0.5 arcsec/pixel.
 
-    The data cubes
-    are taken from version 0.9 of the SAMI reduction pipeline (see [Sharp et al.
-    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy)
-    and [Allen et al. (2014)](http://sami-survey.org/paper/early-data-release)
-    for details).  There are two cubes for each galaxy, one in the blue, and a
-    second in the red.  Note that the red and blue cubes do not overlap in
-    wavelength coverage.  Some basic characteristics of the data are given
-    below:
+    The Red SAMI cube covers the ~6250-7350 $\AA$ wavelength range with a central resolution
+    of R=4263, a dispersion of 0.57 $\AA$/pixel and a spaxel spatial scale of 0.5 arcsec/pixel.
 
-    - Blue cube covers ~3700-5700A with a resolution of $R\simeq 1750$ and a
-      dispersion of 1.0 Angstrom per pixel.
-    - Red cube covers ~6300-7400A with a resolution of $R\simeq 4500$ and a
-      dispersion of 0.57 Angstroms per pixel.
-    - The cubes are each $50\times 50$ spatial pixels by $2048$ spectral pixels
-      with the spatial sampling at 0.5 arcsec.
-    - Data are flux calibrated and corrected for telluric absorption to within
-      6% in relative flux.
-    - The included world coordinate system is centred on catalogue coordinates.
-      The acuracy of the astronometry is about 1-2 arcseconds (RMS).
-    - Primary HDU contains the data cube: $50\times50$ spatial elements, $2048$
-      spectral elements ($50\times50\times2048$).
-    - Variance cube ($50\times 50\times 2048$), weight-map cube ($50\times
-      50\times 2048$) and covariance hyper-cube ($50\times 50\times 5\times
-      5\times n$, where $n$ can vary) are included as extensions.  See below for
-      discussion of covariance.
+    SAMI data cubes consist of four main extensions: flux (primary), variance, weight map and
+    covariance hypercube, as well as accompanying metadata and a galactic extinction correction
+    vector.  The flux, variance and weight cubes are a $2048 \times 50 \times 50$ array, whereas
+    the covariance hypercube is a $N \times 50 \times 50 \times 5 \times 5$ array.
 
-    # Variance and Covariance
-
-    During the reduction, SAMI hexabundles are dithered and resampled onto a regular
-    grid, which causes nearby output spaxels to have correlated noise in the spatial
-    dimension. This spatial covariance is included in the 'COVAR' extension of the
-    cube. (N.B. spectral covariance is small enough to be safely ignored, and is not
-    included). Full details of how covariance is handled in SAMI data is included in
-    [Sharp et al.
-    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
-
-    We leave the choice of how to apply (or otherwise) this covariance
-    information to subsequent analysis up to the user, but strongly encourage
-    users to read the description in [Sharp et al.
-    (2014)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy)
-    in detail.
-
-    # Acknowledgements and citations for using the data
-
-    If using SAMI data products, please include this acknowledgement:
-
-    > The SAMI Galaxy Survey is based on observations made at the
-    > Anglo-Australian Telescope. The Sydney-AAO Multi-object Integral field
-    > spectrograph (SAMI) was developed jointly by the University of Sydney and
-    > the Australian Astronomical Observatory. The SAMI input catalogue is based
-    > on data taken from the Sloan Digital Sky Survey, the GAMA Survey and the VST
-    > ATLAS Survey. The SAMI Galaxy Survey is funded by the Australian Research
-    > Council Centre of Excellence for All-sky Astrophysics (CAASTRO), through
-    > project number CE110001020, and other participating institutions. The SAMI
-    > Galaxy Survey website is http://sami-survey.org/ ."
-
-    Please also cite the following papers:
-
-    - ["The Sydney-AAO Multi-object Integral field spectrograph", Croom et al.
-    (2012), MNRAS, 421, 872](http://adsabs.harvard.edu/abs/2012MNRAS.421..872C).
-    Instrument description paper.
-    - ["The SAMI Galaxy Survey: Target selection and instrument specification",
-    Bryant et al., MNRAS 447, 2857 (2015)](http://sami-survey.org/paper/sami-survey-target-selection-and-instrument-specification). Details of survey target selection and revised
-    instrument description for upgraded SAMI instrument.
-    - ["The SAMI Galaxy Survey: Cubism and covariance, putting round pegs into
-    square holes", Sharp et al., MNRAS, 446, 1551
-    (2015)](http://sami-survey.org/paper/sami-galaxy-survey-resampling-spares-aperture-integral-field-spectroscopy).
-     Data processing pipeline, including flux calibration and drizzle cubing.
-    - ["The SAMI Galaxy Survey: Early Data Release", Allen et al., MNRAS, 446, 1567
-    (2015)](http://sami-survey.org/paper/early-data-release).  Description of
-    early data release, including quality metrics and details of data products.
-
-    # Feedback
-
-    The SAMI Galaxy Survey team welcome feedback on this data release and the
-    products contained within it.  If you are actively using the data and/or
-    find issues, please contact us on feedback@sami-survey.org.
+    More information about each cube extension, metadata and covariance can be found in the
+    [SAMI documentation](http://datacentral.aao.gov.au/asvo/docs/articles/sami-data-cube-structure/).
 
     """
 
@@ -422,13 +357,14 @@ class SAMISpectralCube(SpectralMap):
     def shape(self):
         return self.value().shape
 
-    unit =  1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
+    unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
 
     @trait_property('float.array.3')
     def value(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
         return self.hdu[key].data
+    value.set_description("Flux measurements")
 
     @trait_property('float.array.3')
     def variance(self):
@@ -438,6 +374,8 @@ class SAMISpectralCube(SpectralMap):
         the flux information, which is stored separately.
 
         """
+        # TODO set units on trait properties
+        unit = 1e-32 * units.erg ** 2 / units.s ** 2 / units.cm ** 4 / units.Angstrom ** 2
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('VARIANCE')].data
 
@@ -445,6 +383,7 @@ class SAMISpectralCube(SpectralMap):
     def weight(self):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('WEIGHT')].data
+    weight.set_description("Weight map applied to flux and variance cubes")
 
     @trait_property('float')
     def total_exposure(self):
@@ -457,6 +396,7 @@ class SAMISpectralCube(SpectralMap):
         """Version of the cubing code used"""
         return self.hdu[0].header['HGCUBING']
     cubing_code_version.set_short_name("HGCUBING")
+    cubing_code_version.set_description("Mercurial changeset ID of the SAMI cubing code used to create this cube")
 
     @trait_property('string')
     def plate_id(self):
@@ -488,22 +428,30 @@ class SAMISpectralCube(SpectralMap):
     @trait_property('float')
     def ra(self):
         """Catalog right-ascension of the galaxy"""
+        unit = units.degree
         return self.hdu[0].header['CATARA']
+    ra.set_pretty_name("RA")
 
     @trait_property('float')
     def dec(self):
         """Catalog declination of the galaxy."""
+        unit = units.degree
         return self.hdu[0].header['CATADEC']
 
     @trait_property('float')
     def data_rescale(self):
-        """Scaling applied to the data"""
+        """Flux re-scaling applied to the data"""
+        unit = units.km / units.s
         return self.hdu[0].header['RESCALE']
     data_rescale.set_short_name("RESCALE")
+    data_rescale.set_documentation("""The flux and variance are rescaled by a single value, the
+     ratio of the observed and catalogue magnitudes (SDSS psf magnitudes) of the secondary
+     standard star in each field. Final flux = observed flux * data rescale""")
 
     @trait_property('string')
     def history(self):
         return str(self.hdu[0].header['history'])
+    history.set_description("Details of data reduction steps applied to the cube")
 
     # Add links to sub_traits
     # @TODO: Re-enable once RSS trait connection is understood (list of RSS files?)
@@ -511,6 +459,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('string.array.1')
     def source_rss_frames(self):
+        unit = units.s
         source_rss_frames = []
         index = 1
         while True:
@@ -522,15 +471,16 @@ class SAMISpectralCube(SpectralMap):
                 source_rss_frames.append(rss_filename)
                 index += 1
         return source_rss_frames
+    source_rss_frames.set_description("File names of RSS frames contributing to cube")
 
     @trait_property("int")
     def n_source_rss_frames(self):
         return len(self.source_rss_frames.value)
+    n_source_rss_frames.set_description("Number of RSS frames combined to create cube")
 
     #
     # Sub Traits
     #
-
 
     class Covariance(Trait):
 
@@ -616,6 +566,7 @@ class SAMISpectralCube(SpectralMap):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['DUST'].header['EBVSFD98']
         mw_reding_SFD.set_short_name('EBVSFD98')
+        mw_reding_SFD.set_description('MW Reddening SFD')
 
         @trait_property('float')
         def mw_reding_plank(self):
@@ -623,7 +574,13 @@ class SAMISpectralCube(SpectralMap):
             with self._parent_trait.preloaded_context() as pt:
                 return pt.hdu['DUST'].header['EBVPLNCK']
         mw_reding_plank.set_short_name('EBVPLNCK')
+        mw_reding_plank.set_description('MW Reddening Planck')
+
     Dust.set_short_name("DUST")
+    Dust.set_description("MW dust correction spectrum derived from Planck reddening")
+    Dust.set_documentation("""Using the Planck extinction E(B-V) value, we derive a dust correction spectrum following
+    Cardelli, Clayton & Mathis (1989). This correction has not been applied to the cubes. To correct for dust, multiply
+    each spatial pixel by the dust correction spectrum.""")
 
     @sub_traits.register
     class CatCoordinate(SkyCoordinate):
@@ -640,7 +597,7 @@ class SAMISpectralCube(SpectralMap):
 
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
-
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         trait_type = 'wcs'
 
         @trait_property('string')
@@ -733,16 +690,21 @@ class SAMISpectralCube(SpectralMap):
         def alpha(self):
             return self.hdu[0].header['PSFALPHA']
         alpha.set_short_name('PSFALPHA')
+        alpha.set_description("$\\alpha$ coefficient of Moffat profile fit")
 
         @trait_property("float")
         def beta(self):
             return self.hdu[0].header['PSFBETA']
         beta.set_short_name('PSFBETA')
+        beta.set_description("$\\beta$ coefficient of Moffat profile fit")
 
         @trait_property("float")
         def fwhm(self):
+            unit = units.arcsecond
             return self.hdu[0].header['PSFFWHM']
         fwhm.set_short_name('PSFFWHM')
+        fwhm.set_description('FWHM of the Moffat profile fit')
+    PSF.set_pretty_name("PSF")
 
     @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
@@ -786,24 +748,6 @@ class SAMISpectralCube(SpectralMap):
     @sub_traits.register
     class AAOmegaDetector(DetectorCharacteristics):
         """AAOmega Detector characteristics defined by FITS header
-
-        Relevant section from the header:
-
-            DCT_DATE= 'Sep 12 2014'        / DCT release date
-            DCT_VER = 'r3_110_2_3'         / DCT version number
-            DETECXE =                 2048 / Last column of detector
-            DETECXS =                    1 / First column of detector
-            DETECYE =                 4102 / Last row of detector
-            DETECYS =                    1 / First row of detector
-            DETECTOR= 'E2V2A   '           / Detector name
-            XPIXSIZE=                  15. / X Pixel size in microns
-            YPIXSIZE=                  15. / Y Pixel size in microns
-            METHOD  = 'CCD Charge shuffling technique' / Observing method
-            SPEED   = 'NORMAL  '           / Readout speed
-            READAMP = 'RIGHT   '           / Readout amplifier
-            RO_GAIN =                 1.88 / Readout amplifier (inverse) gain (e-/ADU)
-            RO_NOISE=                 3.61 / Readout noise (electrons)
-
         """
 
         trait_type = 'detector_metadata'
@@ -823,6 +767,7 @@ class SAMISpectralCube(SpectralMap):
 
         read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
         # read_noise.set_short_name('RO_NOISE')
+        # read_noise unit = units.electrons
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
         # read_speed.set_short_name('SPEED')
@@ -840,31 +785,6 @@ class SAMISpectralCube(SpectralMap):
     @sub_traits.register
     class SAMICharacteristics(SpectrographCharacteristics):
         """Characteristics of the SAMI Instrument
-
-        Relevant Header Sections:
-
-            RCT_VER = 'r3_71HB '           / Run Control Task version number
-            RCT_DATE= '19-Oct-2013'        / Run Control Task version date
-            RADECSYS= 'FK5     '           / FK5 reference system
-            INSTRUME= 'AAOMEGA-SAMI'       / Instrument in use
-            SPECTID = 'BL      '           / Spectrograph ID
-            GRATID  = '580V    '           / Disperser ID
-            GRATTILT=                  0.7 / Grating tilt to be symmetric (degree)
-            GRATLPMM=                582.0 / Disperser ruling (lines/mm)
-            ORDER   =                    1 / Spectrum order
-            TDFCTVER= 'r11_33A '           / 2dF Control Task Version
-            TDFCTDAT= '17-Oct-2014'        / 2dF Control Task Version Date
-            DICHROIC= 'X5700   '           / Dichroic name
-            OBSTYPE = 'OBJECT  '           / Observation type
-            TOPEND  = 'PF      '           / Telescope top-end
-            AXIS    = 'REF     '           / Current optical axis
-            AXIS_X  =                   0. / Optical axis x (mm)
-            AXIS_Y  =                   0. / Optical axis y (mm)
-            TRACKING= 'TRACKING'           / Telescope is tracking.
-            TDFDRVER= '1.34    '           / 2dfdr version
-            PLATEID = 'Y14SAR3_P005_12T056_15T080' / Plate ID (from config file)
-            LABEL   = 'Y14SAR3_P005_12T056 - Run 16 galaxy plate 5 - field 1' / Configuratio
-
         """
 
         trait_type = 'instrument_metadata'
@@ -888,6 +808,7 @@ class SAMISpectralCube(SpectralMap):
         disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
 
         disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
+        # disperser_tilt unit = units.degree
 
         instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
 
@@ -979,7 +900,6 @@ class LZIFUDataMixin:
             log.debug("Trying path for LZIFU Data: %s", filepath)
 
         exists = file_or_gz_exists(filepath)
-        print(exists)
         if not self._lzifu_fits_file and exists:
             # Try with the correct plate identifier appended (the case for duplicates)
                 self._lzifu_fits_file = exists
@@ -1066,12 +986,12 @@ class SAMIVAP(MetadataTrait):
     # contact.set_description("email address of contact person for this VAP")
     # contact.set_pretty_name("Contact Email")
     # contact.set_short_name("CONTACT")
-
 SAMIVAP.set_pretty_name("SAMI VAP Metadata")
 SAMIVAP.set_description("Metadata added by the SAMI quality control process for value-added products")
 
 
 class LZIFUWCS(WorldCoordinateSystem):
+    """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
     @trait_property('string')
     def _wcs_string(self):
         header_str = self._parent_trait._wcs_string.value
@@ -1083,7 +1003,7 @@ class LZIFUWCS(WorldCoordinateSystem):
         return w.to_header_string()
 
 class LZIFUFlag(FlagMap):
-    """Map of flags set by LZIFU."""
+    """Map encoding which quality control flags were set by LZIFU"""
 
     trait_type = 'qf_bincode'
 
@@ -1125,10 +1045,11 @@ class LZIFUFlag(FlagMap):
         #     raise FIDIAException("FIDIA Data type error")
 
         return input_data
+    value.set_description("Binary codes describing which quality control flags were set by LZIFU")
 LZIFUFlag.set_short_name('QF_BINCODE')
 
 class LZIFUFlagCount(Map2D):
-    """Map of number of flags set by LZIFU."""
+    """Map of number of quality control flags set by LZIFU"""
     trait_type = 'qf'
 
     # We don't want all of the mixin class, but we do want the init, data loading and cleanup routines.
@@ -1139,6 +1060,7 @@ class LZIFUFlagCount(Map2D):
     @trait_property("int.array.2")
     def value(self):
         return self._hdu['QF'].data  # type: np.ndarray
+    value.set_description("Number of quality control flags set by LZIFU")
 
     @property
     def shape(self):
@@ -1147,7 +1069,7 @@ LZIFUFlagCount.set_short_name('QF')
 
 
 class LZIFUChiSq(Map2D):
-    """Final $\chi^2$ of LZIFU spectral fit."""
+    """Map of final reduced $\chi^2$ values of LZIFU spectral fits"""
 
     trait_type = 'chi2'
 
@@ -1161,6 +1083,7 @@ class LZIFUChiSq(Map2D):
         data = self._hdu['CHI2'].data  # type: np.ndarray
         assert len(data.shape) == 2
         return data
+    value.set_description("Final reduced $\chi^2$ values of LZIFU spectral fits")
 
     @property
     def shape(self):
@@ -1169,7 +1092,7 @@ LZIFUChiSq.set_pretty_name("Chi Squared")
 LZIFUChiSq.set_short_name('CHI2')
 
 class LZIFUDOF(Map2D):
-    """Degrees of freedom in LZIFU spectral fit."""
+    """Map of degrees of freedom in LZIFU spectral fits"""
 
     trait_type = 'degrees_of_freedom'
 
@@ -1183,6 +1106,7 @@ class LZIFUDOF(Map2D):
         data = self._hdu['DOF'].data  # type: np.ndarray
         assert len(data.shape) == 2
         return data
+    value.set_description("Degrees of freedom in LZIFU spectral fits")
 
     @property
     def shape(self):
@@ -1223,8 +1147,23 @@ LZIFUNComp.set_pretty_name("Number of Components Map")
 LZIFUNComp.set_short_name("NCOMP_MAP")
 
 class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
-    """ LZIFUVelocityMap description [velocity map 1_comp]
+    r"""Line-of-sight velocity map of ionized gas fit with a single Gaussian component
 
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
     """
 
     trait_type = "velocity_map"
@@ -1269,10 +1208,13 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['V'].data[1:2, :, :]
+    value.set_description("Line-of-sight velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[1:2, :, :]
+    error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1304,8 +1246,23 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
 
 class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
-    """ LZIFUVelocityMap description [velocity map recom_comp]
+    r"""Line-of-sight velocity maps of up to three kinematic components of ionized gas
 
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
     """
 
     trait_type = "velocity_map"
@@ -1318,7 +1275,6 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_m_comp[0]: 'V03'})
 
-
     @property
     def shape(self):
         return self.value().shape
@@ -1328,10 +1284,13 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['V'].data[:, :, :]
+    value.set_description("Line-of-sight velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[:, :, :]
+    error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1363,9 +1322,24 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
     sub_traits.register(LZIFUWCS)
 
 class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
-    """ LZIFUVelocityDispersionMap description [velocity map 1_comp]
+    r"""Line-of-sight velocity dispersion map of ionized gas fit with a single Gaussian component
 
-    """
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
+        """
 
     trait_type = "velocity_dispersion_map"
 
@@ -1386,10 +1360,14 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['VDISP'].data[1:2, :, :]
+    value.set_description("Line-of-sight velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[1:2, :, :]
+    error.set_description(
+        "1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1406,15 +1384,28 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
-
-
     sub_traits.register(LZIFUWCS)
 
 
 class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap):
-    """ LZIFUVelocityDispersionMap description [velocity map recom_comp]
+    r"""Line-of-sight velocity dispersion maps of up to three kinematic components of ionized gas
 
-    """
+        Line-of-sight velocity and velocity dispersion maps (and respective error maps) obtained
+        by fitting simultaneously 11 emission lines with either a single (1 component) or
+        multiple (multiple component) Gaussian components. The velocities are calculated
+        with respect to the heliocentric-velocity-corrected redshift as measured by the
+        GAMA survey (LZIFU input redshift, provided in the file header).
+
+        Kinematic maps in the 1 component branch are $50\times50$ arrays.  Kinematic maps
+        in the multicomponent branch are $50\times50\times4$ arrays, with slices [NaN,
+        $V$v or $\sigma$ of component 1, $V$ or $\sigma$ of component 2, $V$ or $\sigma$
+        of component 3] — the first (zeroth) slice is NaN in order to preserve matching
+        with the Halpha emission line map format.  Note that if only one component is
+        recommended, the format of these products remains $50\times50\times4$, but
+        the slots for the second and third components are NaN.
+
+        ##format: markdown
+        """
     trait_type = "velocity_dispersion_map"
 
     qualifiers = {'ionized_gas'}
@@ -1434,11 +1425,14 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
     @trait_property('float.array.3')
     def value(self):
         return self._hdu['VDISP'].data[:, :, :]
+    value.set_description("Line-of-sight velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('float.array.3')
     def error(self):
+        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[:, :, :]
     error.set_short_name('ERROR')
+    error.set_description("1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1447,9 +1441,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
         if red_cube_name[-3:] == ".gz":
             red_cube_name = red_cube_name[:-3]
         helio_corr = self.archive._helio_corr.loc[red_cube_name]['MEAN']
-
         return helio_corr
-
     heliocentric_velocity_correction.set_short_name("HELIOCOR")
 
     @trait_property('string')
@@ -1470,6 +1462,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     sub_traits.register(LZIFUWCS)
 
+
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     r"""Emission line flux map from a single Gaussian fit. [line emission maps for HBETA, OIII5007, OI6300, HALPHA, NII6583, SII6716, SII6731 for branch (1_comp)]
 
@@ -1477,7 +1470,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
 
     ##format: markdown
     """
-
 
     trait_type = 'line_emission_map'
     branches_versions = {branch_lzifu_1_comp: {'V03'}}
@@ -1529,7 +1521,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
         _wcs_string = self._hdu[self.line_name_map[self.trait_qualifier]].header
         return _wcs_string
 
-
     #
     # Sub Traits
     #
@@ -1539,7 +1530,6 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     sub_traits.register(LZIFUChiSq)
     sub_traits.register(LZIFUDOF)
     sub_traits.register(SAMIVAP)
-
 
     sub_traits.register(LZIFUWCS)
 
@@ -1554,6 +1544,7 @@ LZIFUOneComponentLineMap.set_pretty_name(
     NII6583='[NII] (6583Å)',
     SII6716='[SII] (6716Å)',
     SII6731='[SII] (6731Å)')
+
 
 class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
     """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727 for branch (1_comp)]
@@ -1607,7 +1598,6 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
-
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
@@ -1636,7 +1626,6 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     }
 
     qualifiers = line_name_map.keys()
-
 
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
@@ -1708,7 +1697,6 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
 
     qualifiers = line_name_map.keys()
 
-
     def preload(self):
         self._hdu = fits.open(self._lzifu_fits_file)
 
@@ -1753,6 +1741,7 @@ LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
     NII6583='[NII] (6583Å)',
     SII6716='[SII] (6716Å)',
     SII6731='[SII] (6731Å)')
+
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiComponentLineMapTotalOnly):
     """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727, branch (m_comp)]
@@ -1807,7 +1796,6 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         log.debug("Returning type: %s", type(sigma))
         return sigma
 
-
     @trait_property('string')
     def _wcs_string(self):
         _wcs_string = self._hdu['OII3726'].header
@@ -1817,10 +1805,25 @@ LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
 LZIFUOneComponent3727.set_documentation("Documentation from SAMI Team here")
 
-class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
-    """a description string for spectral_fit_cubes [all spectral fit cubes, regardless of qualifier (red/blue) or branch (1_comp/m_comp)]
 
-    documentation string for spectral_fit_cubes
+class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
+    r"""Model spectral cube incorporating stellar continuum and emission line fits for direct comparison to observed spectral cubes
+
+    The SAMI emission line spectral analysis is carried out using the LZIFU software
+    package described in [Ho et al. 2016](http://adsabs.harvard.edu/abs/2016Ap%26SS.361..280H)
+    and summarized in the
+    [Spectral Analysis Documentation](http://datacentral.aao.gov.au/asvo/docs/articles/sami-emission-line-fit-data-products/#Spectral_Analysis).
+    This analysis produces stellar continuum models and single
+    or multi-Gaussian emission line fits for eleven strong lines simultaneously
+    for each spectrum in each data cube.  The emission line fit properties and
+    further data products are distilled into maps available as other downloadable
+    data products in the database.
+
+    For direct comparison to the data cubes, model spectral cubes that incorporate
+    the total (continuum plus all emission line components) fits are provided for
+    each of the red and blue spectral segments.
+
+    ##format:markdown
     """
 
     trait_type = 'spectral_fit_cube'
@@ -1833,7 +1836,6 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
-
 
     @property
     def shape(self):
@@ -1850,6 +1852,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
             color = "R"
         return self._hdu[color + '_CONTINUUM'].data + self._hdu[color + '_LINE'].data
 
+    value.set_description("Model spectral cube incorporating stellar continuum and emission line fits")
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1861,7 +1864,6 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
         _wcs_string = str( self._hdu[color + '_CONTINUUM'].header)
         log.debug(_wcs_string)
         return _wcs_string
-
 
     #
     # Sub Traits
@@ -1876,6 +1878,7 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
 
     @sub_traits.register
     class LZIFUWCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             header_str = self._parent_trait._wcs_string.value
@@ -1918,6 +1921,7 @@ class LZIFUContinuum(SpectralMap):
     @trait_property('float.array.3')
     def error(self):
         raise DataNotAvailable("No error data available for LZIFU continuum spectral fit.")
+
 
 class LZIFULineSpectrum(SpectralMap):
 
@@ -2016,42 +2020,40 @@ class AnneVAP:
         assert fits_file_path is not None
         return fits_file_path
 
+
 class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
-    r"""Emission extinction map based on the Balmer decrement. [all balmer extinction maps regardless of branch (1_comp/m_comp)]
+    r"""Map of $H\alpha$ attenuation correction factor based on the Balmer decrement
 
-    Extinction maps for all SAMI galaxies in the DR0.9 release are are
-    calculated using the EmissionLineFitsV03 (which includes Balmer flux errors
-    incorporating continuum uncertainties) using the Balmer decrement and the
-    Cardelli+89 extinction law, using the code below.  Note that in the case of
-    multicomponent emission line fits, we use the total (summed over all
-    components) Balmer fluxes to estimate the typical extinction value in a
-    given spaxel.  Using the total flux produces more reliable Balmer decrements
-    because Hβ is sometimes only weakly detected in individual components.
+    Balmer extinction maps are calculated using the Balmer decrement and the
+    [Cardelli et al. 1989](http://adsabs.harvard.edu/abs/1989ApJ...345..245C) extinction law. For each spaxel:
 
-    ```
-    balmerdec = ha/hb
-    balmerdecerr = balmerdec * sqrt((haerr/ha)^2 + (hberr/hb)^2)
-    attencorr = (balmerdec / 2.86)^2.36
-    attencorrerr = abs((attencorr * 2.36 * balmerdecerr)/balmerdec)
-    ```
 
-    These maps will be in units of “attenuation correction factor” — such that
-    you can multiply this map by the Halpha cube to obtain de-extincted Hα
-    cubes.  Note that, when the Balmer decrement is less than 2.86, no
-    correction will be applied (attenuation correction factor = 1., error = 0.).
+    $balmerdec = \frac{H\alpha}{H\beta}$
+
+    $balmerdecerr = balmerdec * [(H\alpha_{err}/H\alpha)^2 + (H\beta_{err}/H\beta)^2]^{0.5}$
+
+    $attencorr = (\frac{balmerdec}{2.86})^{2.36}$
+
+    $attencorrerr = |\frac{attencorr * 2.36 * balmerdecerr}{balmerdec}|$
+
+    These maps are in units of attenuation correction factor — such that you can
+    multiply this map by the H$\alpha$ cube to obtain de-extincted H$\alpha$ cubes.
+    Note that, when the Balmer decrement is less than 2.86, no correction will be
+    applied (attenuation correction factor = 1., error = 0.).
 
     Additionally, we have set to NaN the correction and error for spaxels with
-    Hα flux > $40 \times 10^{-16}$ erg/s/cm^2 and Balmer decrement > 10.  These
-    numbers were chosen to eliminate spurious Hα fits to the edges of the
-    fibre bundles.  (These fits appear in the EmissionLineFits, but are flagged.
-    Here we simply remove them because they are nonsense.)
+    H$\alpha$ flux > 40 ($\times 10^{-16} erg~s^{-1}~cm^{-2}$) and Balmer
+    decrement > 10. These numbers were chosen to eliminate spurious H$\alpha$
+    fits to the edges of the fibre bundles. Errors (1-sigma uncertainties) in
+    the Balmer extinction are included as an extension in each file.
 
-    Errors (1-sigma uncertainties) in the extinction are included as a second
-    extension in each file.
+    For the multi-component branch, we only provide Balmer extinction maps based on the
+    total fluxes of the emission lines in each spaxel (i.e., we do not provide
+    maps for each individual kinematic component).
 
-    The files (one per galaxy per component fit) may be found on bill at
-    /export/bill1/sami_data/data_products/ExtinctCorrMaps/ExtinctCorrMapsV03
+    Thus, all Balmer extinction maps are $50\times50$ arrays.
 
+    ##format: markdown
     """
 
     trait_type = 'extinction_map'
@@ -2073,19 +2075,21 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
         return units.dimensionless_unscaled
 
     value = trait_property_from_fits_data('EXTINCT_CORR', 'float.array.2', 'value')
+    value.set_description("Extinction map from Balmer decrement")
     error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'error')
-    
+    error.set_description("1-sigma uncertainty in the extinction map from Balmer decrement")
+
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
     
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
-
 
 
 class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
@@ -2164,6 +2168,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
@@ -2267,8 +2272,10 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
@@ -2315,13 +2322,13 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     ratios that have a signal-to-noise ratio of at least 5. Emission is
     classified as star-forming in a given diagnostic if:
 
-    ```
-    $\log([OIII]/H\beta) < (0.61 / (\log([NII]/H\alpha)-0.05) + 1.3$ Kauffmann et al. 2003
 
-    $\log([OIII]/H\beta) < (0.72 / (\log([SII]/H\alpha)-0.32) + 1.3$ Kewley et al. 2001
+    $\log([OIII]/H\beta) < (0.61 / (\log([NII]/H\alpha)-0.05) + 1.3$ [Kauffmann et al. 2003](http://adsabs.harvard.edu/abs/2003MNRAS.346.1055K)
 
-    $\log([OIII]/H\beta) < (0.73 / (\log([OI]/H\alpha) +0.59) + 1.33$ Kewley et al. 2001
-    ```
+    $\log([OIII]/H\beta) < (0.72 / (\log([SII]/H\alpha)-0.32) + 1.3$ [Kewley et al. 2001](http://adsabs.harvard.edu/abs/2001ApJ...556..121K)
+
+    $\log([OIII]/H\beta) < (0.73 / (\log([OI]/H\alpha) +0.59) + 1.33$ [Kewley et al. 2001](http://adsabs.harvard.edu/abs/2001ApJ...556..121K)
+
     We additionally add a likely classification of "star-forming" to spaxels
     with $\log([NII]/H\alpha) <-0.4$ without an [OIII] detection and to spaxels
      with H$\alpha$ detections but no [N II], [S II], [O I], or [O III] detections.
@@ -2340,6 +2347,7 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     Thus, all extinction maps are $50 \times 50$ arrays.
 
+    ##format: markdown
     """
 
     trait_type = 'star_formation_mask'
@@ -2350,7 +2358,6 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
     }
     defaults = DefaultsRegistry(default_branch=branch_lzifu_1_comp[0],
                                 version_defaults={branch_lzifu_1_comp[0]: 'V03', branch_lzifu_m_comp[0]: 'V03'})
-
 
     def fits_file_path(self):
 
@@ -2367,16 +2374,16 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
+
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
+        """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         @trait_property('string')
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
 
 SFMask.set_pretty_name("Star Formation Mask")
-
-
 
 
 def update_path(path):
@@ -2411,7 +2418,6 @@ class SAMIDR1PublicArchive(Archive):
                       dtype={'SAMI_ID': str, 'red_cube_file': str}).set_index('SAMI_ID')
         self.contents = master_cat.index
 
-
         # The master catalog only has red cube file names, so create a column with blue names as well:
         red_files = master_cat['red_cube_file']
         blue_files = red_files.apply(lambda x: x.replace("red", "blue"))
@@ -2438,15 +2444,12 @@ class SAMIDR1PublicArchive(Archive):
         # Local cache for traits
         self._trait_cache = dict()
 
-
         # Table of heliocentric corrections:
         self._helio_corr = ascii.read(self.catalog_path + "heliocentric_corr/" +
                                       "mean_helio_v0.9.1.dat")
         self._helio_corr.add_index('CUBE_NAME')
         # Rename the "MEAN (KM/S)" column to be easier to address.
         self._helio_corr.columns['MEAN(KM/S)'].name = 'MEAN'
-
-
 
         super(SAMIDR1PublicArchive, self).__init__()
 
@@ -2525,13 +2528,12 @@ class SAMIDR1PublicArchive(Archive):
         cube_ids = map(os.path.basename, glob(self._base_directory_path + "*/cubed/*"))
 
         # Note, there may be duplicates; the following prints a list of duplicates
-        #print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
+        # print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
         return cube_ids
 
     @property
     def name(self):
         return 'SAMI'
-
 
     feature_catalog_data = [
         # TraitPath("cat_id"),
@@ -2620,7 +2622,7 @@ class SAMIDR1PublicArchive(Archive):
         r_petro = catalog_trait(Measurement, 'm_r-petrosian',
                                 OrderedDict([('value', self.tabular_data['r_petro']),
                                              ('unit', units.mag)]))
-        r_petro.set_pretty_name(r"mag r-band", petrosian="petrosian")
+        r_petro.set_pretty_name(r"mag r-band", petrosian="Petrosian")
         r_petro.set_description("Petrosian r-band magnitude from SDSS, extinction corrected.")
         r_petro.value.set_description(r_petro.get_description())
         r_petro.set_documentation(r"""
@@ -3002,8 +3004,6 @@ class SAMIDR1PublicArchive(Archive):
 
         self.available_traits.change_defaults('bad_class', DefaultsRegistry(default_branch=sami_gama_catalog_branch[0]))
 
-
-
         #      __    ___          __       ___
         # |     / | |__  |  |    |  \  /\   |   /\
         # |___ /_ | |    \__/    |__/ /~~\  |  /~~\
@@ -3125,7 +3125,7 @@ class SAMITeamArchive(Archive):
         cube_ids = map(os.path.basename, glob(self._base_directory_path + "*/cubed/*"))
 
         # Note, there may be duplicates; the following prints a list of duplicates
-        #print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
+        # print [item for item, count in collections.Counter(cube_ids).items() if count > 1]
         return cube_ids
 
     @property
