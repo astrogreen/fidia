@@ -107,7 +107,21 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         return self
 
     def get_formatted_units(self):
+        log.debug("get_formatted_units()")
         # This is a nearly identical copy of the code in base_trait.py::Trait
+
+        log.debug("%s has '_trait': %s", self, hasattr(self, '_trait'))
+
+        # These few lines "inherit" the parent Trait's units in some circumstances.
+        if (not hasattr(self, 'unit')) \
+                and hasattr(self, '_trait') \
+                and hasattr(self._trait, 'unit'):
+            # Parent Trait is known and has units.
+            log.debug("Unit inheritance possible")
+            if self.name == 'value':
+                log.debug("Inheriting unit from trait.")
+                self.unit = self._trait.unit
+
         if hasattr(self, 'unit'):
             if hasattr(self.unit, 'value'):
                 formatted_unit = "{0.unit:latex_inline}".format(self.unit)
@@ -197,7 +211,18 @@ class BoundTraitProperty:
 
         """
         if item not in ('loader',) and not item.startswith("_"):
-            return getattr(self._trait_property, item)
+            # First check if the item is defined on the TraitProperty class.
+            if item in dir(TraitProperty):
+                classitem = getattr(TraitProperty, item)
+                if hasattr(classitem, '__get__'):
+                    # Item is a descriptor. Bind it to this object (instead of the original TraitProperty)
+                    return classitem.__get__(self)
+                else:
+                    return classitem
+            # Item must be an instance attribute
+            attr = getattr(self._trait_property, item)
+
+            return attr
 
     def __repr__(self):
         return "<BoundTraitProperty {} of {}>".format(self._trait_property.name, str(self._trait.trait_key))
