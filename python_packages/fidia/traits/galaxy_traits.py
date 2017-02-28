@@ -13,7 +13,7 @@ class LineEmissionMap(Image):
     pass
 
 class ExtinctionMap(Image):
-    """Spatially-resolved map of extinction"""
+    """Map of attenuation correction factor based on the Balmer decrement"""
     pass
 
 
@@ -22,11 +22,11 @@ class StellarMass(Measurement):
     pass
 
 class VelocityMap(Image, Measurement):
-    """A spatially-resolved map of velocities across an object"""
+    """Spatially-resolved map(s) of velocity field(s) for each fitted kinematic component"""
     pass
 
 class VelocityDispersionMap(VelocityMap):
-    """A spatially-resolved map of velocity dispersions across an object"""
+    """Spatially-resolved map(s) of velocity dispersion(s) for each fitted kinematic component"""
     pass
 
 class Abundance(Measurement): pass
