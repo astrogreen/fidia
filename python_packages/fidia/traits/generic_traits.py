@@ -92,10 +92,15 @@ class Image(Map2D):
 
 
 class SpectralMap(Trait, AbstractBaseArrayTrait, FITSExportMixin):
-    """Spatially-resolved collection of spectra"""
+    """Fully reduced and flux calibrated SAMI cubes"""
 
     @abstractproperty
     def value(self): pass
+
+
+class SpectralFit(SpectralMap):
+    """Model spectral cubes incorporating stellar continuum and emission line fits"""
+    pass
 
 
 class Classification(Trait, AbstractBaseClassification): pass

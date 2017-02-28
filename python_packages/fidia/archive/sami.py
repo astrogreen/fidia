@@ -1846,7 +1846,7 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
 
-class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
+class LZIFUCombinedFit(LZIFUDataMixin, SpectralFit):
     r"""Model spectral cube incorporating stellar continuum and emission line fits for direct comparison to observed spectral cubes
 
     The SAMI emission line spectral analysis is carried out using the LZIFU software
