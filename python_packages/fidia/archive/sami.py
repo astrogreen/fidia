@@ -1212,9 +1212,9 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[1:2, :, :]
     error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1288,9 +1288,9 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[:, :, :]
     error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1429,10 +1429,10 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[:, :, :]
     error.set_short_name('ERROR')
     error.set_description("1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
