@@ -1364,10 +1364,10 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[1:2, :, :]
     error.set_description(
         "1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('string')
     def _wcs_string(self):
