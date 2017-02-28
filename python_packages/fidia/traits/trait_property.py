@@ -1,6 +1,7 @@
 # Standard Library Imports
 from abc import ABCMeta
 import re
+import inspect
 
 # Internal package imports
 from ..exceptions import *
@@ -213,13 +214,18 @@ class BoundTraitProperty:
         if item not in ('loader',) and not item.startswith("_"):
             # First check if the item is defined on the TraitProperty class.
             if item in dir(TraitProperty):
-                classitem = getattr(TraitProperty, item)
+                # Get the item from the class. Note, we cannot use getattr here,
+                # or we may inadvertently call the descriptor logic early.
+                #
+                # (Otherwise, there is very strange interactions between this
+                # code and classorinstancemethod in utilities.py)
+                classitem = inspect.getattr_static(TraitProperty, item)
                 if hasattr(classitem, '__get__'):
                     # Item is a descriptor. Bind it to this object (instead of the original TraitProperty)
-                    return classitem.__get__(self)
+                    return classitem.__get__(self, BoundTraitProperty)
                 else:
                     return classitem
-            # Item must be an instance attribute
+            # Otherwise, item must be an instance attribute
             attr = getattr(self._trait_property, item)
 
             return attr
