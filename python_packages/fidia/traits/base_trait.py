@@ -1029,7 +1029,17 @@ class FITSExportMixin:
                 RegexpGroup(re.compile(r"float\.array\.\d+"),
                             re.compile(r"int\.array\.\d+"))):
                 extension = fits.ImageHDU(trait_property.value)
-                extension.name = str(trait.get_short_name())
+
+                # Set the name of the extension for this trait property. As this
+                # is a sub-trait, we use the sub-trait name, and if the trait
+                # property is not 'value', we append '_name' to the extension
+                # name.
+                if trait_property.name == 'value':
+                    extension.name = str(trait.get_short_name())
+                else:
+                    extension.name = str(trait.get_short_name()) + "_" + str(trait_property.get_short_name())
+
+                # Store other vital information about the origin of this data in the header.
                 extension.header['SUBTRAIT'] = (trait.trait_name, "Data Central Sub-trait ID")
                 # extension.header['ST_NAME'] = (trait.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Name")
                 # extension.header['ST_DESC'] = (trait.get_description().encode('ascii', errors='ignore'))
