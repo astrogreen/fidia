@@ -913,6 +913,7 @@ class FITSExportMixin:
         # primary_hdu.header['SHRTDESC'] = (self.get_description().encode('ascii', errors='ignore'))
         primary_hdu.header['BRANCH'] = (self.branch, "Data Central Branch ID")
         primary_hdu.header['VER'] = (self.version, "Data Central Version ID")
+        primary_hdu.header['EXTNAME'] = self.get_short_name()
 
         # Attach all "meta-data" Traits to Header of Primary HDU
         from . import meta_data_traits
