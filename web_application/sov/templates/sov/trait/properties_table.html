@@ -32,30 +32,43 @@
 
         <!--Iterate over sub-traits-->
         {% for s in sub_traits %}
-        <tr class="bg-success">
-            <td colspan="4" align="middle">
-                <h6 class="" style="margin:0"><span class="text-uppercase"><a href="{{ response.data|key:s |key:'url' }}">
-                    {{ response.data|key:s|key:'pretty_name' }}
-
-                </a></span></h6>
-            </td>
-        </tr>
-        {% if response.data|key:s|key:'description' %}
-        <tr>
-            <td colspan="4" align="middle">
-                {{response.data|key:s|key:'description'}}
-            </td>
-        </tr>
-        {% endif %}
-            {% for t in response.data|key:s %}
-                {% if t not in reserved_keywords %}
-                    {% with response.data|key:s as tpdata %}
-                        {% with t as tp %}
-                            {% include 'sov/trait/subtrait_property_row.html' %}
+            <tr class="bg-success">
+                <td colspan="4" align="middle">
+                    <h6 class="" style="margin:0">
+                        <span class="text-uppercase">
+                            <a href="{{ response.data|key:s |key:'url' }}">
+                                {{ response.data|key:s|key:'pretty_name' }}
+                            </a>
+                        </span>
+                        {% if response.data|key:s|key:'export_formats' %}
+                            {% for format in response.data|key:s|key:'export_formats' %}
+                                 <a href="{{request.get_full_path}}{{s}}/?format={{format|lowercase}}" class='btn btn-default btn-xs modal-download-btn pull-right'>
+                                    <span class="fa-custom-stack">
+                                      <i class="fa fa-file-o"></i>
+                                        <span class="fa-custom-filetype">{{format}}</span>
+                                    </span>{{format}}
+                                </a>
+                            {% endfor %}
+                        {% endif %}
+                    </h6>
+                </td>
+            </tr>
+            {% if response.data|key:s|key:'description' %}
+            <tr>
+                <td colspan="4" align="middle">
+                    {{response.data|key:s|key:'description'}}
+                </td>
+            </tr>
+            {% endif %}
+                {% for t in response.data|key:s %}
+                    {% if t not in reserved_keywords %}
+                        {% with response.data|key:s as tpdata %}
+                            {% with t as tp %}
+                                {% include 'sov/trait/subtrait_property_row.html' %}
+                            {% endwith %}
                         {% endwith %}
-                    {% endwith %}
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
         {% endfor %}
         </tbody>
 

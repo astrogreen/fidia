@@ -257,7 +257,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
     Dynamic View evaluated on instance type is Trait or Trait property
     This is only one level
     """
-    renderer_classes = (sov.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer)
+    renderer_classes = (sov.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer, sov.renderers.FITSRenderer)
     permission_classes = [permissions.AllowAny]
 
     def __init__(self, *args, **kwargs):

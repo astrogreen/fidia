@@ -249,9 +249,14 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
                 if verbosity == 'simple':
                     trait_property_schema = trait_property.type
                 else:
+                    # First get unit information
+                    formatted_unit = trait_property.get_formatted_units()
+                    if trait_property.name == 'value' and formatted_unit == '':
+                        formatted_unit = cls.get_formatted_units()
                     trait_property_schema = SchemaDictionary(
                         type=trait_property.type,
-                        name=trait_property.name
+                        name=trait_property.name,
+                        unit=formatted_unit
                     )
                 if verbosity == 'descriptions':
                     trait_property.copy_descriptions_to_dictionary(trait_property_schema)

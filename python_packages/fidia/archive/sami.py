@@ -1212,9 +1212,9 @@ class LZIFUVelocityMap(LZIFUDataMixin, VelocityMap):
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[1:2, :, :]
     error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1288,9 +1288,9 @@ class LZIFURecommendedComponentVelocityMap(LZIFUDataMixin, VelocityMap):
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['V_ERR'].data[:, :, :]
     error.set_description("1-sigma uncertainty in velocity for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1364,10 +1364,10 @@ class LZIFUVelocityDispersionMap(LZIFUDataMixin, VelocityDispersionMap):
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[1:2, :, :]
     error.set_description(
         "1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1429,10 +1429,10 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
     @trait_property('float.array.3')
     def error(self):
-        # unit = units.km / units.s
         return self._hdu['VDISP_ERR'].data[:, :, :]
     error.set_short_name('ERROR')
     error.set_description("1-sigma uncertainty in velocity dispersion for each fitted kinematic component of ionized gas")
+    error.unit = units.km / units.s
 
     @trait_property('float')
     def heliocentric_velocity_correction(self):
@@ -1466,7 +1466,12 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
     r"""Emission line flux map from a single Gaussian fit. [line emission maps for HBETA, OIII5007, OI6300, HALPHA, NII6583, SII6716, SII6731 for branch (1_comp)]
 
-    Documentation from SAMI Team here...
+    Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
+    Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
+    (and error) maps in the multicomponent branch are arrays of dimension $50\times50\times4$, with four maps showing
+    [total flux in all components, flux in component 1, flux in component 2, flux in component 3].  The other lines may
+    have strong uncertainties in the individual components, so only the sum of the fluxes (along with appropriate
+    covariance-included errors) is released, in a $50\times50$ map.
 
     ##format: markdown
     """
@@ -1504,12 +1509,16 @@ class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[1:2, :, :]
         log.debug("Returning type: %s", type(value))
         return value
+    value.set_description("[line name] flux from a single Gaussian fit")
+    value.unit = 1e-16 * units.erg / units.s / units.cm**2
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[1:2, :, :]
         log.debug("Returning type: %s", type(sigma))
         return sigma
+    error.set_description("1-sigma uncertainty in line flux from a single Gaussian fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     # @trait_property('string')
     # def _wcs_string(self):
@@ -1547,10 +1556,14 @@ LZIFUOneComponentLineMap.set_pretty_name(
 
 
 class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
-    """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727 for branch (1_comp)]
+    """Emission line flux map of the summed [OII] 3726Å+3729Å doublet from a single Gaussian fit to each line [line emission map OII3727 for branch (1_comp)]
 
-    The Emission-line-flux map for the [OII] doublet is the sum of the
-    individual fits for [OII] (3726Å) and [OII] (3729Å).
+    Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
+    Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
+    (and error) maps in the multicomponent branch are arrays of dimension $50\times50\times4$, with four maps showing
+    [total flux in all components, flux in component 1, flux in component 2, flux in component 3].  The other lines may
+    have strong uncertainties in the individual components, so only the sum of the fluxes (along with appropriate
+    covariance-included errors) is released, in a $50\times50$ map.
 
     """
 
@@ -1575,6 +1588,8 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         value = line1 + line2
         log.debug("Returning type: %s", type(value))
         return value
+    value.set_description("Total flux in [OII] 3726Å+3729Å doublet from a single Gaussian fit to each line")
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('float.array.3')
     def error(self):
@@ -1597,6 +1612,8 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
         sigma = np.sqrt(line1 ** 2 + line2 ** 2)
         log.debug("Returning type: %s", type(sigma))
         return sigma
+    error.set_description("1-sigma uncertainty in line flux from a single Gaussian fit to each line")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1605,13 +1622,17 @@ class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
-LZIFUOneComponent3727.set_documentation("The Emission-line-flux map for the [OII] doublet is the sum of the individual fits for [OII] (3726Å) and [OII] (3729Å).")
 
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
     r"""Emission line flux map from one to three Gaussian fits. [line emission maps: HALPHA for branch (m_comp)]
 
-    Documentation from SAMI Team here...
+    Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
+    Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
+    (and error) maps in the multicomponent branch are arrays of dimension $50\times50\times4$, with four maps showing
+    [total flux in all components, flux in component 1, flux in component 2, flux in component 3].  The other lines may
+    have strong uncertainties in the individual components, so only the sum of the fluxes (along with appropriate
+    covariance-included errors) is released, in a $50\times50$ map.
 
     ##format: markdown
     """
@@ -1635,13 +1656,15 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[:, :, :]
         log.debug("Returning type: %s", type(value))
         return value
-    value.set_description("Total Line Flux in all components")
+    value.set_description("Halpha line flux from up to three Gaussian components: [total, component 1, component 2, component 3]")
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[:, :, :]
         return sigma
-    value.set_description("Variance of Total Line Flux in all components")
+    error.set_description("1-sigma uncertainty in line flux from multicomponent fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1665,15 +1688,17 @@ class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
 LZIFURecommendedMultiComponentLineMap.set_pretty_name(
     "Line Emission Map",
     HALPHA='Hα')
-LZIFURecommendedMultiComponentLineMap.set_documentation(
-    "Documentation from SAMI Team here... [all line emission maps branch (m_comp)]")
-
 
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
-    r"""Total Emission line flux map from one to three Gaussian fits. [line emission maps: HBETA, OIII5007, OI6300, NII6583, SII6716, SII6731 for branch (m_comp)]
+    r"""Total emission line flux map summing up to three Gaussian components [line emission maps: HBETA, OIII5007, OI6300, NII6583, SII6716, SII6731 for branch (m_comp)]
 
-    Documentation from SAMI Team here...
+    Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
+    Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
+    (and error) maps in the multicomponent branch are arrays of dimension $50\times50\times4$, with four maps showing
+    [total flux in all components, flux in component 1, flux in component 2, flux in component 3].  The other lines may
+    have strong uncertainties in the individual components, so only the sum of the fluxes (along with appropriate
+    covariance-included errors) is released, in a $50\times50$ map.
 
     ##format: markdown
     """
@@ -1705,14 +1730,15 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
         value = self._hdu[self.line_name_map[self.trait_qualifier]].data[0:1, :, :]
         log.debug("Returning type: %s", type(value))
         return value
-    value.set_description("Total Line Flux in all components")
+    value.set_description("Total [line name] flux summing up to three Gaussian components")
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu[self.line_name_map[self.trait_qualifier] + '_ERR'].data[0:1, :, :]
         return sigma
-    value.set_description("Variance of Total Line Flux in all components")
-
+    error.set_description("1-sigma uncertainty in total line flux from multicomponent fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1744,10 +1770,14 @@ LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
 
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiComponentLineMapTotalOnly):
-    """Emission-line-flux map from a single Gaussian fit. [line emission map OII3727, branch (m_comp)]
+    """Total emission line flux map summing up to three Gaussian components for each line in the [OII] 3726Å+3729Å doublet [line emission map OII3727, branch (m_comp)]
 
-    The Emission-line-flux map for the [OII] doublet is the sum of the
-    individual fits for [OII] (3726Å) and [OII] (3729Å).
+    Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
+    Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
+    (and error) maps in the multicomponent branch are arrays of dimension $50\times50\times4$, with four maps showing
+    [total flux in all components, flux in component 1, flux in component 2, flux in component 3].  The other lines may
+    have strong uncertainties in the individual components, so only the sum of the fluxes (along with appropriate
+    covariance-included errors) is released, in a $50\times50$ map.
 
     """
 
@@ -1772,6 +1802,8 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
         value = line1 + line2
         log.debug("Returning type: %s", type(value))
         return value
+    value.unit = 1e-16 * units.erg / units.s / units.cm ** 2
+    value.set_description("Total flux in [OII] 3726Å+3729Å doublet from up to three Gaussian components fit to each line")
 
     @trait_property('float.array.3')
     def error(self):
@@ -1795,6 +1827,8 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 
         log.debug("Returning type: %s", type(sigma))
         return sigma
+    error.set_description("1-sigma uncertainty in line flux from multicomponent fit")
+    error.unit = 1e-16 * units.erg / units.s / units.cm ** 2
 
     @trait_property('string')
     def _wcs_string(self):
@@ -1803,10 +1837,9 @@ class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiCo
 
 LZIFUOneComponent3727.set_pretty_name(
     "Line Emission Map", OII3727="[OII] (3726Å+3729Å)")
-LZIFUOneComponent3727.set_documentation("Documentation from SAMI Team here")
 
 
-class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
+class LZIFUCombinedFit(LZIFUDataMixin, SpectralFit):
     r"""Model spectral cube incorporating stellar continuum and emission line fits for direct comparison to observed spectral cubes
 
     The SAMI emission line spectral analysis is carried out using the LZIFU software
@@ -1851,7 +1884,6 @@ class LZIFUCombinedFit(LZIFUDataMixin, SpectralMap):
         elif self.trait_qualifier == "red":
             color = "R"
         return self._hdu[color + '_CONTINUUM'].data + self._hdu[color + '_LINE'].data
-
     value.set_description("Model spectral cube incorporating stellar continuum and emission line fits")
 
     @trait_property('string')
@@ -2078,7 +2110,7 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
     value.set_description("Extinction map from Balmer decrement")
     error = trait_property_from_fits_data('EXTINCT_CORR_ERR', 'float.array.2', 'error')
     error.set_description("1-sigma uncertainty in the extinction map from Balmer decrement")
-
+    
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
     @sub_traits.register
