@@ -1047,6 +1047,18 @@ class FITSExportMixin:
                 # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Data Name")
                 # extension.header['EXTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
 
+                # Add unit information to header if present
+                if hasattr(trait_property, 'unit') \
+                        or (hasattr(trait, 'unit') and trait_property.name == 'value'):
+                    if hasattr(trait_property, 'unit'):
+                        unit = trait_property.unit
+                    else:
+                        unit = trait.unit
+                    if hasattr(unit, 'value'):
+                        extension.header['BUNIT'] = str(unit.value) + unit.unit.to_string()
+                    else:
+                        extension.header['BUNIT'] = unit.to_string()
+
                 # Add single-numeric-value TraitProperties to the primary header:
                 for trait_property in trait.trait_properties(['float', 'int']):
                     try:
