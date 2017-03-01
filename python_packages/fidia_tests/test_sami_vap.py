@@ -54,6 +54,8 @@ class TestSAMILZIFU:
         print(vmap.value.get_description())
         print(vmap.value.get_short_name())
 
+        assert vmap.value.get_short_name() == "VALUE"
+
     def test_lzifu_vel_map_units(self, sami_sample):
         vmap = sami_sample['24433']['velocity_map-ionized_gas']
 

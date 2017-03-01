@@ -211,7 +211,7 @@ class BoundTraitProperty:
         override the host TraitProperty's attributes.
 
         """
-        if item not in ('loader',) and not item.startswith("_"):
+        if item not in ('loader',) and not item.startswith("__"):
             # First check if the item is defined on the TraitProperty class.
             if item in dir(TraitProperty):
                 # Get the item from the class. Note, we cannot use getattr here,
