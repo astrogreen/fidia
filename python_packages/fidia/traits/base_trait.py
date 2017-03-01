@@ -918,6 +918,7 @@ class FITSExportMixin:
         # primary_hdu.header['SHRTDESC'] = (self.get_description().encode('ascii', errors='ignore'))
         primary_hdu.header['BRANCH'] = (self.branch, "Data Central Branch ID")
         primary_hdu.header['VER'] = (self.version, "Data Central Version ID")
+        primary_hdu.header['EXTNAME'] = self.get_short_name()
 
         # Attach all "meta-data" Traits to Header of Primary HDU
         from . import meta_data_traits
@@ -1028,13 +1029,35 @@ class FITSExportMixin:
                 RegexpGroup(re.compile(r"float\.array\.\d+"),
                             re.compile(r"int\.array\.\d+"))):
                 extension = fits.ImageHDU(trait_property.value)
-                extension.name = str(trait.get_short_name())
+
+                # Set the name of the extension for this trait property. As this
+                # is a sub-trait, we use the sub-trait name, and if the trait
+                # property is not 'value', we append '_name' to the extension
+                # name.
+                if trait_property.name == 'value':
+                    extension.name = str(trait.get_short_name())
+                else:
+                    extension.name = str(trait.get_short_name()) + "_" + str(trait_property.get_short_name())
+
+                # Store other vital information about the origin of this data in the header.
                 extension.header['SUBTRAIT'] = (trait.trait_name, "Data Central Sub-trait ID")
                 # extension.header['ST_NAME'] = (trait.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Name")
                 # extension.header['ST_DESC'] = (trait.get_description().encode('ascii', errors='ignore'))
                 extension.header['EXTID'] = (trait_property.name, "Data Central Sub-trait Data ID")
                 # extension.header['EXTNAME'] = (trait_property.get_pretty_name().encode('ascii', errors='ignore'), "Sub-trait Data Name")
                 # extension.header['EXTDESC'] = (trait_property.get_description().encode('ascii', errors='ignore'))
+
+                # Add unit information to header if present
+                if hasattr(trait_property, 'unit') \
+                        or (hasattr(trait, 'unit') and trait_property.name == 'value'):
+                    if hasattr(trait_property, 'unit'):
+                        unit = trait_property.unit
+                    else:
+                        unit = trait.unit
+                    if hasattr(unit, 'value'):
+                        extension.header['BUNIT'] = str(unit.value) + unit.unit.to_string()
+                    else:
+                        extension.header['BUNIT'] = unit.to_string()
 
                 # Add single-numeric-value TraitProperties to the primary header:
                 for trait_property in trait.trait_properties(['float', 'int']):
