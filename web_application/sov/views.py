@@ -364,6 +364,17 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
 
         return Response(serializer.data)
 
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'fits':
+            trait = sami_dr1_sample[kwargs['astroobject_pk']][kwargs['trait_pk']]
+            sub_trait = trait[kwargs['subtraitproperty_pk']]
+            filename = "{obj_id}-{trait_key}-{subtrait_key}.fits".format(
+                obj_id=kwargs['astroobject_pk'],
+                trait_key=trait.trait_key.ashyphenstr(),
+                subtrait_key=sub_trait.trait_key.ashyphenstr())
+            response['content-disposition'] = "attachment; filename=%s" % filename
+        return response
 
 class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.TraitHelper):
     """
