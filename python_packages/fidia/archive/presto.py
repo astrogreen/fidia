@@ -65,22 +65,57 @@ class PrestoArchive():
         else:
             return result.status_code + result.reason
 
+    def get_mapped_column(self, mapping):
+        result = self.execute_query("Select mapped from gama_mapping_table_1 where mapping='" + mapping + "'", "default")
+        if result.ok:
+            return result.json()
+        else:
+            return result.status_code + result.reason
+
+    def get_mappings(self):
+        result = self.execute_query("Select mapping, mapped from gama_mapping_table_1", "default")
+        if result.ok:
+            # we need to get the mappings in a dictionary
+            mapping_data = result.json()['data']
+            mapping_dict = dict()
+            for mapping in mapping_data:
+                mapping_dict[mapping[0]] = mapping[1]
+            return mapping_dict
+        else:
+            return result.status_code + result.reason
+
+
+    # This should use a relational database.
+    # mapping table columns: mapping, mapped, dmuid, tableid, col_description, col_version etc.
     def get_sql_schema(self):
-        dmu_data = self.get_dmu_data()
+        mappings = self.get_mappings()
+        dmu_data = self.get_dmu_data() # get from relational dmu tables
         dmus_list = list()
         for dmu in dmu_data['data']:
             dmu_dict = dict()
             dmu_id = dmu[0]
             dmu_dict['name'] = dmu[1]
-            table_data = self.get_tables_by_dmu(dmu_id)
+            dmu_dict['contact'] = dmu[2]
+            dmu_dict['date'] = dmu[3]
+            dmu_dict['description'] = dmu[7]
+            dmu_dict['reference'] = dmu[10]
+            table_data = self.get_tables_by_dmu(dmu_id) # get from relational tables table
             tables_list = list()
             for tbl in table_data['data']:
                 table = dict()
                 table_id = tbl[0]
                 table['name'] = tbl[1]
-                table['version'] = tbl[4]
-                table['shortdescription'] = tbl[7]
-                column_data = self.get_columns_by_table(table_id)
+                meta = dict()
+                meta['version'] = tbl[4]
+                meta['description'] = tbl[7]
+                if table_id is 192:
+                    meta['megatable_id'] = 3
+                elif table_id in [185, 186, 187, 188, 189]:
+                    meta['megatable_id'] = 2
+                else:
+                    meta['megatable_id'] = 1
+                table['meta'] = meta
+                column_data = self.get_columns_by_table(table_id) # get from relational columns table
                 columns_list = list()
                 for col in column_data['data']:
                     column = dict()
@@ -89,6 +124,9 @@ class PrestoArchive():
                     meta['ucd'] = col[4]
                     meta['description'] = col[5]
                     column['meta'] = meta
+                    # we should add mapped column here as well just in case.
+                    column['mapped'] = mappings[dmu[1] + '.' + tbl[1] + '.' + col[2]]
+                    # so in the future if we change the mapping, do we have to change the code? yes if structure changes
                     columns_list.append(column)
                 table['cols'] = columns_list
                 tables_list.append(table)
@@ -96,6 +134,20 @@ class PrestoArchive():
             dmus_list.append(dmu_dict)
 
         return dmus_list
+
+
+    def create_query(self, columns, filters):
+        cols = list()
+        column = dict()
+        column['name'] = 'dmu.table.col'
+        column['megatable_id'] = 1
+
+        mega_1 = list()
+        # we have columns list and filters list. filters list? "InputCat.InputCatA.ra = 1.321 AND dec = 0.223
+        # AND redshift < 1.222 OR redshift > 0.112
+
+
+
 
 
     def getSpectralMapsById(self, object_id):
