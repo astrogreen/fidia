@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'astrospark',
+    'authentication',
     'bootstrap3',
     'corsheaders',
     'documentation',
@@ -291,9 +292,6 @@ except ImportError:
 # Bring pandoc path into effect.
 os.environ.setdefault('PYPANDOC_PANDOC', PANDOC_PATH)
 
-RECAPTCHA_PUBLIC_KEY = '6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j'
-RECAPTCHA_PRIVATE_KEY = '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn'
-NOCAPTCHA = True
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
