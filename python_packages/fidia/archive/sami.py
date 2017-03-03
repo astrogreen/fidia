@@ -2096,6 +2096,9 @@ class BalmerExtinctionMap(ExtinctionMap, TraitFromFitsFile, AnneVAP):
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
+    sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
+
     
 BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 
@@ -2174,6 +2177,10 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
 
+    sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
+
+
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
         """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
@@ -2207,6 +2214,17 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
             sigma = self._hdu['SFRSurfDensity_ERR'].data[1:2, :, :]
             return sigma
         error.set_description("1-sigma uncertainty in star formation rate surface density")
+
+        # UI doesn't support another nesting of Traits.
+        # sub_traits = TraitRegistry()
+        # @sub_traits.register
+        # class WCS(WorldCoordinateSystem):
+        #     """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
+        #
+        #     @trait_property('string')
+        #     def _wcs_string(self):
+        #         return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))[
+        #             'wcs']._wcs_string()
 
     SFRDensity.set_pretty_name("SFR Surface Density Map")
 
@@ -2281,6 +2299,10 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
 
+    sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
+    #sub_traits.register(LZIFUNComp)
+
     @sub_traits.register
     class WCS(WorldCoordinateSystem):
         """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
@@ -2313,6 +2335,16 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
 
         error.set_description("1-sigma uncertainty in star formation rate surface density")
 
+        # UI doesn't support another nesting of Traits.
+        # sub_traits = TraitRegistry()
+        # @sub_traits.register
+        # class WCS(WorldCoordinateSystem):
+        #     """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
+        #
+        #     @trait_property('string')
+        #     def _wcs_string(self):
+        #         return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))[
+        #             'wcs']._wcs_string()
     SFRDensity.set_pretty_name("SFR Surface Density Map")
 
 SFRMapRecommendedComponent.set_pretty_name("Star Formation Rate Map")
@@ -2390,6 +2422,8 @@ class SFMask(FractionalMaskMap, TraitFromFitsFile, AnneVAP):
         def _wcs_string(self):
             return self.archive.get_trait(self.object_id, TraitKey('line_emission_map', 'HALPHA'))['wcs']._wcs_string()
 
+    sub_traits.register(LZIFUFlag)
+    sub_traits.register(LZIFUFlagCount)
 
 SFMask.set_pretty_name("Star Formation Mask")
 
