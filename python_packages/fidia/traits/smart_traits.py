@@ -85,7 +85,6 @@ class WorldCoordinateSystem(astropy.wcs.WCS, SmartTrait):
     def value(self):
         trim_lines = list(map(lambda x: x.strip(), repr(self.to_header()).splitlines()))
         return "\n".join(trim_lines)
-    value.set_description('WCS value description')
 
     @abstractproperty
     def _wcs_string(self):

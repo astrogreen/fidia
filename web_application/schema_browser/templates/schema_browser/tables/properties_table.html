@@ -19,9 +19,7 @@
             <tr id="{{trait_type_key}}-{% if trait_qualifier_key %}{{trait_qualifier_key}}{% endif %}:{{trait_branch_key}}({{trait_version_key}})_{{trait_property_key}}">
                 <td>{{trait_property_value.pretty_name}}</td>
                 <td>{{trait_property_value.short_name}}</td>
-                <td>{{trait_property_value.description|safe}} <br/>
-                    <span class="bg-trait-prop"><strong>{{trait_type_key}}-{{trait_qualifier_key}}:{{trait_branch_key}}({{trait_version_key}}).{{trait_property_key}}</strong> [description]</span>
-                </td>
+                <td>{{trait_property_value.description|safe}}</td>
                 <td>{{trait_property_value.unit}} {% if value.unit and trait_property_value.name == 'value' %}{{value.unit}}{% endif %}</td>
                 <td>{{trait_property_value.type}}</td>
                 <!--<td>{{trait_property_value.name}}</td>-->
@@ -58,11 +56,7 @@
                                 {{sub_trait_property_value.pretty_name}}
                             </td>
                             <td>{{sub_trait_property_value.short_name}}</td>
-                            <td>{{sub_trait_property_value.description}}
-                            <br/>
-                                <span class="bg-trait-prop"><strong>{{trait_type_key}}-{{trait_qualifier_key}}:{{trait_branch_key}}({{trait_version_key}}).{{sub_trait_key}}.{{sub_trait_property_key}}</strong> [description]</span>
-
-                            </td>
+                            <td>{{sub_trait_property_value.description}}</td>
                             <td>{{sub_trait_property_value.units}}{% if sub_value.unit and sub_trait_property_value.name == 'value' %}{{sub_value.unit}}{% endif %}</td>
 
                             <td><span>{{sub_trait_property_value.type}}</span></td>
