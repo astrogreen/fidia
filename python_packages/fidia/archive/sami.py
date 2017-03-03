@@ -726,11 +726,13 @@ class SAMISpectralCube(SpectralMap):
         telescope = trait_property_from_fits_header('TELESCOP', 'string', 'telescope')
 
         altitude = trait_property_from_fits_header('ALT_OBS', 'string', 'altitude')
+        altitude.set_description("Altitude of observatory in metres")
 
         latitude = trait_property_from_fits_header('LAT_OBS', 'string', 'latitude')
+        latitude.set_description("Observatory latitude in degrees")
 
         longitude = trait_property_from_fits_header('LONG_OBS', 'string', 'longitude')
-
+        longitude.set_description("Observatory longitude in degrees")
 
     @sub_traits.register
     class AAOmegaDetector(DetectorCharacteristics):
@@ -806,21 +808,8 @@ class SAMISpectralCube(SpectralMap):
 SAMISpectralCube.set_pretty_name("Spectral Cube")
 SAMISpectralCube.set_description("Fully reduced and flux calibrated SAMI cubes")
 
-# SAMISpectralCube.value.set_description
-# SAMISpectralCube.variance.set_description
-# SAMISpectralCube.covariance.set_description
-# SAMISpectralCube.weight.set_description
-# SAMISpectralCube.total_exposure.set_description
-# SAMISpectralCube.cubing_code_version.set_description
-# SAMISpectralCube.plate_id.set_description
-# SAMISpectralCube.plate_label.set_description
 
-# SAMISpectralCube.CatCoordinate.set_pretty_name()
-SAMISpectralCube.CatCoordinate.set_description("Catalog coordinate of the target centre of the SAMI fibre bundle.")
 
-SAMISpectralCube.AAT.altitude.set_description("Altitude of observatory in metres")
-SAMISpectralCube.AAT.latitude.set_description("Observatory latitude in degrees")
-SAMISpectralCube.AAT.longitude.set_description("Observatory longitude in degrees)")
 
 
 #         __    ___          __       ___
