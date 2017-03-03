@@ -763,26 +763,28 @@ class SAMISpectralCube(SpectralMap):
             del self._header
 
         detector_id = trait_property_from_fits_header('DETECTOR', 'string', 'detector_id')
-        # detector_id.set_short_name("DETECTOR")
+        detector_id.set_description("Detector name")
 
         gain = trait_property_from_fits_header('RO_GAIN', 'string', 'gain')
-        # gain.set_short_name("RO_GAIN")
+        gain.set_description("1.88 / Readout amplifier (inverse) gain (e-/ADU)")
 
         read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
         # read_noise.set_short_name('RO_NOISE')
         read_noise.unit = units.electron
+        read_noise.set_description("Readout noise (electrons) ")
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
+        read_speed.set_description("Readout speed")
         # read_speed.set_short_name('SPEED')
 
         detector_control_software_date = trait_property_from_fits_header('DCT_DATE', 'string', 'detector_control_software_date')
-        # detector_control_software_date.set_short_name('DCT_DATE')
+        detector_control_software_date.set_description("DCT release date")
 
         detector_control_software_version = trait_property_from_fits_header('DCT_VER', 'string', 'detector_control_software_version')
-        # detector_control_software_version.set_short_name('DCT_VER')
+        detector_control_software_version.set_description('DCT version number')
 
         read_amplifier = trait_property_from_fits_header('READAMP', 'string', 'read_amplifier')
-        # read_amplifier.set_short_name('READAMP')
+        read_amplifier.set_description('Readout amplifier')
 
 
     @sub_traits.register
@@ -805,19 +807,26 @@ class SAMISpectralCube(SpectralMap):
         #         return pt.hdu[0].header['INSTRUME']
 
         instrument_id = trait_property_from_fits_header('INSTRUME', 'string', 'instrument_id')
+        instrument_id.set_description("Instrument in use")
 
         spectrograph_arm = trait_property_from_fits_header('SPECTID', 'string', 'spectrograph_arm')
+        spectrograph_arm.set_description("Spectrograph ID")
 
         disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
+        disperser_id.set_description("Disperser ID")
 
         disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
         disperser_tilt.unit = units.degree
+        disperser_tilt.set_description("Grating tilt to be symmetric (degree)")
 
         instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
+        instrument_software_version.set_description("2dF Control Task Version")
 
         instrument_software_date = trait_property_from_fits_header('TDFCTDAT', 'string', 'instrument_software_date')
+        instrument_software_date.set_description("2dF Control Task Version Date")
 
         dichroic_id = trait_property_from_fits_header('DICHROIC', 'string', 'dichroic_id')
+        dichroic_id.set_description("Dichroic name")
 
 SAMISpectralCube.set_pretty_name("Spectral Cube")
 SAMISpectralCube.set_description("Fully reduced and flux calibrated SAMI cubes")
