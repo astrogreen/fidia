@@ -583,19 +583,6 @@ class SAMISpectralCube(SpectralMap):
     each spatial pixel by the dust correction spectrum.""")
 
     @sub_traits.register
-    class CatCoordinate(SkyCoordinate):
-
-        trait_type = 'catalog_coordinate'
-
-        @trait_property('float')
-        def _ra(self):
-            return self._parent_trait.ra()
-
-        @trait_property('float')
-        def _dec(self):
-            return self._parent_trait.dec()
-
-    @sub_traits.register
     class WCS(WorldCoordinateSystem):
         """The included world coordinate system is centred on catalogue coordinates. The accuracy of the astrometry is about 1-2 arcseconds (RMS)."""
         trait_type = 'wcs'
