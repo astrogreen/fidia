@@ -364,6 +364,7 @@ class SAMISpectralCube(SpectralMap):
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         key = str('PRIMARY')
         return self.hdu[key].data
+    value.unit = 1e-16 * units.erg / units.s / units.cm**2 / units.Angstrom
     value.set_description("Flux measurements")
 
     @trait_property('float.array.3')
@@ -374,10 +375,9 @@ class SAMISpectralCube(SpectralMap):
         the flux information, which is stored separately.
 
         """
-        # TODO set units on trait properties
-        unit = 1e-32 * units.erg ** 2 / units.s ** 2 / units.cm ** 4 / units.Angstrom ** 2
         # Note: the explicit str conversion is necessary (I suspect a Python 2to3 bug)
         return self.hdu[str('VARIANCE')].data
+    variance.unit = 1e-32 * units.erg ** 2 / units.s ** 2 / units.cm ** 4 / units.Angstrom ** 2
 
     @trait_property('float.array.3')
     def weight(self):
@@ -424,19 +424,21 @@ class SAMISpectralCube(SpectralMap):
 
         return helio_corr
     heliocentric_velocity_correction.set_short_name("HELIOCOR")
+    heliocentric_velocity_correction.unit = units.km / units.s
 
     @trait_property('float')
     def ra(self):
         """Catalog right-ascension of the galaxy"""
-        unit = units.degree
+
         return self.hdu[0].header['CATARA']
     ra.set_pretty_name("RA")
+    ra.unit = units.degree
 
     @trait_property('float')
     def dec(self):
         """Catalog declination of the galaxy."""
-        unit = units.degree
         return self.hdu[0].header['CATADEC']
+    dec.unit = units.degree
 
     @trait_property('float')
     def data_rescale(self):
@@ -459,7 +461,7 @@ class SAMISpectralCube(SpectralMap):
 
     @trait_property('string.array.1')
     def source_rss_frames(self):
-        unit = units.s
+
         source_rss_frames = []
         index = 1
         while True:
@@ -472,6 +474,7 @@ class SAMISpectralCube(SpectralMap):
                 index += 1
         return source_rss_frames
     source_rss_frames.set_description("File names of RSS frames contributing to cube")
+    source_rss_frames.unit = units.s
 
     @trait_property("int")
     def n_source_rss_frames(self):
@@ -700,11 +703,11 @@ class SAMISpectralCube(SpectralMap):
 
         @trait_property("float")
         def fwhm(self):
-            unit = units.arcsecond
             return self.hdu[0].header['PSFFWHM']
         fwhm.set_short_name('PSFFWHM')
         fwhm.set_description('FWHM of the Moffat profile fit')
     PSF.set_pretty_name("PSF")
+    PSF.unit = units.arcsecond
 
     @sub_traits.register
     class AAT(OpticalTelescopeCharacteristics):
@@ -767,7 +770,7 @@ class SAMISpectralCube(SpectralMap):
 
         read_noise = trait_property_from_fits_header('RO_NOISE', 'string', 'read_noise')
         # read_noise.set_short_name('RO_NOISE')
-        # read_noise unit = units.electrons
+        read_noise.unit = units.electron
 
         read_speed = trait_property_from_fits_header('SPEED', 'string', 'read_speed')
         # read_speed.set_short_name('SPEED')
@@ -808,7 +811,7 @@ class SAMISpectralCube(SpectralMap):
         disperser_id = trait_property_from_fits_header('GRATID', 'string', 'disperser_id')
 
         disperser_tilt = trait_property_from_fits_header('GRATTILT', 'string', 'disperser_tilt')
-        # disperser_tilt unit = units.degree
+        disperser_tilt.unit = units.degree
 
         instrument_software_version = trait_property_from_fits_header('TDFCTVER', 'string', 'instrument_software_version')
 
@@ -1464,7 +1467,7 @@ class LZIFURecommendedComponentVelocityDispersionMap(LZIFUDataMixin, VelocityMap
 
 
 class LZIFUOneComponentLineMap(LZIFUDataMixin, LineEmissionMap):
-    r"""Emission line flux map from a single Gaussian fit. [line emission maps for HBETA, OIII5007, OI6300, HALPHA, NII6583, SII6716, SII6731 for branch (1_comp)]
+    r"""Emission line flux map from a single Gaussian fit.
 
     Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
     Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
@@ -1556,7 +1559,7 @@ LZIFUOneComponentLineMap.set_pretty_name(
 
 
 class LZIFUOneComponent3727(LZIFUOneComponentLineMap):
-    """Emission line flux map of the summed [OII] 3726Å+3729Å doublet from a single Gaussian fit to each line [line emission map OII3727 for branch (1_comp)]
+    """Emission line flux map of the summed [OII] 3726Å+3729Å doublet from a single Gaussian fit to each line
 
     Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
     Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
@@ -1625,7 +1628,7 @@ LZIFUOneComponent3727.set_pretty_name(
 
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
-    r"""Emission line flux map from one to three Gaussian fits. [line emission maps: HALPHA for branch (m_comp)]
+    r"""Emission line flux map from one to three Gaussian fits.
 
     Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
     Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
@@ -1691,7 +1694,7 @@ LZIFURecommendedMultiComponentLineMap.set_pretty_name(
 
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly(LZIFUOneComponentLineMap):
-    r"""Total emission line flux map summing up to three Gaussian components [line emission maps: HBETA, OIII5007, OI6300, NII6583, SII6716, SII6731 for branch (m_comp)]
+    r"""Total emission line flux map summing up to three Gaussian components
 
     Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
     Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
@@ -1770,7 +1773,7 @@ LZIFURecommendedMultiComponentLineMapTotalOnly.set_pretty_name(
 
 
 class LZIFURecommendedMultiComponentLineMapTotalOnly3727(LZIFURecommendedMultiComponentLineMapTotalOnly):
-    """Total emission line flux map summing up to three Gaussian components for each line in the [OII] 3726Å+3729Å doublet [line emission map OII3727, branch (m_comp)]
+    """Total emission line flux map summing up to three Gaussian components for each line in the [OII] 3726Å+3729Å doublet
 
     Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
     Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux
@@ -2125,7 +2128,7 @@ BalmerExtinctionMap.set_pretty_name("Balmer Extinction Map")
 
 
 class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-    r"""Map of star formation rate based on one-component Hα emission line fits. [1_comp branch of type: sfr_map]
+    r"""Map of star formation rate based on one-component Hα emission line fits.
 
     Star formation rate (SFR) maps (in $\rm M_{Sun}~yr^{-1}$) obtained from
     extinction-corrected H$\alpha$ maps. The relevant Star Formation Masks
@@ -2188,12 +2191,14 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Star formation rate calculated from $H\\alpha$ emission")
+    value.unit = units.solMass / units.yr
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu['SFR_ERR'].data[1:2, :, :]
         return sigma
     error.set_description("1-sigma uncertainty in star formation rate")
+    error.unit = units.solMass / units.yr
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -2207,7 +2212,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-        """Star formation rate surface density map based on $H\\alpha$ emission."""
+        """Star formation rate surface density map based on $H\\alpha$ emission. """
 
         trait_type = 'sfr_density_map'
 
@@ -2224,6 +2229,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
             log.debug("Returning type: %s", type(value))
             return value
         value.set_description(r"Star formation rate surface density calculated from $H\alpha$ emission")
+        value.unit = units.solMass / units.year / units.kpc**2
 
         # error = trait_property_from_fits_data('SFRSurfDensity_ERR', 'float.array.2', 'error')
         @trait_property('float.array.3')
@@ -2231,6 +2237,7 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
             sigma = self._hdu['SFRSurfDensity_ERR'].data[1:2, :, :]
             return sigma
         error.set_description("1-sigma uncertainty in star formation rate surface density")
+        error.unit = units.solMass / units.year / units.kpc**2
 
     SFRDensity.set_pretty_name("SFR Surface Density Map")
 
@@ -2238,7 +2245,7 @@ SFRMap.set_pretty_name("Star Formation Rate Map")
 
 
 class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-    r"""Map of star formation rate based on $H\alpha$ emission line fits of up to three components. [multi_comp_branch of type: sfr_map]
+    r"""Map of star formation rate based on $H\alpha$ emission line fits of up to three components.
 
     Star formation rate (SFR) maps (in $\rm M_{Sun}~yr^{-1}$) obtained from
     extinction-corrected H$\alpha$ maps. The relevant Star Formation Masks
@@ -2295,12 +2302,14 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
         log.debug("Returning type: %s", type(value))
         return value
     value.set_description("Star formation rate calculated from $H\\alpha$ emission")
+    value.unit = units.solMass / units.yr
 
     @trait_property('float.array.3')
     def error(self):
         sigma = self._hdu['SFR_ERR'].data[:, :, :]
         return sigma
     error.set_description("1-sigma uncertainty in star formation rate")
+    error.unit = units.solMass / units.yr
 
     sub_traits = TraitRegistry()
     sub_traits.register(SAMIVAP)
@@ -2329,6 +2338,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
             log.debug("Returning type: %s", type(value))
             return value
         value.set_description(r"Star formation rate surface density calculated from $H\alpha$ emission")
+        value.unit = units.solMass / units.year / units.kpc ** 2
 
         @trait_property('float.array.3')
         def error(self):
@@ -2336,6 +2346,7 @@ class SFRMapRecommendedComponent(StarFormationRateMap, TraitFromFitsFile, AnneVA
             return sigma
 
         error.set_description("1-sigma uncertainty in star formation rate surface density")
+        error.unit = units.solMass / units.year / units.kpc**2
 
     SFRDensity.set_pretty_name("SFR Surface Density Map")
 
