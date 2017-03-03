@@ -1637,7 +1637,7 @@ LZIFUOneComponent3727.set_pretty_name(
 
 
 class LZIFURecommendedMultiComponentLineMap(LZIFUOneComponentLineMap):
-    r"""Emission line flux map from one to three Gaussian fits.
+    r"""Emission line flux maps for the sum of and each of up to three Gaussian components for Halpha
 
     Arrays giving the flux for each spaxel associated with the named emission line (and the respective error maps).
     Emission line maps for all lines in the 1 component branch are $50\times50$ arrays.  H$\alpha$ emission line flux

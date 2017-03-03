@@ -20,7 +20,7 @@
                 <td>{{trait_property_value.pretty_name}}</td>
                 <td>{{trait_property_value.short_name}}</td>
                 <td>{{trait_property_value.description|safe}}</td>
-                <td>{{trait_property_value.unit}} {% if value.unit and trait_property_value.name == 'value' %}{{value.unit}}{% endif %}</td>
+                <td>{{trait_property_value.unit}}</td>
                 <td>{{trait_property_value.type}}</td>
                 <!--<td>{{trait_property_value.name}}</td>-->
                 <td><a href="{{trait_property_key}}/">view <i class="fa fa-angle-right"></i></a></td>
@@ -57,8 +57,7 @@
                             </td>
                             <td>{{sub_trait_property_value.short_name}}</td>
                             <td>{{sub_trait_property_value.description}}</td>
-                            <td>{{sub_trait_property_value.units}}{% if sub_value.unit and sub_trait_property_value.name == 'value' %}{{sub_value.unit}}{% endif %}</td>
-
+                            <td>{{sub_trait_property_value.units}}</td>
                             <td><span>{{sub_trait_property_value.type}}</span></td>
                             <!--<td>{{sub_trait_property_value.name}}</td>-->
                             <td><a href="{{sub_value.trait_type}}/{{sub_trait_property_key}}/"> view  <i class="fa fa-angle-right"></i></a></td>
