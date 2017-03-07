@@ -18,10 +18,6 @@ urlpatterns = [
     # url(r'^users/$', user_list, name='user-list'),
     # url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail'),
 
-    # USER ACTIONS
-    url(r'^register/', user.views.CreateUserView.as_view(), name='user-register'),
-    # url(r'^change-password/', user.views.ChangePasswordView.as_view(), name='user-change-password'),
-
     # USER PROFILE (restful instance allowing user to update details)
     url(r'^accounts/(?P<username>.+)/$', user.views.UserProfileView.as_view(), name='user-profile-detail'),
 

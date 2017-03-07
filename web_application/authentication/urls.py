@@ -3,15 +3,18 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 
 import rest_framework.routers
-from rest_framework.authtoken import views
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
+import authentication.views
 import user.forms
 router = rest_framework.routers.SimpleRouter()
 
 urlpatterns = [
 
-    # REST_FRAMEWORK USER AUTH
+    # REGISTER
+    url(r'^register/$', authentication.views.CreateUserView.as_view(), name='register'),
+
+    # REST_FRAMEWORK USER AUTH (login/logout)
     url(r'', include('user.auth_urls', namespace='rest_framework')),
 
     # DJANGO AUTH
@@ -34,8 +37,7 @@ urlpatterns = [
         {'template_name': 'user/django_auth/password-reset-complete.html'},
                     name='password_reset_complete'),
 
-    # FETCH TOKEN
-    # url(r'^api-token-auth/', views.obtain_auth_token)
+    # GENERATE JWT
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-refresh/', refresh_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),

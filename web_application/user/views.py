@@ -17,20 +17,6 @@ import user.exceptions
 import user.models
 
 
-class CreateUserView(generics.ListCreateAPIView):
-    """
-    Register a new user.
-    """
-    model = User
-    permission_classes = [restapi_app.permissions.IsNotAuthenticated]
-    serializer_class = user.serializer.CreateUserSerializer
-    throttle_classes = [throttling.AnonRateThrottle]
-
-    def get_queryset(self):
-        queryset = User.objects.none()
-        return queryset
-
-
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     """
     USER PROFILE (restful instance allowing user to update details)
