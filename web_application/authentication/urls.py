@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 
 import rest_framework.routers
 from rest_framework.authtoken import views
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 import user.forms
 router = rest_framework.routers.SimpleRouter()
@@ -34,5 +35,8 @@ urlpatterns = [
                     name='password_reset_complete'),
 
     # FETCH TOKEN
-    url(r'^api-token-auth/', views.obtain_auth_token)
+    # url(r'^api-token-auth/', views.obtain_auth_token)
+    url(r'^api-token-auth/', obtain_jwt_token),
+    url(r'^api-token-refresh/', refresh_jwt_token),
+    url(r'^api-token-verify/', verify_jwt_token),
 ]
