@@ -19,13 +19,17 @@ import user.models
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     """
-    USER PROFILE (restful instance allowing user to update details)
-    Retrieve/Update/Destroy a user instance (must be authenticated and username=user)
+    USER PROFILE
+    Retrieve/Update/Destroy a user instance (must be authenticated)
     Users cannot change their username
     """
     serializer_class = user.serializer.UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'username'
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs['partial'] = True
+        return super(UserProfileView, self).get_serializer(*args, **kwargs)
 
     def get_queryset(self):
         """

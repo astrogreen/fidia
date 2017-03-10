@@ -17,9 +17,8 @@ put the overrides there. They are loaded at the end of this file.
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, logging, datetime
 from django.core.urlresolvers import reverse
-import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -75,7 +74,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'asvo.middleware.SleepMiddleware'
 )
+
+SLEEP_TIME = 1
+# TODO turn SleepMiddleware off in production!
 
 ROOT_URLCONF = 'asvo.urls'
 
@@ -165,7 +168,7 @@ PANDOC_PATH = '/usr/bin/pandoc'
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-AU'
 
 TIME_ZONE = 'Australia/Sydney'
 
@@ -325,3 +328,9 @@ CORS_ORIGIN_WHITELIST = (
     '127.0.0.1:9000'
 )
 
+# token expires in 12 hours
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=43200),
+}
+
+CSRF_COOKIE_NAME = "XSRF-TOKEN"

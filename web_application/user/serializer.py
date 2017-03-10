@@ -29,17 +29,42 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     """
     User Profile serializer allows only first/last name & email to be updated
     """
-    username = serializers.CharField(read_only=True)
-    # query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True)
+
+    username = serializers.CharField(read_only=True, label="Username")
+    first_name = serializers.CharField(label="First Name")
+    last_name = serializers.CharField(label="Last Name")
+    email = serializers.EmailField(label="Email")
+    date_joined = serializers.DateTimeField(read_only=True, format="%d/%m/%y %X", label="Date Joined")
+    last_login = serializers.DateTimeField(read_only=True, format="%d/%m/%y %X", label="Last Login")
+    query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True, label="Queries")
+    can_update = serializers.SerializerMethodField()
+
+    def get_can_update(self, obj):
+        updatable = [
+            {"name": "email", "pretty_name": "Email", "type": "email"},
+            {"name": "first_name", "pretty_name": "First Name", "type": "text"},
+            {"name": "last_name", "pretty_name": "Last Name", "type": "text"},
+        ]
+        # todo find a way to get the label dynamically
+        # for f in self.Meta.fields:
+        #     if f not in self.Meta.read_only_fields and f is not 'can_update':
+        #         updatable.append({"name": f, "pretty_name": 'test'})
+        return updatable
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email')
-        extra_kwargs = {
-            "username": {
-                "read_only": True,
-            },
-        }
+        fields = (
+            'can_update',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'query',
+            'date_joined',
+            'last_login',
+            'groups',
+            'is_superuser')
+        read_only_fields = ('username', 'can_update', 'query', 'date_joined', 'last_login', 'groups', 'is_superuser')
 
     def validate(self, data):
         """
