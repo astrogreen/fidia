@@ -1,3 +1,6 @@
 [submodule "python_packages/cached-property"]
 	path = python_packages/cached-property
 	url = https://github.com/pydanny/cached-property.git
+[submodule "python_packages/fidia_astropy/astropy_helpers"]
+	path = python_packages/fidia_astropy/astropy_helpers
+	url = https://github.com/astropy/astropy-helpers.git
