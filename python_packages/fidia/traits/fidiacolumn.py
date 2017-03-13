@@ -1,12 +1,22 @@
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+# Standard Library imports:
 import re
+from contextlib import contextmanager
 
+# Other library imports:
 import numpy as np
 from astropy.table.column import BaseColumn, Column
 
+# Internal package imports:
 from .base_trait import Trait
 from ..utilities import RegexpGroup
+
+# Logging Setup
+from .. import slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.WARNING)
+log.enable_console_logging()
 
 class FIDIAColumn(Column):
     """FIDIAColumns represent the atomic data unit in FIDIA.
@@ -116,6 +126,9 @@ class FIDIAColumnGroup:
         # trait so that it can be properly cleaned up when all loads are
         # complete.
         self._preload_count = 0
+
+        # Call user provided `init` funciton
+        self.init()
 
     #
     #  __             __             __        ___  __   __     __   ___  __

@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 # Standard Library Imports
 import pickle
@@ -5,7 +6,6 @@ from io import BytesIO
 from collections import OrderedDict, Mapping
 import re
 
-from contextlib import contextmanager
 
 # Other library imports
 from astropy.io import fits
@@ -82,7 +82,7 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
     #    | | \| |  |     /~~\ | \| |__/     \/  /~~\ |___ | |__/ /~~\  |  | \__/ | \|
     #
 
-    def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
+    def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None):
         super().__init__()
 
         self._validate_trait_class()
@@ -106,20 +106,6 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
             self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
         else:
             self.trait_path = TraitPath([self.trait_key])
-
-        if loading not in ('eager', 'lazy', 'verylazy'):
-            raise ValueError("loading keyword must be one of ('eager', 'lazy', 'verylazy')")
-        self._loading = loading
-
-        # Call user provided `init` funciton
-        self.init()
-
-        # Preload all traits
-        # @TODO: Modify preloading to respect preload argument
-        self._trait_dict = dict()
-        if self._loading == 'eager':
-            self._realise()
-        self._post_init()
 
     def _post_init(self):
         pass
@@ -147,7 +133,7 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
                     log.debug(cls.defaults._version_defaults)
                 else:
                     raise Exception("Trait class '%s' has branches_versions, but no defaults have been supplied." %
-                 cls)
+                            cls)
 
         try:
             validate_trait_branches_versions_dict(cls.branches_versions)
