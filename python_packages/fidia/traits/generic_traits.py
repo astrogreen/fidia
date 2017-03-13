@@ -1,7 +1,7 @@
 from .abstract_base_traits import *
 
 from . import Trait
-from .base_trait import FITSExportMixin
+from .trait_export import FITSExportMixin
 
 import numpy as np
 
