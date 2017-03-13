@@ -77,263 +77,10 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
 
     descriptions_allowed = 'class'
 
-    @classmethod
-    def schema(cls, include_subtraits=True, by_trait_name=False, data_class='all'):
-        """Provide the schema of data in this trait as a dictionary.
-
-        The schema is presented as a dictionary, where the keys are strings
-        giving the name of the attributes defined, and the values are the FIDIA
-        type strings for each attribute.
-
-        Only attributes which are TraitProperties are included in the schema,
-        unless `include_subtraits` is True.
-
-        Examples:
-
-            >>> galaxy['redshift'].schema()
-            {'value': 'float', 'variance': 'float'}
-
-        Parameters:
-
-            include_subtraits:
-                Recurse on any sub-traits attached to this Trait. The key will
-                be the sub-trait name, and the value will be the schema
-                dictionary describing the sub-trait.
-
-            by_trait_name:
-                Control how the sub-traits will be grouped. If True, then the
-                key for a sub-Trait will be the sub_trait's full trait_name
-                (trait_type + trait_qualifier), and the value will be the
-                sub-Trait's schema.
-
-                If False, then the key is the trait_type (only), and the value
-                is a dictionary of trait_qualifiers (or the single key `None` if
-                there are no qualifiers). This nested dictionary has values
-                which are the sub-Trait's schema.
-
-                See Archive.schema for an example of each.
-
-            data_class:
-                One of 'all', 'catalog', or 'non-catalog'
-
-                'all' returns the full schema.
-
-                'catalog' returns only items which contain TraitProperties of catalog type.
-
-                'non-catalog' returns only items which contain TraitProperties of non-catalog type.
-
-                Both 'catalog' and 'non-catalog' will not include Traits that
-                consist only of TraitProperties not matching the request.
-
-        """
-        if by_trait_name:
-            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
-                                   combine_levels=['trait_name', 'branch_version'],
-                                   separate_metadata=False, verbosity='simple')
-        else:
-            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
-                                   combine_levels=['branch_version'],
-                                   separate_metadata=False, verbosity='simple')
-
-
-    @classmethod
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
-                    separate_metadata=False):
-
-        log.debug("Creating schema for %s", str(cls))
-
-        # Validate the verbosity option
-        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
-        if verbosity == 'descriptions':
-            if 'branches_versions' in combine_levels:
-                raise ValueError("Schema verbosity 'descriptions' requires that " +
-                                 "combine_levels not include branches_versions")
-
-        # Validate the data_class flag
-        assert data_class in ('all', 'catalog', 'non-catalog', None)
-        if data_class is None:
-            data_class = 'all'
-
-        # Create the empty schema for this Trait
-        schema = SchemaDictionary()
-
-        # Add basic metadata about this trait, if requested
-        if verbosity in ('metadata', 'descriptions'):
-            schema['trait_type'] = cls.trait_type
-            # schema['branches_versions'] = cls.branches_versions
-
-            # Available export formats (see ASVO-695)
-            schema['export_formats'] = cls.get_available_export_formats()
-
-            # Add unit information if present
-            formatted_unit = cls.get_formatted_units()
-            if formatted_unit:
-                schema['unit'] = formatted_unit
-            else:
-                schema['unit'] = ""
-
-        # Add description information for this trait to the schema if requested
-        if verbosity == 'descriptions':
-            cls.copy_descriptions_to_dictionary(schema)
-
-        # Add TraitProperties of this Trait to the schema
-        trait_properties_schema = SchemaDictionary()
-        for trait_property in cls._trait_properties():
-            if data_class == 'all' or \
-                    (data_class == 'catalog' and trait_property.type in TraitProperty.catalog_types) or \
-                    (data_class == 'non-catalog' and trait_property.type in TraitProperty.non_catalog_types):
-                if verbosity == 'simple':
-                    trait_property_schema = trait_property.type
-                else:
-                    # First get unit information
-                    formatted_unit = trait_property.get_formatted_units()
-                    if trait_property.name == 'value' and formatted_unit == '':
-                        formatted_unit = cls.get_formatted_units()
-                    trait_property_schema = SchemaDictionary(
-                        type=trait_property.type,
-                        name=trait_property.name,
-                        unit=formatted_unit
-                    )
-                if verbosity == 'descriptions':
-                    trait_property.copy_descriptions_to_dictionary(trait_property_schema)
-
-                trait_properties_schema[trait_property.name] = trait_property_schema
-        if verbosity == 'simple':
-            schema.update(trait_properties_schema)
-        else:
-            schema['trait_properties'] = trait_properties_schema
-
-        # Add sub-trait information to the schema.
-        if include_subtraits:
-
-            # Sub-traits cannot have branch/version information currently, so we
-            # do not enumerate branches and versions in sub-traits.
-            if 'branch_version' not in combine_levels:
-                combine_levels += ('branch_version', )
-
-            # Request the schema from the registry.
-            sub_traits_schema = cls.sub_traits.schema(
-                include_subtraits=include_subtraits,
-                data_class=data_class,
-                combine_levels=combine_levels,
-                verbosity=verbosity,
-                separate_metadata=separate_metadata)
-
-            if verbosity == 'simple':
-                schema.update(sub_traits_schema)
-            else:
-                schema['sub_traits'] = sub_traits_schema
-
-        if data_class != 'all':
-            # Check for empty Trait schemas and remove (only necessary if there
-            # has been filtering on catalog/non-catalog data)
-            schema.delete_empty()
-
-        return schema
-
-    @classmethod
-    def answers_to_trait_name(cls, trait_name):
-        match = TRAIT_NAME_RE.fullmatch(trait_name)
-        if match is not None:
-            log.debug("Checking if trait '%s' responds to trait_name '%s'", cls, trait_name)
-            log.debug("TraitName match results: %s", match.groupdict())
-
-            # Check the trait_name against all possible trait_names supported by this Trait.
-            if match.group('trait_type') != cls.trait_type:
-                return False
-
-            # Confirm that the qualifier has been used correctly:
-            if match.group('trait_qualifier') is not None and cls.qualifiers is None:
-                raise ValueError("Trait type '%s' does not allow a qualifier." % cls.trait_type)
-            if match.group('trait_qualifier') is None and cls.qualifiers is not None:
-                raise ValueError("Trait type '%s' requires a qualifier." % cls.trait_type)
-
-            # Check trait_name against all known qualifiers provided by this Trait.
-            if cls.qualifiers is not None \
-                    and match.group('trait_qualifier') not in cls.qualifiers:
-                return False
-            return True
-        else:
-            return False
-
-    @classmethod
-    def get_formatted_units(cls):
-        if hasattr(cls, 'unit'):
-            if hasattr(cls.unit, 'value'):
-                formatted_unit = "{0.unit:latex_inline}".format(cls.unit)
-                # formatted_unit = "{0.unit}".format(cls.unit)
-            else:
-                try:
-                    formatted_unit = cls.unit.to_string('latex_inline')
-                    # formatted_unit = cls.unit.to_string()
-                except:
-                    log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
-                    try:
-                        formatted_unit = cls.unit.to_string('latex')
-                    except:
-                        log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
-                        raise
-                        formatted_unit = ""
-
-            log.info("Units formatting before modification for trait %s: %s", str(cls), formatted_unit)
-
-            # For reasons that are not clear, astropy puts the \left and \right
-            # commands outside of the math environment, so we must fix that
-            # here.
-            #
-            # In fact, it appears that the units code is quite buggy.
-            # @TODO: Review units code!
-            if formatted_unit != "":
-                formatted_unit = formatted_unit.replace("\r", "\\r")
-                if not formatted_unit.startswith("$"):
-                    formatted_unit = "$" + formatted_unit
-                if not formatted_unit.endswith("$"):
-                    formatted_unit = formatted_unit + "$"
-                formatted_unit = re.sub(r"\$\\(left|right)(\S)\$", r"\\\1\2", formatted_unit)
-                if not formatted_unit.startswith("$"):
-                    formatted_unit = "$" + formatted_unit
-                if not formatted_unit.endswith("$"):
-                    formatted_unit = formatted_unit + "$"
-
-                formatted_unit = formatted_unit.replace("{}^{\\prime\\prime}", "arcsec")
-
-            # Return the final value, with the multiplier attached
-            if hasattr(cls.unit, 'value'):
-                formatted_unit = "{0.value:0.03g} {1}".format(cls.unit, formatted_unit)
-            log.info("Units final formatting for trait %s: %s", str(cls), formatted_unit)
-            return formatted_unit
-        else:
-            return ""
-
-    @classmethod
-    def _validate_trait_class(cls):
-        assert cls.trait_type is not None, "trait_type must be defined"
-        validate_trait_type(cls.trait_type)
-
-        assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
-        if cls.qualifiers is not None:
-            for qual in cls.qualifiers:
-                validate_trait_qualifier(qual)
-        # assert cls.available_versions is not None
-
-        if cls.branches_versions is not None:
-            if not isinstance(cls.branches_versions, BranchesVersions):
-                cls.branches_versions = BranchesVersions(cls.branches_versions)
-            if getattr(cls, 'defaults', None) is None:
-                # Defaults not provided. See if only one branch/version are supplied
-                if cls.branches_versions.has_single_branch_and_version():
-                    # Set the defaults to be the only branch/version:
-                    cls.defaults = cls.branches_versions.as_defaults()  # type: DefaultsRegistry
-                    log.debug(cls.defaults._default_branch)
-                    log.debug(cls.defaults._version_defaults)
-                else:
-                    raise Exception("Trait class '%s' has branches_versions, but no defaults have been supplied." %
-                 cls)
-
-        try:
-            validate_trait_branches_versions_dict(cls.branches_versions)
-        except AssertionError as e:
-            raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
+    #             ___               __                       __       ___    __
+    #    | |\ | |  |      /\  |\ | |  \    \  /  /\  |    | |  \  /\   |  | /  \ |\ |
+    #    | | \| |  |     /~~\ | \| |__/     \/  /~~\ |___ | |__/ /~~\  |  | \__/ | \|
+    #
 
     def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None, loading='lazy'):
         super().__init__()
@@ -376,6 +123,36 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
 
     def _post_init(self):
         pass
+
+    @classmethod
+    def _validate_trait_class(cls):
+        assert cls.trait_type is not None, "trait_type must be defined"
+        validate_trait_type(cls.trait_type)
+
+        assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
+        if cls.qualifiers is not None:
+            for qual in cls.qualifiers:
+                validate_trait_qualifier(qual)
+        # assert cls.available_versions is not None
+
+        if cls.branches_versions is not None:
+            if not isinstance(cls.branches_versions, BranchesVersions):
+                cls.branches_versions = BranchesVersions(cls.branches_versions)
+            if getattr(cls, 'defaults', None) is None:
+                # Defaults not provided. See if only one branch/version are supplied
+                if cls.branches_versions.has_single_branch_and_version():
+                    # Set the defaults to be the only branch/version:
+                    cls.defaults = cls.branches_versions.as_defaults()  # type: DefaultsRegistry
+                    log.debug(cls.defaults._default_branch)
+                    log.debug(cls.defaults._version_defaults)
+                else:
+                    raise Exception("Trait class '%s' has branches_versions, but no defaults have been supplied." %
+                 cls)
+
+        try:
+            validate_trait_branches_versions_dict(cls.branches_versions)
+        except AssertionError as e:
+            raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
 
     def _set_branch_and_version(self, trait_key):
         """Trait Branch and Version handling:
@@ -435,6 +212,36 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         # Determine the version given the options
         self.version = validate_and_inherit(trait_key, self._parent_trait, valid_versions, 'version')
+
+    #     __   __             __        ___  __                __           ___  __   __     __        __
+    #    |__) |__)  /\  |\ | /  ` |__| |__  /__`     /\  |\ | |  \    \  / |__  |__) /__` | /  \ |\ | /__`
+    #    |__) |  \ /~~\ | \| \__, |  | |___ .__/    /~~\ | \| |__/     \/  |___ |  \ .__/ | \__/ | \| .__/
+    #
+
+    @classmethod
+    def answers_to_trait_name(cls, trait_name):
+        match = TRAIT_NAME_RE.fullmatch(trait_name)
+        if match is not None:
+            log.debug("Checking if trait '%s' responds to trait_name '%s'", cls, trait_name)
+            log.debug("TraitName match results: %s", match.groupdict())
+
+            # Check the trait_name against all possible trait_names supported by this Trait.
+            if match.group('trait_type') != cls.trait_type:
+                return False
+
+            # Confirm that the qualifier has been used correctly:
+            if match.group('trait_qualifier') is not None and cls.qualifiers is None:
+                raise ValueError("Trait type '%s' does not allow a qualifier." % cls.trait_type)
+            if match.group('trait_qualifier') is None and cls.qualifiers is not None:
+                raise ValueError("Trait type '%s' requires a qualifier." % cls.trait_type)
+
+            # Check trait_name against all known qualifiers provided by this Trait.
+            if cls.qualifiers is not None \
+                    and match.group('trait_qualifier') not in cls.qualifiers:
+                return False
+            return True
+        else:
+            return False
 
     @property
     def trait_name(self):
@@ -607,6 +414,166 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
                     yield getattr(self, attr)
 
 
+    #     __   __        ___
+    #    /__` /  ` |__| |__   |\/|  /\
+    #    .__/ \__, |  | |___  |  | /~~\
+    #
+
+    @classmethod
+    def schema(cls, include_subtraits=True, by_trait_name=False, data_class='all'):
+        """Provide the schema of data in this trait as a dictionary.
+
+        The schema is presented as a dictionary, where the keys are strings
+        giving the name of the attributes defined, and the values are the FIDIA
+        type strings for each attribute.
+
+        Only attributes which are TraitProperties are included in the schema,
+        unless `include_subtraits` is True.
+
+        Examples:
+
+            >>> galaxy['redshift'].schema()
+            {'value': 'float', 'variance': 'float'}
+
+        Parameters:
+
+            include_subtraits:
+                Recurse on any sub-traits attached to this Trait. The key will
+                be the sub-trait name, and the value will be the schema
+                dictionary describing the sub-trait.
+
+            by_trait_name:
+                Control how the sub-traits will be grouped. If True, then the
+                key for a sub-Trait will be the sub_trait's full trait_name
+                (trait_type + trait_qualifier), and the value will be the
+                sub-Trait's schema.
+
+                If False, then the key is the trait_type (only), and the value
+                is a dictionary of trait_qualifiers (or the single key `None` if
+                there are no qualifiers). This nested dictionary has values
+                which are the sub-Trait's schema.
+
+                See Archive.schema for an example of each.
+
+            data_class:
+                One of 'all', 'catalog', or 'non-catalog'
+
+                'all' returns the full schema.
+
+                'catalog' returns only items which contain TraitProperties of catalog type.
+
+                'non-catalog' returns only items which contain TraitProperties of non-catalog type.
+
+                Both 'catalog' and 'non-catalog' will not include Traits that
+                consist only of TraitProperties not matching the request.
+
+        """
+        if by_trait_name:
+            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
+                                   combine_levels=['trait_name', 'branch_version'],
+                                   separate_metadata=False, verbosity='simple')
+        else:
+            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
+                                   combine_levels=['branch_version'],
+                                   separate_metadata=False, verbosity='simple')
+
+
+    @classmethod
+    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
+                    separate_metadata=False):
+
+        log.debug("Creating schema for %s", str(cls))
+
+        # Validate the verbosity option
+        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
+        if verbosity == 'descriptions':
+            if 'branches_versions' in combine_levels:
+                raise ValueError("Schema verbosity 'descriptions' requires that " +
+                                 "combine_levels not include branches_versions")
+
+        # Validate the data_class flag
+        assert data_class in ('all', 'catalog', 'non-catalog', None)
+        if data_class is None:
+            data_class = 'all'
+
+        # Create the empty schema for this Trait
+        schema = SchemaDictionary()
+
+        # Add basic metadata about this trait, if requested
+        if verbosity in ('metadata', 'descriptions'):
+            schema['trait_type'] = cls.trait_type
+            # schema['branches_versions'] = cls.branches_versions
+
+            # Available export formats (see ASVO-695)
+            schema['export_formats'] = cls.get_available_export_formats()
+
+            # Add unit information if present
+            formatted_unit = cls.get_formatted_units()
+            if formatted_unit:
+                schema['unit'] = formatted_unit
+            else:
+                schema['unit'] = ""
+
+        # Add description information for this trait to the schema if requested
+        if verbosity == 'descriptions':
+            cls.copy_descriptions_to_dictionary(schema)
+
+        # Add TraitProperties of this Trait to the schema
+        trait_properties_schema = SchemaDictionary()
+        for trait_property in cls._trait_properties():
+            if data_class == 'all' or \
+                    (data_class == 'catalog' and trait_property.type in TraitProperty.catalog_types) or \
+                    (data_class == 'non-catalog' and trait_property.type in TraitProperty.non_catalog_types):
+                if verbosity == 'simple':
+                    trait_property_schema = trait_property.type
+                else:
+                    # First get unit information
+                    formatted_unit = trait_property.get_formatted_units()
+                    if trait_property.name == 'value' and formatted_unit == '':
+                        formatted_unit = cls.get_formatted_units()
+                    trait_property_schema = SchemaDictionary(
+                        type=trait_property.type,
+                        name=trait_property.name,
+                        unit=formatted_unit
+                    )
+                if verbosity == 'descriptions':
+                    trait_property.copy_descriptions_to_dictionary(trait_property_schema)
+
+                trait_properties_schema[trait_property.name] = trait_property_schema
+        if verbosity == 'simple':
+            schema.update(trait_properties_schema)
+        else:
+            schema['trait_properties'] = trait_properties_schema
+
+        # Add sub-trait information to the schema.
+        if include_subtraits:
+
+            # Sub-traits cannot have branch/version information currently, so we
+            # do not enumerate branches and versions in sub-traits.
+            if 'branch_version' not in combine_levels:
+                combine_levels += ('branch_version', )
+
+            # Request the schema from the registry.
+            sub_traits_schema = cls.sub_traits.schema(
+                include_subtraits=include_subtraits,
+                data_class=data_class,
+                combine_levels=combine_levels,
+                verbosity=verbosity,
+                separate_metadata=separate_metadata)
+
+            if verbosity == 'simple':
+                schema.update(sub_traits_schema)
+            else:
+                schema['sub_traits'] = sub_traits_schema
+
+        if data_class != 'all':
+            # Check for empty Trait schemas and remove (only necessary if there
+            # has been filtering on catalog/non-catalog data)
+            schema.delete_empty()
+
+        return schema
+
+
 
     #  __       ___          ___      __   __   __  ___           ___ ___       __   __   __
     # |  \  /\   |   /\     |__  \_/ |__) /  \ |__)  |      |\/| |__   |  |__| /  \ |  \ /__`
@@ -643,6 +610,55 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
 
     def __str__(self):
         return "<Trait class '{classname}': {trait_type}>".format(classname=self.__class__.__name__, trait_type=self.trait_type)
+
+    @classmethod
+    def get_formatted_units(cls):
+        if hasattr(cls, 'unit'):
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.unit:latex_inline}".format(cls.unit)
+                # formatted_unit = "{0.unit}".format(cls.unit)
+            else:
+                try:
+                    formatted_unit = cls.unit.to_string('latex_inline')
+                    # formatted_unit = cls.unit.to_string()
+                except:
+                    log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                    try:
+                        formatted_unit = cls.unit.to_string('latex')
+                    except:
+                        log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", cls.unit, cls)
+                        raise
+                        formatted_unit = ""
+
+            log.info("Units formatting before modification for trait %s: %s", str(cls), formatted_unit)
+
+            # For reasons that are not clear, astropy puts the \left and \right
+            # commands outside of the math environment, so we must fix that
+            # here.
+            #
+            # In fact, it appears that the units code is quite buggy.
+            # @TODO: Review units code!
+            if formatted_unit != "":
+                formatted_unit = formatted_unit.replace("\r", "\\r")
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+                formatted_unit = re.sub(r"\$\\(left|right)(\S)\$", r"\\\1\2", formatted_unit)
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+
+                formatted_unit = formatted_unit.replace("{}^{\\prime\\prime}", "arcsec")
+
+            # Return the final value, with the multiplier attached
+            if hasattr(cls.unit, 'value'):
+                formatted_unit = "{0.value:0.03g} {1}".format(cls.unit, formatted_unit)
+            log.info("Units final formatting for trait %s: %s", str(cls), formatted_unit)
+            return formatted_unit
+        else:
+            return ""
 
 
 class Trait(BaseTrait):
