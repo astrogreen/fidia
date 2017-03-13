@@ -66,7 +66,8 @@ def validate_trait_branches_versions_dict(branches_versions):
             if version is not None:
                 validate_trait_version(version)
 
-class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
+
+class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
 
     # The following are a required part of the Trait interface.
     # They must be set in sub-classes to avoid an error trying create a Trait.
@@ -835,5 +836,9 @@ class Trait(TraitDescriptionsMixin, AbstractBaseTrait):
         return "<Trait class '{classname}': {trait_type}>".format(classname=self.__class__.__name__, trait_type=self.trait_type)
 
 
+class Trait(BaseTrait):
+    pass
 
 
+class TraitCollection(BaseTrait):
+    pass
