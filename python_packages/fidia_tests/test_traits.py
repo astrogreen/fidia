@@ -91,8 +91,8 @@ class TestTraits:
         for prop in test_trait._trait_properties():
             assert isinstance(prop, TraitProperty)
 
-        for value in test_trait.trait_property_values():
-            assert not isinstance(value, TraitProperty)
+        for bound_trait_property in test_trait.trait_properties():
+            assert not isinstance(bound_trait_property.value, TraitProperty)
 
     def test_trait_schema(self):
         """This test checks both versions of the schema."""
