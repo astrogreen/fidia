@@ -360,12 +360,6 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
         else:
             self.trait_path = TraitPath([self.trait_key])
 
-
-        # The preload count is used to track how many accesses there are to this
-        # trait so that it can be properly cleaned up when all loads are
-        # complete.
-        self._preload_count = 0
-
         if loading not in ('eager', 'lazy', 'verylazy'):
             raise ValueError("loading keyword must be one of ('eager', 'lazy', 'verylazy')")
         self._loading = loading
@@ -527,41 +521,6 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
             yield trait
 
 
-    #
-    #  __             __             __        ___  __   __     __   ___  __
-    # |__) |    |  | / _` | |\ |    /  \ \  / |__  |__) |__) | |  \ |__  /__`
-    # |    |___ \__/ \__> | | \|    \__/  \/  |___ |  \ |  \ | |__/ |___ .__/
-    #
-    # The following three functions are for the "plugin-writter" to override.
-    #
-
-    def init(self):
-        """Extra initialisations for a Trait.
-
-        Override this function with any extra initialisation required for this
-        trait, but not things such as opening files or connecting to a database:
-        see `preload` and `cleanup` for those things.
-
-        """
-        pass
-
-    def preload(self):
-        """Prepare for a trait property to be retrieved using plugin code.
-
-        Override this function with any initialisation required for this trait
-        to load its data, such as opening required files, connecting to databases, etc.
-
-        """
-        pass
-
-    def cleanup(self):
-        """Cleanup after a trait property has been retrieved using plugin code.
-
-        Override this function with any cleanup that should be done once this trait
-        to loaded its data, such as closing files.
-
-        """
-        pass
 
     #
     # ___  __         ___  __   __   __   __   ___  __  ___                        __               __
@@ -647,82 +606,7 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
                     # the BoundTraitProperty: see `__get__` on `TraitProperty`)
                     yield getattr(self, attr)
 
-    #
-    #  __   __   ___       __        __          __
-    # |__) |__) |__  |    /  \  /\  |  \ | |\ | / _`
-    # |    |  \ |___ |___ \__/ /~~\ |__/ | | \| \__>
-    #
-    # Methods to handle loading the data associated with this Trait into memory.
 
-    @contextmanager
-    def preloaded_context(self):
-        """Returns a context manager reference to the preloaded trait, and cleans up afterwards."""
-        try:
-            # Preload the Trait if necessary.
-            self._load_incr()
-            log.debug("Context manager version of Trait %s created", self.trait_key)
-            yield self
-        finally:
-            # Cleanup the Trait if necessary.
-            self._load_decr()
-            log.debug("Context manager version of Trait %s cleaned up", self.trait_key)
-
-    def _load_incr(self):
-        """Internal function to handle preloading. Prevents a Trait being loaded multiple times.
-
-        This function should be called prior to anything which requires calling
-        TraitProperty loaders, typically only by the TraitProperty object
-        itself.
-
-        See also the `preloaded_context` function.
-        """
-        log.vdebug("Incrementing preload for trait %s", self.trait_key)
-        assert self._preload_count >= 0
-        try:
-            if self._preload_count == 0:
-                self.preload()
-        except:
-            log.exception("Exception in preloading trait %s", self.trait_key)
-            raise
-        else:
-            self._preload_count += 1
-
-    def _load_decr(self):
-        """Internal function to handle cleanup.
-
-        This function should be called after anything which requires calling
-        TraitProperty loaders, typically only by the TraitProperty object
-        itself.
-        """
-        log.vdebug("Decrementing preload for trait %s", self.trait_key)
-        assert self._preload_count > 0
-        try:
-            if self._preload_count == 1:
-                self.cleanup()
-        except:
-            raise
-        else:
-            self._preload_count -= 1
-
-    def _realise(self):
-        """Search through the objects members for TraitProperties, and preload any found.
-
-
-        """
-
-        log.debug("Realising...")
-
-        # Check and if necessary preload the trait.
-        self._load_incr()
-
-        # Iterate over the trait properties, loading any not already in the
-        # `_trait_dict` cache
-        for traitprop in self._trait_properties():
-            if traitprop.name not in self._trait_dict:
-                self._trait_dict[traitprop.name] = traitprop.fload(self)
-
-        # Check and if necessary cleanup the trait.
-        self._load_decr()
 
     #  __       ___          ___      __   __   __  ___           ___ ___       __   __   __
     # |  \  /\   |   /\     |__  \_/ |__) /  \ |__)  |      |\/| |__   |  |__| /  \ |  \ /__`
