@@ -2204,7 +2204,10 @@ class SFRMap(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
 
     @sub_traits.register
     class SFRDensity(StarFormationRateMap, TraitFromFitsFile, AnneVAP):
-        """Star formation rate surface density map based on $H\\alpha$ emission. """
+        """Star formation rate surface density map based on $H\\alpha$ emission.
+
+        Note: WCS is missing from the fits header.
+        """
 
         trait_type = 'sfr_density_map'
 
