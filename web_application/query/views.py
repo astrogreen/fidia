@@ -34,7 +34,6 @@ class Query(viewsets.ModelViewSet):
         """
         Return a list of all queries for the currently authenticated user.
         """
-
         user = self.request.user
         return query.models.Query.objects.filter(owner=user).order_by('-updated')
 
