@@ -146,10 +146,19 @@
                                                 <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
                                                 <h5>Endpoints</h5>
                                                 <h6>Query</h6>
-                                                <li role="presentation"><a href="{% url 'query-list' %}">List</a></li>
-                                                <li role="presentation"><a href="{% url 'query-schema' %}">Schema</a></li>
+                                                <li role="presentation"><a href="{% url 'query-list' %}" class="indent">Queries</a></li>
+                                                <li role="presentation"><a href="{% url 'query-schema' %}" class="indent">Schema</a></li>
+                                                <h6>Documentation</h6>
+                                                <li role="presentation"><a href="{% url 'documentation:topic-list' %}" class="indent">Topics</a></li>
+                                                <li role="presentation"><a href="{% url 'documentation:article-list' %}" class="indent">Articles</a></li>
+                                                <h6>User</h6>
+                                                <li role="presentation"><a href="{% url 'user-profile-detail' username=user %}" class="indent">Profile</a></li>
+
                                                 <h5>Authentication and Headers</h5>
-                                                <li role="presentation"><a class="scroll" href="">Authentication and Headers</a></li>
+                                                <h6>Token</h6>
+                                                <li role="presentation"><a href="{% url 'token-obtain' %}" class="indent">Obtain </a></li>
+                                                <li role="presentation"><a href="{% url 'token-refresh' %}" class="indent">Refresh </a></li>
+                                                <li role="presentation"><a href="{% url 'token-verify' %}" class="indent">Verify </a></li>
                                                 <h5>Errors</h5>
                                                 <li role="presentation"><a class="scroll" href="">Errors</a></li>
                                             </ul>

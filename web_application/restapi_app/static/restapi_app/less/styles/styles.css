@@ -321,6 +321,9 @@ header .user a > a {
   display: block;
   word-wrap: break-word;
 }
+.sidebar ul.nav-sidebar li a.indent {
+  padding:0 15px 0 30px
+ }
 .sidebar ul.nav-sidebar li a:hover {
   color: #C5413E;
 }

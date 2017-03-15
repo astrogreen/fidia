@@ -38,7 +38,7 @@ urlpatterns = [
                     name='password_reset_complete'),
 
     # GENERATE JWT
-    url(r'^api-token-auth/', obtain_jwt_token),
-    url(r'^api-token-refresh/', refresh_jwt_token),
-    url(r'^api-token-verify/', verify_jwt_token),
+    url(r'^api-token-auth/', obtain_jwt_token, name='token-obtain'),
+    url(r'^api-token-refresh/', refresh_jwt_token, name='token-refresh'),
+    url(r'^api-token-verify/', verify_jwt_token, name='token-verify'),
 ]
