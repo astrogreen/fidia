@@ -18,6 +18,7 @@ from django.conf import settings
 
 from fidia.archive.asvo_spark import AsvoSparkArchive
 from fidia.archive.presto import PrestoArchive
+from asvo_database_backend_helpers import MappingDatabase
 
 # log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
@@ -44,7 +45,7 @@ def run_sql_query(request_string):
 
 
 def get_sql_schema():
-    schema = PrestoArchive().get_sql_schema()
+    schema = MappingDatabase.get_sql_schema()
     return json.dumps(schema)
 
 
