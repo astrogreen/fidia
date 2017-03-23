@@ -48,19 +48,23 @@ class ArticleSerializer(serializers.ModelSerializer):
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     article_order = serializers.IntegerField(default=0)
     hit_count = serializers.SerializerMethodField()
-    # all_articles_in_topic = serializers.SerializerMethodField()
+    all_articles_in_topic = serializers.SerializerMethodField()
 
-    # def get_all_articles_in_topic(self, obj):
-    #     if obj.topic.id is not None:
-    #         topic_id = obj.topic.id
-    #         articles_queryset = documentation.models.Article.objects.filter(topic=topic_id)
-    #
-    #         serializer = ArticleURLSerializer(instance=articles_queryset, many=True,
-    #                                           read_only=True, context={'request': self.context['request']})
-    #         return serializer.data
-    #
-    #     else:
-    #         return None
+    def get_all_articles_in_topic(self, obj):
+        if obj.topic.id is not None:
+            topic_id = obj.topic.id
+            articles_queryset = documentation.models.Article.objects.filter(topic=topic_id)
+
+            serializer = ArticleSlimSerializer(
+                instance=articles_queryset,
+                many=True,
+                read_only=True,
+                context={'request': self.context['request']}
+            )
+            return serializer.data
+
+        else:
+            return None
 
     def get_hit_count(self, obj):
         # # here is an example model with a GenericRelation
@@ -79,7 +83,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = documentation.models.Article
-        fields = ('id', 'url', 'title', 'content', 'topic',
+        fields = ('id', 'url', 'title', 'content', 'topic', 'all_articles_in_topic',
                   'topic_info', 'created', 'updated', 'hit_count', 'article_order')
         lookup_field = 'id'
         extra_kwargs = {
@@ -88,16 +92,18 @@ class ArticleSerializer(serializers.ModelSerializer):
         ordering = ('article_order',)
 
 
-class ArticleURLSerializer(serializers.Serializer):
+class ArticleSlimSerializer(serializers.Serializer):
     """
     Serializer returning only the 'url', 'title', 'topic', 'topic_info' fields for the Article-retrieve route.
 
     """
     url = serializers.HyperlinkedIdentityField(view_name="documentation:article-detail", lookup_field='id')
     title = serializers.CharField()
+    slug = serializers.CharField()
+    id = serializers.IntegerField(allow_null=False)
 
     class Meta:
-        fields = ('url', 'title', 'topic')
+        fields = ('url', 'title', 'topic', 'id', 'slug')
         lookup_field = 'id'
         extra_kwargs = {
             'url': {'lookup_field': 'id'}

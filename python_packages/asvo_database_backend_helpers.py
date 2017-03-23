@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from py4j.java_gateway import JavaGateway
 
-from impala.dbapi import connect
+# from impala.dbapi import connect
 # from MySQLdb import connect as mysqlconnect
 import psycopg2
 
@@ -196,7 +196,7 @@ class MappingDatabase:
         schema['post_joins'] = [{'name': 'gama', 'pretty_name': 'GAMA', 'megatbl_ids': [1]},
                                 {'name': 'gama_mocks', 'pretty_name': 'GAMA Mock', 'megatbl_ids': [2]}]
 
-        self.cursor.close()
+        # self.cursor.close()
         return schema
 
 

@@ -60,7 +60,7 @@ class QuerySchema(views.APIView):
     def get(self, request, format=None):
         # schema = PrestoArchive().get_sql_schema()
         schema = MappingDatabase.get_sql_schema()
-        # data = json.dumps(schema)
+        # schema = "test"
         return Response({"schema": schema})
 
 #
