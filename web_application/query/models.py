@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from jsonfield import JSONField
 
 
@@ -16,3 +18,13 @@ class Query(models.Model):
         ordering = ('created',)
 
 
+# catch each Query's post_save signal and if successfully created, run
+# sql query on db
+@receiver(post_save, sender=Query)
+def create_new_sql_query(sender, instance=None, created=False, **kwargs):
+    if created:
+        print('RUN ASYNC SQL CODE')
+        print(instance)
+        print(instance.SQL)
+        print(instance.id)
+        print(instance.owner.username)

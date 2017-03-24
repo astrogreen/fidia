@@ -53,7 +53,6 @@ class QuerySerializer(serializers.HyperlinkedModelSerializer):
         fields = ('created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted', 'id')
 
 
-#
 # # - - - - QUERY - - - -
 # class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
 #     """
