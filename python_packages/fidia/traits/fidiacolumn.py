@@ -2,16 +2,19 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # Standard Library imports:
 import re
+import os
 from contextlib import contextmanager
 from collections import OrderedDict
 
 # Other library imports:
 import numpy as np
 import astropy.table as astropy_table
+from astropy.io import fits
 
 # Internal package imports:
 from .base_trait import Trait
 from ..utilities import RegexpGroup
+from ..exceptions import *
 
 # Logging Setup
 from .. import slogging
@@ -182,14 +185,22 @@ class FIDIAArrayColumn:
 
     def __init__(self, *args, **kwargs):
 
-        self._data = OrderedDict()
+        self._data = None
 
-        self._ndim = 0
-        self._shape = None
-        self._dtype = None
+        self._ndim = kwargs.pop('ndim', 0)
+        self._shape = kwargs.pop('shape', None)
+
+        dtype = kwargs.pop('dtype', None)
+        self._dtype = dtype
 
         # Internal storage for IVOA Uniform Content Descriptor
-        self._ucd = None
+        self._ucd = kwargs.get('ucd', None)
+
+    def get_value(self, object_id):
+        if self._data is not None:
+            return self._data[object_id]
+        else:
+            raise FIDIAException("Column has no data")
 
     def __get__(self, instance=None, owner=None):
         # type: (Trait, Trait) -> str
@@ -238,7 +249,20 @@ class FIDIAArrayColumn:
             raise Exception("Trait property type '{}' not valid".format(value))
         self._type = value
 
+class FITSDataColumn(FIDIAArrayColumn):
 
+    def __init__(self, basepath, filename_pattern, extension,
+                 **kwargs):
+        super(FITSDataColumn, self).__init__(**kwargs)
+        self.basepath = basepath
+        self.filename_pattern = filename_pattern
+        self.extension = extension
+
+        self.fullpath_pattern = os.path.join(self.basepath, self.filename_pattern)
+
+    def get_value(self, object_id):
+        with fits.open(self.fullpath_pattern.format(object_id=object_id)) as hdulist:
+            return hdulist[self.extension].data
 
 def ColumnFromData(identifier, object_ids, data):
 
@@ -258,6 +282,7 @@ def ArrayColumnFromData(identifier, object_ids, data):
     column._dtype = data[0].dtype
 
     return column
+
 
 
 class FIDIAColumnGroup:

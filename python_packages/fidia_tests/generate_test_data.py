@@ -76,6 +76,14 @@ class SpectralCube(TestData):
         for objid in self.object_ids:
             yield np.random.random((20, 30, len(self.wavescale)))
 
+    def metadata(self, object_id):
+        random.seed(hash(object_id))
+        return {
+            "TELESCOP": ("Anglo-Australian Telescope", "Telescope"),
+            "OBJECT": (object_id, "Name of the galaxy"),
+            "EXPOSED": (random.choice([3600, 2400, 3500]), "Exposure time")
+        }
+
     def wcs(self, object_id):
         w = WCS(naxis=3)
         w.wcs.crpix = [10, 15, 1]

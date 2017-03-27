@@ -2,10 +2,23 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest
 
+import tempfile
 
 import numpy as np
 
+import generate_test_data as testdata
+
 from fidia.traits.fidiacolumn import *
+
+
+@pytest.yield_fixture(scope='module')
+def test_data_dir():
+
+    with tempfile.TemporaryDirectory() as tempdir:
+        testdata.generate_simple_dataset(tempdir, 5)
+
+        yield tempdir
+
 
 class TestArrayColumn:
 
@@ -28,3 +41,13 @@ class TestColumnFromData:
 
 
         assert np.array_equal(data, column)
+
+class TestFITSDataColumn:
+
+    def test_create_column_from_data(self, test_data_dir):
+
+        column = FITSDataColumn(test_data_dir, "{object_id}/{object_id}_red_image.fits", 0)
+
+        data = column.get_value('Gal1')
+
+        assert data.shape == (200, 200)
