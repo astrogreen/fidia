@@ -9,263 +9,8 @@ from ..traits.trait_property import trait_property_from_constant
 from ..utilities import DefaultsRegistry
 from ..exceptions import DataNotAvailable
 
-class ExampleSpectralMap(SpectralMap):
+from fidia.traits.fidiacolumn import ColumnFromData, ArrayColumnFromData
 
-    def init(self):
-        if self.object_id == 'Gal2':
-            raise DataNotAvailable("Gal2 has no 'spectral_map'")
-
-    trait_type = "spectral_map"
-
-    branches_versions = {None: [None], "other": [None]}
-
-    defaults = DefaultsRegistry(None, {None: None, "other": None})
-
-    def preload(self):
-        # Make an object have typically the same random data.
-        np.random.seed(hash(self.object_id) % 500000)
-        self._clean = False
-
-    def cleanup(self):
-        self._clean = True
-
-    @property
-    def shape(self):
-        return 0
-
-    @trait_property('float.array.3')
-    def value(self):
-        """TheSpectralMapDocumentation"""
-        assert not self._clean
-        return np.random.random((20, 20, 50))
-    @trait_property('float.array.3')
-    def variance(self):
-        assert not self._clean
-        return np.random.random((20, 20, 50))
-
-
-class ExampleSpectralMapExtra(SpectralMap):
-
-    trait_type = "spectral_map"
-
-    branches_versions = {'extra': [None]}
-
-    defaults = DefaultsRegistry(None, {'extra': None})
-
-    def preload(self):
-        # Make an object have typically the same random data.
-        np.random.seed(hash(self.object_id) % 500000)
-        self._clean = False
-
-    def cleanup(self):
-        self._clean = True
-
-    @property
-    def shape(self):
-        return 0
-
-    @trait_property('float.array.3')
-    def value(self):
-        assert not self._clean
-        return np.random.random((20, 20, 50))
-    @trait_property('float.array.3')
-    def variance(self):
-        assert not self._clean
-        return np.random.random((20, 20, 50))
-    @trait_property('float')
-    def extra_value(self):
-        assert not self._clean
-        return np.random.random()
-
-    # @trait_property('string')
-    # def galaxy_name(self):
-    #     assert not self._clean
-    #     return self.object_id
-
-class VelocityMap(Image):
-
-    trait_type = "velocity_map"
-
-    branches_versions = {'default': ['ver0']}
-    defaults = DefaultsRegistry('default', {'default': 'ver0'})
-
-    @property
-    def shape(self):
-        return self.value.shape
-
-    unit = units.km / units.s
-
-    @trait_property('float.array.2')
-    def value(self):
-        # return np.random.random((5, 5))
-        # return (np.random.uniform(-50, 50, [8, 10])).tolist()
-        return np.random.random((20, 20))
-
-    @trait_property('float.array.2')
-    def variance(self):
-        return np.random.random((20, 20))
-
-class LineMap(Image):
-
-    trait_type = "line_map"
-
-    branches_versions = {'default': ['ver0']}
-    defaults = DefaultsRegistry('default', {'default': 'ver0'})
-
-
-    @property
-    def shape(self):
-        return self.value.shape
-
-    unit = units.erg / units.s / units.cm**2
-
-    @trait_property('float.array.2')
-    def value(self):
-        return np.random.random((20, 20))
-
-    @trait_property('float.array.2')
-    def variance(self):
-        return np.random.random((20, 20))
-
-class RedImage(Image):
-
-    trait_type = 'image'
-
-    qualifiers = {'red'}
-
-    branches_versions = {'default': ['ver0']}
-    defaults = DefaultsRegistry('default', {'default': 'ver0'})
-
-    def preload(self):
-        # Make an object have typically the same random data.
-        np.random.seed(hash(self.object_id) % 500000)
-
-    @trait_property('float.array.2')
-    def value(self):
-        return np.random.random((20, 20))
-
-    @trait_property('float.array.2')
-    def variance(self):
-        return np.random.random((20, 20))
-
-    @trait_property('string')
-    def extra_property_red(self):
-        return 'red'
-
-
-class BlueImage(Image):
-    trait_type = 'image'
-
-    qualifiers = {'blue'}
-
-    branches_versions = {'default': ['ver0']}
-    defaults = DefaultsRegistry('default', {'default': 'ver0'})
-
-    def preload(self):
-        # Make an object have typically the same random data.
-        np.random.seed(hash(self.object_id) % 500000)
-
-    @trait_property('float.array.2')
-    def value(self):
-        return np.random.random((20, 20))
-
-    @trait_property('float.array.2')
-    def variance(self):
-        return np.random.random((20, 20))
-
-    @trait_property('string')
-    def extra_property_blue(self):
-        return 'blue'
-
-    sub_traits = TraitRegistry()
-
-    @sub_traits.register
-    class DetectorMetadata(DetectorCharacteristics):
-
-        trait_type = 'detector_metadata'
-
-        detector_id = trait_property_from_constant('DETECTOR', 'string', 'detector_id')
-        detector_id.set_short_name("DETECTOR")
-
-        gain = trait_property_from_constant(0.3, 'float', 'gain')
-
-    @sub_traits.register
-    class ImageSubTrait(Image):
-        trait_type = 'image'
-
-        qualifiers = {'blue'}
-
-        def preload(self):
-            # Make an object have typically the same random data.
-            np.random.seed(hash(self.object_id) % 500000)
-
-        @trait_property('float.array.2')
-        def value(self):
-            return np.random.random((20, 20))
-
-
-        @trait_property('float.array.2')
-        def variance(self):
-            return np.random.random((20, 20))
-
-
-        @trait_property('string')
-        def extra_property_blue(self):
-            return 'blue'
-
-    @sub_traits.register
-    class RedImage(Image):
-        trait_type = 'image'
-
-        qualifiers = {'red'}
-
-        def preload(self):
-            # Make an object have typically the same random data.
-            np.random.seed(hash(self.object_id) % 500000)
-
-        @trait_property('float.array.2')
-        def value(self):
-            return np.random.random((20, 20))
-
-        @trait_property('float.array.2')
-        def variance(self):
-            return np.random.random((20, 20))
-
-        @trait_property('string')
-        def extra_property_red(self):
-            return 'red'
-
-class Redshift(Measurement):
-
-    trait_type = "redshift"
-
-    branches_versions = {'default': ['ver0']}
-    defaults = DefaultsRegistry('default', {'default': 'ver0'})
-
-    @trait_property('float')
-    def value(self):
-        return 3.14159
-
-    unit = units.dimensionless_unscaled
-
-class TestMissingProperty(SpectralMap):
-
-    trait_type = "spectral_map"
-
-    @property
-    def shape(self):
-        return 0
-
-    @trait_property('float.array.3')
-    def value(self):
-        return np.random.random((20, 20, 50))
-    @trait_property('float.array.3')
-    def variance(self):
-        return np.random.random((20, 20, 50))
-
-    @trait_property('string')
-    def galaxy_name(self):
-        return self.object_id
 
 class SimpleTrait(Trait):
     """Description for SimpleTrait.
@@ -342,6 +87,30 @@ class ExampleArchive(Archive):
         self._trait_cache = dict()
 
         super().__init__()
+
+
+    class ColumnDefinitions:
+
+        object_ids = ['Gal1', 'Gal2', 'Gal3']
+
+        blue_image = ArrayColumnFromData("blue", object_ids, np.random.random((len(object_ids),) + (20, 20)))
+        blue_image_var = ArrayColumnFromData("bluevar", object_ids, np.random.random((len(object_ids),) + (20, 20)))
+
+        red_image = ArrayColumnFromData("red", object_ids, np.random.random((len(object_ids),) + (20, 20)))
+        red_image_var = ArrayColumnFromData("redvar", object_ids, np.random.random((len(object_ids),) + (20, 20)))
+
+        spectral_cube = ArrayColumnFromData("speccube_red", object_ids,
+                                            np.random.random((len(object_ids),) + (20, 20, 10)))
+
+        redshift = ColumnFromData("redshift", object_ids, np.random.lognormal(0.1, 0.05, len(object_ids)))
+        redshift.unit = units.dimensionless_unscaled
+
+
+
+    class TraitDefinitions:
+        pass
+
+
 
     @property
     def contents(self):
