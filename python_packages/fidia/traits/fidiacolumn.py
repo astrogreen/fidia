@@ -10,6 +10,7 @@ from collections import OrderedDict
 import numpy as np
 import astropy.table as astropy_table
 from astropy.io import fits
+from cached_property import cached_property
 
 # Internal package imports:
 from .base_trait import Trait
@@ -249,18 +250,33 @@ class FIDIAArrayColumn:
             raise Exception("Trait property type '{}' not valid".format(value))
         self._type = value
 
+
 class FITSDataColumn(FIDIAArrayColumn):
 
-    def __init__(self, basepath, filename_pattern, extension,
+    def __init__(self, filename_pattern, extension,
                  **kwargs):
         super(FITSDataColumn, self).__init__(**kwargs)
-        self.basepath = basepath
+        self.basepath = None
         self.filename_pattern = filename_pattern
         self.extension = extension
 
-        self.fullpath_pattern = os.path.join(self.basepath, self.filename_pattern)
+        self.archive = None
+        self.archive_id = None
+
+    @cached_property
+    def fullpath_pattern(self):
+        if self.basepath is None:
+            raise AttributeError("The basepath must be defined first.")
+        return os.path.join(self.basepath, self.filename_pattern)
+
+    def associate_with_archive(self, archive):
+        self.archive = archive  # type: fidia.Archive
+        self.archive_id = archive.name
+        self.basepath = archive.basepath
 
     def get_value(self, object_id):
+        if self.archive_id is None:
+            raise FIDIAException("Column not associated with an archive: cannot retrieve data.")
         with fits.open(self.fullpath_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.extension].data
 

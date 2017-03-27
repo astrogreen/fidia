@@ -46,7 +46,10 @@ class TestFITSDataColumn:
 
     def test_create_column_from_data(self, test_data_dir):
 
-        column = FITSDataColumn(test_data_dir, "{object_id}/{object_id}_red_image.fits", 0)
+        column = FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0)
+
+        column.archive_id = 'test'
+        column.basepath = test_data_dir
 
         data = column.get_value('Gal1')
 
