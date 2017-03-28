@@ -10,7 +10,7 @@ from fidia.traits.fidiacolumn import *
 from fidia.traits import *
 from fidia import traits
 from fidia.exceptions import DataNotAvailable
-# from fidia.archive.example_archive import ExampleArchive
+from fidia.archive.example_archive import ExampleArchive
 
 # from fidia.archive.example_archive import ExampleSpectralMap
 
@@ -70,6 +70,33 @@ class TestArchiveAndColumns:
         value = ar.columns.red_image.get_value('Gal1')
 
         assert value.shape == (200, 200)
+
+
+
+class TestExampleArchive:
+    """Tests which are based on the Example Archive.
+
+    These tests make much of the real, practical tests of the system, rather
+    than being individual, 'unit' tests.
+
+    """
+
+    @pytest.fixture
+    def example_archive(self, test_data_dir):
+        return ExampleArchive(basepath=test_data_dir)
+
+    def test_red_image_data(self, example_archive):
+        img = example_archive.columns.red_image.get_value('Gal1')
+        assert img.shape == (200, 200)
+
+    def test_red_image_exposed_data(self, example_archive):
+        img = example_archive.columns.red_image_exposure_time.get_value('Gal1')
+        assert img in (3500, 3600, 2400)
+
+
+    def test_example_archive_columns_available(self, example_archive):
+        example_archive.columns
+
 
 class TestArchive:
 

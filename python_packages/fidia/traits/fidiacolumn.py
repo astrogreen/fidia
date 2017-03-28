@@ -237,6 +237,28 @@ class FITSDataColumn(FIDIAArrayColumn, PathBasedColumn):
             return hdulist[self.fits_extension_identifier].data
 
 
+class FITSHeaderColumn(FIDIAColumn, PathBasedColumn):
+
+    def __init__(self, filename_pattern, fits_extension_id, keyword_name,
+                 **kwargs):
+        super(FITSHeaderColumn, self).__init__(**kwargs)
+        self.filename_pattern = filename_pattern
+        self.fits_extension_identifier = fits_extension_id
+        self.keyword_name = keyword_name
+
+    @cached_property
+    def fullpath_pattern(self):
+        if self.basepath is None:
+            raise AttributeError("The basepath must be defined first.")
+        return os.path.join(self.basepath, self.filename_pattern)
+
+    def get_value(self, object_id):
+        if self._archive_id is None:
+            raise FIDIAException("Column not associated with an archive: cannot retrieve data.")
+        with fits.open(self.fullpath_pattern.format(object_id=object_id)) as hdulist:
+            return hdulist[self.fits_extension_identifier].header[self.keyword_name]
+
+
 class ColumnFromData(FIDIAColumn):
 
     def __init__(self, data, **kwargs):
