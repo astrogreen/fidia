@@ -8,6 +8,7 @@ from py4j.java_gateway import JavaGateway
 import psycopg2
 
 from cached_property import cached_property
+from fidia.archive.presto import PrestoArchive
 
 
 def singleton(cls):
@@ -203,25 +204,19 @@ class MappingDatabase:
     def execute_adql_query(self, query):
         """
         Connect to a Java gateway through py4j and invoke methods in ADQL translator.
-        Now how does an adql query would look like?
         "Select InputCat.InputCatA.ra from gama where InputCat.InputCatA.dec=0.2 and redshift between 2 and 3"
-
-        columns = select - from
-        table = from - where
-        conditions = where - AND or OR or?
-
         :param query:
         :return:
         """
         gateway = JavaGateway()
-        status = gateway.entry_point.parseADQLQuery(query)
-        return status
+        mapped_query = gateway.entry_point.parseADQLQuery(query)
 
-
-
-
-
-
+        # from here we need to call presto to execute the query.
+        result = PrestoArchive().execute_query(mapped_query, 'asvo')
+        if result.ok:
+            return result.json()
+        else:
+            return str(result.status_code) + result.reason
 
 
 
@@ -302,7 +297,8 @@ if __name__ == '__main__':
     #     print("Call with 'write' command to update {}".format(outfile))
 
     # groups = MappingDatabase.get_group_data()
-    schema = MappingDatabase.get_sql_schema()
-    # MappingDatabase.execute_adql_query("Select * from groups")
+    # schema = MappingDatabase.get_sql_schema()
+    result = MappingDatabase.execute_adql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA "
+                                                "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234")
     print("done!")
 
