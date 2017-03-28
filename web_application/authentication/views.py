@@ -15,6 +15,7 @@ class CreateUserView(generics.ListCreateAPIView):
     model = User
     permission_classes = [restapi_app.permissions.IsNotAuthenticated]
     serializer_class = authentication.serializer.CreateUserSerializer
+    # TODO apply throttle in production
     # throttle_classes = [throttling.AnonRateThrottle]
 
     def get_queryset(self):

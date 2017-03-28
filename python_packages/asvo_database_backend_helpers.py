@@ -208,6 +208,7 @@ class MappingDatabase:
         :param query:
         :return:
         """
+        print(query)
         gateway = JavaGateway()
         mapped_query = gateway.entry_point.parseADQLQuery(query)
 

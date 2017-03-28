@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from jsonfield import JSONField
-
+from asvo_database_backend_helpers import MappingDatabase
 
 class Query(models.Model):
     created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -28,3 +28,4 @@ def create_new_sql_query(sender, instance=None, created=False, **kwargs):
         print(instance.SQL)
         print(instance.id)
         print(instance.owner.username)
+        print(MappingDatabase.execute_adql_query(instance.SQL))

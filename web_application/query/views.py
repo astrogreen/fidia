@@ -59,8 +59,8 @@ class QuerySchema(views.APIView):
 
     def get(self, request, format=None):
         # schema = PrestoArchive().get_sql_schema()
-        schema = MappingDatabase.get_sql_schema()
-        # schema = "test"
+        # schema = MappingDatabase.get_sql_schema()
+        schema = "this string is in place of the real schema call to improve development speed"
         return Response({"schema": schema})
 
 #
