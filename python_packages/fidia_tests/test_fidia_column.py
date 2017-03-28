@@ -37,10 +37,9 @@ class TestColumnFromData:
     def test_column_from_data_creation(self):
         data = np.random.random((2,))
 
-        column = ColumnFromData("myid", range(3), data)
+        column = ColumnFromData(data)
 
-
-        assert np.array_equal(data, column)
+        assert np.array_equal(data, column.data)
 
 class TestFITSDataColumn:
 

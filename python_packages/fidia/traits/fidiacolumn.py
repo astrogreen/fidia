@@ -23,7 +23,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-class FIDIAColumn(astropy_table.Column):
+class FIDIAColumn(object):
     """FIDIAColumns represent the atomic data unit in FIDIA.
 
 
@@ -79,16 +79,33 @@ class FIDIAColumn(astropy_table.Column):
         # re.compile(r"int\.array(?:\.\d+)?"),
     )
 
-    def __new__(cls, id, data):
-        self = super(FIDIAColumn, cls).__new__(cls, data=data)
-
-        return self
+    # def __new__(cls, id, data):
+    #     self = super(FIDIAColumn, cls).__new__(cls, data=data)
+    #
+    #     return self
 
     def __init__(self, *args, **kwargs):
 
-        # Internal storage for IVOA Uniform Content Descriptor
-        self._ucd = None
+        # Internal storage for data of this column
+        self._data = kwargs.pop('data', None)
+        self._id = kwargs.pop('id', None)
 
+        # Data Type information
+        dtype = kwargs.pop('dtype', None)
+        self._dtype = dtype
+        fidia_type = kwargs.pop('fidia_type', None)
+        self._fidia_type = fidia_type
+
+        # Internal storage for IVOA Uniform Content Descriptor
+        self._ucd = kwargs.get('ucd', None)
+
+        # Archive Connection
+        self._archive = None
+        self._archive_id = None
+
+
+
+    # @abstractmethod
     def __get__(self, instance=None, owner=None):
         # type: (Trait, Trait) -> str
         if instance is None:
@@ -96,6 +113,18 @@ class FIDIAColumn(astropy_table.Column):
         else:
             if issubclass(owner, Trait):
                 return self.data[instance.archive_index]
+
+    def associate(self, archive):
+        # type: (fidia.archive.archive.Archive) -> None
+        try:
+            super(FIDIAColumn, self).associate(archive)
+        except:
+            raise
+        else:
+            self._archive = archive
+            self._archive_id = archive.archive_id
+
+
 
     @property
     def ucd(self):
@@ -126,62 +155,19 @@ class FIDIAColumn(astropy_table.Column):
             raise Exception("Trait property type '{}' not valid".format(value))
         self._type = value
 
-class FIDIAArrayColumn:
+    @property
+    def archive(self):
+        return self._archive
 
-    """FIDIAColumns represent the atomic data unit in FIDIA.
+    @archive.setter
+    def archive(self, value):
+        if self._archive is not None:
+            self._archive = value
+        else:
+            raise AttributeError("archive is already set: cannot be changed.")
 
 
-    The Column is a collection of atomic data for a list/collection of objects
-    in a Sample or Archive. The data an element of a column is either an atomic
-    python type (string, float, int) or an array of the same, usually as a numpy
-    array.
-
-    Columns behave like, and can be used as, astropy.table Columns.
-
-
-    Implementation Details
-    ----------------------
-
-    Currently, this is a direct subclass of astropy.table.Column. However, that
-    is in turn a direct subclass of np.ndarray. Therefore, it is not possible to
-    create an "uninitialised" Column object that has no data (yet). This will
-    cause problems with handling larger data-sets, as we'll have out of memory
-    errors. Therefore, it will be necessary to re-implement most of the
-    astropy.table.Column interface, while avoiding being a direct sub-class of
-    np.ndarray.
-
-    Previously known as TraitProperties
-
-    """
-
-    allowed_types = RegexpGroup(
-        'string',
-        'float',
-        'int',
-        re.compile(r"string\.array\.\d+"),
-        re.compile(r"float\.array\.\d+"),
-        re.compile(r"int\.array\.\d+"),
-        # # Same as above, but with optional dimensionality
-        # re.compile(r"string\.array(?:\.\d+)?"),
-        # re.compile(r"float\.array(?:\.\d+)?"),
-        # re.compile(r"int\.array(?:\.\d+)?"),
-    )
-
-    catalog_types = [
-        'string',
-        'float',
-        'int'
-    ]
-
-    non_catalog_types = RegexpGroup(
-        re.compile(r"string\.array\.\d+"),
-        re.compile(r"float\.array\.\d+"),
-        re.compile(r"int\.array\.\d+")
-        # # Same as above, but with optional dimensionality
-        # re.compile(r"string\.array(?:\.\d+)?"),
-        # re.compile(r"float\.array(?:\.\d+)?"),
-        # re.compile(r"int\.array(?:\.\d+)?"),
-    )
+class FIDIAArrayColumn(FIDIAColumn):
 
 
     def __init__(self, *args, **kwargs):
@@ -203,22 +189,6 @@ class FIDIAArrayColumn:
         else:
             raise FIDIAException("Column has no data")
 
-    def __get__(self, instance=None, owner=None):
-        # type: (Trait, Trait) -> str
-        if instance is None:
-            return self
-        else:
-            if issubclass(owner, Trait):
-                return self._data[instance.object_id]
-
-    @property
-    def ucd(self):
-        return getattr(self, '_ucd', None)
-
-    @ucd.setter
-    def ucd(self, value):
-        self._ucd = value
-
     @property
     def ndarray(self):
 
@@ -229,39 +199,30 @@ class FIDIAArrayColumn:
 
         return arr
 
-    @property
-    def type(self):
-        """The FIDIA type of the data in this column.
+class PathBasedColumn:
+    """Mix in class to add path based setup to Columns"""
 
-        These are restricted to be those in `FIDIAColumn.allowed_types`.
+    def __init__(self, *args, **kwargs):
+        self.basepath = None
 
-        Implementation Details
-        ----------------------
+    def associate(self, archive):
+        try:
+            super(PathBasedColumn, self).associate(archive)
+        except:
+            raise
+        else:
+            try:
+                self.basepath = archive.basepath
+            except AttributeError:
+                raise FIDIAException("PathBased Column can only be associated with an archive that defines `basepath`")
 
-        Note that it may be preferable to have this property map from the
-        underlying numpy type rather than be explicitly set by the user.
-
-        """
-
-        return self._type
-    @type.setter
-    def type(self, value):
-        if value not in self.allowed_types:
-            raise Exception("Trait property type '{}' not valid".format(value))
-        self._type = value
-
-
-class FITSDataColumn(FIDIAArrayColumn):
+class FITSDataColumn(FIDIAArrayColumn, PathBasedColumn):
 
     def __init__(self, filename_pattern, extension,
                  **kwargs):
         super(FITSDataColumn, self).__init__(**kwargs)
-        self.basepath = None
         self.filename_pattern = filename_pattern
-        self.extension = extension
-
-        self.archive = None
-        self.archive_id = None
+        self.fits_extension_identifier = extension
 
     @cached_property
     def fullpath_pattern(self):
@@ -269,22 +230,23 @@ class FITSDataColumn(FIDIAArrayColumn):
             raise AttributeError("The basepath must be defined first.")
         return os.path.join(self.basepath, self.filename_pattern)
 
-    def associate_with_archive(self, archive):
-        self.archive = archive  # type: fidia.Archive
-        self.archive_id = archive.name
-        self.basepath = archive.basepath
-
     def get_value(self, object_id):
         if self.archive_id is None:
             raise FIDIAException("Column not associated with an archive: cannot retrieve data.")
         with fits.open(self.fullpath_pattern.format(object_id=object_id)) as hdulist:
-            return hdulist[self.extension].data
+            return hdulist[self.fits_extension_identifier].data
 
-def ColumnFromData(identifier, object_ids, data):
 
-    column = FIDIAColumn(data=data, id=identifier)
-    column._index = object_ids
-    return column
+class ColumnFromData(FIDIAColumn):
+
+    def __init__(self, data, **kwargs):
+        super(ColumnFromData, self).__init__(**kwargs)
+        self._data = data
+
+    @property
+    def data(self):
+        return self._data
+
 
 def ArrayColumnFromData(identifier, object_ids, data):
     column = FIDIAArrayColumn()
