@@ -172,6 +172,7 @@ class FIDIAArrayColumn(FIDIAColumn):
 
     def __init__(self, *args, **kwargs):
 
+
         self._data = None
 
         self._ndim = kwargs.pop('ndim', 0)
@@ -180,8 +181,7 @@ class FIDIAArrayColumn(FIDIAColumn):
         dtype = kwargs.pop('dtype', None)
         self._dtype = dtype
 
-        # Internal storage for IVOA Uniform Content Descriptor
-        self._ucd = kwargs.get('ucd', None)
+        super(FIDIAArrayColumn, self).__init__(*args, **kwargs)
 
     def get_value(self, object_id):
         if self._data is not None:
@@ -206,11 +206,11 @@ class PathBasedColumn:
         self.basepath = None
 
     def associate(self, archive):
-        try:
-            super(PathBasedColumn, self).associate(archive)
-        except:
-            raise
-        else:
+        # try:
+        #     super(PathBasedColumn, self).associate(archive)
+        # except:
+        #     raise
+        # else:
             try:
                 self.basepath = archive.basepath
             except AttributeError:
@@ -231,7 +231,7 @@ class FITSDataColumn(FIDIAArrayColumn, PathBasedColumn):
         return os.path.join(self.basepath, self.filename_pattern)
 
     def get_value(self, object_id):
-        if self.archive_id is None:
+        if self._archive_id is None:
             raise FIDIAException("Column not associated with an archive: cannot retrieve data.")
         with fits.open(self.fullpath_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.fits_extension_identifier].data

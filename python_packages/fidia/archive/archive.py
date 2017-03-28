@@ -2,11 +2,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from .. import slogging
 log = slogging.getLogger(__name__)
-# log.setLevel(slogging.DEBUG)
-# log.enable_console_logging()
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
+log.enable_console_logging()
+# log.setLevel(slogging.WARNING)
 
 from collections import OrderedDict
+from copy import deepcopy, copy
 
 import pandas as pd
 
@@ -20,6 +21,9 @@ from ..exceptions import *
 
 class Archive(BaseArchive):
     def __init__(self):
+
+        self._id = None
+
         # Traits (or properties)
         self.available_traits = TraitRegistry(branches_versions_required=True)  # type: TraitRegistry
         self.define_available_traits()
@@ -29,7 +33,21 @@ class Archive(BaseArchive):
 
         self._schema = {'by_trait_type': None, 'by_trait_name': None}
 
-        super(BaseArchive, self).__init__()
+        super(Archive, self).__init__()
+
+        # Associate column instances with this archive instance
+        class LocalColumns:
+            pass
+        for colname in dir(self.columns):
+            if colname.startswith("_"):
+                continue
+            log.debug("Associating column %s with archive %s", colname, self)
+            column = deepcopy(getattr(self.columns, colname))
+            setattr(LocalColumns, colname, column)
+            column.associate(self)
+        self.columns = LocalColumns
+
+
 
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when
@@ -47,6 +65,11 @@ class Archive(BaseArchive):
     def contents(self, value):
         self._contents = set(value)
 
+    @property
+    def archive_id(self):
+        if self._id is None:
+            return repr(self)
+        return self._id
 
     @property
     def name(self):
@@ -286,3 +309,8 @@ class Archive(BaseArchive):
 
     def define_available_traits(self):
         return NotImplementedError()
+
+class BasePathArchive(Archive):
+    def __init__(self, **kwargs):
+        self.basepath = kwargs.pop('basepath')
+        super(BasePathArchive, self).__init__(**kwargs)
