@@ -29,6 +29,16 @@ def archive():
     return ar
 
 
+class TestColumnDefs:
+
+    def test_column_ids_class_name(self):
+        class MyColumnDef(ColumnDefinition):
+            pass
+        print(MyColumnDef.__module__, MyColumnDef.__name__)
+        coldef = MyColumnDef()
+        print(coldef.id)
+        assert coldef.id.startswith(MyColumnDef.__module__ + '.' + MyColumnDef.__name__)
+
 class TestColumnDefColumnCreation:
 
     def test_new_column(self, archive):
@@ -81,15 +91,21 @@ class TestColumnDefColumnCreation:
 #
 #         assert np.array_equal(data, column.data)
 #
-# class TestFITSDataColumn:
-#
-#     def test_create_column_from_data(self, test_data_dir):
-#
-#         column = FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0)
-#
-#         column.archive_id = 'test'
-#         column.basepath = test_data_dir
-#
-#         data = column.get_value('Gal1')
-#
-#         assert data.shape == (200, 200)
+class TestFITSDataColumn:
+
+    @pytest.fixture
+    def fits_data_column(self, test_data_dir, archive):
+        columndef = FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0)
+        archive.basepath = test_data_dir
+        column = columndef.associate(archive)
+        return column
+
+    def test_column_has_data(self, fits_data_column):
+        data = fits_data_column.get_value('Gal1')
+        assert data.shape == (200, 200)
+
+    def test_column_id(self):
+        pathstring = "{object_id}/{object_id}_red_image.fits"
+        coldef = FITSDataColumn(pathstring, 0)
+        print(coldef.id)
+        assert coldef.id == "fidia.traits.fidiacolumn.FITSDataColumn:" + pathstring + "[0]"

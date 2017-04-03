@@ -207,6 +207,13 @@ class FIDIAArrayColumn(FIDIAColumn):
 
 class ColumnDefinition(object):
 
+    @cached_property
+    def id(self):
+        klass = type(self).__module__ + "." + type(self).__name__
+        if hasattr(self, '_id'):
+            return klass + ":" + self._id
+        return klass + ":" + repr(self)
+
     def _timestamp_helper(self, archive):
         raise NotImplementedError()
 
@@ -269,6 +276,8 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
         self.filename_pattern = filename_pattern
         self.fits_extension_identifier = extension
 
+        self._id = "{file}[{ext}]".format(file=filename_pattern, ext=extension)
+
     def object_getter(self, archive, object_id):
         full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
@@ -285,6 +294,9 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
         self.filename_pattern = filename_pattern
         self.fits_extension_identifier = fits_extension_id
         self.keyword_name = keyword_name
+
+        self._id = "{file}[{ext}].header[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=keyword_name)
+
 
     def object_getter(self, archive, object_id):
         full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
