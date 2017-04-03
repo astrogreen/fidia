@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import List
+
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
@@ -14,12 +16,16 @@ import pandas as pd
 from ..sample import Sample
 from ..traits import Trait, TraitKey, TraitProperty, TraitPath
 from ..traits import TraitRegistry
+from ..traits import fidiacolumn
 from .base_archive import BaseArchive
 from ..cache import DummyCache
 from ..utilities import SchemaDictionary
 from ..exceptions import *
 
 class Archive(BaseArchive):
+
+    column_definitions = []  # type: List[fidiacolumn.ColumnDefinition]
+
     def __init__(self):
 
         self._id = None
@@ -36,16 +42,12 @@ class Archive(BaseArchive):
         super(Archive, self).__init__()
 
         # Associate column instances with this archive instance
-        class LocalColumns:
-            pass
-        for colname in dir(self.columns):
-            if colname.startswith("_"):
-                continue
-            log.debug("Associating column %s with archive %s", colname, self)
-            column = deepcopy(getattr(self.columns, colname))
-            setattr(LocalColumns, colname, column)
-            column.associate(self)
-        self.columns = LocalColumns
+        local_columns = []  # type: List[fidiacolumn.FIDIAColumn]
+        for column in self.column_definitions:
+            log.debug("Associating column %s with archive %s", column, self)
+            instance_column = column.associate(self)
+            local_columns.append(instance_column)
+        self.columns = local_columns
 
 
 
@@ -53,7 +55,7 @@ class Archive(BaseArchive):
     # "feature". These properties are those that would be displayed e.g. when
     # someone wants an overview of the data in the archive, or for a particular
     # object.
-    feature_catalog_data = []  # type: list[TraitPath]
+    feature_catalog_data = []  # type: List[TraitPath]
 
     def writeable(self):
         raise NotImplementedError("")

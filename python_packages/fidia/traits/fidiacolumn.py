@@ -117,13 +117,13 @@ class FIDIAColumn(object):
     def associate(self, archive):
         # type: (fidia.archive.archive.Archive) -> None
         try:
-            super(FIDIAColumn, self).associate(archive)
+            instance_column = super(FIDIAColumn, self).associate(archive)
         except:
             raise
         else:
-            self._archive = archive
-            self._archive_id = archive.archive_id
-
+            instance_column._archive = archive
+            instance_column._archive_id = archive.archive_id
+        return instance_column
 
 
     @property
@@ -199,24 +199,38 @@ class FIDIAArrayColumn(FIDIAColumn):
 
         return arr
 
+
+class ColumnDefinition(object):
+    def associate(self, archive):
+        # type: (fidia.archive.archive.Archive) -> FIDIAColumn
+        column = self.column_type(object_getter=self.object_getter, array_getter=self.array_getter)
+        # Call on_associate helpers of any sub-classes:
+        if type(self) is not ColumnDefinition:
+            super(type(self), self).on_associate(archive, column)
+
+        # Bake in parameters to object_getter function and associate:
+        def baked_object_getter(object_id):
+            return self.object_getter(archive, object_id)
+        column.get_value = baked_object_getter
+
+        return column
+
+    object_getter = None
+    array_getter = None
+
+
+    def on_associate(self, archive, column):
+        pass
+
 class PathBasedColumn:
     """Mix in class to add path based setup to Columns"""
 
     def __init__(self, *args, **kwargs):
         self.basepath = None
 
-    def associate(self, archive):
-        # try:
-        #     super(PathBasedColumn, self).associate(archive)
-        # except:
-        #     raise
-        # else:
-            try:
-                self.basepath = archive.basepath
-            except AttributeError:
-                raise FIDIAException("PathBased Column can only be associated with an archive that defines `basepath`")
+class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
-class FITSDataColumn(FIDIAArrayColumn, PathBasedColumn):
+    column_type = FIDIAArrayColumn
 
     def __init__(self, filename_pattern, extension,
                  **kwargs):
@@ -224,20 +238,15 @@ class FITSDataColumn(FIDIAArrayColumn, PathBasedColumn):
         self.filename_pattern = filename_pattern
         self.fits_extension_identifier = extension
 
-    @cached_property
-    def fullpath_pattern(self):
-        if self.basepath is None:
-            raise AttributeError("The basepath must be defined first.")
-        return os.path.join(self.basepath, self.filename_pattern)
-
-    def get_value(self, object_id):
-        if self._archive_id is None:
-            raise FIDIAException("Column not associated with an archive: cannot retrieve data.")
-        with fits.open(self.fullpath_pattern.format(object_id=object_id)) as hdulist:
+    def object_getter(self, archive, object_id):
+        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+        with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.fits_extension_identifier].data
 
 
-class FITSHeaderColumn(FIDIAColumn, PathBasedColumn):
+class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
+
+    column_type = FIDIAColumn
 
     def __init__(self, filename_pattern, fits_extension_id, keyword_name,
                  **kwargs):
@@ -246,20 +255,13 @@ class FITSHeaderColumn(FIDIAColumn, PathBasedColumn):
         self.fits_extension_identifier = fits_extension_id
         self.keyword_name = keyword_name
 
-    @cached_property
-    def fullpath_pattern(self):
-        if self.basepath is None:
-            raise AttributeError("The basepath must be defined first.")
-        return os.path.join(self.basepath, self.filename_pattern)
-
-    def get_value(self, object_id):
-        if self._archive_id is None:
-            raise FIDIAException("Column not associated with an archive: cannot retrieve data.")
-        with fits.open(self.fullpath_pattern.format(object_id=object_id)) as hdulist:
+    def object_getter(self, archive, object_id):
+        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+        with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.fits_extension_identifier].header[self.keyword_name]
 
 
-class ColumnFromData(FIDIAColumn):
+class ColumnFromData(ColumnDefinition):
 
     def __init__(self, data, **kwargs):
         super(ColumnFromData, self).__init__(**kwargs)

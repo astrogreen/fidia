@@ -93,27 +93,11 @@ class ExampleArchive(BasePathArchive):
     basedir = "hi"
 
 
-    class columns:
-
-        object_ids = ['Gal1', 'Gal2', 'Gal3']
-
-        # blue_image = ArrayColumnFromData("blue", object_ids, np.random.random((len(object_ids),) + (20, 20)))
-        # blue_image_var = ArrayColumnFromData("bluevar", object_ids, np.random.random((len(object_ids),) + (20, 20)))
-
-        red_image = FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                                   ndim=2)
-
-        red_image_exposure_time = FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")
-
-        # red_image_var = ArrayColumnFromData("redvar", object_ids, np.random.random((len(object_ids),) + (20, 20)))
-        #
-        # spectral_cube = ArrayColumnFromData("speccube_red", object_ids,
-        #                                     np.random.random((len(object_ids),) + (20, 20, 10)))
-        #
-        # redshift = ColumnFromData("redshift", object_ids, np.random.lognormal(0.1, 0.05, len(object_ids)))
-        # redshift.unit = units.dimensionless_unscaled
-
-        del object_ids
+    column_definitions = [
+            FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+                                       ndim=2),
+            FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")
+        ]
 
     class TraitDefinitions:
         pass
