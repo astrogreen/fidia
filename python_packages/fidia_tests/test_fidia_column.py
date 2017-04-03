@@ -6,7 +6,7 @@ import tempfile
 
 import numpy as np
 
-import generate_test_data as testdata
+from . import generate_test_data as testdata
 
 from fidia.traits.fidiacolumn import *
 

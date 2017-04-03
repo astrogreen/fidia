@@ -92,9 +92,6 @@ class ExampleArchive(BasePathArchive):
 
     basedir = "hi"
 
-    def red_image(self):
-        return FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                              ndim=2)
 
     class columns:
 
