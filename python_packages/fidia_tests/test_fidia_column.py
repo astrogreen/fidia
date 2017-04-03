@@ -20,6 +20,46 @@ def test_data_dir():
         yield tempdir
 
 
+@pytest.fixture(scope='module')
+def archive():
+    class Archive(object):
+        pass
+    ar = Archive()
+    ar.archive_id = 'Archive123'
+    return ar
+
+
+class TestColumnDefColumnCreation:
+
+    def test_new_column(self, archive):
+        coldef = ColumnDefinition()
+        # The base ColumnDefinition does not have a defined `column_type`, so we must define one:
+        coldef.column_type = FIDIAColumn
+        col = coldef.associate(archive)
+
+        assert col.archive is archive
+        assert col._archive_id == 'Archive123'
+
+    def test_new_column_has_working_retriever_from_colum_definition(self, archive):
+        class MyColumnDef(ColumnDefinition):
+            def __init__(self, param):
+                self.param = param
+            column_type = FIDIAColumn
+            def object_getter(self, archive, object_id):
+                return "{id}: {obj} ({coldef})".format(id=archive.archive_id, obj=object_id, coldef=self.param)
+
+        coldef = MyColumnDef('test')
+        col = coldef.associate(archive)
+        assert col.get_value('Gal1') == "Archive123: Gal1 (test)"
+
+    def test_associated_column_has_timestamp(self, archive):
+        coldef = ColumnDefinition()
+        # The base ColumnDefinition does not have a defined `column_type`, so we must define one:
+        coldef.column_type = FIDIAColumn
+        col = coldef.associate(archive)
+
+        assert isinstance(col._timestamp, (float, int))
+
 # class TestArrayColumn:
 #
 #     def test_array_column_from_data(self):

@@ -1,8 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import Union
+
 # Standard Library imports:
 import re
 import os
+import time
 from contextlib import contextmanager
 from collections import OrderedDict
 
@@ -100,8 +103,10 @@ class FIDIAColumn(object):
         self._ucd = kwargs.get('ucd', None)
 
         # Archive Connection
-        self._archive = None
-        self._archive_id = None
+        self._archive = kwargs.pop('archive', None)
+        self._archive_id = kwargs.pop('archive_id', None)
+
+        self._timestamp = kwargs.pop('timestamp', None)
 
 
 
@@ -201,9 +206,35 @@ class FIDIAArrayColumn(FIDIAColumn):
 
 
 class ColumnDefinition(object):
+
+    def _timestamp_helper(self, archive):
+        raise NotImplementedError()
+
+    def get_timestamp(self, archive=None):
+        # type: (Union[None, fidia.archive.archive.Archive]) -> int
+        # Option 1: Timestamp has been defined
+        if getattr(self, '_timestamp', None):
+            return self._timestamp
+        # Option 2: A timestamp helper function is defined
+        try:
+            ts = self._timestamp_helper(archive)
+        except NotImplementedError:
+            pass
+        except:
+            raise
+        else:
+            if ts is not None:
+                return ts
+        # Option 3: Return the current time as the timestamp
+        return time.time()
+
     def associate(self, archive):
         # type: (fidia.archive.archive.Archive) -> FIDIAColumn
-        column = self.column_type(object_getter=self.object_getter, array_getter=self.array_getter)
+        column = self.column_type(
+            archive_id=archive.archive_id,
+            archive=archive,
+            timestamp=self.get_timestamp(archive)
+        )
         # Call on_associate helpers of any sub-classes:
         if type(self) is not ColumnDefinition:
             super(type(self), self).on_associate(archive, column)
@@ -260,6 +291,16 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.fits_extension_identifier].header[self.keyword_name]
 
+    def _timestamp_helper(self, archive):
+        if archive is None:
+            return None
+        timestamp = 0
+        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+        for object_id in archive.contents:
+            stats = os.stat(full_path_pattern.format(object_id=object_id))
+            if stats.st_mtime > timestamp:
+                timestamp = stats.st_mtime
+        return timestamp
 
 class ColumnFromData(ColumnDefinition):
 
