@@ -17,7 +17,7 @@ from cached_property import cached_property
 
 # Internal package imports:
 from .base_trait import Trait
-from ..utilities import RegexpGroup
+from ..utilities import RegexpGroup, is_list_or_set
 from ..exceptions import *
 
 # Logging Setup
@@ -25,6 +25,51 @@ from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
+
+
+class ColumnDefinitionList(object):
+    def __init__(self, column_definitions=[]):
+
+        self._contents = OrderedDict()
+        self._contents_by_alias = OrderedDict()
+        self._alias_by_id = OrderedDict()
+
+        for coldef in column_definitions:
+            self.add(coldef)
+
+    def __getitem__(self, item):
+        # type: (str) -> ColumnDefinition
+        if item in self._contents_by_alias.keys():
+            return self._contents_by_alias[item]
+        else:
+            return self._contents[item]
+
+    def add(self, coldef):
+        # type: (Union[ColumnDefinition, Tuple[str, ColumnDefinition]]) -> None
+        log.debug("Adding column definition: %s", coldef)
+        if is_list_or_set(coldef):
+            log.debug("Column definition is a tuple.")
+            if not len(coldef) == 2:
+                raise FIDIAException("must be either a column definition or a tuple of (alias, definition)")
+            # First item is alias, second item is actual definition
+            alias = coldef[0]
+            col = coldef[1]
+        else:
+            log.debug("Column definition is just a ColumnDefinition.")
+            col = coldef
+            alias = None
+
+        assert isinstance(alias, (str, type(None)))
+        assert isinstance(col, (ColumnDefinition, FIDIAColumn))
+
+        if alias:
+            self._contents_by_alias[alias] = col
+        self._contents[col.id] = col
+        self._alias_by_id[col.id] = alias
+
+    def __iter__(self):
+        for column_id in self._alias_by_id:
+            yield (self._alias_by_id[column_id], self._contents[column_id])
 
 class FIDIAColumn(object):
     """FIDIAColumns represent the atomic data unit in FIDIA.
@@ -107,8 +152,18 @@ class FIDIAColumn(object):
         self._archive_id = kwargs.pop('archive_id', None)
 
         self._timestamp = kwargs.pop('timestamp', None)
+        self._coldef_id = kwargs.pop('coldef_id', None)
 
+    @property
+    def id(self):
+        return "{archive_id}:{coldef_id}:{timestamp}".format(
+            archive_id=self._archive_id,
+            coldef_id=self._coldef_id,
+            timestamp=self._timestamp
+        )
 
+    def __repr__(self):
+        return self.id
 
     # @abstractmethod
     def __get__(self, instance=None, owner=None):
@@ -207,6 +262,10 @@ class FIDIAArrayColumn(FIDIAColumn):
 
 class ColumnDefinition(object):
 
+    def __init__(self, **kwargs):
+        if 'timestamp' in kwargs:
+            self._timestamp = kwargs['timestamp']
+
     @cached_property
     def id(self):
         klass = type(self).__module__ + "." + type(self).__name__
@@ -221,6 +280,7 @@ class ColumnDefinition(object):
         # type: (Union[None, fidia.archive.archive.Archive]) -> int
         # Option 1: Timestamp has been defined
         if getattr(self, '_timestamp', None):
+            log.debug("Timestamp for column %s predefined to be %s", self, self._timestamp)
             return self._timestamp
         # Option 2: A timestamp helper function is defined
         try:
@@ -240,7 +300,8 @@ class ColumnDefinition(object):
         column = self.column_type(
             archive_id=archive.archive_id,
             archive=archive,
-            timestamp=self.get_timestamp(archive)
+            timestamp=self.get_timestamp(archive),
+            coldef_id=self.id
         )
         # Call on_associate helpers of any sub-classes:
         if type(self) is not ColumnDefinition:
@@ -250,6 +311,8 @@ class ColumnDefinition(object):
         def baked_object_getter(object_id):
             return self.object_getter(archive, object_id)
         column.get_value = baked_object_getter
+
+        log.debug("Created column: %s", column)
 
         return column
 

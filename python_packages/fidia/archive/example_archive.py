@@ -89,20 +89,17 @@ class ExampleArchive(BasePathArchive):
 
         super(ExampleArchive, self).__init__(**kwargs)
 
+    # basedir = "hi"
 
-    basedir = "hi"
-
-
-    column_definitions = [
-            FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                                       ndim=2),
-            FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")
-        ]
+    column_definitions = ColumnDefinitionList([
+            ("red_image", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+                                         ndim=2)),
+            ("red_image_exposed", FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")),
+            FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1")
+        ])
 
     class TraitDefinitions:
         pass
-
-
 
     @property
     def contents(self):

@@ -33,10 +33,11 @@ class TestArchiveAndColumns:
     def ArchiveWithColumns(self):
 
         class ArchiveWithColumns(BasePathArchive):
-
+            _id = "testArchive"
             column_definitions = [
-                    FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                                   ndim=2)
+                ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+                                       ndim=2,
+                                       timestamp=1))
                 ]
         return ArchiveWithColumns
 
@@ -66,9 +67,24 @@ class TestArchiveAndColumns:
     #     assert class_column._archive_id is None
     #     assert class_column._archive is None
 
+    def test_get_column_with_id(self, test_data_dir, ArchiveWithColumns):
+        ar = ArchiveWithColumns(basepath=test_data_dir)  # type: fidia.archive.archive.Archive
+        print(ar.archive_id)
+        print(ar.columns._contents_by_alias.items())
+        column = ar.columns["testArchive:fidia.traits.fidiacolumn.FITSDataColumn:" + \
+                            "{object_id}/{object_id}_red_image.fits[0]:1"]
+
+        assert isinstance(column, FIDIAColumn)
+
+    def test_get_column_with_alias(self, test_data_dir, ArchiveWithColumns):
+        ar = ArchiveWithColumns(basepath=test_data_dir)
+        column = ar.columns["col"]
+
+        assert isinstance(column, FIDIAColumn)
+
     def test_retrieve_data_from_path_column(self, test_data_dir, ArchiveWithColumns):
         ar = ArchiveWithColumns(basepath=test_data_dir)
-        value = ar.columns[0].get_value('Gal1')
+        value = ar.columns["col"].get_value('Gal1')
 
         assert value.shape == (200, 200)
 
@@ -87,11 +103,11 @@ class TestExampleArchive:
         return ExampleArchive(basepath=test_data_dir)
 
     def test_red_image_data(self, example_archive):
-        img = example_archive.columns[0].get_value('Gal1')
+        img = example_archive.columns["red_image"].get_value('Gal1')
         assert img.shape == (200, 200)
 
     def test_red_image_exposed_data(self, example_archive):
-        img = example_archive.columns[1].get_value('Gal1')
+        img = example_archive.columns["red_image_exposed"].get_value('Gal1')
         assert img in (3500, 3600, 2400)
 
 

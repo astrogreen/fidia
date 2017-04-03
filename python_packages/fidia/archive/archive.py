@@ -22,16 +22,17 @@ from ..cache import DummyCache
 from ..utilities import SchemaDictionary
 from ..exceptions import *
 
+
 class Archive(BaseArchive):
 
-    column_definitions = []  # type: List[fidiacolumn.ColumnDefinition]
+    column_definitions = fidiacolumn.ColumnDefinitionList()
+
+    _id = None
 
     def __init__(self):
 
-        self._id = None
-
         # Traits (or properties)
-        self.available_traits = TraitRegistry(branches_versions_required=True)  # type: TraitRegistry
+        self.available_traits = TraitRegistry(branches_versions_required=True)
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
@@ -42,14 +43,12 @@ class Archive(BaseArchive):
         super(Archive, self).__init__()
 
         # Associate column instances with this archive instance
-        local_columns = []  # type: List[fidiacolumn.FIDIAColumn]
-        for column in self.column_definitions:
+        local_columns = fidiacolumn.ColumnDefinitionList()
+        for alias, column in self.column_definitions:
             log.debug("Associating column %s with archive %s", column, self)
             instance_column = column.associate(self)
-            local_columns.append(instance_column)
+            local_columns.add((alias, instance_column))
         self.columns = local_columns
-
-
 
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when
