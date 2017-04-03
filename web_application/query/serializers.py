@@ -42,18 +42,19 @@ class QuerySerializer(serializers.HyperlinkedModelSerializer):
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
 
-    queryBuilderState = serializers.JSONField(label='QB State', default={}, allow_null=True, required=False)
-    results = serializers.JSONField(label='Result', required=False)
+    # queryBuilderState = serializers.JSONField(label='QB State', allow_null=True, required=False)
+    # results = serializers.JSONField(label='Result', required=False, default="{}", read_only=True)
 
     SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
     title = serializers.CharField(default='My Query', max_length=100, required=False)
+    isCompleted = serializers.BooleanField(default=False, read_only=True)
 
     class Meta:
         model = query.models.Query
         fields = ('created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted', 'id')
+        extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False}}
 
-
-# # - - - - QUERY - - - -
+        # # - - - - QUERY - - - -
 # class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
 #     """
 #     Create/Update and return a new/existing object instance, given the validated data
