@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import pytest
 
 import tempfile
@@ -14,31 +16,29 @@ from fidia.archive.example_archive import ExampleArchive
 
 # from fidia.archive.example_archive import ExampleSpectralMap
 
+# noinspection PyUnresolvedReferences
 import generate_test_data as testdata
 
 
 @pytest.yield_fixture(scope='module')
 def test_data_dir():
-
     with tempfile.TemporaryDirectory() as tempdir:
         testdata.generate_simple_dataset(tempdir, 5)
 
         yield tempdir
 
 
-
 class TestArchiveAndColumns:
-
     @pytest.fixture
     def ArchiveWithColumns(self):
-
         class ArchiveWithColumns(BasePathArchive):
             _id = "testArchive"
             column_definitions = [
                 ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
                                        ndim=2,
                                        timestamp=1))
-                ]
+            ]
+
         return ArchiveWithColumns
 
     # def test_archive_instance_columns_not_class_columns(self, ArchiveWithColumns):
@@ -71,7 +71,7 @@ class TestArchiveAndColumns:
         ar = ArchiveWithColumns(basepath=test_data_dir)  # type: fidia.archive.archive.Archive
         print(ar.archive_id)
         print(ar.columns._contents_by_alias.items())
-        column = ar.columns["testArchive:fidia.traits.fidiacolumn.FITSDataColumn:" + \
+        column = ar.columns["testArchive:fidia.traits.fidiacolumn.FITSDataColumn:" +
                             "{object_id}/{object_id}_red_image.fits[0]:1"]
 
         assert isinstance(column, FIDIAColumn)
@@ -87,7 +87,6 @@ class TestArchiveAndColumns:
         value = ar.columns["col"].get_value('Gal1')
 
         assert value.shape == (200, 200)
-
 
 
 class TestExampleArchive:
@@ -110,13 +109,11 @@ class TestExampleArchive:
         img = example_archive.columns["red_image_exposed"].get_value('Gal1')
         assert img in (3500, 3600, 2400)
 
-
     def test_example_archive_columns_available(self, example_archive):
         example_archive.columns
 
 
 class TestArchive:
-
     pass
     # @pytest.fixture
     # def example_spectral_map(self):

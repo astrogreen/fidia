@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union
+from typing import Union, Tuple
 
 # Standard Library imports:
 import re
@@ -28,7 +28,7 @@ log.enable_console_logging()
 
 
 class ColumnDefinitionList(object):
-    def __init__(self, column_definitions=[]):
+    def __init__(self, column_definitions=()):
 
         self._contents = OrderedDict()
         self._contents_by_alias = OrderedDict()
@@ -165,14 +165,13 @@ class FIDIAColumn(object):
     def __repr__(self):
         return self.id
 
-    # @abstractmethod
-    def __get__(self, instance=None, owner=None):
-        # type: (Trait, Trait) -> str
-        if instance is None:
-            return self
-        else:
-            if issubclass(owner, Trait):
-                return self.data[instance.archive_index]
+    # def __get__(self, instance=None, owner=None):
+    #     # type: (Trait, Trait) -> str
+    #     if instance is None:
+    #         return self
+    #     else:
+    #         if issubclass(owner, Trait):
+    #             return self.data[instance.archive_index]
 
     def associate(self, archive):
         # type: (fidia.archive.archive.Archive) -> None
@@ -208,12 +207,13 @@ class FIDIAColumn(object):
 
         """
 
-        return self._type
+        return self._fidia_type
+
     @type.setter
     def type(self, value):
         if value not in self.allowed_types:
             raise Exception("Trait property type '{}' not valid".format(value))
-        self._type = value
+        self._fidia_type = value
 
     @property
     def archive(self):
@@ -229,9 +229,7 @@ class FIDIAColumn(object):
 
 class FIDIAArrayColumn(FIDIAColumn):
 
-
     def __init__(self, *args, **kwargs):
-
 
         self._data = None
 
@@ -274,7 +272,7 @@ class ColumnDefinition(object):
         return klass + ":" + repr(self)
 
     def _timestamp_helper(self, archive):
-        raise NotImplementedError()
+        return None
 
     def get_timestamp(self, archive=None):
         # type: (Union[None, fidia.archive.archive.Archive]) -> int
@@ -283,15 +281,9 @@ class ColumnDefinition(object):
             log.debug("Timestamp for column %s predefined to be %s", self, self._timestamp)
             return self._timestamp
         # Option 2: A timestamp helper function is defined
-        try:
-            ts = self._timestamp_helper(archive)
-        except NotImplementedError:
-            pass
-        except:
-            raise
-        else:
-            if ts is not None:
-                return ts
+        ts = self._timestamp_helper(archive)
+        if ts is not None:
+            return ts
         # Option 3: Return the current time as the timestamp
         return time.time()
 
@@ -328,6 +320,7 @@ class PathBasedColumn:
 
     def __init__(self, *args, **kwargs):
         self.basepath = None
+
 
 class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
