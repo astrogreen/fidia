@@ -2,28 +2,30 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from typing import List
 
-from .. import slogging
-log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
-log.enable_console_logging()
-# log.setLevel(slogging.WARNING)
-
+# Python Standard Library Imports
 from collections import OrderedDict
 
+# Other Library Imports
 import pandas as pd
 
+# FIDIA Imports
 from ..sample import Sample
 from ..traits import Trait, TraitKey, TraitProperty, TraitPath
 from ..traits import TraitRegistry
-from fidia.column import column as fidiacolumn
+from fidia.column import *
 from .base_archive import BaseArchive
 from ..cache import DummyCache
 from ..utilities import SchemaDictionary
 
+# Set up logging
+from .. import slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.WARNING)
+log.enable_console_logging()
 
 class Archive(BaseArchive):
 
-    column_definitions = fidiacolumn.ColumnDefinitionList()
+    column_definitions = ColumnDefinitionList()
 
     _id = None
 
@@ -41,7 +43,7 @@ class Archive(BaseArchive):
         super(Archive, self).__init__()
 
         # Associate column instances with this archive instance
-        local_columns = fidiacolumn.ColumnDefinitionList()
+        local_columns = ColumnDefinitionList()
         for alias, column in self.column_definitions:
             log.debug("Associating column %s with archive %s", column, self)
             instance_column = column.associate(self)

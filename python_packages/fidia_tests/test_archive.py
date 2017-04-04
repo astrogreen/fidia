@@ -2,12 +2,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tempfile
 
+# noinspection PyUnresolvedReferences
 import generate_test_data as testdata
 import pytest
 
 from fidia.archive.archive import BasePathArchive
 from fidia.archive.example_archive import ExampleArchive
-from fidia.column.column import *
+from fidia.column.column_definitions import FITSDataColumn
+from fidia.column.columns import FIDIAColumn
 
 
 @pytest.yield_fixture(scope='module')

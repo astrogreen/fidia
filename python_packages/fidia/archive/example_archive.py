@@ -1,8 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from fidia.column.column import *
+# Python Standard Library Imports
+
+from fidia.column.column_definitions import ColumnDefinitionList, FITSDataColumn, FITSHeaderColumn
 from .archive import BasePathArchive
 from ..traits import *
+
 
 #
 # class SimpleTrait(Trait):
