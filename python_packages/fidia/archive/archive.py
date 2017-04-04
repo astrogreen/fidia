@@ -9,18 +9,16 @@ log.enable_console_logging()
 # log.setLevel(slogging.WARNING)
 
 from collections import OrderedDict
-from copy import deepcopy, copy
 
 import pandas as pd
 
 from ..sample import Sample
 from ..traits import Trait, TraitKey, TraitProperty, TraitPath
 from ..traits import TraitRegistry
-from ..traits import fidiacolumn
+from fidia.column import column as fidiacolumn
 from .base_archive import BaseArchive
 from ..cache import DummyCache
 from ..utilities import SchemaDictionary
-from ..exceptions import *
 
 
 class Archive(BaseArchive):

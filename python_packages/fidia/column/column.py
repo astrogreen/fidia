@@ -16,12 +16,12 @@ from astropy.io import fits
 from cached_property import cached_property
 
 # Internal package imports:
-from .base_trait import Trait
-from ..utilities import RegexpGroup, is_list_or_set
-from ..exceptions import *
+from fidia.traits.base_trait import Trait
+from fidia.utilities import RegexpGroup, is_list_or_set
+from fidia.exceptions import *
 
 # Logging Setup
-from .. import slogging
+from fidia import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
@@ -268,6 +268,8 @@ class ColumnDefinition(object):
     @cached_property
     def id(self):
         klass = type(self).__module__ + "." + type(self).__name__
+        if klass.startswith('fidia.'):
+            klass = type(self).__name__
         if hasattr(self, '_id'):
             return klass + ":" + self._id
         return klass + ":" + repr(self)

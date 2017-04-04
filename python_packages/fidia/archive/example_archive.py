@@ -1,17 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import numpy as np
-
-from astropy import units
-
-from .archive import Archive, BasePathArchive
+from fidia.column.column import *
+from .archive import BasePathArchive
 from ..traits import *
-from ..traits.trait_property import trait_property_from_constant
-from ..utilities import DefaultsRegistry
-from ..exceptions import DataNotAvailable
-
-import fidia
-from fidia.traits.fidiacolumn import *
 
 #
 # class SimpleTrait(Trait):

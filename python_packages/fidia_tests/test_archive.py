@@ -1,23 +1,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import pytest
-
 import tempfile
 
-import numpy as np
-
-from fidia.archive import MemoryArchive, BaseArchive
-from fidia.archive.archive import Archive, BasePathArchive
-from fidia.traits.fidiacolumn import *
-from fidia.traits import *
-from fidia import traits
-from fidia.exceptions import DataNotAvailable
-from fidia.archive.example_archive import ExampleArchive
-
-# from fidia.archive.example_archive import ExampleSpectralMap
-
-# noinspection PyUnresolvedReferences
 import generate_test_data as testdata
+import pytest
+
+from fidia.archive.archive import BasePathArchive
+from fidia.archive.example_archive import ExampleArchive
+from fidia.column.column import *
 
 
 @pytest.yield_fixture(scope='module')
@@ -71,7 +61,7 @@ class TestArchiveAndColumns:
         ar = ArchiveWithColumns(basepath=test_data_dir)  # type: fidia.archive.archive.Archive
         print(ar.archive_id)
         print(ar.columns._contents_by_alias.items())
-        column = ar.columns["testArchive:fidia.traits.fidiacolumn.FITSDataColumn:" +
+        column = ar.columns["testArchive:FITSDataColumn:" +
                             "{object_id}/{object_id}_red_image.fits[0]:1"]
 
         assert isinstance(column, FIDIAColumn)

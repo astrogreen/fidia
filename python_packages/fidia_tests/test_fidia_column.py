@@ -1,14 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import pytest
-
 import tempfile
 
-import numpy as np
-
 import generate_test_data as testdata
+import pytest
 
-from fidia.traits.fidiacolumn import *
+from fidia.column.column import *
 
 
 @pytest.yield_fixture(scope='module')
@@ -108,4 +105,4 @@ class TestFITSDataColumn:
         pathstring = "{object_id}/{object_id}_red_image.fits"
         coldef = FITSDataColumn(pathstring, 0)
         print(coldef.id)
-        assert coldef.id == "fidia.traits.fidiacolumn.FITSDataColumn:" + pathstring + "[0]"
+        assert coldef.id == "FITSDataColumn:" + pathstring + "[0]"
