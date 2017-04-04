@@ -28,6 +28,7 @@ log.enable_console_logging()
 
 
 class ColumnDefinitionList(object):
+    """Base class for Column Definitions."""
     def __init__(self, column_definitions=()):
 
         self._contents = OrderedDict()
