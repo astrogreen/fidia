@@ -5,8 +5,9 @@ class BaseArchive(object):
     def writeable(self):
         raise NotImplementedError("")
 
-    def contents(self):
-        raise NotImplementedError("")
+    # @property
+    # def contents(self):
+    #     raise NotImplementedError("")
 
     def get_full_sample(self):
         raise NotImplementedError("")

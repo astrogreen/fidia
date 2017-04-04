@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from typing import List
+
+# Python Standard Library Imports
 from copy import deepcopy
 from collections import Iterable, Sized
 from contextlib import contextmanager
@@ -7,9 +12,11 @@ import fcntl
 import functools
 from time import sleep
 
+# Other Library Imports
 from sortedcontainers import SortedDict
 
-from . import slogging
+# Set up logging
+import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()

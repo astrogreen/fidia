@@ -9,41 +9,44 @@ from collections import OrderedDict
 import pandas as pd
 
 # FIDIA Imports
-from ..sample import Sample
-from ..traits import Trait, TraitKey, TraitProperty, TraitPath
-from ..traits import TraitRegistry
-from fidia.column import *
-from .base_archive import BaseArchive
-from ..cache import DummyCache
 from ..utilities import SchemaDictionary
+import fidia.sample as sample
+import fidia.traits as traits
+import fidia.column as columns
+import fidia.cache as cache
+# Other modules within this package
+from .base_archive import BaseArchive
 
 # Set up logging
-from .. import slogging
+import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
+__all__ = ['Archive']
+
+
 class Archive(BaseArchive):
     """An archive of data."""
-    column_definitions = ColumnDefinitionList()
+    column_definitions = columns.ColumnDefinitionList()
 
     _id = None
 
     def __init__(self):
 
         # Traits (or properties)
-        self.available_traits = TraitRegistry(branches_versions_required=True)
+        self.available_traits = traits.TraitRegistry(branches_versions_required=True)
         self.define_available_traits()
         self._trait_cache = OrderedDict()
 
-        self.cache = DummyCache()
+        self.cache = cache.DummyCache()
 
         self._schema = {'by_trait_type': None, 'by_trait_name': None}
 
         super(Archive, self).__init__()
 
         # Associate column instances with this archive instance
-        local_columns = ColumnDefinitionList()
+        local_columns = columns.ColumnDefinitionList()
         for alias, column in self.column_definitions:
             log.debug("Associating column %s with archive %s", column, self)
             instance_column = column.associate(self)
@@ -54,7 +57,7 @@ class Archive(BaseArchive):
     # "feature". These properties are those that would be displayed e.g. when
     # someone wants an overview of the data in the archive, or for a particular
     # object.
-    feature_catalog_data = []  # type: List[TraitPath]
+    feature_catalog_data = []  # type: List[traits.TraitPath]
 
     def writeable(self):
         raise NotImplementedError("")
@@ -62,6 +65,7 @@ class Archive(BaseArchive):
     @property
     def contents(self):
         return self._contents
+
     @contents.setter
     def contents(self, value):
         self._contents = set(value)
@@ -80,7 +84,7 @@ class Archive(BaseArchive):
         """Return a sample containing all objects in the archive."""
         # Create an empty sample, and populate it via it's private interface
         # (no suitable public interface at this time.)
-        new_sample = Sample()
+        new_sample = sample.Sample()
         id_cross_match = pd.DataFrame(pd.Series(map(str, self.contents), name=self.name, index=self.contents))
 
         # For a new, empty sample, extend effectively just copies the id_cross_match into the sample's ID list.
@@ -101,7 +105,7 @@ class Archive(BaseArchive):
             raise ValueError("The TraitKey must be provided.")
         if object_id is None:
             raise ValueError("The object_id must be provided.")
-        trait_key = TraitKey.as_traitkey(trait_key)
+        trait_key = traits.TraitKey.as_traitkey(trait_key)
 
         # Fill in default values for any `None`s in `TraitKey`
         trait_key = self.available_traits.update_key_with_defaults(trait_key)
@@ -152,17 +156,17 @@ class Archive(BaseArchive):
         schema = self.schema(by_trait_name=True)
         current_schema_item = schema
         for path_element in path:
-            trait_key = TraitKey.as_traitkey(path_element)
+            trait_key = traits.TraitKey.as_traitkey(path_element)
             current_schema_item = current_schema_item[trait_key.trait_name]
 
         # Decide whether the item in the schema corresponds to a Trait or TraitProperty
         if isinstance(current_schema_item, dict):
-            return Trait
+            return traits.Trait
         else:
-            return TraitProperty
+            return traits.TraitProperty
 
     def can_provide(self, trait_key):
-        trait_key = TraitKey.as_traitkey(trait_key)
+        trait_key = traits.TraitKey.as_traitkey(trait_key)
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
     def schema(self, by_trait_name=False, data_class='all'):

@@ -25,6 +25,9 @@ import numpy as np
 from .astro_object import AstronomicalObject
 from .archive.base_archive import BaseArchive
 
+import fidia.astro_object as astro_object
+import fidia.archive as archive
+
 from . import traits
 
 from .exceptions import *

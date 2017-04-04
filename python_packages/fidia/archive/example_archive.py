@@ -2,9 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # Python Standard Library Imports
 
-from fidia.column.column_definitions import ColumnDefinitionList, FITSDataColumn, FITSHeaderColumn
-from .archive import BasePathArchive
-from ..traits import *
+import fidia
 
 
 #
@@ -71,9 +69,9 @@ from ..traits import *
 #         return "Extra info"
 
 
-class ExampleArchive(BasePathArchive):
+class ExampleArchive(fidia.BasePathArchive):
 
-    available_traits = TraitRegistry()
+    available_traits = fidia.TraitRegistry()
 
     def __init__(self, **kwargs):
         # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
@@ -86,11 +84,11 @@ class ExampleArchive(BasePathArchive):
 
     # basedir = "hi"
 
-    column_definitions = ColumnDefinitionList([
-            ("red_image", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+    column_definitions = fidia.ColumnDefinitionList([
+            ("red_image", fidia.FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
                                          ndim=2)),
-            ("red_image_exposed", FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")),
-            FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1")
+            ("red_image_exposed", fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")),
+            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1")
         ])
 
     class TraitDefinitions:
