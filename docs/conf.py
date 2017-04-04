@@ -105,7 +105,7 @@ release = package.__version__
 
 # Please update these texts to match the name of your package.
 html_theme_options = {
-    'logotext1': 'Format Independent Interface ',  # white,  semi-bold
+    'logotext1': 'Format Independent Data Interface ',  # white,  semi-bold
     'logotext2': 'for Astronomy',  # orange, light
     'logotext3': ':docs'   # white,  light
     }
