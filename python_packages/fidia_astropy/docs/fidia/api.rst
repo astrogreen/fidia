@@ -1,5 +1,21 @@
+.. toctree::
+	:maxdepth: 2
 
-.. automodapi:: fidia.archive
+	api/fidia.column
 
-.. automodapi:: fidia.sample
+The FIDIA API
+=============
+
+FIDIA is composed of several major components:
+
+..
+	.. automodule:: fidia.column
+
+.. toctree::
+	:maxdepth: 2
+
+	columns
+	archives
+	samples
+
 

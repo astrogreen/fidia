@@ -8,7 +8,7 @@ from contextlib import contextmanager
 import numpy as np
 
 # FIDIA Imports
-from fidia import FIDIAException
+from ..exceptions import FIDIAException
 from ..utilities import RegexpGroup
 
 # Set up logging

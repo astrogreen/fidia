@@ -1,4 +1,23 @@
+"""
+
+Column Definitions
+------------------
+
+This module handles defining columns of data for access in FIDIA.
+
+:class:`.ColumnDefinition` objects define columns of data, and how the data can
+be accessed. An :class:`.Archive` definition, a list of column definitions is
+provided. When that `Archive` is loaded, these column definitions are converted
+into actual :class:`.FIDIAColumn` objects (which are defined in
+:module:`.columns`).
+
+
+"""
+
 from __future__ import absolute_import, division, print_function, unicode_literals
+
+from typing import Union
+# import fidia
 
 # Python Standard Library Imports
 import os
@@ -10,7 +29,7 @@ from astropy.io import fits
 from cached_property import cached_property
 
 # FIDIA Imports
-from fidia import FIDIAException
+from ..exceptions import FIDIAException
 from .columns import FIDIAColumn, FIDIAArrayColumn, PathBasedColumn
 from ..utilities import is_list_or_set
 
@@ -21,7 +40,6 @@ log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 class ColumnDefinitionList(object):
-    """Base class for Column Definitions."""
     def __init__(self, column_definitions=()):
 
         self._contents = OrderedDict()
@@ -67,6 +85,18 @@ class ColumnDefinitionList(object):
 
 
 class ColumnDefinition(object):
+    """Base class for Column Definitions.
+
+    All Column Definition classes should be based on this class.
+
+    This class provides:
+
+    column id handling
+        Column IDs are central to FIDIA's design, and enable code based on it to be
+        portable between different computers/systems/environments.
+
+
+    """
 
     def __init__(self, **kwargs):
         if 'timestamp' in kwargs:
@@ -74,6 +104,7 @@ class ColumnDefinition(object):
 
     @cached_property
     def id(self):
+        """The column part of a full column ID."""
         klass = type(self).__module__ + "." + type(self).__name__
         if klass.startswith('fidia.'):
             klass = type(self).__name__
@@ -82,10 +113,42 @@ class ColumnDefinition(object):
         return klass + ":" + repr(self)
 
     def _timestamp_helper(self, archive):
+        # type: (fidia.archive.archive.Archive) -> Union[None, int, float]
+        """A helper function that subclasses can override to change how the column timestamp is determined.
+
+        This function is called as needed by :function:`.get_timestamp`.
+
+        Parameters
+        ----------
+        archive : Archive
+            The Archive instance that the column is to be defined on.
+
+
+        """
         return None
 
     def get_timestamp(self, archive=None):
         # type: (Union[None, fidia.archive.archive.Archive]) -> int
+        """Determine the timestamp for this column.
+
+        The timestamp is determined by considering (in order) the following sources:
+
+        1. An explicitly provided timestamp when the column was defined:
+
+            >>> col = ColumnDefinition(timestamp=34)
+            >>> col.get_timestamp()
+            34
+
+        2. The timestamp determined by the helper function :function:`._timestamp_helper`
+
+        3. The current time.
+
+        Parameters
+        ----------
+        archive : Archive (optional)
+            An archive instance, which will be passed to `_timestamp_helper` if necessary.
+
+        """
         # Option 1: Timestamp has been defined
         if getattr(self, '_timestamp', None):
             log.debug("Timestamp for column %s predefined to be %s", self, self._timestamp)
@@ -99,6 +162,7 @@ class ColumnDefinition(object):
 
     def associate(self, archive):
         # type: (fidia.archive.archive.Archive) -> FIDIAColumn
+        """Convert a column definition defined on an `Archive` class into a `FIDIAColumn` on an archive instance."""
         column = self.column_type(
             archive_id=archive.archive_id,
             archive=archive,

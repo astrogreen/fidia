@@ -24,7 +24,7 @@ log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 class Archive(BaseArchive):
-
+    """An archive of data."""
     column_definitions = ColumnDefinitionList()
 
     _id = None
