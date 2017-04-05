@@ -52,7 +52,8 @@ class QuerySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = query.models.Query
         fields = ('created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted', 'id')
-        extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False}}
+        extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
+                        "title": {"required": False}}
 
         # # - - - - QUERY - - - -
 # class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):

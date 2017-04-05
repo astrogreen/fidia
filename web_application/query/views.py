@@ -30,6 +30,7 @@ class Query(viewsets.ModelViewSet):
     """
     serializer_class = query.serializers.QuerySerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         """
