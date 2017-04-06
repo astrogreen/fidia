@@ -6,6 +6,7 @@ from py4j.java_gateway import JavaGateway
 # from impala.dbapi import connect
 # from MySQLdb import connect as mysqlconnect
 import psycopg2
+import sqlite3
 
 from cached_property import cached_property
 from fidia.archive.presto import PrestoArchive
@@ -118,12 +119,17 @@ class MappingDatabase:
     def __init__(self):
         self.conn = None
         self.cursor = None
+        self.local_conn = None
+        self.local_cursor = None
 
     def open_connection(self):
         self.conn = psycopg2.connect(database="aaodc", user="asvo", password="a1s9v8o4!P", host="asvotest1.aao.gov.au")
         # self.conn = mysqlconnect(host='10.80.10.137', user='agreen', passwd='agreen', db='dr2')
         self.cursor = self.conn.cursor()
 
+    def open_local_connection(self):
+        self.local_conn = sqlite3.connect('/Users/lharischandra/Code/asvo/web_application/db.sqlite3')
+        self.local_cursor = self.local_conn.cursor()
 
     def get_group_data(self):
         if self.conn is None:
@@ -215,11 +221,21 @@ class MappingDatabase:
         # from here we need to call presto to execute the query.
         result = PrestoArchive().execute_query(mapped_query, 'asvo')
         if result.ok:
+            print("Ok I have successfully executed the query")
             return result.json()
         else:
-            return str(result.status_code) + result.reason
+            print("Query faild :(" + str(result.status_code) + result.reason)
+            return None
 
-
+    def execute_sql_query(self, query):
+        if self.local_conn is None:
+            self.open_local_connection()
+        self.local_cursor.execute(query)
+        # self.local_cursor.execute("Update query_query set isCompleted = 1, results = '[a, b, c]' where id=19;")
+        print("sql query executed.")
+        self.local_conn.commit()
+        print("update committed.")
+        # return result
 
 
 def get_gama_database_as_json():
@@ -299,7 +315,10 @@ if __name__ == '__main__':
 
     # groups = MappingDatabase.get_group_data()
     # schema = MappingDatabase.get_sql_schema()
-    result = MappingDatabase.execute_adql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA "
-                                                "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234")
-    print("done!")
+    # result = MappingDatabase.execute_adql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA "
+    #                                             "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234")
+    # print("done!")
 
+    result = MappingDatabase.execute_adql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA as RA from gama_mega_table where InputCat__InputCatA__RA = 216.086")
+    # result = MappingDatabase.execute_sql_query("Update query_query set isCompleted = 1, results = '[a, b, c]' where id=17;")
+    print("done!")
