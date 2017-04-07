@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^asvo/', include('restapi_app.urls')),
     url(r'^asvo/auth/', include('authentication.urls')),
     url(r'^asvo/', include('documentation.urls', namespace='documentation')),
+    url(r'^asvo/', include('feature.urls')),
     url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),
     url(r'^asvo/', include('sov.urls', namespace='sov')),

@@ -26,7 +26,7 @@ class SleepMiddleware(object):
         if http_origin is not None:
             # external request, set sleep time to mock slow connection
             # to API
-            print('Mocking slow connection (1s lag)')
+            print('Mocking slow connection: lag [s] ', self.sleep_time)
             sleeptime = self.sleep_time
 
         time.sleep(sleeptime)

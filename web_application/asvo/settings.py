@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     # 'data_browser',
     'django_extensions',
     'hitcount',
+    'feature',
     'mathfilters',
     'query',
     'user',
