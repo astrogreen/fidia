@@ -6,14 +6,21 @@ import feature.models
 log = logging.getLogger(__name__)
 
 
-class FeatureSerializer(serializers.HyperlinkedModelSerializer):
+class Vote(serializers.ModelSerializer):
+    vote_score = serializers.IntegerField(read_only=True)
+    num_vote_up = serializers.BooleanField(default=True)
+
+    class Meta:
+        model = feature.models.Vote
+        fields = ('url', 'id', 'num_vote_up', "vote_score", "feature", "user")
+
+
+class Feature(serializers.ModelSerializer):
     """
 
     """
-    priority = serializers.IntegerField(read_only=True)
+    votes = Vote(many=True, read_only=True)
 
     class Meta:
         model = feature.models.Feature
-        fields = ('url', 'id', "name", "description", "votes", "priority")
-        # extra_kwargs = {'name': {'required': True}, "description": {"required": True},
-        #                 "votes": {"required": False}, "priority": {"required": False}}
+        fields = ('url', 'id', "title", "description", "votes", )
