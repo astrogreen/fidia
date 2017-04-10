@@ -26,7 +26,6 @@ class TestFidiaImportsAndPackageLayout:
         print(dir(fidia))
         assert 'Archive' in dir(fidia)
 
-    @pytest.mark.xfail
     def test_archive_pkg_layout(self):
         import fidia.archive
         print(dir(fidia.archive))

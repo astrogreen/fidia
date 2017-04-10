@@ -10,12 +10,12 @@ import pandas as pd
 
 # FIDIA Imports
 from ..utilities import SchemaDictionary
-import fidia.sample as sample
+# import fidia.sample as sample
 import fidia.traits as traits
 import fidia.column as columns
 import fidia.cache as cache
 # Other modules within this package
-from .base_archive import BaseArchive
+from fidia.base_classes import BaseArchive
 
 # Set up logging
 import fidia.slogging as slogging
@@ -84,7 +84,8 @@ class Archive(BaseArchive):
         """Return a sample containing all objects in the archive."""
         # Create an empty sample, and populate it via it's private interface
         # (no suitable public interface at this time.)
-        new_sample = sample.Sample()
+        from fidia.sample import Sample
+        new_sample = Sample()
         id_cross_match = pd.DataFrame(pd.Series(map(str, self.contents), name=self.name, index=self.contents))
 
         # For a new, empty sample, extend effectively just copies the id_cross_match into the sample's ID list.

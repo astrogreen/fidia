@@ -13,7 +13,7 @@ import os.path
 
 from astropy.io import fits
 
-from .base_archive import BaseArchive
+from fidia.base_classes import BaseArchive
 from ..galaxy import Galaxy
 
 

@@ -8,7 +8,7 @@ the objects offered by a particular archive.)
 Samples know which archives contain data for a given object, and what kinds of
 data are offered:
 
-For exmaple, a survey might mantain a dictionary of properties as keys with
+For example, a survey might maintain a dictionary of properties as keys with
 values as the corresponding archive which contains their values.
 
 Samples also allow for tabular access to the data. Data filtering is achieved
@@ -17,19 +17,18 @@ by creating new (sub) sample.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import Union, Set
+
+# Python Standard Library Imports
 import collections
 
+# Other Library Imports
 import pandas as pd
 import numpy as np
 
-from .astro_object import AstronomicalObject
-from .archive.base_archive import BaseArchive
-
-import fidia.astro_object as astro_object
-import fidia.archive as archive
-
+# FIDIA Imports
+from .base_classes import BaseArchive
 from . import traits
-
 from .exceptions import *
 
 
@@ -55,7 +54,7 @@ class Sample(collections.MutableMapping):
         self._contents = dict()
 
         # Set of archives this object is attached to:
-        self._archives = set()  # type: set[Archive]
+        self._archives = set()  # type: Set[Archive]
         self._primary_archive = None
 
         # The archive which recieves write requests
@@ -77,6 +76,9 @@ class Sample(collections.MutableMapping):
     def __getitem__(self, key):
         # type: (Union[str, TraitKey]) -> AstronomicalObject
         """Function called on dict type read access"""
+
+        from . import AstronomicalObject
+
         if key in self._contents.keys():
             # Then the requested object has been created. Nothing to do.
             return self._contents[key]
@@ -122,7 +124,7 @@ class Sample(collections.MutableMapping):
     def extend(self, id_list):
         if not isinstance(id_list, pd.DataFrame):
             # must convert input into a dataframe
-            id_list = pd.DataFrame(index=Index(id_list).drop_duplicates())
+            id_list = pd.DataFrame(index=pd.Index(id_list).drop_duplicates())
 
         if self._id_cross_matches is None:
             self._id_cross_matches = id_list

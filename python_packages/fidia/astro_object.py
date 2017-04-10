@@ -1,7 +1,24 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import List
+
+# Python Standard Library Imports
 import collections
 
+# Other Library Imports
+
+# FIDIA Imports
 from .traits import TraitKey
+
+# Set up logging
+import fidia.slogging as slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.WARNING)
+log.enable_console_logging()
+
+__all__ = ['AstronomicalObject']
+
+
 
 class AstronomicalObject(collections.MutableMapping):
 

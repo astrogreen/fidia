@@ -4,7 +4,7 @@ The FIDIA Column System
 -----------------------
 
 Columns in FIDIA handle a single piece of data for all objects in an
-:class:`~fidia.archive.Archive` or :class:`~fidia.sample.Sample`. Effectively, they can be thought of as a
+:class:`.Archive` or :class:`.Sample`. Effectively, they can be thought of as a
 single column of data from a catalog. The individual elements of the column must
 be 'atomic' in the sense that they are a single number or single array of
 numbers. (So a redshift and its error will be two separate columns, but an image

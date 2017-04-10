@@ -7,9 +7,9 @@ This module handles defining columns of data for access in FIDIA.
 
 :class:`.ColumnDefinition` objects define columns of data, and how the data can
 be accessed. An :class:`.Archive` definition, a list of column definitions is
-provided. When that `Archive` is loaded, these column definitions are converted
+provided. When that :class:`.Archive` is loaded, these column definitions are converted
 into actual :class:`.FIDIAColumn` objects (which are defined in
-:module:`.columns`).
+:module:`~fidia.columns.columns`).
 
 
 """

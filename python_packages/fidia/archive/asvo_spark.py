@@ -18,7 +18,7 @@ import pandas as pd
 from asvo_spark import ASVOSparkConnector
 
 # Relative imports in this package
-from .base_archive import BaseArchive
+from fidia.base_classes import BaseArchive
 from ..sample import Sample
 
 class AsvoSparkArchive(BaseArchive):
