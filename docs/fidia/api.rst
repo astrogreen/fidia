@@ -14,8 +14,9 @@ FIDIA is composed of several major components:
 .. toctree::
 	:maxdepth: 2
 
-	columns
 	archives
 	samples
-
+	astro_objects
+	columns
+	traits
 
