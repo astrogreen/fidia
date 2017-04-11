@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # Python Standard Library Imports
 import re
 from contextlib import contextmanager
+from operator import itemgetter
 
 # Other Library Imports
 import numpy as np
@@ -16,6 +17,117 @@ from fidia import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
+
+
+
+class ColumnID(tuple):
+    """ColumnID(archive_id, column_type, column_name, timestamp)"""
+
+    # Originally, this class was created using the following command:
+    #     TraitKey = collections.namedtuple('TraitKey', ['trait_type', 'trait_name', 'object_id'], verbose=True)
+
+
+    __slots__ = ()
+
+    _fields = ('archive_id', 'column_type', 'column_name', 'timestamp')
+
+    def __new__(cls, archive_id, column_type, column_name, timestamp):
+        """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
+        # @TODO: Validation
+        return tuple.__new__(cls, (archive_id, column_type, column_name, timestamp))
+
+    # @classmethod
+    # def _make(cls, iterable, new=tuple.__new__, len=len):
+    #     """Make a new TraitKey object from a sequence or iterable"""
+    #     result = new(cls, iterable)
+    #     if len(result) not in (1, 2, 3, 4):
+    #         raise TypeError('Expected 1-4 arguments, got %d' % len(result))
+    #     return result
+
+    @classmethod
+    def as_column_id(cls, key):
+        """Return a ColumnID for the given input.
+
+        Effectively this is just a smart "cast" from string or tuple.
+
+        """
+        # if isinstance(key, TraitKey):
+        #     return key
+        # if isinstance(key, tuple):
+        #     return cls(*key)
+        # if isinstance(key, str):
+        #     match = TRAIT_KEY_RE.fullmatch(key)
+        #     if match:
+        #         return cls(trait_type=match.group('trait_type'),
+        #             trait_qualifier=match.group('trait_qualifier'),
+        #             branch=match.group('branch'),
+        #             version=match.group('version'))
+        #     match = TRAIT_KEY_ALT_RE.fullmatch(key)
+        #     if match:
+        #         return cls(trait_type=match.group('trait_type'),
+        #             trait_qualifier=match.group('trait_qualifier'),
+        #             branch=match.group('branch'),
+        #             version=match.group('version'))
+        raise KeyError("Cannot parse ID '{}' into a ColumnID".format(key))
+
+    def __repr__(self):
+        """Return a nicely formatted representation string"""
+        return 'TraitKey(archive_id=%r, column_type=%r, column_name=%r, timestamp=%r)' % self
+
+    # def _asdict(self):
+    #     """Return a new OrderedDict which maps field names to their values"""
+    #     return collections.OrderedDict(zip(self._fields, self))
+
+    # def replace(_self, **kwds):
+    #     """Return a new TraitKey object replacing specified fields with new values"""
+    #     result = _self._make(map(kwds.pop, ('trait_type', 'trait_qualifier', 'branch', 'version'), _self))
+    #     if kwds:
+    #         raise ValueError('Got unexpected field names: %r' % kwds.keys())
+    #     return result
+
+    def ashyphenstr(self):
+        s = self.trait_type
+        if self.trait_qualifier or self.branch or self.version:
+            s += "-"
+            if self.trait_qualifier:
+                s += self.trait_qualifier
+            if self.branch or self.version:
+                s += "-"
+                if self.branch:
+                    s += self.branch
+                if self.version:
+                    s += "-" + self.version
+        return s
+
+    def __getnewargs__(self):
+        """Return self as a plain tuple.  Used by copy and pickle."""
+        return tuple(self)
+
+    # __dict__ = property(_asdict)
+
+    def __getstate__(self):
+        """Exclude the OrderedDict from pickling"""
+        pass
+
+    def __str__(self):
+        trait_string = self.trait_type
+        if self.trait_qualifier:
+            trait_string += "-" + self.trait_qualifier
+        if self.branch:
+            trait_string += ":" + self.branch
+        if self.version:
+            trait_string += "(" + self.version + ")"
+        return trait_string
+
+    archive_id = property(itemgetter(0), doc='ID of the Archive providing this column')
+
+    column_type = property(itemgetter(1), doc='class of the corresponding column definition')
+
+    column_name = property(itemgetter(2), doc='name of the column')
+
+    timestamp = property(itemgetter(3), doc='timestamp')
+
+
 
 
 class FIDIAColumn(object):
