@@ -1,7 +1,36 @@
-# Standard Library Imports
+"""
+Trait Registries handle mappings of Trait Paths to columns.
+
+An archive module can define Traits and TraitCollections, which are then registered
+against a TraitRegistry. The TraitRegistry will introspect the trait classes provided
+in order to build up the schema.
+
+As part of the introspection, the registry will also validate that each Trait's slots
+have been correctly filled (e.g. with another trait or a column of a particular type).
+
+The TraitRegistry keeps a list of all valid TraitPaths that it knows about.
+
+???
+As part of registration, the Registry will update each TraitClass with information about
+where it appears in the hierarchy.
+
+???
+It also handles instanciating traits as required when they are looked up
+
+When Traits are instanciated, they are provided with the trait key used to instanciate
+them, the archive instance containing them, and the trait path leading to them.
+
+"""
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+
+# Python Standard Library Imports
 from itertools import product
 
-# Internal package imports
+# Other Library Imports
+
+# FIDIA Imports
 from .trait_key import TraitKey, validate_trait_name, validate_trait_type
 from ..fidiatype import fidia_type
 from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
