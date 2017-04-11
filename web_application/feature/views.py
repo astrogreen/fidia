@@ -12,11 +12,25 @@ class Feature(viewsets.ModelViewSet):
     pagination_class = None
     queryset = feature.models.Feature.objects.all()
 
+    serializer_action_classes = {
+        'list': feature.serializers.Feature,
+        'detail': feature.serializers.Feature,
+        'create': feature.serializers.FeatureUser,
+        'update': feature.serializers.FeatureUser,
+        'destroy': feature.serializers.FeatureUser,
+    }
+
     def get_queryset(self):
         """
         Return a list of approved feature requests.
         """
         return feature.models.Feature.objects.filter(is_approved=True)
+
+    def get_serializer_class(self):
+        try:
+            return self.serializer_action_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(Feature, self).get_serializer_class()
 
 
 class Vote(mixins.CreateModelMixin,

@@ -34,7 +34,17 @@ class VoteSlim(serializers.ModelSerializer):
 
 class Feature(serializers.ModelSerializer):
     feature_votes = VoteSlim(many=True, read_only=True)
+    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
 
     class Meta:
         model = feature.models.Feature
-        fields = ('url', 'id', "title", "description", "feature_votes",)
+        fields = ('url', 'id', "title", "description", "feature_votes", "created")
+
+
+class FeatureUser(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+
+    class Meta:
+        model = feature.models.Feature
+        fields = ('url', 'id', "title", "description", "user", "created")
