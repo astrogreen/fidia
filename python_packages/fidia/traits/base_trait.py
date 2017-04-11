@@ -10,16 +10,17 @@ import re
 # Other library imports
 from astropy.io import fits
 
-# Internal package imports
-from .abstract_base_traits import *
-from ..exceptions import *
+# FIDIA Imports
+from fidia.exceptions import *
+from fidia.base_classes import AbstractBaseTrait
+from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup
+from fidia.descriptions import TraitDescriptionsMixin, DescriptionsMixin
+# Other modules within this FIDIA sub-package
 from .trait_property import TraitProperty
 from .trait_key import TraitKey, TraitPath, TRAIT_NAME_RE, \
     validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
-from ..utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup
-from ..descriptions import TraitDescriptionsMixin, DescriptionsMixin
 
 # This makes available all of the usual parts of this package for use here.
 #
