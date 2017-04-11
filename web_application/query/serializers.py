@@ -49,11 +49,19 @@ class QuerySerializer(serializers.HyperlinkedModelSerializer):
     title = serializers.CharField(default='My Query', max_length=100, required=False)
     isCompleted = serializers.BooleanField(default=False, read_only=True)
 
+    truncatedResult = serializers.SerializerMethodField()
+
+    def get_truncatedResult(self, obj):
+        print(self.context['request'].accepted_media_type)
+        return "test"
+
     class Meta:
         model = query.models.Query
-        fields = ('created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted', 'id')
+        fields = ('created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted', 'id', 'truncatedResult')
         extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
                         "title": {"required": False}}
+
+
 
         # # - - - - QUERY - - - -
 # class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
