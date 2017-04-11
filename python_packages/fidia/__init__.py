@@ -26,6 +26,7 @@ if not _ASTROPY_SETUP_:
 
     from fidia.traits.trait_registry import TraitRegistry
     from fidia.traits.trait_key import TraitKey
+    from fidia.traits import Trait
 
     from .astro_object import AstronomicalObject
 

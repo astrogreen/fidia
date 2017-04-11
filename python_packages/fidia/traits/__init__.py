@@ -1,4 +1,4 @@
-from .base_trait import Trait
+from .base_trait import Trait, TraitCollection
 
 from .smart_traits import WorldCoordinateSystem, SkyCoordinate
 
@@ -12,6 +12,8 @@ from .meta_data_traits import MetadataTrait, \
 
 from .galaxy_traits import VelocityMap, VelocityDispersionMap, MorphologicalMeasurement, StarFormationRateMap, \
     LineEmissionMap, ExtinctionMap
+
+from .references import column_reference
 
 from .trait_property import TraitProperty, trait_property
 from .trait_key import TraitKey, TraitPath, \
