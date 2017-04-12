@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'authentication',
     'bootstrap3',
     'corsheaders',
+    'cutout',
     'documentation',
     'django_extensions',
     'hitcount',
@@ -61,7 +62,6 @@ INSTALLED_APPS = (
     'schema_browser',
     'sov',
     'surveys',
-    'vote',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -1,6 +1,5 @@
 from django.db import models
 from datetime import datetime
-from vote.models import VoteModel
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
@@ -19,7 +18,7 @@ class Feature(models.Model):
         return '%s' % self.title
 
 
-class Vote(VoteModel, models.Model):
+class Vote(models.Model):
     feature = models.ForeignKey(Feature, related_name='feature_votes', blank=False)
     user = models.ForeignKey(User, related_name='user_votes')
 
