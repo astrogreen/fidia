@@ -1,9 +1,51 @@
+"""
+Traits are the composite data types in FIDIA. They collect together columns of atomic data
+into larger, more useful structures.
+
+Traits are hierarchical
+-----------------------
+
+`.Traits` and `.TraitCollections` can contain other `.Traits` or `.TraitCollections` as well as
+atomic data.
+
+
+Defining Traits
+---------------
+
+A trait of a particular type defines the data that must be associated with it. For example, an
+Image trait might require not only the 2D array of image values, but also information on where
+in the sky it was taken, and what filters were used.
+
+A subclass of a `.Trait` defines the required data by including `.TraitProperties` for each
+column of atomic data required. `.TraitProperties` can include information about what type
+that data must have, e.g. int, float, string, array dimensions, etc.
+
+
+Trait instance creation
+-----------------------
+
+`.Trait` instances are created by `.TraitPointer` instances when requested by the user.
+`.TraitPointers` validate the user provided `.TraitKey` against the schema stored in the
+`.TraitRegistry` and then initialize the `.Trait` with instructions on how to link the
+`.TraitProperties` to actual columns of data.
+
+The linking instructions take the form of a Python `dict` of column references
+keyed by the `.TraitProperty`'s name. These instructions are executed by
+`.Trait._link_columns()`.
+
+
+"""
+
 from __future__ import absolute_import, division, print_function, unicode_literals
+
+from typing import List, Generator
+import fidia
 
 # Standard Library Imports
 import pickle
 from io import BytesIO
 from collections import OrderedDict, Mapping
+from copy import copy
 import re
 
 
@@ -69,12 +111,22 @@ def validate_trait_branches_versions_dict(branches_versions):
 
 
 class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
+    """A class defining the common methods for both Trait and TraitCollection.
+
+    Trait and TraitCollection have different meanings conceptually, but
+    are very similar in functionality. This class provides all of the similar
+    functionality between Trait and TraitCollection.
+
+    """
+
 
     # The following are a required part of the Trait interface.
     # They must be set in sub-classes to avoid an error trying create a Trait.
     trait_type = None
     qualifiers = None
     branches_versions = None
+
+    extensible = False
 
     descriptions_allowed = 'class'
 
@@ -83,30 +135,32 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
     #    | | \| |  |     /~~\ | \| |__/     \/  /~~\ |___ | |__/ /~~\  |  | \__/ | \|
     #
 
-    def __init__(self, archive, trait_key=None, object_id=None, parent_trait=None):
-        super().__init__()
+    def __init__(self, archive, trait_key, object_id, trait_registry, trait_schema):
+        # type: (fidia.archive.Archive, TraitKey, str, TraitRegistry, dict) -> None
+        super(BaseTrait, self).__init__()
+
 
         self._validate_trait_class()
 
         self.archive = archive
-        self._parent_trait = parent_trait
+        # self._parent_trait = parent_trait
 
-        assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
+        # assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
         self.trait_key = trait_key
 
-        self._set_branch_and_version(trait_key)
+        # self._set_branch_and_version(trait_key)
 
-        if object_id is None:
-            raise KeyError("object_id must be supplied")
         self.object_id = object_id
-        self.trait_qualifier = trait_key.trait_qualifier
+
+        self.trait_schema = trait_schema
+        self._link_columns()
 
         self._trait_cache = OrderedDict()
 
-        if parent_trait is not None:
-            self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
-        else:
-            self.trait_path = TraitPath([self.trait_key])
+        # if parent_trait is not None:
+        #     self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
+        # else:
+        #     self.trait_path = TraitPath([self.trait_key])
 
     def _post_init(self):
         pass
@@ -197,7 +251,7 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
             yield tp.name
 
     def trait_properties(self, trait_property_types=None, include_hidden=False):
-        # type: (List, Bool) -> List[TraitProperty]
+        # type: (List, bool) -> Generator[TraitProperty]
         """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -234,6 +288,32 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
                     # the BoundTraitProperty: see `__get__` on `TraitProperty`)
                     yield getattr(self, attr)
 
+    if __name__ == '__main__':
+        def _link_columns(self):
+            """Create links to actual columns based on the column references associated with this trait."""
+
+            # A local copy of the schema we chan change
+            schema = copy(self.trait_schema)
+
+            # @TODO: Handle sub-traits in the schema
+
+            # Iterate over trait properties, populating them as needed from the trait_schema.
+            for tp in self._trait_properties():
+                if tp.required and tp.name not in schema:
+                    raise FIDIAException
+                reference = schema.pop(tp.name)
+
+                # @TODO: Convert reference into column link
+
+                setattr(self, tp.name, reference)
+
+            # Set any extra columns defined for this trait (not in the required list)
+            if self.extensible:
+                for reference_name in schema:
+                    reference = schema[reference_name]
+                    if isinstance(reference, ColumnReference):
+                        # @TODO: Define column reference
+                        setattr(self, reference_name, schema[reference_name])
 
     #     __   __        ___
     #    /__` /  ` |__| |__   |\/|  /\

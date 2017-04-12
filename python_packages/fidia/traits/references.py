@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List, Type
+from typing import Type
 import fidia
 
 # Python Standard Library Imports
@@ -37,7 +37,28 @@ class column_reference(object):
 
 
 class TraitPointer(object):
-    def __init__(self, archive, astro_object, trait_class=None, trait_keys_dict=dict()):
+    """Provides machinery to identify and instanciate a `Trait` on an `AstronomicalObject`.
+
+
+        gami_sample['9352'].dmu['stellarMass(v09)'].table['StellarMasses(v08)'].logmstar
+                            ---                     -----
+                                   TraitPointers
+
+    TraitPointers have links to:
+    - The class of `Trait` they will instanciate
+    - The `TraitRegistry` (presumably on the `Sample` object)
+    - The `AstronomicalObject` for which they will create a `Trait`.
+
+    This class provides validation and normalisation of a user-provided `TraitKey`, and
+    and then handles creating the corresponding `Trait` instance and ensuring it is valid.
+
+    The machinery of interpreting the user plugin into a mapping of Columns into Traits
+    is in the `TraitRegistry`. The machinery for creating the actual links from a Trait
+    instance to a Column instance is in `BaseTrait._link_columns()`. Therefore,
+    `TraitPointer` is fairly thin.
+
+    """
+    def __init__(self, archive, astro_object, trait_class, trait_keys_dict):
         self._trait_class = None  # type: Type[fidia.Trait]
 
         self._archive = archive  # type: fidia.archive.archive.Archive
@@ -68,6 +89,8 @@ class TraitPointer(object):
             raise UnknownTrait("%s", str(tk))
 
         trait = self._trait_class(archive, trait_key, object_id, parent_trait)
+
+        # @TODO: Object Caching?
 
         return trait
 
