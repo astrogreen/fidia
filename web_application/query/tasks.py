@@ -15,7 +15,7 @@ def execute_query(query, query_id):
         # print(result)
         qry = "Update query_query set isCompleted = {0}, results = '{1}' where id={2};".format(
                 1, json.dumps(result), query_id)
-        print(qry)
+        # print(qry)
         MappingDatabase.execute_sql_query(qry)
     else:
         print("Error occurred")

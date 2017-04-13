@@ -7,6 +7,7 @@ from py4j.java_gateway import JavaGateway
 # from MySQLdb import connect as mysqlconnect
 import psycopg2
 import sqlite3
+import database_config as cfg
 
 from cached_property import cached_property
 from fidia.archive.presto import PrestoArchive
@@ -123,12 +124,19 @@ class MappingDatabase:
         self.local_cursor = None
 
     def open_connection(self):
-        self.conn = psycopg2.connect(database="aaodc", user="asvo", password="a1s9v8o4!P", host="asvotest1.aao.gov.au")
+        self.conn = psycopg2.connect(database=cfg.postgres_svr['db'], user=cfg.postgres_svr['user'],
+                                     password=cfg.postgres_svr['passwd'], host=cfg.postgres_svr['host'])
+        # database="aaodc", user="asvo", password="a1s9v8o4!P", host="asvotest1.aao.gov.au"
         # self.conn = mysqlconnect(host='10.80.10.137', user='agreen', passwd='agreen', db='dr2')
         self.cursor = self.conn.cursor()
 
+    # use local connection temporarily until we move to one database
     def open_local_connection(self):
-        self.local_conn = sqlite3.connect('/Users/lharischandra/Code/asvo/web_application/db.sqlite3')
+        if cfg.local_default is 'sqlite':
+            self.local_conn = sqlite3.connect(cfg.local_sqlite['file'])
+        elif cfg.default is 'postgres':
+            self.local_conn = psycopg2.connect(database=cfg.local_postgres['db'], user=cfg.local_postgres['user'],
+                                               password=cfg.local_postgres['passwd'], host=cfg.local_postgres['host'])
         self.local_cursor = self.local_conn.cursor()
 
     def get_group_data(self):
@@ -319,6 +327,8 @@ if __name__ == '__main__':
     #                                             "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234")
     # print("done!")
 
-    result = MappingDatabase.execute_adql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA as RA from gama_mega_table where InputCat__InputCatA__RA = 216.086")
+    result = MappingDatabase.execute_sql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA "
+                                                "as RA from gama_mega_table where InputCat__InputCatA__DEC In "
+                                                "(Select InputCat__InputCatA__DEC from gama_mega_table)")
     # result = MappingDatabase.execute_sql_query("Update query_query set isCompleted = 1, results = '[a, b, c]' where id=17;")
     print("done!")
