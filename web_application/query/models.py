@@ -4,6 +4,7 @@ from django.dispatch import receiver
 # from jsonfield import JSONField
 from django.contrib.postgres.fields import JSONField
 from asvo_database_backend_helpers import MappingDatabase
+from query.tasks import execute_query
 
 
 class Query(models.Model):
@@ -33,3 +34,7 @@ def create_new_sql_query(sender, instance=None, created=False, **kwargs):
         print(instance.id)
         print(instance.owner.username)
         # print(MappingDatabase.execute_adql_query(instance.SQL))
+        # instance.isCompleted = True
+        # instance.update()
+        print("Done")
+        execute_query.delay(instance.SQL, instance.id)
