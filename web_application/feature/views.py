@@ -14,7 +14,7 @@ class Feature(viewsets.ModelViewSet):
 
     serializer_action_classes = {
         'list': feature.serializers.Feature,
-        'detail': feature.serializers.Feature,
+        'retrieve': feature.serializers.Feature,
         'create': feature.serializers.FeatureUser,
         'update': feature.serializers.FeatureUser,
         'destroy': feature.serializers.FeatureUser,

@@ -13,7 +13,6 @@ from restapi_app.exceptions import Conflict, CustomValidation
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
-
 """
 Serializers:
 
@@ -34,7 +33,26 @@ instead of primary key relationships.
 log = logging.getLogger(__name__)
 
 
-class QuerySerializer(serializers.HyperlinkedModelSerializer):
+class QueryListSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    List serializer does not include the queryBuilderState or results
+    """
+    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username')
+
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
+    title = serializers.CharField(default='My Query', max_length=100, required=False)
+    isCompleted = serializers.BooleanField(default=False, read_only=True)
+
+    class Meta:
+        model = query.models.Query
+        fields = ('created', 'updated', 'owner', 'title', 'SQL', 'url', 'isCompleted', 'id')
+        extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
+                        "title": {"required": False}}
+
+
+class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     """
 
     """
@@ -45,25 +63,28 @@ class QuerySerializer(serializers.HyperlinkedModelSerializer):
     # queryBuilderState = serializers.JSONField(label='QB State', allow_null=True, required=False)
     # results = serializers.JSONField(label='Result', required=False, default="{}", read_only=True)
 
-    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
+                                style={'base_template': 'textarea.html'})
     title = serializers.CharField(default='My Query', max_length=100, required=False)
     isCompleted = serializers.BooleanField(default=False, read_only=True)
 
     truncatedResult = serializers.SerializerMethodField()
 
     def get_truncatedResult(self, obj):
-        print(self.context['request'].accepted_media_type)
+        # print(self.context['request'].accepted_media_type)
         return "test"
 
     class Meta:
         model = query.models.Query
-        fields = ('created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted', 'id', 'truncatedResult')
+        fields = (
+        'created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted',
+        'id', 'truncatedResult')
         extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
                         "title": {"required": False}}
 
 
 
-        # # - - - - QUERY - - - -
+                # # - - - - QUERY - - - -
 # class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):
 #     """
 #     Create/Update and return a new/existing object instance, given the validated data

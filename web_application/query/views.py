@@ -1,24 +1,28 @@
-import random, collections, logging
-import json
+# import random, collections, logging
+# import json
+#
+# import restapi_app.exceptions
+# import sys
 
-import restapi_app.exceptions
-import sys
+# from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
+from rest_framework import permissions, views, viewsets
+from rest_framework.response import Response
+from rest_framework.settings import api_settings
+# from rest_framework_csv import renderers as r
+# from django.contrib.auth.models import User
+# from django.conf import settings
 
 import query.models
 import query.serializers
 import query.exceptions
+import query.renderers
 
-import restapi_app.renderers
-import restapi_app.renderers_custom.renderer_flat_csv
-
-from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
-from rest_framework.response import Response
-from django.contrib.auth.models import User
-from django.conf import settings
-
-from fidia.archive.asvo_spark import AsvoSparkArchive
-from fidia.archive.presto import PrestoArchive
-from asvo_database_backend_helpers import MappingDatabase
+# import restapi_app.renderers
+# import restapi_app.renderers_custom.renderer_flat_csv
+#
+# from fidia.archive.asvo_spark import AsvoSparkArchive
+# from fidia.archive.presto import PrestoArchive
+# from asvo_database_backend_helpers import MappingDatabase
 
 # log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
@@ -28,9 +32,24 @@ class Query(viewsets.ModelViewSet):
     """
     Create, update and destroy queries
     """
-    serializer_class = query.serializers.QuerySerializer
+    serializer_class = query.serializers.QueryListSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = None
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (query.renderers.MyCSVQueryRenderer,)
+
+    serializer_action_classes = {
+        'list': query.serializers.QueryListSerializer,
+        'retrieve': query.serializers.QueryRetrieveSerializer,
+        'create': query.serializers.QueryRetrieveSerializer,
+        'update': query.serializers.QueryRetrieveSerializer,
+        'destroy': query.serializers.QueryRetrieveSerializer,
+    }
+
+    def get_serializer_class(self):
+        try:
+            return self.serializer_action_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(Query, self).get_serializer_class()
 
     def get_queryset(self):
         """
