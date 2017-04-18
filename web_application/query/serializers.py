@@ -69,6 +69,8 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     isCompleted = serializers.BooleanField(default=False, read_only=True)
 
     truncatedResult = serializers.SerializerMethodField()
+    results = serializers.DictField()
+
 
     def get_truncatedResult(self, obj):
         # print(self.context['request'].accepted_media_type)
