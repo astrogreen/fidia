@@ -134,7 +134,7 @@ class MappingDatabase:
     def open_local_connection(self):
         if cfg.local_default is 'sqlite':
             self.local_conn = sqlite3.connect(cfg.local_sqlite['file'])
-        elif cfg.default is 'postgres':
+        elif cfg.local_default is 'postgres':
             self.local_conn = psycopg2.connect(database=cfg.local_postgres['db'], user=cfg.local_postgres['user'],
                                                password=cfg.local_postgres['passwd'], host=cfg.local_postgres['host'])
         self.local_cursor = self.local_conn.cursor()
@@ -327,8 +327,12 @@ if __name__ == '__main__':
     #                                             "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234")
     # print("done!")
 
-    result = MappingDatabase.execute_sql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA "
-                                                "as RA from gama_mega_table where InputCat__InputCatA__DEC In "
-                                                "(Select InputCat__InputCatA__DEC from gama_mega_table)")
-    # result = MappingDatabase.execute_sql_query("Update query_query set isCompleted = 1, results = '[a, b, c]' where id=17;")
+    # result = MappingDatabase.execute_adql_query("SELECT StellarMasses__StellarMasses__CATAID FROM gama")
+
+    result = {"test": "data"}
+    query_id = 4
+    qry = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
+            True, json.dumps(result), query_id)
+
+    result = MappingDatabase.execute_sql_query(qry)
     print("done!")

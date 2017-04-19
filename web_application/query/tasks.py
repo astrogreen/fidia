@@ -13,8 +13,8 @@ def execute_query(query, query_id):
 
     if result is not None:
         # print(result)
-        qry = "Update query_query set isCompleted = {0}, results = '{1}' where id={2};".format(
-                1, json.dumps(result), query_id)
+        qry = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
+                True, json.dumps(result), query_id)
         # print(qry)
         MappingDatabase.execute_sql_query(qry)
     else:
