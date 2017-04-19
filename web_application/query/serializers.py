@@ -69,7 +69,7 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     isCompleted = serializers.BooleanField(default=False, read_only=True)
 
     truncatedResult = serializers.SerializerMethodField()
-    results = serializers.DictField()
+    results = serializers.DictField(required=False)
 
 
     def get_truncatedResult(self, obj):
@@ -84,7 +84,26 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
                         "title": {"required": False}}
 
+class QueryCreateSerializer(serializers.HyperlinkedModelSerializer):
+    """
 
+    """
+    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username')
+
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
+                                style={'base_template': 'textarea.html'})
+    title = serializers.CharField(default='My Query', max_length=100, required=False)
+    isCompleted = serializers.BooleanField(default=False, read_only=True)
+
+    class Meta:
+        model = query.models.Query
+        fields = (
+            'created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted',
+            'id')
+        extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
+                        "title": {"required": False}}
 
                 # # - - - - QUERY - - - -
 # class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):

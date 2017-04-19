@@ -11,7 +11,13 @@ class Query(models.Model):
     created = models.DateTimeField(auto_now_add=True, editable=False)
     owner = models.ForeignKey('auth.User', related_name='query')
     queryBuilderState = JSONField(blank=True, default="")
-    results = JSONField(blank=True, default="")
+
+    # note - python dictionaries are mutable! default=dict()
+    # is created once here, then any changes to new fields
+    # alters the same instance. Instead, use the callable dict
+    # as the default rather than the instance dict()
+    results = JSONField(blank=True, default=dict)
+
     SQL = models.TextField(blank=False)
     title = models.CharField(max_length=100, blank=True, default="My Query")
     updated = models.DateTimeField(auto_now=True, editable=False)

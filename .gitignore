@@ -6,3 +6,5 @@ db.sqlite3
 *.iml
 documentation/fidia/uml-diagrams/*.dot
 documentation/fidia/uml-diagrams/*.pdf
+python_packages/database_config.py
+/web_application/database_config.py
