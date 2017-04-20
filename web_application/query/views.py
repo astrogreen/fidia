@@ -3,7 +3,7 @@
 #
 # import restapi_app.exceptions
 # import sys
-
+from django.utils.text import slugify
 # from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework import permissions, views, viewsets
 from rest_framework.response import Response
@@ -65,6 +65,19 @@ class Query(viewsets.ModelViewSet):
         Override CreateModelMixin perform_create to save object instance with ownership
         """
         serializer.save(owner=self.request.user)
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        """
+        Set filename as title provided by the user
+        """
+        response = super(Query, self).finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'csv':
+            title = "query_result"
+            if hasattr(response, "data") and "title" in response.data:
+                if response.data["title"] is not None:
+                    title = slugify(response.data["title"])
+            response['content-disposition'] = 'attachment; filename=%s.csv' % title
+        return response
 
 
 class QuerySchema(views.APIView):

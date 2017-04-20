@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-# from jsonfield import JSONField
 from django.contrib.postgres.fields import JSONField
 from asvo_database_backend_helpers import MappingDatabase
 from query.tasks import execute_query
