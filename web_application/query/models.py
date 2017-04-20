@@ -20,9 +20,9 @@ class Query(models.Model):
     SQL = models.TextField(blank=False)
     title = models.CharField(max_length=100, blank=True, default="My Query")
     updated = models.DateTimeField(auto_now=True, editable=False)
-    isCompleted = models.BooleanField(default=False)
-    isInvalid = models.BooleanField(default=False)
-    hasError = models.CharField(default="", blank=True, max_length=10000)
+    isCompleted = models.BooleanField(default=False, blank=False)
+    hasError = models.BooleanField(default=False, blank=False)
+    error = JSONField(blank=True, default=dict)
 
     class Meta:
         ordering = ('created',)
