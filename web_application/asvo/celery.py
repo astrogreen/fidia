@@ -1,9 +1,13 @@
 from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
+import logging
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'asvo.settings')
+
+log = logging.getLogger(__name__)
+# log.setLevel(logging.WARNING)
 
 app = Celery('asvo')
 
@@ -18,4 +22,4 @@ app.autodiscover_tasks()
 
 @app.task(bind=True)
 def debug_task(self):
-    print('Request: {0!r}'.format(self.request))
+    log.info('Request: {0!r}'.format(self.request))
