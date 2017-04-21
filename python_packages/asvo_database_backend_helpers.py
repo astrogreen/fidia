@@ -2,22 +2,31 @@ import json
 from collections import OrderedDict
 
 from py4j.java_gateway import JavaGateway
+from py4j.protocol import Py4JError, Py4JJavaError, Py4JNetworkError
 
 # from impala.dbapi import connect
 # from MySQLdb import connect as mysqlconnect
 import psycopg2
 import sqlite3
 import database_config as cfg
+import logging
+import traceback
 
 from cached_property import cached_property
 from fidia.archive.presto import PrestoArchive
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 def singleton(cls):
     instance = cls()
     instance.__call__ = lambda: instance
     return instance
 
+class PrestDBException(Exception):
+    def __init__(self, *args):
+        self.message = args[0]
+        self.status_code = args[1]
 
 @singleton
 class GAMADatabase:
@@ -154,9 +163,7 @@ class MappingDatabase:
         result = self.cursor.execute("Select * from columns where catalogid=" + str(catalogid))
 
 
-
     def get_sql_schema(self):
-
         schema = dict()
         if self.conn is None:
             self.open_connection()
@@ -210,7 +217,6 @@ class MappingDatabase:
 
         schema['post_joins'] = [{'name': 'gama', 'pretty_name': 'GAMA', 'megatbl_ids': [1]},
                                 {'name': 'gama_mocks', 'pretty_name': 'GAMA Mock', 'megatbl_ids': [2]}]
-
         # self.cursor.close()
         return schema
 
@@ -224,26 +230,41 @@ class MappingDatabase:
         """
         print(query)
         gateway = JavaGateway()
-        mapped_query = gateway.entry_point.parseADQLQuery(query)
+        try:
+            mapped_query = gateway.entry_point.parseADQLQuery(query)
+            if mapped_query is None:
+                log.info("parser failed.")
+                return None
+        except (Py4JError, Py4JJavaError, Py4JNetworkError) as e:
+            log.exception("Py4J exception occurred.")
+            raise e
+        try:
+            result = PrestoArchive().execute_query(mapped_query, 'asvo')
+            if result.ok:
+                log.info("Ok I have successfully executed the query!")
+                return result.json()
+            else:
+                log.error("Presto query failed :({0})".format(str(result.status_code) + result.text))
+                raise PrestDBException(result.text, result.status_code)
+        except (ConnectionError) as e:
+            log.exception("Prestodb connection error occurred.")
+            raise e
 
-        # from here we need to call presto to execute the query.
-        result = PrestoArchive().execute_query(mapped_query, 'asvo')
-        if result.ok:
-            print("Ok I have successfully executed the query")
-            return result.json()
-        else:
-            print("Query faild :(" + str(result.status_code) + result.reason)
-            return None
 
-    def execute_sql_query(self, query):
+    def execute_sql_query(self, query, update=False):
+        """
+        Execute queries on a relational database.
+        :param query:
+        :return:
+        """
         if self.local_conn is None:
             self.open_local_connection()
         self.local_cursor.execute(query)
         # self.local_cursor.execute("Update query_query set isCompleted = 1, results = '[a, b, c]' where id=19;")
-        print("sql query executed.")
-        self.local_conn.commit()
-        print("update committed.")
-        # return result
+        log.info("sql query executed.")
+        if(update):
+            self.local_conn.commit()
+            log.info("update committed.")
 
 
 def get_gama_database_as_json():
@@ -331,8 +352,15 @@ if __name__ == '__main__':
 
     result = {"test": "data"}
     query_id = 4
-    qry = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
+    sql_qry = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
             True, json.dumps(result), query_id)
 
-    result = MappingDatabase.execute_sql_query(qry)
+    adql_qry = "Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA " \
+               "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234"
+
+    # result = MappingDatabase.execute_sql_query(sql_qry, True)
+    try:
+        result = MappingDatabase.execute_adql_query(adql_qry)
+    except Exception as e:
+        log.debug("Caught raised error: ", e.java_exception.toString())
     print("done!")
