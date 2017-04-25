@@ -1,3 +1,4 @@
+import sys
 import json
 from collections import OrderedDict
 
@@ -242,7 +243,14 @@ class MappingDatabase:
             result = PrestoArchive().execute_query(mapped_query, 'asvo')
             if result.ok:
                 log.info("Ok I have successfully executed the query!")
-                return result.json()
+                json_data = result.json()
+                size = sys.getsizeof(json_data['data'])
+                if(size/1024/1024 > 10):
+                    log.error("Presto result exceeded the maximum size(10MB) allowed. size: {0}".format(
+                            str(size/1024/1024) + "MB"))
+                    raise PrestDBException("Query result exceeded the maximum size(10MB) allowed. size: {0}".format(
+                    str(size/1024/1024) + "MB"), 501)
+                return json_data
             else:
                 log.error("Presto query failed :({0})".format(str(result.status_code) + result.text))
                 raise PrestDBException(result.text, result.status_code)
@@ -356,11 +364,11 @@ if __name__ == '__main__':
             True, json.dumps(result), query_id)
 
     adql_qry = "Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA " \
-               "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234"
+               "as RA from gama"# where InputCat__InputCatA__DEC > 0.234"
 
     # result = MappingDatabase.execute_sql_query(sql_qry, True)
     try:
         result = MappingDatabase.execute_adql_query(adql_qry)
     except Exception as e:
-        log.debug("Caught raised error: ", e.java_exception.toString())
+        log.debug("Caught raised error: ", e.toString())
     print("done!")
