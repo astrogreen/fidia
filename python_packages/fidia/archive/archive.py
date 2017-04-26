@@ -53,11 +53,17 @@ class Archive(BaseArchive):
             local_columns.add((alias, instance_column))
         self.columns = local_columns
 
+        self.update_trait_mappings()
+
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when
     # someone wants an overview of the data in the archive, or for a particular
     # object.
     feature_catalog_data = []  # type: List[traits.TraitPath]
+
+    def update_trait_mappings(self):
+        """Iterates over the trait mappings provided with this archive and, if necessary, populates any ommited fields."""
+        pass
 
     def writeable(self):
         raise NotImplementedError("")

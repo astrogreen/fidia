@@ -2,8 +2,7 @@ from .base_trait import Trait, TraitCollection
 
 from .smart_traits import WorldCoordinateSystem, SkyCoordinate
 
-from .generic_traits import Measurement, TimeSeries, SpectralMap, SpectralFit, Map, Map2D, Image, \
-    Classification, ClassificationMap, FlagMap, Redshift, FractionalMaskMap
+from .generic_traits import *
 
 from .catalog_traits import catalog_trait
 
@@ -13,7 +12,7 @@ from .meta_data_traits import MetadataTrait, \
 from .galaxy_traits import VelocityMap, VelocityDispersionMap, MorphologicalMeasurement, StarFormationRateMap, \
     LineEmissionMap, ExtinctionMap
 
-from .references import column_reference
+from .references import ColumnReference, TraitMapping
 
 from .trait_property import TraitProperty, trait_property
 from .trait_key import TraitKey, TraitPath, \

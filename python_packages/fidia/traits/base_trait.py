@@ -39,7 +39,7 @@ keyed by the `.TraitProperty`'s name. These instructions are executed by
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from typing import List, Generator
-import fidia
+import fidia.base_classes as fidia_types
 
 # Standard Library Imports
 import pickle
@@ -110,6 +110,15 @@ def validate_trait_branches_versions_dict(branches_versions):
                 validate_trait_version(version)
 
 
+class ColumnProxy:
+    def __init__(self, column_id):
+        self.column_id = column_id
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return instance._get_column_data(self.column_id)
+
 class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
     """A class defining the common methods for both Trait and TraitCollection.
 
@@ -135,14 +144,14 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
     #    | | \| |  |     /~~\ | \| |__/     \/  /~~\ |___ | |__/ /~~\  |  | \__/ | \|
     #
 
-    def __init__(self, archive, trait_key, object_id, trait_registry, trait_schema):
-        # type: (fidia.archive.Archive, TraitKey, str, TraitRegistry, dict) -> None
+    def __init__(self, sample, trait_key, object_id, trait_registry, trait_schema):
+        # type: (fidia_types.Sample, fidia_types.TraitKey, str, fidia_types.TraitRegistry, dict) -> None
         super(BaseTrait, self).__init__()
 
 
         self._validate_trait_class()
 
-        self.archive = archive
+        self.sample = sample
         # self._parent_trait = parent_trait
 
         # assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
@@ -157,10 +166,20 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
 
         self._trait_cache = OrderedDict()
 
+
+        for key in trait_schema:
+            setattr(self, key, ColumnProxy(column_id=trait_schema[key]))
+
         # if parent_trait is not None:
         #     self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
         # else:
         #     self.trait_path = TraitPath([self.trait_key])
+
+    def _get_column_data(self, column_id):
+        archive = self.sample.archive_for_column(column_id)
+        column = self.sample.find_column(column_id)
+        archive_id = self.sample.get_archive_id()
+        column.get_value(archive_id)
 
     def _post_init(self):
         pass
@@ -288,32 +307,31 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
                     # the BoundTraitProperty: see `__get__` on `TraitProperty`)
                     yield getattr(self, attr)
 
-    if __name__ == '__main__':
-        def _link_columns(self):
-            """Create links to actual columns based on the column references associated with this trait."""
+    def _link_columns(self):
+        """Create links to actual columns based on the column references associated with this trait."""
 
-            # A local copy of the schema we chan change
-            schema = copy(self.trait_schema)
+        # A local copy of the schema we chan change
+        schema = copy(self.trait_schema)
 
-            # @TODO: Handle sub-traits in the schema
+        # @TODO: Handle sub-traits in the schema
 
-            # Iterate over trait properties, populating them as needed from the trait_schema.
-            for tp in self._trait_properties():
-                if tp.required and tp.name not in schema:
-                    raise FIDIAException
-                reference = schema.pop(tp.name)
+        # Iterate over trait properties, populating them as needed from the trait_schema.
+        for tp in self._trait_properties():
+            if tp.required and tp.name not in schema:
+                raise FIDIAException
+            reference = schema.pop(tp.name)
 
-                # @TODO: Convert reference into column link
+            # @TODO: Convert reference into column link
 
-                setattr(self, tp.name, reference)
+            setattr(self, tp.name, reference)
 
-            # Set any extra columns defined for this trait (not in the required list)
-            if self.extensible:
-                for reference_name in schema:
-                    reference = schema[reference_name]
-                    if isinstance(reference, ColumnReference):
-                        # @TODO: Define column reference
-                        setattr(self, reference_name, schema[reference_name])
+        # Set any extra columns defined for this trait (not in the required list)
+        if self.extensible:
+            for reference_name in schema:
+                reference = schema[reference_name]
+                if isinstance(reference, ColumnReference):
+                    # @TODO: Define column reference
+                    setattr(self, reference_name, schema[reference_name])
 
     #     __   __        ___
     #    /__` /  ` |__| |__   |\/|  /\

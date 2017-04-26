@@ -30,6 +30,8 @@ if not _ASTROPY_SETUP_:
 
     from .astro_object import AstronomicalObject
 
+    from .sample import Sample
+
 
     # from .sample import Sample
     # from .astro_object import AstronomicalObject

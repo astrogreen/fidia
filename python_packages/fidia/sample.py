@@ -18,6 +18,7 @@ by creating new (sub) sample.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from typing import Union, Set
+import fidia
 
 # Python Standard Library Imports
 import collections
@@ -272,6 +273,10 @@ class Sample(collections.MutableMapping):
         for ar in self._archives:
             available_data[ar.name] = ar.available_data
         return available_data
+
+    def archive_for_column(self, id):
+        # type: (str) -> fidia.FIDIAColumn
+        pass
 
     def get_archive_for_property(self, key):
         # TODO: this will return the first archive (in arbitrary order) that can answer the trait request.

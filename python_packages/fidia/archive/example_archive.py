@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # Python Standard Library Imports
 
 import fidia
-
+# from fidia.traits.references import ColumnReference
+from fidia.traits import *
 
 #
 # class SimpleTrait(Trait):
@@ -86,13 +87,28 @@ class ExampleArchive(fidia.BasePathArchive):
 
     column_definitions = fidia.ColumnDefinitionList([
             ("red_image", fidia.FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                                         ndim=2)),
+                                               ndim=2)),
             ("red_image_exposed", fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")),
             fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1")
         ])
 
-    class TraitDefinitions:
-        pass
+
+    trait_mappings = [
+        TraitMapping(Image, 'red', {
+            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:latest"})
+        # TraitMapping(SpectralCube, 'red', {
+        #     'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:latest"})
+    ]
+
+    """
+    - !Image red:
+        data: !property red_image
+        exposed: !property red_image_exposed
+        wcs: !trait ImageWCS
+            crval1: !property FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header["CRVAL1"]
+    - !SpectralMap red:
+        data: !property "red_cube"
+    """
 
     @property
     def contents(self):

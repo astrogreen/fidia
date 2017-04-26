@@ -20,7 +20,7 @@ __all__ = ['AstronomicalObject']
 
 
 
-class AstronomicalObject(collections.MutableMapping):
+class AstronomicalObject:
 
     def __init__(self, sample, identifier=None, ra=None, dec=None):
         if identifier is None:
@@ -31,7 +31,7 @@ class AstronomicalObject(collections.MutableMapping):
             self._identifier = identifier
 
         # Reference to the sample containing this object.
-        self.sample = sample # type: fidia.sample.Sample
+        self.sample = sample  # type: fidia.sample.Sample
 
         # Dictionary of IDs for this object in the various archives attached
         # to the sample. @TODO: Initialised to None: must be populated
@@ -92,39 +92,6 @@ class AstronomicalObject(collections.MutableMapping):
 
         return feature_data
 
-    # ____________________________________________________________________
-    # Functions to create dictionary like behaviour to address Traits of the galaxy
-    #
-    #     These are required as part of the collections.MutableMapping class.
-
-    def __getitem__(self, key):
-        # type: (Union[str, TraitKey]) -> Trait
-        """Function called on dict type read access"""
-
-        if isinstance(key, list):
-            # We have been asked for more than one property, will return tabular data?
-            # @TODO!
-            raise Exception("List indexing behaviour not implemented.")
-        else:
-            key = TraitKey.as_traitkey(key)
-            #raise Exception("Key indexing behaviour not implemented.")
-            # # Asked for a single property
-            # archive = self.sample.get_archive_for_property(key)
-            # archive.data.loc[self._archive_id[archive]][key]
-
-            archive = self.sample.get_archive_for_property(key)
-
-            archive_id = self.sample.get_archive_id(archive, self.identifier)
-            # get_trait provides a reference to a cached copy of the trait held by the archive.
-            # It may be necessary to actually save a reference in this object when it comes to
-            # object storage.
-            return archive.get_trait(archive_id, key)
-
-    def __setitem__(self, key, value):
-        pass
-
-    def __delitem__(self, key):
-        pass
 
     def keys(self):
         """Provide a list of (presumed) valid TraitKeys for this object"""

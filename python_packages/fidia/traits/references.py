@@ -22,8 +22,7 @@ log.enable_console_logging()
 
 # __all__ = []
 
-# noinspection PyPep8Naming
-class column_reference(object):
+class ColumnReference(object):
 
     def __init__(self, column_id_or_alias):
         if column_id_or_alias is None:
@@ -35,6 +34,13 @@ class column_reference(object):
         return self.column_id is not None
 
 
+class TraitMapping(object):
+    def __init__(self, traitclass, name, contents):
+        # type: (fidia.Trait, str, dict) -> None
+        assert issubclass(traitclass, fidia.Trait)
+        self.trait_class = traitclass
+        self.name = name
+        self.contents = contents
 
 class TraitPointer(object):
     """Provides machinery to identify and instanciate a `Trait` on an `AstronomicalObject`.
@@ -58,26 +64,13 @@ class TraitPointer(object):
     `TraitPointer` is fairly thin.
 
     """
-    def __init__(self, archive, astro_object, trait_class, trait_keys_dict):
-        self._trait_class = None  # type: Type[fidia.Trait]
-
-        self._archive = archive  # type: fidia.archive.archive.Archive
-        self._astro_object = astro_object  # type: fidia.astro_object.AstronomicalObject
-        self._trait_registry = None  # type: fidia.traits.trait_registry.TraitRegistry
-
-        self._trait_keys_dict = trait_keys_dict  # type: dict
-
-
-        self.trait_class = trait_class
-
-    @property
-    def trait_class(self):
-        return self._trait_class
-
-    @trait_class.setter
-    def trait_class(self, value):
-        assert issubclass(value, AbstractBaseTrait)
-        self._trait_class = value  # type: fidia.Trait
+    def __init__(self, sample, astro_object, trait_mapping, trait_registry):
+        # type: (fidia.Sample, fidia.AstronomicalObject, fidia.traits.TraitMapping, fidia.traits.TraitRegistry) -> None
+        self.sample = sample
+        self.astro_object = astro_object
+        self.trait_mapping = trait_mapping
+        self.trait_registry = trait_registry
+        self.trait_class = trait_mapping.trait_class
 
     def __getitem__(self, item):
         tk = TraitKey.as_traitkey(item)
@@ -88,7 +81,7 @@ class TraitPointer(object):
                 and tk.version in self._trait_keys_dict[tk.trait_name][tk.branch]):
             raise UnknownTrait("%s", str(tk))
 
-        trait = self._trait_class(archive, trait_key, object_id, parent_trait)
+        trait = self.trait_class(tk, self.astro_object, self.trait_mapping, self.trait_registry)
 
         # @TODO: Object Caching?
 
