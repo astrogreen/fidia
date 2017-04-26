@@ -3,13 +3,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest
 
-from fidia.traits.abstract_base_traits import *
+# from fidia.traits.abstract_base_traits import *
 from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry, TraitPath
-from fidia.archive import example_archive
+# from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
 
-from fidia.traits import validate_trait_name, validate_trait_type
+from fidia.traits import validate_trait_name
 
 def test_incomplete_trait_fails():
 
@@ -365,31 +365,26 @@ class TestTraitKeys:
     @pytest.fixture
     def valid_traitkey_list(self):
         return [
-            TraitKey('my_trait', 'qual', 'branch', 'ver'),
-            TraitKey('my_trait', 'qual', 'branch', 'v0.3'),
-            TraitKey('my_trait', 'qual', 'branch', '0.5'),
-            TraitKey('my_trait', 'qual', 'branch', '135134'),
-            TraitKey('my_trait', 'I', 'branch', 'ver'),
-            TraitKey('my_trait', 'r', 'branch', 'ver'),
-            TraitKey('my_trait', 'OII3727', 'branch', 'ver'),
-            TraitKey('my_trait', '2', 'branch', 'ver'),
-            TraitKey('my_trait', '2_', 'branch', 'ver'),
-            TraitKey('my_trait', '65632.81', 'branch', 'ver')
+            ('my_trait', 'branch', 'ver'),
+            ('my_trait', 'branch', 'v0.3'),
+            ('my_trait', 'branch', '0.5'),
+            ('my_trait', 'branch', '135134'),
+            ('my_trait', 'b1.2', 'ver'),
+            ('my_trait', '1.3', 'ver'),
+            ('my_trait', 'other_branch', 'ver'),
+            ('my_trait', 'branch', 'v1_3_5'),
+            ('emission_map', None, 'v1'),
+            ('emission_map', None, None),
+            ('emission_map', 'b1', None)
         ]
 
-    def test_traitkey_fully_qualified(self):
+    def test_traitkey_fully_qualified(self, valid_traitkey_list):
 
-        # Check a selection of TraitKeys are valid (i.e. they don't raise an error)
-        TraitKey('my_trait', 'qual', 'branch', 'ver')
-        TraitKey('my_trait', 'qual', 'branch', 'v0.3')
-        TraitKey('my_trait', 'qual', 'branch', '0.5')
-        TraitKey('my_trait', 'qual', 'branch', '135134')
-        TraitKey('my_trait', 'I', 'branch', 'ver')
-        TraitKey('my_trait', 'r', 'branch', 'ver')
-        TraitKey('my_trait', 'OII3727', 'branch', 'ver')
-        TraitKey('my_trait', '2', 'branch', 'ver')
-        TraitKey('my_trait', '2_', 'branch', 'ver')
-        TraitKey('my_trait', '65632.81', 'branch', 'ver')
+        # Check a selection of fully defined TraitKeys are valid (i.e. they don't raise an error)
+        for t in valid_traitkey_list:
+            if not None in t:
+                print(t)
+                TraitKey(*t)
 
         # Check that invalid TraitKeys raise an error on construction
         invalid_trait_types = ("3band", "my-trait")
@@ -398,40 +393,36 @@ class TestTraitKeys:
                 print(t)
                 TraitKey(t, "v0.3")
 
+    def test_traitkey_string_construction(self):
         # Check that TraitKeys can be constructed from their strings
-        TraitKey.as_traitkey("image-I:gama(v0.3)")
+        TraitKey.as_traitkey("gama:stellar_masses(v0.3)")
 
     def test_string_traitkeys_reconstruction(self, valid_traitkey_list):
-        for tk in valid_traitkey_list:
+        for tk_tuple in valid_traitkey_list:
+            tk = TraitKey(*tk_tuple)
             print(tk)
             assert TraitKey.as_traitkey(str(tk)) == tk
 
     def test_hyphen_string_roundtrip(self, valid_traitkey_list):
-        for tk in valid_traitkey_list:
+        for t in valid_traitkey_list:
+            tk = TraitKey(*t)
             print(tk)
             hyphen_str = tk.ashyphenstr()
             print(hyphen_str)
             assert TraitKey.as_traitkey(hyphen_str) == tk
 
-    def test_trait_key_hyphen_str_construction(self):
+    def test_trait_key_hyphen_str_construction(self, valid_traitkey_list):
         # Check that TraitKeys can be created from their hyphen string notation:
-        TraitKey.as_traitkey("emission_map-Halpha-b1-v1")
-        TraitKey.as_traitkey("emission_map--b1-v1")
-        TraitKey.as_traitkey("emission_map-Halpha-b1")
-        TraitKey.as_traitkey("emission_map-Halpha")
-        TraitKey.as_traitkey("emission_map")
-        TraitKey.as_traitkey("emission_map-Halpha--v1")
-        TraitKey.as_traitkey("emission_map-Halpha--")
-        TraitKey.as_traitkey("emission_map--b1-v1")
-        TraitKey.as_traitkey("emission_map---v1")
-        TraitKey.as_traitkey("emission_map---")
+        for t in valid_traitkey_list:
+            trait_key_string = "-".join(map(str, t)).replace('None', '')
+            print(trait_key_string)
+            assert TraitKey.as_traitkey(trait_key_string) == TraitKey(*t)
 
 
     def test_traitkey_string_forms(self):
 
         test_list = [
             (TraitKey('my_trait'), 'my_trait'),
-            (TraitKey('my_trait', trait_qualifier='qual'), 'my_trait-qual'),
             (TraitKey('my_trait', version='v2'), 'my_trait(v2)'),
             (TraitKey('my_trait', branch='b2'), 'my_trait:b2')
         ]
@@ -441,18 +432,9 @@ class TestTraitKeys:
 
     def test_traitkey_not_fully_qualified(self):
         TraitKey('my_trait')
-        TraitKey('my_trait', 'qual')
         TraitKey('my_trait', branch='b1')
         TraitKey('my_trait', version='v1')
 
-
-    def test_traitkey_trait_names_classmethod(self):
-        # Class method approach
-        assert TraitKey.as_trait_name('trait', 'qual') == 'trait-qual'
-
-    # def test_traitkey_trait_names_instancemethod(self):
-    #     # Instance method approach
-    #     assert TraitKey('trait', 'qual').as_trait_name() == 'trait-qual'
 
     def test_convenience_trait_key_validation_functions(self):
 
@@ -461,10 +443,12 @@ class TestTraitKeys:
             validate_trait_name("blah:fsdf")
 
         with pytest.raises(ValueError):
-            validate_trait_type("line_map-blue")
+            validate_trait_name("3var")
 
-        validate_trait_name("line_map-blue")
-        validate_trait_type("line_map")
+        with pytest.raises(ValueError):
+            validate_trait_name("line_map-blue")
+
+        validate_trait_name("blue_line_map")
 
 class TestTraitRegistry:
 

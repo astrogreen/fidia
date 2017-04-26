@@ -12,27 +12,16 @@ log = slogging.getLogger(__name__)
 log.enable_console_logging()
 log.setLevel(slogging.WARNING)
 
+TRAIT_NAME_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
+TRAIT_BRANCH_RE = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_.]*')
+TRAIT_VERSION_RE = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_.]*')
 
-TRAIT_TYPE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*')
-TRAIT_QUAL_RE = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9_.]*')
-TRAIT_BRANCH_RE = TRAIT_QUAL_RE
-TRAIT_VERSION_RE = TRAIT_QUAL_RE
-
-TRAIT_NAME_RE = re.compile(
-    r"""(?P<trait_type>{TRAIT_TYPE_RE})
-        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE}))?""".format(
-            TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
-            TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern),
-    re.VERBOSE
-)
 
 TRAIT_KEY_RE = re.compile(
-    r"""(?P<trait_type>{TRAIT_TYPE_RE})
-        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE}))?
+    r"""(?P<trait_name>{TRAIT_NAME_RE})
         (?::(?P<branch>{TRAIT_BRANCH_RE}))?
         (?:\((?P<version>{TRAIT_VERSION_RE})\))?""".format(
-            TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
-            TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern,
+            TRAIT_NAME_RE=TRAIT_NAME_RE.pattern,
             TRAIT_BRANCH_RE=TRAIT_BRANCH_RE.pattern,
             TRAIT_VERSION_RE=TRAIT_VERSION_RE.pattern),
     re.VERBOSE
@@ -41,30 +30,19 @@ TRAIT_KEY_RE = re.compile(
 # This alternate TraitKey regular expression will match strings using the
 # "hyphen-only" notation.
 TRAIT_KEY_ALT_RE = re.compile(
-    r"""(?P<trait_type>{TRAIT_TYPE_RE})
-        (?:-(?P<trait_qualifier>{TRAIT_QUAL_RE})?
+    r"""(?P<trait_name>{TRAIT_NAME_RE})
             (?:-(?P<branch>{TRAIT_BRANCH_RE})?
                 (?:-(?P<version>{TRAIT_VERSION_RE})?)?
-            )?
-        )?""".format(
-        TRAIT_TYPE_RE=TRAIT_TYPE_RE.pattern,
-        TRAIT_QUAL_RE=TRAIT_QUAL_RE.pattern,
+            )?""".format(
+        TRAIT_NAME_RE=TRAIT_NAME_RE.pattern,
         TRAIT_BRANCH_RE=TRAIT_BRANCH_RE.pattern,
         TRAIT_VERSION_RE=TRAIT_VERSION_RE.pattern),
     re.VERBOSE
 )
 
-def validate_trait_name(trait_name):
-    if TRAIT_NAME_RE.fullmatch(trait_name) is None:
-        raise ValueError("'%s' is not a valid trait_name" % trait_name)
-
-def validate_trait_type(trait_type):
-    if TRAIT_TYPE_RE.fullmatch(trait_type) is None:
-        raise ValueError("'%s' is not a valid trait_type" % trait_type)
-
-def validate_trait_qualifier(trait_qualifier):
-    if TRAIT_QUAL_RE.fullmatch(trait_qualifier) is None:
-        raise ValueError("'%s' is not a valid trait qualifier" % trait_qualifier)
+def validate_trait_name(trait_type):
+    if TRAIT_NAME_RE.fullmatch(trait_type) is None:
+        raise ValueError("'%s' is not a valid trait name" % trait_type)
 
 def validate_trait_branch(trait_branch):
     if TRAIT_BRANCH_RE.fullmatch(trait_branch) is None:
@@ -76,35 +54,35 @@ def validate_trait_version(trait_version):
 
 
 
-
 class TraitKey(tuple):
-    """TraitKey(trait_type, trait_name, version, object_id)"""
+    """TraitKey(trait_name, version, object_id)"""
 
     # Originally, this class was created using the following command:
     #     TraitKey = collections.namedtuple('TraitKey', ['trait_type', 'trait_name', 'object_id'], verbose=True)
 
-
     __slots__ = ()
 
-    _fields = ('trait_type', 'trait_qualifier', 'version', 'branch')
+    _fields = ('trait_name', 'version', 'branch')
 
-    def __new__(_cls, trait_type, trait_qualifier=None, branch=None, version=None):
+    trait_name = property(itemgetter(0), doc='Trait name')
+    branch = property(itemgetter(1), doc='Branch')
+    version = property(itemgetter(2), doc='Version')
+
+    def __new__(_cls, trait_name, branch=None, version=None):
         """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
-        validate_trait_type(trait_type)
-        if trait_qualifier is not None:
-            validate_trait_qualifier(trait_qualifier)
+        validate_trait_name(trait_name)
         if branch is not None:
             validate_trait_branch(branch)
         if version is not None:
             validate_trait_version(version)
-        return tuple.__new__(_cls, (trait_type, trait_qualifier, branch, version))
+        return tuple.__new__(_cls, (trait_name, branch, version))
 
     @classmethod
     def _make(cls, iterable, new=tuple.__new__, len=len):
         """Make a new TraitKey object from a sequence or iterable"""
         result = new(cls, iterable)
-        if len(result) not in (1, 2, 3, 4):
-            raise TypeError('Expected 1-4 arguments, got %d' % len(result))
+        if len(result) not in (1, 2, 3):
+            raise TypeError('Expected 1-3 arguments, got %d' % len(result))
         return result
 
     @classmethod
@@ -121,71 +99,40 @@ class TraitKey(tuple):
         if isinstance(key, str):
             match = TRAIT_KEY_RE.fullmatch(key)
             if match:
-                return cls(trait_type=match.group('trait_type'),
-                    trait_qualifier=match.group('trait_qualifier'),
+                return cls(trait_name=match.group('trait_name'),
                     branch=match.group('branch'),
                     version=match.group('version'))
             match = TRAIT_KEY_ALT_RE.fullmatch(key)
             if match:
-                return cls(trait_type=match.group('trait_type'),
-                    trait_qualifier=match.group('trait_qualifier'),
+                return cls(trait_name=match.group('trait_name'),
                     branch=match.group('branch'),
                     version=match.group('version'))
         raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
 
-    @classmethod
-    def as_trait_name(self, *args):
-        if len(args) == 2:
-            return self._make_trait_name(*args)
-        # if len(args) == 0:
-        #     if isinstance(self, object):
-        #         return self._make_trait_name(self.trait_key, self.trait_qualifier)
-        # TODO: Implement solutions for other cases.
-
-    @classmethod
-    def split_trait_name(cls, trait_key_like):
-        tk = cls.as_traitkey(trait_key_like)
-        return (tk.trait_type, tk.trait_qualifier)
-
-    @staticmethod
-    def _make_trait_name(trait_type, trait_qualifier):
-        if trait_qualifier is None or trait_qualifier == '':
-            return trait_type
-        else:
-            return "{trait_type}-{trait_qualifier}".format(
-                trait_qualifier=trait_qualifier, trait_type=trait_type)
-
-    @property
-    def trait_name(self):
-        return self._make_trait_name(self.trait_type, self.trait_qualifier)
 
     def __repr__(self):
         """Return a nicely formatted representation string"""
-        return 'TraitKey(trait_type=%r, trait_qualifier=%r, branch=%r, version=%r)' % self
+        return 'TraitKey(trait_name=%r, branch=%r, version=%r)' % self
 
     def _asdict(self):
         """Return a new OrderedDict which maps field names to their values"""
         return collections.OrderedDict(zip(self._fields, self))
 
-    def replace(_self, **kwds):
+    def replace(self, **kwds):
         """Return a new TraitKey object replacing specified fields with new values"""
-        result = _self._make(map(kwds.pop, ('trait_type', 'trait_qualifier', 'branch', 'version'), _self))
+        result = self._make(map(kwds.pop, ('trait_name', 'branch', 'version'), self))
         if kwds:
             raise ValueError('Got unexpected field names: %r' % kwds.keys())
         return result
 
     def ashyphenstr(self):
-        s = self.trait_type
-        if self.trait_qualifier or self.branch or self.version:
+        s = self.trait_name
+        if self.branch or self.version:
             s += "-"
-            if self.trait_qualifier:
-                s += self.trait_qualifier
-            if self.branch or self.version:
-                s += "-"
-                if self.branch:
-                    s += self.branch
-                if self.version:
-                    s += "-" + self.version
+            if self.branch:
+                s += self.branch
+            if self.version:
+                s += "-" + self.version
         return s
 
     def __getnewargs__(self):
@@ -199,22 +146,13 @@ class TraitKey(tuple):
         pass
 
     def __str__(self):
-        trait_string = self.trait_type
-        if self.trait_qualifier:
-            trait_string += "-" + self.trait_qualifier
+        trait_string = self.trait_name
         if self.branch:
             trait_string += ":" + self.branch
         if self.version:
             trait_string += "(" + self.version + ")"
         return trait_string
 
-    trait_type = property(itemgetter(0), doc='Trait type')
-
-    trait_qualifier = property(itemgetter(1), doc='Trait qualifier')
-
-    branch = property(itemgetter(2), doc='Branch')
-
-    version = property(itemgetter(3), doc='Version')
 
 
 class BranchesVersions(dict):
