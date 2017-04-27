@@ -43,7 +43,7 @@ class Query(viewsets.ModelViewSet):
         'list': query.serializers.QueryListSerializer,
         'retrieve': query.serializers.QueryRetrieveSerializer,
         'create': query.serializers.QueryCreateSerializer,
-        'update': query.serializers.QueryRetrieveSerializer,
+        'update': query.serializers.QueryCreateSerializer,
         'destroy': query.serializers.QueryRetrieveSerializer,
     }
 

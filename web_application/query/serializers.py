@@ -60,50 +60,34 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
 
-    # queryBuilderState = serializers.JSONField(label='QB State', allow_null=True, required=False)
-    # results = serializers.JSONField(label='Result', required=False, default="{}", read_only=True)
-
-    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
-                                style={'base_template': 'textarea.html'})
+    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
     title = serializers.CharField(default='My Query', max_length=100, required=False)
     isCompleted = serializers.BooleanField(default=False, read_only=True)
 
-    truncatedResult = serializers.SerializerMethodField()
     results = serializers.DictField(required=False)
-
-
-    def get_truncatedResult(self, obj):
-        # print(self.context['request'].accepted_media_type)
-        return "test"
 
     class Meta:
         model = query.models.Query
-        fields = (
-        'created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted',
-        'id', 'truncatedResult')
+        fields = ('created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted', 'id')
         extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
                         "title": {"required": False}}
+
 
 class QueryCreateSerializer(serializers.HyperlinkedModelSerializer):
     """
-
+    
     """
-    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
-    updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
-    owner = serializers.ReadOnlyField(source='owner.username')
-
-    SQL = serializers.CharField(required=True, allow_blank=False, allow_null=False,
-                                style={'base_template': 'textarea.html'})
-    title = serializers.CharField(default='My Query', max_length=100, required=False)
-    isCompleted = serializers.BooleanField(default=False, read_only=True)
+    title = serializers.CharField(max_length=100, required=True)
+    # queryBuilderState = serializers.JSONField(label='QB State', required=False, default="{}")
+    # TODO update DRF as per fix to https://github.com/encode/django-rest-framework/issues/4999
+    # JSONField not rendered properly in DRF browsable API HTML form
+    SQL = serializers.CharField(required=True, label='SQL', allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
 
     class Meta:
         model = query.models.Query
-        fields = (
-            'created', 'updated', 'owner', 'queryBuilderState', 'results', 'title', 'SQL', 'url', 'isCompleted',
-            'id')
-        extra_kwargs = {'results': {'required': False}, "queryBuilderState": {"required": False},
-                        "title": {"required": False}}
+        fields = ('title', 'queryBuilderState', 'SQL', 'id')
+
+
 
                 # # - - - - QUERY - - - -
 # class QuerySerializerCreateUpdate(serializers.HyperlinkedModelSerializer):

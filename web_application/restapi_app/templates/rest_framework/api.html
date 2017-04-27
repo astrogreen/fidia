@@ -144,6 +144,9 @@
                                         <div class="page-contents">
                                             <ul class="nav nav-pills nav-stacked nav-sidebar">
                                                 <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
+                                                {% if request.user.is_staff %}
+                                                <li role="presentation"><a href="{% url 'admin:index' %}"> Admin</a></li>
+                                                {% endif %}
                                                 <h5>Endpoints</h5>
                                                 <h6>Query</h6>
                                                 <li role="presentation"><a href="{% url 'query-list' %}" class="indent">Queries</a></li>

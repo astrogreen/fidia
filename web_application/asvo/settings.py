@@ -77,7 +77,7 @@ MIDDLEWARE_CLASSES = (
     'asvo.middleware.SleepMiddleware'
 )
 
-SLEEP_TIME = 1
+SLEEP_TIME = 0
 # TODO turn SleepMiddleware off in production!
 
 ROOT_URLCONF = 'asvo.urls'

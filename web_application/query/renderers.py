@@ -16,12 +16,15 @@ class MyCSVQueryRenderer(r.CSVRenderer):
             # get the results field from the model instance
             results = data.get(self.results_field, [])
 
-            # headers are in the column property
-            headers = list(map(lambda x: x["name"], results["columns"]))
-
+            headers = []
             data = []
 
-            for row in results["data"]:
-                data.append(dict(zip(headers, row)))
+            if "columns" in results:
+                # headers are in the column property
+                headers = list(map(lambda x: x["name"], results["columns"]))
+
+            if "data" in results:
+                for row in results["data"]:
+                    data.append(dict(zip(headers, row)))
 
         return super(MyCSVQueryRenderer, self).render(data, accepted_media_type, renderer_context)
