@@ -38,7 +38,7 @@ def create_new_sql_query(sender, instance=None, created=False, **kwargs):
         print(instance.SQL)
         print(instance.id)
         print(instance.owner.username)
-        # execute_query.delay(instance.SQL, instance.id)
+        execute_query.delay(instance.SQL, instance.id)
         print("Handed sql task over to celery")
 
 
@@ -53,4 +53,4 @@ def update_existing_query_instance(sender, instance, **kwargs):
     else:
         if not obj.SQL == instance.SQL:  # SQL Field has changed
             print("PRE_SAVE SQL")
-            # execute_query.delay(instance.SQL, instance.id)
+            execute_query.delay(instance.SQL, instance.id)

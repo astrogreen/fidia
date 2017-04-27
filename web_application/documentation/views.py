@@ -1,10 +1,10 @@
-import itertools
-import django.core.exceptions
+# import itertools
+# import django.core.exceptions
 from rest_framework import views, generics, viewsets, status
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
-from rest_framework.reverse import reverse
-from rest_framework.decorators import detail_route, list_route
+# from rest_framework.settings import api_settings
+# from rest_framework.reverse import reverse
+# from rest_framework.decorators import detail_route, list_route
 
 from hitcount.models import HitCount, Hit
 from hitcount.views import HitCountMixin
@@ -16,6 +16,7 @@ import restapi_app.exceptions
 import documentation.models
 import documentation.serializers
 
+
 class TopicViewset(viewsets.ModelViewSet):
     serializer_class = documentation.serializers.TopicSerializer
     queryset = documentation.models.Topic.objects.order_by('ordering')
@@ -24,8 +25,8 @@ class TopicViewset(viewsets.ModelViewSet):
     ordering = ('ordering',)
     pagination_class = None
 
-class ArticleViewset(viewsets.ModelViewSet, HitCountMixin):
 
+class ArticleViewset(viewsets.ModelViewSet, HitCountMixin):
     serializer_class = documentation.serializers.ArticleSerializer
     queryset = documentation.models.Article.objects.order_by('-article_order')
     lookup_field = 'id'
