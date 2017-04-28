@@ -9,6 +9,7 @@ import collections
 
 # FIDIA Imports
 from .traits import TraitKey
+import fidia.base_classes as bases
 
 # Set up logging
 import fidia.slogging as slogging
@@ -23,6 +24,7 @@ __all__ = ['AstronomicalObject']
 class AstronomicalObject:
 
     def __init__(self, sample, identifier=None, ra=None, dec=None):
+        # type: (bases.Sample, str, float, float) -> None
         if identifier is None:
             if ra is None or dec is None:
                 raise Exception("Either 'identifier' or 'ra' and 'dec' must be defined.")
@@ -31,7 +33,7 @@ class AstronomicalObject:
             self._identifier = identifier
 
         # Reference to the sample containing this object.
-        self.sample = sample  # type: fidia.sample.Sample
+        self.sample = sample
 
         # Dictionary of IDs for this object in the various archives attached
         # to the sample. @TODO: Initialised to None: must be populated

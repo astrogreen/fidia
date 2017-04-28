@@ -39,7 +39,7 @@ keyed by the `.TraitProperty`'s name. These instructions are executed by
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from typing import List, Generator
-import fidia.base_classes as fidia_types
+import fidia.base_classes as bases
 
 # Standard Library Imports
 import pickle
@@ -54,8 +54,8 @@ from astropy.io import fits
 
 # FIDIA Imports
 from fidia.exceptions import *
-from fidia.base_classes import AbstractBaseTrait
-from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup
+import fidia.base_classes as bases
+from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup, snake_case
 from fidia.descriptions import TraitDescriptionsMixin, DescriptionsMixin
 # Other modules within this FIDIA sub-package
 from .trait_property import TraitProperty
@@ -119,7 +119,7 @@ class ColumnProxy:
             return self
         return instance._get_column_data(self.column_id)
 
-class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
+class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     """A class defining the common methods for both Trait and TraitCollection.
 
     Trait and TraitCollection have different meanings conceptually, but
@@ -145,7 +145,7 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
     #
 
     def __init__(self, sample, trait_key, object_id, trait_registry, trait_schema):
-        # type: (fidia_types.Sample, fidia_types.TraitKey, str, fidia_types.TraitRegistry, dict) -> None
+        # type: (bases.Sample, bases.TraitKey, str, bases.TraitRegistry, dict) -> None
         super(BaseTrait, self).__init__()
 
 
@@ -527,9 +527,9 @@ class BaseTrait(TraitDescriptionsMixin, AbstractBaseTrait):
 
 
 
-class Trait(BaseTrait):
+class Trait(bases.Trait, BaseTrait):
     pass
 
 
-class TraitCollection(BaseTrait):
+class TraitCollection(bases.TraitCollection, BaseTrait):
     pass

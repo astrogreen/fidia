@@ -21,19 +21,18 @@ from typing import Union, Set
 import fidia
 
 # Python Standard Library Imports
-import collections
 
 # Other Library Imports
 import pandas as pd
 import numpy as np
 
 # FIDIA Imports
-from .base_classes import BaseArchive
+import fidia.base_classes as bases
 from . import traits
 from .exceptions import *
 
 
-class Sample(collections.MutableMapping):
+class Sample(bases.Sample):
 
     # ____________________________________________________________________
     # Sample Creation
@@ -55,7 +54,7 @@ class Sample(collections.MutableMapping):
         self._contents = dict()
 
         # Set of archives this object is attached to:
-        self._archives = set()  # type: Set[Archive]
+        self._archives = set()  # type: Set[bases.Archive]
         self._primary_archive = None
 
         # The archive which recieves write requests
@@ -68,17 +67,17 @@ class Sample(collections.MutableMapping):
     @classmethod
     def new_from_archive(cls, archive):
         # @TODO: not complete!
-        if not isinstance(archive, BaseArchive):
+        if not isinstance(archive, bases.Archive):
             raise Exception()
 
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
 
     def __getitem__(self, key):
-        # type: (Union[str, TraitKey]) -> AstronomicalObject
+        # type: (Union[str, bases.TraitKey]) -> AstronomicalObject
         """Function called on dict type read access"""
 
-        from . import AstronomicalObject
+        from .astro_object import AstronomicalObject
 
         if key in self._contents.keys():
             # Then the requested object has been created. Nothing to do.
@@ -237,7 +236,7 @@ class Sample(collections.MutableMapping):
         return self._archives
 
     def add_from_archive(self, archive):
-        if not isinstance(archive, BaseArchive):
+        if not isinstance(archive, bases.Archive):
             raise Exception()
         if archive not in self._archives:
             self._archives.add(archive)
@@ -250,7 +249,7 @@ class Sample(collections.MutableMapping):
         return self._write_archive
     @write_archive.setter
     def write_archive(self, value):
-        if not isinstance(value, BaseArchive):
+        if not isinstance(value, bases.Archive):
             raise Exception("That is not an archive.")
         if value in self._archives:
             self._write_archive = value

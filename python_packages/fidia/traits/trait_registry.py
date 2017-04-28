@@ -24,6 +24,10 @@ them, the archive instance containing them, and the trait path leading to them.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+if None:
+    # These imports are purely for linting and code correctness checking
+    from typing import Dict, List, Type, Union, Tuple
+    import fidia
 
 # Python Standard Library Imports
 from itertools import product

@@ -6,8 +6,11 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import Any, Iterable
+import fidia
 
 # Python Standard Library Imports
+import collections
 from abc import ABCMeta, abstractclassmethod, abstractproperty
 
 # Other Library Imports
@@ -24,70 +27,75 @@ log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 
-class BaseArchive(object):
+class Sample(collections.MutableMapping):
+    def archive_for_column(self, column_id):
+        # type: (str) -> Archive
+        raise NotImplemented()
+
+    def find_column(self, column_id):
+        # type: (str) -> Column
+        raise NotImplemented()
+
+    def get_archive_id(self, archive, sample_id):
+        # type (Archive, str) -> str
+        raise NotImplemented()
+
+    trait_registry = None  # type: TraitRegistry
+
+
+class AstronomicalObject:
+    pass
+
+
+class Archive(object):
 
     def writeable(self):
-        raise NotImplementedError("")
+        raise NotImplemented()
 
     # @property
     # def contents(self):
     #     raise NotImplementedError("")
 
     def get_full_sample(self):
-        raise NotImplementedError("")
+        raise NotImplemented()
 
     def get_trait(self, object_id=None, trait_key=None, parent_trait=None):
-        raise NotImplementedError("")
+        raise NotImplemented()
 
 
-class AbstractBaseTrait(metaclass=ABCMeta):
+class BaseTrait:
 
-    @abstractclassmethod
     def schema(cls):
-        raise NotImplementedError
+        raise NotImplemented()
 
-    # @abstractproperty
     def value(self):
-        raise NotImplementedError
-
-    # @abstractproperty
-    # def description(self): raise NotImplementedError
-
-    # @abstractproperty
-    # def data_type(self): raise NotImplementedError
-
-    # @abstractproperty
-    # def reference(self): raise NotImplementedError
+        raise NotImplemented()
 
 
-class AbstractNumericTrait(AbstractBaseTrait):
+class Trait(BaseTrait):
+    pass
 
-    @abstractproperty
-    def unit(self):
-        raise NotImplementedError
+class TraitCollection(BaseTrait):
+    pass
 
+class TraitKey:
+    pass
 
-class AbstractBaseArrayTrait(AbstractBaseTrait):
-
-    @abstractproperty
-    def shape(self):
-        raise NotImplementedError
-
-
-class AbstractMeasurement(AbstractNumericTrait):
-
-    # @abstractproperty
-    # def epoch(self):
-    #     raise NotImplementedError
-    # @abstractproperty
-    # def instrument(self):
-    #     raise NotImplementedError
-
+class TraitPointer:
     pass
 
 
-class AbstractBaseClassification(AbstractBaseTrait):
+class TraitRegistry:
 
-    @abstractproperty
-    def valid_classifications(self):
-        raise NotImplementedError
+    def get_trait_mappings(self):
+        # type: () -> Iterable[fidia.traits.TraitMapping]
+        raise NotImplemented()
+
+class TraitMapping:
+    pass
+
+
+class Column:
+    def get_value(self, object_id):
+        # type: (str) -> Any
+        raise NotImplemented()

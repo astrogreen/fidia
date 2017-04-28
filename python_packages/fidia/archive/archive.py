@@ -9,13 +9,14 @@ from collections import OrderedDict
 import pandas as pd
 
 # FIDIA Imports
+import fidia.base_classes as bases
 from ..utilities import SchemaDictionary
 # import fidia.sample as sample
 import fidia.traits as traits
 import fidia.column as columns
 import fidia.cache as cache
 # Other modules within this package
-from fidia.base_classes import BaseArchive
+# from fidia.base_classes import BaseArchive
 
 # Set up logging
 import fidia.slogging as slogging
@@ -26,7 +27,7 @@ log.enable_console_logging()
 __all__ = ['Archive']
 
 
-class Archive(BaseArchive):
+class Archive(bases.Archive):
     """An archive of data."""
     column_definitions = columns.ColumnDefinitionList()
 

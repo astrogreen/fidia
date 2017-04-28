@@ -8,9 +8,9 @@ import fidia
 # Other Library Imports
 
 # FIDIA Imports
+import fidia.base_classes as bases
 from fidia.exceptions import *
 # from fidia.column import ColumnID
-from fidia.base_classes import AbstractBaseTrait
 from fidia.traits.trait_key import TraitKey
 # Other modules within this package
 
