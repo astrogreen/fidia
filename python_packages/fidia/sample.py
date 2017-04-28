@@ -132,28 +132,6 @@ class Sample(bases.Sample):
             self._id_cross_matches.merge(id_list, 
                 how='outer', left_index=True, right_index=True)
 
-    def get_tabular_data(self):
-        """
-        Put this method just to follow the pattern. Nothing special happens here.
-        :return:
-        """
-
-        return self._archives.tabular_data
-
-    def tabular_data(self):
-        """Return all tabular data as a single DataFrame."""
-
-        # For each archive, get a DataFrame of data for objects indexed in
-        # this sample.
-        reordered_dataframes = []
-        for ar in self._archives:
-            # Reorder the data frame to match the sample index
-            df = ar.tabular_data.reindex(index=self._id_cross_matches[ar.name])
-            # Replace the index on the archive data with the sample index
-            df.index = self._id_cross_matches.index
-            reordered_dataframes.append(df)
-        # Join the reordered archive data by (now the local sample) index
-        return pd.concat(reordered_dataframes, axis=1)
 
     def get_feature_catalog_data(self):
         """(Construct) A table of featured data from each archive in this sample."""

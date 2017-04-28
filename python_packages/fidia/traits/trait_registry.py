@@ -52,7 +52,7 @@ class TraitRegistry:
     def __init__(self, branches_versions_required=False):
         self._registry = set()
         self._trait_lookup = dict()
-        self._trait_name_defaults = dict()  # type: dict[str, DefaultsRegistry]
+        self._trait_name_defaults = dict()  # type: Dict[str, DefaultsRegistry]
         self.branches_versions_required = branches_versions_required
 
     def register(self, trait):

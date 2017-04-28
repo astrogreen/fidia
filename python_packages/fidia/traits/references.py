@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Type
+from typing import Type, Dict
 import fidia
 
 # Python Standard Library Imports
@@ -65,7 +65,7 @@ class TraitPointer(object):
 
     """
     def __init__(self, sample, astro_object, trait_mapping, trait_registry):
-        # type: (fidia.Sample, fidia.AstronomicalObject, fidia.traits.TraitMapping, fidia.traits.TraitRegistry) -> None
+        # type: (fidia.Sample, fidia.AstronomicalObject, TraitMapping, fidia.traits.TraitRegistry) -> None
         self.sample = sample
         self.astro_object = astro_object
         self.trait_mapping = trait_mapping

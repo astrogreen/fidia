@@ -166,9 +166,9 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
         self._trait_cache = OrderedDict()
 
-
-        for key in trait_schema:
-            setattr(self, key, ColumnProxy(column_id=trait_schema[key]))
+        # Create a set of proxy objects which can retrieve the values of columns associated as necessary.
+        for data_item_name in trait_schema:
+            setattr(self, data_item_name, ColumnProxy(column_id=trait_schema[data_item_name]))
 
         # if parent_trait is not None:
         #     self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
@@ -176,10 +176,18 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         #     self.trait_path = TraitPath([self.trait_key])
 
     def _get_column_data(self, column_id):
+        """For a requested column id, return the corresponding data.
+
+        This finds the necessary column instance and it's corresponding archive,
+        retrieves the necessary `archive_id` corresponding to self's `object_id`
+        and then calls the `.get_value` method.
+
+        """
         archive = self.sample.archive_for_column(column_id)
         column = self.sample.find_column(column_id)
-        archive_id = self.sample.get_archive_id()
-        column.get_value(archive_id)
+        archive_id = self.sample.get_archive_id(archive, self.object_id)
+        value = column.get_value(archive_id)
+        return value
 
     def _post_init(self):
         pass
@@ -214,6 +222,9 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         return self.trait_key.trait_name
 
 
+    @property
+    def trait_class_name(self):
+        return type(self).__name__
 
 
     #

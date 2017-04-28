@@ -8,8 +8,9 @@ import collections
 # Other Library Imports
 
 # FIDIA Imports
-from .traits import TraitKey
 import fidia.base_classes as bases
+from fidia.utilities import snake_case
+# from .traits import TraitKey
 
 # Set up logging
 import fidia.slogging as slogging
@@ -42,6 +43,11 @@ class AstronomicalObject:
 
         self._ra = ra
         self._dec = dec
+
+        # Associate TraitPointer objects as necessary.
+
+        self.update_trait_pointers()
+
         super(AstronomicalObject, self).__init__()
 
     @property
@@ -56,6 +62,18 @@ class AstronomicalObject:
     def dec(self):
         return self._dec
 
+    def update_trait_pointers(self):
+
+        from fidia.traits.references import TraitPointer
+
+        # Clear all existing pointers to TraitPointers
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if isinstance(attr, bases.TraitPointer):
+                delattr(self, attr_name)
+        for trait_mapping in self.sample.trait_registry.get_trait_mappings():
+            pointer_name = snake_case(trait_mapping.trait_class.trait_class_name)
+            setattr(self, pointer_name, TraitPointer(self.sample, self, trait_mapping, self.sample.trait_registry))
 
     def get_archive_id(self, archive):
         return self.sample.get_archive_id(archive, self._identifier)
@@ -103,12 +121,3 @@ class AstronomicalObject:
 
 
         return keys
-
-    def __len__(self):
-        return len(self.keys())
-
-    def __iter__(self):
-        return iter(self.keys())
-
-
-
