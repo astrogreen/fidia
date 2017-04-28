@@ -19,3 +19,5 @@ from .trait_key import TraitKey, TraitPath, \
     validate_trait_name, validate_trait_branch, validate_trait_version, \
     validate_trait_name
 from .trait_registry import TraitRegistry
+
+from .references import *

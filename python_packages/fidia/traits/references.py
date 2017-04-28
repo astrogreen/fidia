@@ -20,7 +20,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-# __all__ = []
+__all__ = ['TraitMapping', 'TraitPointer']
 
 class ColumnReference(object):
 
@@ -37,7 +37,7 @@ class ColumnReference(object):
 class TraitMapping(bases.TraitMapping):
 
     def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
-        # type: (Type[fidia.Trait], str, Dict[str, Union[str, TraitMapping]]) -> None
+        # type: (fidia.Trait, str, Dict[str, Union[str, TraitMapping]]) -> None
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
         self.trait_schema = schema

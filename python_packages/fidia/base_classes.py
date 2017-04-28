@@ -6,8 +6,9 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Any, Iterable
-import fidia
+# if None:
+#     from typing import Any, Iterable
+#     import fidia
 
 # Python Standard Library Imports
 import collections
@@ -40,7 +41,7 @@ class Sample(collections.MutableMapping):
         # type (Archive, str) -> str
         raise NotImplemented()
 
-    trait_registry = None  # type: TraitRegistry
+    trait_registry = None  # type: TraitMappingDatabase
 
 
 class AstronomicalObject:
@@ -85,7 +86,7 @@ class TraitPointer:
     pass
 
 
-class TraitRegistry:
+class TraitMappingDatabase:
 
     def get_trait_mappings(self):
         # type: () -> Iterable[fidia.traits.TraitMapping]

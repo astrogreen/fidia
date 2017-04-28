@@ -17,8 +17,9 @@ by creating new (sub) sample.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union, Set
-import fidia
+if None:
+    from typing import Union, Set
+    import fidia
 
 # Python Standard Library Imports
 
@@ -27,7 +28,7 @@ import pandas as pd
 import numpy as np
 
 # FIDIA Imports
-import fidia.base_classes as bases
+from .import base_classes as bases
 from . import traits
 from .exceptions import *
 
