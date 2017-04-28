@@ -24,12 +24,17 @@ class TestFidiaImportsAndPackageLayout:
     def test_toplevel_layout(self):
         import fidia
         print(dir(fidia))
+
         assert 'Archive' in dir(fidia)
+        assert 'Sample' in dir(fidia)
+        assert 'Trait' in dir(fidia)
+        # assert 'TraitCollection' in dir(fidia)
 
     def test_archive_pkg_layout(self):
         import fidia.archive
         print(dir(fidia.archive))
         assert 'Archive' in dir(fidia.archive)
+
 
 
     # def test_logging_debug_turned_off(self):
