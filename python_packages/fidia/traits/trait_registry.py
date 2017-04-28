@@ -31,12 +31,14 @@ if None:
 
 # Python Standard Library Imports
 from itertools import product
+from collections import OrderedDict
 
 # Other Library Imports
 
 # FIDIA Imports
 from fidia.exceptions import *
-from .trait_key import TraitKey, validate_trait_name
+import fidia.base_classes as bases
+from .trait_key import TraitKey, validate_trait_name, validate_trait_branch, validate_trait_version
 from ..fidiatype import fidia_type
 from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
 from .. import exceptions
@@ -46,6 +48,53 @@ from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
+
+
+
+
+
+class TraitMappingDatabase(bases.TraitMappingDatabase):
+
+    def __init__(self):
+        self.mappings = dict()  # type: Dict[Tuple[Type[fidia.Trait], str], fidia.traits.TraitMapping]
+        self.linked_mappings = []  # type: List[TraitMappingDatabase]
+
+    def link_database(self, other_database, index=-1):
+        # type: (TraitMappingDatabase, int) -> None
+        assert isinstance(other_database, TraitMappingDatabase)
+        self.linked_mappings.insert(index, other_database)
+
+    def register_trait_mapping(self, trait_mapping):
+        # type: (fidia.traits.TraitMapping) -> None
+        if trait_mapping.key() in self.mappings:
+            raise FIDIAException("Attempt to add an existing mapping")
+        self.mappings[trait_mapping.key()] = trait_mapping
+
+    def register_trait_mapping_list(self, trait_mapping_list):
+        # type: (List[fidia.traits.TraitMapping]) -> None
+
+        for mapping in trait_mapping_list:
+            self.register_trait_mapping(mapping)
+
+    def get_trait_mappings(self):
+
+        # @TODO: This raises an exception if there are duplicate TraitMapping entries in the system.
+
+        trait_mapping_keys_returned = set()
+
+        for tm in self.mappings.values():
+            string_key = "-".join(tm.key())
+            if string_key in trait_mapping_keys_returned:
+                raise FIDIAException('Duplicate TraitMappings found: %s' % string_key)
+            trait_mapping_keys_returned.add(string_key)
+            yield tm
+
+        for sub_database in self.linked_mappings:
+            for tm in sub_database.mappings.values():
+                string_key = "-".join(tm.key())
+                if string_key in trait_mapping_keys_returned:
+                    raise FIDIAException('Duplicate TraitMappings found: %s' % string_key)
+                yield tm
 
 class TraitRegistry:
 
