@@ -4,6 +4,7 @@ from typing import List
 
 # Python Standard Library Imports
 from copy import deepcopy
+import re
 from collections import Iterable, Sized
 from contextlib import contextmanager
 import os
@@ -192,6 +193,22 @@ class DefaultsRegistry:
         )
 
 class Default: pass
+
+def camel_case(snake_case_string):
+    # type: (str) -> str
+    """Convert a string from snake_case to CamelCase.
+
+    http://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
+
+    """
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', snake_case_string)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+def snake_case(camel_case_string):
+    # type (str) -> str
+    """Convert a string from CamelCase to snake_case."""
+    return ''.join(word.capitalize() or '_' for word in camel_case_string.split('_'))
+
 
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
