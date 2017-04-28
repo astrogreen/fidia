@@ -39,7 +39,7 @@ keyed by the `.TraitProperty`'s name. These instructions are executed by
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from typing import List, Generator
-import fidia.base_classes as bases
+import fidia
 
 # Standard Library Imports
 import pickle

@@ -6,9 +6,8 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-# if None:
-#     from typing import Any, Iterable
-#     import fidia
+from typing import Any, Iterable
+import fidia
 
 # Python Standard Library Imports
 import collections
