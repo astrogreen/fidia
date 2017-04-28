@@ -60,7 +60,7 @@ from fidia.descriptions import TraitDescriptionsMixin, DescriptionsMixin
 # Other modules within this FIDIA sub-package
 from .trait_property import TraitProperty
 from .trait_key import TraitKey, TraitPath, TRAIT_NAME_RE, \
-    validate_trait_type, validate_trait_qualifier, validate_trait_version, validate_trait_branch, \
+    validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 from .trait_registry import TraitRegistry
 
@@ -186,13 +186,6 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
     @classmethod
     def _validate_trait_class(cls):
-        assert cls.trait_type is not None, "trait_type must be defined"
-        validate_trait_type(cls.trait_type)
-
-        assert cls.qualifiers is None or is_list_or_set(cls.qualifiers), "qualifiers must be a list or set or None"
-        if cls.qualifiers is not None:
-            for qual in cls.qualifiers:
-                validate_trait_qualifier(qual)
         # assert cls.available_versions is not None
 
         if cls.branches_versions is not None:

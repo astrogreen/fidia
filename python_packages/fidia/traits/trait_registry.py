@@ -35,7 +35,8 @@ from itertools import product
 # Other Library Imports
 
 # FIDIA Imports
-from .trait_key import TraitKey, validate_trait_name, validate_trait_type
+from fidia.exceptions import *
+from .trait_key import TraitKey, validate_trait_name
 from ..fidiatype import fidia_type
 from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set
 from .. import exceptions
