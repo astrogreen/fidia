@@ -2,25 +2,10 @@ from time import gmtime, strftime
 from django.utils.html import escape, format_html
 from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
 from rest_framework import serializers
-
-"""
-Serializers:
-
-    Serializing and deserializing the query instances into json, csv representations.
-
-A Serializer class is similar to a form class, and can include similar
-validation flags such as required, max_length etc.
-
-The field flags also control how the serializer should be displayed
-e.g., when rendering to HTML. This is useful for controlling how the
-browsable API should be displayed.
+import restapi_app.models
 
 
 
-HyperlinkedModelSerializer sub-classes ModelSerializer and uses hyperlinked relationships
-instead of primary key relationships.
-
-"""
 
 
 class SurveySerializer(serializers.Serializer):
@@ -58,43 +43,44 @@ class ContactFormSerializer(serializers.Serializer):
     complex_question = serializers.CharField(
         max_length=1000, required=True, label="Solve this simple problem and enter the result.*",
     )
-
-    def send(self):
-        from_email = str(self.validated_data.get('email'))
-        message = str(self.validated_data.get('message'))
-        name = str(self.validated_data.get('name'))
-        date = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-
-        snippet = """
-        <h4>ADC Contact Form Message</h4>
-            <table>
-                <tr>
-                    <td>Name</td>
-                    <td>{name}</td>
-                </tr>
-                <tr>
-                    <td>Email</td>
-                    <td>{from_email}</td>
-                </tr>
-                <tr>
-                    <td>Date</td>
-                    <td>{date}</td>
-                </tr>
-                <tr>
-                    <td>Message</td>
-                    <td>{message}</td>
-                </tr>
-            </table>
-        """
-
-        subject, from_email, to = 'ADC Contact Form', from_email, 'asvo-feedback@aao.gov.au'
-
-        html_content = format_html(snippet, name=name, from_email=from_email, message=message, date=date)
-
-        text_content = 'FROM: ' + name + ', ' + from_email + ' MESSAGE: ' + message + ' DATE: ' + date
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send(fail_silently=False)
+    #
+    # def send(self):
+    #     from_email = str(self.validated_data.get('email'))
+    #     message = str(self.validated_data.get('message'))
+    #     name = str(self.validated_data.get('name'))
+    #     date = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    #
+    #     snippet = """
+    #     <h4>ADC Contact Form Message</h4>
+    #         <table>
+    #             <tr>
+    #                 <td>Name</td>
+    #                 <td>{name}</td>
+    #             </tr>
+    #             <tr>
+    #                 <td>Email</td>
+    #                 <td>{from_email}</td>
+    #             </tr>
+    #             <tr>
+    #                 <td>Date</td>
+    #                 <td>{date}</td>
+    #             </tr>
+    #             <tr>
+    #                 <td>Message</td>
+    #                 <td>{message}</td>
+    #             </tr>
+    #         </table>
+    #     """
+    #
+    #     # subject, from_email, to = 'ADC Contact Form', from_email, 'asvo-feedback@aao.gov.au'
+    #     subject, from_email, to = 'ADC Contact Form', from_email, 'liz.mannering@uwa.edu.au'
+    #
+    #     html_content = format_html(snippet, name=name, from_email=from_email, message=message, date=date)
+    #
+    #     text_content = 'FROM: ' + name + ', ' + from_email + ' MESSAGE: ' + message + ' DATE: ' + date
+    #     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+    #     msg.attach_alternative(html_content, "text/html")
+    #     msg.send(fail_silently=False)
 
 
 class BugReportSerializer(serializers.Serializer):
@@ -162,7 +148,8 @@ class BugReportSerializer(serializers.Serializer):
             </table>
         """
 
-        subject, from_email, to = 'ADC Bug Report', from_email, 'adc-bugs@aao.gov.au'
+        subject, from_email, to = 'ADC Bug Report', from_email, 'liz.mannering@uwa.edu.au'
+        # subject, from_email, to = 'ADC Bug Report', from_email, 'adc-bugs@aao.gov.au'
 
         html_content = format_html(snippet, name=name, from_email=from_email, url=url, message=message, date=date,
                                    survey_team=survey_team)

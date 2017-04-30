@@ -4,6 +4,7 @@ import restapi_app.views
 
 router = rest_framework.routers.SimpleRouter()
 
+
 urlpatterns = [
     url(r'^$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/home/index.html'),
         name='index'),
@@ -23,11 +24,12 @@ urlpatterns = [
             template_name='restapi_app/support/underconstruction.html'),
         name='under-construction'),
 
-    url(r'^(?i)about/team/$',
-        restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/about/team.html'),
-        name='about-team'),
+    # url(r'^(?i)about/team/$',
+    #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/about/team.html'),
+    #     name='about-team'),
 
-    url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
+
+    # url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
     url(r'^(?i)support/bug-report/$', restapi_app.views.BugReport.as_view(), name='support-bug'),
 
     # url(r'^user-testing/feedback/$',
@@ -37,7 +39,7 @@ urlpatterns = [
     #   TemplateView.as_view(template_name='restapi_app/user-testing/feature-tracking.html'),
     #   name='feature-tracking'),
 
-    url(r'^(?i)data/catalogues/', restapi_app.views.AvailableTables.as_view(), name='catalogues'),
+    # url(r'^(?i)data/catalogues/', restapi_app.views.AvailableTables.as_view(), name='catalogues'),
 
 ]
 

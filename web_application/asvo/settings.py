@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'schema_browser',
     'sov',
+    'support',
     'surveys',
 )
 
@@ -287,11 +288,6 @@ LOGGING = {
     }
 }
 
-try:
-    from .custom_settings import *
-except ImportError:
-    pass
-
 # Bring pandoc path into effect.
 os.environ.setdefault('PYPANDOC_PANDOC', PANDOC_PATH)
 
@@ -334,3 +330,9 @@ JWT_AUTH = {
 }
 
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
+
+
+try:
+    from .custom_settings import *
+except ImportError:
+    pass

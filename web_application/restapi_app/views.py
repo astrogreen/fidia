@@ -9,8 +9,12 @@ import restapi_app.exceptions
 import restapi_app.serializers
 import restapi_app.renderers
 import restapi_app.permissions
+import restapi_app.models
 import sov.serializers
 import sov.views
+
+
+
 
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
@@ -47,7 +51,6 @@ def get_client_ip(request):
 
 
 def validateQuestion(self, request):
-
     try:
         complex_answer = request.POST.get('complex_question')
         int(complex_answer)
@@ -58,7 +61,6 @@ def validateQuestion(self, request):
             return False
     except:
         return False
-
 
 
 class ContactForm(views.APIView):
@@ -91,7 +93,7 @@ class ContactForm(views.APIView):
 
         if serializer.is_valid():
 
-            is_human = validateQuestion(self,request)
+            is_human = validateQuestion(self, request)
             print(is_human)
             if is_human is True:
                 try:
