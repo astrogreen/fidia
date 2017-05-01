@@ -59,10 +59,10 @@ INSTALLED_APPS = (
     'restapi_app',
     # 'rest_framework.authtoken',
     'rest_framework',
-    'schema_browser',
+    # 'schema_browser',
     # 'sov',
     'support',
-    'surveys',
+    # 'surveys',
 )
 
 MIDDLEWARE_CLASSES = (

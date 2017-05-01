@@ -31,8 +31,8 @@ urlpatterns = [
     url(r'^asvo/', include('user.urls')),
     # url(r'^asvo/', include('sov.urls', namespace='sov')),
     url(r'^asvo/', include('support.urls', namespace='support')),
-    url(r'^asvo/', include('surveys.urls', namespace='surveys')),
-    url(r'^asvo/', include('schema_browser.urls', namespace='schema_browser')),
+    # url(r'^asvo/', include('surveys.urls', namespace='surveys')),
+    # url(r'^asvo/', include('schema_browser.urls', namespace='schema_browser')),
     url(r'^$', lambda r: HttpResponseRedirect('asvo/')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
