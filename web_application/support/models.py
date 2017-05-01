@@ -9,16 +9,25 @@ class Contact(models.Model):
     message = models.CharField(max_length=100, blank=False)
 
 
-# If the SQL field has changed, execute query with new SQL
 @receiver(pre_save, sender=Contact)
-def update_existing_query_instance(sender, instance, **kwargs):
+def email_contact_form(sender, instance, **kwargs):
     print("EMAIL CONTACT FORM")
 
-#     try:
-#         obj = sender.objects.get(pk=instance.pk)
-#     except sender.DoesNotExist:
-#         pass  # Object is new, so field hasn't technically changed.
-#     else:
-#         if not obj.SQL == instance.SQL:  # SQL Field has changed
-#             print("PRE_SAVE SQL")
-#             execute_query.delay(instance.SQL, instance.id)
+
+class BugReport(models.Model):
+    name = models.CharField(max_length=100, blank=False)
+    email = models.EmailField(max_length=100, blank=False)
+    message = models.CharField(max_length=10000, blank=False)
+    url = models.CharField(max_length=100, blank=True)
+    SURVEY_TEAM = (
+        ('NA', 'Not applicable'),
+        ('GAMA', 'GAMA'),
+        ('SAMI', 'SAMI'),
+        ('GALAH', 'GALAH'),
+    )
+    survey_team = models.CharField(choices=SURVEY_TEAM, default='NA', max_length=100)
+
+
+@receiver(pre_save, sender=BugReport)
+def email_bug_report(sender, instance, **kwargs):
+    print("EMAIL BugReport FORM")

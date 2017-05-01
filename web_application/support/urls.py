@@ -5,12 +5,9 @@ import support.views
 router = rest_framework.routers.SimpleRouter()
 
 router.register(r'contact', support.views.Contact, base_name='contact')
+router.register(r'bug-report', support.views.BugReport, base_name='bug-report')
 
 
 urlpatterns = [
     url(r'', include(router.urls)),
 ]
-
-
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) allows
-# Django to serve these files (without explicitly writing them out per view)

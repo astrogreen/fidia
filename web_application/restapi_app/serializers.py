@@ -83,78 +83,78 @@ class ContactFormSerializer(serializers.Serializer):
     #     msg.send(fail_silently=False)
 
 
-class BugReportSerializer(serializers.Serializer):
-    """
-    Contact Form Serializer.
-    """
-    message = serializers.CharField(
-        max_length=10000, required=True, label="Message*",
-        style={'placeholder': 'Please be as specific as possible when describing your issue.',
-               'base_template': 'textarea.html', 'rows': 6}
-    )
-    url = serializers.CharField(required=False, label='URL (optional)', max_length=100,
-                                style={'placeholder': 'e.g., /asvo/sov/'})
-
-    name = serializers.CharField(
-        max_length=100, required=True, label="Name*",
-        style={'placeholder': 'Name'}
-    )
-    email = serializers.EmailField(
-        max_length=100, label="Email*", required=True,
-        style={'placeholder': 'Email'}
-    )
-    survey_team = serializers.ChoiceField(choices=['Not Applicable', 'GAMA', 'SAMI'], required=False,
-                                          label='Survey Team (optional)', allow_blank=True)
-
-    complex_question = serializers.CharField(
-        max_length=1000, required=True, label="Solve this simple problem and enter the result.*",
-    )
-
-    def send(self):
-        from_email = str(self.validated_data.get('email'))
-        survey_team = str(self.validated_data.get('survey_team'))
-        message = str(self.validated_data.get('message'))
-        url = str(self.validated_data.get('url'))
-        name = str(self.validated_data.get('name'))
-        date = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-
-        snippet = """
-        <h4>ADC Bug Report</h4>
-            <table>
-                <tr>
-                    <td>External Reporter</td>
-                    <td>{name}</td>
-                </tr>
-                <tr>
-                    <td>Email</td>
-                    <td>{from_email}</td>
-                </tr>
-                <tr>
-                    <td>Survey Team</td>
-                    <td>{survey_team}</td>
-                </tr>
-                <tr>
-                    <td>Date</td>
-                    <td>{date}</td>
-                </tr>
-                <tr>
-                    <td>URL</td>
-                    <td>{url}</td>
-                </tr>
-                <tr>
-                    <td>Message</td>
-                    <td>{message}</td>
-                </tr>
-            </table>
-        """
-
-        subject, from_email, to = 'ADC Bug Report', from_email, 'liz.mannering@uwa.edu.au'
-        # subject, from_email, to = 'ADC Bug Report', from_email, 'adc-bugs@aao.gov.au'
-
-        html_content = format_html(snippet, name=name, from_email=from_email, url=url, message=message, date=date,
-                                   survey_team=survey_team)
-
-        text_content = 'FROM: ' + name + ', ' + from_email + ', URL:' + url + ' MESSAGE: ' + message + ' DATE: ' + date
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send(fail_silently=False)
+# class BugReportSerializer(serializers.Serializer):
+#     """
+#     Contact Form Serializer.
+#     """
+#     message = serializers.CharField(
+#         max_length=10000, required=True, label="Message*",
+#         style={'placeholder': 'Please be as specific as possible when describing your issue.',
+#                'base_template': 'textarea.html', 'rows': 6}
+#     )
+#     url = serializers.CharField(required=False, label='URL (optional)', max_length=100,
+#                                 style={'placeholder': 'e.g., /asvo/sov/'})
+#
+#     name = serializers.CharField(
+#         max_length=100, required=True, label="Name*",
+#         style={'placeholder': 'Name'}
+#     )
+#     email = serializers.EmailField(
+#         max_length=100, label="Email*", required=True,
+#         style={'placeholder': 'Email'}
+#     )
+#     survey_team = serializers.ChoiceField(choices=['Not Applicable', 'GAMA', 'SAMI'], required=False,
+#                                           label='Survey Team (optional)', allow_blank=True)
+#
+#     complex_question = serializers.CharField(
+#         max_length=1000, required=True, label="Solve this simple problem and enter the result.*",
+#     )
+#
+#     def send(self):
+#         from_email = str(self.validated_data.get('email'))
+#         survey_team = str(self.validated_data.get('survey_team'))
+#         message = str(self.validated_data.get('message'))
+#         url = str(self.validated_data.get('url'))
+#         name = str(self.validated_data.get('name'))
+#         date = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+#
+#         snippet = """
+#         <h4>ADC Bug Report</h4>
+#             <table>
+#                 <tr>
+#                     <td>External Reporter</td>
+#                     <td>{name}</td>
+#                 </tr>
+#                 <tr>
+#                     <td>Email</td>
+#                     <td>{from_email}</td>
+#                 </tr>
+#                 <tr>
+#                     <td>Survey Team</td>
+#                     <td>{survey_team}</td>
+#                 </tr>
+#                 <tr>
+#                     <td>Date</td>
+#                     <td>{date}</td>
+#                 </tr>
+#                 <tr>
+#                     <td>URL</td>
+#                     <td>{url}</td>
+#                 </tr>
+#                 <tr>
+#                     <td>Message</td>
+#                     <td>{message}</td>
+#                 </tr>
+#             </table>
+#         """
+#
+#         subject, from_email, to = 'ADC Bug Report', from_email, 'liz.mannering@uwa.edu.au'
+#         # subject, from_email, to = 'ADC Bug Report', from_email, 'adc-bugs@aao.gov.au'
+#
+#         html_content = format_html(snippet, name=name, from_email=from_email, url=url, message=message, date=date,
+#                                    survey_team=survey_team)
+#
+#         text_content = 'FROM: ' + name + ', ' + from_email + ', URL:' + url + ' MESSAGE: ' + message + ' DATE: ' + date
+#         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+#         msg.attach_alternative(html_content, "text/html")
+#         msg.send(fail_silently=False)

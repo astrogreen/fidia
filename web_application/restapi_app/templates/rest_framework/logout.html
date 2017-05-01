@@ -4,20 +4,6 @@
 {% load internal_extras %}
 {% block title %}Sign Out{% endblock %}
 
-
-{% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'user/css/user/user.min.css' %}"/>
-{% endblock %}
-{% block bodyclass %}aat_dome{% endblock %}
-{% block breadcrumbclass %}inverted{% endblock %}
-{% block breadcrumbs %}
-    <li class="active"><a href="{% url 'index' %}">Home</a></li>
-    <li><a href="{% url 'rest_framework:logout' %}">Sign Out</a></li>
-{% endblock %}
-
-
-{% block page_title_banner %}{% endblock %}
-
 {% block body %}
 <br>
 <div class="row">
@@ -32,11 +18,6 @@
                 <p>Signed out.
                     <span class="pull-right">
                         <a href="{% url 'rest_framework:login' %}" class="text-uppercase ">Sign In <i class="fa fa-lock"></i> </a>
-                        or
-                        <a href="{% url 'user-register' %}" class="text-success text-uppercase ">
-                            <span>Register</span>
-                            <i class="fa fa-pencil-square-o"></i>
-                        </a>
                     </span>
                 </p>
 

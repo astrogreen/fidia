@@ -6,31 +6,29 @@
     <head>
         {% block head %}
 
-        {% block meta %}
-            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-            <meta name="robots" content="NONE,NOARCHIVE"/>
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <meta name="description" content="ASVO AAT Node">
-            <meta name="author" content="AA0">
-            <link rel="icon" href="/static/img/aao.ico">
-        {% endblock %}
-
-        <title>{% block title %}ADC{% if name %} - {{ name }}{% endif %}{% endblock %}</title>
-
-        {% block style %}
-            {% block bootstrap_theme %}
-            <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
-            <!--<link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>-->
+            {% block meta %}
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                <meta name="robots" content="NONE,NOARCHIVE"/>
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <meta name="description" content="ASVO AAT Node">
+                <meta name="author" content="AA0">
+                <link rel="icon" href="/static/img/aao.ico">
             {% endblock %}
 
-        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
-        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
-        <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/styles/styles.css' %}"/>
-        <!--<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/main/main.css' %}"/>-->
-        <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic&subset=latin,greek,latin-ext'
-              rel='stylesheet' type='text/css'>
-        {% endblock %}
+            <title>{% block title %}ADC{% if name %} - {{ name }}{% endif %}{% endblock %}</title>
+
+            {% block style %}
+                {% block bootstrap_theme %}
+                <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
+                {% endblock %}
+
+                <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
+                <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
+                <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/styles/styles.css' %}"/>
+                <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic&subset=latin,greek,latin-ext'
+                      rel='stylesheet' type='text/css'>
+            {% endblock %}
 
         {% endblock %}
     </head>
@@ -60,15 +58,15 @@
                                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                                     <ul class="nav navbar-nav">
                                         <li><a href="{% url 'index' %}">Home</a></li>
-                                        <li><a href="">Docs</a></li>
-                                        <li><a href="">APIs</a></li>
+                                        <li class="disabled"><a href="">Docs</a></li>
+                                        <li class="disabled"><a href="">APIs</a></li>
                                         <li class="dropdown">
                                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                                                aria-expanded="false">Support </a>
                                             <ul class="dropdown-menu">
                                                 <li class="dropdown-header">Support</li>
                                                 <li><a href="{% url 'support:contact-list' %}">Contact</a></li>
-                                                <li><a href="{% url 'support-bug' %}">Report an Issue</a></li>
+                                                <li><a href="{% url 'support:bug-report-list' %}">Report an Issue</a></li>
                                             </ul>
                                         </li>
                                     </ul>
@@ -153,18 +151,37 @@
                                                 <li role="presentation"><a href="{% url 'documentation:topic-list' %}" class="indent">Topics</a></li>
                                                 <li role="presentation"><a href="{% url 'documentation:article-list' %}" class="indent">Articles</a></li>
                                                 <h6>Support</h6>
+                                                <li role="presentation"><a href="{% url 'support:contact-list' %}" class="indent">Contact</a></li>
+                                                <li role="presentation"><a href="{% url 'support:bug-report-list' %}" class="indent">Report an Issue</a></li>
                                                 <li role="presentation"><a href="{% url 'feature-list' %}" class="indent">Features</a></li>
                                                 <li role="presentation"><a href="{% url 'vote-list' %}" class="indent">Vote</a></li>
-                                                <h6>User</h6>
-                                                <li role="presentation"><a href="{% url 'user-profile-detail' username=user %}" class="indent">Profile</a></li>
 
                                                 <h5>Authentication and Headers</h5>
+
+                                                <h6>User</h6>
+                                                <li role="presentation"><a href="{% url 'user-profile-detail' username=user %}" class="indent">Profile</a></li>
+                                                <li role="presentation"><a href="{% url 'register' %}" class="indent">Register </a></li>
+
+                                                <h6>Password</h6>
+                                                <li role="presentation"><a href="{% url 'password_change' %}" class="indent">Change</a></li>
+                                                <li role="presentation"><a href="{% url 'password_change_done' %}" class="indent">Change Done</a></li>
+                                                <li role="presentation"><a href="{% url 'password_reset' %}" class="indent">Reset</a></li>
+                                                <li role="presentation"><a href="{% url 'password_reset_done' %}" class="indent">Reset Done</a></li>
+                                                <li class="disabled"><a class="indent disabled">Reset Confirm <small>/asvo/auth/reset/&#60;uidb64&#62;/&#60;token&#62;/</small></a></li>
+                                                <li role="presentation"><a href="{% url 'password_reset_complete' %}" class="indent">Reset Complete</a></li>
+
+                                                <h6>Session</h6>
+                                                <li role="presentation"><a href="{% url 'rest_framework:login' %}" class="indent">Log In </a></li>
+                                                {% if user.is_authenticated %}
+                                                    <li role="presentation"><a href="{% url 'rest_framework:logout' %}?next={% url 'index' %}" class="indent">Log Out </a></li>
+                                                {% endif %}
+
                                                 <h6>Token</h6>
                                                 <li role="presentation"><a href="{% url 'token-obtain' %}" class="indent">Obtain </a></li>
                                                 <li role="presentation"><a href="{% url 'token-refresh' %}" class="indent">Refresh </a></li>
                                                 <li role="presentation"><a href="{% url 'token-verify' %}" class="indent">Verify </a></li>
-                                                <h5>Errors</h5>
-                                                <li role="presentation"><a class="scroll" href="">Errors</a></li>
+                                                <!--<h5>Errors</h5>-->
+                                                <!--<li role="presentation"><a class="scroll" href="">Errors</a></li>-->
                                             </ul>
                                         </div>
                                     {% endblock %}
@@ -379,13 +396,13 @@
                                     <col width="100%">
                                     <tbody>
                                     <tr>
-                                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>REST API</a></small></h4></td>
+                                        <td><h4><small><a class="text-uppercase disabled" disabled>REST API</a></small></h4></td>
                                     </tr>
                                     <tr>
-                                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>UI</a></small></h4></td>
+                                        <td><h4><small><a class="text-uppercase disabled" disabled>React App</a></small></h4></td>
                                     </tr>
                                     <tr>
-                                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>FIDIA</a></small></h4></td>
+                                        <td><h4><small><a class="text-uppercase disabled" disabled>FIDIA</a></small></h4></td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -400,7 +417,7 @@
                                         <td><h4><small><a class="text-uppercase disabled" href="" disabled>Documentation</a></small></h4></td>
                                     </tr>
                                     <tr>
-                                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>Contact Us</a></small></h4></td>
+                                        <td><h4><small><a class="text-uppercase disabled" href="{% url 'support:contact-list' %}">Contact Us</a></small></h4></td>
                                     </tr>
 
                                     </tbody>
@@ -455,9 +472,9 @@
                                 <hr class="hidden-xs">
                                 <a href="https://www.aao.gov.au/" target='_blank' class="text-center "><img src="{% static 'restapi_app/img/logo/DIIS_AAO_logo_inline_inverted.png' %}"></a> &nbsp;&nbsp;
                                 <a href="">ABOUT</a> |
-                                <a href="">SITE MAP</a> |
-                                <a href="">COPYRIGHT</a> |
-                                <a href="">DISCLAIMER</a>
+                                <a>SITE MAP</a> |
+                                <a>COPYRIGHT</a> |
+                                <a>DISCLAIMER</a>
                             </div>
                             <div class="col-sm-12 center-block text-center">
                                 <small>Copyright © 2016 Australian Astronomical Observatory.</small>

@@ -58,7 +58,7 @@ class Query(viewsets.ModelViewSet):
         Return a list of all queries for the currently authenticated user.
         """
         user = self.request.user
-        return query.models.Query.objects.filter(owner=user).order_by('-updated')
+        return query.models.Query.objects.filter(owner=user).exclude(pk=32).order_by('-updated')
 
     def perform_create(self, serializer):
         """

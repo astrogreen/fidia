@@ -30,7 +30,7 @@ urlpatterns = [
 
 
     # url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
-    url(r'^(?i)support/bug-report/$', restapi_app.views.BugReport.as_view(), name='support-bug'),
+    # url(r'^(?i)support/bug-report/$', restapi_app.views.BugReport.as_view(), name='support-bug'),
 
     # url(r'^user-testing/feedback/$',
     #   TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'),
