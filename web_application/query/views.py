@@ -93,8 +93,8 @@ class QuerySchema(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, format=None):
-        # schema = MappingDatabase.get_sql_schema()
-        schema = query.dummy_schema.DUMMY_SCHEMA
+        schema = MappingDatabase.get_sql_schema()
+        # schema = query.dummy_schema.DUMMY_SCHEMA
         return Response(schema)
 
 #

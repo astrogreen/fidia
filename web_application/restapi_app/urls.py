@@ -16,22 +16,6 @@ urlpatterns = [
     # url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),
 
 
-    url(r'^(?i)GAMA/$', restapi_app.views.TemplateViewWithStatusCode.as_view(
-        template_name='restapi_app/support/underconstruction.html'), name='gama'),
-
-    url(r'^(?i)under-construction/$',
-        restapi_app.views.TemplateViewWithStatusCode.as_view(
-            template_name='restapi_app/support/underconstruction.html'),
-        name='under-construction'),
-
-    # url(r'^(?i)about/team/$',
-    #     restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/about/team.html'),
-    #     name='about-team'),
-
-
-    # url(r'^(?i)support/contact/$', restapi_app.views.ContactForm.as_view(), name='support-contact'),
-    # url(r'^(?i)support/bug-report/$', restapi_app.views.BugReport.as_view(), name='support-bug'),
-
     # url(r'^user-testing/feedback/$',
     #   TemplateView.as_view(template_name='restapi_app/user-testing/feedback.html'),
     #   name='user-feedback'),
