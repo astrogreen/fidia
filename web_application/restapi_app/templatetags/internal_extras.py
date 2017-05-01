@@ -22,124 +22,136 @@ from rest_framework.utils.urls import replace_query_param
 register = template.Library()
 
 
-@register.simple_tag
-def optional_logout(request, user):
+@register.filter
+def siteabsoluteurl(absoluteurl, request):
     """
-    Include a logout snippet if REST framework's logout view is in the URLconf.
+        receives an argument in the form of an absolute url <absoluteurl> 
+        Returns the same url with all the necessary path information to be used offsite
     """
-
-    try:
-        logout_url = reverse('rest_framework:logout')
-    except NoReverseMatch:
-        snippet = format_html('<li class="navbar-text">{user}</li>', user=escape(user))
-        return mark_safe(snippet)
-    # try:
-    #     querylist_url = reverse('query-list')
-    # except NoReverseMatch:
-    #     querylist_url = ''
-    #
-    # try:
-    #     downloadlist_url = reverse('download-list')
-    # except NoReverseMatch:
-    #     downloadlist_url = ''
-
-    try:
-        user = request.user
-        profile = reverse('user-profile-detail', kwargs={'username': user})
-    except NoReverseMatch:
-        return ''
-
-    # snippet = """<li class="dropdown user">
-    #     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-    #         {user}
-    #         <b class="caret"></b>
-    #     </a>
-    #     <ul class="dropdown-menu">
-    #         <li><a href="{profile}">Profile</a></li>
-    #         <li><a href="{requests}">Query History</a></li>
-    #         <li><a href="{download}">Download History</a></li>
-    #         <li><a href='{logout_url}'>Sign out </a></li>
-    #     </ul>
-    # </li>"""
-    # snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, download=downloadlist_url)
-
-    snippet = """<li class="dropdown user">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                {user}
-                <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-                <li><a href="{profile}">Profile</a></li>
-                <li><a href='{logout_url}'>Sign out </a></li>
-            </ul>
-        </li>"""
-
-    snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile)
-
-    return mark_safe(snippet)
+    return request.build_absolute_uri(absoluteurl)
 
 
-@register.simple_tag
-def optional_login(request, header):
-    """
-    Include a login snippet if REST framework's login view is in the URLconf.
-    """
-    try:
-        login_url = reverse('rest_framework:login')
-    except NoReverseMatch:
-        return ''
-    try:
-        register_url = reverse('user-register')
-    except NoReverseMatch:
-        return ''
-
-    # Once signed in, user is redirected back to next_page
-    # if cannot get next_url (e.g., page does not exist) then blank.
-    # unless logout, register or login
-    urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout',
-                     'rest_framework:logout', ]
-
-    try:
-                                                                    # Prepend namespace and get kwargs
-        url_name = escape(resolve(request.path_info).url_name)      # astroobject-list
-        _kwargs = resolve(request.path_info).kwargs if resolve(
-            request.path_info).kwargs else ""                       # {'astroobject_pk': '24433', 'survey_pk': 'sami'}
-        # _namespace = request.resolver_match.namespace             # data_browser
-        next_url_name = request.resolver_match.namespace \
-                        + ':' + url_name if request.resolver_match.namespace else url_name  # data_browser:astroobject-list
-
-        if next_url_name in urls_to_avoid and request.user != 'AnonymousUser':
-            next_page = reverse('index')
-        else:
-            next_page = reverse(next_url_name, kwargs=_kwargs)
-    except Exception:
-        next_page = ""
-
-    if header == True:
-        snippet = """<li class="background-white">
-                        <a href='{login}?next={next}'>
-                            Sign In <i class="fa fa-lock"></i>
-                        </a>
-                        </li>
-                        <li class="background-white">
-                        <a href="{register}">
-                            Register <i class="fa fa-pencil-square-o"></i>
-                        </a>
-                    </li>"""
-    else:
-        snippet = """<div class='user'>
-                <a href='{login}?next={next}' class="text-error text-uppercase">
-                    <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
-
-                </a>
-                &nbsp;<strong> OR </strong>&nbsp;
-                <a href="{register}" class="btn btn-primary text-uppercase">
-                    <span>Register</span>
-                    <i class="fa fa-pencil-square-o"></i>
-                </a>
-            </div>"""
-    snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
-    return mark_safe(snippet)
+#
+#
+#
+# @register.simple_tag
+# def optional_logout(request, user):
+#     """
+#     Include a logout snippet if REST framework's logout view is in the URLconf.
+#     """
+#
+#     try:
+#         logout_url = reverse('rest_framework:logout')
+#     except NoReverseMatch:
+#         snippet = format_html('<li class="navbar-text">{user}</li>', user=escape(user))
+#         return mark_safe(snippet)
+#     # try:
+#     #     querylist_url = reverse('query-list')
+#     # except NoReverseMatch:
+#     #     querylist_url = ''
+#     #
+#     # try:
+#     #     downloadlist_url = reverse('download-list')
+#     # except NoReverseMatch:
+#     #     downloadlist_url = ''
+#
+#     try:
+#         user = request.user
+#         profile = reverse('user-profile-detail', kwargs={'username': user})
+#     except NoReverseMatch:
+#         return ''
+#
+#     # snippet = """<li class="dropdown user">
+#     #     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+#     #         {user}
+#     #         <b class="caret"></b>
+#     #     </a>
+#     #     <ul class="dropdown-menu">
+#     #         <li><a href="{profile}">Profile</a></li>
+#     #         <li><a href="{requests}">Query History</a></li>
+#     #         <li><a href="{download}">Download History</a></li>
+#     #         <li><a href='{logout_url}'>Sign out </a></li>
+#     #     </ul>
+#     # </li>"""
+#     # snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile, requests=querylist_url, download=downloadlist_url)
+#
+#     snippet = """<li class="dropdown user">
+#             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+#                 {user}
+#                 <b class="caret"></b>
+#             </a>
+#             <ul class="dropdown-menu">
+#                 <li><a href="{profile}">Profile</a></li>
+#                 <li><a href='{logout_url}'>Sign out </a></li>
+#             </ul>
+#         </li>"""
+#
+#     snippet = format_html(snippet, user=escape(user), logout_url=logout_url, profile=profile)
+#
+#     return mark_safe(snippet)
+#
+#
+# @register.simple_tag
+# def optional_login(request, header):
+#     """
+#     Include a login snippet if REST framework's login view is in the URLconf.
+#     """
+#     try:
+#         login_url = reverse('rest_framework:login')
+#     except NoReverseMatch:
+#         return ''
+#     try:
+#         register_url = reverse('user-register')
+#     except NoReverseMatch:
+#         return ''
+#
+#     # Once signed in, user is redirected back to next_page
+#     # if cannot get next_url (e.g., page does not exist) then blank.
+#     # unless logout, register or login
+#     urls_to_avoid = ['logout-url', 'user-register', 'login', 'rest_framework:login', 'logout',
+#                      'rest_framework:logout', ]
+#
+#     try:
+#                                                                     # Prepend namespace and get kwargs
+#         url_name = escape(resolve(request.path_info).url_name)      # astroobject-list
+#         _kwargs = resolve(request.path_info).kwargs if resolve(
+#             request.path_info).kwargs else ""                       # {'astroobject_pk': '24433', 'survey_pk': 'sami'}
+#         # _namespace = request.resolver_match.namespace             # data_browser
+#         next_url_name = request.resolver_match.namespace \
+#                         + ':' + url_name if request.resolver_match.namespace else url_name  # data_browser:astroobject-list
+#
+#         if next_url_name in urls_to_avoid and request.user != 'AnonymousUser':
+#             next_page = reverse('index')
+#         else:
+#             next_page = reverse(next_url_name, kwargs=_kwargs)
+#     except Exception:
+#         next_page = ""
+#
+#     if header == True:
+#         snippet = """<li class="background-white">
+#                         <a href='{login}?next={next}'>
+#                             Sign In <i class="fa fa-lock"></i>
+#                         </a>
+#                         </li>
+#                         <li class="background-white">
+#                         <a href="{register}">
+#                             Register <i class="fa fa-pencil-square-o"></i>
+#                         </a>
+#                     </li>"""
+#     else:
+#         snippet = """<div class='user'>
+#                 <a href='{login}?next={next}' class="text-error text-uppercase">
+#                     <span class="text-error">Sign In <i class="fa fa-lock"></i></span>
+#
+#                 </a>
+#                 &nbsp;<strong> OR </strong>&nbsp;
+#                 <a href="{register}" class="btn btn-primary text-uppercase">
+#                     <span>Register</span>
+#                     <i class="fa fa-pencil-square-o"></i>
+#                 </a>
+#             </div>"""
+#     snippet = format_html(snippet, login=login_url, register=register_url, next=next_page)
+#     return mark_safe(snippet)
 
 
 
@@ -348,3 +360,4 @@ def stringify(list):
 @register.filter
 def slug(_str):
     return slugify(_str)
+

@@ -16,7 +16,7 @@
                 <link rel="icon" href="/static/img/aao.ico">
             {% endblock %}
 
-            <title>{% block title %}ADC{% if name %} - {{ name }}{% endif %}{% endblock %}</title>
+            <title>{% block title %}ADC API{% if name %} - {{ name }}{% endif %}{% endblock %}</title>
 
             {% block style %}
                 {% block bootstrap_theme %}
@@ -58,8 +58,8 @@
                                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                                     <ul class="nav navbar-nav">
                                         <li><a href="{% url 'index' %}">Home</a></li>
-                                        <li class="disabled"><a href="">Docs</a></li>
-                                        <li class="disabled"><a href="">APIs</a></li>
+                                        <li><a href="{% url 'api-docs' %}">Documentation</a></li>
+                                        <!--<li class="disabled"><a href="">APIs</a></li>-->
                                         <li class="dropdown">
                                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                                                aria-expanded="false">Support </a>
@@ -136,7 +136,7 @@
                             <div class="col-xs-12 col-sm-2 sidebar" role="navigation">
                                 <div class="sidebar-contents">
                                     {% block sidebar %}
-                                        <h5>REST API</h5>
+                                        <h5>REST API Reference</h5>
                                         <div class="page-contents">
                                             <ul class="nav nav-pills nav-stacked nav-sidebar">
                                                 <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
@@ -158,6 +158,17 @@
 
                                                 <h5>Authentication and Headers</h5>
 
+                                                <h6>Session</h6>
+                                                <li role="presentation"><a href="{% url 'rest_framework:login' %}" class="indent">Log In </a></li>
+                                                {% if user.is_authenticated %}
+                                                    <li role="presentation"><a href="{% url 'rest_framework:logout' %}?next={% url 'index' %}" class="indent">Log Out </a></li>
+                                                {% endif %}
+
+                                                <h6>Token</h6>
+                                                <li role="presentation"><a href="{% url 'token-obtain' %}" class="indent">Obtain </a></li>
+                                                <li role="presentation"><a href="{% url 'token-refresh' %}" class="indent">Refresh </a></li>
+                                                <li role="presentation"><a href="{% url 'token-verify' %}" class="indent">Verify </a></li>
+
                                                 <h6>User</h6>
                                                 <li role="presentation"><a href="{% url 'user-profile-detail' username=user %}" class="indent">Profile</a></li>
                                                 <li role="presentation"><a href="{% url 'register' %}" class="indent">Register </a></li>
@@ -170,16 +181,7 @@
                                                 <li class="disabled"><a class="indent disabled">Reset Confirm <small>/asvo/auth/reset/&#60;uidb64&#62;/&#60;token&#62;/</small></a></li>
                                                 <li role="presentation"><a href="{% url 'password_reset_complete' %}" class="indent">Reset Complete</a></li>
 
-                                                <h6>Session</h6>
-                                                <li role="presentation"><a href="{% url 'rest_framework:login' %}" class="indent">Log In </a></li>
-                                                {% if user.is_authenticated %}
-                                                    <li role="presentation"><a href="{% url 'rest_framework:logout' %}?next={% url 'index' %}" class="indent">Log Out </a></li>
-                                                {% endif %}
 
-                                                <h6>Token</h6>
-                                                <li role="presentation"><a href="{% url 'token-obtain' %}" class="indent">Obtain </a></li>
-                                                <li role="presentation"><a href="{% url 'token-refresh' %}" class="indent">Refresh </a></li>
-                                                <li role="presentation"><a href="{% url 'token-verify' %}" class="indent">Verify </a></li>
                                                 <!--<h5>Errors</h5>-->
                                                 <!--<li role="presentation"><a class="scroll" href="">Errors</a></li>-->
                                             </ul>
