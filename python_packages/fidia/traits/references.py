@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Type, Dict
-import fidia
+# from typing import Type, Dict
+# import fidia
 
 # Python Standard Library Imports
 
@@ -10,8 +10,8 @@ import fidia
 # FIDIA Imports
 import fidia.base_classes as bases
 from fidia.exceptions import *
-# from fidia.column import ColumnID
-from fidia.traits.trait_key import TraitKey, BranchesVersions, DefaultsRegistry
+from fidia.traits.trait_key import TraitKey, BranchesVersions, DefaultsRegistry, \
+    validate_trait_branch, validate_trait_version
 # Other modules within this package
 
 # Set up logging
@@ -38,6 +38,7 @@ class TraitMapping(bases.TraitMapping):
 
     def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
         # type: (Type[fidia.Trait], str, Dict[str, Union[str, TraitMapping]]) -> None
+        # assert issubclass(fidia.traits.BaseTrait, trait_class)
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
         self.trait_schema = schema
@@ -156,6 +157,7 @@ class TraitPointer(bases.TraitPointer):
         self.trait_mapping = trait_mapping
         self.trait_registry = trait_registry
         self.trait_class = trait_mapping.trait_class
+        assert issubclass(fidia.traits.BaseTrait, self.trait_class)
 
 
 
@@ -163,68 +165,11 @@ class TraitPointer(bases.TraitPointer):
         tk = TraitKey.as_traitkey(item)
 
         tk = self.trait_mapping.update_trait_key_with_defaults(tk)
-
-        trait = self.trait_class(tk, self.astro_object, self.trait_mapping, self.trait_registry)
+        trait = self.trait_class(sample=self.sample, trait_key=tk,
+                                 object_id=self.astro_object.identifier,
+                                 trait_registry=self.trait_mapping,
+                                 trait_schema=self.trait_mapping.trait_schema)
 
         # @TODO: Object Caching?
 
         return trait
-
-    # def _set_branch_and_version(self, trait_key):
-    #     """Trait Branch and Version handling:
-    #
-    #     The goal of this is to set the trait branch and version if at all possible. The
-    #     following are tried:
-    #     - If version explicitly provided in this initialisation, that is the version.
-    #     - If this is a sub trait check the parent trait for it's version.
-    #     - If the version is still none, try to set it to the default for this trait.
-    #     """
-    #
-    #     # if log.isEnabledFor(slogging.DEBUG):
-    #     assert isinstance(trait_key, TraitKey)
-    #
-    #     def validate_and_inherit(trait_key, parent_trait, valid, attribute):
-    #         """Helper function to validate and/or inherit.
-    #
-    #         This is defined because the logic is identical for both branches
-    #         and versions, so this avoides repetition
-    #
-    #         """
-    #
-    #         current_value = getattr(trait_key, attribute)
-    #
-    #         if current_value is not None:
-    #             # We have been given a (branch/version) value, check that it
-    #             # is valid for this Trait:
-    #             if valid is not None:
-    #                 assert current_value in valid, \
-    #                     "%s '%s' not valid for trait '%s'" % (attribute, current_value, self)
-    #             return current_value
-    #         elif current_value is None:
-    #             # We have been asked to inherit the branch/version from the
-    #             # parent trait. If the parent_trait is defined (i.e. this is
-    #             # not a top level trait), then take its value if it is valid
-    #             # for this trait.
-    #             if parent_trait is not None:
-    #                 parent_value = getattr(parent_trait, attribute)
-    #                 # This is a sub trait. Inherit branch from parent unless not valid.
-    #                 if valid is None:
-    #                     # All options are valid.
-    #                     return parent_value
-    #                 elif valid is not None and parent_value in valid:
-    #                     return parent_value
-    #                 else:
-    #                     # Parent is not valid here, so leave as None
-    #                     return None
-    #
-    #     # Determine the branch given the options.
-    #     self.branch = validate_and_inherit(trait_key, self._parent_trait, self.branches_versions, 'branch')
-    #
-    #     # Now that the branch has been specified, determine the valid versions
-    #     if self.branches_versions is not None:
-    #         valid_versions = self.branches_versions[self.branch]
-    #     else:
-    #         valid_versions = None
-    #
-    #     # Determine the version given the options
-    #     self.version = validate_and_inherit(trait_key, self._parent_trait, valid_versions, 'version')

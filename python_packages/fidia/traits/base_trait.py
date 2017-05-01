@@ -149,7 +149,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         super(BaseTrait, self).__init__()
 
 
-        self._validate_trait_class()
+        # self._validate_trait_class()
 
         self.sample = sample
         # self._parent_trait = parent_trait

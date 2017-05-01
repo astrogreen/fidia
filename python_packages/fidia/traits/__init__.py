@@ -1,4 +1,4 @@
-from .base_trait import Trait, TraitCollection
+from .base_trait import Trait, TraitCollection, BaseTrait
 
 # from .smart_traits import WorldCoordinateSystem, SkyCoordinate
 #

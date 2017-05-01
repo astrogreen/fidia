@@ -19,7 +19,12 @@ class TestFidiaImportsAndPackageLayout:
         import fidia.archive
         import fidia.sample
         import fidia.column
+
         import fidia.traits
+        import fidia.traits.references
+        import fidia.traits.trait_key
+        import fidia.traits.trait_registry
+        import fidia.traits.base_trait
 
     def test_toplevel_layout(self):
         import fidia
