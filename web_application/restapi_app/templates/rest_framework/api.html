@@ -1,404 +1,519 @@
 {% load staticfiles %}
-{% load rest_framework %}
 {% load i18n %}
-{% load internal_extras %}
-{% load status_helper %}
+{% load rest_framework %}
 <!DOCTYPE html>
-<html {% block angular-ng-app-class %}ng-app="DCApp"{% endblock %}>
-<head>
-  {% block overwrite_include %}
-    {% include "restapi_app/header/header.html" %}
-  {% endblock %}
-  <title>ADC | {% block title %}Home{% endblock %}</title>
-  {% block head-extra %}
-  {% endblock %}
-</head>
+<html>
+    <head>
+        {% block head %}
 
-{% block body %}
-<body class="{% block bodyclass %}{% endblock %}" id="top-of-page">
+            {% block meta %}
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                <meta name="robots" content="NONE,NOARCHIVE"/>
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <meta name="description" content="ASVO AAT Node">
+                <meta name="author" content="AA0">
+                <link rel="icon" href="/static/img/aao.ico">
+            {% endblock %}
 
-    {% block navbar %}
-      {% include "restapi_app/header/navbar.html" %}
-    {% endblock %}
+            <title>{% block title %}ADC API{% if name %} - {{ name }}{% endif %}{% endblock %}</title>
 
-    {% block page_title_banner %}
-    <div class="page_title_banner {% block page_title_banner_class%}{%endblock%}">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-6">
-            <h1>{% block page_title %}{% endblock %}</h1>
-          </div>
-          <div class="col-sm-6 hidden-xs">
-            <div class="useful_links pull-right">
-              <ul class="nav nav-pills">
-                {% block useful_links %}
-                <li role="presentation"><a href="{% url 'documentation:topic-list' %}">Help Center</a></li>
-                {% endblock useful_links %}
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-    {% endblock page_title_banner %}
-
-    {% block breadcrumbs_container %}
-    <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
-      {% block breadcrumbs-outer %}
-        <div class="container">
-          <div class="row">
-            <div class="col-xs-12 col-sm-12">
-              <ul class="breadcrumb">
-                {% block breadcrumbs %}
-                  {% if breadcrumblist %}
-                    <li><a href="{% url 'index' %}">Home</a></li>
-                    {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
-                    {% if forloop.last %}
-                    <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
-                    {% else %}
-                    <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
-                    {% endif %}
-                    {% endfor %}
-                  {% endif %}
+            {% block style %}
+                {% block bootstrap_theme %}
+                <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
                 {% endblock %}
 
-                <div class="pull-right">
-                  {% block version_container %}
-                  {% endblock %}
-                </div>
-              </ul>
+                <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
+                <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
+                <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/styles/styles.css' %}"/>
+                <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic&subset=latin,greek,latin-ext'
+                      rel='stylesheet' type='text/css'>
+            {% endblock %}
 
-            </div>
+        {% endblock %}
+    </head>
 
-          </div>
-        </div>
-      {% endblock %}
-    </div>
-  {% endblock %}
+    {% block body %}
+        <body class="{% block bodyclass %}{% endblock %}">
 
-  <div class="wrapper {% block less-class %}{% endblock %}">
-
-    {% block call-to-action %}{% endblock %}
-
-    <div class="container" id="page-content">
-
-      {% block content_and_status %}
-        {% with "200" as http_status_code %}
-
-          {% if response.status_code %}
-            {% captureas http_status_code %}{{response.status_code}}{% endcaptureas %}
-          {% elif response.status %}
-            {% captureas http_status_code %}{{response.status}}{% endcaptureas %}
-          {% endif %}
-
-          {% if response.data.detail %}
-            {% captureas http_status_detail %}{{response.data.detail}}{% endcaptureas %}
-          {% elif response.detail %}
-            {% captureas http_status_detail %}{{response.detail}}{% endcaptureas %}
-          {% elif response.data.non_field_errors %}
-            {% captureas http_status_detail %}{{response.data.non_field_errors}}{% endcaptureas %}
-          {% elif response.data %}
-            {% captureas http_status_detail %}{{response.data}}{% endcaptureas %}
-          {% endif %}
-
-          {% block http_status %}
-                {% block http_status_info %}
-                    {% status_info request http_status_code user http_status_detail %}
-                {% endblock %}
-          {% endblock %}
-
-          {% block content %}
-            {% captureas http_status_is_success %}{% is_success http_status_code %}{% endcaptureas %}
-            {% if  http_status_is_success == "True" %}
-              {% block scroll-to-top %}
-                <a class="scroll" href="#top-of-page" id="back-to-top">
-                    <i class="fa fa-angle-double-up"></i>
-                    back to top
-                </a>
-              {% endblock %}
-
-              <div class="row">
-                {% block no_sidebar %}
-                  {% block sidebar_container %}
-                  <div class="col-xs-12 col-sm-2 sidebar" role="navigation">
-                    <div class="sidebar-contents" data-spy="affix">
-                      {% block sidebar %}
-                      sidebar
-                      {% endblock %}
-                    </div>
-                  </div>
-                  {% endblock %}
-
-                  {% block main_container %}
-                  {% block before-main %}{% endblock %}
-                  <div class="col-xs-12 col-sm-10 main-content">
-                    {% block main %}
-                    main
-                    {% endblock %}
-                  </div>
-                  {% endblock %}
-                {% endblock %}
-              </div>
-
-              {% if show_api %}
-                {% block content_api %}
-                  <!-- API Content -->
-                  <div id="content">
-                    {% block content-header %}
-                      {% block content-format %}
-                        {% if 'GET' in allowed_methods %}
-                          <form id="get-form" class="pull-right">
-                            <fieldset>
-                              {% if api_settings.URL_FORMAT_OVERRIDE %}
-                                <div class="btn-group format-selection">
-                                  <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
-
-                                  <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
-                                    <span class="caret"></span>
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                    {% for format in available_formats %}
-                                      <li>
-                                        <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}" rel="nofollow" title="Make a GET request on the {{ name }} resource with the format set to `{{ format }}`">{{ format }}</a>
-                                      </li>
-                                    {% endfor %}
-                                  </ul>
+            <div class="wrapper">
+                {% block navbar %}
+                    <header>
+                        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+                            <div class="container">
+                                <!-- Brand and toggle get grouped for better mobile display -->
+                                <div class="navbar-header">
+                                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                                        <span class="sr-only">Toggle navigation</span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                    </button>
+                                    {% block branding %}
+                                        <a class="navbar-brand" rel="nofollow" href="{% url 'index' %}"><img src="{% static 'restapi_app/img/logo/aao_90x40.png' %}" alt="AAO - Australian Astronomical Observatory"></a>
+                                    {% endblock %}
                                 </div>
-                              {% else %}
-                                <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
-                              {% endif %}
-                            </fieldset>
-                          </form>
-                        {% endif %}
-                      {% endblock %}
-                      {% block content-options %}
-                        {% if options_form %}
-                          <form class="button-form" action="{{ request.get_full_path }}" data-method="OPTIONS">
-                            <button class="btn btn-primary js-tooltip" title="Make an OPTIONS request on the {{ name }} resource">OPTIONS</button>
-                          </form>
-                        {% endif %}
-                      {% endblock %}
-                      {% block content-delete %}
-                        {% if delete_form %}
-                          <form class="button-form" action="{{ request.get_full_path }}" data-method="DELETE">
-                            <button class="btn btn-danger js-tooltip" title="Make a DELETE request on the {{ name }} resource">DELETE</button>
-                          </form>
-                        {% endif %}
-                      {% endblock %}
-                      {% block content-filter-form %}
-                        {% if filter_form %}
-                            <button style="float: right; margin-right: 10px" data-toggle="modal" data-target="#filtersModal" class="btn btn-default">
-                                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-                                {% trans "Filters" %}
-                            </button>
-                        {% endif %}
-                      {% endblock %}
-                    {% endblock %}
-                    {% block content-main %}
-                      <div class="content-main">
-                        <div class="page-header">
-                          {% block content-page-header %}
-                            <h1>{{ name }}</h1>
-                          {% endblock %}
-                        </div>
-                        <div style="float:left">
-                          {% block description %}
-                            {{ description }}
-                          {% endblock %}
-                        </div>
 
-                        {% if paginator %}
-                          <nav style="float: right">
-                            {% get_pagination_html paginator %}
-                          </nav>
-                        {% endif %}
-
-                        <!--POST NEW REQUEST INSTANCE-->
-                        {% if display_edit_forms %}
-
-                          {% if post_form or raw_data_post_form %}
-                            <div {% if post_form %}class="tabbable"{% endif %}>
-                              {% if post_form %}
-                                <ul class="nav nav-tabs form-switcher">
-                                  <li>
-                                    <a name='html-tab' href="#post-object-form" data-toggle="tab">HTML form</a>
-                                  </li>
-                                  <li>
-                                    <a name='raw-tab' href="#post-generic-content-form" data-toggle="tab">Raw data</a>
-                                  </li>
-                                </ul>
-                              {% endif %}
-
-                              <div class="well tab-content">
-                                {% if post_form %}
-                                  <div class="tab-pane" id="post-object-form">
-                                    {% with form=post_form %}
-                                      <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
-                                        <fieldset>
-                                          {% csrf_token %}
-                                          {{ post_form }}
-                                          <div class="form-actions">
-                                            <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
-                                          </div>
-                                        </fieldset>
-                                      </form>
-                                    {% endwith %}
-                                  </div>
-                                {% endif %}
-
-                                <div {% if raw_data_post_form %}class="tab-pane"{% endif %} id="post-generic-content-form">
-                                  {% with form=raw_data_post_form %}
-                                    <form action="{{ request.get_full_path }}" method="POST" class="form-horizontal">
-                                      <fieldset>
-                                        {% include "rest_framework/raw_data_form.html" %}
-                                        <div class="form-actions">
-                                          <button class="btn btn-primary pull-right" title="Make a POST request on the {{ name }} resource">SUBMIT</button>
-                                        </div>
-                                      </fieldset>
-                                    </form>
-                                  {% endwith %}
+                                <!-- Collect the nav links, forms, and other content for toggling -->
+                                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                                    <ul class="nav navbar-nav">
+                                        <li><a href="{% url 'index' %}">Home</a></li>
+                                        <li><a href="{% url 'api-docs' %}">Documentation</a></li>
+                                        <!--<li class="disabled"><a href="">APIs</a></li>-->
+                                        <li class="dropdown">
+                                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                                               aria-expanded="false">Support </a>
+                                            <ul class="dropdown-menu">
+                                                <li class="dropdown-header">Support</li>
+                                                <li><a href="{% url 'support:contact-list' %}">Contact</a></li>
+                                                <li><a href="{% url 'support:bug-report-list' %}">Report an Issue</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                    <ul class="nav navbar-nav pull-right">
+                                      {% block userlinks %}
+                                        {% if user.is_authenticated %}
+                                          {% optional_logout request user %}
+                                        {% else %}
+                                          {% optional_login request %}
+                                        {% endif %}
+                                      {% endblock %}
+                                    </ul>
                                 </div>
-                              </div>
+                                <!-- /.navbar-collapse -->
                             </div>
-                          {% endif %}
-                        {% endif %}
+                        </nav>
+                    </header>
+                {% endblock %}
 
-                        {% block content-input %}
-                        {% endblock %}
-                        {% block content-DRF %}
-                          {% block query-form %}
-                              <div class="response-info" style="clear: both">
-                              <div class="response-info" style="clear: both">
-                                <pre class="prettyprint"><span class="meta nocode"><b>HTTP {{ response.status_code }} {{ response.status_text }}</b>{% autoescape off %}
-                  {% for key, val in response_headers.items %}<b>{{ key }}:</b> <span class="lit">{{ val|break_long_headers|urlize_quoted_links }}</span>
-                  {% endfor %}
-                  </span>{{ content|urlize_quoted_links }}{% endautoescape %}</div>
-                              </pre>
-                            </div>
-                          {% endblock %}
+                {% block graident_border %}
+                    <div class="graident_border {% block graident_border_class %}{%endblock%}"></div>
+                {% endblock graident_border %}
 
-                          {% if display_edit_forms %}
-                            <!--UPDATE EXISTING REQUEST INSTANCE-->
-                            {% if put_form or raw_data_put_form or raw_data_patch_form %}
+                {% block breadcrumb-container %}
+                    <div class="breadcrumb-container {% block breadcrumbclass %}{% endblock %}">
+                        {% block breadcrumbs-outer %}
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12">
+                                        <ul class="breadcrumb">
+                                            {% block breadcrumbs %}
+                                                {% if breadcrumblist %}
+                                                    <li><a href="{% url 'index' %}">Home</a></li>
+                                                    {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
+                                                        {% if forloop.last %}
+                                                            <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+                                                        {% else %}
+                                                            <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endblock %}
 
-                              <div {% if put_form %}class="tabbable"{% endif %}>
-                                {% if put_form %}
-                                  <ul class="nav nav-tabs form-switcher">
-                                    <li>
-                                      <a name='html-tab' href="#put-object-form" data-toggle="tab">HTML form</a>
-                                    </li>
-                                    <li>
-                                      <a  name='raw-tab' href="#put-generic-content-form" data-toggle="tab">Raw data</a>
-                                    </li>
-                                  </ul>
-                                {% endif %}
-
-                                <div class="well tab-content">
-                                  {% if put_form %}
-                                    <div class="tab-pane" id="put-object-form">
-                                      <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data" class="form-horizontal" novalidate>
-                                        <fieldset>
-                                          {{ put_form }}
-                                          <div class="form-actions">
-                                            <button class="btn btn-primary js-tooltip" title="Make a PUT request on the {{ name }} resource">UPDATE [PUT]</button>
-                                          </div>
-                                        </fieldset>
-                                      </form>
+                                            <div class="pull-right">
+                                                {% block version_container %}
+                                                {% endblock %}
+                                            </div>
+                                        </ul>
                                     </div>
-                                  {% endif %}
-
-                                  <div {% if put_form %}class="tab-pane"{% endif %} id="put-generic-content-form">
-                                    {% with form=raw_data_put_or_patch_form %}
-                                      <form action="{{ request.get_full_path }}" data-method="PUT" class="form-horizontal">
-                                        <fieldset>
-                                          {% include "rest_framework/raw_data_form.html" %}
-                                          <div class="form-actions">
-                                            {% if raw_data_put_form %}
-                                              <button class="btn btn-primary js-tooltip" title="Make a PUT request on the {{ name }} resource">UPDATE [PUT]</button>
-                                            {% endif %}
-                                            {% if raw_data_patch_form %}
-                                            <button data-method="PATCH" class="btn btn-primary js-tooltip" title="Make a PATCH request on the {{ name }} resource">PATCH</button>
-                                              {% endif %}
-                                          </div>
-                                        </fieldset>
-                                      </form>
-                                    {% endwith %}
-                                  </div>
                                 </div>
-                              </div>
-                            {% endif %}
-                          {% endif %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock breadcrumb-container %}
 
-                      <div class="request-info" style="clear: both" >
-                        <strong>Request method</strong>
-                          <pre class="prettyprint"><b>{{ request.method }}</b> asvo{{request.get_full_path }}</pre>
+                <div class="container">
+
+                    {% block scroll-to-top %}
+                        <a class="scroll" href="#top-of-page" id="back-to-top">
+                            <i class="fa fa-angle-double-up"></i>
+                            back to top
+                        </a>
+                    {% endblock %}
+
+                    <div class="row">
+                        {% block sidebar_container %}
+                            <div class="col-xs-12 col-sm-2 sidebar" role="navigation">
+                                <div class="sidebar-contents">
+                                    {% block sidebar %}
+                                        <h5>REST API Reference</h5>
+                                        <div class="page-contents">
+                                            <ul class="nav nav-pills nav-stacked nav-sidebar">
+                                                <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
+                                                {% if request.user.is_staff %}
+                                                <li role="presentation"><a href="{% url 'admin:index' %}"> Admin</a></li>
+                                                {% endif %}
+                                                <h5>Endpoints</h5>
+                                                <h6>Query</h6>
+                                                <li role="presentation"><a href="{% url 'query-list' %}" class="indent">Queries</a></li>
+                                                <li role="presentation"><a href="{% url 'query-schema' %}" class="indent">Schema</a></li>
+                                                <h6>Documentation</h6>
+                                                <li role="presentation"><a href="{% url 'documentation:topic-list' %}" class="indent">Topics</a></li>
+                                                <li role="presentation"><a href="{% url 'documentation:article-list' %}" class="indent">Articles</a></li>
+                                                <h6>Support</h6>
+                                                <li role="presentation"><a href="{% url 'support:contact-list' %}" class="indent">Contact</a></li>
+                                                <li role="presentation"><a href="{% url 'support:bug-report-list' %}" class="indent">Report an Issue</a></li>
+                                                <li role="presentation"><a href="{% url 'feature-list' %}" class="indent">Features</a></li>
+                                                <li role="presentation"><a href="{% url 'vote-list' %}" class="indent">Vote</a></li>
+
+                                                <h5>Authentication and Headers</h5>
+
+                                                <h6>Session</h6>
+                                                <li role="presentation"><a href="{% url 'rest_framework:login' %}" class="indent">Log In </a></li>
+                                                {% if user.is_authenticated %}
+                                                    <li role="presentation"><a href="{% url 'rest_framework:logout' %}?next={% url 'index' %}" class="indent">Log Out </a></li>
+                                                {% endif %}
+
+                                                <h6>Token</h6>
+                                                <li role="presentation"><a href="{% url 'token-obtain' %}" class="indent">Obtain </a></li>
+                                                <li role="presentation"><a href="{% url 'token-refresh' %}" class="indent">Refresh </a></li>
+                                                <li role="presentation"><a href="{% url 'token-verify' %}" class="indent">Verify </a></li>
+
+                                                <h6>User</h6>
+                                                <li role="presentation"><a href="{% url 'user-profile-detail' username=user %}" class="indent">Profile</a></li>
+                                                <li role="presentation"><a href="{% url 'register' %}" class="indent">Register </a></li>
+
+                                                <h6>Password</h6>
+                                                <li role="presentation"><a href="{% url 'password_change' %}" class="indent">Change</a></li>
+                                                <li role="presentation"><a href="{% url 'password_change_done' %}" class="indent">Change Done</a></li>
+                                                <li role="presentation"><a href="{% url 'password_reset' %}" class="indent">Reset</a></li>
+                                                <li role="presentation"><a href="{% url 'password_reset_done' %}" class="indent">Reset Done</a></li>
+                                                <li class="disabled"><a class="indent disabled">Reset Confirm <small>/asvo/auth/reset/&#60;uidb64&#62;/&#60;token&#62;/</small></a></li>
+                                                <li role="presentation"><a href="{% url 'password_reset_complete' %}" class="indent">Reset Complete</a></li>
+
+
+                                                <!--<h5>Errors</h5>-->
+                                                <!--<li role="presentation"><a class="scroll" href="">Errors</a></li>-->
+                                            </ul>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                        {% block main_container %}
+                            {% block before-main %}{% endblock %}
+                            <div class="col-xs-12 col-sm-10 main-content">
+                                {% block main %}
+                                    <!-- Content -->
+                                    <div id="content">
+
+                  {% if 'GET' in allowed_methods %}
+                    <form id="get-form" class="pull-right">
+                      <fieldset>
+                        {% if api_settings.URL_FORMAT_OVERRIDE %}
+                          <div class="btn-group format-selection">
+                            <a class="btn btn-default js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
+
+                            <button class="btn btn-default dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              {% for format in available_formats %}
+                                <li>
+                                  <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}" rel="nofollow" title="Make a GET request on the {{ name }} resource with the format set to `{{ format }}`">{{ format }}</a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        {% else %}
+                          <a class="btn btn-default js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
+                        {% endif %}
+                      </fieldset>
+                    </form>
+                  {% endif %}
+
+                  {% if options_form %}
+                    <form class="button-form" action="{{ request.get_full_path }}" data-method="OPTIONS">
+                      <button class="btn btn-default js-tooltip" title="Make an OPTIONS request on the {{ name }} resource">OPTIONS</button>
+                    </form>
+                  {% endif %}
+
+                  {% if delete_form %}
+                    <button class="btn btn-danger button-form js-tooltip" title="Make a DELETE request on the {{ name }} resource" data-toggle="modal" data-target="#deleteModal">DELETE</button>
+
+                    <!-- Delete Modal -->
+                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-body">
+                            <h4 class="text-center">Are you sure you want to delete this {{ name }}?</h4>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <form class="button-form" action="{{ request.get_full_path }}" data-method="DELETE">
+                              <button class="btn btn-danger">Delete</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+
+                  {% if filter_form %}
+                    <button style="float: right; margin-right: 10px" data-toggle="modal" data-target="#filtersModal" class="btn btn-default">
+                      <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+                      {% trans "Filters" %}
+                    </button>
+                  {% endif %}
+
+                    <div class="content-main">
+                      <div class="page-header">
+                        <h1>{{ name }}</h1>
+                      </div>
+                      <div style="float:left">
+                        {% block description %}
+                          {{ description }}
+                        {% endblock %}
                       </div>
 
-                      {% endblock content-DRF %}
+                      {% if paginator %}
+                        <nav style="float: right">
+                          {% get_pagination_html paginator %}
+                        </nav>
+                      {% endif %}
 
-                    </div><!-- /.content main-->
-                  {% endblock content-main %}
-                  </div><!-- /.content_api -->
-                {% endblock content_api %}
-              {% endif %}
+                      <div class="request-info" style="clear: both" >
+                        <pre class="prettyprint"><b>{{ request.method }}</b> {{ request.get_full_path }}</pre>
+                      </div>
+
+                      <div class="response-info">
+                        <pre class="prettyprint"><span class="meta nocode"><b>HTTP {{ response.status_code }} {{ response.status_text }}</b>{% autoescape off %}{% for key, val in response_headers.items %}
+            <b>{{ key }}:</b> <span class="lit">{{ val|break_long_headers|urlize_quoted_links }}</span>{% endfor %}
+
+            </span>{{ content|urlize_quoted_links }}</pre>{% endautoescape %}
+                      </div>
+                    </div>
+
+                    {% if display_edit_forms %}
+                      {% if post_form or raw_data_post_form %}
+                        <div {% if post_form %}class="tabbable"{% endif %}>
+                          {% if post_form %}
+                            <ul class="nav nav-tabs form-switcher">
+                              <li>
+                                <a name='html-tab' href="#post-object-form" data-toggle="tab">HTML form</a>
+                              </li>
+                              <li>
+                                <a name='raw-tab' href="#post-generic-content-form" data-toggle="tab">Raw data</a>
+                              </li>
+                            </ul>
+                          {% endif %}
+
+                          <div class="well tab-content">
+                            {% if post_form %}
+                              <div class="tab-pane" id="post-object-form">
+                                {% with form=post_form %}
+                                  <form action="{{ request.get_full_path }}" method="POST" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                                    <fieldset>
+                                      {% csrf_token %}
+                                      {{ post_form }}
+                                      <div class="form-actions">
+                                        <button class="btn btn-default" title="Make a POST request on the {{ name }} resource">POST</button>
+                                      </div>
+                                    </fieldset>
+                                  </form>
+                                {% endwith %}
+                              </div>
+                            {% endif %}
+
+                            <div {% if post_form %}class="tab-pane"{% endif %} id="post-generic-content-form">
+                              {% with form=raw_data_post_form %}
+                                <form action="{{ request.get_full_path }}" method="POST" class="form-horizontal">
+                                  <fieldset>
+                                    {% include "rest_framework/raw_data_form.html" %}
+                                    <div class="form-actions">
+                                      <button class="btn btn-default" title="Make a POST request on the {{ name }} resource">POST</button>
+                                    </div>
+                                  </fieldset>
+                                </form>
+                              {% endwith %}
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
+
+                      {% if put_form or raw_data_put_form or raw_data_patch_form %}
+                        <div {% if put_form %}class="tabbable"{% endif %}>
+                          {% if put_form %}
+                            <ul class="nav nav-tabs form-switcher">
+                              <li>
+                                <a name='html-tab' href="#put-object-form" data-toggle="tab">HTML form</a>
+                              </li>
+                              <li>
+                                <a  name='raw-tab' href="#put-generic-content-form" data-toggle="tab">Raw data</a>
+                              </li>
+                            </ul>
+                          {% endif %}
+
+                          <div class="well tab-content">
+                            {% if put_form %}
+                              <div class="tab-pane" id="put-object-form">
+                                <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data" class="form-horizontal" novalidate>
+                                  <fieldset>
+                                    {{ put_form }}
+                                    <div class="form-actions">
+                                      <button class="btn btn-default js-tooltip" title="Make a PUT request on the {{ name }} resource">PUT</button>
+                                    </div>
+                                  </fieldset>
+                                </form>
+                              </div>
+                            {% endif %}
+
+                            <div {% if put_form %}class="tab-pane"{% endif %} id="put-generic-content-form">
+                              {% with form=raw_data_put_or_patch_form %}
+                                <form action="{{ request.get_full_path }}" data-method="PUT" class="form-horizontal">
+                                  <fieldset>
+                                    {% include "rest_framework/raw_data_form.html" %}
+                                    <div class="form-actions">
+                                      {% if raw_data_put_form %}
+                                        <button class="btn btn-default js-tooltip" title="Make a PUT request on the {{ name }} resource">PUT</button>
+                                      {% endif %}
+                                      {% if raw_data_patch_form %}
+                                      <button data-method="PATCH" class="btn btn-default js-tooltip" title="Make a PATCH request on the {{ name }} resource">PATCH</button>
+                                        {% endif %}
+                                    </div>
+                                  </fieldset>
+                                </form>
+                              {% endwith %}
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                </div><!-- /.content -->
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+
+
+              </div><!-- /.container -->
+
+                <footer class="footer" id="footer" >
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-3 col-xs-12 footer-block">
+                                <h3>TOOLS</h3>
+                                <table>
+                                    <col width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td><h4><small><a class="text-uppercase disabled" disabled>REST API</a></small></h4></td>
+                                    </tr>
+                                    <tr>
+                                        <td><h4><small><a class="text-uppercase disabled" disabled>React App</a></small></h4></td>
+                                    </tr>
+                                    <tr>
+                                        <td><h4><small><a class="text-uppercase disabled" disabled>FIDIA</a></small></h4></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <hr class="visible-xs">
+                            </div>
+                            <div class="col-sm-3 col-xs-12 footer-block">
+                                <h3>Support</h3>
+                                <table>
+                                    <col width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td><h4><small><a class="text-uppercase disabled" href="" disabled>Documentation</a></small></h4></td>
+                                    </tr>
+                                    <tr>
+                                        <td><h4><small><a class="text-uppercase disabled" href="{% url 'support:contact-list' %}">Contact Us</a></small></h4></td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+                                <hr class="visible-xs">
+                            </div>
+                            <div class="col-sm-3 col-xs-12 footer-block">
+                                <h3>Subscribe</h3>
+
+                                <hr class="visible-xs">
+                            </div>
+                            <div class="col-sm-3 col-xs-12 footer-block">
+                                <h3>Connect</h3>
+                                <table>
+                                    <col width="10%">
+                                    <col width="90%">
+                                    <tbody>
+                                    <tr>
+                                        <td><h4><a href="https://twitter.com/aaoastro"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                                        </h4></td>
+                                        <td>
+                                            <h4><a href="https://twitter.com/aaoastro">
+                                                <small>@AAOastro</small>
+                                            </a></h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><h4><a href="https://www.facebook.com/AustralianAstronomicalObservatory"><i
+                                                class="fa fa-facebook" aria-hidden="true"></i></a></h4></td>
+                                        <td>
+                                            <h4><a href="https://www.facebook.com/AustralianAstronomicalObservatory">
+                                                <small>AustralianAstronomicalObservatory</small>
+                                            </a></h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><h4><a href="https://www.youtube.com/user/AAOAstro"><i class="fa fa-youtube"
+                                                                                                   aria-hidden="true"></i></a></h4></td>
+                                        <td>
+                                            <h4><a href="https://www.youtube.com/user/AAOAstro">
+                                                <small>AAOastro</small>
+                                            </a></h4>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <hr class="visible-xs">
+                            </div>
+                        </div> <!--/.row-->
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <hr class="hidden-xs">
+                                <a href="https://www.aao.gov.au/" target='_blank' class="text-center "><img src="{% static 'restapi_app/img/logo/DIIS_AAO_logo_inline_inverted.png' %}"></a> &nbsp;&nbsp;
+                                <a href="">ABOUT</a> |
+                                <a>SITE MAP</a> |
+                                <a>COPYRIGHT</a> |
+                                <a>DISCLAIMER</a>
+                            </div>
+                            <div class="col-sm-12 center-block text-center">
+                                <small>Copyright © 2016 Australian Astronomical Observatory.</small>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
+            </div><!-- ./wrapper -->
+
+            {% if filter_form %}
+                {{ filter_form }}
             {% endif %}
-          {% endblock content %}
-        {% endwith %}
-      {% endblock content_and_status %}
 
+            {% block script %}
+                <script>
+                window.drf = {
+                  csrfHeaderName: "{{ csrf_header_name|default:'X-CSRFToken' }}",
+                  csrfCookieName: "{{ csrf_cookie_name|default:'csrftoken' }}"
+                };
+                </script>
+                <script src="{% static "rest_framework/js/jquery-1.12.4.min.js" %}"></script>
+                <script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
+                <script src="{% static "rest_framework/js/csrf.js" %}"></script>
+                <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
+                <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
+                <script src="{% static "rest_framework/js/default.js" %}"></script>
+                <script>
+                $(document).ready(function() {
+                  $('form').ajaxForm();
 
+                  // add in the complex_question question
+                  $('.form-group input[name="contact_complex_question"]').attr('placeholder', '1+2');
+                });
+                </script>
+            {% endblock %}
 
-
-      </div><!-- /.container -->
-
-  </div><!-- ./wrapper -->
-
-  {% block footer %}
-    {% include "restapi_app/header/footer.html" %}
-  {% endblock %}
-
-
-    <script>
-      window.drf = {
-        csrfHeaderName: "{{ csrf_header_name|default:'X-CSRFToken' }}",
-        csrfCookieName: "{{ csrf_cookie_name|default:'csrftoken' }}"
-      };
-    </script>
-
-    <script src="{% static 'rest_framework/js/ajax-form.js' %}"></script>
-    <script src="{% static 'rest_framework/js/csrf.js' %}"></script>
-    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
-    <script src="{% static 'rest_framework/js/default.js' %}"></script>
-    <script>
-      $(document).ready(function() {
-        $('form').ajaxForm();
-      });
-    </script>
-
-  <script>
-      $(document).ready(function() {
-          $('form').ajaxForm();
-      });
-
-      $(document).ready(function(){
-          $('[data-toggle="popover"]').popover();
-      });
-    $(".dropdown-menu li a").click(function(){
-      $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
-      $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
-    });
-    $(".button-dropdown-list li a").click(function(){
-      $(this).parents("span.button-dropdown").find('.button').html($(this).text() + ' <span class="caret"></span>');
-      $(this).parents("span.button-dropdown").find('.button').val($(this).data('value'));
-    });
-  </script>
-  {% block footer-extra %}{% endblock %}
-
-  {% if filter_form %}
-    {{ filter_form }}
-  {% endif %}
-</body>
-{% endblock %}
+        </body>
+    {% endblock %}
 </html>

@@ -1,16 +1,33 @@
+import sys
 import json
 from collections import OrderedDict
-from impala.dbapi import connect
-from MySQLdb import connect as mysqlconnect
+
+from py4j.java_gateway import JavaGateway
+from py4j.protocol import Py4JError, Py4JJavaError, Py4JNetworkError
+
+# from impala.dbapi import connect
+# from MySQLdb import connect as mysqlconnect
+import psycopg2
+import sqlite3
+import database_config as cfg
+import logging
+import traceback
 
 from cached_property import cached_property
+from fidia.archive.presto import PrestoArchive
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 def singleton(cls):
     instance = cls()
     instance.__call__ = lambda: instance
     return instance
 
+class PrestDBException(Exception):
+    def __init__(self, *args):
+        self.message = args[0]
+        self.status_code = args[1]
 
 @singleton
 class GAMADatabase:
@@ -32,8 +49,9 @@ class GAMADatabase:
 
     def open_connection(self):
         # self.conn = connect(host='asvotest1.aao.gov.au', port=10000, auth_mechanism='PLAIN')
-        self.conn = mysqlconnect(host='10.80.10.137', user='agreen', passwd='agreen', db='dr2')
-        self.cursor = self.conn.cursor()
+        # self.conn = mysqlconnect(host='10.80.10.137', user='agreen', passwd='agreen', db='dr2')
+        # self.cursor = self.conn.cursor()
+        pass
 
     @cached_property
     def tables(self):
@@ -106,6 +124,155 @@ class GAMADatabase:
         return column_info
 
 
+@singleton
+class MappingDatabase:
+
+    def __init__(self):
+        self.conn = None
+        self.cursor = None
+        self.local_conn = None
+        self.local_cursor = None
+
+    def open_connection(self):
+        self.conn = psycopg2.connect(database=cfg.postgres_svr['db'], user=cfg.postgres_svr['user'],
+                                     password=cfg.postgres_svr['passwd'], host=cfg.postgres_svr['host'])
+        # database="aaodc", user="asvo", password="a1s9v8o4!P", host="asvotest1.aao.gov.au"
+        # self.conn = mysqlconnect(host='10.80.10.137', user='agreen', passwd='agreen', db='dr2')
+        self.cursor = self.conn.cursor()
+
+    # use local connection temporarily until we move to one database
+    def open_local_connection(self):
+        if cfg.local_default is 'sqlite':
+            self.local_conn = sqlite3.connect(cfg.local_sqlite['file'])
+        elif cfg.local_default is 'postgres':
+            self.local_conn = psycopg2.connect(database=cfg.local_postgres['db'], user=cfg.local_postgres['user'],
+                                               password=cfg.local_postgres['passwd'], host=cfg.local_postgres['host'])
+        self.local_cursor = self.local_conn.cursor()
+
+    def get_group_data(self):
+        if self.conn is None:
+            self.open_connection()
+        self.cursor.execute("Select * from groups;")
+        one = self.cursor.fetchall()
+        self.cursor.close()
+
+    def get_catalogs_by_group(self, groupid):
+        result = self.cursor.execute("Select * from catalogs where groupid=" + str(groupid))
+
+
+    def get_columns_by_catalog(self, catalogid):
+        result = self.cursor.execute("Select * from columns where catalogid=" + str(catalogid))
+
+
+    def get_sql_schema(self):
+        schema = dict()
+        if self.conn is None:
+            self.open_connection()
+        self.cursor.execute("Select * from megatables;")
+        megatables = self.cursor.fetchall()
+        mt_list = list()
+        for megatbl in megatables:
+            mt_dict = dict()
+            mt_dict['id'] = megatbl[0]
+            mt_dict['name'] = megatbl[1]
+            mt_dict['pretty_name'] = megatbl[2]
+            self.cursor.execute("Select * from groups where groupid in (Select groupid from megatbl_group_link where "
+                                "megaid={0});".format(megatbl[0]))
+            groups = self.cursor.fetchall()
+            group_list = list()
+            for group in groups:
+                group_dict = dict()
+                group_dict['name'] = group[1]
+                group_dict['contact'] = group[2]
+                group_dict['date'] = group[3]
+                group_dict['version'] = group[4]
+                group_dict['description'] = group[7]
+                self.cursor.execute("Select * from catalogs where groupid={0} and megaid={1};".format(group[0], megatbl[0]))
+                catalogs = self.cursor.fetchall()
+                cat_list = list()
+                for cat in catalogs:
+                    # for each catalog, find columns
+                    cat_dict = dict()
+                    cat_dict['name'] = cat[1]
+                    cat_dict['contact'] = cat[2]
+                    cat_dict['date'] = cat[3]
+                    cat_dict['version'] = cat[4]
+                    cat_dict['description'] = cat[7]
+                    col_list = list()
+                    self.cursor.execute("Select * from columns where catalogid={0};".format(cat[0]))
+                    columns = self.cursor.fetchall()
+                    for col in columns:
+                        col_dict = dict()
+                        col_dict['name'] = col[2]
+                        col_dict['units'] = col[3]
+                        col_dict['ucd'] = col[4]
+                        col_dict['description'] = col[5]
+                        col_list.append(col_dict)
+                    cat_dict['columns'] = col_list
+                    cat_list.append(cat_dict)
+                group_dict['cats'] = cat_list
+                group_list.append(group_dict)
+            mt_dict['groups'] = group_list
+            mt_list.append(mt_dict)
+        schema['megatables'] = mt_list
+
+        schema['post_joins'] = [{'name': 'gama', 'pretty_name': 'GAMA', 'megatbl_ids': [1]},
+                                {'name': 'gama_mocks', 'pretty_name': 'GAMA Mock', 'megatbl_ids': [2]}]
+        # self.cursor.close()
+        return schema
+
+
+    def execute_adql_query(self, query):
+        """
+        Connect to a Java gateway through py4j and invoke methods in ADQL translator.
+        "Select InputCat.InputCatA.ra from gama where InputCat.InputCatA.dec=0.2 and redshift between 2 and 3"
+        :param query:
+        :return:
+        """
+        print(query)
+        gateway = JavaGateway()
+        try:
+            mapped_query = gateway.entry_point.parseADQLQuery(query)
+            if mapped_query is None:
+                log.info("parser failed.")
+                return None
+        except (Py4JError, Py4JJavaError, Py4JNetworkError) as e:
+            log.exception("Py4J exception occurred.")
+            raise e
+        try:
+            result = PrestoArchive().execute_query(mapped_query, 'asvo')
+            if result.ok:
+                log.info("Ok I have successfully executed the query!")
+                json_data = result.json()
+                size = sys.getsizeof(json_data['data'])
+                if(size/1024/1024 > 10):
+                    log.error("Presto result exceeded the maximum size(10MB) allowed. size: {0}".format(
+                            str(size/1024/1024) + "MB"))
+                    raise PrestDBException("Query result exceeded the maximum size(10MB) allowed. size: {0}".format(
+                    str(size/1024/1024) + "MB"), 501)
+                return json_data
+            else:
+                log.error("Presto query failed :({0})".format(str(result.status_code) + result.text))
+                raise PrestDBException(result.text, result.status_code)
+        except (ConnectionError) as e:
+            log.exception("Prestodb connection error occurred.")
+            raise e
+
+
+    def execute_sql_query(self, query, update=False):
+        """
+        Execute queries on a relational database.
+        :param query:
+        :return:
+        """
+        if self.local_conn is None:
+            self.open_local_connection()
+        self.local_cursor.execute(query)
+        # self.local_cursor.execute("Update query_query set isCompleted = 1, results = '[a, b, c]' where id=19;")
+        log.info("sql query executed.")
+        if(update):
+            self.local_conn.commit()
+            log.info("update committed.")
 
 
 def get_gama_database_as_json():
@@ -162,24 +329,46 @@ def add_sami_tables_to_json(json_string):
 
 if __name__ == '__main__':
     import sys, os.path
-    print("\n\nTables found are:")
-    for t in GAMADatabase.tables:
-        print("   " + t)
-    desc = GAMADatabase.describe_gama_table("StellarMasses")
-    print("\n\nDescription of StellarMasses:")
-    for r in desc:
-        print("    " + r + ": " + str(desc[r]))
+    # print("\n\nTables found are:")
+    # for t in GAMADatabase.tables:
+    #     print("   " + t)
+    # desc = GAMADatabase.describe_gama_table("StellarMasses")
+    # print("\n\nDescription of StellarMasses:")
+    # for r in desc:
+    #     print("    " + r + ": " + str(desc[r]))
+    #
+    # print("\n\n")
+    #
+    # outfile = os.path.split(os.path.realpath(__file__))[0] + "/../web_application/restapi_app/gama_database.json"
+    # if len(sys.argv) > 1 and sys.argv[1] == 'write':
+    #     json_to_write = add_sami_tables_to_json(get_gama_database_as_json())
+    #     with open(outfile, 'w') as f:
+    #         f.write(json_to_write)
+    #     with open(outfile[:-5] + "_formatted.json", 'w') as f:
+    #         f.write(json.dumps(json.loads(json_to_write), indent=2))
+    #
+    # else:
+    #     print("Call with 'write' command to update {}".format(outfile))
 
-    print("\n\n")
+    # groups = MappingDatabase.get_group_data()
+    # schema = MappingDatabase.get_sql_schema()
+    # result = MappingDatabase.execute_adql_query("Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA "
+    #                                             "as RA from gama_mega_table where InputCat__InputCatA__DEC > 0.234")
+    # print("done!")
 
-    outfile = os.path.split(os.path.realpath(__file__))[0] + "/../web_application/restapi_app/gama_database.json"
-    if len(sys.argv) > 1 and sys.argv[1] == 'write':
-        json_to_write = add_sami_tables_to_json(get_gama_database_as_json())
-        with open(outfile, 'w') as f:
-            f.write(json_to_write)
-        with open(outfile[:-5] + "_formatted.json", 'w') as f:
-            f.write(json.dumps(json.loads(json_to_write), indent=2))
+    # result = MappingDatabase.execute_adql_query("SELECT StellarMasses__StellarMasses__CATAID FROM gama")
 
-    else:
-        print("Call with 'write' command to update {}".format(outfile))
+    result = {"test": "data"}
+    query_id = 4
+    sql_qry = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
+            True, json.dumps(result), query_id)
 
+    adql_qry = "Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA " \
+               "as RA from gama"# where InputCat__InputCatA__DEC > 0.234"
+
+    # result = MappingDatabase.execute_sql_query(sql_qry, True)
+    try:
+        result = MappingDatabase.execute_adql_query(adql_qry)
+    except Exception as e:
+        log.debug("Caught raised error: ", e.toString())
+    print("done!")

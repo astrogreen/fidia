@@ -203,6 +203,7 @@ class DummyCache(Cache):
 
     def __init__(self, **kwargs):
         self.read_only = True
+        log.debug("Dummy cache initialised.")
         super(DummyCache, self).__init__(**kwargs)
 
     # def update_cached_trait(self, object_id, trait_key_path, trait_dict):
@@ -214,10 +215,12 @@ class DummyCache(Cache):
     #     self._cache[(object_id, trait_key_path)][trait_property_name] = value
 
     def get_cached_trait_property(self, object_id, trait_key_path, trait, trait_property_name):
+        log.debug("Recieved cache request for %s", trait)
         raise DataNotAvailable
 
     # def get_cached_trait(self, object_id, trait_key_path, trait_class):
     #     return self._cache[(object_id, trait_key_path)]
 
     def check_trait_property_available(self, object_id, trait_key_path, trait_property_name):
+        log.debug("Recieved cache check for %s %s", str(trait_key_path), trait_property_name)
         return False

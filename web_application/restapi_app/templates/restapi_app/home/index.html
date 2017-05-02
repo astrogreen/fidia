@@ -3,194 +3,22 @@
 {% load rest_framework %}
 {% load i18n %}
 {% load internal_extras %}
-{% block title %} Home {% endblock %}
+{% block title %}ADC API{% endblock %}
 
-{% block head-extra %}
-<link rel="stylesheet" type="text/css" href="{% static 'restapi_app/css/home/home.min.css' %}"/>
-{% endblock %}
+{% block main %}
+<h1>API</h1>
+<h3>Introduction</h3>
+<p>The AAO Data Central API provides a simple RESTful interface with lightweight JSON-formatted responses to power the
+    ADC website's many features, including queries, data retrieval, feature requests, profile management, authentication
+    and email support.
+</p>
 
-{% block bodyclass %}galaxy-dark{% endblock %}
-{% block navbarinverse %}navbar-inverse{% endblock %}
-{% block breadcrumbclass %}inverted{% endblock %}
-{% block breadcrumbs %}
-<li class="active"><a href="{% url 'index' %}">Home</a></li>
-{% endblock %}
+<p>
+    Users are able to access public data via the API in one of three formats: JSON, FITS or CSV.
+    Using session or token authentication, users are able execute queries, and both read and write private data (e.g.,
+    query history).
+</p>
+<hr>
+<p>You can read the API documentation <a href="{% url 'api-docs' %}">here</a>, or browse the API endpoints using the menu on the left.</p>
 
-{% block page_title_banner %} {% endblock page_title_banner %}
-
-{% block no_sidebar %}
-<div style="margin-top:15px;margin-bottom:15px;">
-    <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-        <div class="panel panel-default success branch_warning" style="background-color:rgba(255,255,255,0.8)">
-            <div class="panel-body p">
-                <strong><i class="fa fa-info text-error"></i> Important Notice</strong>
-                <span class="sub-heading">
-                    ADC is in <strong class="text-info">BETA</strong> until July 2017. We emphasize that all survey
-                    data served through ADC are the <em><u>final versions</u></em>, but the web interface, access methods and API are subject to change.
-                </span>
-
-
-            </div>
-        </div>
-    </div>
-</div>
-<section class="welcome row">
-    <div class="col-xs-12 col-md-8 col-md-offset-2 col-sm-12">
-        <div class="">
-            <div class="content">
-
-                <div class="logo row">
-                    <img src="{% static 'restapi_app/img/logo/asvo-small-white.png' %}" class=""
-                         alt="ASVO - All-Sky Virtual Observatory">
-                    <span>ASVO - All-Sky Virtual Observatory</span>
-                </div>
-
-                <div class="key-message row">
-                    <div class="left col col-md-6">
-                        <p>Australian<br>Astronomical<br>Observatory</p>
-                    </div>
-                    <div class="right col col-md-6">
-                        <p style="margin-top:15px"><strong>Query Australian Astronomical Observatory Data Central
-                            (ADC)</strong>
-                            and retrieve data from current and
-                            legacy surveys. Bring your code to the data.</p>
-
-                    </div>
-                    <div class="col-xs-12">
-                        <h1 style="font-size:26px; color:#ffffff;opacity:0.87">GitHub-like tools for Astronomers</h1>
-                    </div>
-                </div>
-                <div class="row cta">
-                    <div class="col-xs-6">
-                        <p><a type="button" title=""
-                              class="white-tooltip" href="{% url 'surveys:root-list' %}">Surveys</a></p>
-
-                        <div style="color:rgba(251,251,251,0.8)">View the Surveys hosted at ADC.</div>
-                    </div>
-                    <div class="col-xs-6">
-                        <p><a type="button" title=""
-                              class="white-tooltip disabled" href="#telescope" disabled="true">Raw Observations</a></p>
-                        <div class="disabled">View observations collected from
-                            the AAT or Schmidt telescope.
-                        </div>
-                    </div>
-                </div>
-                <div class="row cta">
-                    <div class="col-xs-offset-3 col-xs-6">
-                        <p><a type="button" title=""
-                              class="white-tooltip" href="{% url 'data-access' %}" disabled="true">Data Access</a></p>
-                        <div style="color:rgba(251,251,251,0.8)">Query the ADC database of survey-team dervived properties. Browse the data and download FITS-format products.</div>
-                    </div>
-                </div>
-                <div class="category row">
-                    <div class="col-xs-12">
-                        <h1 style="font-size:26px">Explore Survey Data</h1>
-                    </div>
-                </div>
-                <div class="infographic row">
-
-                    <div class="col col-md-3 col-sm-3">
-                        <a href="" class="disabled">
-                            <div class="circle">
-                                <i class="fa fa-terminal"></i>
-                                <div class="line"></div>
-                            </div>
-                        </a>
-                        <p class="disabled">Query</p>
-                        <span class="disabled">Query the astronomical objects available at ADC and return a sample of objects across multiple surveys.</span>
-                    </div>
-                    <div class="col col-md-3 col-sm-3">
-                        <a href="{% url 'sov:root-list'%}">
-                            <div class="circle">
-                                <i class="fa fa-search"></i>
-                                <div class="line"></div>
-                            </div>
-                        </a>
-                        <p>Browse</p>
-                        <span style="color:rgba(251,251,251,0.8)">Browse through survey data products for individual objects.</span>
-                    </div>
-                    <div class="col col-md-3 col-sm-3">
-                        <a href="{% url 'under-construction'%}" class="disabled">
-                            <div class="circle disabled">
-                                <i class="fa fa-map-signs"></i>
-                                <div class="line"></div>
-                            </div>
-                        </a>
-                        <p class="disabled">Explore</p>
-                        <span class="disabled">Coming soon.</span>
-                    </div>
-
-                    <div class="col col-md-3 col-sm-3">
-                        <a href="{% url 'under-construction' %}" class="disabled">
-                            <div class="circle disabled">
-                                <i class="fa fa-code"></i>
-                            </div>
-                        </a>
-                        <p class="disabled">Code</p>
-                        <span class="disabled">Coming soon.</span>
-                    </div>
-                </div>
-
-
-                <div class="cta row">
-                    <a type="button" title="View your previous queries."
-                       {% if user.is_authenticated %}
-                       href="{% url 'user-profile-detail' username=user %}"
-                       {% else %}
-                       href="{% url 'rest_framework:login' %}"
-                       {% endif %}
-                       class="white-tooltip">My Account</a>
-
-                    <a type="button" title="Browse current release documenation."
-                       class="white-tooltip" href="{% url 'documentation:topic-list' %}">Documentation</a>
-                </div>
-
-                <div class="note row">
-                    <p>* The AAT Node of the ASVO is the subject of a funding agreement between the Commonwealth
-                        Department
-                        of Industry, Innovation and Science (DoIIS) and Astronomy Australia Limited (AAL). AAL has
-                        coordinated with the Australian Astronomical Observatory (AAO), as the owners and operators of
-                        the
-                        AAT, to develop this ASVO Node. This is a 2 year project with completion expected by June
-                        2017.</p>
-                </div>
-                <br>
-
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-sm-offset-3 col-md-2 col-xs-12 whats-new">
-        <div class="well text-left">
-            <h5 class="text-uppercase no-margin-top">What's New</h5>
-            <dl>
-                <dt>
-                    <a href="{% url 'surveys:survey-list' survey_pk='sami' %}">SAMI DATA RELEASE 1.0
-                    </a>
-                </dt>
-                <dh class="text-justify">View the data release page <a href="{% url 'surveys:survey-list' survey_pk='sami' %}">here</a>.
-                </dh>
-            </dl>
-            <h5 class="text-uppercase no-margin-top">Get Started</h5>
-            <dl class="text-left">
-                <dt>
-                    <a href="{% url 'surveys:root-list' %}">Surveys Overview</a>
-                </dt>
-                <dh class="text-justify">View all surveys hosted at ADC.</dh>
-                <dt>
-                    <a href="{% url 'data-access' %}">Data Access Overview</a>
-                </dt>
-                <dh class="text-justify">Information about accessing data at ADC.</dh>
-                <dt>
-                    <a href="{% url 'sov:root-list'%}">Single Object Viewer</a>
-                </dt>
-                <dh class="text-justify">Browse data products per Survey object.</dh>
-                <dt>
-                    <a href="{% url 'under-construction' %}">Examples</a>
-                </dt>
-                <dh class="text-justify">Help using ADC.</dh>
-            </dl>
-        </div>
-    </div>
-
-</section>
 {% endblock %}

@@ -13,7 +13,7 @@ class Topic(models.Model):
     created = models.DateTimeField(auto_now_add=True, editable=False)
     updated = models.DateTimeField(auto_now=True, editable=False)
     ordering = models.IntegerField(unique=True)
-    hidden = models.BooleanField(default=False)
+    # hidden = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.ordering = Topic.objects.aggregate(Max('ordering'))['ordering__max'] + 1
@@ -33,7 +33,7 @@ class Article(models.Model, HitCountMixin):
     created = models.DateTimeField(auto_now_add=True, editable=False)
     updated = models.DateTimeField(auto_now=True, editable=False)
     edit_group = models.ForeignKey(Group, blank=True, null=True)
-    hidden = models.BooleanField(default=False)
+    # hidden = models.BooleanField(default=False)
     article_order = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):

@@ -17,9 +17,8 @@ put the overrides there. They are loaded at the end of this file.
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, logging, datetime
 from django.core.urlresolvers import reverse
-import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -46,21 +45,24 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'astrospark',
+    'authentication',
     'bootstrap3',
     'corsheaders',
+    'cutout',
     'documentation',
-    # 'download',
-    # 'data_browser',
     'django_extensions',
     'hitcount',
+    'feature',
     'mathfilters',
-    # 'query',
+    'query',
     'user',
     'restapi_app',
+    # 'rest_framework.authtoken',
     'rest_framework',
-    'schema_browser',
-    'sov',
-    'surveys',
+    # 'schema_browser',
+    # 'sov',
+    'support',
+    # 'surveys',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -73,7 +75,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'asvo.middleware.SleepMiddleware'
 )
+
+SLEEP_TIME = 0
+# TODO turn SleepMiddleware off in production!
 
 ROOT_URLCONF = 'asvo.urls'
 
@@ -163,7 +169,7 @@ PANDOC_PATH = '/usr/bin/pandoc'
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-AU'
 
 TIME_ZONE = 'Australia/Sydney'
 
@@ -282,17 +288,9 @@ LOGGING = {
     }
 }
 
-try:
-    from .custom_settings import *
-except ImportError:
-    pass
-
 # Bring pandoc path into effect.
 os.environ.setdefault('PYPANDOC_PANDOC', PANDOC_PATH)
 
-RECAPTCHA_PUBLIC_KEY = '6LdTGw8TAAAAACaJN7aHD44SVDccIWE-ssIzEQ4j'
-RECAPTCHA_PRIVATE_KEY = '6LdTGw8TAAAAAGSIcSt4BdOpedOmWcihBLZdL3qn'
-NOCAPTCHA = True
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
@@ -302,6 +300,8 @@ REST_FRAMEWORK = {
     ),
      'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '5/day',
@@ -324,3 +324,15 @@ CORS_ORIGIN_WHITELIST = (
     '127.0.0.1:9000'
 )
 
+# token expires in 12 hours
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=43200),
+}
+
+CSRF_COOKIE_NAME = "XSRF-TOKEN"
+
+
+try:
+    from .custom_settings import *
+except ImportError:
+    pass

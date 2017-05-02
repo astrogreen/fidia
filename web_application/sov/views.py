@@ -175,7 +175,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 # 'traits': ar.full_schema(include_subtraits=False, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True),
                 'non_catalog_traits': schema_non_catalog,
                 'catalog_traits': schema_catalog,
-                'position': {'ra': astro_object.ra, 'dec': astro_object.dec}
+                'position': {'ra': astro_object.ra, 'dec': astro_object.dec},
+                'overview_catalog': self.feature_catalog_data
             }
         )
         return Response(serializer.data)

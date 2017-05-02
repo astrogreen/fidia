@@ -33,25 +33,17 @@ import fidia_tarfile_helper
 log = logging.getLogger(__name__)
 
 
-class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SurveysViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. Implements List action only.
     Lists all surveys, their current versions and total number of objects in that version. """
 
     def __init__(self, *args, **kwargs):
         self.surveys = [
-            {"survey": "sami", "count": sami_dr1_sample.ids.__len__(), "current_version": 1.0, "data_releases": {1.0},
-             "astro_objects": {}},
-            {"survey": "gama", "count": 0, "current_version": 0},
-            {"survey": "galah", "count": 0, "current_version": 0}
+            {"name": "sami", "currentVersion": 1.0, "dataReleases": {1.0},"astroObjects": []},
+            {"name": "gama", "currentVersion": 0.0, "dataReleases": {0}, "astroObjects": ["65406"]}
         ]
 
-    class RootRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
-        template = 'surveys/root.html'
-
-        def __repr__(self):
-            return 'RootRenderer'
-
-    renderer_classes = (RootRenderer, renderers.JSONRenderer)
+    renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, pk=None, format=None):
@@ -59,14 +51,15 @@ class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         self.breadcrumb_list = ['Surveys']
 
         for survey in self.surveys:
-            if survey["survey"] == "sami":
+            if survey["name"] == "sami":
+                survey["astro_objects_arr"] = []
                 for astro_object in sami_dr1_sample:
-                    url_kwargs = {
-                        'astroobject_pk': str(astro_object),
-                        'survey_pk': 'sami'
-                    }
-                    url = reverse("sov:astroobject-list", kwargs=url_kwargs)
-                    survey["astro_objects"][astro_object] = url
+                    # url_kwargs = {
+                    #     'astroobject_pk': str(astro_object),
+                    #     'survey_pk': 'sami'
+                    # }
+                    # url = reverse("sov:astroobject-list", kwargs=url_kwargs)
+                    survey["astroObjects"].append(str(astro_object))
 
         serializer_class = sov.serializers.RootSerializer
         serializer = serializer_class(

@@ -1,6 +1,6 @@
 from pandas import DataFrame
 
-from fidia.cache.data_retriver import DataRetriver
+from fidia.cache.data_retriver import DataRetriever
 
 
 class TestDataRetriver():
@@ -14,7 +14,7 @@ class TestDataRetriver():
         trait_property_name = 'value'
         trait_property_type = 'array'
 
-        data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name, trait_property_type)
+        data = DataRetriever().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name, trait_property_type)
 
         assert isinstance(data, DataFrame)
         #
@@ -23,7 +23,7 @@ class TestDataRetriver():
         trait_property_name = 'variance'
         trait_property_type = 'array'
 
-        data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name, trait_property_type)
+        data = DataRetriever().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name, trait_property_type)
 
         assert isinstance(data, DataFrame)
 
@@ -31,7 +31,7 @@ class TestDataRetriver():
         trait_key = 'spectral_map'
         trait_property_name = 'total_exposure'
 
-        data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name)
+        data = DataRetriever().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name)
 
         assert isinstance(data, DataFrame)
 
@@ -39,6 +39,6 @@ class TestDataRetriver():
         trait_key = 'spectral_map'
         trait_property_name = 'cubing_code_version'
 
-        data = DataRetriver().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name)
+        data = DataRetriever().getTraitPropertyByObjectId(object_id, trait_key, trait_property_name)
 
         assert isinstance(data, DataFrame)

@@ -1,0 +1,37 @@
+{% extends "rest_framework/login_base.html" %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load internal_extras %}
+
+{% block head %}
+
+    {% block meta %}
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="robots" content="NONE,NOARCHIVE"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="ASVO AAT Node">
+        <meta name="author" content="AA0">
+        <link rel="icon" href="/static/img/aao.ico">
+    {% endblock %}
+
+    <title>{% block title %}Log In{% endblock %}</title>
+
+    {% block style %}
+        {% block bootstrap_theme %}
+        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
+        <!--<link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>-->
+        {% endblock %}
+
+    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'restapi_app/less/styles/styles.css' %}"/>
+
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic&subset=latin,greek,latin-ext' rel='stylesheet' type='text/css'>
+    {% endblock %}
+
+{% endblock %}
+
+{% block branding %}
+    <h3 style="margin: 0 0 20px;">ADC</h3>
+{% endblock %}
