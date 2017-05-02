@@ -91,6 +91,7 @@ class TraitViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             context['survey'] = renderer_context['view'].survey
             context['trait_name'] = renderer_context['view'].trait_name
             context['trait_class'] = renderer_context['view'].trait_class
+            context['trait_type'] = renderer_context['view'].trait_class
             context['trait_qualifier'] = renderer_context['view'].trait_qualifier
             context['trait_pretty_name'] = renderer_context['view'].trait_pretty_name
             context['full_trait_schema'] = renderer_context['view'].full_trait_schema

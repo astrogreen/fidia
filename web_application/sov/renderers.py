@@ -19,7 +19,7 @@ CONTEXT = {}
 CONTEXT['reserved_keywords'] = ['survey', 'data_release', 'astro_object', 'trait', 'trait_key', 'trait_key_array',
                                 'trait_url', 'sub_trait_key', 'parent_trait', 'parent_sub_trait', 'sub_traits',
                                 'pretty_name', 'short_name', 'name', 'branch', 'version', 'url', 'all_branches_versions',
-                                'documentation', 'description', 'units']
+                                'documentation', 'description', 'units', 'export_formats']
 
 
 class FITSRenderer(renderers.BaseRenderer):
@@ -104,14 +104,12 @@ class TraitRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer):
         context['trait_2D_map'] = renderer_context['view'].trait_2D_map
         context['trait_url'] = renderer_context['view'].trait_url
 
-
         # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
         context['trait_properties'] = ['value']
 
         # These are not looped over for the html rendering
         context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
                                        context['sub_traits']
-
 
         return context
 
@@ -150,12 +148,11 @@ class SubTraitPropertyRenderer(restapi_app.renderers.ExtendBrowsableAPIRenderer)
         # These will be explicitly rendered for a trait, all else will be iterated over in the side bar
         context['trait_properties'] = ['value']
 
-        # Subtraits/traitproperties dont have any subtraits, so drop the parent_trait sub_trait property
+        # Subtraits/traitproperties don't have any subtraits, so drop the parent_trait sub_trait property
         context['sub_traits'] = []
 
         # These are not looped over for the html rendering
-        context['reserved_keywords'] = CONTEXT['reserved_keywords'] + \
-                                       context['sub_traits']
+        context['reserved_keywords'] = CONTEXT['reserved_keywords'] + context['sub_traits']
 
         return context
 

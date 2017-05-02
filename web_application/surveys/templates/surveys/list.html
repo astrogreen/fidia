@@ -274,6 +274,20 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
 {% autoescape off %}
  <script type="text/javascript">
+    function remove_non_ascii(str) {
+        /**
+         * Remove non ascii characters for csv export
+         * UTF-8 encoding not supported in some programs, assume only
+         * ascii
+         */
+
+        if ((str === null) || (str === ''))
+            return false;
+        else
+            str = str.toString();
+
+        return str.replace(/[^\x20-\x7E]/g, '');
+    }
 
     function round(value, decimals) {
         return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
@@ -325,7 +339,9 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 }
 
 //                (b.units == "$\\mathrm{}$" || b.units == "") ?  export_header.push(k) : export_header.push(k + ' [' + catalog.units[i] + ']')
-                export_header.push(k);
+                // remove all non ascii characters from the header
+                export_header.push(remove_non_ascii(k));
+
                 // create a name property to use as a key when referencing this option value
                 b.name = convertToSlug(k);
 
@@ -364,7 +380,6 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                 colReorder: false,
                 scrollX: true,
                 deferRender: true,
-                fixedHeader: true,
                 language: {
                     "loadingRecords": "Please wait - loading..."
                 },
@@ -458,13 +473,21 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
 
                 // Append column options to the range select
                 for (var k=0;k<columns.length;k++){
+
                     // if you can parse as float, then append
 
                     var _column_append = true;
 
                     for (var z=0;z<catalog.data.length;z++){
-                        if (!!parseFloat(catalog.data[z][k])){
-                        } else {_column_append = false;}
+
+                        if (!(parseFloat(catalog.data[z][k]) || catalog.data[z][k] === 0 )) {
+                            // here we add a check for zeros, which are false in javascript
+                            _column_append = false;
+                        }
+
+//                        if (z < 1) {
+//                            console.log(k, columns[k].name, catalog.data[z][k], typeof(catalog.data[z][k]), !!parseFloat(catalog.data[z][k]), parseFloat(catalog.data[z][k]), _column_append);
+//                        }
                     }
 
                     if (_column_append == true){
@@ -667,17 +690,9 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                         }
                     },
                     {
-                        extend: 'excelHtml5',
-                        text: '<i class="fa fa-file-excel-o"></i> Excel',
-                        exportOptions: {
-                            modifier: {
-                                selected: true
-                            }
-                        }
-                    },
-                    {
                         extend: 'csvHtml5',
                         fieldBoundary: '',
+                        filename: 'sami_overview',
                         exportOptions: {
                             modifier: {
                                 selected: true
@@ -685,7 +700,7 @@ Each individual galaxy displays the NII/Halpha line ratio map.</em></p>
                         },
                         header: false,
                         customize: function (csv) {
-                            return export_header.join(", ")+"\n\n" + csv;
+                            return export_header.join(", ")+"\n" + csv;
                         }
 
                     },

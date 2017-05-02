@@ -123,11 +123,6 @@ class TestSAMISmartTraits:
         assert isinstance(wcs, astropy.wcs.WCS)
 
 
-    def test_cube_coord(self, a_sami_galaxy):
-        import astropy.coordinates
-
-        coord = a_sami_galaxy['spectral_cube', 'blue'].get_sub_trait(TraitKey('catalog_coordinate'))
-        assert isinstance(coord, astropy.coordinates.SkyCoord)
 
 
 class TestSAMIArchiveSchema:

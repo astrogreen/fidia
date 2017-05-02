@@ -66,39 +66,20 @@
         </tr>
     {% if fidia_type == "trait" or fidia_type == "sub_trait" %}
 
-        {% if fidia_type = "trait" %}
+        {% if response.data.export_formats %}
             <tr>
                 <td class="p_light">Download</td>
                 <td>
                     <div class="btn-group" role="group" aria-label="...">
                         {% for f in formats %}
-                        <a href="{{request.get_full_path}}?format={{f|lowercase}}" class="btn btn-default btn-xs">
+                        <a href="{{request.get_full_path}}?format={{f|lowercase}}" class='btn btn-default btn-xs modal-download-btn'>
                             <span class="fa-custom-stack">
                               <i class="fa fa-file-o"></i>
                                 <span class="fa-custom-filetype">{{f}}</span>
                             </span>{{f}}
                         </a>
                         {% endfor %}
-                        <a href="{{request.get_full_path}}?format=json" class="btn btn-default btn-xs">
-                            <span class="fa-custom-stack">
-                              <i class="fa fa-file-o"></i>
-                                <span class="fa-custom-filetype">json</span>
-                            </span>json
-                        </a>
                     </div>
-
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td class="p_light">Data</td>
-                <td>
-                    <a href="{{response.data.url}}?format=json" class="btn btn-default btn-xs">
-                            <span class="fa-custom-stack">
-                              <i class="fa fa-file-o"></i>
-                                <span class="fa-custom-filetype">json</span>
-                            </span>json
-                        </a>
                 </td>
             </tr>
         {% endif %}

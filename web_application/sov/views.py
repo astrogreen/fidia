@@ -258,7 +258,7 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
     Dynamic View evaluated on instance type is Trait or Trait property
     This is only one level
     """
-    renderer_classes = (sov.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer)
+    renderer_classes = (sov.renderers.SubTraitPropertyRenderer, renderers.JSONRenderer, sov.renderers.FITSRenderer)
     permission_classes = [permissions.AllowAny]
 
     def __init__(self, *args, **kwargs):
@@ -316,7 +316,6 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
                                     trait_pointer.get_pretty_name(),
                                     subtrait_pointer.get_pretty_name()]
 
-
         elif issubclass(ar.type_for_trait_path(path), TraitProperty):
 
             try:
@@ -334,6 +333,10 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
                                     trait_pointer.get_pretty_name(),
                                     traitproperty_pointer.get_pretty_name()]
 
+            self.trait_2D_map = False
+            if isinstance(traitproperty_pointer, traits.Map2D):
+                self.trait_2D_map = True
+
             if 'array' in traitproperty_pointer.type and 'string' not in traitproperty_pointer.type:
                 try:
                     n_axes = len(traitproperty_pointer.value.shape)
@@ -344,7 +347,8 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
                     raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                                   status_code=status.HTTP_404_NOT_FOUND)
                 else:
-                    if n_axes == 2:
+                    # the front end visualizer can handle multi-extension data
+                    if n_axes == 2 or n_axes == 3:
                         self.trait_2D_map = True
                         # @TODO: Handle arrays other than numpy ndarrays
 
@@ -361,6 +365,17 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
 
         return Response(serializer.data)
 
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'fits':
+            trait = sami_dr1_sample[kwargs['astroobject_pk']][kwargs['trait_pk']]
+            sub_trait = trait[kwargs['subtraitproperty_pk']]
+            filename = "{obj_id}-{trait_key}-{subtrait_key}.fits".format(
+                obj_id=kwargs['astroobject_pk'],
+                trait_key=trait.trait_key.ashyphenstr(),
+                subtrait_key=sub_trait.trait_key.ashyphenstr())
+            response['content-disposition'] = "attachment; filename=%s" % filename
+        return response
 
 class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.TraitHelper):
     """
@@ -423,7 +438,7 @@ class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.h
                 raise restapi_app.exceptions.CustomValidation(detail=message, field='detail',
                                                               status_code=status.HTTP_404_NOT_FOUND)
             else:
-                if n_axes == 2:
+                if n_axes == 2 or n_axes == 3:
                     self.trait_2D_map = True
                     # @TODO: Handle arrays other than numpy ndarrays
 

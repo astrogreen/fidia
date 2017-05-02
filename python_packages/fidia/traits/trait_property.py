@@ -1,6 +1,7 @@
 # Standard Library Imports
 from abc import ABCMeta
 import re
+import inspect
 
 # Internal package imports
 from ..exceptions import *
@@ -106,6 +107,70 @@ class TraitProperty(DescriptionsMixin, metaclass=ABCMeta):
         self.fload = fload
         return self
 
+    def get_formatted_units(self):
+        log.debug("get_formatted_units()")
+        # This is a nearly identical copy of the code in base_trait.py::Trait
+
+        log.debug("%s has '_trait': %s", self, hasattr(self, '_trait'))
+
+        # These few lines "inherit" the parent Trait's units in some circumstances.
+        if (not hasattr(self, 'unit')) \
+                and hasattr(self, '_trait') \
+                and hasattr(self._trait, 'unit'):
+            # Parent Trait is known and has units.
+            log.debug("Unit inheritance possible")
+            if self.name == 'value':
+                log.debug("Inheriting unit from trait.")
+                self.unit = self._trait.unit
+
+        if hasattr(self, 'unit'):
+            if hasattr(self.unit, 'value'):
+                formatted_unit = "{0.unit:latex_inline}".format(self.unit)
+                # formatted_unit = "{0.unit}".format(cls.unit)
+            else:
+                try:
+                    formatted_unit = self.unit.to_string('latex_inline')
+                    # formatted_unit = cls.unit.to_string()
+                except:
+                    log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", self.unit, self)
+                    try:
+                        formatted_unit = self.unit.to_string('latex')
+                    except:
+                        log.exception("Unit formatting failed for unit %s of trait %s, trying plain latex", self.unit, self)
+                        raise
+                        formatted_unit = ""
+
+            log.info("Units formatting before modification for trait %s: %s", str(self), formatted_unit)
+
+            # For reasons that are not clear, astropy puts the \left and \right
+            # commands outside of the math environment, so we must fix that
+            # here.
+            #
+            # In fact, it appears that the units code is quite buggy.
+            # @TODO: Review units code!
+            if formatted_unit != "":
+                formatted_unit = formatted_unit.replace("\r", "\\r")
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+                formatted_unit = re.sub(r"\$\\(left|right)(\S)\$", r"\\\1\2", formatted_unit)
+                if not formatted_unit.startswith("$"):
+                    formatted_unit = "$" + formatted_unit
+                if not formatted_unit.endswith("$"):
+                    formatted_unit = formatted_unit + "$"
+
+                formatted_unit = formatted_unit.replace("{}^{\\prime\\prime}", "arcsec")
+
+            # Return the final value, with the multiplier attached
+            if hasattr(self.unit, 'value'):
+                formatted_unit = "{0.value:0.03g} {1}".format(self.unit, formatted_unit)
+            log.info("Units final formatting for trait %s: %s", str(self), formatted_unit)
+            return formatted_unit
+        else:
+            return ""
+
+
     @property
     def type(self):
         return self._type
@@ -146,8 +211,24 @@ class BoundTraitProperty:
         override the host TraitProperty's attributes.
 
         """
-        if item not in ('loader',) and not item.startswith("_"):
-            return getattr(self._trait_property, item)
+        if item not in ('loader',) and not item.startswith("__"):
+            # First check if the item is defined on the TraitProperty class.
+            if item in dir(TraitProperty):
+                # Get the item from the class. Note, we cannot use getattr here,
+                # or we may inadvertently call the descriptor logic early.
+                #
+                # (Otherwise, there is very strange interactions between this
+                # code and classorinstancemethod in utilities.py)
+                classitem = inspect.getattr_static(TraitProperty, item)
+                if hasattr(classitem, '__get__'):
+                    # Item is a descriptor. Bind it to this object (instead of the original TraitProperty)
+                    return classitem.__get__(self, BoundTraitProperty)
+                else:
+                    return classitem
+            # Otherwise, item must be an instance attribute
+            attr = getattr(self._trait_property, item)
+
+            return attr
 
     def __repr__(self):
         return "<BoundTraitProperty {} of {}>".format(self._trait_property.name, str(self._trait.trait_key))

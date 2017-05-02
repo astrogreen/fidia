@@ -10,9 +10,20 @@ function range(start, count) {
     return temp;
 };
 
-function bouncer(arr) {
-    // Removes NAN from the array
-    return arr.filter(Boolean);
+
+function removeNan(arr) {
+    // should only remove NaN values from array.
+    // previously:
+    // return arr.filter(Boolean);
+    // which also removes zeros - which we don't want!!
+
+    return arr.filter(function(value) {
+        // console.log(value, typeof value == "number", value >= 0, isNaN(value));
+        // this effectively replicates isNaN(value) but will
+        // also filter for 'true' and 'null' values, which isNaN
+        // says is false (ie. they are a number).
+        return (typeof value == "string" && parseFloat(value)) || (typeof value == "number" && value >= 0);
+    });
 }
 
 function standardDeviation(values){
@@ -70,11 +81,11 @@ function fGenerateColourScale(map_val, zmin_user, zmax_user){
     });
 
     // Remove NaN
-    var NumArr = bouncer(FlatArr);
+    var NumArr = removeNan(FlatArr);
 
     //ZMIN ZMAX (without sigma clip)
-    // var Zmax_old = Math.max.apply(null, bouncer(FlatArr));
-    // var Zmin_old = Math.min.apply(null, bouncer(FlatArr));
+    // var Zmax_old = Math.max.apply(null, removeNan(FlatArr));
+    // var Zmin_old = Math.min.apply(null, removeNan(FlatArr));
 
     // sort Num arr ascending
     NumArr.sort(function(a,b){return a - b});
@@ -178,7 +189,7 @@ function plot_map(name, data, selector, zmin, zmax){
             x:cols,
             y:rows,
             z: map_val,
-            colorscale:colorscale,
+            // colorscale:colorscale,
             zmin: Zmin,
             zmax: Zmax,
             type: 'heatmap',
@@ -190,24 +201,33 @@ function plot_map(name, data, selector, zmin, zmax){
                 thickness: 0.02,
                 outlinewidth: 0,
                 xpad:0, ypad:0,
-                x: 1.02
+                x: 1.0
             }
         }
     ];
 
     // Force responsive layout
     var elementWidth=$('#'+map_selector).parent().width();
+
     var layout = {
-        autosize:true,
+        autosize:false,
         width:elementWidth,
         height:elementWidth,
         margin: {
-            l: 0.08*elementWidth,
-            r: 0.00*elementWidth,
-            b: 0.08*elementWidth,
-            t: 0.06*elementWidth
+            l: 0,
+            r: 0,
+            b: 0,
+            t: 0,
+            pad: 0
         },
-        // title: map_title
+        xaxis: {
+            ticks: '',
+            showticklabels: false
+        },
+        yaxis: {
+            ticks: '',
+            showticklabels: false
+        }
     };
 
     var raw_id = map_selector.replace("#","");
@@ -220,18 +240,57 @@ function plot_map(name, data, selector, zmin, zmax){
         showLink: false,
         displayModeBar: true,
         scrollZoom: false
-    });
+    }).then(plotlyMarginHandler);
 
+    // ONLOAD, AFTER INITIAL RENDER, RE-RENDER WITH SIZES
+    function plotlyMarginHandler() {
+        var elementWidth=$('#'+map_selector).parent().width();
+        // console.log('current total width AT handler', elementWidth);
+
+        // get current inner plot dimensions
+        var plotWidth = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().width;
+        var plotHeight = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().height;
+
+        // console.log('CURRENT PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
+
+        // here we take away the extra space between the plot and
+        // the container that plotly has added that isn't accounted for in the documentation
+        // therefore margin top and bottom need to share this
+
+        var newMargin = Math.abs((plotHeight-plotWidth)/2);
+
+        // console.log('newmargin', newMargin);
+
+        var update = {
+            margin: {
+                l: 0,
+                r: 0,
+                b: newMargin,
+                t: newMargin
+            }
+        };
+
+        Plotly.relayout(map_selector, update).then(function() {
+            var plotWidth = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().width;
+            var plotHeight = $('#'+map_selector+' .svg-container .subplot.xy')[0].getBoundingClientRect().height;
+
+            // console.log('NEW PLOT WIDTH, HEIGHT ', plotWidth, plotHeight);
+            // console.log('-------------------------------------------')
+        });
+    }
 
     // RESPONSIVE TO CHANGING WINDOW SIZE
     $(window).on("resize",function(e){
         var elementWidth=$('#'+map_selector).parent().width();
+        // console.log('current total width before handler', elementWidth);
         var update = {
-          width: elementWidth,
-          height:elementWidth
+            width: elementWidth,
+            height: elementWidth
         };
-
         Plotly.relayout(map_selector, update);
+        // looks like plotly will scale all values by the updated plot size
+        // so
+        // Plotly.relayout(map_selector, update).then(plotlyMarginHandler);
     });
 
 };

@@ -76,7 +76,7 @@
                         Note: Data are grouped by their product type, e.g., [OII] (3729Å) and Hα line emission maps are
                         found in the <strong>Line Emission Map</strong> section.
                         It is recommended
-                        that you also use the <a href="">{{survey|uppercase}} Documentation</a> in
+                        that you also use the <a class="" target="_blank" href="{% url 'documentation:topic-detail' slug=survey %}"> {{survey|uppercase}} Documentation </a> in
                         conjunction
                         with the
                         Schema
@@ -94,9 +94,9 @@
     <table class="table table-bordered table-condensed margin-top-thirty">
             <thead>
             <tr class="active">
-                <th class="col-xs-3 col-sm-3">Type</th>
-                <!--<th class="col-xs-6 col-sm-8">Description</th>-->
-                <th class="col-xs-3 col-sm-2">Schema</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Schema</th>
             </tr>
             </thead>
         <tbody>
@@ -104,12 +104,29 @@
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                 <tr id="trait_type_key">
                     <td id="{{trait_type_key}}">
+                        {{trait_type_value.pretty_name}}
+                        {{trait_qualifier_value.pretty_name}}
 
-                            {{trait_type_value.pretty_name}}
-                            {{trait_qualifier_value.pretty_name}}
+
+                        <br/>
+                        <!--<p class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</p>-->
 
                     </td>
-                    <!--<td><em> {{trait_qualifier_value.description|safe}}</em></td>-->
+                    <td>
+                        <!-- Hack: use the default branch/version description here, as all catalog
+                         properties inherit from a single "Measurement" class and therefore inherit a single
+                         trait_type description
+                         -->
+                         {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                            {% for trait_version_key, trait_version_value in trait_branch_value.versions.items %}
+                                {% if trait_qualifier_value.default_branch == trait_branch_key %}
+                                    {% with trait_version_value.trait as value %}
+                                    <p>{% if value.description %}{{value.description}}{% endif %}</p>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </td>
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>
                 {% endfor %}
@@ -119,8 +136,9 @@
     </table>
 
     {% for trait_type_key, trait_type_value in response.data.schema_non_catalog.trait_types.items %}
-        <h3 id="{{trait_type_key}}">{{trait_type_value.pretty_name}}</h3>
+        <h3 id="{{trait_type_key}}">{{trait_type_value.pretty_name}}{% if trait_type_value.trait_qualifiers|length > 1 %}s{% endif %}</h3>
         {{trait_type_value.description|safe}}
+        <!--<span class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</span>-->
 
         <table class="table table-bordered table-condensed margin-top-thirty">
             <thead>
@@ -134,11 +152,15 @@
                 {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
                 <tr>
                     <td>
-
                         {{trait_qualifier_value.pretty_name}}
-                            {% if not trait_qualifier_value.pretty_name %}
-                                {{trait_type_value.pretty_name}}
-                            {% endif %}
+
+                        {% if not trait_qualifier_value.pretty_name %}
+                            {{trait_type_value.pretty_name}}
+                        {% endif %}
+                        <br/>
+
+                        <!--<span class="bg-trait-qual"><em>trait_qualifier</em></span>-->
+
                     </td>
                     <td><a href="{{trait_type_key}}{% if trait_qualifier_key %}-{{trait_qualifier_key}}{% endif %}">view <i class="fa fa-angle-right"></i></a></td>
                 </tr>

@@ -17,7 +17,6 @@ log.enable_console_logging()
 # class Measurement(Trait, AbstractMeasurement): pass
 class Measurement(Trait): pass
 
-
 class Velocity(Measurement): pass
 
 class Redshift(Trait): pass
@@ -93,10 +92,15 @@ class Image(Map2D):
 
 
 class SpectralMap(Trait, AbstractBaseArrayTrait, FITSExportMixin):
-    """Spatially-resolved collection of spectra"""
+    """Fully reduced and flux calibrated SAMI cubes"""
 
     @abstractproperty
     def value(self): pass
+
+
+class SpectralFit(SpectralMap):
+    """Model spectral cubes incorporating stellar continuum and emission line fits"""
+    pass
 
 
 class Classification(Trait, AbstractBaseClassification): pass
@@ -108,7 +112,7 @@ class ClassificationMap(Map2D):
     valid_classifications = None
 
 class FractionalMaskMap(Map2D):
-    """Mask with fractional opacity between 0 and 1"""
+    """Mask identifying the spatial regions with emission dominated by star formation"""
     pass
 
 class FlagMap(Map2D):

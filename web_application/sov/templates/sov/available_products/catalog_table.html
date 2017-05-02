@@ -1,0 +1,48 @@
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+                <th>Unit</th>
+                <th>Description</th>
+                <th>Schema</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for el in feature_catalog_data %}
+            <tr>
+                <td>
+                    {{el.pretty_name}}
+                    <span class="sub-heading">
+                    <!--Get the branch pretty name-->
+                    {% for trait_type_key, trait_type_value in traits.trait_types.items %}
+                        {% for trait_qualifier_key, trait_qualifier_value in trait_type_value.trait_qualifiers.items %}
+                            {% for trait_branch_key, trait_branch_value in trait_qualifier_value.branches.items %}
+                                {% if trait_branch_key == el.trait_key.branch %}
+                                    {{trait_branch_value.pretty_name}}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                    </span>
+                </td>
+                <td class="roundValue">{{el.value}}</td>
+                <td>{{el.unit}}</td>
+                <td>{{el.description}}
+                </td>
+                <td>
+                    {% captureas schema_link %}{{el.trait_key.trait_type}}{% if el.trait_key.trait_qualifier %}-{{el.trait_key.trait_qualifier}}{% endif %}{% if el.trait_key.branch %}:{{el.trait_key.branch}}{% endif %}{% if el.trait_key.version %}({{el.trait_key.version}}){% endif %}{% endcaptureas %}
+                    <!--{{schema_link}}-->
+                    <a class="" target="_blank" href="{% url 'schema_browser:trait-list' survey_pk=survey trait_pk=schema_link %}">view <i class="fa fa-angle-right"></i></a>
+                    <!--{{el.trait_key.trait_type}}-{{el.trait_key.trait_qualifier}}:{{el.trait_key.branch}}-->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

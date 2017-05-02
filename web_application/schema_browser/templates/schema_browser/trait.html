@@ -163,12 +163,11 @@
 
     {% with response.data.trait as value %}
 
-        <!--<p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>-->
-
-
+        <p><em>{% if value.description %}{{value.description}}{% endif %}</em></p>
 
         <!-- Documentation -->
         <h3 id="documentation">Documentation</h3>
+
         <div class="documentation_fidia">
             {{value.html_documentation|safe}}
         </div>
@@ -177,7 +176,7 @@
         <h3 id="properties">Properties</h3>
         <div class="row">
             <div class="col-xs-12">
-                {% include 'schema_browser/tables/properties_table.html' %}
+                {% include 'schema_browser/tables/properties_table.html' with trait_type_key=trait_type trait_qualifier_key=trait_qualifier trait_branch_key=branch trait_version_key=version %}
             </div>
         </div>
 
@@ -230,7 +229,8 @@
                                 <small>DEFAULT</small>
                                 {% endif %}
                             </td>
-                            <td>{{branch_value.description}}</td>
+                            <td>{{branch_value.description}}
+                            </td>
                             <td>{{branch_key}}</td>
                             <td>
                                 {% for version_key, version_value in branch_value.versions.items %}
