@@ -2,7 +2,7 @@ from .base_trait import Trait, TraitCollection, BaseTrait
 
 # from .smart_traits import WorldCoordinateSystem, SkyCoordinate
 #
-# from .generic_traits import *
+from .generic_traits import *
 #
 # from .catalog_traits import catalog_trait
 #

@@ -8,6 +8,7 @@ from typing import List, Type
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
+from .trait_property import TraitProperty
 
 # Logging Import and setup
 from .. import slogging
@@ -21,7 +22,7 @@ class WCS(Trait): pass
 
 class Image(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=2)
-    wcs = SubTrait(WCS, optional=True)
+    # wcs = SubTrait(WCS, optional=True)
 
 class SpectralCube(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=3)
