@@ -1,15 +1,16 @@
 local_default = 'postgres'  # values: sqlite, postgres
 local_postgres = {'host': 'localhost',
-                  'user': 'lmannering',
-                  'passwd': '987dfkjshdf!p',
+                  'user': 'lloyd',
+                  'passwd': '',
                   'db': 'aaodc'}
 
-local_sqlite = {'file': 'db file path'}
+local_sqlite = {'file': '/Users/lharischandra/Code/asvo/web_application/db.sqlite3'}
 
-postgres_svr = {'host': 'asvotest1.aao.gov.au',
+postgres_svr = {'host': 'asvotest1',
                 'user': 'asvo',
                 'passwd': 'a1s9v8o4!P',
                 'db': 'aaodc'}
+
 
 try:
     from custom_database_config import *
