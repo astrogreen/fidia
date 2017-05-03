@@ -1,12 +1,18 @@
-from django.utils import timezone
 from datetime import timedelta
 
+from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 # from django.contrib.postgres.fields import JSONField
+
 from asvo_database_backend_helpers import MappingDatabase
 from query.tasks import execute_query
+
+
+def generate_random_string():
+    return get_random_string(length=32)
 
 
 class Query(models.Model):
@@ -20,7 +26,8 @@ class Query(models.Model):
     title = models.CharField(max_length=1000, blank=True, default="My Query")
 
     is_completed = models.BooleanField(default=False, blank=False)
-    table_name = models.CharField(blank=True, max_length=100, null=True)
+
+    table_name = models.CharField(max_length=100, default=generate_random_string)
     row_count = models.IntegerField(blank=True, null=True)
 
     has_error = models.BooleanField(default=False, blank=False)
@@ -51,6 +58,7 @@ def create_new_sql_query(sender, instance=None, created=False, **kwargs):
         print('POST_SAVE SQL')
         print(instance.sql)
         print(instance.id)
+        print(instance.table_name)
         execute_query.delay(instance.sql, instance.id)
         print("Handed sql task over to celery")
 

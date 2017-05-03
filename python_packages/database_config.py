@@ -7,8 +7,8 @@ local_postgres = {'host': 'localhost',
 local_sqlite = {'file': '/Users/lharischandra/Code/asvo/web_application/db.sqlite3'}
 
 postgres_svr = {'host': 'asvotest1',
-                'user': 'asvo',
-                'passwd': 'a1s9v8o4!P',
+                'user': 'user',
+                'passwd': '',
                 'db': 'aaodc'}
 
 
