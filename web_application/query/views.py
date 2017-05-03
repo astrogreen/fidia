@@ -5,7 +5,7 @@
 # import sys
 from django.utils.text import slugify
 # from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
-from rest_framework import permissions, views, viewsets
+from rest_framework import permissions, views, viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 # from rest_framework_csv import renderers as r
@@ -96,6 +96,60 @@ class QuerySchema(views.APIView):
         schema = MappingDatabase.get_sql_schema()
         # schema = query.dummy_schema.DUMMY_SCHEMA
         return Response(schema)
+
+
+class QueryResultTables(object):
+    def __init__(self, **kwargs):
+        for field in ('id', 'col1', 'col2', 'col3'):
+            setattr(self, field, kwargs.get(field, None))
+
+# results = {
+#     1: QueryResultTables(id=1, col1='Demo', col2='xordoquy', col3='Done'),
+#     2: QueryResultTables(id=2, col1='Model less demo', col2='xordoquy', col3='Ongoing'),
+#     3: QueryResultTables(id=3, col1='Sleep more', col2='xordoquy', col3='New'),
+# }
+
+results = {}
+for i in range(0, 200):
+    data = {}
+    for y in range(0, 200):
+        data[y] = {'col1': 'testrow1', 'col2': 'testrow1'}
+
+    results[i] = {
+        'id': i,
+        'data': data
+    }
+    # results[i] = QueryResultTables(id=i, col1='test', col2='test', col3='Done'),
+
+
+# class Result(viewsets.GenericViewSet):
+#       testing
+#     serializer_class = query.serializers.ResultListSerializer
+#     queryset = results
+#
+#     def list(self, request):
+#         queryset = list(results.values())
+#         page = self.paginate_queryset(queryset)
+#
+#         if page is not None:
+#             serializer = query.serializers.ResultListSerializer(page, many=True)
+#             return self.get_paginated_response(serializer.data)
+#
+#         serializer = query.serializers.ResultListSerializer(instance=queryset, many=True)
+#         return Response(serializer.data)
+#
+#     def retrieve(self, request, pk=None, *args, **kwargs):
+#         instance = results.get(int(pk))['data']
+#         queryset = list(instance.values())
+#         page = self.paginate_queryset(queryset)
+#
+#         if page is not None:
+#             serializer = query.serializers.ResultRetrieveSerializer(page, many=True)
+#             return self.get_paginated_response(serializer.data)
+#
+#         serializer = query.serializers.ResultRetrieveSerializer(instance=queryset, many=True)
+#         return Response(serializer.data)
+
 
 #
 # def run_sql_query(request_string):

@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 os.environ['PYPANDOC_PANDOC'] = '/usr/local/bin/pandoc'
 
-
 def get_and_update_depth_limit(kwargs):
     depth_limit = kwargs.pop('depth_limit', -1)
     if isinstance(depth_limit, int):
@@ -30,6 +29,10 @@ def get_and_update_depth_limit(kwargs):
     if trait_pk == 'spectral_cube':
         depth_limit = 0
     return depth_limit
+
+
+class AstroObjectListSerializer(serializers.Serializer):
+    pass
 
 
 class DocumentationHTMLField(serializers.Field):

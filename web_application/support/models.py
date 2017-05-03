@@ -57,7 +57,7 @@ def email_contact_form(sender, instance, **kwargs):
     subject, from_email, to = 'ADC Contact Form', from_email, 'asvo-feedback@aao.gov.au'
     html_content = format_html(snippet, name=name, from_email=from_email, message=message, date=date)
     text_content = 'FROM: ' + name + ', ' + from_email + ' MESSAGE: ' + message + ' DATE: ' + date
-
+    print('email sent')
     send_email(subject=subject, html_content=html_content, text_content=text_content, from_email=from_email, to=to)
 
 

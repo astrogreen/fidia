@@ -1,3 +1,6 @@
+from django.utils import timezone
+from datetime import timedelta
+
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -8,21 +11,31 @@ from query.tasks import execute_query
 
 class Query(models.Model):
     created = models.DateTimeField(auto_now_add=True, editable=False)
+    updated = models.DateTimeField(auto_now=True, editable=False)
     owner = models.ForeignKey('auth.User', related_name='query')
-    queryBuilderState = JSONField(blank=True, default="")
+
+    query_builder_state = JSONField(blank=True, default="")
+    sql = models.TextField(blank=False)
+    title = models.CharField(max_length=1000, blank=True, default="My Query")
+
+    is_completed = models.BooleanField(default=False, blank=False)
+    table_name = models.CharField(blank=True, max_length=100, null=True)
+    row_count = models.IntegerField(blank=True, null=True)
+
+    has_error = models.BooleanField(default=False, blank=False)
+    error = JSONField(blank=True, default=dict)
+
+    @property
+    def is_expired(self):
+        if timezone.now() > self.updated + timedelta(days=30):
+            return True
+        return False
 
     # note - python dictionaries are mutable! default=dict()
     # is created once here, then any changes to new fields
     # alters the same instance. Instead, use the callable dict
     # as the default rather than the instance dict()
-    results = JSONField(blank=True, default=dict)
-
-    SQL = models.TextField(blank=False)
-    title = models.CharField(max_length=1000, blank=True, default="My Query")
-    updated = models.DateTimeField(auto_now=True, editable=False)
-    isCompleted = models.BooleanField(default=False, blank=False)
-    hasError = models.BooleanField(default=False, blank=False)
-    error = JSONField(blank=True, default=dict)
+    # error = JSONField(blank=True, default=dict)
 
     class Meta:
         ordering = ('created',)
@@ -34,11 +47,9 @@ class Query(models.Model):
 def create_new_sql_query(sender, instance=None, created=False, **kwargs):
     if created:
         print('POST_SAVE SQL')
-        print(instance)
-        print(instance.SQL)
+        print(instance.sql)
         print(instance.id)
-        print(instance.owner.username)
-        execute_query.delay(instance.SQL, instance.id)
+        execute_query.delay(instance.sql, instance.id)
         print("Handed sql task over to celery")
 
 
@@ -51,6 +62,6 @@ def update_existing_query_instance(sender, instance, **kwargs):
     except sender.DoesNotExist:
         pass  # Object is new, so field hasn't technically changed.
     else:
-        if not obj.SQL == instance.SQL:  # SQL Field has changed
+        if not obj.sql == instance.sql:  # SQL Field has changed
             print("PRE_SAVE SQL")
-            execute_query.delay(instance.SQL, instance.id)
+            execute_query.delay(instance.sql, instance.id)

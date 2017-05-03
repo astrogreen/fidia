@@ -34,6 +34,22 @@ import fidia_tarfile_helper
 log = logging.getLogger(__name__)
 
 
+class AstroObjectList(generics.ListAPIView):
+    serializer_class = sov.serializers.AstroObjectListSerializer
+
+    # def get_queryset(self):
+    #     """
+    #     Optionally restricts the returned purchases to a given user,
+    #     by filtering against a `username` query parameter in the URL.
+    #     """
+    #     queryset = Purchase.objects.all()
+    #     username = self.request.query_params.get('username', None)
+    #     if username is not None:
+    #         queryset = queryset.filter(purchaser__username=username)
+    #     return queryset
+
+
+
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. Implements List action only.
     Lists all surveys, their current versions and total number of objects in that version. """
