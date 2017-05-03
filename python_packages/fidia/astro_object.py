@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from typing import List
+import fidia
 
 # Python Standard Library Imports
 import collections
@@ -15,7 +16,7 @@ from fidia.utilities import snake_case
 # Set up logging
 import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 __all__ = ['AstronomicalObject']
@@ -25,7 +26,7 @@ __all__ = ['AstronomicalObject']
 class AstronomicalObject:
 
     def __init__(self, sample, identifier=None, ra=None, dec=None):
-        # type: (bases.Sample, str, float, float) -> None
+        # type: (fidia.Sample, str, float, float) -> None
         if identifier is None:
             if ra is None or dec is None:
                 raise Exception("Either 'identifier' or 'ra' and 'dec' must be defined.")
@@ -72,7 +73,9 @@ class AstronomicalObject:
             if isinstance(attr, bases.TraitPointer):
                 delattr(self, attr_name)
         for trait_mapping in self.sample.trait_registry.get_trait_mappings():
-            pointer_name = snake_case(trait_mapping.trait_class.trait_class_name)
+            log.debug(trait_mapping.trait_class.trait_class_name)
+            pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
+            log.debug("Adding trait pointer %s", pointer_name)
             setattr(self, pointer_name, TraitPointer(self.sample, self, trait_mapping, self.sample.trait_registry))
 
     def get_archive_id(self, archive):

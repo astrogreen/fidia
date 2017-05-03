@@ -139,13 +139,30 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
     descriptions_allowed = 'class'
 
+    trait_class_initialized = False
+
     #             ___               __                       __       ___    __
     #    | |\ | |  |      /\  |\ | |  \    \  /  /\  |    | |  \  /\   |  | /  \ |\ |
     #    | | \| |  |     /~~\ | \| |__/     \/  /~~\ |___ | |__/ /~~\  |  | \__/ | \|
     #
 
+    @classmethod
+    def initialize_trait_class(cls):
+        """Steps to initialize a Trait class."""
+
+        # Make sure all attached TraitProperties have their names set:
+        for attr in cls.trait_property_dir():
+            tp = getattr(cls, attr)
+            if tp.name is None:
+                tp.name = attr
+            else:
+                assert tp.name == attr, \
+                    "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
+        log.debug("Initialised Trait class %s", str(cls))
+        cls.trait_class_initialized = True
+
     def __init__(self, sample, trait_key, object_id, trait_registry, trait_schema):
-        # type: (bases.Sample, bases.TraitKey, str, bases.TraitRegistry, dict) -> None
+        # type: (fidia.Sample, fidia.TraitKey, str, fidia.traits.TraitMappingDatabase, dict) -> None
         super(BaseTrait, self).__init__()
 
 
@@ -154,7 +171,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         self.sample = sample
         # self._parent_trait = parent_trait
 
-        # assert isinstance(trait_key, TraitKey), "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
+        # assert isinstance(trait_key, TraitKey), \
+        #   "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
         self.trait_key = trait_key
 
         # self._set_branch_and_version(trait_key)
@@ -162,18 +180,13 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         self.object_id = object_id
 
         self.trait_schema = trait_schema
-        self._link_columns()
 
         self._trait_cache = OrderedDict()
 
-        # Create a set of proxy objects which can retrieve the values of columns associated as necessary.
-        for data_item_name in trait_schema:
-            setattr(self, data_item_name, ColumnProxy(column_id=trait_schema[data_item_name]))
+        if not self.trait_class_initialized:
+            cls = type(self)
+            cls.initialize_trait_class()
 
-        # if parent_trait is not None:
-        #     self.trait_path = TraitPath(parent_trait.trait_path + (self.trait_key, ))
-        # else:
-        #     self.trait_path = TraitPath([self.trait_key])
 
     def _get_column_data(self, column_id):
         """For a requested column id, return the corresponding data.
@@ -222,9 +235,9 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         return self.trait_key.trait_name
 
 
-    @property
-    def trait_class_name(self):
-        return type(self).__name__
+    @classmethod
+    def trait_class_name(cls):
+        return cls.__name__
 
 
     #
@@ -253,7 +266,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         """
 
         if isinstance(trait_property_types, str):
-            trait_property_types = tuple(trait_property_types)
+            trait_property_types = (trait_property_types, )
 
         # Search class attributes:
         log.debug("Searching for TraitProperties of Trait '%s' with type in %s", cls.trait_type, trait_property_types)
@@ -270,8 +283,10 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     @classmethod
     def trait_property_dir(cls):
         """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
-        for tp in cls._trait_properties():
-            yield tp.name
+        for attr in dir(cls):
+            obj = getattr(cls, attr)
+            if isinstance(obj, TraitProperty):
+                yield attr
 
     def trait_properties(self, trait_property_types=None, include_hidden=False):
         # type: (List, bool) -> Generator[TraitProperty]
@@ -311,31 +326,6 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
                     # the BoundTraitProperty: see `__get__` on `TraitProperty`)
                     yield getattr(self, attr)
 
-    def _link_columns(self):
-        """Create links to actual columns based on the column references associated with this trait."""
-
-        # A local copy of the schema we chan change
-        schema = copy(self.trait_schema)
-
-        # @TODO: Handle sub-traits in the schema
-
-        # Iterate over trait properties, populating them as needed from the trait_schema.
-        for tp in self._trait_properties():
-            if tp.required and tp.name not in schema:
-                raise FIDIAException
-            reference = schema.pop(tp.name)
-
-            # @TODO: Convert reference into column link
-
-            setattr(self, tp.name, reference)
-
-        # Set any extra columns defined for this trait (not in the required list)
-        if self.extensible:
-            for reference_name in schema:
-                reference = schema[reference_name]
-                if isinstance(reference, ColumnReference):
-                    # @TODO: Define column reference
-                    setattr(self, reference_name, schema[reference_name])
 
     #     __   __        ___
     #    /__` /  ` |__| |__   |\/|  /\

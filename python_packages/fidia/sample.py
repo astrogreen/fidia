@@ -17,7 +17,7 @@ by creating new (sub) sample.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union, Set
+from typing import Union, List, Tuple
 import fidia
 
 # Python Standard Library Imports
@@ -31,6 +31,12 @@ from .import base_classes as bases
 from . import traits
 from .exceptions import *
 
+# Set up logging
+import fidia.slogging as slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.WARNING)
+log.enable_console_logging()
+
 
 class Sample(bases.Sample):
 
@@ -39,26 +45,27 @@ class Sample(bases.Sample):
 
     def __init__(self):
 
+        # Until there is something in the sample, it is useless.
+        self.is_populated = False
+
         # For now, all Samples are read only:
         self.read_only = True
 
-        # Place to store ID crossmatches between archives
+        # Place to store ID cross matches between archives
         self._id_cross_matches = None
-
-        # Place to store the list of IDs contained in this sample
-        #
-        # Deprecated in favour of using Pandas and _id_cross_maches
-        #self._ids = set()
 
         # Place to store the list of objects contained in this sample
         self._contents = dict()
 
-        # Set of archives this object is attached to:
-        self._archives = set()  # type: Set[bases.Archive]
+        # List of archives included in this Sample
+        self._archives = []  # type: List[fidia.Archive]
         self._primary_archive = None
 
-        # The archive which recieves write requests
+        # The archive which receives write requests
         self._write_archive = None
+
+        # Trait Mapping database for this sample
+        self.trait_registry = traits.TraitMappingDatabase()
 
         # The mutable property defines whether objects can be added and
         # removed from this sample. The property latches on False.
@@ -66,10 +73,17 @@ class Sample(bases.Sample):
 
     @classmethod
     def new_from_archive(cls, archive):
-        # @TODO: not complete!
+        # type: (fidia.Archive) -> Sample
         if not isinstance(archive, bases.Archive):
-            raise Exception()
+            log.debug("Attempt to create new Sample from invalid archive object '%s'", archive)
+            raise ValueError("Argument must be a FIDIA Archive.")
+        sample = cls()
 
+        sample._id_cross_matches = pd.DataFrame(pd.Series(archive.contents, name=archive.name, index=archive.contents))
+        sample._archives = [archive]
+        sample.trait_registry.link_database(archive.trait_mappings)
+
+        return sample
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
 
@@ -84,17 +98,17 @@ class Sample(bases.Sample):
             return self._contents[key]
         elif key in self._id_cross_matches.index:
             # The request object exists in the archive, but has not been created for this sample.
-            # TODO: Move the following line to it's own function and expand.
-            # Check if the primary archive has catalog_coordinates, and if so get the RA and DEC
-            coord_key = traits.TraitKey("catalog_coordinate")
-            if self._primary_archive.can_provide(coord_key):
-                coord = self._primary_archive.get_trait(key, coord_key)
-                ra = coord._ra()
-                dec = coord._dec()
-            else:
-                ra = None
-                dec = None
-            self._contents[key] = AstronomicalObject(self, identifier=key, ra=ra, dec=dec)
+            # # TODO: Move the following line to it's own function and expand.
+            # # Check if the primary archive has catalog_coordinates, and if so get the RA and DEC
+            # coord_key = traits.TraitKey("catalog_coordinate")
+            # if self._primary_archive.can_provide(coord_key):
+            #     coord = self._primary_archive.get_trait(key, coord_key)
+            #     ra = coord._ra()
+            #     dec = coord._dec()
+            # else:
+            #     ra = None
+            #     dec = None
+            self._contents[key] = AstronomicalObject(self, identifier=key)
             return self._contents[key]
         elif self.read_only:
             # The requested object is unknown, and we're not allowed to create a new one.
@@ -137,8 +151,8 @@ class Sample(bases.Sample):
         """(Construct) A table of featured data from each archive in this sample."""
 
         first_row = True
-        trait_properties = []  # type: list[tuple[Trait, TraitProperty]]
-        trait_paths = []  # type: list[TraitPath]
+        trait_properties = []  # type: List[Tuple[fidia.Trait, fidia.traits.TraitProperty]]
+        trait_paths = []  # type: List[fidia.traits.TraitPath]
 
         for archive in self._archives:
             # TODO: This code won't support more than one archive!
@@ -213,7 +227,7 @@ class Sample(bases.Sample):
     def archives(self):
         return self._archives
 
-    def add_from_archive(self, archive):
+    def add_archive(self, archive):
         if not isinstance(archive, bases.Archive):
             raise Exception()
         if archive not in self._archives:
@@ -252,6 +266,10 @@ class Sample(bases.Sample):
         return available_data
 
     def archive_for_column(self, id):
+        # type: (str) -> fidia.Archive
+        pass
+
+    def find_column(self, column_id):
         # type: (str) -> fidia.FIDIAColumn
         pass
 

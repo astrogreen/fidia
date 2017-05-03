@@ -33,11 +33,14 @@ class Archive(bases.Archive):
 
     _id = None
 
+    trait_mappings = []
+
     def __init__(self):
 
         # Traits (or properties)
-        self.available_traits = traits.TraitRegistry(branches_versions_required=True)
-        self.define_available_traits()
+        mappings = self.trait_mappings
+        self.trait_mappings = traits.TraitMappingDatabase()
+        self.trait_mappings.register_trait_mapping_list(mappings)
         self._trait_cache = OrderedDict()
 
         self.cache = cache.DummyCache()
@@ -319,9 +322,6 @@ class Archive(bases.Archive):
         schema_piece.update(available_traits_schema)
 
         return schema
-
-    def define_available_traits(self):
-        return NotImplementedError()
 
 class BasePathArchive(Archive):
     def __init__(self, **kwargs):

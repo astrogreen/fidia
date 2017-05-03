@@ -7,6 +7,7 @@ import fidia
 import re
 
 # Internal package imports
+from fidia.exceptions import *
 from ..descriptions import DescriptionsMixin
 from ..utilities import RegexpGroup
 
@@ -73,6 +74,8 @@ class TraitProperty(DescriptionsMixin):
         if trait is None:
             return self
         else:
+            if self.name is None:
+                raise TraitValidationError("TraitProperty not correctly initialised.")
             column_id = trait.trait_schema[self.name]
             result = trait._get_column_data(column_id)
             setattr(trait, self.name, result)

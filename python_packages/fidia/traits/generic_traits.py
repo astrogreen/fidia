@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List, Type
+# from typing import ...
 
 # Python Standard Library Imports
 
@@ -18,7 +18,8 @@ log.enable_console_logging()
 
 __all__ = ['Image', 'SpectralCube', 'DMU', 'WCS']
 
-class WCS(Trait): pass
+class WCS(Trait):
+    pass
 
 class Image(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=2)

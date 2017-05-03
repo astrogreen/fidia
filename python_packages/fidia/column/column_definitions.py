@@ -36,7 +36,7 @@ from ..utilities import is_list_or_set
 # Set up logging
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 class ColumnDefinitionList(object):
@@ -231,6 +231,7 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
         if archive is None:
             return None
         timestamp = 0
+        log.debug("archive.basepath: %s, filename_pattern: %s", archive.basepath, self.filename_pattern)
         full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
         for object_id in archive.contents:
             stats = os.stat(full_path_pattern.format(object_id=object_id))

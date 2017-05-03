@@ -4,8 +4,11 @@ import pytest
 
 import tempfile
 
+import numpy as np
+
 import fidia
 from fidia.archive.example_archive import ExampleArchive
+
 
 @pytest.yield_fixture(scope='module')
 def test_data_dir():
@@ -17,25 +20,28 @@ def test_data_dir():
 class TestBasicExamples:
 
 
-    def test_example_archive(self):
+    def test_example_archive(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
 
-    def test_sample_creation_from_archive(self, ):
+    def test_sample_creation_from_archive(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
-        sample = fidia.create_sample_from_full_archive(ea)
+        sample = fidia.Sample.new_from_archive(ea)
 
-    def test_get_an_astro_object(self):
+    def test_get_an_astro_object(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
-        sample = fidia.create_sample_from_full_archive(ea)
-        an_object_id = sample.contents[0]
+        sample = fidia.Sample.new_from_archive(ea)
+        an_object_id = next(iter(sample.keys()))
         sample[an_object_id]
 
-    def test_get_data(self):
+    def test_get_data(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
-        sample = fidia.create_sample_from_full_archive(ea)
+        sample = fidia.Sample.new_from_archive(ea)
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
-        sample['Gal1'].image['red'].data
+        image_data = sample['Gal1'].image['red'].data
+
+        assert isinstance(image_data, np.ndarray)
+        assert image_data.ndim == 2
 
 
 # class TestMoreExamples:

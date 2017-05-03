@@ -6,7 +6,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Any, Iterable
+from typing import Any, Iterable, Union, List
 import fidia
 
 # Python Standard Library Imports
@@ -40,7 +40,7 @@ class Sample(collections.MutableMapping):
         # type (Archive, str) -> str
         raise NotImplemented()
 
-    trait_registry = None  # type: TraitMappingDatabase
+    trait_mappings = None  # type: TraitMappingDatabase
 
 
 class AstronomicalObject:
@@ -48,6 +48,8 @@ class AstronomicalObject:
 
 
 class Archive(object):
+
+    trait_mappings = None  # type: Union[TraitMappingDatabase, List[TraitMapping]
 
     def writeable(self):
         raise NotImplemented()
