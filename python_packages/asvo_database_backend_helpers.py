@@ -12,6 +12,8 @@ import sqlite3
 import database_config as cfg
 import logging
 import traceback
+import requests
+import time
 
 from cached_property import cached_property
 from fidia.archive.presto import PrestoArchive
@@ -222,7 +224,7 @@ class MappingDatabase:
         return schema
 
 
-    def execute_adql_query(self, query):
+    def execute_adql_query(self, query, results_tbl):
         """
         Connect to a Java gateway through py4j and invoke methods in ADQL translator.
         "Select InputCat.InputCatA.ra from gama where InputCat.InputCatA.dec=0.2 and redshift between 2 and 3"
@@ -240,6 +242,7 @@ class MappingDatabase:
             log.exception("Py4J exception occurred.")
             raise e
         try:
+            mapped_query = "CREATE TABLE {0}.public.{1} AS {2}".format('adc_dev', results_tbl, mapped_query)
             result = PrestoArchive().execute_query(mapped_query, 'asvo')
             if result.ok:
                 log.info("Ok I have successfully executed the query!")
@@ -258,6 +261,32 @@ class MappingDatabase:
             log.exception("Prestodb connection error occurred.")
             raise e
 
+    data_list = list()
+    def doRecursiveQuery(self, result):
+        json_data = result.json()
+        if 'data' in json_data:
+            self.data_list.append(json_data['data'])
+        if not 'nextUri' in json_data:
+            if 'error' in json_data:
+                #"query has failed"
+                result.close()
+                return json_data['error']
+            else:
+                #No nextUri, query has sucessfully finished.
+                result.close()
+                return self.data_list
+        else:
+            result = requests.get(json_data['nextUri'])
+            if result.ok:
+                self.doRecursiveQuery(result)
+            elif result.status_code is 503:
+                #wait 50-100ms
+                time.sleep(0.075)
+                self.doRecursiveQuery(result)
+            else:
+                #query failed
+                result.close()
+                return None
 
     def execute_sql_query(self, query, update=False):
         """
@@ -358,17 +387,21 @@ if __name__ == '__main__':
 
     # result = MappingDatabase.execute_adql_query("SELECT StellarMasses__StellarMasses__CATAID FROM gama")
 
-    result = {"test": "data"}
-    query_id = 4
-    sql_qry = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
-            True, json.dumps(result), query_id)
+    # result = {"test": "data"}
+    # query_id = 4
+    # sql_qry = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
+    #         True, json.dumps(result), query_id)
 
-    adql_qry = "Select InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA " \
+    adql_qry = "Select DISTINCT InputCat__InputCatA__CATAID as CATAID, InputCat__InputCatA__RA " \
                "as RA from gama"# where InputCat__InputCatA__DEC > 0.234"
+
+    a_q = "SELECT DISTINCT StellarMasses__StellarMasses__CATAID, StellarMasses__StellarMasses__Z, StellarMasses__StellarMasses__nQ, StellarMasses__StellarMasses__SURVEY_CODE, StellarMasses__StellarMasses__Z_TONRY, StellarMasses__StellarMasses__fluxscale, StellarMasses__StellarMasses__zmax_19p4, StellarMasses__StellarMasses__zmax_19p8, StellarMasses__StellarMasses__zmax_17p88, StellarMasses__StellarMasses__nbands, StellarMasses__StellarMasses__logmstar, StellarMasses__StellarMasses__dellogmstar, StellarMasses__StellarMasses__logmoverl_i, StellarMasses__StellarMasses__dellogmoverl_i, StellarMasses__StellarMasses__logage, StellarMasses__StellarMasses__dellogage, StellarMasses__StellarMasses__logtau, StellarMasses__StellarMasses__dellogtau, StellarMasses__StellarMasses__metal, StellarMasses__StellarMasses__delmetal, StellarMasses__StellarMasses__extBV, StellarMasses__StellarMasses__delextBV, StellarMasses__StellarMasses__logLWage, StellarMasses__StellarMasses__dellogLWage, StellarMasses__StellarMasses__gminusi, StellarMasses__StellarMasses__delgminusi, StellarMasses__StellarMasses__uminusr, StellarMasses__StellarMasses__deluminusr, StellarMasses__StellarMasses__gminusi_stars, StellarMasses__StellarMasses__uminusr_stars, StellarMasses__StellarMasses__C_logM_ur, StellarMasses__StellarMasses__C_logM_gi, StellarMasses__StellarMasses__C_logM_eBV, StellarMasses__StellarMasses__fitphot_u, StellarMasses__StellarMasses__delfitphot_u, StellarMasses__StellarMasses__absmag_u, StellarMasses__StellarMasses__delabsmag_u, StellarMasses__StellarMasses__absmag_u_stars, StellarMasses__StellarMasses__fitphot_g, StellarMasses__StellarMasses__delfitphot_g, StellarMasses__StellarMasses__absmag_g, StellarMasses__StellarMasses__delabsmag_g, StellarMasses__StellarMasses__absmag_g_stars, StellarMasses__StellarMasses__fitphot_r, StellarMasses__StellarMasses__delfitphot_r, StellarMasses__StellarMasses__absmag_r, StellarMasses__StellarMasses__delabsmag_r, StellarMasses__StellarMasses__absmag_r_stars, StellarMasses__StellarMasses__fitphot_i, StellarMasses__StellarMasses__delfitphot_i, StellarMasses__StellarMasses__absmag_i, StellarMasses__StellarMasses__delabsmag_i, StellarMasses__StellarMasses__absmag_i_stars, StellarMasses__StellarMasses__fitphot_z, StellarMasses__StellarMasses__delfitphot_z, StellarMasses__StellarMasses__absmag_z, StellarMasses__StellarMasses__delabsmag_z, StellarMasses__StellarMasses__absmag_z_stars, StellarMasses__StellarMasses__CATAID, StellarMasses__StellarMasses__Z, StellarMasses__StellarMasses__nQ, StellarMasses__StellarMasses__SURVEY_CODE, StellarMasses__StellarMasses__Z_TONRY, StellarMasses__StellarMasses__fluxscale, StellarMasses__StellarMasses__zmax_19p4, StellarMasses__StellarMasses__zmax_19p8, StellarMasses__StellarMasses__zmax_17p88, StellarMasses__StellarMasses__nbands, StellarMasses__StellarMasses__logmstar, StellarMasses__StellarMasses__dellogmstar, StellarMasses__StellarMasses__logmoverl_i, StellarMasses__StellarMasses__dellogmoverl_i, StellarMasses__StellarMasses__logage, StellarMasses__StellarMasses__dellogage, StellarMasses__StellarMasses__logtau, StellarMasses__StellarMasses__dellogtau, StellarMasses__StellarMasses__metal, StellarMasses__StellarMasses__delmetal, StellarMasses__StellarMasses__extBV, StellarMasses__StellarMasses__delextBV, StellarMasses__StellarMasses__logLWage, StellarMasses__StellarMasses__dellogLWage, StellarMasses__StellarMasses__gminusi, StellarMasses__StellarMasses__delgminusi, StellarMasses__StellarMasses__uminusr, StellarMasses__StellarMasses__deluminusr, StellarMasses__StellarMasses__gminusi_stars, StellarMasses__StellarMasses__uminusr_stars, StellarMasses__StellarMasses__C_logM_ur, StellarMasses__StellarMasses__C_logM_gi, StellarMasses__StellarMasses__C_logM_eBV, StellarMasses__StellarMasses__fitphot_u, StellarMasses__StellarMasses__delfitphot_u, StellarMasses__StellarMasses__absmag_u, StellarMasses__StellarMasses__delabsmag_u, StellarMasses__StellarMasses__absmag_u_stars, StellarMasses__StellarMasses__fitphot_g, StellarMasses__StellarMasses__delfitphot_g, StellarMasses__StellarMasses__absmag_g, StellarMasses__StellarMasses__delabsmag_g, StellarMasses__StellarMasses__absmag_g_stars, StellarMasses__StellarMasses__fitphot_r, StellarMasses__StellarMasses__delfitphot_r, StellarMasses__StellarMasses__absmag_r, StellarMasses__StellarMasses__delabsmag_r, StellarMasses__StellarMasses__absmag_r_stars, StellarMasses__StellarMasses__fitphot_i, StellarMasses__StellarMasses__delfitphot_i, StellarMasses__StellarMasses__absmag_i, StellarMasses__StellarMasses__delabsmag_i, StellarMasses__StellarMasses__absmag_i_stars, StellarMasses__StellarMasses__fitphot_z, StellarMasses__StellarMasses__delfitphot_z, StellarMasses__StellarMasses__absmag_z, StellarMasses__StellarMasses__delabsmag_z, StellarMasses__StellarMasses__absmag_z_stars FROM gama"
+
+    ctq = "SELECT DISTINCT StellarMasses__StellarMasses__CATAID, StellarMasses__StellarMasses__Z, StellarMasses__StellarMasses__nQ from gama"
 
     # result = MappingDatabase.execute_sql_query(sql_qry, True)
     try:
-        result = MappingDatabase.execute_adql_query(adql_qry)
+        result = MappingDatabase.execute_adql_query(ctq, 'query_456')
     except Exception as e:
         log.debug("Caught raised error: ", e.toString())
     print("done!")

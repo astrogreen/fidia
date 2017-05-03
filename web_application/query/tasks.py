@@ -11,13 +11,12 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 @shared_task
-def execute_query(query, query_id):
+def execute_query(query, query_id, results_tbl):
     # here we need to actually call prestodb with the query.
     try:
-        result = MappingDatabase.execute_adql_query(query)
+        result = MappingDatabase.execute_adql_query(query, results_tbl)
         if result is not None:
-            query = 'Update query_query set "isCompleted" = {0}, results = \'{1}\' where id={2};'.format(
-                    True, json.dumps(result), query_id)
+            query = 'Update query_query set "is_completed" = {0} where id={1};'.format(True, query_id)
             MappingDatabase.execute_sql_query(query, True)
         else:
             log.info("No results to save.")
@@ -47,7 +46,7 @@ def execute_query(query, query_id):
             errors['humanMessage'] = str(ex)
             errors['message'] = traceback.format_exc()
             errors['code'] = 500
-        query = 'Update query_query set "hasError" = {0}, error = \'{1}\' where id={2};'.format(
+        query = 'Update query_query set "has_error" = {0}, error = \'{1}\' where id={2};'.format(
                 True, json.dumps(errors), query_id)
         MappingDatabase.execute_sql_query(query, True)
 
