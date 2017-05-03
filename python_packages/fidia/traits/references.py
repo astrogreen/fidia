@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-# from typing import Type, Dict
-# import fidia
+from typing import Type, Dict
+import fidia
 
 # Python Standard Library Imports
 
@@ -38,7 +38,7 @@ class TraitMapping(bases.TraitMapping):
 
     def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
         # type: (Type[fidia.Trait], str, Dict[str, Union[str, TraitMapping]]) -> None
-        # assert issubclass(fidia.traits.BaseTrait, trait_class)
+        assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
         self.trait_schema = schema
@@ -96,7 +96,7 @@ class TraitMapping(bases.TraitMapping):
                 (self.trait_class.__name__, str(self.trait_key), str(self.trait_schema)))
 
     def key(self):
-        return self.trait_class, self.trait_key
+        return self.trait_class.__name__, str(self.trait_key)
 
     def update_trait_key_with_defaults(self, trait_key):
         """Return TraitKey with branch and version populated from defaults.
@@ -157,7 +157,7 @@ class TraitPointer(bases.TraitPointer):
         self.trait_mapping = trait_mapping
         self.trait_registry = trait_registry
         self.trait_class = trait_mapping.trait_class
-        assert issubclass(fidia.traits.BaseTrait, self.trait_class)
+        assert issubclass(self.trait_class, fidia.traits.BaseTrait)
 
 
 
