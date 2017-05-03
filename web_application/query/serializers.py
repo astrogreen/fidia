@@ -60,37 +60,70 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
 
-    sql = serializers.CharField(required=True, allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
+    sql = serializers.CharField(required=True, allow_blank=False, allow_null=False,
+                                style={'base_template': 'textarea.html'})
     title = serializers.CharField(default='My Query', max_length=100, required=False)
     is_completed = serializers.BooleanField(default=False, read_only=True)
 
     results = serializers.SerializerMethodField()
 
     def get_results(self, obj):
-        return 'results rows go here';
-        # return get_table(name=obj.table_name, length=2000)
+        # Get the top X number of rows from the table_name results table
+        # to display to the user on the front end.
+        dummy_results = {
+            "data": [[559813, 0.3736799955368042, 4, 5, 0.3753318786621094],
+                     [144885, 0.08026000112295151, 4, 2, 0.0815441831946373],
+                     [507773, 0.1811300069093704, 4, 5, 0.18213008344173431]],
+            "columns": [
+                {"name": "StellarMasses_CATAID", "type": "integer",
+                 "typeSignature": {"rawType": "integer", "arguments": [], "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_Z", "type": "double",
+                 "typeSignature": {"rawType": "double",
+                                   "arguments": [],
+                                   "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_nQ", "type": "integer",
+                 "typeSignature": {"rawType": "integer", "arguments": [], "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_SURVEY_CODE", "type": "integer",
+                 "typeSignature": {"rawType": "integer", "arguments": [], "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_Z_TONRY", "type": "double",
+                 "typeSignature": {"rawType": "double",
+                                   "arguments": [],
+                                   "typeArguments": [],
+                                   "literalArguments": []}}
+            ]}
+
+        # Retrieve the top 2000 rows from the table
+        if (obj.is_completed and not obj.is_expired and obj.table_name):
+            # TODO write this function get_table(name=obj.table_name, length=2000)
+            return dummy_results;
+        return None
+
 
     class Meta:
         model = query.models.Query
         fields = (
-        'created',
-        'updated',
-        'owner',
+            'created',
+            'updated',
+            'owner',
 
-        'query_builder_state',
-        'title',
-        'sql',
+            'query_builder_state',
+            'title',
+            'sql',
 
-        'url',
-        'id',
+            'url',
+            'id',
 
-        'is_completed',
-        'is_expired',
-        'results',
-        'table_name',
-        'row_count',
-        'has_error',
-        'error')
+            'is_completed',
+            'is_expired',
+            'results',
+            'table_name',
+            'row_count',
+            'has_error',
+            'error')
 
         extra_kwargs = {'results': {'required': False}, "query_builder_state": {"required": False},
                         "title": {"required": False}}
@@ -105,14 +138,12 @@ class QueryCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     # TODO update DRF as per fix to https://github.com/encode/django-rest-framework/issues/4999
     # JSONField not rendered properly in DRF browsable API HTML form
-    sql = serializers.CharField(required=True, label='SQL', allow_blank=False, allow_null=False, style={'base_template': 'textarea.html'})
+    sql = serializers.CharField(required=True, label='SQL', allow_blank=False, allow_null=False,
+                                style={'base_template': 'textarea.html'})
 
     class Meta:
         model = query.models.Query
         fields = ('title', 'query_builder_state', 'sql', 'id')
-
-
-
 
 # Testing in django
 # class ResultListSerializer(serializers.Serializer):
