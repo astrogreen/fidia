@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.contrib.postgres.fields import JSONField
+# from django.contrib.postgres.fields import JSONField
 from asvo_database_backend_helpers import MappingDatabase
 from query.tasks import execute_query
 
@@ -14,7 +14,8 @@ class Query(models.Model):
     updated = models.DateTimeField(auto_now=True, editable=False)
     owner = models.ForeignKey('auth.User', related_name='query')
 
-    query_builder_state = JSONField(blank=True, default="")
+    # query_builder_state = JSONField(blank=True, default="")
+    query_builder_state = models.TextField(blank=True, default='')
     sql = models.TextField(blank=False)
     title = models.CharField(max_length=1000, blank=True, default="My Query")
 
@@ -23,7 +24,8 @@ class Query(models.Model):
     row_count = models.IntegerField(blank=True, null=True)
 
     has_error = models.BooleanField(default=False, blank=False)
-    error = JSONField(blank=True, default=dict)
+    # error = JSONField(blank=True, default=dict)
+    error = models.TextField(blank=True, default='')
 
     @property
     def is_expired(self):
