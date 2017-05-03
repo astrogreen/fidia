@@ -201,13 +201,17 @@ def camel_case(snake_case_string):
     http://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
 
     """
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', snake_case_string)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    if not isinstance(snake_case_string, str):
+        raise ValueError("snake_case() works only on strings")
+    return ''.join(word.capitalize() or '_' for word in snake_case_string.split('_'))
 
 def snake_case(camel_case_string):
     # type (str) -> str
     """Convert a string from CamelCase to snake_case."""
-    return ''.join(word.capitalize() or '_' for word in camel_case_string.split('_'))
+    if not isinstance(camel_case_string, str):
+        raise ValueError("camel_case() works only on strings")
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_case_string)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
 def is_list_or_set(obj):
