@@ -243,7 +243,7 @@ class MappingDatabase:
             raise e
         try:
             mapped_query = "CREATE TABLE {0}.public.{1} AS {2}".format('adc_dev', results_tbl, mapped_query)
-            result = PrestoArchive().execute_query(mapped_query, 'asvo')
+            result = PrestoArchive().execute_query(mapped_query, catalog='hive', schema='asvo')
             if result.ok:
                 log.info("Ok I have successfully executed the query!")
                 json_data = result.json()

@@ -20,9 +20,9 @@ class PrestoArchive():
         self.__url = 'http://asvotest1.aao.gov.au:8092/v1/execute'
 
 
-    def execute_query(self, query, database=None):
+    def execute_query(self, query, catalog='hive', schema='asvo'):
 
-        self.__headers.update({"X-Presto-Schema": database})
+        self.__headers.update({"X-Presto-Catalog": catalog, "X-Presto-Schema": schema})
         result = requests.post(self.__url, data=query, headers=self.__headers)
         #r = requests.get(url, data={})
         return result
@@ -45,35 +45,35 @@ class PrestoArchive():
 
 
     def get_dmu_data(self):
-        result = self.execute_query("Select * from DMUs", "default")
+        result = self.execute_query("Select * from DMUs", schema="default")
         if result.ok:
             return result.json()
         else:
             return result.status_code + result.reason
 
     def get_tables_by_dmu(self, dmuid):
-        result = self.execute_query("Select * from tables where dmuid=" + str(dmuid), "default")
+        result = self.execute_query("Select * from tables where dmuid=" + str(dmuid), schema="default")
         if result.ok:
             return result.json()
         else:
             return result.status_code + result.reason
 
     def get_columns_by_table(self, tableid):
-        result = self.execute_query("Select * from columns where tableid=" + str(tableid), "default")
+        result = self.execute_query("Select * from columns where tableid=" + str(tableid), schema="default")
         if result.ok:
             return result.json()
         else:
             return result.status_code + result.reason
 
     def get_mapped_column(self, mapping):
-        result = self.execute_query("Select mapped from gama_mapping_table_1 where mapping='" + mapping + "'", "default")
+        result = self.execute_query("Select mapped from gama_mapping_table_1 where mapping='" + mapping + "'", schema="default")
         if result.ok:
             return result.json()
         else:
             return result.status_code + result.reason
 
     def get_mappings(self):
-        result = self.execute_query("Select mapping, mapped from gama_mapping_table_1", "default")
+        result = self.execute_query("Select mapping, mapped from gama_mapping_table_1", schema="default")
         if result.ok:
             # we need to get the mappings in a dictionary
             mapping_data = result.json()['data']

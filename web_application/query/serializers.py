@@ -13,6 +13,8 @@ from restapi_app.exceptions import Conflict, CustomValidation
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
+from fidia.archive.presto import PrestoArchive
+
 """
 Serializers:
 
@@ -99,9 +101,18 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
         # Retrieve the top 2000 rows from the table
         if (obj.is_completed and not obj.is_expired and obj.table_name):
             # TODO write this function get_table(name=obj.table_name, length=2000)
-            return dummy_results;
+            return self.get_table(name=obj.table_name, length=2000);
         return None
 
+    def get_table(self, name, length):
+        query = "Select * from {0} limit {1}".format(name, length)
+        result = PrestoArchive().execute_query(query, catalog='adc_dev', schema='public')
+        if result.ok:
+            log.info("Ok I have successfully executed the query!")
+            return result.json()
+        else:
+            log.error("Presto query failed :{0}".format(str(result.status_code) + result.text))
+            return None
 
     class Meta:
         model = query.models.Query
