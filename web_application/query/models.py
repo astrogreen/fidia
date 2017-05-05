@@ -75,4 +75,4 @@ def update_existing_query_instance(sender, instance, **kwargs):
     else:
         if not obj.sql == instance.sql:  # SQL Field has changed
             print("PRE_SAVE SQL")
-            execute_query.delay(instance.sql, instance.id, instance.table_name)
+            # execute_query.delay(instance.sql, instance.id, instance.table_name)

@@ -1,8 +1,3 @@
-# import random, collections, logging
-# import json
-#
-# import restapi_app.exceptions
-# import sys
 from django.utils.text import slugify
 # from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
 from rest_framework import permissions, views, viewsets, mixins
@@ -10,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 # from rest_framework_csv import renderers as r
 # from django.contrib.auth.models import User
-# from django.conf import settings
+from django.conf import settings
 
 import query.models
 import query.serializers
@@ -93,8 +88,10 @@ class QuerySchema(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, format=None):
-        schema = MappingDatabase.get_sql_schema()
-        # schema = query.dummy_schema.DUMMY_SCHEMA
+        if settings.DEBUG:
+            schema = query.dummy_schema.DUMMY_SCHEMA
+        else:
+            schema = MappingDatabase.get_sql_schema()
         return Response(schema)
 
 
