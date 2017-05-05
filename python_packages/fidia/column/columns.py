@@ -1,9 +1,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import Union
+
 # Python Standard Library Imports
 import re
 from contextlib import contextmanager
 from operator import itemgetter
+from collections import OrderedDict
 
 # Other Library Imports
 import numpy as np
@@ -15,12 +18,12 @@ from ..utilities import RegexpGroup
 # Set up logging
 from fidia import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.VDEBUG)
 log.enable_console_logging()
 
 
-
-class ColumnID(tuple):
+# noinspection PyInitNewSignature
+class ColumnID(str):
     """ColumnID(archive_id, column_type, column_name, timestamp)"""
 
     # Originally, this class was created using the following command:
@@ -31,102 +34,115 @@ class ColumnID(tuple):
 
     _fields = ('archive_id', 'column_type', 'column_name', 'timestamp')
 
-    def __new__(cls, archive_id, column_type, column_name, timestamp):
-        """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
+    def __new__(cls, string):
         # @TODO: Validation
-        return tuple.__new__(cls, (archive_id, column_type, column_name, timestamp))
-
-    # @classmethod
-    # def _make(cls, iterable, new=tuple.__new__, len=len):
-    #     """Make a new TraitKey object from a sequence or iterable"""
-    #     result = new(cls, iterable)
-    #     if len(result) not in (1, 2, 3, 4):
-    #         raise TypeError('Expected 1-4 arguments, got %d' % len(result))
-    #     return result
+        return str.__new__(cls, string)
 
     @classmethod
     def as_column_id(cls, key):
+        # type: (Union[str, tuple, ColumnID]) -> ColumnID
         """Return a ColumnID for the given input.
 
         Effectively this is just a smart "cast" from string or tuple.
 
         """
-        # if isinstance(key, TraitKey):
-        #     return key
-        # if isinstance(key, tuple):
-        #     return cls(*key)
-        # if isinstance(key, str):
-        #     match = TRAIT_KEY_RE.fullmatch(key)
-        #     if match:
-        #         return cls(trait_type=match.group('trait_type'),
-        #             trait_qualifier=match.group('trait_qualifier'),
-        #             branch=match.group('branch'),
-        #             version=match.group('version'))
-        #     match = TRAIT_KEY_ALT_RE.fullmatch(key)
-        #     if match:
-        #         return cls(trait_type=match.group('trait_type'),
-        #             trait_qualifier=match.group('trait_qualifier'),
-        #             branch=match.group('branch'),
-        #             version=match.group('version'))
+        if isinstance(key, ColumnID):
+            return key
+        if isinstance(key, tuple):
+            return cls(":".join(key))
+        if isinstance(key, str):
+            return cls(key)
         raise KeyError("Cannot parse ID '{}' into a ColumnID".format(key))
 
     def __repr__(self):
         """Return a nicely formatted representation string"""
-        return 'TraitKey(archive_id=%r, column_type=%r, column_name=%r, timestamp=%r)' % self
+        return 'ColumnID(%s)' % super(ColumnID, self).__repr__()
 
     # def _asdict(self):
     #     """Return a new OrderedDict which maps field names to their values"""
     #     return collections.OrderedDict(zip(self._fields, self))
 
-    # def replace(_self, **kwds):
-    #     """Return a new TraitKey object replacing specified fields with new values"""
-    #     result = _self._make(map(kwds.pop, ('trait_type', 'trait_qualifier', 'branch', 'version'), _self))
-    #     if kwds:
-    #         raise ValueError('Got unexpected field names: %r' % kwds.keys())
-    #     return result
+    def replace(self, **kwargs):
+        """Return a new ColumnID object replacing specified fields with new values"""
+        result = ColumnID(map(kwargs.pop, self._fields, self))
+        if kwargs:
+            raise ValueError('Got unexpected field names: %r' % kwargs.keys())
+        return result
 
-    def ashyphenstr(self):
-        s = self.trait_type
-        if self.trait_qualifier or self.branch or self.version:
-            s += "-"
-            if self.trait_qualifier:
-                s += self.trait_qualifier
-            if self.branch or self.version:
-                s += "-"
-                if self.branch:
-                    s += self.branch
-                if self.version:
-                    s += "-" + self.version
-        return s
 
-    def __getnewargs__(self):
-        """Return self as a plain tuple.  Used by copy and pickle."""
-        return tuple(self)
+    # def __str__(self):
+    #     string = self.column_name
+    #     if self.column_type:
+    #         string = self.column_type + ":" + string
+    #     if self.timestamp:
+    #         string = string + ":" + str(self.timestamp)
+    #     if self.archive_id:
+    #         string = self.archive_id + ":" + string
+    #     assert isinstance(string, str)
+    #     return string
 
-    # __dict__ = property(_asdict)
+    def as_dict(self):
+        split = self.split(":")
+        if len(split) == 2:
+            # Only column type and name
+            return {'column_type': split[0], 'column_name': split[1]}
+        if len(split) == 4:
+            # Fully defined
+            return {'archive_id': split[0], 'column_type': split[1], 'column_name': split[2], 'timestamp': split[3]}
 
-    def __getstate__(self):
-        """Exclude the OrderedDict from pickling"""
-        pass
+    @property
+    def archive_id(self):
+        """ID of the Archive providing this column"""
+        return self.as_dict().get('archive_id', None)
 
-    def __str__(self):
-        trait_string = self.trait_type
-        if self.trait_qualifier:
-            trait_string += "-" + self.trait_qualifier
-        if self.branch:
-            trait_string += ":" + self.branch
-        if self.version:
-            trait_string += "(" + self.version + ")"
-        return trait_string
+    @property
+    def column_type(self):
+        """class of the corresponding column definition"""
+        return self.as_dict().get('column_type', None)
 
-    archive_id = property(itemgetter(0), doc='ID of the Archive providing this column')
+    @property
+    def column_name(self):
+        return self.as_dict().get('column_name', None)
 
-    column_type = property(itemgetter(1), doc='class of the corresponding column definition')
+    @property
+    def timestamp(self):
+        return self.as_dict().get('timestamp', None)
 
-    column_name = property(itemgetter(2), doc='name of the column')
+    def __eq__(self, other):
+        if not isinstance(other, ColumnID):
+            other_id = ColumnID(other)
+        else:
+            other_id = other
+        if self.archive_id != other_id.archive_id: return False
+        if self.column_type != other_id.column_type: return False
+        if self.column_name != other_id.column_name: return False
+        if self.timestamp != other_id.timestamp:
+            if self.timestamp == 'latest' or other_id.timestamp == 'latest':
+                return True
+            else:
+                return False
+        return True
 
-    timestamp = property(itemgetter(3), doc='timestamp')
 
+class ColumnIDDict(OrderedDict):
+
+    def timestamps(self, column_id):
+        column_id = ColumnID.as_column_id(column_id)
+        for key in self.keys():
+            if key.replace(timestamp=None) == column_id.replace(timestamp=None):
+                yield key.timestamp
+    
+    def latest_timestamp(self, column_id):
+        return max(self.timestamps(column_id))
+
+    def __getitem__(self, item):
+        column_id = ColumnID.as_column_id(item)
+
+        if column_id.timestamp != 'latest':
+            return super(ColumnIDDict, self).__getitem__(column_id)
+        else:
+            latest_timestamp = self.latest_timestamp(column_id)
+            return super(ColumnIDDict, self).__getitem__(column_id.replace(timestamp=latest_timestamp))
 
 
 
@@ -215,14 +231,16 @@ class FIDIAColumn(object):
 
     @property
     def id(self):
-        return "{archive_id}:{coldef_id}:{timestamp}".format(
-            archive_id=self._archive_id,
-            coldef_id=self._coldef_id,
-            timestamp=self._timestamp
-        )
+        # return "{archive_id}:{coldef_id}:{timestamp}".format(
+        #     archive_id=self._archive_id,
+        #     coldef_id=self._coldef_id,
+        #     timestamp=self._timestamp
+        # )
+        coldef_id = ColumnID.as_column_id(self._coldef_id)
+        return ColumnID(self._archive_id, coldef_id.column_type, coldef_id.column_name, self._timestamp)
 
     def __repr__(self):
-        return self.id
+        return str(self.id)
 
     # def __get__(self, instance=None, owner=None):
     #     # type: (Trait, Trait) -> str

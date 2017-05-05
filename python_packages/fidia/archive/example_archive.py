@@ -74,6 +74,8 @@ class ExampleArchive(fidia.BasePathArchive):
 
     available_traits = fidia.TraitRegistry()
 
+    archive_id = "ExampleArchive"
+
     def __init__(self, **kwargs):
         # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
         self._contents = ['Gal1', 'Gal2', 'Gal3']

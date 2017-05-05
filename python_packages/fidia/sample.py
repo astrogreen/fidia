@@ -29,6 +29,7 @@ import numpy as np
 # FIDIA Imports
 from .import base_classes as bases
 from . import traits
+from .column import ColumnID
 from .exceptions import *
 
 # Set up logging
@@ -59,6 +60,7 @@ class Sample(bases.Sample):
 
         # List of archives included in this Sample
         self._archives = []  # type: List[fidia.Archive]
+        self._archives_by_id = dict() # type: Dict[str, fidia.Archive]
         self._primary_archive = None
 
         # The archive which receives write requests
@@ -81,6 +83,7 @@ class Sample(bases.Sample):
 
         sample._id_cross_matches = pd.DataFrame(pd.Series(archive.contents, name=archive.name, index=archive.contents))
         sample._archives = [archive]
+        sample._archives_by_id[archive.archive_id] = archive
         sample.trait_registry.link_database(archive.trait_mappings)
 
         return sample
@@ -266,20 +269,22 @@ class Sample(bases.Sample):
         return available_data
 
     def archive_for_column(self, id):
+        """The `.Archive` instance that that has the column id given."""
         # type: (str) -> fidia.Archive
-        pass
+        # column_id = ColumnID.as_column_id(id)
+        archive_id = id.split(":")[0]
+        return self._archives_by_id[archive_id]
 
     def find_column(self, column_id):
+        """Look up the `.FIDIAColumn` instance for the provided ID."""
         # type: (str) -> fidia.FIDIAColumn
-        pass
-
-    def get_archive_for_property(self, key):
-        # TODO: this will return the first archive (in arbitrary order) that can answer the trait request.
-        for ar in self.archives:
-            if ar.can_provide(key):
-                return ar
-        # If no archive can provide the given trait_key, then raise an exception.
-        raise UnknownTrait(key)
+        # column_id = ColumnID.as_column_id(id)
+        archive_id = column_id.split(":")[0]
+        archive = self._archives_by_id[archive_id]
+        columns = archive.columns  # type: fidia.column.ColumnDefinitionList
+        col = columns[column_id]
+        assert isinstance(col, fidia.FIDIAColumn)
+        return col
 
     def get_archive_id(self, archive, sample_id):
         # @TODO: Sanity checking, e.g. archive is actually valid, etc.

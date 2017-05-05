@@ -16,8 +16,8 @@ into actual :class:`.FIDIAColumn` objects (which are defined in
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union
-# import fidia
+from typing import Union, Tuple, Dict
+import fidia
 
 # Python Standard Library Imports
 import os
@@ -30,7 +30,7 @@ from cached_property import cached_property
 
 # FIDIA Imports
 from ..exceptions import FIDIAException
-from .columns import FIDIAColumn, FIDIAArrayColumn, PathBasedColumn
+from .columns import FIDIAColumn, FIDIAArrayColumn, PathBasedColumn, ColumnID, ColumnIDDict
 from ..utilities import is_list_or_set
 
 # Set up logging
@@ -42,22 +42,23 @@ log.enable_console_logging()
 class ColumnDefinitionList(object):
     def __init__(self, column_definitions=()):
 
-        self._contents = OrderedDict()
-        self._contents_by_alias = OrderedDict()
-        self._alias_by_id = OrderedDict()
+        self._contents = ColumnIDDict()  # type: Dict[ColumnID, Union[ColumnDefinition, FIDIAColumn]]
+        self._contents_by_alias = OrderedDict()  # type: Dict[str, Union[ColumnDefinition, FIDIAColumn]]
+        self._alias_by_id = ColumnIDDict()  # type: Dict[ColumnID, str]
 
         for coldef in column_definitions:
             self.add(coldef)
 
     def __getitem__(self, item):
-        # type: (str) -> ColumnDefinition
+        # type: (str) -> Union[ColumnDefinition, FIDIAColumn]
         if item in self._contents_by_alias.keys():
             return self._contents_by_alias[item]
-        else:
+        if item in self._contents:
             return self._contents[item]
+        log.warning("ColumnID '%s' not in %s", item, self)
 
     def add(self, coldef):
-        # type: (Union[ColumnDefinition, Tuple[str, ColumnDefinition]]) -> None
+        # type: (Union[Union[ColumnDefinition, FIDIAColumn], Tuple[str, Union[ColumnDefinition, FIDIAColumn]]]) -> None
         log.debug("Adding column definition: %s", coldef)
         if is_list_or_set(coldef):
             log.debug("Column definition is a tuple.")
@@ -83,6 +84,16 @@ class ColumnDefinitionList(object):
         for column_id in self._alias_by_id:
             yield (self._alias_by_id[column_id], self._contents[column_id])
 
+    def __repr__(self):
+        coldefs = ""
+        for id in self._contents:
+            if coldefs != "":
+                coldefs += ",\n "
+            coldefs += "({alias}, '{id}')".format(
+                alias=repr(self._alias_by_id[id]),
+                id=str(id)
+            )
+        return "ColumnDefinitionList((\n" + coldefs + "\n))"
 
 class ColumnDefinition(object):
     """Base class for Column Definitions.
@@ -98,6 +109,8 @@ class ColumnDefinition(object):
 
     """
 
+    column_type = None  # type: Type[FIDIAColumn]
+
     def __init__(self, **kwargs):
         if 'timestamp' in kwargs:
             self._timestamp = kwargs['timestamp']
@@ -109,8 +122,8 @@ class ColumnDefinition(object):
         if klass.startswith('fidia.'):
             klass = type(self).__name__
         if hasattr(self, '_id'):
-            return klass + ":" + self._id
-        return klass + ":" + repr(self)
+            return ColumnID(None, klass, self._id, None)
+        return ColumnID(None, klass, repr(self), None)
 
     def _timestamp_helper(self, archive):
         # type: (fidia.archive.archive.Archive) -> Union[None, int, float]
@@ -161,14 +174,17 @@ class ColumnDefinition(object):
         return time.time()
 
     def associate(self, archive):
-        # type: (fidia.archive.archive.Archive) -> FIDIAColumn
+        # type: (fidia.Archive) -> FIDIAColumn
         """Convert a column definition defined on an `Archive` class into a `FIDIAColumn` on an archive instance."""
+        if self.column_type is None or not issubclass(self.column_type, FIDIAColumn):
+            raise FIDIAException("Column Definition validation error: column_type must be defined.")
         column = self.column_type(
             archive_id=archive.archive_id,
             archive=archive,
             timestamp=self.get_timestamp(archive),
             coldef_id=self.id
         )
+        assert isinstance(column, FIDIAColumn)
         # Call on_associate helpers of any sub-classes:
         if type(self) is not ColumnDefinition:
             super(type(self), self).on_associate(archive, column)
@@ -178,7 +194,7 @@ class ColumnDefinition(object):
             return self.object_getter(archive, object_id)
         column.get_value = baked_object_getter
 
-        log.debug("Created column: %s", column)
+        log.debug("Created column: %s", str(column))
 
         return column
 

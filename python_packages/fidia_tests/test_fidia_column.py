@@ -7,7 +7,7 @@ import generate_test_data as testdata
 import pytest
 
 from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn
-from fidia.column.columns import FIDIAColumn
+from fidia.column.columns import FIDIAColumn, ColumnID
 
 
 @pytest.yield_fixture(scope='module')
@@ -26,6 +26,26 @@ def archive():
     ar = Archive()
     ar.archive_id = 'Archive123'
     return ar
+
+
+class TestColumnIDs:
+
+    @pytest.fixture
+    def column_id_list(self):
+        return [
+            "testArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"
+        ]
+    # def test_column_id_creation(self):
+    #     ColumnID()
+
+    def test_column_equality(self):
+        col1 = ColumnID.as_column_id("testArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1")
+        col2 = ColumnID.as_column_id("testArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1")
+
+        assert col1 == col2
+
+        assert col1.replace(timestamp='latest') == col2
+        assert col1 == col2.replace(timestamp='latest')
 
 
 class TestColumnDefs:
