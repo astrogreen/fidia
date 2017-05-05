@@ -42,9 +42,9 @@ log.enable_console_logging()
 class ColumnDefinitionList(object):
     def __init__(self, column_definitions=()):
 
-        self._contents = ColumnIDDict()  # type: Dict[ColumnID, Union[ColumnDefinition, FIDIAColumn]]
+        self._contents = OrderedDict()  # type: Dict[ColumnID, Union[ColumnDefinition, FIDIAColumn]]
         self._contents_by_alias = OrderedDict()  # type: Dict[str, Union[ColumnDefinition, FIDIAColumn]]
-        self._alias_by_id = ColumnIDDict()  # type: Dict[ColumnID, str]
+        self._alias_by_id = OrderedDict()  # type: Dict[ColumnID, str]
 
         for coldef in column_definitions:
             self.add(coldef)
@@ -122,8 +122,8 @@ class ColumnDefinition(object):
         if klass.startswith('fidia.'):
             klass = type(self).__name__
         if hasattr(self, '_id'):
-            return ColumnID(None, klass, self._id, None)
-        return ColumnID(None, klass, repr(self), None)
+            return ":".join((klass, self._id))
+        return ":".join((klass, repr(self)))
 
     def _timestamp_helper(self, archive):
         # type: (fidia.archive.archive.Archive) -> Union[None, int, float]

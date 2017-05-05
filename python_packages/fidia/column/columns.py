@@ -108,20 +108,20 @@ class ColumnID(str):
     def timestamp(self):
         return self.as_dict().get('timestamp', None)
 
-    def __eq__(self, other):
-        if not isinstance(other, ColumnID):
-            other_id = ColumnID(other)
-        else:
-            other_id = other
-        if self.archive_id != other_id.archive_id: return False
-        if self.column_type != other_id.column_type: return False
-        if self.column_name != other_id.column_name: return False
-        if self.timestamp != other_id.timestamp:
-            if self.timestamp == 'latest' or other_id.timestamp == 'latest':
-                return True
-            else:
-                return False
-        return True
+    # def __eq__(self, other):
+    #     if not isinstance(other, ColumnID):
+    #         other_id = ColumnID(other)
+    #     else:
+    #         other_id = other
+    #     if self.archive_id != other_id.archive_id: return False
+    #     if self.column_type != other_id.column_type: return False
+    #     if self.column_name != other_id.column_name: return False
+    #     if self.timestamp != other_id.timestamp:
+    #         if self.timestamp == 'latest' or other_id.timestamp == 'latest':
+    #             return True
+    #         else:
+    #             return False
+    #     return True
 
 
 class ColumnIDDict(OrderedDict):
@@ -231,13 +231,13 @@ class FIDIAColumn(object):
 
     @property
     def id(self):
-        # return "{archive_id}:{coldef_id}:{timestamp}".format(
-        #     archive_id=self._archive_id,
-        #     coldef_id=self._coldef_id,
-        #     timestamp=self._timestamp
-        # )
-        coldef_id = ColumnID.as_column_id(self._coldef_id)
-        return ColumnID(self._archive_id, coldef_id.column_type, coldef_id.column_name, self._timestamp)
+        return "{archive_id}:{coldef_id}:{timestamp}".format(
+            archive_id=self._archive_id,
+            coldef_id=self._coldef_id,
+            timestamp=self._timestamp
+        )
+        # coldef_id = ColumnID.as_column_id(self._coldef_id)
+        # return ColumnID(self._archive_id, coldef_id.column_type, coldef_id.column_name, self._timestamp)
 
     def __repr__(self):
         return str(self.id)

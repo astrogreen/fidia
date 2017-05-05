@@ -89,15 +89,17 @@ class ExampleArchive(fidia.BasePathArchive):
 
     column_definitions = fidia.ColumnDefinitionList([
             ("red_image", fidia.FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                                               ndim=2)),
-            ("red_image_exposed", fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED")),
+                                               ndim=2,
+                                               timestamp=1)),
+            ("red_image_exposed", fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED",
+                                                         timestamp=1)),
             fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1")
         ])
 
 
     trait_mappings = [
         TraitMapping(Image, 'red', {
-            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:latest"})
+            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"})
         # TraitMapping(SpectralCube, 'red', {
         #     'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:latest"})
     ]

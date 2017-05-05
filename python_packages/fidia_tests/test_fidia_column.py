@@ -44,6 +44,11 @@ class TestColumnIDs:
 
         assert col1 == col2
 
+    @pytest.mark.xfail
+    def test_column_equality_latest(self):
+        col1 = ColumnID.as_column_id("testArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1")
+        col2 = ColumnID.as_column_id("testArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1")
+
         assert col1.replace(timestamp='latest') == col2
         assert col1 == col2.replace(timestamp='latest')
 
