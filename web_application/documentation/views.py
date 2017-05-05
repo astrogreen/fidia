@@ -22,7 +22,7 @@ class TopicViewset(viewsets.ModelViewSet):
     queryset = documentation.models.Topic.objects.order_by('ordering')
     permission_classes = [restapi_app.permissions.IsAdminOrReadOnly]
     lookup_field = 'slug'
-    ordering = ('ordering',)
+    # ordering = ('ordering',)
     pagination_class = None
 
 

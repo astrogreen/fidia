@@ -16,7 +16,11 @@ class Topic(models.Model):
     # hidden = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        self.ordering = Topic.objects.aggregate(Max('ordering'))['ordering__max'] + 1
+        print(Topic.objects.aggregate(Max('ordering')))
+
+        ordering = Topic.objects.aggregate(Max('ordering'))['ordering__max']
+
+        self.ordering = int(ordering or 0) + 1
 
         self.slug = slugify(self.title)
         super(Topic, self).save(*args, **kwargs)

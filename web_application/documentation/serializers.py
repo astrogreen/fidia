@@ -115,10 +115,11 @@ class TopicSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="documentation:topic-detail", lookup_field='slug')
     created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
     updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    title = serializers.CharField(validators=[UniqueValidator(queryset=documentation.models.Topic.objects.all())])
 
     class Meta:
         model = documentation.models.Topic
-        fields = ('id', 'url', 'title', 'articles', 'created', 'updated', 'slug')
+        fields = ('id', 'url', 'title', 'articles', 'created', 'updated')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
