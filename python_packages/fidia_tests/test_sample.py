@@ -1,9 +1,21 @@
 import pytest
 
+import tempfile
+
+# noinspection PyUnresolvedReferences
+import generate_test_data as testdata
+
 import fidia
 from fidia import Sample, AstronomicalObject
-from fidia.archive import MemoryArchive
+# from fidia.archive import MemoryArchive
 from fidia.archive.example_archive import ExampleArchive
+
+@pytest.yield_fixture(scope='module')
+def test_data_dir():
+    with tempfile.TemporaryDirectory() as tempdir:
+        testdata.generate_simple_dataset(tempdir, 5)
+
+        yield tempdir
 
 class TestSample:
 
@@ -13,15 +25,15 @@ class TestSample:
         empty_sample = Sample()
         return empty_sample
 
-    @pytest.fixture
-    def writeable_sample(self):
-        mysample = Sample()
-        mysample.add_from_archive(MemoryArchive())
-        return mysample
+    # @pytest.fixture
+    # def writeable_sample(self):
+    #     mysample = Sample()
+    #     mysample.add_from_archive(MemoryArchive())
+    #     return mysample
 
     @pytest.fixture
-    def example_archive_sample(self):
-        ar = ExampleArchive()
+    def example_archive_sample(self, test_data_dir):
+        ar = ExampleArchive(basepath=test_data_dir)
         sample = ar.get_full_sample()
         return sample
 
@@ -31,7 +43,7 @@ class TestSample:
     def test_new_sample_is_read_only(self, empty_sample):
         assert empty_sample.read_only 
 
-    def test_sample_behaives_like_dict(self, example_archive_sample):
+    def test_sample_behaves_like_dict(self, example_archive_sample):
 
         example_archive_sample.keys()
         len(example_archive_sample)
@@ -42,6 +54,7 @@ class TestSample:
         for key in example_archive_sample.keys():
             assert isinstance(key, str)
 
+    @pytest.mark.xfail  # No data not available in example archive.
     def test_attempt_retrieve_data_not_available(self, example_archive_sample):
         with pytest.raises(fidia.DataNotAvailable):
             example_archive_sample['Gal2']['spectral_map']
@@ -69,6 +82,7 @@ class TestSample:
     #     assert writeable_sample['gal1'].redshift == 0.532
 
     # Tests for feature data
+    @pytest.mark.xfail # @TODO: Feature data not implemented
     def test_feature_data(self, example_archive_sample):
         # type: (Sample) -> None
 
@@ -85,6 +99,7 @@ class TestSample:
         index = {l[0]: i for i, l in enumerate(data)}
         assert 'Gal1' in index
 
+    @pytest.mark.xfail # @TODO: Feature data not implemented
     def test_feature_data_columns(self, example_archive_sample):
         # type: (Sample) -> None
 
