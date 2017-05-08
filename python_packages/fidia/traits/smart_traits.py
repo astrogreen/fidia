@@ -1,16 +1,39 @@
+"""
+MODULE Documentation
 
-# Standard Library Imports
 
+Original Author: Andy Green
 
+"""
 
-# Other library imports
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from typing import List
+
+# Python Standard Library Imports
+from abc import abstractproperty
+
+# Other Library Imports
 import astropy.coordinates
 import astropy.wcs
 
-# Internal package imports
-from . import Trait
-from .abstract_base_traits import *
+# FIDIA Imports
+
+
+# Other modules within this package
 from .trait_property import trait_property
+from .base_trait import Trait
+
+# Set up logging
+import fidia.slogging as slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.WARNING)
+log.enable_console_logging()
+
+__all__ = []
+
+
+# Internal package imports
 
 # Logging Import and setup
 from .. import slogging

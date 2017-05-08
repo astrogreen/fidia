@@ -17,13 +17,6 @@ class TestAstronomicalObject:
         obj = example_archive_sample['Gal1']
         return obj
 
-    def test_astro_object_dict_like(self, example_object):
-
-        example_object.keys()
-        len(example_object)
-
-        for key in example_object:
-            assert isinstance(example_object[key], Trait)
 
 
 

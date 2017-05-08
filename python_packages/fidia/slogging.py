@@ -77,6 +77,9 @@ INFO = logging.INFO
 VDEBUG = 9
 VVDEBUG = 8
 
+logging.addLevelName(9, 'VDEBUG')
+logging.addLevelName(8, 'VVDEBUG')
+
 def configure_logging():
     """Configure logging for this package and return the package level logger"""
 
@@ -101,7 +104,7 @@ def configure_logging():
     # NOTE: The logging level should not be set here, but rather at the top of
     # each file. The setting below ensures that this logger will catch all
     # requests from child loggers.
-    package_log.setLevel(logging.DEBUG)
+    package_log.setLevel(0)
 
 
     # The code below should only ever be called once, so we raise an exception if this doesn't seem to be the case.
@@ -165,7 +168,7 @@ def enable_console_logging(self, override=False):
         formatter = logging.Formatter('%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s')
 
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
+        console_handler.setLevel(0)
         console_handler.setFormatter(formatter)
 
     if console_handler not in self.handlers:

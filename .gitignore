@@ -1,11 +1,65 @@
 
-# Ignore patterns for Python code:
-*.pyc
-.idea
+# AAOdc specific ignores:
 db.sqlite3
 *.iml
 documentation/fidia/uml-diagrams/*.dot
 documentation/fidia/uml-diagrams/*.pdf
+<<<<<<< HEAD
+
+# Compiled files
+*.py[cod]
+*.a
+*.o
+*.so
+__pycache__
+
+# Other generated files
+python_pacakges/fidia_astropy/*/version.py
+python_pacakges/fidia_astropy/*/cython_version.py
+python_packages/fidia/version.py
+python_pacakges/fidia/cython_version.py
+python_pacakges/fidia_astropy/htmlcov
+python_pacakges/fidia_astropy/.coverage
+python_pacakges/fidia_astropy/MANIFEST
+python_pacakges/fidia_astropy/.ipynb_checkpoints
+
+# Sphinx
+python_packages/fidia_astropy/docs/api
+python_packages/fidia_astropy/docs/_build
+
+# Eclipse editor project files
+.project
+.pydevproject
+.settings
+
+# Pycharm editor project files
+.idea
+
+# Packages/installer info
+python_packages/fidia_astropy/*.egg
+python_packages/fidia_astropy/*.egg-info
+python_packages/fidia_astropy/dist
+python_packages/fidia_astropy/build
+python_packages/fidia_astropy/eggs
+python_packages/fidia_astropy/parts
+python_packages/fidia_astropy/bin
+python_packages/fidia_astropy/var
+python_packages/fidia_astropy/sdist
+python_packages/fidia_astropy/develop-eggs
+python_packages/fidia_astropy/.installed.cfg
+python_packages/fidia_astropy/distribute-*.tar.gz
+
+# Other
+.cache
+.tox
+.*.sw[op]
+*~
+
+# Mac OSX
+.DS_Store
+
+=======
 #python_packages/database_config.py
 /web_application/custom_database_config.py
 /config/*
+>>>>>>> ffcd0ae8aba12d11e8c8e848af47181127e5be6e

@@ -1,4 +1,10 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from typing import List
+
+# Python Standard Library Imports
 from copy import deepcopy
+import re
 from collections import Iterable, Sized
 from contextlib import contextmanager
 import os
@@ -7,9 +13,11 @@ import fcntl
 import functools
 from time import sleep
 
+# Other Library Imports
 from sortedcontainers import SortedDict
 
-from . import slogging
+# Set up logging
+import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
@@ -185,6 +193,26 @@ class DefaultsRegistry:
         )
 
 class Default: pass
+
+def camel_case(snake_case_string):
+    # type: (str) -> str
+    """Convert a string from snake_case to CamelCase.
+
+    http://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
+
+    """
+    if not isinstance(snake_case_string, str):
+        raise ValueError("snake_case() works only on strings")
+    return ''.join(word.capitalize() or '_' for word in snake_case_string.split('_'))
+
+def snake_case(camel_case_string):
+    # type (str) -> str
+    """Convert a string from CamelCase to snake_case."""
+    if not isinstance(camel_case_string, str):
+        raise ValueError("camel_case() works only on strings")
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_case_string)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
 
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""

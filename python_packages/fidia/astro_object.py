@@ -1,11 +1,32 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import List
+import fidia
+
+# Python Standard Library Imports
 import collections
 
-from .traits import TraitKey
+# Other Library Imports
 
-class AstronomicalObject(collections.MutableMapping):
+# FIDIA Imports
+import fidia.base_classes as bases
+from fidia.utilities import snake_case
+# from .traits import TraitKey
+
+# Set up logging
+import fidia.slogging as slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.DEBUG)
+log.enable_console_logging()
+
+__all__ = ['AstronomicalObject']
+
+
+
+class AstronomicalObject:
 
     def __init__(self, sample, identifier=None, ra=None, dec=None):
+        # type: (fidia.Sample, str, float, float) -> None
         if identifier is None:
             if ra is None or dec is None:
                 raise Exception("Either 'identifier' or 'ra' and 'dec' must be defined.")
@@ -14,7 +35,7 @@ class AstronomicalObject(collections.MutableMapping):
             self._identifier = identifier
 
         # Reference to the sample containing this object.
-        self.sample = sample # type: fidia.sample.Sample
+        self.sample = sample
 
         # Dictionary of IDs for this object in the various archives attached
         # to the sample. @TODO: Initialised to None: must be populated
@@ -23,6 +44,11 @@ class AstronomicalObject(collections.MutableMapping):
 
         self._ra = ra
         self._dec = dec
+
+        # Associate TraitPointer objects as necessary.
+
+        self.update_trait_pointers()
+
         super(AstronomicalObject, self).__init__()
 
     @property
@@ -37,6 +63,20 @@ class AstronomicalObject(collections.MutableMapping):
     def dec(self):
         return self._dec
 
+    def update_trait_pointers(self):
+
+        from fidia.traits.references import TraitPointer
+
+        # Clear all existing pointers to TraitPointers
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if isinstance(attr, bases.TraitPointer):
+                delattr(self, attr_name)
+        for trait_mapping in self.sample.trait_registry.get_trait_mappings():
+            log.debug(trait_mapping.trait_class.trait_class_name)
+            pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
+            log.debug("Adding trait pointer %s", pointer_name)
+            setattr(self, pointer_name, TraitPointer(self.sample, self, trait_mapping, self.sample.trait_registry))
 
     def get_archive_id(self, archive):
         return self.sample.get_archive_id(archive, self._identifier)
@@ -75,39 +115,6 @@ class AstronomicalObject(collections.MutableMapping):
 
         return feature_data
 
-    # ____________________________________________________________________
-    # Functions to create dictionary like behaviour to address Traits of the galaxy
-    #
-    #     These are required as part of the collections.MutableMapping class.
-
-    def __getitem__(self, key):
-        # type: (Union[str, TraitKey]) -> Trait
-        """Function called on dict type read access"""
-
-        if isinstance(key, list):
-            # We have been asked for more than one property, will return tabular data?
-            # @TODO!
-            raise Exception("List indexing behaviour not implemented.")
-        else:
-            key = TraitKey.as_traitkey(key)
-            #raise Exception("Key indexing behaviour not implemented.")
-            # # Asked for a single property
-            # archive = self.sample.get_archive_for_property(key)
-            # archive.data.loc[self._archive_id[archive]][key]
-
-            archive = self.sample.get_archive_for_property(key)
-
-            archive_id = self.sample.get_archive_id(archive, self.identifier)
-            # get_trait provides a reference to a cached copy of the trait held by the archive.
-            # It may be necessary to actually save a reference in this object when it comes to
-            # object storage.
-            return archive.get_trait(archive_id, key)
-
-    def __setitem__(self, key, value):
-        pass
-
-    def __delitem__(self, key):
-        pass
 
     def keys(self):
         """Provide a list of (presumed) valid TraitKeys for this object"""
@@ -117,12 +124,3 @@ class AstronomicalObject(collections.MutableMapping):
 
 
         return keys
-
-    def __len__(self):
-        return len(self.keys())
-
-    def __iter__(self):
-        return iter(self.keys())
-
-
-
