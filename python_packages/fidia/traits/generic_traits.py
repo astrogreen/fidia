@@ -16,10 +16,20 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
-__all__ = ['Image', 'SpectralCube', 'DMU', 'WCS']
+__all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS']
 
-class WCS(Trait):
-    pass
+class ImageWCS(Trait):
+    n_axis = 2
+    crpix1 = TraitProperty(dtype=(float, int))
+    crpix2 = TraitProperty(dtype=(float, int))
+    crval1 = TraitProperty(dtype=(float, int))
+    crval2 = TraitProperty(dtype=(float, int))
+    cdelt1 = TraitProperty(dtype=(float, int))
+    cdelt2 = TraitProperty(dtype=(float, int))
+    ctype1 = TraitProperty(dtype=str)
+    ctype2 = TraitProperty(dtype=str)
+
+
 
 class Image(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=2)
