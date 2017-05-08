@@ -1,7 +1,10 @@
+import logging
 from django.utils.text import slugify
-# from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions
-from rest_framework import permissions, views, viewsets, mixins
+import numpy as np
+from rest_framework import permissions, views, viewsets, mixins, generics
 from rest_framework.response import Response
+from rest_framework.decorators import detail_route
+
 from rest_framework.settings import api_settings
 # from rest_framework_csv import renderers as r
 # from django.contrib.auth.models import User
@@ -14,6 +17,8 @@ import query.renderers
 
 import query.dummy_schema
 
+from fidia.archive.presto import PrestoArchive
+
 # import restapi_app.renderers
 # import restapi_app.renderers_custom.renderer_flat_csv
 #
@@ -21,7 +26,7 @@ import query.dummy_schema
 # from fidia.archive.presto import PrestoArchive
 from asvo_database_backend_helpers import MappingDatabase
 
-# log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
 
 
@@ -32,7 +37,7 @@ class Query(viewsets.ModelViewSet):
     serializer_class = query.serializers.QueryListSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = None
-    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (query.renderers.MyCSVQueryRenderer,)
+    # renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (query.renderers.MyCSVQueryRenderer,)
 
     serializer_action_classes = {
         'list': query.serializers.QueryListSerializer,
@@ -74,6 +79,65 @@ class Query(viewsets.ModelViewSet):
             response['content-disposition'] = 'attachment; filename=%s.csv' % title
         return response
 
+    def get_table(self, name, length):
+        query = "Select * from {0} limit {1}".format(name, length)
+        result = PrestoArchive().execute_query(query, catalog='adc_dev', schema='public')
+        if result.ok:
+            log.info("Ok I have successfully executed the query!")
+            return result.json()
+        else:
+            log.error("Presto query failed :{0}".format(str(result.status_code) + result.text))
+            return None
+
+    @detail_route()
+    def result(self, request, *args, **kwargs):
+        """
+        Get the top X number of rows from the table_name results table
+        to display to the user on the front end.
+        Args:
+            request: 
+            *args: 
+            **kwargs: 
+
+        Returns:
+
+        """
+        obj = self.get_object()
+        data = np.random.random((200, 5))
+        dummy_results = {
+            "data": data,
+            "columns": [
+                {"name": "StellarMasses_CATAID", "type": "integer",
+                 "typeSignature": {"rawType": "integer", "arguments": [], "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_Z", "type": "double",
+                 "typeSignature": {"rawType": "double",
+                                   "arguments": [],
+                                   "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_nQ", "type": "integer",
+                 "typeSignature": {"rawType": "integer", "arguments": [], "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_SURVEY_CODE", "type": "integer",
+                 "typeSignature": {"rawType": "integer", "arguments": [], "typeArguments": [],
+                                   "literalArguments": []}},
+                {"name": "StellarMasses_Z_TONRY", "type": "double",
+                 "typeSignature": {"rawType": "double",
+                                   "arguments": [],
+                                   "typeArguments": [],
+                                   "literalArguments": []}}
+            ]}
+
+        # Retrieve the top 2000 rows from the table
+        if obj.is_completed and not obj.is_expired and obj.table_name:
+            # TODO turn off!
+            data = dummy_results
+            # data = self.get_table(name=obj.table_name, length=2000);
+        else:
+            data = None
+
+        return Response({"data": data})
+
 
 class QuerySchema(views.APIView):
     """
@@ -105,17 +169,17 @@ class QueryResultTables(object):
 #     2: QueryResultTables(id=2, col1='Model less demo', col2='xordoquy', col3='Ongoing'),
 #     3: QueryResultTables(id=3, col1='Sleep more', col2='xordoquy', col3='New'),
 # }
-
-results = {}
-for i in range(0, 200):
-    data = {}
-    for y in range(0, 200):
-        data[y] = {'col1': 'testrow1', 'col2': 'testrow1'}
-
-    results[i] = {
-        'id': i,
-        'data': data
-    }
+#
+# results = {}
+# for i in range(0, 200):
+#     data = {}
+#     for y in range(0, 200):
+#         data[y] = {'col1': 'testrow1', 'col2': 'testrow1'}
+#
+#     results[i] = {
+#         'id': i,
+#         'data': data
+#     }
     # results[i] = QueryResultTables(id=i, col1='test', col2='test', col3='Done'),
 
 
