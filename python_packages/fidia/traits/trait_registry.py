@@ -66,6 +66,7 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
         # type: (fidia.traits.TraitMapping) -> None
         if trait_mapping.key() in self.mappings:
             raise FIDIAException("Attempt to add an existing mapping")
+        trait_mapping.validate()
         self.mappings[trait_mapping.key()] = trait_mapping
 
     def register_trait_mapping_list(self, trait_mapping_list):

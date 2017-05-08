@@ -23,6 +23,7 @@ class WCS(Trait):
 
 class Image(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=2)
+    exposed = TraitProperty(dtype=(float, int), optional=True)
     # wcs = SubTrait(WCS, optional=True)
 
 class SpectralCube(Trait):

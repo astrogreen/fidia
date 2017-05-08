@@ -127,6 +127,11 @@ class TraitMapping(bases.TraitMapping):
 
         return tk
 
+    def validate(self):
+        # Check that all required (not optional) TraitProperties are defined in the schema:
+        for tp in self.trait_class._trait_properties():
+            if tp.name not in self.trait_schema and not tp.optional:
+                raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
 
 class TraitPointer(bases.TraitPointer):
     """Provides machinery to identify and instanciate a `Trait` on an `AstronomicalObject`.

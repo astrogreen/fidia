@@ -150,16 +150,17 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     def initialize_trait_class(cls):
         """Steps to initialize a Trait class."""
 
-        # Make sure all attached TraitProperties have their names set:
-        for attr in cls.trait_property_dir():
-            tp = getattr(cls, attr)
-            if tp.name is None:
-                tp.name = attr
-            else:
-                assert tp.name == attr, \
-                    "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
-        log.debug("Initialised Trait class %s", str(cls))
-        cls.trait_class_initialized = True
+        if not cls.trait_class_initialized:
+            # Make sure all attached TraitProperties have their names set:
+            for attr in cls.trait_property_dir():
+                tp = getattr(cls, attr)
+                if tp.name is None:
+                    tp.name = attr
+                else:
+                    assert tp.name == attr, \
+                        "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
+            log.debug("Initialised Trait class %s", str(cls))
+            cls.trait_class_initialized = True
 
     def __init__(self, sample, trait_key, object_id, trait_registry, trait_schema):
         # type: (fidia.Sample, fidia.TraitKey, str, fidia.traits.TraitMappingDatabase, dict) -> None
@@ -264,6 +265,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         :returns: the TraitProperty descriptor object
 
         """
+        cls.initialize_trait_class()
+
 
         if isinstance(trait_property_types, str):
             trait_property_types = (trait_property_types, )
@@ -273,9 +276,9 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
-                if obj.name.startswith("_") and not include_hidden:
-                    log.debug("Trait property '%s' ignored because it is hidden.", attr)
-                    continue
+                # if obj.name.startswith("_") and not include_hidden:
+                #     log.debug("Trait property '%s' ignored because it is hidden.", attr)
+                #     continue
                 log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
                 if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
