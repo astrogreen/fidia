@@ -4,6 +4,7 @@ db.sqlite3
 *.iml
 documentation/fidia/uml-diagrams/*.dot
 documentation/fidia/uml-diagrams/*.pdf
+<<<<<<< HEAD
 
 # Compiled files
 *.py[cod]
@@ -57,3 +58,8 @@ python_packages/fidia_astropy/distribute-*.tar.gz
 # Mac OSX
 .DS_Store
 
+=======
+#python_packages/database_config.py
+/web_application/custom_database_config.py
+/config/*
+>>>>>>> ffcd0ae8aba12d11e8c8e848af47181127e5be6e

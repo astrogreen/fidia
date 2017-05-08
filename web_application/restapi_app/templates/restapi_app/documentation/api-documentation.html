@@ -1,0 +1,110 @@
+{% extends 'rest_framework/api.html' %}
+{% load staticfiles %}
+{% load rest_framework %}
+{% load i18n %}
+{% load internal_extras %}
+{% block title %} Home {% endblock %}
+
+{% block main %}
+<h1>Accessing the API</h1>
+<p> This document provides information to developers looking to integrate their own applications with the ADC API.</p>
+<p>A simple unauthenticated request to the ADC API might look like:</p>
+<code>GET
+    {% captureas feature_url %}{% url 'feature-list' %}{% endcaptureas %}
+    {{ feature_url|siteabsoluteurl:request }}?format=json</code>
+<p>
+    This returns the list of requested features for ADC.</p>
+<!--<p><strong>API requests must use HTTPS, HTTP requests will result in 400 Bad Request responses.</strong></p>-->
+
+<h2>Query</h2>
+<p>...</p>
+
+<h2>Documentation</h2>
+<p>...</p>
+
+<h2>Support</h2>
+<p>...</p>
+
+<h2>Authentication</h2>
+<p>
+    The ADC API supports either session or token authentication.
+</p>
+<h3>Session</h3>
+<p>
+    If you are browsing the API (via the menu on the
+    left-hand side), you may use sessional authentication to access various routes.
+</p>
+<p>
+    If you try to access a route without first authenticating, you'll see the following response:
+</p>
+<code>
+    {
+    "detail": "Authentication credentials were not provided."
+    }
+</code>
+
+<h3>Token</h3>
+<p>
+    To access our API from your own project, you must send token credentials in the header of your request.
+</p>
+<p>
+    For clients to authenticate, the token key should be included in the Authorization HTTP header.
+    The key should be prefixed by the string literal "JWT", with whitespace separating the two strings. For example:
+</p>
+<code>
+    Authorization: JWT 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
+</code>
+<p>
+    A simple curl to get a list of features you have voted on would look like:
+</p>
+<code>
+    curl -H "Authorization: JWT &#60;your_token&#62;"
+    {% captureas vote_url %}{% url 'vote-list' %}{% endcaptureas %}
+    {{ vote_url|siteabsoluteurl:request }}?format=json
+</code>
+<p>
+    <em>note: the curl -H flag sets an extra header to include in the request.</em>
+</p>
+<h4>Obtain</h4>
+<p>
+    You can obtain a JSON web token by POST-ing a correct username-password pair to
+    <a href="{% url 'token-obtain' %}">{%url 'token-obtain' %}</a>
+</p>
+<code>
+    curl -X POST -H "Content-Type: application/json" -d '{"username":"admin","password":"password123"}'
+    {% captureas token_obtain %}{% url 'token-obtain' %}{% endcaptureas %}
+    {{ token_obtain|siteabsoluteurl:request }}?format=json
+</code>
+<h4>Refresh</h4>
+<p>
+    Tokens are set to expire within 24 hours. You can refresh an <em>unexpired</em> token by POST-ing an existing token to:
+    <a href="{% url 'token-refresh' %}">{% url 'token-refresh' %}</a></p>
+<code>
+    curl -X POST -H "Content-Type: application/json" -d '{"token":"&#60;EXISTING_TOKEN&#62;"}'
+    {% captureas token_refresh %}{% url 'token-refresh' %}{% endcaptureas %}
+    {{ token_refresh|siteabsoluteurl:request }}?format=json
+</code>
+<h4>Verify</h4>
+<p>
+    Verify a token is valid by POST-ing it to:
+    <a href="{% url 'token-verify' %}">{% url 'token-verify' %}</a>. The token will be returned with a response status of
+    200 if it is valid.
+</p>
+<code>
+    curl -X POST -H "Content-Type: application/json" -d '{"token":"&#60;EXISTING_TOKEN&#62;"}'
+    {% captureas token_verify %}{% url 'token-verify' %}{% endcaptureas %}
+    {{ token_verify|siteabsoluteurl:request }}?format=json
+</code>
+
+
+<p>You can learn more about JWT <a href="https://jwt.io/introduction/" target="_blank">here</a>.</p>
+
+
+<h2>User</h2>
+<p>...registration rate limit</p>
+
+
+<h2>Password management</h2>
+<p>...</p>
+
+{% endblock %}

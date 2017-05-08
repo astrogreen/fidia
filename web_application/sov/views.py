@@ -34,6 +34,22 @@ import fidia_tarfile_helper
 log = logging.getLogger(__name__)
 
 
+class AstroObjectList(generics.ListAPIView):
+    serializer_class = sov.serializers.AstroObjectListSerializer
+
+    # def get_queryset(self):
+    #     """
+    #     Optionally restricts the returned purchases to a given user,
+    #     by filtering against a `username` query parameter in the URL.
+    #     """
+    #     queryset = Purchase.objects.all()
+    #     username = self.request.query_params.get('username', None)
+    #     if username is not None:
+    #         queryset = queryset.filter(purchaser__username=username)
+    #     return queryset
+
+
+
 class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """ Viewset for DataBrowser API root. Implements List action only.
     Lists all surveys, their current versions and total number of objects in that version. """
@@ -175,7 +191,8 @@ class AstroObjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 # 'traits': ar.full_schema(include_subtraits=False, data_class='all', combine_levels=None, verbosity='descriptions', separate_metadata=True),
                 'non_catalog_traits': schema_non_catalog,
                 'catalog_traits': schema_catalog,
-                'position': {'ra': astro_object.ra, 'dec': astro_object.dec}
+                'position': {'ra': astro_object.ra, 'dec': astro_object.dec},
+                'overview_catalog': self.feature_catalog_data
             }
         )
         return Response(serializer.data)
@@ -364,6 +381,17 @@ class SubTraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, so
 
         return Response(serializer.data)
 
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.accepted_renderer.format == 'fits':
+            trait = sami_dr1_sample[kwargs['astroobject_pk']][kwargs['trait_pk']]
+            sub_trait = trait[kwargs['subtraitproperty_pk']]
+            filename = "{obj_id}-{trait_key}-{subtrait_key}.fits".format(
+                obj_id=kwargs['astroobject_pk'],
+                trait_key=trait.trait_key.ashyphenstr(),
+                subtrait_key=sub_trait.trait_key.ashyphenstr())
+            response['content-disposition'] = "attachment; filename=%s" % filename
+        return response
 
 class TraitPropertyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet, sov.helpers.TraitHelper):
     """

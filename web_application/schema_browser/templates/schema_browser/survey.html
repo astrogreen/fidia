@@ -138,7 +138,7 @@
     {% for trait_type_key, trait_type_value in response.data.schema_non_catalog.trait_types.items %}
         <h3 id="{{trait_type_key}}">{{trait_type_value.pretty_name}}{% if trait_type_value.trait_qualifiers|length > 1 %}s{% endif %}</h3>
         {{trait_type_value.description|safe}}
-        <span class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</span>
+        <!--<span class="bg-trait-type"><em>trait_type</em> {{trait_type_key}} [description]</span>-->
 
         <table class="table table-bordered table-condensed margin-top-thirty">
             <thead>
