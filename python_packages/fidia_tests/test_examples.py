@@ -5,6 +5,7 @@ import pytest
 import tempfile
 
 import numpy as np
+from astropy.io import fits
 
 import fidia
 from fidia.archive.example_archive import ExampleArchive
@@ -40,9 +41,24 @@ class TestBasicExamples:
         # an_object_id = 'Gal1'
         image_data = sample['Gal1'].image['red'].data
 
+        print(image_data)
         assert isinstance(image_data, np.ndarray)
         assert image_data.ndim == 2
 
+
+class TestDataIntegrity:
+
+    def test_output_matches_input(self, test_data_dir):
+        ea = ExampleArchive(basepath=test_data_dir)
+        sample = fidia.Sample.new_from_archive(ea)
+        for an_object_id in sample.ids:
+            image_data = sample[an_object_id].image['red'].data
+
+            file_path = test_data_dir + "/{object_id}/{object_id}_red_image.fits".format(object_id=an_object_id)
+
+            input_data = fits.open(file_path)
+
+            assert (input_data[0].data == image_data).all()
 
 # class TestMoreExamples:
 #     @pytest.fixture
