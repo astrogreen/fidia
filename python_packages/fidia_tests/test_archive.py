@@ -2,10 +2,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tempfile
 
+import numpy as np
+
 # noinspection PyUnresolvedReferences
 import generate_test_data as testdata
 import pytest
 
+import fidia
 from fidia.archive.archive import BasePathArchive
 from fidia.archive.example_archive import ExampleArchive
 from fidia.column.column_definitions import FITSDataColumn
@@ -93,6 +96,10 @@ class TestExampleArchive:
     def example_archive(self, test_data_dir):
         return ExampleArchive(basepath=test_data_dir)
 
+    @pytest.fixture
+    def sample(self, example_archive):
+        return fidia.Sample.new_from_archive(example_archive)
+
     def test_red_image_data(self, example_archive):
         img = example_archive.columns["red_image"].get_value('Gal1')
         assert img.shape == (200, 200)
@@ -104,6 +111,16 @@ class TestExampleArchive:
     def test_example_archive_columns_available(self, example_archive):
         example_archive.columns
 
+    def test_example_archive_image_trait(self, sample):
+
+        image = sample['Gal1'].image['red']
+
+        print(image.exposed)
+        assert isinstance(image.exposed, (int, float))
+
+        print(image.data)
+        assert isinstance(image.data, np.ndarray)
+        assert image.data.ndim == 2
 
 class TestArchive:
     pass

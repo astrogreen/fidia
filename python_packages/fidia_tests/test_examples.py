@@ -45,17 +45,6 @@ class TestBasicExamples:
         assert isinstance(image_data, np.ndarray)
         assert image_data.ndim == 2
 
-        exposed = sample['Gal1'].image['red'].exposed
-
-        print(exposed)
-        assert isinstance(exposed, (int, float))
-
-        cube_data = sample['Gal1'].spectral_cube['red'].data
-
-        print(cube_data)
-        assert isinstance(cube_data, np.ndarray)
-        assert cube_data.ndim == 3
-
 class TestDataIntegrity:
 
     def test_output_matches_input(self, test_data_dir):
