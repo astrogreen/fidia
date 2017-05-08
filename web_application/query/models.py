@@ -62,7 +62,6 @@ def create_new_sql_query(sender, instance=None, created=False, **kwargs):
         print(instance.table_name)
         execute_query.delay(instance.sql, instance.id, instance.table_name)
         print("Handed sql task over to celery")
-        # Create csv here?
 
 
 # If the SQL field has changed, execute query with new SQL
