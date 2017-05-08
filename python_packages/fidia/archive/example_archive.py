@@ -101,7 +101,8 @@ class ExampleArchive(fidia.BasePathArchive):
 
     trait_mappings = [
         TraitMapping(Image, 'red', {
-            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"}),
+            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1",
+            'exposed': "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1"}),
         TraitMapping(SpectralCube, 'red', {
             'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"})
     ]
