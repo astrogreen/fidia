@@ -1,0 +1,4 @@
+Archives
+========
+
+.. automodapi:: fidia.archive

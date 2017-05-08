@@ -1,41 +1,74 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .. import slogging
-log = slogging.getLogger(__name__)
-# log.setLevel(slogging.DEBUG)
-# log.enable_console_logging()
-log.setLevel(slogging.WARNING)
+from typing import List
 
+# Python Standard Library Imports
 from collections import OrderedDict
 
+# Other Library Imports
 import pandas as pd
 
-from ..sample import Sample
-from ..traits import Trait, TraitKey, TraitProperty, TraitPath
-from ..traits import TraitRegistry
-from .base_archive import BaseArchive
-from ..cache import DummyCache
+# FIDIA Imports
+import fidia.base_classes as bases
 from ..utilities import SchemaDictionary
-from ..exceptions import *
+# import fidia.sample as sample
+import fidia.traits as traits
+import fidia.column as columns
+import fidia.cache as cache
+# Other modules within this package
+# from fidia.base_classes import BaseArchive
 
-class Archive(BaseArchive):
+# Set up logging
+import fidia.slogging as slogging
+log = slogging.getLogger(__name__)
+log.setLevel(slogging.WARNING)
+log.enable_console_logging()
+
+__all__ = ['Archive']
+
+
+class Archive(bases.Archive):
+    """An archive of data."""
+    column_definitions = columns.ColumnDefinitionList()
+
+    _id = None
+
+    trait_mappings = []
+
     def __init__(self):
+
         # Traits (or properties)
-        self.available_traits = TraitRegistry(branches_versions_required=True)  # type: TraitRegistry
-        self.define_available_traits()
+        mappings = self.trait_mappings
+        assert isinstance(mappings, list)
+        self.trait_mappings = traits.TraitMappingDatabase()
+        self.trait_mappings.register_trait_mapping_list(mappings)
         self._trait_cache = OrderedDict()
 
-        self.cache = DummyCache()
+        self.cache = cache.DummyCache()
 
         self._schema = {'by_trait_type': None, 'by_trait_name': None}
 
-        super(BaseArchive, self).__init__()
+        super(Archive, self).__init__()
+
+        # Associate column instances with this archive instance
+        local_columns = columns.ColumnDefinitionList()
+        for alias, column in self.column_definitions:
+            log.debug("Associating column %s with archive %s", column, self)
+            instance_column = column.associate(self)
+            local_columns.add((alias, instance_column))
+        self.columns = local_columns
+
+        self.update_trait_mappings()
 
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when
     # someone wants an overview of the data in the archive, or for a particular
     # object.
-    feature_catalog_data = []  # type: list[TraitPath]
+    feature_catalog_data = []  # type: List[traits.TraitPath]
+
+    def update_trait_mappings(self):
+        """Iterates over the trait mappings provided with this archive and, if necessary, populates any ommited fields."""
+        pass
 
     def writeable(self):
         raise NotImplementedError("")
@@ -43,10 +76,16 @@ class Archive(BaseArchive):
     @property
     def contents(self):
         return self._contents
+
     @contents.setter
     def contents(self, value):
         self._contents = set(value)
 
+    @property
+    def archive_id(self):
+        if self._id is None:
+            return repr(self)
+        return self._id
 
     @property
     def name(self):
@@ -56,6 +95,7 @@ class Archive(BaseArchive):
         """Return a sample containing all objects in the archive."""
         # Create an empty sample, and populate it via it's private interface
         # (no suitable public interface at this time.)
+        from fidia.sample import Sample
         new_sample = Sample()
         id_cross_match = pd.DataFrame(pd.Series(map(str, self.contents), name=self.name, index=self.contents))
 
@@ -77,7 +117,7 @@ class Archive(BaseArchive):
             raise ValueError("The TraitKey must be provided.")
         if object_id is None:
             raise ValueError("The object_id must be provided.")
-        trait_key = TraitKey.as_traitkey(trait_key)
+        trait_key = traits.TraitKey.as_traitkey(trait_key)
 
         # Fill in default values for any `None`s in `TraitKey`
         trait_key = self.available_traits.update_key_with_defaults(trait_key)
@@ -128,17 +168,17 @@ class Archive(BaseArchive):
         schema = self.schema(by_trait_name=True)
         current_schema_item = schema
         for path_element in path:
-            trait_key = TraitKey.as_traitkey(path_element)
+            trait_key = traits.TraitKey.as_traitkey(path_element)
             current_schema_item = current_schema_item[trait_key.trait_name]
 
         # Decide whether the item in the schema corresponds to a Trait or TraitProperty
         if isinstance(current_schema_item, dict):
-            return Trait
+            return traits.Trait
         else:
-            return TraitProperty
+            return traits.TraitProperty
 
     def can_provide(self, trait_key):
-        trait_key = TraitKey.as_traitkey(trait_key)
+        trait_key = traits.TraitKey.as_traitkey(trait_key)
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
     def schema(self, by_trait_name=False, data_class='all'):
@@ -284,5 +324,7 @@ class Archive(BaseArchive):
 
         return schema
 
-    def define_available_traits(self):
-        return NotImplementedError()
+class BasePathArchive(Archive):
+    def __init__(self, **kwargs):
+        self.basepath = kwargs.pop('basepath')
+        super(BasePathArchive, self).__init__(**kwargs)

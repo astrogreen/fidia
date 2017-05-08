@@ -1,8 +1,9 @@
 import re
 import numpy as np
 
-from fidia.archive import sami, example_archive
+# from fidia.archive import example_archive
 
+import fidia
 
 # ar = sami.SAMITeamArchive("/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/",
 #                           "/net/aaolxz/iscsi/data/SAMI/catalogues/" +
@@ -14,7 +15,7 @@ from fidia.archive import sami, example_archive
 #                           "/Users/agreen/Documents/ASVO/test_data/sami_test_release/sami_small_test_cat.fits")
 # ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
 #                                "dr1_catalog/dr1_20160720.txt")
-ar = example_archive.ExampleArchive()
+# ar = example_archive.ExampleArchive()
 
-sample = ar.get_full_sample()
+#sample = ar.get_full_sample()
 

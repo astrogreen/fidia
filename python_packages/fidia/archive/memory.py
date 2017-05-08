@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """An in-memory FIDIA archive format, primarily for testing."""
 
-from .base_archive import BaseArchive
+from fidia.base_classes import BaseArchive
 from ..astro_object import AstronomicalObject
 
 class MemoryArchive(BaseArchive):
