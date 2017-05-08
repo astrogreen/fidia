@@ -63,6 +63,14 @@ class SimpleImage(TestData):
             "EXPOSED": (random.choice([3600, 2400, 3500]), "Exposure time")
         }
 
+    def wcs(self, object_id):
+        np.random.seed(hash(object_id) % 2**32 - 1)
+        w = WCS(naxis=2)
+        w.wcs.crpix = [10, 15]
+        w.wcs.crval = np.random.uniform(-10, 10, 2)
+        w.wcs.cdelt = [1/3600, 1/3600]
+        w.wcs.ctype = ['RA---TAN', 'DEC--TAN']
+        return w
 
 class SpectralCube(TestData):
 
@@ -85,6 +93,7 @@ class SpectralCube(TestData):
         }
 
     def wcs(self, object_id):
+        np.random.seed(hash(object_id) % 2**32 - 1)
         w = WCS(naxis=3)
         w.wcs.crpix = [10, 15, 1]
         w.wcs.crval = np.random.uniform(-10, 10, 3)
