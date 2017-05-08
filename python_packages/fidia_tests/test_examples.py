@@ -45,6 +45,11 @@ class TestBasicExamples:
         assert isinstance(image_data, np.ndarray)
         assert image_data.ndim == 2
 
+        cube_data = sample['Gal1'].spectral_cube['red'].data
+
+        print(cube_data)
+        assert isinstance(cube_data, np.ndarray)
+        assert cube_data.ndim == 3
 
 class TestDataIntegrity:
 
