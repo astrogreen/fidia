@@ -26,6 +26,7 @@ class Query(models.Model):
     title = models.CharField(max_length=1000, blank=True, default="My Query")
 
     is_completed = models.BooleanField(default=False, blank=False)
+    csv_completed = models.BooleanField(default=False, blank=False)
 
     table_name = models.CharField(max_length=100, default=generate_random_string)
     row_count = models.IntegerField(blank=True, null=True)

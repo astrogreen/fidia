@@ -1,5 +1,6 @@
 import logging
 import json
+import numpy as np
 from django.core.mail import send_mail
 import fidia, collections
 
@@ -67,15 +68,17 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     title = serializers.CharField(default='My Query', max_length=100, required=False)
     is_completed = serializers.BooleanField(default=False, read_only=True)
 
+    csv_completed = serializers.BooleanField(default=False, read_only=True)
+    csv_link = serializers.SerializerMethodField()
+
     results = serializers.SerializerMethodField()
 
     def get_results(self, obj):
         # Get the top X number of rows from the table_name results table
         # to display to the user on the front end.
+        data = np.random.random((200, 5))
         dummy_results = {
-            "data": [[559813, 0.3736799955368042, 4, 5, 0.3753318786621094],
-                     [144885, 0.08026000112295151, 4, 2, 0.0815441831946373],
-                     [507773, 0.1811300069093704, 4, 5, 0.18213008344173431]],
+            "data": data,
             "columns": [
                 {"name": "StellarMasses_CATAID", "type": "integer",
                  "typeSignature": {"rawType": "integer", "arguments": [], "typeArguments": [],
@@ -100,7 +103,8 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
 
         # Retrieve the top 2000 rows from the table
         if (obj.is_completed and not obj.is_expired and obj.table_name):
-            # TODO write this function get_table(name=obj.table_name, length=2000)
+            # TODO turn off!
+            # return dummy_results
             return self.get_table(name=obj.table_name, length=2000);
         return None
 
@@ -113,6 +117,11 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
         else:
             log.error("Presto query failed :{0}".format(str(result.status_code) + result.text))
             return None
+
+    def get_csv_link(self, obj):
+        if (obj.csv_completed):
+            return 'csv link'
+        return None;
 
     class Meta:
         model = query.models.Query
@@ -133,6 +142,10 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
             'results',
             'table_name',
             'row_count',
+
+            'csv_completed',
+            'csv_link',
+
             'has_error',
             'error')
 

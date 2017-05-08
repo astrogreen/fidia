@@ -122,7 +122,7 @@
                     </div>
                 {% endblock breadcrumb-container %}
 
-                <div class="container">
+                <div class="container" id="top-of-page">
 
                     {% block scroll-to-top %}
                         <a class="scroll" href="#top-of-page" id="back-to-top">
@@ -139,7 +139,7 @@
                                         <h5>REST API Reference</h5>
                                         <div class="page-contents">
                                             <ul class="nav nav-pills nav-stacked nav-sidebar">
-                                                <li role="presentation"><a class="scroll" href="#top-of-page"> Overview</a></li>
+                                                <li role="presentation"><a href="{% url 'index' %}"> Overview</a></li>
                                                 {% if request.user.is_staff %}
                                                 <li role="presentation"><a href="{% url 'admin:index' %}"> Admin</a></li>
                                                 {% endif %}
