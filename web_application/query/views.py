@@ -136,7 +136,7 @@ class Query(viewsets.ModelViewSet):
         else:
             data = None
 
-        return Response({"data": data})
+        return Response(data)
 
 
 class QuerySchema(views.APIView):
