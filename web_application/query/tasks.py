@@ -17,7 +17,14 @@ def execute_query(query, query_id, results_tbl):
         result = MappingDatabase.execute_adql_query(query, results_tbl)
         if result is not None:
             query = 'Update query_query set "is_completed" = {0} where id={1};'.format(True, query_id)
-            MappingDatabase.execute_sql_query(query, True)
+            MappingDatabase.update_query_table(query)
+            # write csv here. Get the path from a config file.
+            ok = MappingDatabase.write_results_csv(results_tbl) # to get data.
+            if(ok):
+                query = 'Update query_query set "csv_completed" = {0} where id={1};'.format(True, query_id)
+                MappingDatabase.update_query_table(query)
+            else:
+                log.info("Error occurred while writing csv.")
         else:
             log.info("No results to save.")
     except (Exception) as ex:
@@ -48,7 +55,7 @@ def execute_query(query, query_id, results_tbl):
             errors['code'] = 500
         query = 'Update query_query set "has_error" = {0}, error = \'{1}\' where id={2};'.format(
                 True, json.dumps(errors), query_id)
-        MappingDatabase.execute_sql_query(query, True)
+        MappingDatabase.update_query_table(query)
 
 
 
