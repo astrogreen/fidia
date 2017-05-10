@@ -192,7 +192,7 @@ class MappingDatabase:
                     cat_dict['version'] = cat[4]
                     cat_dict['description'] = cat[7]
                     col_list = list()
-                    self.cursor.execute("Select * from columns where catalogid={0};".format(cat[0]))
+                    self.cursor.execute("Select * from columns where catalogid={0} order by name asc;".format(cat[0]))
                     columns = self.cursor.fetchall()
                     for col in columns:
                         col_dict = dict()
