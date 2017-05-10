@@ -31,7 +31,7 @@ SECRET_KEY = '_(19ic0&_y2fuld((%jwmz@=*%ejz6*24*0foua)l*v2s^q+k!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+DB_LOCAL = False
 
 # ALLOWED_HOSTS = ['*']
 
@@ -320,8 +320,10 @@ REST_FRAMEWORK = {
 CORS_ORIGIN_WHITELIST = (
     # 'google.com.au',
     'localhost:3000',
+    'localhost:3002',
     'localhost:8000',
-    '127.0.0.1:9000'
+    '127.0.0.1:9000',
+    'http://datacentral.aao.gov.au/'
 )
 
 # token expires in 12 hours

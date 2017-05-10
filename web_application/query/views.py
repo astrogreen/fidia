@@ -103,7 +103,7 @@ class Query(viewsets.ModelViewSet):
 
         """
         obj = self.get_object()
-        data = np.random.random((200, 5))
+        data = np.random.random((1000, 5))
         dummy_results = {
             "data": data,
             "columns": [
@@ -130,9 +130,10 @@ class Query(viewsets.ModelViewSet):
 
         # Retrieve the top 2000 rows from the table
         if obj.is_completed and not obj.is_expired and obj.table_name:
-            # TODO turn off!
-            data = dummy_results
-            # data = self.get_table(name=obj.table_name, length=2000);
+            if settings.DB_LOCAL:
+                data = dummy_results
+            else:
+                data = self.get_table(name=obj.table_name, length=1000)
         else:
             data = None
 
@@ -152,7 +153,7 @@ class QuerySchema(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, format=None):
-        if settings.DEBUG:
+        if settings.DB_LOCAL:
             schema = query.dummy_schema.DUMMY_SCHEMA
         else:
             schema = MappingDatabase.get_sql_schema()

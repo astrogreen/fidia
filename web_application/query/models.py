@@ -1,5 +1,5 @@
 from datetime import timedelta
-
+from django.conf import settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.db import models
@@ -20,7 +20,6 @@ class Query(models.Model):
     updated = models.DateTimeField(auto_now=True, editable=False)
     owner = models.ForeignKey('auth.User', related_name='query')
 
-    # query_builder_state = JSONField(blank=True, default="")
     query_builder_state = models.TextField(blank=True, default='')
     sql = models.TextField(blank=False)
     title = models.CharField(max_length=1000, blank=True, default="My Query")
@@ -32,7 +31,7 @@ class Query(models.Model):
     row_count = models.IntegerField(blank=True, null=True)
 
     has_error = models.BooleanField(default=False, blank=False)
-    # error = JSONField(blank=True, default=dict)
+
     error = models.TextField(blank=True, default='')
 
     @property
@@ -60,8 +59,9 @@ def create_new_sql_query(sender, instance=None, created=False, **kwargs):
         print(instance.sql)
         print(instance.id)
         print(instance.table_name)
-        execute_query.delay(instance.sql, instance.id, instance.table_name)
-        print("Handed sql task over to celery")
+        if not settings.DB_LOCAL:
+            execute_query.delay(instance.sql, instance.id, instance.table_name)
+            print("Handed sql task over to celery")
 
 
 # If the SQL field has changed, execute query with new SQL
@@ -75,4 +75,5 @@ def update_existing_query_instance(sender, instance, **kwargs):
     else:
         if not obj.sql == instance.sql:  # SQL Field has changed
             print("PRE_SAVE SQL")
-            # execute_query.delay(instance.sql, instance.id, instance.table_name)
+            if not settings.DB_LOCAL:
+                execute_query.delay(instance.sql, instance.id, instance.table_name)
