@@ -19,6 +19,7 @@ put the overrides there. They are loaded at the end of this file.
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os, logging, datetime
 from django.core.urlresolvers import reverse
+from .global_settings import MIDDLEWARE_CLASSES
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -65,21 +66,22 @@ INSTALLED_APPS = (
     # 'surveys',
 )
 
-MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'asvo.middleware.SleepMiddleware'
-)
+# MIDDLEWARE_CLASSES = (
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'corsheaders.middleware.CorsMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'django.middleware.security.SecurityMiddleware',
+# )
 
-SLEEP_TIME = 0
-# TODO turn SleepMiddleware off in production!
+# MIDDLEWARE CLASSES moved to global_settings file
+# in order to use debug middleware locally
+MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES
+# SLEEP_TIME = 0
 
 ROOT_URLCONF = 'asvo.urls'
 
