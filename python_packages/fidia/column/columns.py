@@ -261,6 +261,24 @@ class FIDIAColumn(object):
             instance_column._archive_id = archive.archive_id
         return instance_column
 
+    def get_value(self, object_id):
+        """Individual value getter, takes object_id as argument.
+
+        Notes
+        -----
+
+        The implementation here is not necessarily used. When a ColumnDefinition
+        is associated with an archive, the resulting Column object typically has
+        get_value replaced with a version based on the `.object_getter` defined
+        on the ColumnDefinition.
+
+        See `ColumnDefinition.associate()`.
+
+        """
+        if self._data is not None:
+            return self._data[object_id]
+        else:
+            raise FIDIAException("Column has no data")
 
     @property
     def ucd(self):
@@ -317,12 +335,6 @@ class FIDIAArrayColumn(FIDIAColumn):
         self._dtype = dtype
 
         super(FIDIAArrayColumn, self).__init__(*args, **kwargs)
-
-    def get_value(self, object_id):
-        if self._data is not None:
-            return self._data[object_id]
-        else:
-            raise FIDIAException("Column has no data")
 
     @property
     def ndarray(self):
