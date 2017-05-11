@@ -45,6 +45,18 @@ class TestBasicExamples:
         assert isinstance(image_data, np.ndarray)
         assert image_data.ndim == 2
 
+    def test_get_data_subtrait(self, test_data_dir):
+        ea = ExampleArchive(basepath=test_data_dir)
+        sample = fidia.Sample.new_from_archive(ea)
+        # an_object_id = sample.contents[0]
+        # an_object_id = 'Gal1'
+        wcs = sample['Gal1'].image['red'].wcs
+
+        print(wcs)
+        assert isinstance(wcs, fidia.Trait)
+        print(wcs.cdelt1)
+        assert isinstance(wcs.cdelt1, (int, float))
+
 class TestDataIntegrity:
 
     def test_output_matches_input(self, test_data_dir):

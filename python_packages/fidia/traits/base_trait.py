@@ -38,7 +38,7 @@ keyed by the `.TraitProperty`'s name. These instructions are executed by
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List, Generator
+from typing import List, Generator, Dict, Union
 import fidia
 
 # Standard Library Imports
@@ -58,7 +58,7 @@ import fidia.base_classes as bases
 from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup, snake_case
 from fidia.descriptions import TraitDescriptionsMixin, DescriptionsMixin
 # Other modules within this FIDIA sub-package
-from .trait_property import TraitProperty
+from .trait_property import TraitProperty, SubTrait
 from .trait_key import TraitKey, TraitPath, TRAIT_NAME_RE, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
@@ -159,11 +159,21 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
                 else:
                     assert tp.name == attr, \
                         "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
-            log.debug("Initialised Trait class %s", str(cls))
+            # Make sure all attached SubTraits have their names set:
+            for attr in cls.dir_sub_traits():
+                tp = getattr(cls, attr)
+                if tp.name is None:
+                    tp.name = attr
+                else:
+                    assert tp.name == attr, \
+                        "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
+
+            # Initialization complete. Clean up.
+            log.debug("Initialized Trait class %s", str(cls))
             cls.trait_class_initialized = True
 
     def __init__(self, sample, trait_key, object_id, trait_registry, trait_schema):
-        # type: (fidia.Sample, fidia.TraitKey, str, fidia.traits.TraitMappingDatabase, dict) -> None
+        # type: (fidia.Sample, fidia.TraitKey, str, fidia.traits.TraitMappingDatabase, Dict[str, Union[str, fidia.traits.TraitMapping]]) -> None
         super(BaseTrait, self).__init__()
 
 
@@ -289,6 +299,14 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
+                yield attr
+
+    @classmethod
+    def dir_sub_traits(cls):
+        """Return a directory of the SubTraits for this Trait, similar to what the builtin `dir()` does."""
+        for attr in dir(cls):
+            obj = getattr(cls, attr)
+            if isinstance(obj, SubTrait):
                 yield attr
 
     def trait_properties(self, trait_property_types=None, include_hidden=False):
