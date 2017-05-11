@@ -44,54 +44,26 @@ import fidia
 # Standard Library Imports
 import pickle
 from io import BytesIO
-from collections import OrderedDict, Mapping
-from copy import copy
-import re
-
+from collections import OrderedDict
 
 # Other library imports
-from astropy.io import fits
 
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup, snake_case
-from fidia.descriptions import TraitDescriptionsMixin, DescriptionsMixin
+from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
+from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
 from .trait_property import TraitProperty, SubTrait
-from .trait_key import TraitKey, TraitPath, TRAIT_NAME_RE, \
+from .trait_key import TraitKey, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
-from .trait_registry import TraitRegistry
-
-# This makes available all of the usual parts of this package for use here.
-#
-# I think this will not cause a circular import because it is a module level import.
-# from . import meta_data_traits
 
 from .. import slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-
-# class DictTrait(Mapping):
-#     """A "mix-in class which provides dict-like access for Traits
-#
-#     Requires that the class mixed into implements a `_trait_dict` cache
-#
-#     """
-#
-#     def __iter__(self):
-#         pass
-#     def __getitem__(self, item):
-#         if item in self._trait_cache:
-#             return self._trait_cache[item]
-#         else:
-#             return getattr(self, item)
-#
-#     def __len__(self):
-#         return 0
 
 def validate_trait_branches_versions_dict(branches_versions):
     # type: ([BranchesVersions, None]) -> None
@@ -109,15 +81,6 @@ def validate_trait_branches_versions_dict(branches_versions):
             if version is not None:
                 validate_trait_version(version)
 
-
-class ColumnProxy:
-    def __init__(self, column_id):
-        self.column_id = column_id
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        return instance._get_column_data(self.column_id)
 
 class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     """A class defining the common methods for both Trait and TraitCollection.

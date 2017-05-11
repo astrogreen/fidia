@@ -46,7 +46,8 @@ class TraitMapping(bases.TraitMapping):
         self.branches_versions = self._init_branches_versions(branches_versions)
         self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
 
-    def _init_branches_versions(self, branches_versions):
+    @staticmethod
+    def _init_branches_versions(branches_versions):
         # type: (Any) -> Union[dict, None]
         """Interpret the provided branch and version information and return a valid result for TraitMappings.
 
