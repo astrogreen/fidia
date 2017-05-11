@@ -14,6 +14,7 @@ import logging
 import traceback
 import requests
 import time
+import csv
 
 from cached_property import cached_property
 from fidia.archive.presto import PrestoArchive
@@ -132,24 +133,14 @@ class MappingDatabase:
     def __init__(self):
         self.conn = None
         self.cursor = None
-        self.local_conn = None
-        self.local_cursor = None
 
     def open_connection(self):
-        self.conn = psycopg2.connect(database=cfg.postgres_svr['db'], user=cfg.postgres_svr['user'],
-                                     password=cfg.postgres_svr['passwd'], host=cfg.postgres_svr['host'])
-        # database="aaodc", user="asvo", password="a1s9v8o4!P", host="asvotest1.aao.gov.au"
-        # self.conn = mysqlconnect(host='10.80.10.137', user='agreen', passwd='agreen', db='dr2')
+        if cfg.django_db is 'sqlite':
+            self.conn = sqlite3.connect(cfg.sqlite['file'])
+        elif cfg.django_db is 'postgres':
+            self.conn = psycopg2.connect(database=cfg.postgres['db'], user=cfg.postgres['user'],
+                                               password=cfg.postgres['passwd'], host=cfg.postgres['host'])
         self.cursor = self.conn.cursor()
-
-    # use local connection temporarily until we move to one database
-    def open_local_connection(self):
-        if cfg.local_default is 'sqlite':
-            self.local_conn = sqlite3.connect(cfg.local_sqlite['file'])
-        elif cfg.local_default is 'postgres':
-            self.local_conn = psycopg2.connect(database=cfg.local_postgres['db'], user=cfg.local_postgres['user'],
-                                               password=cfg.local_postgres['passwd'], host=cfg.local_postgres['host'])
-        self.local_cursor = self.local_conn.cursor()
 
     def get_group_data(self):
         if self.conn is None:
@@ -201,7 +192,7 @@ class MappingDatabase:
                     cat_dict['version'] = cat[4]
                     cat_dict['description'] = cat[7]
                     col_list = list()
-                    self.cursor.execute("Select * from columns where catalogid={0};".format(cat[0]))
+                    self.cursor.execute("Select * from columns where catalogid={0} order by name asc;".format(cat[0]))
                     columns = self.cursor.fetchall()
                     for col in columns:
                         col_dict = dict()
@@ -242,17 +233,19 @@ class MappingDatabase:
             log.exception("Py4J exception occurred.")
             raise e
         try:
-            mapped_query = "CREATE TABLE {0}.public.{1} AS {2}".format('adc_dev', results_tbl, mapped_query)
-            result = PrestoArchive().execute_query(mapped_query, catalog='hive', schema='asvo')
+            mapped_query = "CREATE TABLE {0}.{1}.{2} AS {3}".format(cfg.presto['results']['catalog'],
+                                                                    cfg.presto['results']['schema'], results_tbl, mapped_query)
+            result = PrestoArchive().execute_query(mapped_query, catalog=cfg.presto['megatables']['catalog'],
+                                                   schema=cfg.presto['megatables']['schema'])
             if result.ok:
                 log.info("Ok I have successfully executed the query!")
                 json_data = result.json()
-                size = sys.getsizeof(json_data['data'])
-                if(size/1024/1024 > 10):
-                    log.error("Presto result exceeded the maximum size(10MB) allowed. size: {0}".format(
-                            str(size/1024/1024) + "MB"))
-                    raise PrestDBException("Query result exceeded the maximum size(10MB) allowed. size: {0}".format(
-                    str(size/1024/1024) + "MB"), 501)
+                # size = sys.getsizeof(json_data['data'])
+                # if(size/1024/1024 > 10):
+                #     log.error("Presto result exceeded the maximum size(10MB) allowed. size: {0}".format(
+                #             str(size/1024/1024) + "MB"))
+                #     raise PrestDBException("Query result exceeded the maximum size(10MB) allowed. size: {0}".format(
+                #     str(size/1024/1024) + "MB"), 501)
                 return json_data
             else:
                 log.error("Presto query failed :({0})".format(str(result.status_code) + result.text))
@@ -260,6 +253,7 @@ class MappingDatabase:
         except (ConnectionError) as e:
             log.exception("Prestodb connection error occurred.")
             raise e
+
 
     data_list = list()
     def doRecursiveQuery(self, result):
@@ -288,21 +282,57 @@ class MappingDatabase:
                 result.close()
                 return None
 
-    def execute_sql_query(self, query, update=False):
+
+    def update_query_table(self, query):
         """
         Execute queries on a relational database.
         :param query:
-        :return:
+        :return: All the rows in the result unless it's an update query.
         """
-        if self.local_conn is None:
-            self.open_local_connection()
-        self.local_cursor.execute(query)
+        if self.conn is None:
+            self.open_connection()
+        self.cursor.execute(query)
         # self.local_cursor.execute("Update query_query set isCompleted = 1, results = '[a, b, c]' where id=19;")
         log.info("sql query executed.")
-        if(update):
-            self.local_conn.commit()
-            log.info("update committed.")
+        self.conn.commit()
+        log.info("update committed.")
 
+
+    def get_results_table(self, name, length):
+        # this query should ideally be executed on postgres
+        query = "Select * from {0} limit {1}".format(name, length)
+        result = PrestoArchive().execute_query(query, catalog=cfg.presto['results']['catalog'],
+                                               schema=cfg.presto['results']['schema'])
+        if result.ok:
+            log.info("Ok I have successfully executed the query!")
+            return result.json()
+        else:
+            log.error("Presto query failed :{0}".format(str(result.status_code) + result.text))
+            return None
+
+
+    def write_results_csv(self, table_name):
+        """
+        This will write the results into a csv file and save the link in the meta table(query_query)
+        :return:
+        """
+        # Get the results from the database
+        if self.conn is None:
+            self.open_connection()
+        query = "Select * from {0}".format(table_name)
+        self.cursor.execute(query)
+        rows = self.cursor.fetchall()
+        try:
+            with open(cfg.results_dir + table_name + '.csv', 'w') as fp:
+                csv_file = csv.writer(fp)
+                csv_file.writerows(rows)
+            return True
+        except (Exception) as e:
+            log.exception("Error occurred while writing CSV.")
+            raise e
+
+    def get_csv_link(self, fname):
+        return cfg.results_dir + fname + '.csv'
 
 def get_gama_database_as_json():
 

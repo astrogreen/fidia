@@ -14,7 +14,7 @@ from restapi_app.exceptions import Conflict, CustomValidation
 from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 
-from fidia.archive.presto import PrestoArchive
+from asvo_database_backend_helpers import MappingDatabase
 
 """
 Serializers:
@@ -73,7 +73,7 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_csv_link(self, obj):
         if (obj.csv_completed):
-            return 'csv link'
+            return MappingDatabase.get_csv_link(obj.table_name)
         return None;
 
     class Meta:
