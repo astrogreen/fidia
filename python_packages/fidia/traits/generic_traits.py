@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
-from .trait_property import TraitProperty
+from .trait_property import TraitProperty, SubTrait
 
 # Logging Import and setup
 from .. import slogging
@@ -34,7 +34,7 @@ class ImageWCS(Trait):
 class Image(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=2)
     exposed = TraitProperty(dtype=(float, int), optional=True)
-    # wcs = SubTrait(WCS, optional=True)
+    wcs = SubTrait(ImageWCS, optional=True)
 
 class SpectralCube(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=3)

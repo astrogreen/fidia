@@ -54,7 +54,7 @@ log.enable_console_logging()
 class TraitMappingDatabase(bases.TraitMappingDatabase):
 
     def __init__(self):
-        self.mappings = dict()  # type: Dict[Tuple[Type[fidia.Trait], str], fidia.traits.TraitMapping]
+        self.mappings = dict()  # type: Dict[Tuple[str, str], fidia.traits.TraitMapping]
         self.linked_mappings = []  # type: List[TraitMappingDatabase]
 
     def link_database(self, other_database, index=-1):
