@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^api-docs$', restapi_app.views.TemplateViewWithStatusCode.as_view(template_name='restapi_app/documentation/api-documentation.html'), name='api-docs'),
 
     # url(r'^surveys/$', restapi_app.views.Surveys.as_view(), name='surveys'),
-    url(r'^data-access/$', restapi_app.views.DataAccess.as_view(), name='data-access'),
+    # url(r'^data-access/$', restapi_app.views.DataAccess.as_view(), name='data-access'),
 
     # url(r'^(?i)SAMI/$', restapi_app.views.SAMI.as_view(), name='sami'),
     # url(r'^(?i)SAMI/data-products/$', restapi_app.views.SAMIDataProducts.as_view(), name='sami-data-products'),

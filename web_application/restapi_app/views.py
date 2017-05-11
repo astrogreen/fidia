@@ -10,8 +10,6 @@ import restapi_app.serializers
 import restapi_app.renderers
 import restapi_app.permissions
 import restapi_app.models
-import sov.serializers
-import sov.views
 
 AVAILABLE_SURVEYS = ["sami", "gama"]
 
@@ -37,44 +35,44 @@ def get_client_ip(request):
     return ip
 
 
-class Surveys(views.APIView):
-    """
-    Available Surveys page
-    """
-    permission_classes = (permissions.AllowAny,)
+# class Surveys(views.APIView):
+#     """
+#     Available Surveys page
+#     """
+#     permission_classes = (permissions.AllowAny,)
+#
+#     def get(self, request):
+#         rootview = sov.views.RootViewSet()
+#
+#         serializer_class = sov.serializers.RootSerializer
+#         _dummy = object
+#         serializer = serializer_class(
+#             many=False, instance=_dummy,
+#             context={'request': request, 'surveys': rootview.surveys},
+#         )
+#
+#         return Response(serializer.data)
 
-    def get(self, request):
-        rootview = sov.views.RootViewSet()
 
-        serializer_class = sov.serializers.RootSerializer
-        _dummy = object
-        serializer = serializer_class(
-            many=False, instance=_dummy,
-            context={'request': request, 'surveys': rootview.surveys},
-        )
-
-        return Response(serializer.data)
-
-
-class DataAccess(views.APIView):
-    """
-    Available Surveys page
-    """
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request):
-        surveys = [{
-            "survey": "sami",
-            # "count": sami_dr1_sample.ids.__len__(),
-            "count": 771,
-            "current_version": 1.0,
-            'data_releases': [1.0, ]}]
-
-        serializer_class = sov.serializers.RootSerializer
-        _dummy = object
-        serializer = serializer_class(
-            many=False, instance=_dummy,
-            context={'request': request, 'surveys': surveys},
-        )
-
-        return Response(serializer.data)
+# class DataAccess(views.APIView):
+#     """
+#     Available Surveys page
+#     """
+#     permission_classes = (permissions.AllowAny,)
+#
+#     def get(self, request):
+#         surveys = [{
+#             "survey": "sami",
+#             # "count": sami_dr1_sample.ids.__len__(),
+#             "count": 771,
+#             "current_version": 1.0,
+#             'data_releases': [1.0, ]}]
+#
+#         serializer_class = sov.serializers.RootSerializer
+#         _dummy = object
+#         serializer = serializer_class(
+#             many=False, instance=_dummy,
+#             context={'request': request, 'surveys': surveys},
+#         )
+#
+#         return Response(serializer.data)
