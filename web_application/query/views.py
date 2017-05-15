@@ -3,7 +3,7 @@ from django.utils.text import slugify
 import numpy as np
 from rest_framework import permissions, views, viewsets, mixins, generics
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 
 # from rest_framework.settings import api_settings
 # from rest_framework_csv import renderers as r
@@ -125,6 +125,18 @@ class Query(viewsets.ModelViewSet):
         else:
             data = None
         return Response(data)
+
+    @detail_route()
+    def download(self, request, download_type=None, *args, **kwargs):
+        data = None
+        return Response(data)
+
+    # Note, this works, but the url name is ugly, and un-usable.
+    # @detail_route(url_path='download/(?P<download_type>\w+)')
+    # def download(self, request, download_type=None, *args, **kwargs):
+    #     print(download_type)
+    #     data = None
+    #     return Response(data)
 
 
 class QuerySchema(views.APIView):
