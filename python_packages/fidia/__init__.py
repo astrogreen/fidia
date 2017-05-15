@@ -20,8 +20,7 @@ if not _ASTROPY_SETUP_:
     from fidia.archive.archive import Archive, BasePathArchive
 
 
-    from fidia.column.column_definitions import ColumnDefinition, ColumnDefinitionList, \
-        FITSDataColumn, FITSHeaderColumn
+    from fidia.column.column_definitions import *
     from fidia.column.columns import FIDIAColumn, FIDIAArrayColumn
 
     from fidia.traits.trait_registry import TraitRegistry

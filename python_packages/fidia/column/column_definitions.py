@@ -40,6 +40,9 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
+__all__ = ['ColumnDefinitionList', 'ColumnDefinition',
+           'FITSDataColumn', 'FITSHeaderColumn', 'FITSBinaryTableColumn']
+
 class ColumnDefinitionList(object):
     def __init__(self, column_definitions=()):
 
