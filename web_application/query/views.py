@@ -5,7 +5,7 @@ from rest_framework import permissions, views, viewsets, mixins, generics
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
-from rest_framework.settings import api_settings
+# from rest_framework.settings import api_settings
 # from rest_framework_csv import renderers as r
 # from django.contrib.auth.models import User
 from django.conf import settings
@@ -16,8 +16,6 @@ import query.exceptions
 import query.renderers
 
 import query.dummy_schema
-
-from fidia.archive.presto import PrestoArchive
 
 # import restapi_app.renderers
 # import restapi_app.renderers_custom.renderer_flat_csv
@@ -79,16 +77,6 @@ class Query(viewsets.ModelViewSet):
             response['content-disposition'] = 'attachment; filename=%s.csv' % title
         return response
 
-    def get_table(self, name, length):
-        query = "Select * from {0} limit {1}".format(name, length)
-        result = PrestoArchive().execute_query(query, catalog='adc_dev', schema='public')
-        if result.ok:
-            log.info("Ok I have successfully executed the query!")
-            return result.json()
-        else:
-            log.error("Presto query failed :{0}".format(str(result.status_code) + result.text))
-            return None
-
     @detail_route()
     def result(self, request, *args, **kwargs):
         """
@@ -133,7 +121,7 @@ class Query(viewsets.ModelViewSet):
             if settings.DB_LOCAL:
                 data = dummy_results
             else:
-                data = self.get_table(name=obj.table_name, length=1000)
+                data = MappingDatabase.get_results_table(name=obj.table_name, length=2000)
         else:
             data = None
 
