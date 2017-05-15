@@ -320,12 +320,12 @@ REST_FRAMEWORK = {
 
 
 CORS_ORIGIN_WHITELIST = (
-    # 'google.com.au',
     'localhost:3000',
     'localhost:3002',
     'localhost:8000',
     '127.0.0.1:9000',
-    'http://datacentral.aao.gov.au/'
+    'http://datacentral.aao.gov.au/',
+    'http://datacentral.aao.gov.au/test/',
 )
 
 # token expires in 12 hours
