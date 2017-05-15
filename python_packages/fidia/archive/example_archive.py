@@ -88,21 +88,25 @@ class ExampleArchive(fidia.BasePathArchive):
     # basedir = "hi"
 
     column_definitions = fidia.ColumnDefinitionList([
-            ("red_image", fidia.FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                                               ndim=2,
-                                               timestamp=1)),
-            ("red_image_exposed", fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED",
-                                                         timestamp=1)),
-            ("red_cube", fidia.FITSDataColumn("{object_id}/{object_id}_spec_cube.fits", 0,
-                                              timestamp=1)),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1", timestamp=1),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL2", timestamp=1),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX1", timestamp=1),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX2", timestamp=1),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT1", timestamp=1),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT2", timestamp=1),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE1", timestamp=1),
-            fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE2", timestamp=1)
+        ("red_image", fidia.FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+                                           ndim=2,
+                                           timestamp=1)),
+        ("red_image_exposed", fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED",
+                                                     timestamp=1)),
+        ("red_cube", fidia.FITSDataColumn("{object_id}/{object_id}_spec_cube.fits", 0,
+                                          timestamp=1)),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1", timestamp=1),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL2", timestamp=1),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX1", timestamp=1),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX2", timestamp=1),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT1", timestamp=1),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT2", timestamp=1),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE1", timestamp=1),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE2", timestamp=1),
+        fidia.FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMass', 'ID', timestamp=1),
+        fidia.FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMassError', 'ID', timestamp=1),
+        fidia.FITSBinaryTableColumn("sfr_table.fits", 1, 'SFR', 'ID', timestamp=1),
+        fidia.FITSBinaryTableColumn("sfr_table.fits", 1, 'SFR_ERR', 'ID', timestamp=1)
     ])
 
 
@@ -121,7 +125,13 @@ class ExampleArchive(fidia.BasePathArchive):
                 'ctype2': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1'
             })}),
         TraitMapping(SpectralCube, 'red', {
-            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"})
+            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"}),
+        TraitMapping(DMU, 'StellarMasses', {
+            'table': TraitMapping(Table, 'StellarMasses', {
+                'StellarMass': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1',
+                'StellarMassError': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1'
+            })
+        })
     ]
 
     """
