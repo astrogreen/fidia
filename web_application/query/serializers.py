@@ -71,10 +71,17 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     csv_completed = serializers.BooleanField(default=False, read_only=True)
     csv_link = serializers.SerializerMethodField()
 
+    result_url = serializers.SerializerMethodField()
+
     def get_csv_link(self, obj):
         if (obj.csv_completed):
             return MappingDatabase.get_csv_link(obj.table_name)
-        return None;
+        return None
+
+    def get_result_url(self, obj):
+        if (obj.is_completed and not obj.has_error):
+            return self.context['request'].build_absolute_uri('result')
+        return None
 
     class Meta:
         model = query.models.Query
@@ -95,6 +102,7 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
             'table_name',
             'row_count',
 
+            'result_url',
             'csv_completed',
             'csv_link',
 
