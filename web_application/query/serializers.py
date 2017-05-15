@@ -74,9 +74,10 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
     result_url = serializers.SerializerMethodField()
 
     def get_csv_link(self, obj):
-        if (obj.csv_completed):
-            return MappingDatabase.get_csv_link(obj.table_name)
-        return None
+        # if (obj.csv_completed):
+        #     return MappingDatabase.get_csv_link(obj.table_name)
+        # return None
+        return self.context['request'].build_absolute_uri('download')
 
     def get_result_url(self, obj):
         if (obj.is_completed and not obj.has_error):

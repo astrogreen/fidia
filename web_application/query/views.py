@@ -1,9 +1,12 @@
 import logging
-from django.utils.text import slugify
+# from django.utils.text import slugify
 import numpy as np
-from rest_framework import permissions, views, viewsets, mixins, generics
+from django.http import HttpResponse
+# from wsgiref.util import FileWrapper
+from django.utils.encoding import smart_str
+from rest_framework import permissions, views, viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 
 # from rest_framework.settings import api_settings
 # from rest_framework_csv import renderers as r
@@ -17,9 +20,6 @@ import query.renderers
 
 import query.dummy_schema
 
-# import restapi_app.renderers
-# import restapi_app.renderers_custom.renderer_flat_csv
-#
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 # from fidia.archive.presto import PrestoArchive
 from asvo_database_backend_helpers import MappingDatabase
@@ -64,18 +64,18 @@ class Query(viewsets.ModelViewSet):
         """
         serializer.save(owner=self.request.user)
 
-    def finalize_response(self, request, response, *args, **kwargs):
-        """
-        Set filename as title provided by the user
-        """
-        response = super(Query, self).finalize_response(request, response, *args, **kwargs)
-        if response.accepted_renderer.format == 'csv':
-            title = "query_result"
-            if hasattr(response, "data") and "title" in response.data:
-                if response.data["title"] is not None:
-                    title = slugify(response.data["title"])
-            response['content-disposition'] = 'attachment; filename=%s.csv' % title
-        return response
+    # def finalize_response(self, request, response, *args, **kwargs):
+    #     """
+    #     Set filename as title provided by the user
+    #     """
+    #     response = super(Query, self).finalize_response(request, response, *args, **kwargs)
+    #     if response.accepted_renderer.format == 'csv':
+    #         title = "query_result"
+    #         if hasattr(response, "data") and "title" in response.data:
+    #             if response.data["title"] is not None:
+    #                 title = slugify(response.data["title"])
+    #         response['content-disposition'] = 'attachment; filename=%s.csv' % title
+    #     return response
 
     @detail_route()
     def result(self, request, *args, **kwargs):
@@ -126,17 +126,24 @@ class Query(viewsets.ModelViewSet):
             data = None
         return Response(data)
 
-    @detail_route()
-    def download(self, request, download_type=None, *args, **kwargs):
-        data = None
-        return Response(data)
-
-    # Note, this works, but the url name is ugly, and un-usable.
-    # @detail_route(url_path='download/(?P<download_type>\w+)')
-    # def download(self, request, download_type=None, *args, **kwargs):
-    #     print(download_type)
-    #     data = None
-    #     return Response(data)
+    @detail_route(methods=['get'])
+    def download(self, request, *args, **kwargs):
+        obj = self.get_object()
+        max_age = 86400  # one day
+        filename = obj.table_name + '.csv'
+        # ___testing___
+        filename = 'error.txt'
+        path_to_file = '/Users/lmannering/Desktop/'
+        # ___end_testing___
+        # TODO set the 'Content-Length' header.
+        # file = open(path_to_file+filename, 'rb')
+        # response = HttpResponse(FileWrapper(file), content_type='text/csv')
+        # response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(filename)
+        response = HttpResponse(content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(filename)
+        response['X-Sendfile'] = smart_str(path_to_file)
+        response['Cache-Control'] = 'max-age=%d' % max_age
+        return response
 
 
 class QuerySchema(views.APIView):

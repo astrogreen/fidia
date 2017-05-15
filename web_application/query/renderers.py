@@ -1,11 +1,12 @@
 from rest_framework_csv import renderers as r
+from rest_framework import renderers
 
 
 class MyCSVQueryRenderer(r.CSVRenderer):
     """
     Return only the results field rather than the full query model instance.
     """
-    results_field = 'results'
+    results_field = 'result'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
 
