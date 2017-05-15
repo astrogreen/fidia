@@ -128,8 +128,8 @@ class ExampleArchive(fidia.BasePathArchive):
             'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"}),
         TraitMapping(DMU, 'StellarMasses', {
             'table': TraitMapping(Table, 'StellarMasses', {
-                'StellarMass': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1',
-                'StellarMassError': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1'
+                'stellar_mass': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1',
+                'stellar_mass_error': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1'
             })
         })
     ]

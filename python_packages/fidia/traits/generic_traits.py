@@ -16,7 +16,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
-__all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS']
+__all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS', 'Table']
 
 class ImageWCS(Trait):
     n_axis = 2
@@ -42,4 +42,7 @@ class SpectralCube(Trait):
     wavelength_axis = 2
 
 class DMU(TraitCollection):
+    pass
+
+class Table(TraitCollection):
     pass

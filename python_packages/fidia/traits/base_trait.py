@@ -55,6 +55,7 @@ from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
 from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
 from .trait_property import TraitProperty, SubTrait
+from .references import TraitMapping, TraitPointer
 from .trait_key import TraitKey, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
@@ -517,4 +518,39 @@ class Trait(bases.Trait, BaseTrait):
 
 
 class TraitCollection(bases.TraitCollection, BaseTrait):
-    pass
+
+    def __getattr__(self, item):
+        log.debug("Looking up %s on TraitCollection %s", item, self)
+
+        # There are basically two cases we must handle here. We can determine
+        # between these two cases by looking at the type of the object in the
+        # trait schema, and responding as follows:
+        #
+        #   1. (TraitMapping) The item requested is a Trait or TraitCollection, in which case
+        #   we need to create and return a TraitPointer object
+        #
+        #   2. (str) The item requested is a TraitProperty, in which case we need to
+        #   look up the column and return the result as though we had called an
+        #   actual TraitProperty object.
+
+        try:
+            schema_item = self.trait_schema[item]
+        except KeyError:
+            raise AttributeError("Unknown attribute %s for object %s" % (item, self))
+
+        if isinstance(schema_item, TraitMapping):
+            # Should return a TraitPointer object with the corresponding sub-schema.
+            return TraitPointer(self.sample, self.astro_object, schema_item, self.sample.trait_registry)
+        elif isinstance(schema_item, str):
+            # Should return a TraitProperty object? (or just the actual value?)
+            # return TraitProperty(None, name=item)
+            column_id = schema_item
+
+            # Get the result
+            result = self._get_column_data(column_id)
+
+            # Cache the result against the trait (so this code will not be called again!)
+            setattr(self, item, result)
+
+            return result
+

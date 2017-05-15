@@ -327,7 +327,7 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
 
         self.index_column_name = index_column_name
 
-        self._id = "{file}[{ext}].data[\"{kw}\"]".format(file=filename_pattern, ext=fits_extension_id, kw=column_name)
+        self._id = "{file}[{ext}].data[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=column_name)
 
 
     def array_getter(self, archive):
