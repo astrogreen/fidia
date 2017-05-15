@@ -116,15 +116,14 @@ class Query(viewsets.ModelViewSet):
                                    "literalArguments": []}}
             ]}
 
-        # Retrieve the top 2000 rows from the table
+        # Retrieve the top 1000 rows from the table
         if obj.is_completed and not obj.is_expired and obj.table_name:
             if settings.DB_LOCAL:
                 data = dummy_results
             else:
-                data = MappingDatabase.get_results_table(name=obj.table_name, length=2000)
+                data = MappingDatabase.get_results_table(name=obj.table_name, length=1000)
         else:
             data = None
-
         return Response(data)
 
 
