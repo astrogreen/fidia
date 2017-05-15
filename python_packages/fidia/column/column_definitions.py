@@ -176,7 +176,16 @@ class ColumnDefinition(object):
 
     def associate(self, archive):
         # type: (fidia.Archive) -> FIDIAColumn
-        """Convert a column definition defined on an `Archive` class into a `FIDIAColumn` on an archive instance."""
+        """Convert a column definition defined on an `Archive` class into a `FIDIAColumn` on an archive instance.
+        
+        This function is effectively a factory for `.FIDIAColumn` instances. In
+        addition to calling the constructor, it also sets either the
+        `.object_getter` function or the `.array_getter` function, or both.
+        These functions are copies of the corresponding functions on this
+        `ColumnDefinition` class, but have a pointer to the archive instance
+        "built in".
+        
+        """
         if self.column_type is None or not issubclass(self.column_type, FIDIAColumn):
             raise FIDIAException("Column Definition validation error: column_type must be defined.")
         column = self.column_type(
@@ -190,28 +199,59 @@ class ColumnDefinition(object):
         if type(self) is not ColumnDefinition:
             super(type(self), self).on_associate(archive, column)
 
-        if self.object_getter is not None:
+        # Copy the object_getter and array_getters onto the output column
+        #
+        # This is only done if the corresponding functions have actually been
+        # overridden, as determined by the `.is_implemented` property.
+        #
+        # When the functions are copied, a pointer to the archive is "baked in"
+        # so that the function no longer requires the archive as an argument.
+        if getattr(self.object_getter, 'is_implemented',True):
+            log.debug("Copying object_getter function from ColumnDefinition %s to new Column", self)
             # Bake in parameters to object_getter function and associate:
             def baked_object_getter(object_id):
                 return self.object_getter(archive, object_id)
             column.get_value = baked_object_getter
-            # Note: `baked_object_getter` is now a static method, so it will only be
+            # Note: `baked_object_getter` is a static method, so it will only be
             # passed one argument when invoked.
-
-        if self.array_getter is not None:
+        if getattr(self.array_getter, 'is_implemented', True):
+            log.debug("Copying array_getter function from ColumnDefinition %s to new Column", self)
             # Bake in parameters to object_getter function and associate:
             def baked_array_getter():
                 column._data = self.array_getter(archive)
             column.get_array = baked_array_getter
-            # Note: `baked_array_getter` is now a static method, so it will only be
+            # Note: `baked_array_getter` is a static method, so it will only be
             # passed one argument when invoked.
 
         log.debug("Created column: %s", str(column))
 
         return column
 
-    object_getter = None
-    array_getter = None
+    def object_getter(self, archive, object_id):
+        """Method to get data in this column for a single object.
+        
+        When this column definition is used to create a `.FIDIAColumn`, this
+        function is included if defined. See `ColumnDefinition.associate`.
+        
+        """
+        raise NotImplementedError()
+    # We define an extra property on this function below, which allows the
+    # 'associate' function above to determine if it has been overridden. If it
+    # hasn't, it shouldn't be copied onto the FIDIAColumn instance.
+    object_getter.is_implemented = False
+
+    def array_getter(self, archive, object_id):
+        """Method to get data in this column for a single object.
+
+        When this column definition is used to create a `.FIDIAColumn`, this
+        function is included if defined. See `ColumnDefinition.associate`.
+
+        """
+        raise NotImplementedError()
+    # We define an extra property on this function below, which allows the
+    # 'associate' function above to determine if it has been overridden. If it
+    # hasn't, it shouldn't be copied onto the FIDIAColumn instance.
+    array_getter.is_implemented = False
 
 
     def on_associate(self, archive, column):
