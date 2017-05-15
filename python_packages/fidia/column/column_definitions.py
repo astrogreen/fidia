@@ -25,6 +25,7 @@ import time
 from collections import OrderedDict
 
 # Other Library Imports
+import pandas as pd
 from astropy.io import fits
 from cached_property import cached_property
 
@@ -189,10 +190,21 @@ class ColumnDefinition(object):
         if type(self) is not ColumnDefinition:
             super(type(self), self).on_associate(archive, column)
 
-        # Bake in parameters to object_getter function and associate:
-        def baked_object_getter(object_id):
-            return self.object_getter(archive, object_id)
-        column.get_value = baked_object_getter
+        if self.object_getter is not None:
+            # Bake in parameters to object_getter function and associate:
+            def baked_object_getter(object_id):
+                return self.object_getter(archive, object_id)
+            column.get_value = baked_object_getter
+            # Note: `baked_object_getter` is now a static method, so it will only be
+            # passed one argument when invoked.
+
+        if self.array_getter is not None:
+            # Bake in parameters to object_getter function and associate:
+            def baked_array_getter():
+                column._data = self.array_getter(archive)
+            column.get_array = baked_array_getter
+            # Note: `baked_array_getter` is now a static method, so it will only be
+            # passed one argument when invoked.
 
         log.debug("Created column: %s", str(column))
 
@@ -253,6 +265,42 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
             stats = os.stat(full_path_pattern.format(object_id=object_id))
             if stats.st_mtime > timestamp:
                 timestamp = stats.st_mtime
+        return timestamp
+
+class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
+
+    column_type = FIDIAColumn
+
+    def __init__(self, filename_pattern, fits_extension_id, column_name, index_column_name,
+                 **kwargs):
+        super(FITSBinaryTableColumn, self).__init__(**kwargs)
+        self.filename_pattern = filename_pattern
+
+        if fits_extension_id == 0:
+            raise FIDIAException("FITSBinaryTableColumn cannot use extension 0. Perhaps you want 1?")
+        self.fits_extension_identifier = fits_extension_id
+
+        self.column_name = column_name
+
+        self.index_column_name = index_column_name
+
+        self._id = "{file}[{ext}].data[\"{kw}\"]".format(file=filename_pattern, ext=fits_extension_id, kw=column_name)
+
+
+    def array_getter(self, archive):
+        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+        with fits.open(full_path_pattern) as hdulist:
+            column_data = hdulist[self.fits_extension_identifier].data[self.column_name]
+            index = hdulist[self.fits_extension_identifier].data[self.index_column_name]
+            return pd.Series(column_data, index=index, name=self._id, copy=True)
+
+    def _timestamp_helper(self, archive):
+        if archive is None:
+            return None
+        log.debug("archive.basepath: %s, filename_pattern: %s", archive.basepath, self.filename_pattern)
+        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+        stats = os.stat(full_path_pattern)
+        timestamp = stats.st_mtime
         return timestamp
 
 

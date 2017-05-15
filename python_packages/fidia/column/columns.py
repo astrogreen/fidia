@@ -10,6 +10,7 @@ from collections import OrderedDict
 
 # Other Library Imports
 import numpy as np
+import pandas as pd
 
 # FIDIA Imports
 from ..exceptions import FIDIAException
@@ -261,6 +262,8 @@ class FIDIAColumn(object):
             instance_column._archive_id = archive.archive_id
         return instance_column
 
+    get_array = None
+
     def get_value(self, object_id):
         """Individual value getter, takes object_id as argument.
 
@@ -276,9 +279,13 @@ class FIDIAColumn(object):
 
         """
         if self._data is not None:
+            assert isinstance(self._data, pd.Series)
+            return self._data.at[object_id]
+        elif self.get_array is not None:
+            self.get_array()
+            assert self._data is not None, "Programming Error: get_array should populate _data"
             return self._data[object_id]
-        else:
-            raise FIDIAException("Column has no data")
+        raise FIDIAException("Column has no data")
 
     @property
     def ucd(self):
