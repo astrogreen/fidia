@@ -7,10 +7,12 @@ import numpy as np
 
 from astropy.io import fits
 from astropy.wcs import WCS
+from astropy import table
 
 class TestData:
 
     def __init__(self, size):
+        self.size = size
         self.object_ids = ["Gal{}".format(i+1) for i in range(size)]
 
     def data(self):
@@ -24,8 +26,16 @@ class TestData:
 
 class CatalogTable(TestData):
 
-    def __init__(self):
-        pass
+    def __init__(self, size):
+        super(CatalogTable, self).__init__(size)
+
+    def columns(self):
+        return iter(())
+
+    def table(self):
+        # type: () -> table.Table
+        return table.Table(self.column_data())
+
 
 def checkdir(output_directory, filename):
     path = os.path.join(output_directory, filename)
@@ -48,6 +58,11 @@ def write_to_single_extension_fits(test_data, output_directory, filename_pattern
         checkdir(output_directory, filename)
         pdu.writeto(os.path.join(output_directory, filename))
 
+def write_to_binary_fits_table(test_data, output_directory, filename_pattern):
+    # type: (CatalogTable, str, str) -> None
+    output_file = os.path.join(output_directory, filename_pattern)
+    test_data.table().write(output_file, format='fits')
+
 
 class SimpleImage(TestData):
 
@@ -63,6 +78,14 @@ class SimpleImage(TestData):
             "EXPOSED": (random.choice([3600, 2400, 3500]), "Exposure time")
         }
 
+    def wcs(self, object_id):
+        np.random.seed(hash(object_id) % 2**32 - 1)
+        w = WCS(naxis=2)
+        w.wcs.crpix = [10, 15]
+        w.wcs.crval = np.random.uniform(-10, 10, 2)
+        w.wcs.cdelt = [1/3600, 1/3600]
+        w.wcs.ctype = ['RA---TAN', 'DEC--TAN']
+        return w
 
 class SpectralCube(TestData):
 
@@ -85,6 +108,7 @@ class SpectralCube(TestData):
         }
 
     def wcs(self, object_id):
+        np.random.seed(hash(object_id) % 2**32 - 1)
         w = WCS(naxis=3)
         w.wcs.crpix = [10, 15, 1]
         w.wcs.crval = np.random.uniform(-10, 10, 3)
@@ -93,6 +117,34 @@ class SpectralCube(TestData):
         w.wcs.ctype = ['RA---TAN', 'DEC--TAN', 'WAVELEN']
         return w
 
+
+class StellarMassesTable(CatalogTable):
+
+    def column_data(self):
+        cols = [
+            table.Column(
+                name="StellarMass",
+                data=np.random.normal(10, 0.5, self.size)),
+            table.Column(
+                name="StellarMassError",
+                data=np.random.normal(0, 1, self.size)**2)
+        ]
+        return cols
+
+
+class SFRsTable(CatalogTable):
+    def column_data(self):
+        cols = [
+            table.Column(
+                name="SFR",
+                data=np.random.lognormal(-0.6, 0.3, self.size)),
+            table.Column(
+                name="SFR_ERR",
+                data=np.random.normal(0, 0.1, self.size)**2)
+        ]
+        return cols
+
+
 def generate_simple_dataset(output_directory, size):
 
     # Create an image of each object at "Gal1/Gal1_red_image.fits"
@@ -100,6 +152,10 @@ def generate_simple_dataset(output_directory, size):
 
     # Create a spectral cube
     write_to_single_extension_fits(SpectralCube(size, 3400, 3600, 1.34), output_directory, "{object_id}/{object_id}_spec_cube.fits")
+
+    # Create some tables:
+    write_to_binary_fits_table(StellarMassesTable(size), output_directory, "stellar_masses.fits")
+    write_to_binary_fits_table(SFRsTable(size), output_directory, "sfr_table.fits")
 
 
 if __name__ == '__main__':

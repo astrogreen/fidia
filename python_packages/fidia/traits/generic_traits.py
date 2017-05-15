@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
-from .trait_property import TraitProperty
+from .trait_property import TraitProperty, SubTrait
 
 # Logging Import and setup
 from .. import slogging
@@ -16,15 +16,25 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
-__all__ = ['Image', 'SpectralCube', 'DMU', 'WCS']
+__all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS']
 
-class WCS(Trait):
-    pass
+class ImageWCS(Trait):
+    n_axis = 2
+    crpix1 = TraitProperty(dtype=(float, int))
+    crpix2 = TraitProperty(dtype=(float, int))
+    crval1 = TraitProperty(dtype=(float, int))
+    crval2 = TraitProperty(dtype=(float, int))
+    cdelt1 = TraitProperty(dtype=(float, int))
+    cdelt2 = TraitProperty(dtype=(float, int))
+    ctype1 = TraitProperty(dtype=str)
+    ctype2 = TraitProperty(dtype=str)
+
+
 
 class Image(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=2)
     exposed = TraitProperty(dtype=(float, int), optional=True)
-    # wcs = SubTrait(WCS, optional=True)
+    wcs = SubTrait(ImageWCS, optional=True)
 
 class SpectralCube(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=3)

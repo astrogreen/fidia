@@ -83,3 +83,35 @@ class TraitProperty(DescriptionsMixin):
 
     def __repr__(self):
         return "<TraitProperty {}>".format(self.name)
+
+class SubTrait(object):
+
+    def __init__(self, trait_class, optional=False):
+        # type: (Type[fidia.Trait], bool) -> None
+        from .base_trait import Trait
+        assert issubclass(trait_class, Trait)
+        self.trait_class = trait_class
+        self.optional = optional
+        self.name = None  # type: str
+
+    def __get__(self, parent_trait, parent_trait_class):
+        # type: (fidia.Trait, Type[fidia.Trait]) -> Any
+        if parent_trait is None:
+            return self
+        else:
+            if self.name is None:
+                raise TraitValidationError("TraitProperty not correctly initialised.")
+            if self.name not in parent_trait.trait_schema:
+                if self.optional:
+                    raise DataNotAvailable("Optional sub-trait %s not provided." % self.name)
+                else:
+                    raise TraitValidationError("Trait definition missing mapping for required sub-trat %s" % self.name)
+            trait_mapping = parent_trait.trait_schema[self.name]  # type:
+            result = self.trait_class(sample=parent_trait.sample, trait_key=parent_trait.trait_key,
+                                      object_id=parent_trait.object_id,
+                                      trait_registry=parent_trait.sample.trait_mappings,
+                                      trait_schema=trait_mapping.trait_schema)
+            return result
+
+
+
