@@ -108,7 +108,7 @@ class SubTrait(object):
                     raise TraitValidationError("Trait definition missing mapping for required sub-trat %s" % self.name)
             trait_mapping = parent_trait.trait_schema[self.name]  # type:
             result = self.trait_class(sample=parent_trait.sample, trait_key=parent_trait.trait_key,
-                                      object_id=parent_trait.object_id,
+                                      astro_object=parent_trait.astro_object,
                                       trait_registry=parent_trait.sample.trait_mappings,
                                       trait_schema=trait_mapping.trait_schema)
             return result

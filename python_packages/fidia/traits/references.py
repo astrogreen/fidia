@@ -172,7 +172,7 @@ class TraitPointer(bases.TraitPointer):
 
         tk = self.trait_mapping.update_trait_key_with_defaults(tk)
         trait = self.trait_class(sample=self.sample, trait_key=tk,
-                                 object_id=self.astro_object.identifier,
+                                 astro_object=self.astro_object,
                                  trait_registry=self.trait_mapping,
                                  trait_schema=self.trait_mapping.trait_schema)
 

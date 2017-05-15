@@ -135,8 +135,14 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             log.debug("Initialized Trait class %s", str(cls))
             cls.trait_class_initialized = True
 
-    def __init__(self, sample, trait_key, object_id, trait_registry, trait_schema):
-        # type: (fidia.Sample, fidia.TraitKey, str, fidia.traits.TraitMappingDatabase, Dict[str, Union[str, fidia.traits.TraitMapping]]) -> None
+    def __init__(self, sample, trait_key, astro_object, trait_registry, trait_schema):
+        # type: (fidia.Sample, fidia.TraitKey, fidia.AstronomicalObject, fidia.traits.TraitMappingDatabase, Dict[str, Union[str, fidia.traits.TraitMapping]]) -> None
+
+        # This function should only be called by:
+        #
+        #   - TraitPointers when they are asked to create a particular Trait
+        #   - (unnamed) SubTrait objects when they are asked to return a sub-Trait of an existing Trait.
+
         super(BaseTrait, self).__init__()
 
 
@@ -151,7 +157,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
         # self._set_branch_and_version(trait_key)
 
-        self.object_id = object_id
+        self.astro_object = astro_object
+        self.object_id = astro_object.identifier
 
         self.trait_schema = trait_schema
 
