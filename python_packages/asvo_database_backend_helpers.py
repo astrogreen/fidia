@@ -331,8 +331,8 @@ class MappingDatabase:
             log.exception("Error occurred while writing CSV.")
             raise e
 
-    def get_csv_link(self, fname):
-        return cfg.results_dir + fname + '.csv'
+    def get_csv_path(self, fname):
+        return cfg.results_dir
 
 def get_gama_database_as_json():
 

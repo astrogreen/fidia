@@ -133,7 +133,7 @@ class Query(viewsets.ModelViewSet):
         filename = obj.table_name + '.csv'
         # ___testing___
         filename = 'error.txt'
-        path_to_file = '/Users/lmannering/Desktop/'
+        path_to_file = MappingDatabase.get_csv_path()
         # ___end_testing___
         # TODO set the 'Content-Length' header.
         # file = open(path_to_file+filename, 'rb')
