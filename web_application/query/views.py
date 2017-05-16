@@ -131,7 +131,7 @@ class Query(viewsets.ModelViewSet):
         obj = self.get_object()
         max_age = 86400  # one day
         filename = obj.table_name + '.csv'
-        path_to_file = MappingDatabase.get_csv_path()
+        path_to_file = MappingDatabase.get_csv_path() + filename
         # TODO set the 'Content-Length' header.
         # file = open(path_to_file+filename, 'rb')
         # response = HttpResponse(FileWrapper(file), content_type='text/csv')
