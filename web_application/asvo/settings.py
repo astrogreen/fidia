@@ -111,6 +111,7 @@ LOGIN_URL = 'rest_framework:login'
 
 WSGI_APPLICATION = 'asvo.wsgi.application'
 
+STATIC_ROOT = '/var/www/django_static'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
@@ -150,15 +151,19 @@ EMAIL_HOST = 'comsrv.aao.gov.au'
 EMAIL_PORT = 25
 
 # spark
-SPARK_HOME = '/Applications/spark-1.5.0-bin-hadoop2.6/'
-SPARK_PATH = ['/Applications/spark-1.5.0-bin-hadoop2.6/python']
+SPARK_HOME = '/home/lharischandra/Spark/spark-1.5.0-bin-asvo-spark-1.5rc3-hadoop2.6.0' 
+SPARK_PATH = ['/home/lharischandra/Spark/spark-1.5.0-bin-asvo-spark-1.5rc3-hadoop2.6.0/python/lib/py4j-0.8.2.1-src.zip',
+              '/home/lharischandra/Spark/spark-1.5.0-bin-asvo-spark-1.5rc3-hadoop2.6.0/python']
 
 # SAMI Database:
 #
 #    Set these to the location of the SAMI database directory and corresponding
 #    catalog file.
-SAMI_TEAM_DATABASE = ''
-SAMI_TEAM_DATABASE_CATALOG = ''
+SAMI_TEAM_DATABASE = '/net/aaolxz/iscsi/data/SAMI/data_releases/v0.9/'
+SAMI_TEAM_DATABASE_CATALOG = '/net/aaolxz/iscsi/data/SAMI/catalogues/' + \
+    'sami_sel_20140911_v2.0JBupdate_July2015_incl_nonQCmet_galaxies.fits'
+# SAMI_TEAM_DATABASE = '/home/agreen/sami_test_release/'
+# SAMI_TEAM_DATABSE_CATALOG = '/home/agreen/sami_test_release/sami_small_test_cat.fits'
 
 SAMI_DR1_DATABASE = ''
 SAMI_DR1_DATABASE_CATALOG = ''
