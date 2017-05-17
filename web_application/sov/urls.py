@@ -6,11 +6,12 @@ from django.views.generic import TemplateView
 import rest_framework.routers
 
 from restapi_app.routers import ExtendDefaultRouter, NestedExtendDefaultRouter
-from fidia.traits.trait_key import TRAIT_KEY_RE
+# from fidia.traits.trait_key import TRAIT_KEY_RE
 
 import sov.views
 
 router = rest_framework.routers.SimpleRouter()
+router.register(r'sov', sov.views.AvailableObjects, base_name='sov')
 
 # router.register(r'sov', sov.views.RootViewSet, base_name='root')
 
@@ -33,7 +34,8 @@ router = rest_framework.routers.SimpleRouter()
 
 
 urlpatterns = [
-    url(r'^(?i)', include(router.urls)),
+    url(r'', include(router.urls)),
+    # url(r'^(?i)', include(router.urls)),
     # url(r'^(?i)', include(survey_nested_router.urls)),
     # url(r'^(?i)', include(object_nested_router.urls)),
     # url(r'^(?i)', include(trait_nested_router.urls)),
