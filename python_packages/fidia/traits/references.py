@@ -20,7 +20,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-__all__ = ['TraitMapping', 'TraitPointer']
+__all__ = ['TraitMapping', 'TraitPointer', 'TraitCollectionMapping', 'TraitPropertyMapping', 'SubTraitMapping']
 
 class ColumnReference(object):
 
@@ -34,18 +34,7 @@ class ColumnReference(object):
         return self.column_id is not None
 
 
-class TraitMapping(bases.TraitMapping):
-
-    def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
-        # type: (Type[fidia.Trait], str, Dict[str, Union[str, TraitMapping]]) -> None
-        assert issubclass(trait_class, fidia.traits.BaseTrait)
-        self.trait_class = trait_class
-        self.trait_key = TraitKey.as_traitkey(trait_key)
-        self.trait_schema = schema
-
-        self.branches_versions = self._init_branches_versions(branches_versions)
-        self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
-
+class MappingBase:
     @staticmethod
     def _init_branches_versions(branches_versions):
         # type: (Any) -> Union[dict, None]
@@ -92,10 +81,6 @@ class TraitMapping(bases.TraitMapping):
             return branch_version_defaults
         raise ValueError("Branch and version defaults not valid, got: %s" % branch_version_defaults)
 
-    def __repr__(self):
-        return ("TraitMapping(trait_class=%s, trait_key='%s', schema=%s" %
-                (self.trait_class.__name__, str(self.trait_key), str(self.trait_schema)))
-
     def key(self):
         return self.trait_class.__name__, str(self.trait_key)
 
@@ -128,11 +113,56 @@ class TraitMapping(bases.TraitMapping):
 
         return tk
 
+
+class TraitMapping(MappingBase):
+
+    def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
+        # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
+        assert issubclass(trait_class, fidia.traits.BaseTrait)
+        self.trait_class = trait_class
+        self.trait_key = TraitKey.as_traitkey(trait_key)
+        self.trait_schema = schema
+
+        self.branches_versions = self._init_branches_versions(branches_versions)
+        self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
+
+
+    def __repr__(self):
+        return ("TraitMapping(trait_class=%s, trait_key='%s', schema=%s" %
+                (self.trait_class.__name__, str(self.trait_key), str(self.trait_schema)))
+
+
     def validate(self):
         # Check that all required (not optional) TraitProperties are defined in the schema:
         for tp in self.trait_class._trait_properties():
             if tp.name not in self.trait_schema and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
+
+class TraitCollectionMapping(MappingBase):
+    def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
+        # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
+        assert issubclass(trait_class, fidia.traits.BaseTrait)
+        self.trait_class = trait_class
+        self.trait_key = TraitKey.as_traitkey(trait_key)
+        self.trait_schema = schema
+
+        self.branches_versions = self._init_branches_versions(branches_versions)
+        self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
+
+class SubTraitMapping(MappingBase):
+    def __init__(self, sub_trait_name, trait_class, schema):
+        # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
+        assert issubclass(trait_class, fidia.traits.BaseTrait)
+        self.trait_class = trait_class
+        self.name = sub_trait_name
+        self.trait_schema = schema
+
+
+class TraitPropertyMapping:
+    def __init__(self, property_name, column_id):
+        # type: (str, str) -> None
+        self.name = property_name
+        self.id = column_id
 
 class TraitPointer(bases.TraitPointer):
     """Provides machinery to identify and instanciate a `Trait` on an `AstronomicalObject`.

@@ -111,27 +111,32 @@ class ExampleArchive(fidia.BasePathArchive):
 
 
     trait_mappings = [
-        TraitMapping(Image, 'red', {
-            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1",
-            'exposed': "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1",
-            'wcs': TraitMapping(ImageWCS, 'wcs', {
-                'crpix1': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1',
-                'crpix2': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1',
-                'crval1': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX1]:1',
-                'crval2': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX2]:1',
-                'cdelt1': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT1]:1',
-                'cdelt2': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT2]:1',
-                'ctype1': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE1]:1',
-                'ctype2': 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1'
-            })}),
+        TraitMapping(Image, 'red', [
+            TraitPropertyMapping('data', "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"),
+            TraitPropertyMapping('exposed', "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1"),
+            SubTraitMapping('wcs', ImageWCS, [
+                TraitPropertyMapping('crpix1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
+                TraitPropertyMapping('crpix2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),
+                TraitPropertyMapping('crval1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX1]:1'),
+                TraitPropertyMapping('crval2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX2]:1'),
+                TraitPropertyMapping('cdelt1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT1]:1'),
+                TraitPropertyMapping('cdelt2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT2]:1'),
+                TraitPropertyMapping('ctype1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE1]:1'),
+                TraitPropertyMapping('ctype2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')
+            ])
+        ]),
         TraitMapping(SpectralCube, 'red', {
             'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"}),
-        TraitMapping(DMU, 'StellarMasses', {
-            'table': TraitMapping(Table, 'StellarMasses', {
-                'stellar_mass': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1',
-                'stellar_mass_error': 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1'
-            })
-        })
+        TraitCollectionMapping(DMU, 'StellarMasses', [
+            TraitCollectionMapping(Table, 'StellarMasses', [
+                TraitPropertyMapping('stellar_mass', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1'),
+                TraitPropertyMapping('ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1')
+            ]),
+            TraitCollectionMapping(Table, 'StellarMasses', [
+                TraitPropertyMapping('stellar_mass', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1'),
+                TraitPropertyMapping('stellar_mass_error', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1')
+            ])
+        ])
     ]
 
     """
@@ -142,6 +147,8 @@ class ExampleArchive(fidia.BasePathArchive):
             crval1: !property FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header["CRVAL1"]
     - !SpectralMap red:
         data: !property "red_cube"
+    - !DMU StellarMasses:
+        
     """
 
     @property
