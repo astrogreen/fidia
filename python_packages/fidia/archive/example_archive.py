@@ -72,8 +72,6 @@ from fidia.traits import *
 
 class ExampleArchive(fidia.BasePathArchive):
 
-    available_traits = fidia.TraitRegistry()
-
     archive_id = "ExampleArchive"
 
     def __init__(self, **kwargs):
