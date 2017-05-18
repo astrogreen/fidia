@@ -1,6 +1,11 @@
+"""
+
+Trait Utilities: Various tools to make Traits work.
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Dict, List, Type, Union, Tuple
+from typing import Dict, List, Type, Union, Tuple, Any
 import fidia
 
 # Python Standard Library Imports
@@ -42,7 +47,7 @@ __all__ = [
 
 
 class TraitProperty(DescriptionsMixin):
-
+    """Defines a 'slot' for a Trait property (reference to a column)."""
     allowed_types = RegexpGroup(
         'string',
         'float',
@@ -108,7 +113,7 @@ class TraitProperty(DescriptionsMixin):
         return "<TraitProperty {}>".format(self.name)
 
 class SubTrait(object):
-
+    """Defines a 'slot' for a sub-Trait."""
     def __init__(self, trait_class, optional=False):
         # type: (Type[fidia.Trait], bool) -> None
         from .base_trait import Trait
@@ -161,29 +166,32 @@ TRAIT_KEY_RE = re.compile(
 # "hyphen-only" notation.
 TRAIT_KEY_ALT_RE = re.compile(
     r"""(?P<trait_name>{TRAIT_NAME_RE})
-            (?:-(?P<branch>{TRAIT_BRANCH_RE})?
-                (?:-(?P<version>{TRAIT_VERSION_RE})?)?
-            )?""".format(
-        TRAIT_NAME_RE=TRAIT_NAME_RE.pattern,
-        TRAIT_BRANCH_RE=TRAIT_BRANCH_RE.pattern,
-        TRAIT_VERSION_RE=TRAIT_VERSION_RE.pattern),
+        (?:-(?P<branch>{TRAIT_BRANCH_RE})?
+            (?:-(?P<version>{TRAIT_VERSION_RE})?)?
+        )?""".format(
+            TRAIT_NAME_RE=TRAIT_NAME_RE.pattern,
+            TRAIT_BRANCH_RE=TRAIT_BRANCH_RE.pattern,
+            TRAIT_VERSION_RE=TRAIT_VERSION_RE.pattern),
     re.VERBOSE
 )
 
 def validate_trait_name(trait_type):
+    """Check if a string meets the formatting requirements for a trait name."""
     if TRAIT_NAME_RE.fullmatch(trait_type) is None:
         raise ValueError("'%s' is not a valid trait name" % trait_type)
 
 def validate_trait_branch(trait_branch):
+    """Check if a string meets the formatting requirements for a trait branch."""
     if TRAIT_BRANCH_RE.fullmatch(trait_branch) is None:
         raise ValueError("'%s' is not a valid trait branch" % trait_branch)
 
 def validate_trait_version(trait_version):
+    """Check if a string meets the formatting requirements for a trait version."""
     if TRAIT_VERSION_RE.fullmatch(trait_version) is None:
         raise ValueError("'%s' is not a valid trait version" % trait_version)
 
 
-
+# noinspection PyInitNewSignature
 class TraitKey(tuple):
     """TraitKey(trait_name, version, object_id)"""
 
@@ -198,14 +206,14 @@ class TraitKey(tuple):
     branch = property(itemgetter(1), doc='Branch')
     version = property(itemgetter(2), doc='Version')
 
-    def __new__(_cls, trait_name, branch=None, version=None):
+    def __new__(cls, trait_name, branch=None, version=None):
         """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
         validate_trait_name(trait_name)
         if branch is not None:
             validate_trait_branch(branch)
         if version is not None:
             validate_trait_version(version)
-        return tuple.__new__(_cls, (trait_name, branch, version))
+        return tuple.__new__(cls, (trait_name, branch, version))
 
     @classmethod
     def _make(cls, iterable, new=tuple.__new__, len=len):
@@ -230,13 +238,13 @@ class TraitKey(tuple):
             match = TRAIT_KEY_RE.fullmatch(key)
             if match:
                 return cls(trait_name=match.group('trait_name'),
-                    branch=match.group('branch'),
-                    version=match.group('version'))
+                           branch=match.group('branch'),
+                           version=match.group('version'))
             match = TRAIT_KEY_ALT_RE.fullmatch(key)
             if match:
                 return cls(trait_name=match.group('trait_name'),
-                    branch=match.group('branch'),
-                    version=match.group('version'))
+                           branch=       match.group('branch'),
+                           version=match.group('version'))
         raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
 
 
@@ -283,6 +291,7 @@ class TraitKey(tuple):
             trait_string += "(" + self.version + ")"
         return trait_string
 
+
 class TraitPath(tuple):
     """A class to handle full paths to Traits.
 
@@ -304,12 +313,9 @@ class TraitPath(tuple):
             return tuple.__new__(cls, tuple())
 
         validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
-        return tuple.__new__(cls, validated_tk_path)
-
-    def __init__(self, *args, trait_property=None):
-        # super(TraitPath, self).__init__(*args)
-        log.debug("Initialising TraitPath with trait_property=%s", trait_property)
-        self.trait_property_name = trait_property
+        new = tuple.__new__(cls, validated_tk_path)
+        new.trait_property_name = trait_property
+        return new
 
     def __repr__(self):
         return "TraitPath((%s), %s)" % (", ".join([repr(tk) for tk in self]) + ", ", self.trait_property_name)
@@ -320,7 +326,8 @@ class TraitPath(tuple):
             s += "/" + self.trait_property_name
         return s
 
-    def as_traitpath(self, trait_path):
+    @staticmethod
+    def as_traitpath(trait_path):
         if isinstance(trait_path, TraitPath):
             return trait_path
         else:
@@ -353,20 +360,20 @@ class TraitPath(tuple):
         return trait_property
 
     def get_trait_for_object(self, astro_object):
-        # type: (AstronomicalObject) -> Trait
+        # type: (fidia.AstronomicalObject) -> fidia.Trait
         trait = astro_object
         for elem in self:
             trait = trait[elem]
         return trait
 
     def get_trait_property_for_object(self, astro_object):
-        # type: (AstronomicalObject) -> Trait
+        # type: (fidia.AstronomicalObject) -> fidia.Trait
 
 
         trait = self.get_trait_for_object(astro_object)
         if self.trait_property_name is None:
             if not hasattr(trait, 'value'):
-                raise exceptions.FIDIAException()
+                raise FIDIAException()
             else:
                 tp_name = 'value'
         else:
@@ -376,7 +383,7 @@ class TraitPath(tuple):
         return trait_property
 
     def get_trait_property_value_for_object(self, astro_object):
-        # type: (AstronomicalObject) -> Trait
+        # type: (fidia.AstronomicalObject) -> fidia.Trait
 
         trait_property = self.get_trait_property_for_object(astro_object)
 
@@ -459,7 +466,7 @@ class BranchesVersions(dict):
         # The full item for a branch will be a set of either version identifiers
         # or tuples with (verid, prettyname, desc)
         # Return only the first items of each tuple.
-        return {(i[0] if isinstance(i, tuple) else i) for i in full_item }
+        return {(i[0] if isinstance(i, tuple) else i) for i in full_item}
 
     def __contains__(self, item):
         return item in self.name_keys()
@@ -546,7 +553,7 @@ class TraitPointer(bases.TraitPointer):
     """
 
     def __init__(self, sample, astro_object, trait_mapping, trait_registry):
-        # type: (fidia.Sample, fidia.AstronomicalObject, TraitMapping, fidia.traits.TraitRegistry) -> None
+        # type: (fidia.Sample, fidia.AstronomicalObject, TraitMapping, TraitMappingDatabase) -> None
         self.sample = sample
         self.astro_object = astro_object
         self.trait_mapping = trait_mapping
@@ -641,6 +648,12 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
 
 
 class MappingBase:
+    
+    def __init__(self, branches_versions=None, branch_version_defaults=None):
+        self.branches_versions = self._init_branches_versions(branches_versions)
+        self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
+
+    
     @staticmethod
     def _init_branches_versions(branches_versions):
         # type: (Any) -> Union[dict, None]
@@ -670,7 +683,6 @@ class MappingBase:
 
     def _init_default_branches_versions(self, branch_version_defaults):
         # type: (Any) -> Union[None, DefaultsRegistry]
-        """"""
         if self.branches_versions is None:
             return None
         if branch_version_defaults is None:
@@ -724,13 +736,13 @@ class TraitMapping(MappingBase):
 
     def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
         # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
+        
+        super(TraitMapping, self).__init__(branches_versions, branch_version_defaults)
+        
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
         self.trait_schema = schema
-
-        self.branches_versions = self._init_branches_versions(branches_versions)
-        self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
 
 
     def __repr__(self):
