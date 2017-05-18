@@ -54,9 +54,7 @@ import fidia.base_classes as bases
 from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
 from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
-from .trait_property import TraitProperty, SubTrait
-from .references import TraitMapping, TraitPointer
-from .trait_key import TraitKey, \
+from .trait_utilities import TraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 
@@ -65,6 +63,8 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
+
+__all__ = ['Trait', 'TraitCollection']
 
 def validate_trait_branches_versions_dict(branches_versions):
     # type: ([BranchesVersions, None]) -> None

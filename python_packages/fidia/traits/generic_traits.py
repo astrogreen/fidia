@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
-from .trait_property import TraitProperty, SubTrait
+from .trait_utilities import TraitProperty, SubTrait
 
 # Logging Import and setup
 from .. import slogging

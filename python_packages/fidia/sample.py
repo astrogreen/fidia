@@ -28,7 +28,6 @@ import numpy as np
 
 # FIDIA Imports
 from .import base_classes as bases
-from . import traits
 from .column import ColumnID
 from .exceptions import *
 
@@ -45,6 +44,8 @@ class Sample(bases.Sample):
     # Sample Creation
 
     def __init__(self):
+
+        from . import traits
 
         # Until there is something in the sample, it is useless.
         self.is_populated = False

@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest
 
-from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry, TraitPath
+from fidia.traits import Trait, TraitProperty, TraitKey, TraitPath
+from fidia.traits.trait_utilities import TraitMappingDatabase
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
