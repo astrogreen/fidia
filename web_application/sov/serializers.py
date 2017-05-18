@@ -31,7 +31,22 @@ import sov.mixins
 #     return depth_limit
 
 
-class AvailableObjects(serializers.Serializer):
+class AvailableObjectList(serializers.Serializer):
+    id = serializers.SerializerMethodField()
+    name = serializers.CharField(max_length=256)
+    owner = serializers.CharField(max_length=256)
+    status = serializers.ListField(max_length=256)
+
+    def get_id(self, obj):
+        _id = obj.id
+        try:
+            _id = self.context['request'].build_absolute_uri(str(obj.id))
+        except Exception:
+            pass
+        return _id
+
+
+class AvailableObjectRetrieve(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=256)
     owner = serializers.CharField(max_length=256)

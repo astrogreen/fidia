@@ -49,23 +49,42 @@ archive = {
 
 
 class AvailableObjects(viewsets.ReadOnlyModelViewSet):
-    serializer_class = sov.serializers.AvailableObjects
-    queryset = archive
+    serializer_class = sov.serializers.AvailableObjectList
+    queryset = archive.values()
 
-    def list(self, request):
-        print(archive.values())
-        serializer = sov.serializers.AvailableObjects(instance=archive.values(), many=True)
+    def list(self, request, *args, **kwargs):
+        """
+        List archive
+        """
+        queryset = archive.values()
+
+        # page = self.paginate_queryset(queryset)
+        # if page is not None:
+        #     serializer = self.get_serializer(page, many=True)
+        #     return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        # serializer = sov.serializers.AvailableObjects(instance=archive.values(), many=True)
         return Response(serializer.data)
 
-    @list_route(url_name='filter', url_path='filter/(?P<search_id>[\w\d]+)')
-    def filter(self, request, search_id=None, *args, **kwargs):
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        """
+        Retrieve a AstroObject instance.
+        """
+        instance = archive.get(int(pk))
+        serializer = sov.serializers.AvailableObjectRetrieve(instance=instance, many=False)
+        return Response(serializer.data)
+
+    @list_route(url_name='filter', url_path='filter/(?P<filter_term>[\w\d]+)')
+    def filter(self, request, filter_term=None, *args, **kwargs):
         data = []
         for key, value in archive.items():
-            if str(search_id) in str(value.name):
+            if str(filter_term) in str(value.name):
                 data.append(value)
                 # append to data
         completed_data = dict(enumerate(data))
-        serializer = sov.serializers.AvailableObjects(instance=completed_data.values(), many=True)
+        serializer = sov.serializers.AvailableObjectRetrieve(instance=completed_data.values(), many=True)
         return Response(serializer.data)
 
 
