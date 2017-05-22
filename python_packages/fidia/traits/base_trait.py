@@ -54,7 +54,7 @@ import fidia.base_classes as bases
 from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
 from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
-from .trait_utilities import TraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
+from .trait_utilities import TraitMapping, TraitCollectionMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 
@@ -136,8 +136,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             log.debug("Initialized Trait class %s", str(cls))
             cls.trait_class_initialized = True
 
-    def __init__(self, sample, trait_key, astro_object, trait_registry, trait_schema):
-        # type: (fidia.Sample, fidia.TraitKey, fidia.AstronomicalObject, fidia.traits.TraitMappingDatabase, Dict[str, Union[str, fidia.traits.TraitMapping]]) -> None
+    def __init__(self, sample, trait_key, astro_object, trait_registry, trait_mapping):
+        # type: (fidia.Sample, fidia.TraitKey, fidia.AstronomicalObject, fidia.traits.TraitMappingDatabase, Union[TraitMapping, TraitCollectionMapping]) -> None
 
         # This function should only be called by:
         #
@@ -161,7 +161,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         self.astro_object = astro_object
         self.object_id = astro_object.identifier
 
-        self.trait_schema = trait_schema
+        self.trait_mapping = trait_mapping
 
         self._trait_cache = OrderedDict()
 
@@ -533,24 +533,27 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
         #   look up the column and return the result as though we had called an
         #   actual TraitProperty object.
 
-        try:
-            schema_item = self.trait_schema[item]
-        except KeyError:
-            raise AttributeError("Unknown attribute %s for object %s" % (item, self))
 
-        if isinstance(schema_item, TraitMapping):
-            # Should return a TraitPointer object with the corresponding sub-schema.
-            return TraitPointer(self.sample, self.astro_object, schema_item, self.sample.trait_registry)
-        elif isinstance(schema_item, str):
-            # Should return a TraitProperty object? (or just the actual value?)
-            # return TraitProperty(None, name=item)
-            column_id = schema_item
+        sub_trait_names = list(map(lambda t: t.trait_class_name, self.trait_mapping.trait_mappings))
+        if item in sub_trait_names:
+            # item is a Trait or TraitCollection, so should return a
+            # TraitPointer object with the corresponding sub-schema.
+            index = sub_trait_names.index(item)
+            return TraitPointer(self.sample, self.astro_object,
+                                self.trait_mapping.trait_mappings[index], self.sample.trait_registry)
 
+        elif item in self.trait_mapping.trait_property_mappings:
+            # item is a TraitProperty. Behave like TraitProperty
+            column_id = self.trait_mapping.trait_property_mappings[item]
             # Get the result
             result = self._get_column_data(column_id)
-
             # Cache the result against the trait (so this code will not be called again!)
             setattr(self, item, result)
-
             return result
 
+        else:
+            log.warn("Unknown attribute %s for object %s", item, self)
+            log.warn("  Known Trait Mappings: %s", list(map(lambda x: x.key(), self.trait_mapping.trait_mappings)))
+            log.warn("  Known Trait Properties: %s", list(self.trait_mapping.trait_property_mappings.keys()))
+
+            raise AttributeError("Unknown attribute %s for object %s" % (item, self))

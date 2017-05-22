@@ -18,7 +18,7 @@ from operator import itemgetter
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -103,7 +103,7 @@ class TraitProperty(DescriptionsMixin):
         else:
             if self.name is None:
                 raise TraitValidationError("TraitProperty not correctly initialised.")
-            column_id = trait.trait_schema[self.name]
+            column_id = trait.trait_mapping.trait_property_mappings[self.name]
             result = trait._get_column_data(column_id)
             setattr(trait, self.name, result)
             return result
@@ -128,16 +128,16 @@ class SubTrait(object):
         else:
             if self.name is None:
                 raise TraitValidationError("TraitProperty not correctly initialised.")
-            if self.name not in parent_trait.trait_schema:
+            if self.name not in parent_trait.trait_mapping.sub_trait_mappings:
                 if self.optional:
                     raise DataNotAvailable("Optional sub-trait %s not provided." % self.name)
                 else:
                     raise TraitValidationError("Trait definition missing mapping for required sub-trat %s" % self.name)
-            trait_mapping = parent_trait.trait_schema[self.name]  # type:
+            trait_mapping = parent_trait.trait_mapping.sub_trait_mappings[self.name]  # type: SubTraitMapping
             result = self.trait_class(sample=parent_trait.sample, trait_key=parent_trait.trait_key,
                                       astro_object=parent_trait.astro_object,
                                       trait_registry=parent_trait.sample.trait_mappings,
-                                      trait_schema=trait_mapping.trait_schema)
+                                      trait_mapping=trait_mapping)
             return result
 
 
@@ -310,10 +310,10 @@ class TraitPath(tuple):
             trait_path_tuple = trait_path_tuple.split("/")
 
         if trait_path_tuple is None or len(trait_path_tuple) == 0:
-            return tuple()
+            return tuple.__new__(cls, tuple())
 
         validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
-        new = tuple(validated_tk_path)
+        new = tuple.__new__(cls, validated_tk_path)
         new.trait_property_name = trait_property
         return new
 
@@ -568,7 +568,7 @@ class TraitPointer(bases.TraitPointer):
         trait = self.trait_class(sample=self.sample, trait_key=tk,
                                  astro_object=self.astro_object,
                                  trait_registry=self.trait_mapping,
-                                 trait_schema=self.trait_mapping.trait_schema)
+                                 trait_mapping=self.trait_mapping)
 
         # @TODO: Object Caching?
 
@@ -790,8 +790,8 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling):
         self.trait_key = TraitKey.as_traitkey(trait_key)
         self._mappings = mappings
 
-        self.sub_trait_mappings = dict()
-        self.trait_property_mappings = dict()
+        self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
+        self.trait_property_mappings = dict()  # type: Dict[str, str]
 
         for item in self._mappings:
             if isinstance(item, TraitPropertyMapping):
@@ -833,6 +833,7 @@ class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
         assert issubclass(trait_collection_class, fidia.traits.TraitCollection)
         self.trait_class = trait_collection_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
+        self.trait_class_name = snake_case(self.trait_class.__name__)
         self._mappings = mappings
 
         self.trait_property_mappings = dict()  # type: Dict[str, str]
@@ -842,7 +843,7 @@ class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
             if isinstance(item, TraitPropertyMapping):
                 self.trait_property_mappings[item.name] = item.id
             elif isinstance(item, SubTraitMapping):
-                raise Exception("TraitCollections don't support sub-Traits")
+                raise ValueError("TraitCollections don't support sub-Traits")
             elif isinstance(item, TraitMapping):
                 self.trait_mappings.append(item)
             elif isinstance(item, TraitCollectionMapping):
@@ -854,11 +855,11 @@ class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
         pass
 
     def key(self):
-        return self.trait_class.__name__, str(self.trait_key)
+        return self.trait_class_name, str(self.trait_key)
 
     def __repr__(self):
         return ("TraitCollectionMapping(trait_collection_class=%s, trait_key='%s', mappings=%s)" %
-                (self.trait_class.__name__, str(self.trait_key), repr(self._mappings)))
+                (self.trait_class_name, str(self.trait_key), repr(self._mappings)))
 
 
 class SubTraitMapping:
@@ -867,7 +868,20 @@ class SubTraitMapping:
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.name = sub_trait_name
-        self.mappings = mappings
+        self._mappings = mappings
+
+        self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
+        self.trait_property_mappings = dict()  # type: Dict[str, str]
+
+        for item in self._mappings:
+            if isinstance(item, TraitPropertyMapping):
+                self.trait_property_mappings[item.name] = item.id
+            elif isinstance(item, SubTraitMapping):
+                self.sub_trait_mappings[item.name] = item
+            elif isinstance(item, TraitMapping):
+                raise ValueError("Named subtraits not supported for sub-Traits.")
+            else:
+                raise ValueError("SubTraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
 
 class TraitPropertyMapping:
