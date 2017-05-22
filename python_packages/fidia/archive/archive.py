@@ -41,7 +41,7 @@ class Archive(bases.Archive):
         mappings = self.trait_mappings
         assert isinstance(mappings, list)
         self.trait_mappings = traits.TraitMappingDatabase()
-        self.trait_mappings.register_trait_mapping_list(mappings)
+        self.trait_mappings.register_mapping_list(mappings)
         self._trait_cache = OrderedDict()
 
         self.cache = cache.DummyCache()

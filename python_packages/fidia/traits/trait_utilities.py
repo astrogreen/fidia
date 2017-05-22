@@ -605,26 +605,54 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
     """
 
     def __init__(self):
-        self.mappings = dict()  # type: Dict[Tuple[str, str], fidia.traits.TraitMapping]
+        self._mappings = []  # type: List[Union[TraitMapping, TraitCollectionMapping]]
         self.linked_mappings = []  # type: List[TraitMappingDatabase]
+        self.trait_mappings = dict()
+        self.collection_mappings = dict()
+        self.host = None
 
     def link_database(self, other_database, index=-1):
         # type: (TraitMappingDatabase, int) -> None
         assert isinstance(other_database, TraitMappingDatabase)
         self.linked_mappings.insert(index, other_database)
 
-    def register_trait_mapping(self, trait_mapping):
-        # type: (fidia.traits.TraitMapping) -> None
-        if trait_mapping.key() in self.mappings:
-            raise FIDIAException("Attempt to add an existing mapping")
-        trait_mapping.validate()
-        self.mappings[trait_mapping.key()] = trait_mapping
+    def register_mapping(self, mapping):
+        # type: (Union[TraitMapping, TraitCollectionMapping]) -> None
+        if isinstance(mapping, TraitMapping):
+            mapping.validate()
+            key = mapping.key()
+            # Check if key already exists in this database
+            if key in self.trait_mappings:
+                raise FIDIAException("Attempt to add/change an existing mapping")
+            # Check if key already exists in a linked database
+            for sub_db in self.linked_mappings:
+                if key in sub_db.trait_mappings:
+                    log.warning("New mapping %s shadows existing mapping %s in %s",
+                                mapping, sub_db.trait_mappings[key], sub_db.host)
+            self.trait_mappings[key] = mapping
+            # @TODO: Also link up superclasses of the provided Trait to the FIDIA level.
+        elif isinstance(mapping, TraitCollectionMapping):
+            mapping.validate()
+            key = mapping.key()
+            # Check if key already exists in this database
+            if key in self.collection_mappings:
+                raise FIDIAException("Attempt to add/change an existing mapping")
+            # Check if key already exists in a linked database
+            for sub_db in self.linked_mappings:
+                if key in sub_db.collection_mappings:
+                    log.warning("New mapping %s shadows existing mapping %s in %s",
+                                mapping, sub_db.collection_mappings[key], sub_db.host)
+            self.collection_mappings[key] = mapping
+        else:
+            raise ValueError("TraitMappingDatabase can only register TraitMapping or TraitCollectionMapping, got %s"
+                             % mapping)
+        self._mappings.append(mapping)
 
-    def register_trait_mapping_list(self, trait_mapping_list):
+    def register_mapping_list(self, trait_mapping_list):
         # type: (List[fidia.traits.TraitMapping]) -> None
-
+        """Simply calls `.register_trait_mapping` for each item in the supplied list."""
         for mapping in trait_mapping_list:
-            self.register_trait_mapping(mapping)
+            self.register_mapping(mapping)
 
     def get_trait_mappings(self):
 
@@ -632,7 +660,7 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
 
         trait_mapping_keys_returned = set()
 
-        for tm in self.mappings.values():
+        for tm in self._mappings:
             string_key = "-".join(tm.key())
             if string_key in trait_mapping_keys_returned:
                 raise FIDIAException('Duplicate TraitMappings found: %s' % string_key)
@@ -640,9 +668,10 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
             yield tm
 
         for sub_database in self.linked_mappings:
-            for tm in sub_database.mappings.values():
+            for tm in sub_database._mappings:
                 string_key = "-".join(tm.key())
                 if string_key in trait_mapping_keys_returned:
+                    # @TODO: This should perhaps be changed to simply skip shadowed mappings
                     raise FIDIAException('Duplicate TraitMappings found: %s' % string_key)
                 yield tm
 
@@ -738,7 +767,7 @@ class MappingBase:
         self.trait_key = TraitKey.as_traitkey(trait_key)
 
     def key(self):
-        return self.trait_class.__name__, str(self.trait_key)
+        raise NotImplementedError()
 
     def validate(self):
         raise NotImplementedError()
@@ -774,16 +803,19 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling):
             else:
                 raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
-    def __repr__(self):
-        return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
-                (self.trait_class.__name__, str(self.trait_key), repr(self.mappings)))
-
-
     def validate(self):
         # Check that all required (not optional) TraitProperties are defined in the schema:
         for tp in self.trait_class._trait_properties():
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
+
+    def key(self):
+        return self.trait_class.__name__, str(self.trait_key)
+
+    def __repr__(self):
+        return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
+                (self.trait_class.__name__, str(self.trait_key), repr(self.mappings)))
+
 
 class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
     """Representation of the schema of a TraitCollection.
@@ -820,6 +852,9 @@ class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
 
     def validate(self):
         pass
+
+    def key(self):
+        return self.trait_class.__name__, str(self.trait_key)
 
     def __repr__(self):
         return ("TraitCollectionMapping(trait_collection_class=%s, trait_key='%s', mappings=%s)" %

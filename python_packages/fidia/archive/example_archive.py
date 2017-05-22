@@ -123,16 +123,16 @@ class ExampleArchive(fidia.BasePathArchive):
                 TraitPropertyMapping('ctype2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')
             ])
         ]),
-        TraitMapping(SpectralCube, 'red', {
-            'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"}),
+        # TraitMapping(SpectralCube, 'red', {
+        #     'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"}),
         TraitCollectionMapping(DMU, 'StellarMasses', [
             TraitCollectionMapping(Table, 'StellarMasses', [
                 TraitPropertyMapping('stellar_mass', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1'),
-                TraitPropertyMapping('ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1')
+                TraitPropertyMapping('stellar_mass_error','ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1')
             ]),
-            TraitCollectionMapping(Table, 'StellarMasses', [
-                TraitPropertyMapping('stellar_mass', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1'),
-                TraitPropertyMapping('stellar_mass_error', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1')
+            TraitCollectionMapping(Table, 'StarFormationRates', [
+                TraitPropertyMapping('sfr', 'ExampleArchive:FITSBinaryTableColumn:sfr_table.fits[1].data[SFR]:1'),
+                TraitPropertyMapping('sfr_err', 'ExampleArchive:FITSBinaryTableColumn:sfr_table.fits[1].data[SFR_ERR]:1')
             ])
         ])
     ]

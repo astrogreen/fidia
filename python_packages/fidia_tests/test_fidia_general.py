@@ -19,7 +19,7 @@ class TestFidiaImportsAndPackageLayout:
         import fidia.archive
         import fidia.sample
         import fidia.column
-
+        import fidia.astro_object
         import fidia.traits
 
     def test_toplevel_layout(self):

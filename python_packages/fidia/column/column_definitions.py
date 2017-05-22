@@ -37,7 +37,7 @@ from ..utilities import is_list_or_set
 # Set up logging
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
