@@ -212,7 +212,7 @@ class TraitKey(tuple):
             validate_trait_branch(branch)
         if version is not None:
             validate_trait_version(version)
-        return tuple((trait_name, branch, version))
+        return tuple.__new__(cls, (trait_name, branch, version))
 
     @classmethod
     def _make(cls, iterable, new=tuple.__new__):
@@ -736,11 +736,12 @@ class MappingBase:
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
-        self.trait_schema = schema
 
     def key(self):
         return self.trait_class.__name__, str(self.trait_key)
 
+    def validate(self):
+        raise NotImplementedError()
 
 class TraitMapping(MappingBase, MappingBranchVersionHandling):
     """Representation of the schema of a Trait.
@@ -758,8 +759,20 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling):
         assert issubclass(trait_class, fidia.traits.Trait)
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
-        self.mappings = mappings
+        self._mappings = mappings
 
+        self.sub_trait_mappings = dict()
+        self.trait_property_mappings = dict()
+
+        for item in self._mappings:
+            if isinstance(item, TraitPropertyMapping):
+                self.trait_property_mappings[item.name] = item.id
+            elif isinstance(item, SubTraitMapping):
+                self.sub_trait_mappings[item.name] = item
+            elif isinstance(item, TraitMapping):
+                raise Exception("Named subtraits not yet supported for Traits.")
+            else:
+                raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
     def __repr__(self):
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
@@ -769,7 +782,7 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling):
     def validate(self):
         # Check that all required (not optional) TraitProperties are defined in the schema:
         for tp in self.trait_class._trait_properties():
-            if tp.name not in self.trait_schema and not tp.optional:
+            if tp.name not in self.trait_property_mappings and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
 
 class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
@@ -788,12 +801,29 @@ class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
         assert issubclass(trait_collection_class, fidia.traits.TraitCollection)
         self.trait_class = trait_collection_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
-        self.mappings = mappings
+        self._mappings = mappings
 
+        self.trait_property_mappings = dict()  # type: Dict[str, str]
+        self.trait_mappings = []  # type: List[TraitMapping]
+
+        for item in self._mappings:
+            if isinstance(item, TraitPropertyMapping):
+                self.trait_property_mappings[item.name] = item.id
+            elif isinstance(item, SubTraitMapping):
+                raise Exception("TraitCollections don't support sub-Traits")
+            elif isinstance(item, TraitMapping):
+                self.trait_mappings.append(item)
+            elif isinstance(item, TraitCollectionMapping):
+                self.trait_mappings.append(item)
+            else:
+                raise ValueError("TraitCollectionMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
+
+    def validate(self):
+        pass
 
     def __repr__(self):
         return ("TraitCollectionMapping(trait_collection_class=%s, trait_key='%s', mappings=%s)" %
-                (self.trait_class.__name__, str(self.trait_key), repr(self.mappings)))
+                (self.trait_class.__name__, str(self.trait_key), repr(self._mappings)))
 
 
 class SubTraitMapping:
