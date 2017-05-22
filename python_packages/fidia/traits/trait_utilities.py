@@ -9,7 +9,6 @@ from typing import Dict, List, Type, Union, Tuple, Any
 import fidia
 
 # Python Standard Library Imports
-from itertools import product
 from collections import OrderedDict
 import re
 from operator import itemgetter
@@ -19,7 +18,7 @@ from operator import itemgetter
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, SchemaDictionary, is_list_or_set, RegexpGroup
+from ..utilities import DefaultsRegistry, RegexpGroup
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -213,10 +212,10 @@ class TraitKey(tuple):
             validate_trait_branch(branch)
         if version is not None:
             validate_trait_version(version)
-        return tuple.__new__(cls, (trait_name, branch, version))
+        return tuple((trait_name, branch, version))
 
     @classmethod
-    def _make(cls, iterable, new=tuple.__new__, len=len):
+    def _make(cls, iterable, new=tuple.__new__):
         """Make a new TraitKey object from a sequence or iterable"""
         result = new(cls, iterable)
         if len(result) not in (1, 2, 3):
@@ -243,7 +242,7 @@ class TraitKey(tuple):
             match = TRAIT_KEY_ALT_RE.fullmatch(key)
             if match:
                 return cls(trait_name=match.group('trait_name'),
-                           branch=       match.group('branch'),
+                           branch=match.group('branch'),
                            version=match.group('version'))
         raise KeyError("Cannot parse key '{}' into a TraitKey".format(key))
 
@@ -256,11 +255,12 @@ class TraitKey(tuple):
         """Return a new OrderedDict which maps field names to their values"""
         return OrderedDict(zip(self._fields, self))
 
-    def replace(self, **kwds):
+    def replace(self, **kwargs):
         """Return a new TraitKey object replacing specified fields with new values"""
-        result = self._make(map(kwds.pop, ('trait_name', 'branch', 'version'), self))
-        if kwds:
-            raise ValueError('Got unexpected field names: %r' % kwds.keys())
+        # noinspection PyTypeChecker
+        result = self._make(map(kwargs.pop, ('trait_name', 'branch', 'version'), self))
+        if kwargs:
+            raise ValueError('Got unexpected field names: %r' % kwargs.keys())
         return result
 
     def ashyphenstr(self):
@@ -310,10 +310,10 @@ class TraitPath(tuple):
             trait_path_tuple = trait_path_tuple.split("/")
 
         if trait_path_tuple is None or len(trait_path_tuple) == 0:
-            return tuple.__new__(cls, tuple())
+            return tuple()
 
         validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
-        new = tuple.__new__(cls, validated_tk_path)
+        new = tuple(validated_tk_path)
         new.trait_property_name = trait_property
         return new
 
@@ -647,13 +647,13 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
                 yield tm
 
 
-class MappingBase:
-    
+class MappingBranchVersionHandling:
+    """Mixin class to provide Branch and version handling to Mappings."""
+
     def __init__(self, branches_versions=None, branch_version_defaults=None):
         self.branches_versions = self._init_branches_versions(branches_versions)
         self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
 
-    
     @staticmethod
     def _init_branches_versions(branches_versions):
         # type: (Any) -> Union[dict, None]
@@ -699,8 +699,6 @@ class MappingBase:
             return branch_version_defaults
         raise ValueError("Branch and version defaults not valid, got: %s" % branch_version_defaults)
 
-    def key(self):
-        return self.trait_class.__name__, str(self.trait_key)
 
     def update_trait_key_with_defaults(self, trait_key):
         """Return TraitKey with branch and version populated from defaults.
@@ -732,22 +730,40 @@ class MappingBase:
         return tk
 
 
-class TraitMapping(MappingBase):
+class MappingBase:
 
-    def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
-        # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
-        
-        super(TraitMapping, self).__init__(branches_versions, branch_version_defaults)
-        
+    def __init__(self, trait_class, trait_key, schema):
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
         self.trait_schema = schema
 
+    def key(self):
+        return self.trait_class.__name__, str(self.trait_key)
+
+
+class TraitMapping(MappingBase, MappingBranchVersionHandling):
+    """Representation of the schema of a Trait.
+
+    This can be thought of as a link from a class and name to a set of onward links.
+
+    """
+
+    def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
+        # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
+
+        MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
+        # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
+
+        assert issubclass(trait_class, fidia.traits.Trait)
+        self.trait_class = trait_class
+        self.trait_key = TraitKey.as_traitkey(trait_key)
+        self.mappings = mappings
+
 
     def __repr__(self):
-        return ("TraitMapping(trait_class=%s, trait_key='%s', schema=%s" %
-                (self.trait_class.__name__, str(self.trait_key), str(self.trait_schema)))
+        return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
+                (self.trait_class.__name__, str(self.trait_key), repr(self.mappings)))
 
 
     def validate(self):
@@ -756,24 +772,37 @@ class TraitMapping(MappingBase):
             if tp.name not in self.trait_schema and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
 
-class TraitCollectionMapping(MappingBase):
-    def __init__(self, trait_class, trait_key, schema, branches_versions=None, branch_version_defaults=None):
-        # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
-        assert issubclass(trait_class, fidia.traits.BaseTrait)
-        self.trait_class = trait_class
+class TraitCollectionMapping(MappingBase, MappingBranchVersionHandling):
+    """Representation of the schema of a TraitCollection.
+    
+    This can be thought of as a link from a class and name to a set of onward links.
+    
+    """
+
+    def __init__(self, trait_collection_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
+        # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, TraitCollectionMapping]]) -> None
+
+        MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
+        # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
+
+        assert issubclass(trait_collection_class, fidia.traits.TraitCollection)
+        self.trait_class = trait_collection_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
-        self.trait_schema = schema
+        self.mappings = mappings
 
-        self.branches_versions = self._init_branches_versions(branches_versions)
-        self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
 
-class SubTraitMapping(MappingBase):
-    def __init__(self, sub_trait_name, trait_class, schema):
+    def __repr__(self):
+        return ("TraitCollectionMapping(trait_collection_class=%s, trait_key='%s', mappings=%s)" %
+                (self.trait_class.__name__, str(self.trait_key), repr(self.mappings)))
+
+
+class SubTraitMapping:
+    def __init__(self, sub_trait_name, trait_class, mappings):
         # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.name = sub_trait_name
-        self.trait_schema = schema
+        self.mappings = mappings
 
 
 class TraitPropertyMapping:
