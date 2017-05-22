@@ -1,10 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List
+# from typing import List
 import fidia
 
 # Python Standard Library Imports
-import collections
 
 # Other Library Imports
 
@@ -65,7 +64,7 @@ class AstronomicalObject:
 
     def update_trait_pointers(self):
 
-        from fidia.traits.references import TraitPointer
+        from fidia.traits.trait_utilities import TraitPointer
 
         # Clear all existing pointers to TraitPointers
         for attr_name in dir(self):
