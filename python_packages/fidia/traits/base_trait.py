@@ -54,7 +54,7 @@ import fidia.base_classes as bases
 from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
 from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
-from .trait_utilities import TraitMapping, TraitCollectionMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
+from .trait_utilities import TraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 
@@ -550,7 +550,7 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
 
         else:
             log.warn("Unknown attribute %s for object %s", item, self)
-            log.warn("  Known Trait Mappings: %s", list(map(lambda x: x.key(), self.trait_mapping.named_sub_mappings)))
+            log.warn("  Known Trait Mappings: %s", self.trait_mapping.named_sub_mappings.keys())
             log.warn("  Known Trait Properties: %s", list(self.trait_mapping.trait_property_mappings.keys()))
 
             raise AttributeError("Unknown attribute %s for object %s" % (item, self))

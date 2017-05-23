@@ -24,7 +24,7 @@ if not _ASTROPY_SETUP_:
     from fidia.column.columns import FIDIAColumn, FIDIAArrayColumn
 
     # from fidia.traits.trait_key import TraitKey
-    from fidia.traits import Trait
+    from fidia.traits import Trait, TraitCollection
 
     from .astro_object import AstronomicalObject
 

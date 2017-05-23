@@ -188,6 +188,25 @@ class TestMultidexDict:
     def test_length(self, mdict):
         assert len(mdict) == 5
 
+    def test_update(self, mdict):
+        otherdict = MultiDexDict(2)
+        otherdict['a', 'a'] = 11
+        otherdict['a', 'd'] = 12
+        otherdict['e', 'a'] = 13
+
+        mdict.update(otherdict)
+
+        assert mdict['a', 'a'] == 11
+        assert mdict['a', 'd'] == 12
+        assert mdict['e', 'a'] == 13
+
+    def test_contains(self, mdict):
+
+        assert 'a' in mdict
+        assert 'b' in mdict
+        assert ('a', 'a') in mdict
+
+
     def test_invalid_keys(self, mdict):
 
         with pytest.raises(KeyError):

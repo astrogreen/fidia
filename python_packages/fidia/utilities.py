@@ -127,7 +127,7 @@ class SchemaDictionary(SortedDict):
             del self[key]
 
 
-class MultiDexDict(dict):
+class MultiDexDict(MutableMapping):
 
     __slots__ = ['_internal_dict', 'index_cardinality']
 
@@ -206,14 +206,23 @@ class MultiDexDict(dict):
 
     def __contains__(self, item):
         if not isinstance(item, tuple):
-            item = (item, )
-        return item in self.keys(len(item))
+            return item in list(self.keys(1))
+        else:
+            return item in self.keys(len(item))
 
     def __len__(self):
         return len(self.keys())
 
     def __repr__(self):
         return repr(self.as_nested_dict())
+
+    def update(self, other):
+        # if isinstance(other, MultiDexDict):
+        if isinstance(other, MultiDexDict) and self.index_cardinality != other.index_cardinality:
+            raise ValueError("Cannot combine MultiDexDicts of different index cardinality")
+        for key in other.keys():
+            self[key] = other[key]
+
 
     def as_nested_dict(self):
         if self.index_cardinality == 1:

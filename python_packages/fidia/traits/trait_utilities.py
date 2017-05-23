@@ -32,7 +32,7 @@ __all__ = [
     # Trait Definitions:
     'TraitProperty', 'SubTrait',
     # Trait Mappings:
-    'TraitMapping', 'TraitPointer', 'TraitCollectionMapping', 'TraitPropertyMapping', 'SubTraitMapping',
+    'TraitMapping', 'TraitPointer', 'TraitPropertyMapping', 'SubTraitMapping',
     'TraitMappingDatabase',
     # Trait Identification:
     'TraitKey', 'TraitPath', 'validate_trait_name'
@@ -204,6 +204,7 @@ class TraitKey(tuple):
     branch = property(itemgetter(1), doc='Branch')
     version = property(itemgetter(2), doc='Version')
 
+    # noinspection PyArgumentList
     def __new__(cls, trait_name, branch=None, version=None):
         """Create new instance of TraitKey(trait_type, trait_qualifier, branch, version)"""
         validate_trait_name(trait_name)
@@ -302,6 +303,7 @@ class TraitPath(tuple):
 
     # __slots__ = ()
 
+    # noinspection PyArgumentList
     def __new__(cls, trait_path_tuple=None, trait_property=None):
         log.debug("Creating new TraitPath with tuple %s and property %s", trait_path_tuple, trait_property)
 
@@ -309,7 +311,7 @@ class TraitPath(tuple):
             trait_path_tuple = trait_path_tuple.split("/")
 
         if trait_path_tuple is None or len(trait_path_tuple) == 0:
-            return tuple.__new__(cls, tuple())
+            return tuple.__new__(cls, ())
 
         validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
         new = tuple.__new__(cls, validated_tk_path)
@@ -564,9 +566,9 @@ class TraitPointer(bases.TraitPointer):
 
         if self.trait_mapping is not None:
             tk = self.trait_mapping.update_trait_key_with_defaults(tk)
-            mapping = self.trait_mapping.named_sub_traits[self.name, tk]  # type: Union[TraitCollectionMapping, TraitMapping]
+            mapping = self.trait_mapping.named_sub_mappings[self.name, str(tk)]  # type: TraitMapping
         elif self.trait_registry is not None:
-            mapping = self.trait_registry.trait_mappings[self.name, tk]  # type: Union[TraitCollectionMapping, TraitMapping]
+            mapping = self.trait_registry.trait_mappings[self.name, str(tk)]  # type: TraitMapping
         else:
             raise Exception("Programming error")
         trait_class = mapping.trait_class
@@ -613,9 +615,9 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
     """
 
     def __init__(self):
-        self._mappings = []  # type: List[Union[TraitMapping, TraitCollectionMapping]]
+        self._mappings = []  # type: List[TraitMapping]
         self.linked_mappings = []  # type: List[TraitMappingDatabase]
-        self.trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
+        self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
         self.collection_mappings = dict()
         self.host = None
 
@@ -625,37 +627,33 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
         self.linked_mappings.insert(index, other_database)
 
     def register_mapping(self, mapping):
-        # type: (Union[TraitMapping, TraitCollectionMapping]) -> None
+        # type: (TraitMapping) -> None
         if isinstance(mapping, TraitMapping):
             mapping.validate()
             key = mapping.key()
             log.debug("Registering mapping for key %s", key)
             # Check if key already exists in this database
-            if key in self.trait_mappings:
+            if key in self._local_trait_mappings:
                 raise FIDIAException("Attempt to add/change an existing mapping")
             # Check if key already exists in a linked database
             for sub_db in self.linked_mappings:
                 if key in sub_db.trait_mappings:
                     log.warning("New mapping %s shadows existing mapping %s in %s",
                                 mapping, sub_db.trait_mappings[key], sub_db.host)
-            self.trait_mappings[key] = mapping
+            self._local_trait_mappings[key] = mapping
             # @TODO: Also link up superclasses of the provided Trait to the FIDIA level.
-        elif isinstance(mapping, TraitCollectionMapping):
-            mapping.validate()
-            key = mapping.key()
-            # Check if key already exists in this database
-            if key in self.collection_mappings:
-                raise FIDIAException("Attempt to add/change an existing mapping")
-            # Check if key already exists in a linked database
-            for sub_db in self.linked_mappings:
-                if key in sub_db.collection_mappings:
-                    log.warning("New mapping %s shadows existing mapping %s in %s",
-                                mapping, sub_db.collection_mappings[key], sub_db.host)
-            self.collection_mappings[key] = mapping
         else:
-            raise ValueError("TraitMappingDatabase can only register TraitMapping or TraitCollectionMapping, got %s"
+            raise ValueError("TraitMappingDatabase can only register a TraitMapping, got %s"
                              % mapping)
         self._mappings.append(mapping)
+
+    @property
+    def trait_mappings(self):
+        result = MultiDexDict(2)
+        for sub_db in self.linked_mappings:
+            result.update(sub_db.trait_mappings)
+        result.update(self._local_trait_mappings)
+        return result
 
     def register_mapping_list(self, trait_mapping_list):
         # type: (List[fidia.traits.TraitMapping]) -> None
@@ -771,16 +769,18 @@ class MappingBranchVersionHandling:
 class MappingBase:
 
 
-    def key(self):
-        raise NotImplementedError()
-
     def validate(self):
         raise NotImplementedError()
 
 
-class TraitMappingBase(MappingBase):
+class TraitMapping(MappingBase, MappingBranchVersionHandling):
+    """Representation of the schema of a Trait.
 
-    def __init__(self, trait_class, trait_key, mappings):
+    This can be thought of as a link from a class and name to a set of onward links.
+
+    """
+
+    def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
         # type: (Type[fidia.traits.BaseTrait], TraitKey, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
@@ -789,33 +789,24 @@ class TraitMappingBase(MappingBase):
 
         self.name = snake_case(self.trait_class.__name__)
 
-    def key(self):
-        return self.name, str(self.trait_key)
-
-class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
-    """Representation of the schema of a Trait.
-
-    This can be thought of as a link from a class and name to a set of onward links.
-
-    """
-
-    def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
-
-        assert issubclass(trait_class, fidia.traits.Trait)
-        TraitMappingBase.__init__(self, trait_class, trait_key, mappings)
         MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
         # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
 
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
         self.trait_property_mappings = dict()  # type: Dict[str, str]
+        self.named_sub_mappings = MultiDexDict(2)
 
         for item in self._mappings:
             if isinstance(item, TraitPropertyMapping):
                 self.trait_property_mappings[item.name] = item.id
             elif isinstance(item, SubTraitMapping):
+                if issubclass(self.trait_class, fidia.TraitCollection):
+                    raise ValueError("TraitCollections don't support sub-Traits")
                 self.sub_trait_mappings[item.name] = item
             elif isinstance(item, TraitMapping):
-                raise Exception("Named subtraits not yet supported for Traits.")
+                if issubclass(self.trait_class, fidia.Trait):
+                    raise ValueError("Named subtraits not yet supported for Traits.")
+                self.named_sub_mappings[item.key()] = item
             else:
                 raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
@@ -825,52 +816,15 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
 
-    def __repr__(self):
-        return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
-                (self.trait_class.__name__, str(self.trait_key), repr(self.mappings)))
-
-
-class TraitCollectionMapping(TraitMappingBase, MappingBranchVersionHandling):
-    """Representation of the schema of a TraitCollection.
-    
-    This can be thought of as a link from a class and name to a set of onward links.
-    
-    """
-
-    def __init__(self, trait_collection_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
-        # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, TraitCollectionMapping]]) -> None
-
-        assert issubclass(trait_collection_class, fidia.traits.TraitCollection)
-
-        TraitMappingBase.__init__(self, trait_collection_class, trait_key, mappings)
-        MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
-        # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
-
-        self.trait_property_mappings = dict()  # type: Dict[str, str]
-        self.named_sub_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
-
-        for item in self._mappings:
-            if isinstance(item, TraitPropertyMapping):
-                self.trait_property_mappings[item.name] = item.id
-            elif isinstance(item, SubTraitMapping):
-                raise ValueError("TraitCollections don't support sub-Traits")
-            elif isinstance(item, (TraitMapping, TraitCollectionMapping)):
-                self.named_sub_mappings[item.key()] = item
-            else:
-                raise ValueError("TraitCollectionMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
-
-    def validate(self):
-        pass
-
     def key(self):
         return self.name, str(self.trait_key)
 
     def __repr__(self):
-        return ("TraitCollectionMapping(trait_collection_class=%s, trait_key='%s', mappings=%s)" %
-                (self.name, str(self.trait_key), repr(self._mappings)))
+        return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
+                (self.trait_class.__name__, str(self.trait_key), repr(self._mappings)))
 
 
-class SubTraitMapping(TraitMappingBase):
+class SubTraitMapping(MappingBase):
     def __init__(self, sub_trait_name, trait_class, mappings):
         # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
         assert issubclass(trait_class, fidia.traits.BaseTrait)
@@ -891,9 +845,12 @@ class SubTraitMapping(TraitMappingBase):
             else:
                 raise ValueError("SubTraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
+    def validate(self):
+        pass
+
     def __repr__(self):
         return ("SubTraitMapping(sub_trait_name=%s, trait_class=%s, mappings=%s)" %
-                (self.name, str(self.trait_key), repr(self._mappings)))
+                (self.name, self.trait_class.__name__, repr(self._mappings)))
 
 
 class TraitPropertyMapping(MappingBase):
@@ -901,6 +858,9 @@ class TraitPropertyMapping(MappingBase):
         # type: (str, str) -> None
         self.name = property_name
         self.id = column_id
+
+    def validate(self):
+        pass
 
     def __repr__(self):
         return ("TraitPropertyMapping(%s, %s)" %
