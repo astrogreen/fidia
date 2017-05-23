@@ -3,9 +3,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from typing import List
 
 # Python Standard Library Imports
+import operator
 from copy import deepcopy
 import re
-from collections import Iterable, Sized
+from collections import Iterable, Sized, MutableMapping
 from contextlib import contextmanager
 import os
 import errno
@@ -14,6 +15,7 @@ import functools
 from time import sleep
 
 # Other Library Imports
+from six.moves import reduce
 from sortedcontainers import SortedDict
 
 # Set up logging
@@ -123,6 +125,57 @@ class SchemaDictionary(SortedDict):
 
         for key in to_delete:
             del self[key]
+
+
+class MultiDexDict(MutableMapping):
+
+    def __init__(self, index_cardinality):
+        self.index_cardinality = index_cardinality
+        self._internal_dict = dict()
+
+    def __setitem__(self, key, value):
+        if not isinstance(key, tuple):
+            key = (key, )
+        if len(key) != self.index_cardinality:
+            raise KeyError("Key has wrong cardinality.")
+        else:
+            sub_dict = self._internal_dict
+            for sub_key in key[:-1]:
+                if sub_key not in sub_dict:
+                    sub_dict[sub_key] = dict()
+                sub_dict = sub_dict[sub_key]
+            sub_dict[key[-1]] = value
+
+    def __getitem__(self, key):
+        if not isinstance(key, tuple):
+            key = (key, )
+        if len(key) > self.index_cardinality:
+            raise KeyError("Key has two many indicies!")
+        elif len(key) <= self.index_cardinality:
+            return reduce(operator.getitem, key, self._internal_dict)
+
+    def __iter__(self):
+        return iter(self._internal_dict)
+
+    def keys(self, depth=1):
+
+        if depth == 1:
+            return self._internal_dict.keys()
+        if depth == 2:
+            for key in self._internal_dict.keys():
+                for sub_key in self._internal_dict[key]:
+                    yield key, sub_key
+        # if depth == 3:
+
+
+        # reduce(operator.add, )
+
+    def __delitem__(self, key):
+        pass
+
+    def __len__(self):
+        return 0
+
 
 class Inherit: pass
 
