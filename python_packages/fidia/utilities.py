@@ -204,6 +204,11 @@ class MultiDexDict(dict):
         else:
             return self.as_nested_dict() == other
 
+    def __contains__(self, item):
+        if not isinstance(item, tuple):
+            item = (item, )
+        return item in self.keys(len(item))
+
     def __len__(self):
         return len(self.keys())
 
