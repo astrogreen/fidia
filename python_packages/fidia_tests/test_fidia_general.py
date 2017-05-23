@@ -8,6 +8,7 @@ import logging
 import pytest
 from copy import deepcopy
 
+from fidia.utilities import *
 
 
 class TestFidiaImportsAndPackageLayout:
@@ -53,82 +54,132 @@ class TestFidiaImportsAndPackageLayout:
 
 
 
-# def all_dicts_are_schema_dicts(schema_dict):
-#     from fidia.utilities import SchemaDictionary
-#     for key in schema_dict:
-#         if isinstance(schema_dict[key], dict):
-#             if isinstance(schema_dict[key], SchemaDictionary):
-#                 all_dicts_are_schema_dicts(schema_dict[key])
-#             else:
-#                 return False
-#     return True
-#
-# class TestSchemaDict:
-#
-#     @pytest.fixture
-#     def example_schema_dict(self):
-#         return SchemaDictionary(
-#             a=1,
-#             b=2,
-#             subdict=SchemaDictionary(
-#                 sa=1,
-#                 sb=2),
-#             subsub=SchemaDictionary(
-#                 sa=1,
-#                 sub=SchemaDictionary(
-#                     ssa=1,
-#                     ssb=2)
-#             )
-#         )
-#
-#     def test_update_extend(self, example_schema_dict):
-#         """Extend the dict with a valid extension"""
-#         mine = SchemaDictionary(example_schema_dict)
-#
-#         mine.update({'c': 3, 'subdict': {'sc': 3, 'sd': 4}})
-#
-#         assert mine['c'] == 3
-#         assert mine['subdict']['sc'] == 3
-#
-#     def test_update_change_value(self, example_schema_dict):
-#         mine = SchemaDictionary(example_schema_dict)
-#
-#         with pytest.raises(ValueError):
-#             mine.update({'a': 10})
-#             print(mine)
-#
-#
-#     def test_update_change_sub_value(self, example_schema_dict):
-#         mine = SchemaDictionary(example_schema_dict)
-#
-#         with pytest.raises(ValueError):
-#             mine.update({'subdict': {'sa': 10}})
-#             print(mine)
-#
-#     def test_all_sub_dicts_same_type(self, example_schema_dict):
-#         mine = SchemaDictionary(example_schema_dict)
-#
-#         assert all_dicts_are_schema_dicts(mine)
-#
-#     def test_updating_keeps_schema_dicts(self, example_schema_dict):
-#         mine = SchemaDictionary(example_schema_dict)
-#
-#         mine.update({'c': 3, 'subdict': {'sc': 3, 'sd': 4}})
-#         assert all_dicts_are_schema_dicts(mine)
-#
-#         mine.update({'c': 3, 'newsubdict': {'sc': 3, 'sd': 4}})
-#         assert all_dicts_are_schema_dicts(mine)
-#
-#         mine.update({'c': 3, 'newdeepdict': {'sc': 3, 'sd': {"another": 3}}})
-#         assert all_dicts_are_schema_dicts(mine)
-#
-#     def test_creation_with_subdicts_all_are_schema_dicts(self):
-#
-#         test = SchemaDictionary(
-#             a=1,
-#             b=2,
-#             subdict={"sa": 1, "sb":2},
-#             subsub={"sa": 1, "sub": {"ssa": 1, "ssb":2}}
-#         )
-#         assert all_dicts_are_schema_dicts(test)
-#
+def all_dicts_are_schema_dicts(schema_dict):
+    from fidia.utilities import SchemaDictionary
+    for key in schema_dict:
+        if isinstance(schema_dict[key], dict):
+            if isinstance(schema_dict[key], SchemaDictionary):
+                all_dicts_are_schema_dicts(schema_dict[key])
+            else:
+                return False
+    return True
+
+class TestSchemaDict:
+
+    @pytest.fixture
+    def example_schema_dict(self):
+        return SchemaDictionary(
+            a=1,
+            b=2,
+            subdict=SchemaDictionary(
+                sa=1,
+                sb=2),
+            subsub=SchemaDictionary(
+                sa=1,
+                sub=SchemaDictionary(
+                    ssa=1,
+                    ssb=2)
+            )
+        )
+
+    def test_update_extend(self, example_schema_dict):
+        """Extend the dict with a valid extension"""
+        mine = SchemaDictionary(example_schema_dict)
+
+        mine.update({'c': 3, 'subdict': {'sc': 3, 'sd': 4}})
+
+        assert mine['c'] == 3
+        assert mine['subdict']['sc'] == 3
+
+    def test_update_change_value(self, example_schema_dict):
+        mine = SchemaDictionary(example_schema_dict)
+
+        with pytest.raises(ValueError):
+            mine.update({'a': 10})
+            print(mine)
+
+
+    def test_update_change_sub_value(self, example_schema_dict):
+        mine = SchemaDictionary(example_schema_dict)
+
+        with pytest.raises(ValueError):
+            mine.update({'subdict': {'sa': 10}})
+            print(mine)
+
+    def test_all_sub_dicts_same_type(self, example_schema_dict):
+        mine = SchemaDictionary(example_schema_dict)
+
+        assert all_dicts_are_schema_dicts(mine)
+
+    def test_updating_keeps_schema_dicts(self, example_schema_dict):
+        mine = SchemaDictionary(example_schema_dict)
+
+        mine.update({'c': 3, 'subdict': {'sc': 3, 'sd': 4}})
+        assert all_dicts_are_schema_dicts(mine)
+
+        mine.update({'c': 3, 'newsubdict': {'sc': 3, 'sd': 4}})
+        assert all_dicts_are_schema_dicts(mine)
+
+        mine.update({'c': 3, 'newdeepdict': {'sc': 3, 'sd': {"another": 3}}})
+        assert all_dicts_are_schema_dicts(mine)
+
+    def test_creation_with_subdicts_all_are_schema_dicts(self):
+
+        test = SchemaDictionary(
+            a=1,
+            b=2,
+            subdict={"sa": 1, "sb":2},
+            subsub={"sa": 1, "sub": {"ssa": 1, "ssb":2}}
+        )
+        assert all_dicts_are_schema_dicts(test)
+
+class TestMultidexDict:
+
+    @pytest.fixture
+    def mdict(self):
+        mdict = MultiDexDict(2)
+
+        mdict['a', 'a'] = 1
+        mdict['a', 'b'] = 2
+        mdict['a', 'c'] = 3
+        mdict['b', 'a'] = 4
+        mdict['b', 'c'] = 5
+
+        return mdict
+
+    def test_creation_and_retrieval_full_key(self, mdict):
+
+        # Test of internal functionality, not required.
+        assert mdict._internal_dict == {
+            'a': {'a': 1, 'b': 2, 'c':3},
+            'b': {'a': 4, 'c': 5}
+        }
+
+        print(mdict['a', 'b'])
+
+        assert mdict['a', 'a'] == 1
+        assert mdict['a', 'b'] == 2
+        assert mdict['a', 'c'] == 3
+        assert mdict['b', 'a'] == 4
+        assert mdict['b', 'c'] == 5
+
+    def test_retrieval_incomplete_key(self, mdict):
+        mdict = MultiDexDict(2)
+
+        mdict['a', 'a'] = 1
+        mdict['a', 'b'] = 2
+        mdict['a', 'c'] = 3
+        mdict['b', 'a'] = 4
+        mdict['b', 'c'] = 5
+
+        assert mdict['a'] == {'a': 1, 'b': 2, 'c':3}
+        assert mdict['b'] == {'a': 4, 'c': 5}
+
+    def test_invalid_keys(self, mdict):
+
+        with pytest.raises(KeyError):
+            mdict['a', 'b', 'c']
+
+        with pytest.raises(KeyError):
+            mdict['not present', 'b']
+
