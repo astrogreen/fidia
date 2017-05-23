@@ -136,8 +136,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             log.debug("Initialized Trait class %s", str(cls))
             cls.trait_class_initialized = True
 
-    def __init__(self, sample, trait_key, astro_object, trait_registry, trait_mapping):
-        # type: (fidia.Sample, fidia.TraitKey, fidia.AstronomicalObject, fidia.traits.TraitMappingDatabase, Union[TraitMapping, TraitCollectionMapping]) -> None
+    def __init__(self, sample, trait_key, astro_object, trait_mapping):
+        # type: (fidia.Sample, fidia.TraitKey, fidia.AstronomicalObject, Union[TraitMapping, TraitCollectionMapping]) -> None
 
         # This function should only be called by:
         #

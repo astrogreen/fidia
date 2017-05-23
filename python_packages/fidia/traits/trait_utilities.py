@@ -136,7 +136,6 @@ class SubTrait(object):
             trait_mapping = parent_trait.trait_mapping.sub_trait_mappings[self.name]  # type: SubTraitMapping
             result = self.trait_class(sample=parent_trait.sample, trait_key=parent_trait.trait_key,
                                       astro_object=parent_trait.astro_object,
-                                      trait_registry=parent_trait.sample.trait_mappings,
                                       trait_mapping=trait_mapping)
             return result
 
@@ -567,7 +566,6 @@ class TraitPointer(bases.TraitPointer):
         tk = self.trait_mapping.update_trait_key_with_defaults(tk)
         trait = self.trait_class(sample=self.sample, trait_key=tk,
                                  astro_object=self.astro_object,
-                                 trait_registry=self.trait_mapping,
                                  trait_mapping=self.trait_mapping)
 
         # @TODO: Object Caching?
