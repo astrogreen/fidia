@@ -63,9 +63,12 @@ class TestBasicExamples:
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         mass = sample['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
-
         print(mass)
         assert isinstance(mass, (int, float))
+
+        sfr = sample['Gal1'].dmu['StellarMasses'].table['StarFormationRates'].sfr
+        print(sfr)
+        assert isinstance(sfr, (int, float))
 
 class TestDataIntegrity:
 
