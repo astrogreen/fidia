@@ -18,13 +18,13 @@ from operator import itemgetter
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
@@ -551,26 +551,36 @@ class TraitPointer(bases.TraitPointer):
 
     """
 
-    def __init__(self, sample, astro_object, trait_mapping, trait_registry):
-        # type: (fidia.Sample, fidia.AstronomicalObject, TraitMapping, TraitMappingDatabase) -> None
+    def __init__(self, name, sample, astro_object, trait_mapping=None, trait_registry=None):
+        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping, TraitMappingDatabase) -> None
+        self.name = name
         self.sample = sample
         self.astro_object = astro_object
         self.trait_mapping = trait_mapping
         self.trait_registry = trait_registry
-        self.trait_class = trait_mapping.trait_class
-        assert issubclass(self.trait_class, fidia.traits.BaseTrait)
 
     def __getitem__(self, item):
         tk = TraitKey.as_traitkey(item)
 
-        tk = self.trait_mapping.update_trait_key_with_defaults(tk)
-        trait = self.trait_class(sample=self.sample, trait_key=tk,
-                                 astro_object=self.astro_object,
-                                 trait_mapping=self.trait_mapping)
+        if self.trait_mapping is not None:
+            tk = self.trait_mapping.update_trait_key_with_defaults(tk)
+            mapping = self.trait_mapping.named_sub_traits[self.name, tk]  # type: Union[TraitCollectionMapping, TraitMapping]
+        elif self.trait_registry is not None:
+            mapping = self.trait_registry.trait_mappings[self.name, tk]  # type: Union[TraitCollectionMapping, TraitMapping]
+        else:
+            raise Exception("Programming error")
+        trait_class = mapping.trait_class
+        # assert issubclass(trait_class, (fidia.Trait, fidia.TraitCollection))
+        trait = trait_class(sample=self.sample, trait_key=tk,
+                            astro_object=self.astro_object,
+                            trait_mapping=mapping)
 
         # @TODO: Object Caching?
 
         return trait
+
+    def __str__(self):
+        "TraitPointer: %s" % self.trait_mapping
 
 
 # ___  __         ___                __   __          __      __   __
@@ -605,7 +615,7 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
     def __init__(self):
         self._mappings = []  # type: List[Union[TraitMapping, TraitCollectionMapping]]
         self.linked_mappings = []  # type: List[TraitMappingDatabase]
-        self.trait_mappings = dict()
+        self.trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
         self.collection_mappings = dict()
         self.host = None
 
@@ -619,6 +629,7 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
         if isinstance(mapping, TraitMapping):
             mapping.validate()
             key = mapping.key()
+            log.debug("Registering mapping for key %s", key)
             # Check if key already exists in this database
             if key in self.trait_mappings:
                 raise FIDIAException("Attempt to add/change an existing mapping")
@@ -776,6 +787,10 @@ class TraitMappingBase(MappingBase):
         self.trait_key = TraitKey.as_traitkey(trait_key)
         self._mappings = mappings
 
+        self.name = snake_case(self.trait_class.__name__)
+
+    def key(self):
+        return self.name, str(self.trait_key)
 
 class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
     """Representation of the schema of a Trait.
@@ -793,7 +808,6 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
         self.trait_property_mappings = dict()  # type: Dict[str, str]
-        self.name = snake_case(self.trait_class.__name__)
 
         for item in self._mappings:
             if isinstance(item, TraitPropertyMapping):
@@ -811,9 +825,6 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
 
-    def key(self):
-        return self.name, str(self.trait_key)
-
     def __repr__(self):
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
                 (self.trait_class.__name__, str(self.trait_key), repr(self.mappings)))
@@ -829,27 +840,22 @@ class TraitCollectionMapping(TraitMappingBase, MappingBranchVersionHandling):
     def __init__(self, trait_collection_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
         # type: (Type[fidia.Trait], str, List[Union[TraitMapping, TraitPropertyMapping, TraitCollectionMapping]]) -> None
 
+        assert issubclass(trait_collection_class, fidia.traits.TraitCollection)
+
+        TraitMappingBase.__init__(self, trait_collection_class, trait_key, mappings)
         MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
         # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
 
-        assert issubclass(trait_collection_class, fidia.traits.TraitCollection)
-        self.trait_class = trait_collection_class
-        self.trait_key = TraitKey.as_traitkey(trait_key)
-        self.name = snake_case(self.trait_class.__name__)
-        self._mappings = mappings
-
         self.trait_property_mappings = dict()  # type: Dict[str, str]
-        self.trait_mappings = []  # type: List[TraitMapping]
+        self.named_sub_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
 
         for item in self._mappings:
             if isinstance(item, TraitPropertyMapping):
                 self.trait_property_mappings[item.name] = item.id
             elif isinstance(item, SubTraitMapping):
                 raise ValueError("TraitCollections don't support sub-Traits")
-            elif isinstance(item, TraitMapping):
-                self.trait_mappings.append(item)
-            elif isinstance(item, TraitCollectionMapping):
-                self.trait_mappings.append(item)
+            elif isinstance(item, (TraitMapping, TraitCollectionMapping)):
+                self.named_sub_mappings[item.key()] = item
             else:
                 raise ValueError("TraitCollectionMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 

@@ -534,13 +534,10 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
         #   actual TraitProperty object.
 
 
-        sub_trait_names = list(map(lambda t: t.name, self.trait_mapping.trait_mappings))
-        if item in sub_trait_names:
+        if item in self.trait_mapping.named_sub_mappings:
             # item is a Trait or TraitCollection, so should return a
             # TraitPointer object with the corresponding sub-schema.
-            index = sub_trait_names.index(item)
-            return TraitPointer(self.sample, self.astro_object,
-                                self.trait_mapping.trait_mappings[index], self.sample.trait_registry)
+            return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping, self.sample.trait_registry)
 
         elif item in self.trait_mapping.trait_property_mappings:
             # item is a TraitProperty. Behave like TraitProperty
@@ -553,7 +550,7 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
 
         else:
             log.warn("Unknown attribute %s for object %s", item, self)
-            log.warn("  Known Trait Mappings: %s", list(map(lambda x: x.key(), self.trait_mapping.trait_mappings)))
+            log.warn("  Known Trait Mappings: %s", list(map(lambda x: x.key(), self.trait_mapping.named_sub_mappings)))
             log.warn("  Known Trait Properties: %s", list(self.trait_mapping.trait_property_mappings.keys()))
 
             raise AttributeError("Unknown attribute %s for object %s" % (item, self))
