@@ -127,55 +127,97 @@ class SchemaDictionary(SortedDict):
             del self[key]
 
 
-class MultiDexDict(MutableMapping):
+class MultiDexDict(dict):
+
+    __slots__ = ['_internal_dict', 'index_cardinality']
 
     def __init__(self, index_cardinality):
+        super(MultiDexDict, self).__init__()
         self.index_cardinality = index_cardinality
-        self._internal_dict = dict()
+        self._internal_dict = dict()  # type: MultiDexDict
 
     def __setitem__(self, key, value):
         if not isinstance(key, tuple):
             key = (key, )
         if len(key) != self.index_cardinality:
             raise KeyError("Key has wrong cardinality.")
+        if len(key) == 1:
+            # Base cases
+            # log.debug("Setting base case for key %s", key)
+            self._internal_dict[key[0]] = value
+            # log.debug("Updated internal state: %s", self._internal_dict)
         else:
-            sub_dict = self._internal_dict
-            for sub_key in key[:-1]:
-                if sub_key not in sub_dict:
-                    sub_dict[sub_key] = dict()
-                sub_dict = sub_dict[sub_key]
-            sub_dict[key[-1]] = value
+            # Recursive case
+            # log.debug("Recursively setting for key %s", key)
+            if key[0] not in self._internal_dict:
+                # log.debug("Creating new subdict for key: %s", key)
+                self._internal_dict[key[0]] = MultiDexDict(self.index_cardinality - 1)
+            self._internal_dict[key[0]][key[1:]] = value
+            # log.debug("Updated internal state: %s", self._internal_dict)
 
     def __getitem__(self, key):
         if not isinstance(key, tuple):
             key = (key, )
         if len(key) > self.index_cardinality:
             raise KeyError("Key has two many indicies!")
+        if len(key) == 1:
+            # Base case
+            return self._internal_dict[key[0]]
         elif len(key) <= self.index_cardinality:
-            return reduce(operator.getitem, key, self._internal_dict)
+            # Recursive case
+            return self._internal_dict[key[0]][key[1:]]
+
+    def __delitem__(self, key):
+        if not isinstance(key, tuple):
+            key = (key, )
+        if len(key) > self.index_cardinality:
+            raise KeyError("Key has two many indicies!")
+        if len(key) == 1:
+            # Base case
+            del self._internal_dict[key[0]]
+        elif len(key) <= self.index_cardinality:
+            # Recursive case
+            del self._internal_dict[key[0]][key[1:]]
 
     def __iter__(self):
         return iter(self._internal_dict)
 
-    def keys(self, depth=1):
+    def keys(self, depth=0):
 
+        if depth == 0:
+            depth = self.index_cardinality
         if depth == 1:
             return self._internal_dict.keys()
-        if depth == 2:
+        if depth > 1:
+            res = []
             for key in self._internal_dict.keys():
-                for sub_key in self._internal_dict[key]:
-                    yield key, sub_key
-        # if depth == 3:
+                for sub_key in self._internal_dict[key].keys(depth=depth-1):
+                    if isinstance(sub_key, tuple):
+                        res.append((key,) + sub_key)
+                    else:
+                        res.append((key,) + (sub_key,))
+            return res
 
-
-        # reduce(operator.add, )
-
-    def __delitem__(self, key):
-        pass
+    def __eq__(self, other):
+        if isinstance(other, MultiDexDict):
+            return self.as_nested_dict() == other.as_nested_dict()
+        else:
+            return self.as_nested_dict() == other
 
     def __len__(self):
-        return 0
+        return len(self.keys())
 
+    def __repr__(self):
+        return repr(self.as_nested_dict())
+
+    def as_nested_dict(self):
+        if self.index_cardinality == 1:
+            return self._internal_dict
+        else:
+            result = dict()
+            for key in self._internal_dict:
+                result[key] = self._internal_dict[key].as_nested_dict()
+            return result
 
 class Inherit: pass
 

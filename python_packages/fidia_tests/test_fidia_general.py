@@ -149,8 +149,7 @@ class TestMultidexDict:
 
     def test_creation_and_retrieval_full_key(self, mdict):
 
-        # Test of internal functionality, not required.
-        assert mdict._internal_dict == {
+        assert mdict.as_nested_dict() == {
             'a': {'a': 1, 'b': 2, 'c':3},
             'b': {'a': 4, 'c': 5}
         }
@@ -164,16 +163,30 @@ class TestMultidexDict:
         assert mdict['b', 'c'] == 5
 
     def test_retrieval_incomplete_key(self, mdict):
-        mdict = MultiDexDict(2)
 
-        mdict['a', 'a'] = 1
-        mdict['a', 'b'] = 2
-        mdict['a', 'c'] = 3
-        mdict['b', 'a'] = 4
-        mdict['b', 'c'] = 5
+        print(mdict.as_nested_dict())
+
+        print(repr(mdict['a']))
 
         assert mdict['a'] == {'a': 1, 'b': 2, 'c':3}
         assert mdict['b'] == {'a': 4, 'c': 5}
+
+    def test_keys(self, mdict):
+
+        print(list(mdict.keys(1)))
+
+        print(list(mdict.keys()))
+
+        assert set(mdict.keys()) == {
+            ('a', 'a'),
+            ('a', 'b'),
+            ('a', 'c'),
+            ('b', 'a'),
+            ('b', 'c')
+        }
+
+    def test_length(self, mdict):
+        assert len(mdict) == 5
 
     def test_invalid_keys(self, mdict):
 
@@ -183,3 +196,25 @@ class TestMultidexDict:
         with pytest.raises(KeyError):
             mdict['not present', 'b']
 
+    def test_delete(self):
+        mdict = MultiDexDict(2)
+
+        mdict['a', 'a'] = 1
+        mdict['a', 'b'] = 2
+        mdict['a', 'c'] = 3
+        mdict['b', 'a'] = 4
+        mdict['b', 'c'] = 5
+
+        assert mdict['a', 'a'] == 1
+        del mdict['a', 'a']
+        with pytest.raises(KeyError):
+            mdict['a', 'a']
+        assert mdict.as_nested_dict() == {
+            'a': {'b': 2, 'c': 3},
+            'b': {'a': 4, 'c': 5}
+        }
+
+        del mdict['b']
+        assert mdict.as_nested_dict() == {
+            'a': {'b': 2, 'c': 3}
+        }
