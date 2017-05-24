@@ -128,7 +128,7 @@ class ExampleArchive(fidia.BasePathArchive):
         TraitMapping(DMU, 'StellarMasses', [
             TraitMapping(Table, 'StellarMasses', [
                 TraitPropertyMapping('stellar_mass', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1'),
-                TraitPropertyMapping('stellar_mass_error','ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1')
+                TraitPropertyMapping('stellar_mass_error', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMassError]:1')
             ]),
             TraitMapping(Table, 'StarFormationRates', [
                 TraitPropertyMapping('sfr', 'ExampleArchive:FITSBinaryTableColumn:sfr_table.fits[1].data[SFR]:1'),
@@ -149,9 +149,8 @@ class ExampleArchive(fidia.BasePathArchive):
         
     """
 
-    @property
-    def contents(self):
-        return self._contents
+    def writeable(self):
+        return False
 
     @property
     def name(self):

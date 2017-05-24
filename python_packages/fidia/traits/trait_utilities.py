@@ -781,7 +781,7 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling):
     """
 
     def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
-        # type: (Type[fidia.traits.BaseTrait], TraitKey, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
+        # type: (Type[fidia.traits.BaseTrait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
