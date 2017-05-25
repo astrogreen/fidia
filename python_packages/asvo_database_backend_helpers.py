@@ -324,8 +324,10 @@ class MappingDatabase:
         rows = self.cursor.fetchall()
         try:
             with open(cfg.results_dir + table_name + '.csv', 'w') as fp:
-                csv_file = csv.writer(fp)
-                csv_file.writerows(rows)
+                field_names = [desc[0] for desc in self.cursor.description]
+                csv_writer = csv.writer(fp)
+                csv_writer.writerow(field_names)
+                csv_writer.writerows(rows)
             return True
         except (Exception) as e:
             log.exception("Error occurred while writing CSV.")

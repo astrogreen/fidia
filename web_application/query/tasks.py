@@ -16,7 +16,8 @@ def execute_query(query, query_id, results_tbl):
     try:
         result = MappingDatabase.execute_adql_query(query, results_tbl)
         if result is not None:
-            query = 'Update query_query set "is_completed" = {0} where id={1};'.format(True, query_id)
+            query = 'Update query_query set "is_completed" = {0}, row_count = {1} where id={2};'.format(
+                    True, result['data'][0][0], query_id)
             MappingDatabase.update_query_table(query)
             # write csv here. Get the path from a config file.
             ok = MappingDatabase.write_results_csv(results_tbl) # to get data.
