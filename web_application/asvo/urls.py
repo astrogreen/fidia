@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^asvo/', include('feature.urls')),
     url(r'^asvo/', include('query.urls')),
     url(r'^asvo/', include('user.urls')),
+    url(r'^asvo/', include('search.urls', namespace="search")),
     url(r'^asvo/', include('sov.urls')),
     url(r'^asvo/', include('support.urls', namespace='support')),
     # url(r'^asvo/', include('surveys.urls', namespace='surveys')),

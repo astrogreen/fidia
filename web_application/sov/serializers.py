@@ -31,13 +31,13 @@ import sov.mixins
 #     return depth_limit
 
 
-class AvailableObjectList(serializers.Serializer):
+class AstroObjectList(serializers.Serializer):
     id = serializers.SerializerMethodField()
     name = serializers.CharField(max_length=256)
     owner = serializers.CharField(max_length=256)
     survey = serializers.CharField(max_length=256)
     status = serializers.ListField(max_length=256)
-
+    position = serializers.DictField()
 
     def get_id(self, obj):
         _id = obj.id
@@ -48,13 +48,13 @@ class AvailableObjectList(serializers.Serializer):
         return _id
 
 
-class AvailableObjectRetrieve(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
+class AstroObjectRetrieve(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
     owner = serializers.CharField(max_length=256)
     survey = serializers.CharField(max_length=256)
     status = serializers.ListField(max_length=256)
-
+    position = serializers.DictField()
 
 # class DocumentationHTMLField(serializers.Field):
 #     """Serializer for the FIDIA documentation for an object as HTML."""

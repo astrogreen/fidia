@@ -2,9 +2,9 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions, renderers
 from rest_framework.response import Response
 
-
 from collections import OrderedDict
 import random, collections, logging, json, requests, zipfile, io, itertools
+import xml.etree.ElementTree as ET
 
 import django.core.exceptions
 from django.contrib.auth.models import User
@@ -38,58 +38,61 @@ log = logging.getLogger(__name__)
 
 class AstroObject(object):
     def __init__(self, **kwargs):
-        for field in ('id', 'name', 'owner', 'survey', 'status'):
+        for field in ('id', 'name', 'owner', 'survey', 'status', 'position'):
             setattr(self, field, kwargs.get(field, None))
 
-archive = {
-    1: AstroObject(id=1, name='G65406', owner='gama_public', survey="gama", status=['released']),
-    2: AstroObject(id=2, name='G6000001', owner='gama_team', survey="galah", status=['in_progress']),
-    3: AstroObject(id=3, name='S24433', owner='sami', survey="galah", status=['new', 'released']),
-}
+# archive = {
+#     1: AstroObject(id=1, name='G65406', owner='gama_public', survey="gama", status=['released']),
+#     2: AstroObject(id=2, name='G6000001', owner='gama_team', survey="galah", status=['in_progress']),
+#     3: AstroObject(id=3, name='S24433', owner='sami', survey="galah", status=['new', 'released']),
+# }
 
-for i in range(4, 200):
+archive = OrderedDict()
+for i in range(1, 200):
+    # id is unique
+    adc_id = 'DC' + str(i)
     name = 'G' + str(i)
-    archive[i] = AstroObject(id=i, name=name, owner='sami', survey="sami", status=['new', 'released'])
+    archive[adc_id] = AstroObject(id=adc_id, name=name, owner='sami', survey="sami", status=['new', 'released'],
+                                  position={"ra": 1, "dec": 1})
 
 
-class AvailableObjects(viewsets.ReadOnlyModelViewSet):
-    serializer_class = sov.serializers.AvailableObjectList
+class AstroObjects(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only access to the DC archive list of astronomical objects.
+    
+    **Actions**
+     list:
+     Return a list of available astronomic objects in the DC archive.
+     
+     retrieve:
+     Return the given astronomical object   
+    """
+    serializer_class = sov.serializers.AstroObjectList
     queryset = archive.values()
 
     def list(self, request, *args, **kwargs):
         """
         List archive
         """
-        queryset = archive.values()
+        queryset = list(archive.values())
+        page = self.paginate_queryset(queryset)
 
-        # page = self.paginate_queryset(queryset)
-        # if page is not None:
-        #     serializer = self.get_serializer(page, many=True)
-        #     return self.get_paginated_response(serializer.data)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-
-        # serializer = sov.serializers.AvailableObjects(instance=archive.values(), many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         """
         Retrieve a AstroObject instance.
         """
-        instance = archive.get(int(pk))
-        serializer = sov.serializers.AvailableObjectRetrieve(instance=instance, many=False)
+        # Note, archive[pk] will except if obj does not exist, .get(pk) returns None
+        instance = archive.get(pk)
+        serializer = sov.serializers.AstroObjectRetrieve(instance=instance, many=False)
         return Response(serializer.data)
 
-    @list_route(url_name='filter', url_path='filter/(?P<filter_term>[\w\d]+)')
-    def filter(self, request, filter_term=None, *args, **kwargs):
-        data = []
-        for key, value in archive.items():
-            if str(filter_term) in str(value.name):
-                data.append(value)
-                # append to data
-        completed_data = dict(enumerate(data))
-        serializer = sov.serializers.AvailableObjectRetrieve(instance=completed_data.values(), many=True)
-        return Response(serializer.data)
 
 
 # class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

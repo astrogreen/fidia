@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     # 'rest_framework.authtoken',
     'rest_framework',
     # 'schema_browser',
+    'search',
     'sov',
     'support',
     # 'surveys',

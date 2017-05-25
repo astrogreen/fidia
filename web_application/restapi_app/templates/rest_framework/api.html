@@ -148,8 +148,18 @@
                                                 <li role="presentation"><a href="{% url 'query-list' %}" class="indent">Queries</a></li>
                                                 <li role="presentation"><a href="{% url 'query-schema' %}" class="indent">Schema</a></li>
                                                 <h6>SOV</h6>
-                                                <li role="presentation"><a href="{% url 'sov-list' %}" class="indent">AvailableObjects</a></li>
-                                                <li role="presentation"><a href="{% url 'sov-filter' filter_term='654' %}" class="indent">Filter (by 654)</a></li>
+                                                <li role="presentation"><a href="{% url 'sov-list' %}" class="indent">AstroObjects</a></li>
+                                                <h6>Search</h6>
+                                                <li role="presentation"><a href="{% url 'search:astro-object-list' %}" class="indent">Astro Objects</a></li>
+                                                <li role="presentation"><a href="{% url 'search:name-resolver' %}" class="indent">Name Resolver</a></li>
+                                                <li role="presentation"><a href="{% url 'search:filter-by-name' %}" class="indent">Filter by name</a></li>
+                                                <li role="presentation"><a href="{% url 'search:filter-by-id' %}" class="indent">Filter by id</a></li>
+                                                <li role="presentation"><a href="{% url 'search:filter-by-position' %}" class="indent">Filter by position</a></li>
+                                                {% comment %}
+                                                <li role="presentation"><a href="{% url 'search-filter-by-name' name='G6' %}" class="indent">Filter by name [e.g., G6]</a></li>
+                                                <li role="presentation"><a href="{% url 'search-filter-by-position' position='01:12:02.23,+49:28:35.0' %}" class="indent">Filter by position (e.g., 01:12:02.23,+49:28:35.0)</a></li>
+                                                {% endcomment %}
+
                                                 <h6>Documentation</h6>
                                                 <li role="presentation"><a href="{% url 'documentation:topic-list' %}" class="indent">Topics</a></li>
                                                 <li role="presentation"><a href="{% url 'documentation:article-list' %}" class="indent">Articles</a></li>

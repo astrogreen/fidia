@@ -11,7 +11,7 @@ from restapi_app.routers import ExtendDefaultRouter, NestedExtendDefaultRouter
 import sov.views
 
 router = rest_framework.routers.SimpleRouter()
-router.register(r'sov', sov.views.AvailableObjects, base_name='sov')
+router.register(r'sov', sov.views.AstroObjects, base_name='sov')
 
 # router.register(r'sov', sov.views.RootViewSet, base_name='root')
 
