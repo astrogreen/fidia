@@ -38,14 +38,18 @@ log = logging.getLogger(__name__)
 
 class AstroObject(object):
     def __init__(self, **kwargs):
-        for field in ('id', 'name', 'owner', 'status'):
+        for field in ('id', 'name', 'owner', 'survey', 'status'):
             setattr(self, field, kwargs.get(field, None))
 
 archive = {
-    1: AstroObject(id=1, name='G65406', owner='gama_public', status=['released']),
-    2: AstroObject(id=2, name='G6000001', owner='gama_team', status=['in_progress']),
-    3: AstroObject(id=3, name='S24433', owner='sami', status=['new', 'released']),
+    1: AstroObject(id=1, name='G65406', owner='gama_public', survey="gama", status=['released']),
+    2: AstroObject(id=2, name='G6000001', owner='gama_team', survey="galah", status=['in_progress']),
+    3: AstroObject(id=3, name='S24433', owner='sami', survey="galah", status=['new', 'released']),
 }
+
+for i in range(4, 200):
+    name = 'G' + str(i)
+    archive[i] = AstroObject(id=i, name=name, owner='sami', survey="sami", status=['new', 'released'])
 
 
 class AvailableObjects(viewsets.ReadOnlyModelViewSet):

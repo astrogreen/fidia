@@ -325,6 +325,7 @@ REST_FRAMEWORK = {
 
 
 CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
     'localhost:3000',
     'localhost:3002',
     'localhost:8000',

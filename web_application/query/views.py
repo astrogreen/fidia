@@ -1,8 +1,8 @@
-import logging
+import logging, json
 # from django.utils.text import slugify
 import numpy as np
 from django.http import HttpResponse
-# from wsgiref.util import FileWrapper
+from wsgiref.util import FileWrapper
 from django.utils.encoding import smart_str
 from rest_framework import permissions, views, viewsets
 from rest_framework.response import Response
@@ -19,6 +19,7 @@ import query.exceptions
 import query.renderers
 
 import query.dummy_schema
+import query.dummy_data.dummy_result
 
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 # from fidia.archive.presto import PrestoArchive
@@ -119,7 +120,8 @@ class Query(viewsets.ModelViewSet):
         # Retrieve the top 1000 rows from the table
         if obj.is_completed and not obj.is_expired and obj.table_name:
             if settings.DB_LOCAL:
-                data = dummy_results
+                # data = dummy_results
+                data = json.loads(query.dummy_data.dummy_result.DUMMY_RESULT)
             else:
                 data = MappingDatabase.get_results_table(name=obj.table_name, length=1000)
         else:
@@ -132,10 +134,18 @@ class Query(viewsets.ModelViewSet):
         max_age = 86400  # one day
         filename = obj.table_name + '.csv'
         path_to_file = MappingDatabase.get_csv_path() + filename
-        # TODO set the 'Content-Length' header.
-        # file = open(path_to_file+filename, 'rb')
-        # response = HttpResponse(FileWrapper(file), content_type='text/csv')
-        # response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(filename)
+
+        if settings.DB_LOCAL:
+            filename = 'dummy.csv'
+            path_to_file = '/Users/lmannering/Desktop/'
+
+            file = open(path_to_file+filename, 'rb')
+            response = HttpResponse(FileWrapper(file), content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(filename)
+            # TODO set the 'Content-Length' header.
+            # response['Content-Length'] = os.path.getsize(filename)
+            return response
+
         response = HttpResponse(content_type='application/force-download')
         response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(filename)
         response['X-Sendfile'] = smart_str(path_to_file)
