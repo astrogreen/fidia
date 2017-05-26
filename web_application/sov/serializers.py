@@ -13,6 +13,7 @@ from rest_framework.reverse import reverse
 
 import sov.mixins
 
+
 # log = logging.getLogger(__name__)
 # log.setLevel(logging.DEBUG)
 # os.environ['PYPANDOC_PANDOC'] = '/usr/local/bin/pandoc'
@@ -32,14 +33,15 @@ import sov.mixins
 
 
 class AstroObjectList(serializers.Serializer):
-    id = serializers.SerializerMethodField()
+    id = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
     owner = serializers.CharField(max_length=256)
-    survey = serializers.CharField(max_length=256)
+    surveys = serializers.ListField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
+    url = serializers.SerializerMethodField()
 
-    def get_id(self, obj):
+    def get_url(self, obj):
         _id = obj.id
         try:
             _id = self.context['request'].build_absolute_uri(str(obj.id))
@@ -55,6 +57,28 @@ class AstroObjectRetrieve(serializers.Serializer):
     survey = serializers.CharField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
+
+
+class SurveyList(serializers.Serializer):
+
+    id = serializers.IntegerField(allow_null=False)
+    name = serializers.CharField(max_length=256)
+    url = serializers.SerializerMethodField()
+
+    def get_url(self, obj):
+        _name = obj.name
+        try:
+            _name = self.context['request'].build_absolute_uri(str(_name))
+        except Exception:
+            pass
+        return _name
+
+
+class SurveyRetrieve(serializers.Serializer):
+    id = serializers.IntegerField(allow_null=False)
+    name = serializers.CharField(max_length=256)
+    objects = AstroObjectList(many=True, read_only=True)
+
 
 # class DocumentationHTMLField(serializers.Field):
 #     """Serializer for the FIDIA documentation for an object as HTML."""

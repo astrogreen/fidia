@@ -11,7 +11,8 @@ from restapi_app.routers import ExtendDefaultRouter, NestedExtendDefaultRouter
 import sov.views
 
 router = rest_framework.routers.SimpleRouter()
-router.register(r'sov', sov.views.AstroObjects, base_name='sov')
+router.register(r'astro-objects', sov.views.AstroObjects, base_name='astro-objects')
+router.register(r'surveys', sov.views.SurveysTest, base_name='survey')
 
 # router.register(r'sov', sov.views.RootViewSet, base_name='root')
 
@@ -34,7 +35,17 @@ router.register(r'sov', sov.views.AstroObjects, base_name='sov')
 
 
 urlpatterns = [
+    # url(r'^surveys/$', sov.views.Surveys.as_view(), name='survey'),
+    # url(r'^surveys/(?:(?P<survey_name>[\w]+)/?)?$', sov.views.Survey.as_view(), name='survey'),
+
+    # url(r'^astro-objects/$', sov.views.AstroObjects.as_view(), name='astro-objects'),
+    # url(r'^astro-objects/(?:(?P<astro_object_name>[\w]+)/?)?$', sov.views.AstroObjects.as_view(), name='astro-objects'),
     url(r'', include(router.urls)),
+
+
+    # url(r'^filter-by/$', search.views.FilterBy.as_view(), name='filter'),
+    # url(r'^filter-by/(?:(?P<filter_term>[\w]+)/?)?$', search.views.FilterByTerm.as_view(), name='filter-by'),
+
     # url(r'^(?i)', include(router.urls)),
     # url(r'^(?i)', include(survey_nested_router.urls)),
     # url(r'^(?i)', include(object_nested_router.urls)),

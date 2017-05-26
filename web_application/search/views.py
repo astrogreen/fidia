@@ -12,29 +12,12 @@ from astropy import units as unit
 from astropy.coordinates import SkyCoord
 
 import search.serializers
-from search.helpers.dummy_positions import DUMMY_POSITIONS
+# from search.helpers.dummy_positions import DUMMY_POSITIONS
+from sov.helpers.dummy_data.astro_object import ARCHIVE
 
 
-class AstroObject(object):
-    def __init__(self, **kwargs):
-        for field in ('id', 'name', 'owner', 'surveys', 'status', 'position'):
-            setattr(self, field, kwargs.get(field, None))
-
-archive = OrderedDict()
-lower = 0
-upper = 999
-for i in range(lower, upper):
-    # id is unique
-    _adc_id = 'DC' + str(i)
-    _name = DUMMY_POSITIONS[i][0]
-    archive[_adc_id] = AstroObject(
-        id=_adc_id,
-        name=_name,
-        owner='sami',
-        survey="sami",
-        status=['new', 'released'],
-        position={"ra": DUMMY_POSITIONS[i][2], "dec": DUMMY_POSITIONS[i][1]},
-    )
+def get_archive():
+    return ARCHIVE
 
 
 class AstronomicalObjects(viewsets.ReadOnlyModelViewSet):
@@ -50,10 +33,10 @@ class AstronomicalObjects(viewsets.ReadOnlyModelViewSet):
       Return the given astronomical object meta data only (use sov to get data)     
     """
     serializer_class = search.serializers.AstroObjectList
-    queryset = archive.values()
+    queryset = get_archive().values()
 
     def list(self, request, *args, **kwargs):
-        queryset = list(archive.values())
+        queryset = list(get_archive().values())
         page = self.paginate_queryset(queryset)
 
         if page is not None:
@@ -64,46 +47,10 @@ class AstronomicalObjects(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        # Note, archive[pk] will except if obj does not exist, .get(pk) returns None
-        instance = archive.get(pk)
+        # Note, ARCHIVE[pk] will except if obj does not exist, .get(pk) returns None
+        instance = get_archive().get(pk)
         serializer = search.serializers.AstroObjectRetrieve(instance=instance, many=False)
         return Response(serializer.data)
-
-    # @list_route(url_name='filter-by-name', url_path='filter-by-name/(?P<name>[\w\d]+)')
-    # def filter_by_name(self, request, name=None, *args, **kwargs):
-    #     data = []
-    #     for key, value in archive.items():
-    #         if str(name) in str(value.name):
-    #             # append to data
-    #             data.append(value)
-    #         elif str(name) in str(value.id):
-    #             data.append(value)
-    #
-    #     completed_data = dict(enumerate(data))
-    #     serializer = search.serializers.AvailableObjectRetrieve(instance=completed_data.values(), many=True)
-    #     return Response(serializer.data)
-    #
-    # @list_route(url_name='filter-by-position',
-    #             url_path='filter-by-position/' + hre.POSITION_RE.pattern)
-    # def filter_by_position(self, request, position=None, *args, **kwargs):
-    #     data = []
-    #     print(position)
-    #
-    #     # pos_arr = position.split(',')
-    #     # if pos_arr:
-    #     #   print(pos_arr)
-    #
-    #     # for key, value in archive.items():
-    #     #     if str(filter_term) in str(value.name):
-    #     #         # append to data
-    #     #         data.append(value)
-    #     #     elif str(filter_term) in str(value.id):
-    #     #         data.append(value)
-    #     #
-    #     # completed_data = dict(enumerate(data))
-    #     # serializer = search.serializers.AvailableObjectRetrieve(instance=completed_data.values(), many=True)
-    #     # return Response(serializer.data)
-    #     return Response({})
 
 
 FILTERBY_DOC_STRING = (r"""
@@ -135,7 +82,7 @@ FilterBy.__doc__ = FILTERBY_DOC_STRING
 
 class FilterByTerm(generics.CreateAPIView):
     # Filter by a keyword or position
-    queryset = archive.values()
+    queryset = get_archive().values()
     available_keywords = ['id', 'name']
 
     serializer_action_classes = {
@@ -152,7 +99,7 @@ class FilterByTerm(generics.CreateAPIView):
         try:
             return self.serializer_action_classes[filter_term]
         except (KeyError, AttributeError):
-            return super(FilterBy, self).get_serializer_class()
+            return super(FilterByTerm, self).get_serializer_class()
 
     def filter_by_position(self, ra=None, dec=None, radius=None):
         """
@@ -186,7 +133,7 @@ class FilterByTerm(generics.CreateAPIView):
         # print(_ra_deg, _dec_deg, _rad_deg)
         # print(_ra_min, _ra_max, _dec_min, _dec_max)
         data = []
-        for key, x in archive.items():
+        for key, x in get_archive().items():
             if (x.position['ra'] < ra_max) and (x.position['ra'] > ra_min) and \
                     (x.position['dec'] < dec_max) and (x.position['dec'] > dec_min):
                 data.append(x)
@@ -205,7 +152,7 @@ class FilterByTerm(generics.CreateAPIView):
 
         if filter_term in self.available_keywords:
             _search_value = serializer.data.get(filter_term)
-            data = self.filter_by_keyword(data=archive.items(), filter_term=filter_term, search_value=_search_value)
+            data = self.filter_by_keyword(data=get_archive().items(), filter_term=filter_term, search_value=_search_value)
 
         elif filter_term == 'position':
             # note: in python, '==' is for value equality. 'is' is for reference equality!
@@ -238,7 +185,7 @@ class NameResolver(generics.CreateAPIView):
     Return top match from NSV (Ned, then Simbad, then VizieR), returning the first likely result.
     """
     serializer_class = search.serializers.NameResolver
-    queryset = archive.values()
+    queryset = get_archive().values()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

@@ -148,7 +148,9 @@
                                                 <li role="presentation"><a href="{% url 'query-list' %}" class="indent">Queries</a></li>
                                                 <li role="presentation"><a href="{% url 'query-schema' %}" class="indent">Schema</a></li>
                                                 <h6>SOV</h6>
-                                                <li role="presentation"><a href="{% url 'sov-list' %}" class="indent">AstroObjects</a></li>
+                                                <li role="presentation"><a href="{% url 'sov:survey-list' %}" class="indent">Surveys</a></li>
+                                                <li role="presentation"><a href="{% url 'search:astro-object-list' %}" class="indent">AstroObjects</a></li>
+
                                                 <h6>Search</h6>
                                                 <li role="presentation"><a href="{% url 'search:astro-object-list' %}" class="indent">Astro Objects</a></li>
                                                 <li role="presentation"><a href="{% url 'search:name-resolver' %}" class="indent">Name Resolver</a></li>
