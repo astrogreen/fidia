@@ -8,8 +8,7 @@ router.register(r'astro-objects', search.views.AstronomicalObjects, base_name='a
 
 urlpatterns = [
     url(r'', include(router.urls)),
-    url(r'^name-resolver/', search.views.NameResolver.as_view(), name='name-resolver'),
-    url(r'^filter-by-name/', search.views.FilterByName.as_view(), name='filter-by-name'),
-    url(r'^filter-by-id/', search.views.FilterById.as_view(), name='filter-by-id'),
-    url(r'^filter-by-position/', search.views.FilterByPosition.as_view(), name='filter-by-position'),
+    url(r'^name-resolver/$', search.views.NameResolver.as_view(), name='name-resolver'),
+    url(r'^filter-by/$', search.views.FilterBy.as_view(), name='filter'),
+    url(r'^filter-by/(?:(?P<filter_term>[\w]+)/?)?$', search.views.FilterByTerm.as_view(), name='filter-by'),
 ]

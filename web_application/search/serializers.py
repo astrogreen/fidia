@@ -1,6 +1,7 @@
 from rest_framework import serializers, mixins, status
 import search.helpers.regex as hre
 
+
 class AstroObjectList(serializers.Serializer):
     id = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
@@ -28,8 +29,8 @@ class AstroObjectRetrieve(serializers.Serializer):
     position = serializers.DictField()
 
 
-class NameResolver(serializers.Serializer):
-    name = serializers.CharField(max_length=256)
+class FilterBy(serializers.Serializer):
+    urls = serializers.ListField(max_length=256, read_only=True)
 
 
 class FilterById(serializers.Serializer):
@@ -41,6 +42,10 @@ class FilterByName(serializers.Serializer):
 
 
 class FilterByPosition(serializers.Serializer):
-    ra = serializers.RegexField(hre.RA_RE.pattern, required=True, label="RA*")
-    dec = serializers.RegexField(hre.DEC_RE.pattern, required=True, label="Dec*")
-    radius = serializers.FloatField(required=False, label="Radius (arcsec)", default=3)
+    ra = serializers.RegexField(hre.RA_RE.pattern, required=True, label="RA*", initial='184.899719198317')
+    dec = serializers.RegexField(hre.DEC_RE.pattern, required=True, label="Dec*", initial='0.745403840164056')
+    radius = serializers.FloatField(required=False, label="Radius (arcsec)", default=3, initial='300')
+
+
+class NameResolver(serializers.Serializer):
+    name = serializers.CharField(max_length=256)
