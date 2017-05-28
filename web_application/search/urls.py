@@ -4,7 +4,7 @@ import rest_framework.routers
 import search.views
 
 router = rest_framework.routers.SimpleRouter()
-router.register(r'astro-objects', search.views.AstronomicalObjects, base_name='astro-object')
+router.register(r'available-astro-objects', search.views.AstronomicalObjects, base_name='astro-object')
 
 urlpatterns = [
     url(r'', include(router.urls)),

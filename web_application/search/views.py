@@ -120,23 +120,26 @@ class FilterByTerm(generics.CreateAPIView):
         if ':' in dec:
             dec_unit = unit.hourangle
 
-        c = SkyCoord(ra=ra, dec=dec, unit=(ra_unit, dec_unit))
+        c1 = SkyCoord(ra=ra, dec=dec, unit=(ra_unit, dec_unit))
 
-        ra_deg = c.ra.degree
-        dec_deg = c.dec.degree
+        ra_deg = c1.ra.degree
+        dec_deg = c1.dec.degree
         rad_deg = radius / (60 * 60)
 
-        ra_min = ra_deg - rad_deg
-        ra_max = ra_deg + rad_deg
-        dec_min = dec_deg - rad_deg
-        dec_max = dec_deg + rad_deg
-        # print(_ra_deg, _dec_deg, _rad_deg)
+        ra_min = ra_deg - 2 * rad_deg
+        ra_max = ra_deg + 2 * rad_deg
+        dec_min = dec_deg - 2 * rad_deg
+        dec_max = dec_deg + 2 * rad_deg
         # print(_ra_min, _ra_max, _dec_min, _dec_max)
         data = []
         for key, x in get_archive().items():
+            # initial cut around box twice size of radius
             if (x.position['ra'] < ra_max) and (x.position['ra'] > ra_min) and \
                     (x.position['dec'] < dec_max) and (x.position['dec'] > dec_min):
-                data.append(x)
+                c2 = SkyCoord(ra=x.position['ra'], dec=x.position['dec'], unit=(unit.deg, unit.deg))
+                sep = c1.separation(c2)
+                if sep.degree < rad_deg:
+                    data.append(x)
         return data
 
     def filter_by_keyword(self, data=None, filter_term=None, search_value=None):

@@ -42,12 +42,7 @@ class AstroObjectList(serializers.Serializer):
     url = serializers.SerializerMethodField()
 
     def get_url(self, obj):
-        _id = obj.id
-        try:
-            _id = self.context['request'].build_absolute_uri(str(obj.id))
-        except Exception:
-            pass
-        return _id
+        return reverse('sov:astro-object-detail', kwargs={"pk": obj.id}, request=self.context.get("request"))
 
 
 class AstroObjectRetrieve(serializers.Serializer):
@@ -60,18 +55,12 @@ class AstroObjectRetrieve(serializers.Serializer):
 
 
 class SurveyList(serializers.Serializer):
-
     id = serializers.IntegerField(allow_null=False)
     name = serializers.CharField(max_length=256)
     url = serializers.SerializerMethodField()
 
     def get_url(self, obj):
-        _name = obj.name
-        try:
-            _name = self.context['request'].build_absolute_uri(str(_name))
-        except Exception:
-            pass
-        return _name
+        return reverse('sov:survey-detail', kwargs={"pk": obj.name}, request=self.context.get("request"))
 
 
 class SurveyRetrieve(serializers.Serializer):

@@ -34,74 +34,16 @@ from sov.helpers.dummy_data.survey import SURVEYS
 # from fidia.traits import Trait, TraitProperty, TraitKey
 # from fidia import traits
 
-import fidia_tarfile_helper
+# import fidia_tarfile_helper
 
 log = logging.getLogger(__name__)
-
-
-def get_available_surveys():
-    # TODO Change to FIDIA-supplied list
-    return ['sami', 'gama', 'galah']
 
 
 def get_archive():
     return ARCHIVE
 
-def get_survey_objects(survey=None):
-    survey_objects = []
-    for key, value in get_archive().items():
-        if str(survey) in str(getattr(value, 'owner')):
-            survey_objects.append(value)
-    completed_data = dict(enumerate(survey_objects))
-    return list(completed_data.values())
 
-
-class Surveys(views.APIView):
-    """
-    Returns a list of available surveys hosted at DC.
-    """
-    def get(self, request, *args, **kwargs):
-        surveys = []
-        for s in get_available_surveys():
-            surveys.append(
-                {
-                    "name": s,
-                    "url": reverse('sov:survey', kwargs={"survey_name": s}, request=request)
-                 })
-
-        return Response({'surveys': surveys})
-
-
-class Survey(generics.ListAPIView):
-    """
-    Returns a paginated response of astronomical objects within a survey.
-    /sov/<survey_name>
-    """
-    AVAILABLE_SURVEYS = get_available_surveys()
-    serializer_class = sov.serializers.AstroObjectList
-    queryset = get_archive().values()
-
-    def list(self, request, survey_name=None, *args, **kwargs):
-        if survey_name in self.AVAILABLE_SURVEYS:
-            data = get_survey_objects(survey=survey_name)
-        else:
-            _message = "Survey %s not found. Available surveys: %s" % (survey_name, self.AVAILABLE_SURVEYS)
-            return Response({'error': _message})
-
-        queryset = list(data)
-        page = self.paginate_queryset(queryset)
-
-        if page is not None:
-            serializer = sov.serializers.AstroObjectList(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-    # /sov/gama/98798/
-    # /sov/gama/98987/trait
-
-
-class SurveysTest(viewsets.ReadOnlyModelViewSet):
+class Survey(viewsets.ReadOnlyModelViewSet):
     """
     Read-only access to the DC archive list of surveys.
 
@@ -116,30 +58,24 @@ class SurveysTest(viewsets.ReadOnlyModelViewSet):
     queryset = SURVEYS.values()
 
     def list(self, request, *args, **kwargs):
-        """
-        List archive
-        """
         queryset = list(SURVEYS.values())
 
-        # page = self.paginate_queryset(queryset)
+        page = self.paginate_queryset(queryset)
 
-        # if page is not None:
-        #     serializer = self.get_serializer(page, many=True)
-        #     return self.get_paginated_response(serializer.data)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        """
-        Retrieve a Survey instance.
-        """
         instance = SURVEYS.get(pk)
         serializer = sov.serializers.SurveyRetrieve(instance=instance, many=False)
         return Response(serializer.data)
 
 
-class AstroObjects(viewsets.ReadOnlyModelViewSet):
+class AstroObject(viewsets.ReadOnlyModelViewSet):
     """
     Read-only access to the DC archive list of astronomical objects.
     
