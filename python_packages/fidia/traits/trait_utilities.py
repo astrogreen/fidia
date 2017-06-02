@@ -384,7 +384,7 @@ class TraitPath(tuple):
         return trait_property
 
     def get_trait_property_value_for_object(self, astro_object):
-        # type: (fidia.AstronomicalObject) -> fidia.Trait
+        # type: (fidia.AstronomicalObject) -> Any
 
         trait_property = self.get_trait_property_for_object(astro_object)
 
@@ -812,7 +812,7 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling):
 
     def validate(self):
         # Check that all required (not optional) TraitProperties are defined in the schema:
-        for tp in self.trait_class._trait_properties():
+        for tp in self.trait_class.trait_properties():
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
 

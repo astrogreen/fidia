@@ -25,7 +25,7 @@ class TestTraits:
 
     def test_get_trait_properties(self, TestTrait):
 
-        for prop in TestTrait._trait_properties():
+        for prop in TestTrait.trait_properties():
             assert isinstance(prop, TraitProperty)
 
     @pytest.mark.xfail
