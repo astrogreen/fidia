@@ -44,30 +44,19 @@ import fidia
 # Standard Library Imports
 import pickle
 from io import BytesIO
-from collections import OrderedDict, Mapping
-from copy import copy
-import re
-
+from collections import OrderedDict
 
 # Other library imports
-from astropy.io import fits
 
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, RegexpGroup, snake_case
-from fidia.descriptions import TraitDescriptionsMixin, DescriptionsMixin
+from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
+from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
-from .trait_property import TraitProperty, SubTrait
-from .trait_key import TraitKey, TraitPath, TRAIT_NAME_RE, \
+from .trait_utilities import TraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
-from .trait_registry import TraitRegistry
-
-# This makes available all of the usual parts of this package for use here.
-#
-# I think this will not cause a circular import because it is a module level import.
-# from . import meta_data_traits
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -75,23 +64,7 @@ log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 
-# class DictTrait(Mapping):
-#     """A "mix-in class which provides dict-like access for Traits
-#
-#     Requires that the class mixed into implements a `_trait_dict` cache
-#
-#     """
-#
-#     def __iter__(self):
-#         pass
-#     def __getitem__(self, item):
-#         if item in self._trait_cache:
-#             return self._trait_cache[item]
-#         else:
-#             return getattr(self, item)
-#
-#     def __len__(self):
-#         return 0
+__all__ = ['Trait', 'TraitCollection']
 
 def validate_trait_branches_versions_dict(branches_versions):
     # type: ([BranchesVersions, None]) -> None
@@ -109,15 +82,6 @@ def validate_trait_branches_versions_dict(branches_versions):
             if version is not None:
                 validate_trait_version(version)
 
-
-class ColumnProxy:
-    def __init__(self, column_id):
-        self.column_id = column_id
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        return instance._get_column_data(self.column_id)
 
 class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     """A class defining the common methods for both Trait and TraitCollection.
@@ -172,8 +136,14 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             log.debug("Initialized Trait class %s", str(cls))
             cls.trait_class_initialized = True
 
-    def __init__(self, sample, trait_key, object_id, trait_registry, trait_schema):
-        # type: (fidia.Sample, fidia.TraitKey, str, fidia.traits.TraitMappingDatabase, Dict[str, Union[str, fidia.traits.TraitMapping]]) -> None
+    def __init__(self, sample, trait_key, astro_object, trait_mapping):
+        # type: (fidia.Sample, fidia.TraitKey, fidia.AstronomicalObject, Union[TraitMapping, TraitCollectionMapping]) -> None
+
+        # This function should only be called by:
+        #
+        #   - TraitPointers when they are asked to create a particular Trait
+        #   - (unnamed) SubTrait objects when they are asked to return a sub-Trait of an existing Trait.
+
         super(BaseTrait, self).__init__()
 
 
@@ -188,9 +158,10 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
         # self._set_branch_and_version(trait_key)
 
-        self.object_id = object_id
+        self.astro_object = astro_object
+        self.object_id = astro_object.identifier
 
-        self.trait_schema = trait_schema
+        self.trait_mapping = trait_mapping
 
         self._trait_cache = OrderedDict()
 
@@ -257,7 +228,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     #  |  |  \ /~~\ |  |  |    |  \ \__/ |    |___ |  \  |   |     |  | /~~\ | \| |__/ |___ | | \| \__>
 
     @classmethod
-    def _trait_properties(cls, trait_property_types=None, include_hidden=False):
+    def trait_properties(cls, trait_property_types=None, include_hidden=False):
+        # type: (List, bool) -> Generator[TraitProperty]
         """Generator which iterates over the TraitProperties attached to this Trait.
 
         :param trait_property_types:
@@ -265,14 +237,11 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             None will return all trait types, otherwise only traits of the
             requested type are returned.
 
-        Note that the descriptor must be handed this Trait object to actually retrieve
-        data, which is why this is implemented as a private method. See
-        `trait_property_values` as a simpler alternative.
+        :returns: 
+            A TraitProperty object, which is a descriptor that can retrieve data.
 
-        Alternately, use the public `trait_properties` method to retrieve bound
-        Trait Properties which do not have this complication (and see ASVO-425!)
-
-        :returns: the TraitProperty descriptor object
+        Note that the TraitProperty descriptor must be handed this Trait object
+        to actually retrieve data.
 
         """
         cls.initialize_trait_class()
@@ -308,45 +277,6 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             obj = getattr(cls, attr)
             if isinstance(obj, SubTrait):
                 yield attr
-
-    def trait_properties(self, trait_property_types=None, include_hidden=False):
-        # type: (List, bool) -> Generator[TraitProperty]
-        """Generator which iterates over the (Bound)TraitProperties attached to this Trait.
-
-        :param trait_property_types:
-            Either a string trait type or a list of string trait types or None.
-            None will return all trait types, otherwise only traits of the
-            requested type are returned.
-
-        :yields: a TraitProperty which is bound to this trait
-
-        """
-
-        # If necessary, convert a single trait property type argument to a list:
-        if isinstance(trait_property_types, str):
-            trait_property_types = tuple(trait_property_types)
-
-        # Search class attributes. NOTE that this code is very similar to that
-        # in `_trait_properties`. It has been reproduced here as
-        # `_trait_properties` is probably going to be deprecated and removed if
-        # ASVO-425 works out.
-        #
-        # Also note that, as written, this method avoids creating
-        # BoundTraitProperty objects unless actually necessary.
-        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", self.trait_type, trait_property_types)
-        cls = type(self)
-        for attr in dir(cls):
-            descriptor_obj = getattr(cls, attr)
-            if isinstance(descriptor_obj, TraitProperty):
-                if descriptor_obj.name.startswith("_") and not include_hidden:
-                    log.debug("Trait property '%s' ignored because it is hidden.", attr)
-                    continue
-                log.debug("Found trait property '{}' of type '{}'".format(attr, descriptor_obj.type))
-                if (trait_property_types is None) or (descriptor_obj.type in trait_property_types):
-                    # Retrieve the attribute for this object (which will create
-                    # the BoundTraitProperty: see `__get__` on `TraitProperty`)
-                    yield getattr(self, attr)
-
 
     #     __   __        ___
     #    /__` /  ` |__| |__   |\/|  /\
@@ -547,4 +477,42 @@ class Trait(bases.Trait, BaseTrait):
 
 
 class TraitCollection(bases.TraitCollection, BaseTrait):
-    pass
+
+    def __getattr__(self, item):
+        log.debug("Looking up %s on TraitCollection %s", item, self)
+
+        # There are basically two cases we must handle here. We can determine
+        # between these two cases by looking at the type of the object in the
+        # trait schema, and responding as follows:
+        #
+        #   1. (TraitMapping) The item requested is a Trait or TraitCollection, in which case
+        #   we need to create and return a TraitPointer object
+        #
+        #   2. (str) The item requested is a TraitProperty, in which case we need to
+        #   look up the column and return the result as though we had called an
+        #   actual TraitProperty object.
+
+
+        if item in self.trait_mapping.named_sub_mappings:
+            # item is a Trait or TraitCollection, so should return a
+            # TraitPointer object with the corresponding sub-schema.
+            return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping, self.sample.trait_registry)
+
+        elif item in self.trait_mapping.trait_property_mappings:
+            # item is a TraitProperty. Behave like TraitProperty
+            column_id = self.trait_mapping.trait_property_mappings[item]
+            # Get the result
+            result = self._get_column_data(column_id)
+            # Cache the result against the trait (so this code will not be called again!)
+            setattr(self, item, result)
+            return result
+
+        else:
+            log.warn("Unknown attribute %s for object %s", item, self)
+            log.warn("  Known Trait Mappings: %s", self.trait_mapping.named_sub_mappings.keys())
+            log.warn("  Known Trait Properties: %s", list(self.trait_mapping.trait_property_mappings.keys()))
+
+            raise AttributeError("Unknown attribute %s for object %s" % (item, self))
+
+    def __str__(self):
+        return """TraitCollection: {schema}""".format(schema=self.trait_mapping)

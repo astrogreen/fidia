@@ -20,13 +20,11 @@ if not _ASTROPY_SETUP_:
     from fidia.archive.archive import Archive, BasePathArchive
 
 
-    from fidia.column.column_definitions import ColumnDefinition, ColumnDefinitionList, \
-        FITSDataColumn, FITSHeaderColumn
+    from fidia.column.column_definitions import *
     from fidia.column.columns import FIDIAColumn, FIDIAArrayColumn
 
-    from fidia.traits.trait_registry import TraitRegistry
-    from fidia.traits.trait_key import TraitKey
-    from fidia.traits import Trait
+    # from fidia.traits.trait_key import TraitKey
+    from fidia.traits import Trait, TraitCollection
 
     from .astro_object import AstronomicalObject
 

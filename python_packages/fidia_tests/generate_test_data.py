@@ -123,6 +123,9 @@ class StellarMassesTable(CatalogTable):
     def column_data(self):
         cols = [
             table.Column(
+                name="ID",
+                data=self.object_ids),
+            table.Column(
                 name="StellarMass",
                 data=np.random.normal(10, 0.5, self.size)),
             table.Column(
@@ -135,6 +138,9 @@ class StellarMassesTable(CatalogTable):
 class SFRsTable(CatalogTable):
     def column_data(self):
         cols = [
+            table.Column(
+                name="ID",
+                data=self.object_ids),
             table.Column(
                 name="SFR",
                 data=np.random.lognormal(-0.6, 0.3, self.size)),

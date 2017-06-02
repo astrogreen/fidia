@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest
 
-from fidia.traits import Trait, TraitProperty, trait_property, TraitKey, TraitRegistry, TraitPath
+from fidia.traits import Trait, TraitProperty, TraitKey, TraitPath
+from fidia.traits.trait_utilities import TraitMappingDatabase
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
@@ -24,7 +25,7 @@ class TestTraits:
 
     def test_get_trait_properties(self, TestTrait):
 
-        for prop in TestTrait._trait_properties():
+        for prop in TestTrait.trait_properties():
             assert isinstance(prop, TraitProperty)
 
     @pytest.mark.xfail

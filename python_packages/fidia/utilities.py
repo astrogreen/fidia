@@ -3,9 +3,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from typing import List
 
 # Python Standard Library Imports
+import operator
 from copy import deepcopy
 import re
-from collections import Iterable, Sized
+from collections import Iterable, Sized, MutableMapping
 from contextlib import contextmanager
 import os
 import errno
@@ -14,6 +15,7 @@ import functools
 from time import sleep
 
 # Other Library Imports
+from six.moves import reduce
 from sortedcontainers import SortedDict
 
 # Set up logging
@@ -123,6 +125,113 @@ class SchemaDictionary(SortedDict):
 
         for key in to_delete:
             del self[key]
+
+
+class MultiDexDict(MutableMapping):
+
+    __slots__ = ['_internal_dict', 'index_cardinality']
+
+    def __init__(self, index_cardinality):
+        super(MultiDexDict, self).__init__()
+        self.index_cardinality = index_cardinality
+        self._internal_dict = dict()  # type: MultiDexDict
+
+    def __setitem__(self, key, value):
+        if not isinstance(key, tuple):
+            key = (key, )
+        if len(key) != self.index_cardinality:
+            raise KeyError("Key has wrong cardinality.")
+        if len(key) == 1:
+            # Base cases
+            # log.debug("Setting base case for key %s", key)
+            self._internal_dict[key[0]] = value
+            # log.debug("Updated internal state: %s", self._internal_dict)
+        else:
+            # Recursive case
+            # log.debug("Recursively setting for key %s", key)
+            if key[0] not in self._internal_dict:
+                # log.debug("Creating new subdict for key: %s", key)
+                self._internal_dict[key[0]] = MultiDexDict(self.index_cardinality - 1)
+            self._internal_dict[key[0]][key[1:]] = value
+            # log.debug("Updated internal state: %s", self._internal_dict)
+
+    def __getitem__(self, key):
+        if not isinstance(key, tuple):
+            key = (key, )
+        if len(key) > self.index_cardinality:
+            raise KeyError("Key has two many indicies!")
+        if len(key) == 1:
+            # Base case
+            return self._internal_dict[key[0]]
+        elif len(key) <= self.index_cardinality:
+            # Recursive case
+            return self._internal_dict[key[0]][key[1:]]
+
+    def __delitem__(self, key):
+        if not isinstance(key, tuple):
+            key = (key, )
+        if len(key) > self.index_cardinality:
+            raise KeyError("Key has two many indicies!")
+        if len(key) == 1:
+            # Base case
+            del self._internal_dict[key[0]]
+        elif len(key) <= self.index_cardinality:
+            # Recursive case
+            del self._internal_dict[key[0]][key[1:]]
+
+    def __iter__(self):
+        return iter(self._internal_dict)
+
+    def keys(self, depth=0):
+
+        if depth == 0:
+            depth = self.index_cardinality
+        if depth == 1:
+            return self._internal_dict.keys()
+        if depth > 1:
+            res = []
+            for key in self._internal_dict.keys():
+                for sub_key in self._internal_dict[key].keys(depth=depth-1):
+                    if isinstance(sub_key, tuple):
+                        res.append((key,) + sub_key)
+                    else:
+                        res.append((key,) + (sub_key,))
+            return res
+
+    def __eq__(self, other):
+        if isinstance(other, MultiDexDict):
+            return self.as_nested_dict() == other.as_nested_dict()
+        else:
+            return self.as_nested_dict() == other
+
+    def __contains__(self, item):
+        if not isinstance(item, tuple):
+            return item in list(self.keys(1))
+        else:
+            return item in self.keys(len(item))
+
+    def __len__(self):
+        return len(self.keys())
+
+    def __repr__(self):
+        return repr(self.as_nested_dict())
+
+    def update(self, other):
+        # if isinstance(other, MultiDexDict):
+        if isinstance(other, MultiDexDict) and self.index_cardinality != other.index_cardinality:
+            raise ValueError("Cannot combine MultiDexDicts of different index cardinality")
+        for key in other.keys():
+            self[key] = other[key]
+
+
+    def as_nested_dict(self):
+        if self.index_cardinality == 1:
+            return self._internal_dict
+        else:
+            result = dict()
+            for key in self._internal_dict:
+                result[key] = self._internal_dict[key].as_nested_dict()
+            return result
 
 class Inherit: pass
 

@@ -6,7 +6,7 @@ import tempfile
 import generate_test_data as testdata
 import pytest
 
-from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn
+from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn, FITSBinaryTableColumn
 from fidia.column.columns import FIDIAColumn, ColumnID
 
 
@@ -133,3 +133,16 @@ class TestFITSDataColumn:
         coldef = FITSDataColumn(pathstring, 0)
         print(coldef.id)
         assert coldef.id == "FITSDataColumn:" + pathstring + "[0]"
+
+class TestFITSBinaryTableColumn:
+
+    @pytest.fixture
+    def fits_binary_table_column(self, test_data_dir, archive):
+        column_def = FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMass', 'ID')
+        archive.basepath = test_data_dir
+        column = column_def.associate(archive)
+        return column
+
+    def test_column_has_data(self, fits_binary_table_column):
+        data = fits_binary_table_column.get_value('Gal1')
+        assert isinstance(data, (int, float))
