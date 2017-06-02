@@ -10,6 +10,8 @@ if not _ASTROPY_SETUP_:
 
     pass
 
+    from fidia.local_config import config
+
     import fidia.sample
     import fidia.traits
     import fidia.archive

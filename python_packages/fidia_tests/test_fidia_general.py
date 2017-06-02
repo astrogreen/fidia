@@ -237,3 +237,18 @@ class TestMultidexDict:
         assert mdict.as_nested_dict() == {
             'a': {'b': 2, 'c': 3}
         }
+
+class TestConfig:
+
+    def test_default_config_sensible(self):
+        """Check if the default configuration can be parsed."""
+
+        import configparser
+        import fidia.local_config
+
+        default_config = configparser.ConfigParser()
+        default_config.read_string(fidia.local_config.DEFAULT_CONFIG)
+
+        assert default_config['MappingDatabase']['engine'] == 'sqlite'
+        assert default_config['MappingDatabase']['location'] == ''
+        assert default_config['MappingDatabase']['database'] == ':memory:'
