@@ -500,7 +500,7 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
 
         elif item in self.trait_mapping.trait_property_mappings:
             # item is a TraitProperty. Behave like TraitProperty
-            column_id = self.trait_mapping.trait_property_mappings[item]
+            column_id = self.trait_mapping.trait_property_mappings[item].id
             # Get the result
             result = self._get_column_data(column_id)
             # Cache the result against the trait (so this code will not be called again!)
