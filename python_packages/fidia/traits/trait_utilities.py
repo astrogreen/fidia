@@ -841,12 +841,16 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         "SubTraitMapping", # back_populates="_trait_mappings",
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
 
+    named_sub_mappings = relationship(
+        "TraitMapping", # back_populates="_trait_mappings",
+        collection_class=attribute_mapped_collection('key'))  # type: Dict[Tuple[str, str], TraitMapping]
+
+
     @reconstructor
     def __db_init__(self):
         self._reconstruct_trait_class()
         self._reconstruct_trait_key()
         # self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
-        self.named_sub_mappings = MultiDexDict(2)
 
         # self._reconstructed = True
 
@@ -876,7 +880,6 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
         # self.trait_property_mappings = dict()  # type: Dict[str, str]
-        self.named_sub_mappings = MultiDexDict(2)
 
         for item in mappings:
             if isinstance(item, TraitPropertyMapping):

@@ -45,6 +45,7 @@ import fidia
 import pickle
 from io import BytesIO
 from collections import OrderedDict
+import operator
 
 # Other library imports
 
@@ -493,7 +494,7 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
         #   actual TraitProperty object.
 
 
-        if item in self.trait_mapping.named_sub_mappings:
+        if item in map(operator.itemgetter(0), self.trait_mapping.named_sub_mappings.keys()):
             # item is a Trait or TraitCollection, so should return a
             # TraitPointer object with the corresponding sub-schema.
             return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping, self.sample.trait_registry)
