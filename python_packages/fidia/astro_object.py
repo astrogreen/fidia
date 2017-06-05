@@ -1,10 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List
+# from typing import List
 import fidia
 
 # Python Standard Library Imports
-import collections
 
 # Other Library Imports
 
@@ -16,7 +15,7 @@ from fidia.utilities import snake_case
 # Set up logging
 import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.VDEBUG)
 log.enable_console_logging()
 
 __all__ = ['AstronomicalObject']
@@ -65,18 +64,21 @@ class AstronomicalObject:
 
     def update_trait_pointers(self):
 
-        from fidia.traits.references import TraitPointer
+        from fidia.traits.trait_utilities import TraitPointer
 
         # Clear all existing pointers to TraitPointers
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if isinstance(attr, bases.TraitPointer):
                 delattr(self, attr_name)
-        for trait_mapping in self.sample.trait_registry.get_trait_mappings():
-            log.debug(trait_mapping.trait_class.trait_class_name)
-            pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
-            log.debug("Adding trait pointer %s", pointer_name)
-            setattr(self, pointer_name, TraitPointer(self.sample, self, trait_mapping, self.sample.trait_registry))
+        log.debug("Creating Trait Pointers for AstroObject %s", self)
+        if log.isEnabledFor(slogging.VDEBUG):
+            message = str(self.sample.trait_registry.trait_mappings.as_nested_dict())
+            log.vdebug("TraitMappings available: %s", message)
+        for trait_type in self.sample.trait_registry.trait_mappings.keys(1):
+            # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
+            log.debug("Adding TraitPointer '%s'", trait_type)
+            setattr(self, trait_type, TraitPointer(trait_type, self.sample, self, None, self.sample.trait_registry))
 
     def get_archive_id(self, archive):
         return self.sample.get_archive_id(archive, self._identifier)
