@@ -46,7 +46,7 @@ class TestDatabaseBasics:
 
         session.rollback()
 
-    def test_trait_mapping(self, session, engine):
+    def test_simple_trait_mapping(self, session, engine):
 
         from fidia.traits import TraitMapping, TraitPropertyMapping, Image, TraitKey
         from fidia.traits.trait_utilities import Base
@@ -82,4 +82,47 @@ class TestDatabaseBasics:
                 assert item.id == "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"
 
         # assert False
+
+    def test_trait_mapping_with_subtraits(self, session, engine):
+
+        from fidia.traits import TraitMapping, TraitPropertyMapping, Image, TraitKey, SubTraitMapping, ImageWCS
+        from fidia.traits.trait_utilities import Base
+
+        Base.metadata.create_all(engine)
+
+        tm = TraitMapping(
+            Image, 'redsubtrait', [
+                TraitPropertyMapping('data', "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"),
+                TraitPropertyMapping('exposed', "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1"),
+                SubTraitMapping(
+                    'wcs', ImageWCS, [
+                        TraitPropertyMapping('crpix1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
+                        TraitPropertyMapping('crpix2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),
+                    ]
+                )
+            ]
+        )
+
+        session.add(tm)
+        session.commit()
+
+        del tm
+
+        # The data has been pushed to the database and removed from Python. Now
+        # try to reload the data from the DB.
+
+
+        tm = session.query(TraitMapping).filter_by(_db_trait_key="redsubtrait").one()
+        assert isinstance(tm, TraitMapping)
+        print(tm)
+        assert tm.trait_class is Image
+        assert tm.trait_key == TraitKey("redsubtrait")
+
+        for item in tm.trait_property_mappings.values():
+            assert isinstance(item, TraitPropertyMapping)
+            assert item.name in ("data", "exposed")
+            assert item.id in ("ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1",
+                               "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1")
+            if item.name == "data":
+                assert item.id == "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"
 

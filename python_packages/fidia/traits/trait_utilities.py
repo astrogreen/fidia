@@ -104,7 +104,7 @@ class TraitProperty(DescriptionsMixin):
         else:
             if self.name is None:
                 raise TraitValidationError("TraitProperty not correctly initialised.")
-            column_id = trait.trait_mapping.trait_property_mappings[self.name]
+            column_id = trait.trait_mapping.trait_property_mappings[self.name].id
             result = trait._get_column_data(column_id)
             setattr(trait, self.name, result)
             return result
@@ -782,19 +782,21 @@ class MappingBase:
         raise NotImplementedError()
 
 
-class TraitMapping(MappingBase, MappingBranchVersionHandling, Base):
-    """Representation of the schema of a Trait.
-
-    This can be thought of as a link from a class and name to a set of onward links.
-
-    """
+class TraitMappingBase(MappingBase, Base):
 
     __tablename__ = "trait_mappings"
+
+    _db_type = sqlalchemy.Column('type', sqlalchemy.String(50))
+    __mapper_args__ = {'polymorphic_on': "_db_type"}
+
     _database_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.Sequence('trait_mapping_seq'), primary_key=True)
     _db_trait_class = sqlalchemy.Column(sqlalchemy.String)
-    _db_trait_key = sqlalchemy.Column(sqlalchemy.String)
+
     trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
-                                           collection_class=attribute_mapped_collection('name'))
+                                           collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
+
+    def __init__(self):
+        self._trait_class = None  # type: Type[fidia.traits.BaseTrait]
 
     def _reconstruct_trait_class(self):
         if '.' in self._db_trait_class:
@@ -810,76 +812,6 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling, Base):
                 "Error reconstructing TraitMapping from database: Unknown FIDIA trait class."
             self._trait_class = trait_type
 
-    def _reconstruct_trait_key(self):
-        self._trait_key = TraitKey.as_traitkey(self._db_trait_key)
-
-    @reconstructor
-    def __db_init__(self):
-        self._reconstruct_trait_class()
-        self._reconstruct_trait_key()
-        self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
-        # self.trait_property_mappings = dict()  # type: Dict[str, str]
-        self.named_sub_mappings = MultiDexDict(2)
-
-        # self._reconstructed = True
-
-    def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
-        # type: (Type[fidia.traits.BaseTrait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
-
-        # Initialise internal variables
-        self._trait_class = None  # type: Type[fidia.traits.BaseTrait]
-        self._trait_key = None  # type: fidia.traits.TraitKey
-        self._reconstructed = False
-
-        self.trait_class = trait_class
-        self.trait_key = TraitKey.as_traitkey(trait_key)
-        # self._db_mappings = mappings
-
-        self.name = snake_case(self.trait_class.__name__)
-
-        MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
-        # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
-
-        self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
-        # self.trait_property_mappings = dict()  # type: Dict[str, str]
-        self.named_sub_mappings = MultiDexDict(2)
-
-        for item in mappings:
-            if isinstance(item, TraitPropertyMapping):
-                self.trait_property_mappings[item.name] = item
-                # self._db_mappings.append(item)
-            elif isinstance(item, SubTraitMapping):
-                if issubclass(self.trait_class, fidia.TraitCollection):
-                    raise ValueError("TraitCollections don't support sub-Traits")
-                self.sub_trait_mappings[item.name] = item
-            elif isinstance(item, TraitMapping):
-                if issubclass(self.trait_class, fidia.Trait):
-                    raise ValueError("Named subtraits not yet supported for Traits.")
-                self.named_sub_mappings[item.key()] = item
-            else:
-                raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
-
-    def validate(self):
-        # Check that all required (not optional) TraitProperties are defined in the schema:
-        for tp in self.trait_class.trait_properties():
-            if tp.name not in self.trait_property_mappings and not tp.optional:
-                raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
-
-    def key(self):
-        return self.name, str(self.trait_key)
-
-
-    @property
-    def trait_key(self):
-        if getattr(self, '_trait_key', None) is None:
-            self._reconstruct_trait_key()
-        return self._trait_key
-
-    @trait_key.setter
-    def trait_key(self, value):
-        tk = TraitKey.as_traitkey(value)
-        self._db_trait_key = str(tk)
-        self._trait_key = tk
 
     @property
     def trait_class(self):
@@ -893,14 +825,103 @@ class TraitMapping(MappingBase, MappingBranchVersionHandling, Base):
         self._db_trait_class = value.__name__
         self._trait_class = value
 
+
+class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
+    """Representation of the schema of a Trait.
+
+    This can be thought of as a link from a class and name to a set of onward links.
+
+    """
+
+    __mapper_args__ = {'polymorphic_identity': 'TraitMapping'}
+
+    _db_trait_key = sqlalchemy.Column(sqlalchemy.String)
+
+    @reconstructor
+    def __db_init__(self):
+        self._reconstruct_trait_class()
+        self._reconstruct_trait_key()
+        self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
+        self.named_sub_mappings = MultiDexDict(2)
+
+        # self._reconstructed = True
+
+    def _reconstruct_trait_key(self):
+        self._trait_key = TraitKey.as_traitkey(self._db_trait_key)
+
+
+    def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
+        # type: (Type[fidia.traits.BaseTrait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
+
+        # Initialise internal variables
+        self._reconstructed = False
+        self._trait_key = None  # type: fidia.traits.TraitKey
+
+        self.trait_class = trait_class
+        self.trait_key = TraitKey.as_traitkey(trait_key)
+        # self._db_mappings = mappings
+
+        self.name = snake_case(self.trait_class.__name__)
+
+        # Super calls
+        #     These are individual because not all super initialisers
+        #     need to be called, and the arguments are different.
+        TraitMappingBase.__init__(self)
+        MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
+        # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
+
+        self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
+        # self.trait_property_mappings = dict()  # type: Dict[str, str]
+        self.named_sub_mappings = MultiDexDict(2)
+
+        for item in mappings:
+            if isinstance(item, TraitPropertyMapping):
+                self.trait_property_mappings[item.name] = item
+            elif isinstance(item, SubTraitMapping):
+                if issubclass(self.trait_class, fidia.TraitCollection):
+                    raise ValueError("TraitCollections don't support sub-Traits")
+                self.sub_trait_mappings[item.name] = item
+            elif isinstance(item, TraitMapping):
+                if issubclass(self.trait_class, fidia.Trait):
+                    raise ValueError("Named subtraits not yet supported for Traits.")
+                self.named_sub_mappings[item.key()] = item
+            else:
+                raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
+
+    @property
+    def trait_key(self):
+        if getattr(self, '_trait_key', None) is None:
+            self._reconstruct_trait_key()
+        return self._trait_key
+
+    @trait_key.setter
+    def trait_key(self, value):
+        tk = TraitKey.as_traitkey(value)
+        self._db_trait_key = str(tk)
+        self._trait_key = tk
+
+    def validate(self):
+        # Check that all required (not optional) TraitProperties are defined in the schema:
+        for tp in self.trait_class.trait_properties():
+            if tp.name not in self.trait_property_mappings and not tp.optional:
+                raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
+
+    def key(self):
+        return self.name, str(self.trait_key)
+
     def __repr__(self):
         if self._reconstructed is None:
             return "Unreconstructed " + super(TraitMapping, self).__repr__()
+
+        mappings = list(self.trait_property_mappings.values())
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
-                (self.trait_class.__name__, str(self.trait_key), repr(self._db_mappings)))
+                (self.trait_class.__name__, str(self.trait_key), repr(mappings)))
 
 
-class SubTraitMapping(MappingBase):
+class SubTraitMapping(TraitMappingBase):
+
+    __mapper_args__ = {'polymorphic_identity': 'SubTraitMapping'}
+
     def __init__(self, sub_trait_name, trait_class, mappings):
         # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
         assert issubclass(trait_class, fidia.traits.BaseTrait)
@@ -908,13 +929,17 @@ class SubTraitMapping(MappingBase):
         self.name = sub_trait_name
         self._mappings = mappings
 
+        # Super calls
+        #     These are individual because not all super initialisers
+        #     need to be called, and the arguments are different.
+        TraitMappingBase.__init__(self)
+
+
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
-        self.trait_property_mappings = dict()  # type: Dict[str, str]
 
         for item in self._mappings:
             if isinstance(item, TraitPropertyMapping):
-                self.trait_property_mappings[item.name] = item.id
-                self._db_trait_property_mappings.append(item)
+                self.trait_property_mappings[item.name] = item
             elif isinstance(item, SubTraitMapping):
                 self.sub_trait_mappings[item.name] = item
             elif isinstance(item, TraitMapping):
