@@ -1,5 +1,7 @@
 from collections import OrderedDict
 import requests
+import time
+
 from operator import itemgetter, attrgetter
 from rest_framework.reverse import reverse
 # from rest_framework.decorators import detail_route, list_route
@@ -130,6 +132,7 @@ class FilterByTerm(generics.CreateAPIView):
         ra_max = ra_deg + 2 * rad_deg
         dec_min = dec_deg - 2 * rad_deg
         dec_max = dec_deg + 2 * rad_deg
+        # t0 = time.time()
         # print(_ra_min, _ra_max, _dec_min, _dec_max)
         data = []
         for key, x in get_archive().items():
@@ -140,6 +143,8 @@ class FilterByTerm(generics.CreateAPIView):
                 sep = c1.separation(c2)
                 if sep.degree < rad_deg:
                     data.append(x)
+        # t1 = time.time()
+        # print(t1-t0)
         return data
 
     def filter_by_keyword(self, data=None, filter_term=None, search_value=None):
