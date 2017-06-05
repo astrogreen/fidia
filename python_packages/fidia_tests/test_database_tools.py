@@ -83,6 +83,36 @@ class TestDatabaseBasics:
 
         # assert False
 
+    def test_sub_trait_mapping(self, session, engine):
+        from fidia.traits.trait_utilities import SubTraitMapping, TraitPropertyMapping, Base
+        from fidia.traits import ImageWCS
+
+        Base.metadata.create_all(engine)
+
+        stm = SubTraitMapping(
+                    'wcs', ImageWCS, [
+                        TraitPropertyMapping('crpix1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
+                        TraitPropertyMapping('crpix2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),
+                    ]
+                )
+        session.add(stm)
+        #session.commit()
+
+        del stm
+
+        # The data has been pushed to the database and removed from Python. Now
+        # try to reload the data from the DB.
+
+
+        stm = session.query(SubTraitMapping).filter_by(name='wcs').one()
+        print(stm)
+        assert isinstance(stm, SubTraitMapping)
+        assert stm.trait_class is ImageWCS
+        assert stm.name == "wcs"
+
+        session.rollback()
+
+
     def test_trait_mapping_with_subtraits(self, session, engine):
 
         from fidia.traits import TraitMapping, TraitPropertyMapping, Image, TraitKey, SubTraitMapping, ImageWCS
@@ -126,3 +156,10 @@ class TestDatabaseBasics:
             if item.name == "data":
                 assert item.id == "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"
 
+        wcs = tm.sub_trait_mappings["wcs"]
+        assert isinstance(wcs, SubTraitMapping)
+        assert wcs.trait_class is ImageWCS
+        assert wcs.name == "wcs"
+        tp = wcs.trait_property_mappings['crpix1']
+        assert isinstance(tp, TraitPropertyMapping)
+        assert tp.id == 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'

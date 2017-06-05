@@ -837,11 +837,15 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
     _db_trait_key = sqlalchemy.Column(sqlalchemy.String)
 
+    sub_trait_mappings = relationship(
+        "SubTraitMapping", # back_populates="_trait_mappings",
+        collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
+
     @reconstructor
     def __db_init__(self):
         self._reconstruct_trait_class()
         self._reconstruct_trait_key()
-        self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
+        # self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
         self.named_sub_mappings = MultiDexDict(2)
 
         # self._reconstructed = True
@@ -922,12 +926,16 @@ class SubTraitMapping(TraitMappingBase):
 
     __mapper_args__ = {'polymorphic_identity': 'SubTraitMapping'}
 
+    _parent_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('trait_mappings._database_id'))
+
+    name = sqlalchemy.Column(sqlalchemy.String)
+
     def __init__(self, sub_trait_name, trait_class, mappings):
         # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
         self.name = sub_trait_name
-        self._mappings = mappings
+        # self._mappings = mappings
 
         # Super calls
         #     These are individual because not all super initialisers
@@ -937,7 +945,7 @@ class SubTraitMapping(TraitMappingBase):
 
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
 
-        for item in self._mappings:
+        for item in mappings:
             if isinstance(item, TraitPropertyMapping):
                 self.trait_property_mappings[item.name] = item
             elif isinstance(item, SubTraitMapping):
@@ -951,8 +959,9 @@ class SubTraitMapping(TraitMappingBase):
         pass
 
     def __repr__(self):
+        mappings = list(self.trait_property_mappings.values())
         return ("SubTraitMapping(sub_trait_name=%s, trait_class=%s, mappings=%s)" %
-                (repr(self.name), self.trait_class.__name__, repr(self._mappings)))
+                (repr(self.name), self.trait_class.__name__, repr(mappings)))
 
 
 class TraitPropertyMapping(Base, MappingBase):
@@ -962,7 +971,7 @@ class TraitPropertyMapping(Base, MappingBase):
     database_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.Sequence('trait_mapping_seq'), primary_key=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     id = sqlalchemy.Column(sqlalchemy.String)
-    _trait_mappings = relationship("TraitMapping", back_populates="trait_property_mappings")
+    _trait_mappings = relationship("TraitMappingBase", back_populates="trait_property_mappings")
     _trait_mapping_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('trait_mappings._database_id'))
 
     def __init__(self, property_name, column_id):
