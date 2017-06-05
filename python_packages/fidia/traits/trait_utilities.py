@@ -767,7 +767,6 @@ class MappingBranchVersionHandling:
         return tk
 
 
-engine = sqlalchemy.create_engine('sqlite:///:memory:', echo=True)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
@@ -798,6 +797,7 @@ class TraitMappingBase(MappingBase, Base):
     def __init__(self):
         self._trait_class = None  # type: Type[fidia.traits.BaseTrait]
 
+
     def _reconstruct_trait_class(self):
         if '.' in self._db_trait_class:
             # this is an external Trait type, so we must construct it:
@@ -818,7 +818,6 @@ class TraitMappingBase(MappingBase, Base):
         if getattr(self, '_trait_class', None) is None:
             self._reconstruct_trait_class()
         return self._trait_class
-
     @trait_class.setter
     def trait_class(self, value):
         assert issubclass(value, fidia.traits.BaseTrait)
@@ -850,9 +849,8 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
     def __db_init__(self):
         self._reconstruct_trait_class()
         self._reconstruct_trait_key()
-        # self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
+        self._reconstructed = True
 
-        # self._reconstructed = True
 
     def _reconstruct_trait_key(self):
         self._trait_key = TraitKey.as_traitkey(self._db_trait_key)
@@ -867,7 +865,6 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
-        # self._db_mappings = mappings
 
         self.name = snake_case(self.trait_class.__name__)
 
@@ -879,7 +876,6 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
 
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
-        # self.trait_property_mappings = dict()  # type: Dict[str, str]
 
         for item in mappings:
             if isinstance(item, TraitPropertyMapping):
@@ -890,7 +886,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
                 self.sub_trait_mappings[item.name] = item
             elif isinstance(item, TraitMapping):
                 if issubclass(self.trait_class, fidia.Trait):
-                    raise ValueError("Named subtraits not yet supported for Traits.")
+                    raise ValueError("Named sub-traits not yet supported for Traits.")
                 self.named_sub_mappings[item.key()] = item
             else:
                 raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)

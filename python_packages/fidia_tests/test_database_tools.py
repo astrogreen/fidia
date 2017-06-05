@@ -8,14 +8,14 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from fidia.utilities import *
-
 
 class TestDatabaseBasics:
 
     @pytest.fixture
     def engine(self):
         engine = create_engine('sqlite:///:memory:', echo=True)
+        # engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
+
         return engine
 
     @pytest.fixture
@@ -28,10 +28,10 @@ class TestDatabaseBasics:
 
         Base.metadata.create_all(engine)
 
-        tpm = TraitPropertyMapping('my_test_ctype2',
-                             'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')
+        tpm = TraitPropertyMapping(
+            'my_test_ctype2',
+            'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')
         session.add(tpm)
-        #session.commit()
 
         del tpm
 
@@ -96,7 +96,6 @@ class TestDatabaseBasics:
                     ]
                 )
         session.add(stm)
-        #session.commit()
 
         del stm
 
