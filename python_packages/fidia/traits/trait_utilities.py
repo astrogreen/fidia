@@ -19,7 +19,7 @@ import sqlalchemy
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict, fidia_classname
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -821,7 +821,7 @@ class TraitMappingBase(MappingBase, Base):
     @trait_class.setter
     def trait_class(self, value):
         assert issubclass(value, fidia.traits.BaseTrait)
-        self._db_trait_class = value.__name__
+        self._db_trait_class = fidia_classname(value)
         self._trait_class = value
 
 
@@ -866,7 +866,11 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
 
-        self.name = snake_case(self.trait_class.__name__)
+        self.name = snake_case(fidia_classname(self.trait_class))
+        # @TODO: This will break with external Trait names. 
+        #   To fix this, we should modify fidia_classname to have the option to
+        #   only return the classname, but guarantee that there are no conflicts
+        #   with existing FIDIA types.
 
         # Super calls
         #     These are individual because not all super initialisers
@@ -918,7 +922,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
         mappings = list(self.trait_property_mappings.values())
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
-                (self.trait_class.__name__, str(self.trait_key), repr(mappings)))
+                (fidia_classname(self.trait_class), str(self.trait_key), repr(mappings)))
 
 
 class SubTraitMapping(TraitMappingBase):
@@ -960,7 +964,7 @@ class SubTraitMapping(TraitMappingBase):
     def __repr__(self):
         mappings = list(self.trait_property_mappings.values())
         return ("SubTraitMapping(sub_trait_name=%s, trait_class=%s, mappings=%s)" %
-                (repr(self.name), self.trait_class.__name__, repr(mappings)))
+                (repr(self.name), fidia_classname(self.trait_class), repr(mappings)))
 
 
 class TraitPropertyMapping(Base, MappingBase):

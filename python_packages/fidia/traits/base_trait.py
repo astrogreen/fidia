@@ -52,7 +52,7 @@ import operator
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
+from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, fidia_classname
 from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
 from .trait_utilities import TraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
@@ -219,8 +219,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
 
     @classmethod
-    def trait_class_name(cls):
-        return cls.__name__
+    def trait_class_nametrait_class_name(cls):
+        return fidia_classname(cls)
 
 
     #
@@ -469,7 +469,9 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     # Functions to augment behaviour in Python
 
     def __str__(self):
-        return "<Trait class '{classname}': {trait_type}>".format(classname=self.__class__.__name__, trait_type=self.trait_type)
+        return "<Trait class '{classname}': {trait_type}>".format(
+            classname=fidia_classname(self),
+            trait_type=self.trait_type)
 
 
 

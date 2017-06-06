@@ -8,6 +8,7 @@ from copy import deepcopy
 import re
 from collections import Iterable, Sized, MutableMapping
 from contextlib import contextmanager
+from inspect import isclass
 import os
 import errno
 import fcntl
@@ -326,6 +327,26 @@ def snake_case(camel_case_string):
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
     return isinstance(obj, Iterable) and isinstance(obj, Sized) and not isinstance(obj, str) and not isinstance(obj, bytes)
+
+def fidia_classname(obj, check_fidia=False):
+    if isclass(obj):
+        klass = obj
+    else:
+        klass = obj.__class__
+
+    if klass.__module__.startswith("fidia."):
+        is_fidia = True
+        name = ""
+    else:
+        is_fidia = False
+        name = klass.__module__ + "."
+
+    name += klass.__name__
+
+    if check_fidia:
+        return name, is_fidia
+    else:
+        return name
 
 class exclusive_file_lock:
     """A context manager which will block while another process holds a lock on the named file.

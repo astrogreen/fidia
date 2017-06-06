@@ -252,3 +252,14 @@ class TestConfig:
         assert default_config['MappingDatabase']['engine'] == 'sqlite'
         assert default_config['MappingDatabase']['location'] == ''
         assert default_config['MappingDatabase']['database'] == ':memory:'
+
+
+class TestOtherUtilities:
+
+    def test_fidia_class(self):
+        from fidia.traits import Image
+        assert fidia_classname(Image) == "Image"
+
+        # Test that something outside the FIDIA namespace is fully qualified:
+        # (we just use a class from this file to test)
+        assert fidia_classname(TestOtherUtilities) == "test_fidia_general.TestOtherUtilities"
