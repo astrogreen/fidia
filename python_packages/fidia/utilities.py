@@ -25,6 +25,13 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
+__all__ = [
+    'none_at_indices', 'camel_case', 'fidia_classname', 'snake_case', 'is_list_or_set',
+    'WildcardDictionary', 'SchemaDictionary', 'MultiDexDict', 'DefaultsRegistry',
+    'Inherit', 'Default',
+    'RegexpGroup', 'exclusive_file_lock', 'classorinstancemethod'
+]
+
 def none_at_indices(tup, indices):
     result = tuple()
     for index in range(len(tup)):
@@ -329,6 +336,20 @@ def is_list_or_set(obj):
     return isinstance(obj, Iterable) and isinstance(obj, Sized) and not isinstance(obj, str) and not isinstance(obj, bytes)
 
 def fidia_classname(obj, check_fidia=False):
+    """Determine the name of the class for the given object in the context of FIDIA.
+    
+    This basically just returns the name of the class for the given object. Object can be a class or instance.
+    
+    If the object is not from FIDIA itself, it will return the full module path to the object, e.g.:
+    
+        >>> import collections
+        >>> fidia_classname(collections.OrderedDict)
+        collections.OrderedDict
+        >>> import fidia.utilities
+        >>> fidia_classname(fidia.utilities.SchemaDictionary)
+        SchemaDictionary
+
+    """
     if isclass(obj):
         klass = obj
     else:
