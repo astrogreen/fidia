@@ -1,4 +1,4 @@
-import json, requests
+import json
 from django.views.generic import TemplateView
 from django.conf import settings
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions

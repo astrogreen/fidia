@@ -14,7 +14,7 @@ from django.utils.safestring import SafeData, mark_safe
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.text import normalize_newlines
-from django.conf.urls import patterns, url, include
+# from django.conf.urls import patterns, url, include
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from rest_framework import status
 from rest_framework.utils.urls import replace_query_param
