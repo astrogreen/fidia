@@ -63,3 +63,6 @@ python_packages/fidia_astropy/distribute-*.tar.gz
 /web_application/custom_database_config.py
 /config/*
 >>>>>>> ffcd0ae8aba12d11e8c8e848af47181127e5be6e
+
+#virtual environments
+adc_venv
