@@ -767,11 +767,9 @@ class MappingBranchVersionHandling:
         return tk
 
 
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
-Base = declarative_base()
 
 class MappingBase:
 
@@ -781,15 +779,16 @@ class MappingBase:
         raise NotImplementedError()
 
 
-class TraitMappingBase(MappingBase, Base):
+class TraitMappingBase(MappingBase, bases.SQLAlchemyBase):
 
-    __tablename__ = "trait_mappings"
+    __tablename__ = "trait_mappings"  # Note this table is shared with TraitMapping and SubTraitMapping classes.
 
     _db_type = sqlalchemy.Column('type', sqlalchemy.String(50))
     __mapper_args__ = {'polymorphic_on': "_db_type"}
 
     _database_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.Sequence('trait_mapping_seq'), primary_key=True)
     _db_trait_class = sqlalchemy.Column(sqlalchemy.String)
+    _parent_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('trait_mappings._database_id'))
 
     trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
                                            collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
@@ -818,6 +817,7 @@ class TraitMappingBase(MappingBase, Base):
         if getattr(self, '_trait_class', None) is None:
             self._reconstruct_trait_class()
         return self._trait_class
+
     @trait_class.setter
     def trait_class(self, value):
         assert issubclass(value, fidia.traits.BaseTrait)
@@ -833,13 +833,11 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
     """
 
     __mapper_args__ = {'polymorphic_identity': 'TraitMapping'}
-
     _db_trait_key = sqlalchemy.Column(sqlalchemy.String)
-
+    _archive_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('archives._db_id'))
     sub_trait_mappings = relationship(
         "SubTraitMapping", # back_populates="_trait_mappings",
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
-
     named_sub_mappings = relationship(
         "TraitMapping", # back_populates="_trait_mappings",
         collection_class=attribute_mapped_collection('key'))  # type: Dict[Tuple[str, str], TraitMapping]
@@ -851,10 +849,8 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         self._reconstruct_trait_key()
         self._reconstructed = True
 
-
     def _reconstruct_trait_key(self):
         self._trait_key = TraitKey.as_traitkey(self._db_trait_key)
-
 
     def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
         # type: (Type[fidia.traits.BaseTrait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
@@ -867,7 +863,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         self.trait_key = TraitKey.as_traitkey(trait_key)
 
         self.name = snake_case(fidia_classname(self.trait_class))
-        # @TODO: This will break with external Trait names. 
+        # @TODO: This will break with external Trait names.
         #   To fix this, we should modify fidia_classname to have the option to
         #   only return the classname, but guarantee that there are no conflicts
         #   with existing FIDIA types.
@@ -929,8 +925,6 @@ class SubTraitMapping(TraitMappingBase):
 
     __mapper_args__ = {'polymorphic_identity': 'SubTraitMapping'}
 
-    _parent_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('trait_mappings._database_id'))
-
     name = sqlalchemy.Column(sqlalchemy.String)
 
     def __init__(self, sub_trait_name, trait_class, mappings):
@@ -967,7 +961,7 @@ class SubTraitMapping(TraitMappingBase):
                 (repr(self.name), fidia_classname(self.trait_class), repr(mappings)))
 
 
-class TraitPropertyMapping(Base, MappingBase):
+class TraitPropertyMapping(bases.SQLAlchemyBase, MappingBase):
 
     # Database fields and setup (SQLAlchemy)
     __tablename__ = "trait_property_mappings"

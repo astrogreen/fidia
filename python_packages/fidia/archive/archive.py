@@ -8,9 +8,15 @@ from collections import OrderedDict
 # Other Library Imports
 import pandas as pd
 
+import sqlalchemy as sa
+from sqlalchemy.orm import relationship
+# from sqlalchemy.orm.collections import attribute_mapped_collection
+
+
+
 # FIDIA Imports
 import fidia.base_classes as bases
-from ..utilities import SchemaDictionary
+from ..utilities import SchemaDictionary, fidia_classname
 # import fidia.sample as sample
 import fidia.traits as traits
 import fidia.column as columns
@@ -27,13 +33,18 @@ log.enable_console_logging()
 __all__ = ['Archive']
 
 
-class Archive(bases.Archive):
+class Archive(bases.Archive, bases.SQLAlchemyBase):
     """An archive of data."""
     column_definitions = columns.ColumnDefinitionList()
 
-    _id = None
+    # Set up how Archive objects will appear in the MappingDB
+    __tablename__ = "archives"
+    _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
+    _db_calling_arguments = sa.Column(sa.String)
+    _db_archive_class = sa.Column(sa.String)
+    trait_mappings = relationship(traits.TraitMapping)  # type: List[traits.TraitMapping]
 
-    trait_mappings = []
+    _id = None
 
     def __init__(self):
 
@@ -47,6 +58,8 @@ class Archive(bases.Archive):
         self.cache = cache.DummyCache()
 
         self._schema = {'by_trait_type': None, 'by_trait_name': None}
+
+        self._db_archive_class = fidia_classname(self)
 
         super(Archive, self).__init__()
 
@@ -328,3 +341,16 @@ class BasePathArchive(Archive):
     def __init__(self, **kwargs):
         self.basepath = kwargs.pop('basepath')
         super(BasePathArchive, self).__init__(**kwargs)
+
+
+class KnownArchives(dict):
+
+    __instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if KnownArchives.__instance is None:
+            KnownArchives.__instance = dict.__new__(cls)
+        return KnownArchives.__instance
+
+
+
