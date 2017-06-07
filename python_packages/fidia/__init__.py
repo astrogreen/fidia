@@ -10,8 +10,21 @@ if not _ASTROPY_SETUP_:
 
     pass
 
+
+    # Set up global application state first:
+
+    #     Load configuration information (from fidia.ini files if found), and
+    #     make it available:
     from fidia.local_config import config
 
+    #     Connect to the persistence database as defined by the config
+    #     information (or use the default in-memory persistance database). Then
+    #     get the database Session factory to be used for this instance of
+    #     FIDIA.
+    from fidia.database_tools import Session
+
+
+    # Set up the namespace
     import fidia.sample
     import fidia.traits
     import fidia.archive
@@ -43,3 +56,12 @@ if not _ASTROPY_SETUP_:
     # from .descriptions import *
 
     # from .archive import *
+
+    # Ensure the database is in a sensible state
+
+    from fidia.database_tools import check_create_update_database
+    check_create_update_database()
+
+    # from fidia.database_tools import is_sane_database
+    # if not is_sane_database(Session()):
+    #     raise ImportError("FIDIA Database is invalid. Consider deleting the database.")

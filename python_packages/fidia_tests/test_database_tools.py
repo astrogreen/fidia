@@ -5,21 +5,19 @@ These tests check that the database parts of FIDIA are working as expected.
 
 import pytest
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
+@pytest.fixture('module')
+def engine():
+    engine = create_engine('sqlite:///:memory:', echo=True)
+    # engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
+
+    from fidia.base_classes import SQLAlchemyBase
+    SQLAlchemyBase.metadata.create_all(engine)
+
+    return engine
 
 
 class TestDatabaseBasics:
-
-    @pytest.fixture
-    def engine(self):
-        engine = create_engine('sqlite:///:memory:', echo=True)
-        # engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
-
-        from fidia.base_classes import SQLAlchemyBase
-        SQLAlchemyBase.metadata.create_all(engine)
-
-        return engine
 
     @pytest.fixture
     def session(self, engine):
@@ -82,20 +80,20 @@ class TestDatabaseBasics:
             if item.name == "data":
                 assert item.id == "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"
 
-        # assert False
+                # assert False
 
     def test_sub_trait_mapping(self, session, engine):
         from fidia.traits.trait_utilities import SubTraitMapping, TraitPropertyMapping
         from fidia.traits import ImageWCS
 
         stm = SubTraitMapping(
-                    'wcs', ImageWCS, [
-                        TraitPropertyMapping(
-                            'crpix1',
-                            'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
-                        TraitPropertyMapping('crpix2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),
-                    ]
-                )
+            'wcs', ImageWCS, [
+                TraitPropertyMapping(
+                    'crpix1',
+                    'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
+                TraitPropertyMapping('crpix2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),
+            ]
+        )
         session.add(stm)
 
         del stm
@@ -243,3 +241,202 @@ class TestDatabaseBasics:
         # assert stm.name == "wcs"
         #
         # session.rollback()
+from sqlalchemy import create_engine
+
+
+from sqlalchemy.orm import sessionmaker
+
+from fidia.database_tools import is_sane_database
+from sqlalchemy import engine_from_config, Column, Integer, String
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import ForeignKey
+
+
+def gen_test_model():
+    Base = declarative_base()
+
+    class SaneTestModel(Base):
+        """A sample SQLAlchemy model to demostrate db conflicts. """
+
+        __tablename__ = "sanity_check_test"
+
+        #: Running counter used in foreign key references
+        id = Column(Integer, primary_key=True)
+
+    return Base, SaneTestModel
+
+
+def gen_relation_models():
+    Base = declarative_base()
+
+    class RelationTestModel(Base):
+        __tablename__ = "sanity_check_test_2"
+        id = Column(Integer, primary_key=True)
+
+    class RelationTestModel2(Base):
+        __tablename__ = "sanity_check_test_3"
+        id = Column(Integer, primary_key=True)
+
+        test_relationship_id = Column(ForeignKey("sanity_check_test_2.id"))
+        test_relationship = relationship(RelationTestModel, primaryjoin=test_relationship_id == RelationTestModel.id)
+
+    return Base, RelationTestModel, RelationTestModel2
+
+
+def gen_declarative():
+    Base = declarative_base()
+
+    class DeclarativeTestModel(Base):
+        __tablename__ = "sanity_check_test_4"
+        id = Column(Integer, primary_key=True)
+
+        @declared_attr
+        def _password(self):
+            return Column('password', String(256), nullable=False)
+
+        @hybrid_property
+        def password(self):
+            return self._password
+
+    return Base, DeclarativeTestModel
+
+
+class TestIsSaneDatabase:
+
+    """Tests for checking database sanity checks functions correctly."""
+
+
+
+    def test_sanity_pass(self, engine):
+        """See database sanity check completes when tables and columns are created."""
+
+        conn = engine.connect()
+        trans = conn.begin()
+
+        Base, SaneTestModel = gen_test_model()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        try:
+            Base.metadata.drop_all(engine, tables=[SaneTestModel.__table__])
+        except sqlalchemy.exc.NoSuchTableError:
+            pass
+
+        Base.metadata.create_all(engine, tables=[SaneTestModel.__table__])
+
+        try:
+            assert is_sane_database(Base, session) is True
+        finally:
+            Base.metadata.drop_all(engine)
+
+
+    def test_sanity_table_missing(self, engine):
+        """See check fails when there is a missing table"""
+
+        conn = engine.connect()
+        trans = conn.begin()
+
+        Base, SaneTestModel = gen_test_model()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        try:
+            Base.metadata.drop_all(engine, tables=[SaneTestModel.__table__])
+        except sqlalchemy.exc.NoSuchTableError:
+            pass
+
+        assert is_sane_database(Base, session) is False
+
+
+    # This test fails because SQLite doesn't support the DROP COLUMN syntax.
+    @pytest.mark.xfail
+    def test_sanity_column_missing(self, engine):
+        """See check fails when there is a missing table"""
+
+        conn = engine.connect()
+        trans = conn.begin()
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        Base, SaneTestModel = gen_test_model()
+        try:
+            Base.metadata.drop_all(engine, tables=[SaneTestModel.__table__])
+        except sqlalchemy.exc.NoSuchTableError:
+            pass
+        Base.metadata.create_all(engine, tables=[SaneTestModel.__table__])
+
+        # Delete one of the columns
+        engine.execute("ALTER TABLE sanity_check_test DROP COLUMN id")
+
+        # engine.execute("""
+        # BEGIN TRANSACTION;
+        #
+        # ALTER TABLE equipment RENAME TO temp_equipment;
+        #
+        # CREATE TABLE equipment (
+        #  name text NOT NULL,
+        #  model text NOT NULL,
+        #  serial integer NOT NULL UNIQUE
+        # );
+        #
+        # INSERT INTO equipment
+        # SELECT
+        #  name, model, serial
+        # FROM
+        #  temp_equipment;
+        #
+        # DROP TABLE temp_equipment;
+        #
+        # COMMIT;
+        #
+        # """)
+
+        assert is_sane_database(Base, session) is False
+
+
+    def test_sanity_pass_relationship(self, engine):
+        """See database sanity check understands about relationships and don't deem them as missing column."""
+
+        conn = engine.connect()
+        trans = conn.begin()
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        Base, RelationTestModel, RelationTestModel2  = gen_relation_models()
+        try:
+            Base.metadata.drop_all(engine, tables=[RelationTestModel.__table__, RelationTestModel2.__table__])
+        except sqlalchemy.exc.NoSuchTableError:
+            pass
+
+        Base.metadata.create_all(engine, tables=[RelationTestModel.__table__, RelationTestModel2.__table__])
+
+        try:
+            assert is_sane_database(Base, session) is True
+        finally:
+            Base.metadata.drop_all(engine)
+
+
+    def test_sanity_pass_declarative(self, engine):
+        """See database sanity check understands about relationships and don't deem them as missing column."""
+
+        conn = engine.connect()
+        trans = conn.begin()
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        Base, DeclarativeTestModel = gen_declarative()
+        try:
+            Base.metadata.drop_all(engine, tables=[DeclarativeTestModel.__table__])
+        except sqlalchemy.exc.NoSuchTableError:
+            pass
+
+        Base.metadata.create_all(engine, tables=[DeclarativeTestModel.__table__])
+
+        try:
+            assert is_sane_database(Base, session) is True
+        finally:
+            Base.metadata.drop_all(engine)
