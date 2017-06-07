@@ -34,7 +34,7 @@ __all__ = [
     'TraitProperty', 'SubTrait',
     # Trait Mappings:
     'TraitMapping', 'TraitPointer', 'TraitPropertyMapping', 'SubTraitMapping',
-    'TraitMappingDatabase',
+    'TraitManager',
     # Trait Identification:
     'TraitKey', 'TraitPath', 'validate_trait_name'
 ]
@@ -555,7 +555,7 @@ class TraitPointer(bases.TraitPointer):
     """
 
     def __init__(self, name, sample, astro_object, trait_mapping=None, trait_registry=None):
-        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping, TraitMappingDatabase) -> None
+        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping, TraitManager) -> None
         self.name = name
         self.sample = sample
         self.astro_object = astro_object
@@ -591,20 +591,20 @@ class TraitPointer(bases.TraitPointer):
 #  |  |  \ /~~\ |  |      |  | /~~\ |    |    | | \| \__>    |__/ |__)
 #
 
-class TraitMappingDatabase(bases.TraitMappingDatabase):
-    """Trait Registries handle mappings of Trait Paths to columns.
+class TraitManager(bases.TraitMappingDatabase):
+    """Trait Managers handle mappings of Trait Paths to columns.
 
     An archive module can define Traits and TraitCollections, which are then registered
-    against a TraitRegistry. The TraitRegistry will introspect the trait classes provided
+    against a TraitManager. The TraitManager will introspect the trait classes provided
     in order to build up the schema.
 
     As part of the introspection, the registry will also validate that each Trait's slots
     have been correctly filled (e.g. with another trait or a column of a particular type).
 
-    The TraitRegistry keeps a list of all valid TraitPaths that it knows about.
+    The TraitManager keeps a list of all valid TraitPaths that it knows about.
 
     ???
-    As part of registration, the Registry will update each TraitClass with information about
+    As part of registration, the Manager will update each TraitClass with information about
     where it appears in the hierarchy.
 
     ???
@@ -615,16 +615,18 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
 
     """
 
+    # @TODO: Does not check that a Trait's slots have been correctly filled.
+
     def __init__(self):
         self._mappings = []  # type: List[TraitMapping]
-        self.linked_mappings = []  # type: List[TraitMappingDatabase]
+        self.linked_mappings = []  # type: List[TraitManager]
         self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
         self.collection_mappings = dict()
         self.host = None
 
     def link_database(self, other_database, index=-1):
-        # type: (TraitMappingDatabase, int) -> None
-        assert isinstance(other_database, TraitMappingDatabase)
+        # type: (TraitManager, int) -> None
+        assert isinstance(other_database, TraitManager)
         self.linked_mappings.insert(index, other_database)
 
     def register_mapping(self, mapping):
@@ -644,7 +646,7 @@ class TraitMappingDatabase(bases.TraitMappingDatabase):
             self._local_trait_mappings[key] = mapping
             # @TODO: Also link up superclasses of the provided Trait to the FIDIA level.
         else:
-            raise ValueError("TraitMappingDatabase can only register a TraitMapping, got %s"
+            raise ValueError("TraitManager can only register a TraitMapping, got %s"
                              % mapping)
         self._mappings.append(mapping)
 

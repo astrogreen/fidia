@@ -58,7 +58,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
         # Copy input trait_mappings list to the database for persistence.
         assert isinstance(self.trait_mappings, list)
         self._trait_mappings = self.trait_mappings
-        self._mapping_db = None  # type: traits.TraitMappingDatabase
+        self._mapping_db = None  # type: traits.TraitManager
 
         self._db_archive_class = fidia_classname(self)
 
@@ -74,11 +74,11 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
     @property
     def trait_manager(self):
-        # type: () -> traits.TraitMappingDatabase
+        # type: () -> traits.TraitManager
         if self._mapping_db is None:
             log.debug("Received first request for Mapping DB on Archive %s", self)
-            self._mapping_db = traits.TraitMappingDatabase()
-            assert isinstance(self._mapping_db, traits.TraitMappingDatabase)
+            self._mapping_db = traits.TraitManager()
+            assert isinstance(self._mapping_db, traits.TraitManager)
             self._mapping_db.register_mapping_list(self._trait_mappings)
         return self._mapping_db
 

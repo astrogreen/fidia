@@ -68,7 +68,7 @@ class Sample(bases.Sample):
         self._write_archive = None
 
         # Trait Mapping database for this sample
-        self.trait_registry = traits.TraitMappingDatabase()
+        self.trait_registry = traits.TraitManager()
 
         # The mutable property defines whether objects can be added and
         # removed from this sample. The property latches on False.
