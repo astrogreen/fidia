@@ -18,6 +18,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # import fidia
 
 # Python Standard Library Imports
+from contextlib import contextmanager
 
 # Other Library Imports
 from sqlalchemy import create_engine
@@ -50,6 +51,16 @@ db_engine = create_engine("{engine}://{location}/{database}".format(
 # db_engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
 
 Session = sessionmaker(bind=db_engine)
+
+@contextmanager
+def database_transaction(session):
+    """Provide a transaction scope around a series of database operations."""
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
 
 def check_create_update_database():
     """Update the database schema to match that required by FIDIA.

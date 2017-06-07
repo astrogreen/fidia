@@ -14,9 +14,10 @@ import re
 from operator import itemgetter
 
 # Other Library Imports
+from cached_property import cached_property
 import sqlalchemy as sa
 from sqlalchemy.orm import reconstructor, relationship
-from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm.collections import attribute_mapped_collection, mapped_collection
 
 # FIDIA Imports
 from fidia.exceptions import *
@@ -625,13 +626,14 @@ class TraitManager(bases.TraitMappingDatabase, bases.SQLAlchemyBase):
     host_archive = relationship('Archive', back_populates='trait_manager', uselist=False)
     _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
 
-    def __init__(self):
+    def __init__(self, session=None):
         # self._mappings = []  # type: List[TraitMapping]
         self.linked_mappings = []  # type: List[TraitManager]
         self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
         # @TODO: Consider removing the duplication from _mappings and _local_trait_mappings
         self.collection_mappings = dict()
         self.host = None
+        self.session = session
 
     def link_database(self, other_database, index=-1):
         # type: (TraitManager, int) -> None
@@ -657,6 +659,11 @@ class TraitManager(bases.TraitMappingDatabase, bases.SQLAlchemyBase):
         else:
             raise ValueError("TraitManager can only register a TraitMapping, got %s"
                              % mapping)
+
+        # If we are connected to the persistence database, add this mapping:
+        if self.session is not None:
+            self.session.add(mapping)
+
         self._mappings.append(mapping)
 
     @property
@@ -844,11 +851,11 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
     _manager_id = sa.Column(sa.Integer, sa.ForeignKey('trait_managers._db_id'))
     # host_manager = relationship(TraitManager)  # type: TraitManager
     sub_trait_mappings = relationship(
-        "SubTraitMapping", # back_populates="_trait_mappings",
+        'SubTraitMapping', # back_populates="_trait_mappings",
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
     named_sub_mappings = relationship(
-        "TraitMapping", # back_populates="_trait_mappings",
-        collection_class=attribute_mapped_collection('key'))  # type: Dict[Tuple[str, str], TraitMapping]
+        'TraitMapping', # back_populates="_trait_mappings",
+        collection_class=mapped_collection(lambda o: o.key()))  # type: Dict[Tuple[str, str], TraitMapping]
 
 
     @reconstructor
@@ -869,12 +876,6 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
-
-        self.name = snake_case(fidia_classname(self.trait_class))
-        # @TODO: This will break with external Trait names.
-        #   To fix this, we should modify fidia_classname to have the option to
-        #   only return the classname, but guarantee that there are no conflicts
-        #   with existing FIDIA types.
 
         # Super calls
         #     These are individual because not all super initialisers
@@ -898,6 +899,14 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
                 self.named_sub_mappings[item.key()] = item
             else:
                 raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
+
+    @cached_property
+    def name(self):
+        # @TODO: This will break with external Trait names.
+        #   To fix this, we should modify fidia_classname to have the option to
+        #   only return the classname, but guarantee that there are no conflicts
+        #   with existing FIDIA types.
+        return snake_case(fidia_classname(self.trait_class))
 
     @property
     def trait_key(self):

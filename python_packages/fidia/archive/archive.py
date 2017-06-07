@@ -4,6 +4,7 @@ from typing import List
 
 # Python Standard Library Imports
 from collections import OrderedDict
+from copy import deepcopy
 
 # Other Library Imports
 import pandas as pd
@@ -17,6 +18,7 @@ from sqlalchemy.orm import relationship
 # FIDIA Imports
 import fidia.base_classes as bases
 from ..utilities import SchemaDictionary, fidia_classname
+from ..database_tools import Session, database_transaction
 # import fidia.sample as sample
 import fidia.traits as traits
 import fidia.column as columns
@@ -56,21 +58,35 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
     def __init__(self):
 
-        assert isinstance(self.trait_mappings, list)
-        self.trait_manager = traits.TraitManager()
-        self.trait_manager.register_mapping_list(self.trait_mappings)
+        # Create a database session which will be used to handle transactions
+        # associated with this archive.
+        self._db_session = Session()
 
-        self._db_archive_class = fidia_classname(self)
+        self.trait_mappings = deepcopy(self.trait_mappings)
+        self.column_definitions = deepcopy(self.column_definitions)
 
-        super(Archive, self).__init__()
+        # We wrap the rest of the initialisation in a database transaction, so
+        # if the archive cannot be initialised, it will not appear in the
+        # database.
 
-        # Associate column instances with this archive instance
-        local_columns = columns.ColumnDefinitionList()
-        for alias, column in self.column_definitions:
-            log.debug("Associating column %s with archive %s", column, self)
-            instance_column = column.associate(self)
-            local_columns.add((alias, instance_column))
-        self.columns = local_columns
+        with database_transaction(self._db_session):
+
+            assert isinstance(self.trait_mappings, list)
+            self.trait_manager = traits.TraitManager(session=self._db_session)
+            self.trait_manager.register_mapping_list(self.trait_mappings)
+
+
+            self._db_archive_class = fidia_classname(self)
+
+            super(Archive, self).__init__()
+
+            # Associate column instances with this archive instance
+            local_columns = columns.ColumnDefinitionList()
+            for alias, column in self.column_definitions:
+                log.debug("Associating column %s with archive %s", column, self)
+                instance_column = column.associate(self)
+                local_columns.add((alias, instance_column))
+            self.columns = local_columns
 
 
     @property
