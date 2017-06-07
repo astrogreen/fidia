@@ -42,7 +42,8 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
     _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
     _db_calling_arguments = sa.Column(sa.String)
     _db_archive_class = sa.Column(sa.String)
-    _trait_mappings = relationship(traits.TraitMapping)  # type: List[traits.TraitMapping]
+    _db_trait_manager = sa.Column(sa.Integer, sa.ForeignKey('trait_managers._db_id'))
+    trait_manager = relationship('TraitManager', back_populates='host_archive')
 
     _id = None
 
@@ -55,10 +56,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
     def __init__(self):
 
-        # Copy input trait_mappings list to the database for persistence.
         assert isinstance(self.trait_mappings, list)
-        self._trait_mappings = self.trait_mappings
-        self._mapping_db = None  # type: traits.TraitManager
+        self.trait_manager = traits.TraitManager()
+        self.trait_manager.register_mapping_list(self.trait_mappings)
 
         self._db_archive_class = fidia_classname(self)
 
@@ -72,15 +72,6 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
             local_columns.add((alias, instance_column))
         self.columns = local_columns
 
-    @property
-    def trait_manager(self):
-        # type: () -> traits.TraitManager
-        if self._mapping_db is None:
-            log.debug("Received first request for Mapping DB on Archive %s", self)
-            self._mapping_db = traits.TraitManager()
-            assert isinstance(self._mapping_db, traits.TraitManager)
-            self._mapping_db.register_mapping_list(self._trait_mappings)
-        return self._mapping_db
 
     @property
     def contents(self):

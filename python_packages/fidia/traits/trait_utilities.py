@@ -14,7 +14,9 @@ import re
 from operator import itemgetter
 
 # Other Library Imports
-import sqlalchemy
+import sqlalchemy as sa
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 # FIDIA Imports
 from fidia.exceptions import *
@@ -591,7 +593,7 @@ class TraitPointer(bases.TraitPointer):
 #  |  |  \ /~~\ |  |      |  | /~~\ |    |    | | \| \__>    |__/ |__)
 #
 
-class TraitManager(bases.TraitMappingDatabase):
+class TraitManager(bases.TraitMappingDatabase, bases.SQLAlchemyBase):
     """Trait Managers handle mappings of Trait Paths to columns.
 
     An archive module can define Traits and TraitCollections, which are then registered
@@ -617,10 +619,17 @@ class TraitManager(bases.TraitMappingDatabase):
 
     # @TODO: Does not check that a Trait's slots have been correctly filled.
 
+    __tablename__ = "trait_managers"
+
+    _db_id = sa.Column(sa.Integer, sa.Sequence('trait_managers_seq'), primary_key=True)
+    host_archive = relationship('Archive', back_populates='trait_manager', uselist=False)
+    _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
+
     def __init__(self):
-        self._mappings = []  # type: List[TraitMapping]
+        # self._mappings = []  # type: List[TraitMapping]
         self.linked_mappings = []  # type: List[TraitManager]
         self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
+        # @TODO: Consider removing the duplication from _mappings and _local_trait_mappings
         self.collection_mappings = dict()
         self.host = None
 
@@ -769,10 +778,6 @@ class MappingBranchVersionHandling:
         return tk
 
 
-from sqlalchemy.orm import reconstructor, relationship
-from sqlalchemy.orm.collections import attribute_mapped_collection
-
-
 class MappingBase:
 
     _reconstructed = None
@@ -785,12 +790,12 @@ class TraitMappingBase(MappingBase, bases.SQLAlchemyBase):
 
     __tablename__ = "trait_mappings"  # Note this table is shared with TraitMapping and SubTraitMapping classes.
 
-    _db_type = sqlalchemy.Column('type', sqlalchemy.String(50))
+    _db_type = sa.Column('type', sa.String(50))
     __mapper_args__ = {'polymorphic_on': "_db_type"}
 
-    _database_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.Sequence('trait_mapping_seq'), primary_key=True)
-    _db_trait_class = sqlalchemy.Column(sqlalchemy.String)
-    _parent_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('trait_mappings._database_id'))
+    _database_id = sa.Column(sa.Integer, sa.Sequence('trait_mapping_seq'), primary_key=True)
+    _db_trait_class = sa.Column(sa.String)
+    _parent_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 
     trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
                                            collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
@@ -835,8 +840,9 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
     """
 
     __mapper_args__ = {'polymorphic_identity': 'TraitMapping'}
-    _db_trait_key = sqlalchemy.Column(sqlalchemy.String)
-    _archive_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('archives._db_id'))
+    _db_trait_key = sa.Column(sa.String)
+    _manager_id = sa.Column(sa.Integer, sa.ForeignKey('trait_managers._db_id'))
+    # host_manager = relationship(TraitManager)  # type: TraitManager
     sub_trait_mappings = relationship(
         "SubTraitMapping", # back_populates="_trait_mappings",
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
@@ -927,7 +933,7 @@ class SubTraitMapping(TraitMappingBase):
 
     __mapper_args__ = {'polymorphic_identity': 'SubTraitMapping'}
 
-    name = sqlalchemy.Column(sqlalchemy.String)
+    name = sa.Column(sa.String)
 
     def __init__(self, sub_trait_name, trait_class, mappings):
         # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
@@ -967,11 +973,11 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, MappingBase):
 
     # Database fields and setup (SQLAlchemy)
     __tablename__ = "trait_property_mappings"
-    database_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.Sequence('trait_mapping_seq'), primary_key=True)
-    name = sqlalchemy.Column(sqlalchemy.String)
-    id = sqlalchemy.Column(sqlalchemy.String)
+    database_id = sa.Column(sa.Integer, sa.Sequence('trait_mapping_seq'), primary_key=True)
+    name = sa.Column(sa.String)
+    id = sa.Column(sa.String)
     _trait_mappings = relationship("TraitMappingBase", back_populates="trait_property_mappings")
-    _trait_mapping_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('trait_mappings._database_id'))
+    _trait_mapping_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 
     def __init__(self, property_name, column_id):
         # type: (str, str) -> None
