@@ -85,7 +85,7 @@ class Sample(bases.Sample):
         sample._id_cross_matches = pd.DataFrame(pd.Series(archive.contents, name=archive.name, index=archive.contents))
         sample._archives = [archive]
         sample._archives_by_id[archive.archive_id] = archive
-        sample.trait_registry.link_database(archive.trait_mappings)
+        sample.trait_registry.link_database(archive.trait_manager)
 
         return sample
     # ____________________________________________________________________

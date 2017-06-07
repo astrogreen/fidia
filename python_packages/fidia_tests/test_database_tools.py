@@ -201,3 +201,45 @@ class TestDatabaseBasics:
                 for tp in item.trait_property_mappings.values():
                     assert isinstance(tp, TraitPropertyMapping)
                     tp.name in ("stellar_mass", "stellar_mass_err")
+
+    def test_archive_persistance_in_db(self, session, engine):
+        from fidia.archive import BasePathArchive
+        from fidia.traits import TraitMapping, Image, TraitPropertyMapping
+        from fidia.column import FITSDataColumn
+
+
+        class ArchiveWithColumns(BasePathArchive):
+            _id = "testArchive"
+            column_definitions = [
+                ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+                                       ndim=2,
+                                       timestamp=1))
+            ]
+
+            trait_mappings = [
+                TraitMapping(Image, "red", [
+                    TraitPropertyMapping('data',
+                                         "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"),
+                    TraitPropertyMapping(
+                        'exposed',
+                        "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1")]
+                             )
+            ]
+
+        ar = ArchiveWithColumns(basepath='')
+
+        #
+        #
+        # del stm
+        #
+        # # The data has been pushed to the database and removed from Python. Now
+        # # try to reload the data from the DB.
+        #
+        #
+        # stm = session.query(SubTraitMapping).filter_by(name='wcs').one()
+        # print(stm)
+        # assert isinstance(stm, SubTraitMapping)
+        # assert stm.trait_class is ImageWCS
+        # assert stm.name == "wcs"
+        #
+        # session.rollback()
