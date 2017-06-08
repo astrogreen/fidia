@@ -10,7 +10,7 @@ from copy import deepcopy
 import pandas as pd
 
 import sqlalchemy as sa
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, reconstructor
 # from sqlalchemy.orm.collections import attribute_mapped_collection
 
 
@@ -42,8 +42,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
     # Set up how Archive objects will appear in the MappingDB
     __tablename__ = "archives"
     _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
-    _db_calling_arguments = sa.Column(sa.String)
     _db_archive_class = sa.Column(sa.String)
+    _db_calling_arguments = sa.Column(sa.String)
+    __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
     _db_trait_manager = sa.Column(sa.Integer, sa.ForeignKey('trait_managers._db_id'))
     trait_manager = relationship('TraitManager', back_populates='host_archive')
 
@@ -56,20 +57,34 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
     feature_catalog_data = []  # type: List[traits.TraitPath]
 
 
-    def __init__(self):
+    def __init__(self, **kwargs):
 
         # Create a database session which will be used to handle transactions
         # associated with this archive.
+        #  @TODO: Do this only if the archive is to be persisted.
+        if kwargs.pop('persist', False):
+            pass
         self._db_session = Session()
 
+        self._db_calling_arguments = repr(kwargs)
+
+
+        # Ensure that this instance of the archive has local copies of all of
+        # the Trait Mappings and Column definitions. This is necessary so that
+        # e.g. if they are defined on a class instead of an instance, the copies
+        # belonging to an instance are unique. Without this, SQLAlchemy will
+        # complain that individual TraitMappings are owned by multiple archives.
+        #
+        # This works because the right hand side may resolve to the class (or a
+        # parent class), but the left hand side will resolve to this instance's
+        # storage __dict__ only.
         self.trait_mappings = deepcopy(self.trait_mappings)
         self.column_definitions = deepcopy(self.column_definitions)
 
-        # We wrap the rest of the initialisation in a database transaction, so
-        # if the archive cannot be initialised, it will not appear in the
-        # database.
-
         with database_transaction(self._db_session):
+            # We wrap the rest of the initialisation in a database transaction, so
+            # if the archive cannot be initialised, it will not appear in the
+            # database.
 
             assert isinstance(self.trait_mappings, list)
             self.trait_manager = traits.TraitManager(session=self._db_session)
@@ -88,6 +103,15 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
                 local_columns.add((alias, instance_column))
             self.columns = local_columns
 
+            self._db_session.add(self.trait_manager)
+            self._db_session.add(self)
+
+    @reconstructor
+    def __db_init__(self):
+        """Initialiser called whn the object is reconstructed from the database."""
+        # Since this archive is being recovered from the database, it must have
+        # requested persistence.
+        self._db_session = Session()
 
     @property
     def contents(self):
@@ -167,7 +191,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
 class BasePathArchive(Archive):
     def __init__(self, **kwargs):
-        self.basepath = kwargs.pop('basepath')
+        self.basepath = kwargs['basepath']
         super(BasePathArchive, self).__init__(**kwargs)
 
 
