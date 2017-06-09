@@ -3,42 +3,45 @@ import search.helpers.regex as hre
 
 
 class AstroObjectList(serializers.Serializer):
-    id = serializers.CharField(read_only=True)
+    adcid = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
-    owner = serializers.CharField(max_length=256)
+    survey = serializers.CharField(max_length=256)
     surveys = serializers.ListField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
     url = serializers.SerializerMethodField()
 
     def get_url(self, obj):
-        _id = obj.id
+        _adcid = obj.adcid
         try:
-            _id = self.context['request'].build_absolute_uri(str(obj.id))
+            _adcid = self.context['request'].build_absolute_uri(str(obj.adcid))
         except Exception:
             pass
-        return _id
+        return _adcid
 
 
 class AstroObjectRetrieve(serializers.Serializer):
-    id = serializers.CharField(read_only=True)
+    adcid = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
-    owner = serializers.CharField(max_length=256)
+    survey = serializers.CharField(max_length=256)
     surveys = serializers.ListField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
-
 
 class FilterBy(serializers.Serializer):
     urls = serializers.ListField(max_length=256, read_only=True)
 
 
-class FilterById(serializers.Serializer):
-    id = serializers.CharField(max_length=256, required=True, label="ID*")
+class FilterByADCID(serializers.Serializer):
+    adcid = serializers.CharField(max_length=256, required=True, label="ADCID*")
 
 
 class FilterByName(serializers.Serializer):
     name = serializers.CharField(max_length=256, required=True, label="Name*")
+
+
+class FilterBySurvey(serializers.Serializer):
+    survey = serializers.CharField(max_length=256, required=True, label="Survey*")
 
 
 class FilterByPosition(serializers.Serializer):
@@ -49,3 +52,19 @@ class FilterByPosition(serializers.Serializer):
 
 class NameResolver(serializers.Serializer):
     name = serializers.CharField(max_length=256)
+
+
+class AOListByName(AstroObjectList):
+    pass
+
+
+class AOListBySurvey(AstroObjectList):
+    pass
+
+
+class AOListByADCID(AstroObjectList):
+    pass
+
+
+class AOListByPosition(AstroObjectList):
+    separation = serializers.CharField(max_length=256)

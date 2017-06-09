@@ -20,6 +20,7 @@ import query.renderers
 
 import query.dummy_schema
 import query.dummy_data.dummy_result
+import query.dummy_data.dummy_schema
 
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 # from fidia.archive.presto import PrestoArchive
@@ -167,7 +168,8 @@ class QuerySchema(views.APIView):
 
     def get(self, request, format=None):
         if settings.DB_LOCAL:
-            schema = query.dummy_schema.DUMMY_SCHEMA
+            # schema = query.dummy_schema.DUMMY_SCHEMA
+            schema = json.loads(query.dummy_data.dummy_schema.DUMMY_SCHEMA)
         else:
             schema = MappingDatabase.get_sql_schema()
         return Response(schema)

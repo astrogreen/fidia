@@ -301,7 +301,7 @@ os.environ.setdefault('PYPANDOC_PANDOC', PANDOC_PATH)
 
 
 REST_FRAMEWORK = {
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': 100,
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
