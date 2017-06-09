@@ -8,7 +8,7 @@ from copy import deepcopy
 import re
 from collections import Iterable, Sized, MutableMapping
 from contextlib import contextmanager
-from inspect import isclass
+from inspect import isclass, getattr_static
 import os
 import errno
 import fcntl
@@ -31,6 +31,17 @@ __all__ = [
     'Inherit', 'Default',
     'RegexpGroup', 'exclusive_file_lock', 'classorinstancemethod'
 ]
+
+def reset_cached_property(object, property_name):
+    """Checks if a cached_property has been cached, and if so, resets it.
+
+    UNTESTED!!!
+
+    """
+    # @TODO: Write some unit tests for this!
+    if getattr(type(object), property_name) is not getattr_static(object, property_name):
+        # The instance has something other than the descriptor at the
+        delattr(object, property_name)
 
 def none_at_indices(tup, indices):
     result = tuple()
