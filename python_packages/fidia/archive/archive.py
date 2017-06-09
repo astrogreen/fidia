@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from typing import List
 
 # Python Standard Library Imports
-from collections import OrderedDict
+from collections import OrderedDict, Mapping
 from copy import deepcopy
 
 # Other Library Imports
@@ -33,7 +33,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-__all__ = ['Archive']
+__all__ = ['Archive', 'KnownArchives']
 
 
 class Archive(bases.Archive, bases.SQLAlchemyBase):
@@ -227,20 +227,44 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
 
 
+
 class BasePathArchive(Archive):
     def __init__(self, **kwargs):
         self.basepath = kwargs['basepath']
         super(BasePathArchive, self).__init__(**kwargs)
 
+class ArchiveDefinition(object):
 
-class KnownArchives(dict):
+
+    def __new__(cls):
+        pass
+
+
+class KnownArchives(object):
 
     __instance = None
 
+    # The following __new__ function implements a Singleton.
     def __new__(cls, *args, **kwargs):
         if KnownArchives.__instance is None:
-            KnownArchives.__instance = dict.__new__(cls)
+            instance = object.__new__(cls)
+
+            instance._query = Session().query(Archive)  # type: sa.orm.query.Query
+
+            KnownArchives.__instance = instance
         return KnownArchives.__instance
 
+    @property
+    def all(self):
+        # type: () -> List[Archive]
+        return self._query.order_by('archive_id').all()
 
+
+    class by_id(object):
+        def __getitem__(self, item):
+            try:
+                return KnownArchives.__instance._query.filter_by(archive_id=item).one()
+            except:
+                raise KeyError("No archive with id '%s'" % item)
+    by_id = by_id()
 
