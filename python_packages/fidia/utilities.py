@@ -29,7 +29,7 @@ __all__ = [
     'none_at_indices', 'camel_case', 'fidia_classname', 'snake_case', 'is_list_or_set',
     'WildcardDictionary', 'SchemaDictionary', 'MultiDexDict', 'DefaultsRegistry',
     'Inherit', 'Default',
-    'RegexpGroup', 'exclusive_file_lock', 'classorinstancemethod'
+    'RegexpGroup', 'exclusive_file_lock', 'classorinstancemethod', 'reset_cached_property'
 ]
 
 def reset_cached_property(object, property_name):
