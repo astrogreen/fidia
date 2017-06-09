@@ -33,7 +33,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-__all__ = ['Archive', 'KnownArchives']
+__all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
 
 class Archive(bases.Archive, bases.SQLAlchemyBase):
@@ -80,19 +80,6 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
         self._db_session = Session()
 
         self._db_calling_arguments = repr(kwargs)
-
-
-        # Ensure that this instance of the archive has local copies of all of
-        # the Trait Mappings and Column definitions. This is necessary so that
-        # e.g. if they are defined on a class instead of an instance, the copies
-        # belonging to an instance are unique. Without this, SQLAlchemy will
-        # complain that individual TraitMappings are owned by multiple archives.
-        #
-        # This works because the right hand side may resolve to the class (or a
-        # parent class), but the left hand side will resolve to this instance's
-        # storage __dict__ only.
-        self.trait_mappings = deepcopy(self.trait_mappings)
-        self.column_definitions = deepcopy(self.column_definitions)
 
         with database_transaction(self._db_session):
             # We wrap the rest of the initialisation in a database transaction, so
@@ -235,10 +222,56 @@ class BasePathArchive(Archive):
 
 class ArchiveDefinition(object):
 
+    name = None
+    archive_id = None
 
-    def __new__(cls):
+    archive_type = Archive
+    writable = False
+
+    def __init__(self, **kwargs):
+        # __init__ of superclasses not called.
         pass
 
+    def __new__(cls, **kwargs):
+
+        from fidia import known_archives
+
+        definition = object.__new__(cls)
+        definition.__init__(**kwargs)
+
+        # @TODO: Validate definition
+
+        # Check if archive already exists:
+        try:
+            return known_archives.by_id[definition.archive_id]
+        except KeyError:
+            pass
+
+        # Archive doesn't exist, so it must be created
+        archive = definition.archive_type.__new__(definition.archive_type)
+
+        # I n i t i a l i s e   t h e   A r  c h i v e
+
+        # Basics
+        archive._id = definition.archive_id
+        archive.name = definition.name
+        archive.writeable = definition.writable
+        # archive._db_calling_arguments = repr(kwargs)
+        archive._contents = definition._contents
+
+        # TraitMappings
+        archive.trait_mappings = deepcopy(definition.trait_mappings)
+        archive.column_definitions = deepcopy(definition.column_definitions)
+        #     Ensure that this instance of the archive has local copies of all
+        #     of the Trait Mappings and Column definitions. This is necessary so
+        #     that e.g. if they are defined on a class instead of an instance,
+        #     the copies belonging to an instance are unique. Without this,
+        #     SQLAlchemy will complain that individual TraitMappings are owned
+        #     by multiple archives.
+
+        archive.__init__(**kwargs)
+
+        return archive
 
 class KnownArchives(object):
 

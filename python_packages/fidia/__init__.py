@@ -45,6 +45,8 @@ if not _ASTROPY_SETUP_:
 
     from .sample import Sample
 
+    from .archive.archive import ArchiveDefinition
+
 
     # from .sample import Sample
     # from .astro_object import AstronomicalObject
