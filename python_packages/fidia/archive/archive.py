@@ -17,7 +17,8 @@ from sqlalchemy.orm import relationship, reconstructor
 
 # FIDIA Imports
 import fidia.base_classes as bases
-from ..utilities import SchemaDictionary, fidia_classname
+from ..exceptions import *
+from ..utilities import SchemaDictionary, fidia_classname, MultiDexDict
 from ..database_tools import Session, database_transaction
 # import fidia.sample as sample
 import fidia.traits as traits
@@ -45,6 +46,10 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
     _db_archive_class = sa.Column(sa.String)
     _db_calling_arguments = sa.Column(sa.String)
     __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
+
+    _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
+
+
     _db_trait_manager = sa.Column(sa.Integer, sa.ForeignKey('trait_managers._db_id'))
     trait_manager = relationship('TraitManager', back_populates='host_archive')
 
@@ -58,6 +63,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
 
     def __init__(self, **kwargs):
+
+        self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
+
 
         # Create a database session which will be used to handle transactions
         # associated with this archive.
@@ -87,8 +95,12 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
             # database.
 
             assert isinstance(self.trait_mappings, list)
-            self.trait_manager = traits.TraitManager(session=self._db_session)
-            self.trait_manager.register_mapping_list(self.trait_mappings)
+            # self.trait_manager = traits.TraitManager(session=self._db_session)
+            # self.trait_manager.register_mapping_list(self.trait_mappings)
+
+            for mapping in self.trait_mappings:
+                self.register_mapping(mapping)
+
 
 
             self._db_archive_class = fidia_classname(self)
@@ -103,15 +115,36 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
                 local_columns.add((alias, instance_column))
             self.columns = local_columns
 
-            self._db_session.add(self.trait_manager)
+            # self._db_session.add(self.trait_manager)
             self._db_session.add(self)
 
     @reconstructor
     def __db_init__(self):
-        """Initialiser called whn the object is reconstructed from the database."""
+        """Initializer called when the object is reconstructed from the database."""
         # Since this archive is being recovered from the database, it must have
         # requested persistence.
         self._db_session = Session()
+
+    def register_mapping(self, mapping):
+        # type: (TraitMapping) -> None
+
+        from fidia.traits import TraitMapping
+
+        if isinstance(mapping, TraitMapping):
+            mapping.validate()
+            key = mapping.key()
+            log.debug("Registering mapping for key %s", key)
+            # Check if key already exists in this database
+            if key in self._local_trait_mappings:
+                raise FIDIAException("Attempt to add/change an existing mapping")
+            self._local_trait_mappings[key] = mapping
+            # @TODO: Also link up superclasses of the provided Trait to the FIDIA level.
+        else:
+            raise ValueError("TraitManager can only register a TraitMapping, got %s"
+                             % mapping)
+
+
+        self._mappings.append(mapping)
 
     @property
     def contents(self):

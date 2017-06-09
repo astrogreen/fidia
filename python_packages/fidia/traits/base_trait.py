@@ -499,7 +499,7 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
         if item in map(operator.itemgetter(0), self.trait_mapping.named_sub_mappings.keys()):
             # item is a Trait or TraitCollection, so should return a
             # TraitPointer object with the corresponding sub-schema.
-            return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping, self.sample.trait_registry)
+            return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping, None)
 
         elif item in self.trait_mapping.trait_property_mappings:
             # item is a TraitProperty. Behave like TraitProperty

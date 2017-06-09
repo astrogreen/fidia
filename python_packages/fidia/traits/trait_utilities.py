@@ -571,10 +571,8 @@ class TraitPointer(bases.TraitPointer):
         if self.trait_mapping is not None:
             tk = self.trait_mapping.update_trait_key_with_defaults(tk)
             mapping = self.trait_mapping.named_sub_mappings[self.name, str(tk)]  # type: TraitMapping
-        elif self.trait_registry is not None:
-            mapping = self.trait_registry.trait_mappings[self.name, str(tk)]  # type: TraitMapping
         else:
-            raise Exception("Programming error")
+            mapping = self.sample.trait_mappings[self.name, str(tk)]  # type: TraitMapping
         trait_class = mapping.trait_class
         # assert issubclass(trait_class, (fidia.Trait, fidia.TraitCollection))
         trait = trait_class(sample=self.sample, trait_key=tk,
@@ -624,9 +622,10 @@ class TraitManager(bases.TraitMappingDatabase, bases.SQLAlchemyBase):
 
     _db_id = sa.Column(sa.Integer, sa.Sequence('trait_managers_seq'), primary_key=True)
     host_archive = relationship('Archive', back_populates='trait_manager', uselist=False)
-    _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
+    # _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
 
     def __init__(self, session=None):
+        raise Exception("TraitManagers are deprecated!")
         # self._mappings = []  # type: List[TraitMapping]
         self.linked_mappings = []  # type: List[TraitManager]
         self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
@@ -848,7 +847,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
     __mapper_args__ = {'polymorphic_identity': 'TraitMapping'}
     _db_trait_key = sa.Column(sa.String)
-    _manager_id = sa.Column(sa.Integer, sa.ForeignKey('trait_managers._db_id'))
+    _archive_id = sa.Column(sa.Integer, sa.ForeignKey('archives._db_id'))
     # host_manager = relationship(TraitManager)  # type: TraitManager
     sub_trait_mappings = relationship(
         'SubTraitMapping', # back_populates="_trait_mappings",
