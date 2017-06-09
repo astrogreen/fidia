@@ -37,7 +37,16 @@ __all__ = ['Archive']
 
 
 class Archive(bases.Archive, bases.SQLAlchemyBase):
-    """An archive of data."""
+    """An archive of data.
+
+    An `.Archive` can define Traits and TraitCollections, which are checked and
+    registered when the archive is created. As part of the registration, each
+    TraitMapping is validated. This validation checks each Trait's slots have
+    been correctly filled (e.g. with another trait or a column of a particular
+    type).
+
+
+    """
     column_definitions = columns.ColumnDefinitionList()
 
     # Set up how Archive objects will appear in the MappingDB
@@ -48,10 +57,6 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
     __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
 
     _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
-
-
-    _db_trait_manager = sa.Column(sa.Integer, sa.ForeignKey('trait_managers._db_id'))
-    trait_manager = relationship('TraitManager', back_populates='host_archive')
 
     _id = None
 

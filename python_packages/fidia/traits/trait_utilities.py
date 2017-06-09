@@ -37,7 +37,6 @@ __all__ = [
     'TraitProperty', 'SubTrait',
     # Trait Mappings:
     'TraitMapping', 'TraitPointer', 'TraitPropertyMapping', 'SubTraitMapping',
-    'TraitManager',
     # Trait Identification:
     'TraitKey', 'TraitPath', 'validate_trait_name'
 ]
@@ -591,115 +590,6 @@ class TraitPointer(bases.TraitPointer):
 #  |  |__)  /\  |  |      |\/|  /\  |__) |__) | |\ | / _`    |  \ |__)
 #  |  |  \ /~~\ |  |      |  | /~~\ |    |    | | \| \__>    |__/ |__)
 #
-
-class TraitManager(bases.TraitMappingDatabase, bases.SQLAlchemyBase):
-    """Trait Managers handle mappings of Trait Paths to columns.
-
-    An archive module can define Traits and TraitCollections, which are then registered
-    against a TraitManager. The TraitManager will introspect the trait classes provided
-    in order to build up the schema.
-
-    As part of the introspection, the registry will also validate that each Trait's slots
-    have been correctly filled (e.g. with another trait or a column of a particular type).
-
-    The TraitManager keeps a list of all valid TraitPaths that it knows about.
-
-    ???
-    As part of registration, the Manager will update each TraitClass with information about
-    where it appears in the hierarchy.
-
-    ???
-    It also handles instanciating traits as required when they are looked up
-
-    When Traits are instanciated, they are provided with the trait key used to instanciate
-    them, the archive instance containing them, and the trait path leading to them.
-
-    """
-
-    # @TODO: Does not check that a Trait's slots have been correctly filled.
-
-    __tablename__ = "trait_managers"
-
-    _db_id = sa.Column(sa.Integer, sa.Sequence('trait_managers_seq'), primary_key=True)
-    host_archive = relationship('Archive', back_populates='trait_manager', uselist=False)
-    # _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
-
-    def __init__(self, session=None):
-        raise Exception("TraitManagers are deprecated!")
-        # self._mappings = []  # type: List[TraitMapping]
-        self.linked_mappings = []  # type: List[TraitManager]
-        self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
-        # @TODO: Consider removing the duplication from _mappings and _local_trait_mappings
-        self.collection_mappings = dict()
-        self.host = None
-        self.session = session
-
-    def link_database(self, other_database, index=-1):
-        # type: (TraitManager, int) -> None
-        assert isinstance(other_database, TraitManager)
-        self.linked_mappings.insert(index, other_database)
-
-    def register_mapping(self, mapping):
-        # type: (TraitMapping) -> None
-        if isinstance(mapping, TraitMapping):
-            mapping.validate()
-            key = mapping.key()
-            log.debug("Registering mapping for key %s", key)
-            # Check if key already exists in this database
-            if key in self._local_trait_mappings:
-                raise FIDIAException("Attempt to add/change an existing mapping")
-            # Check if key already exists in a linked database
-            for sub_db in self.linked_mappings:
-                if key in sub_db.trait_mappings:
-                    log.warning("New mapping %s shadows existing mapping %s in %s",
-                                mapping, sub_db.trait_mappings[key], sub_db.host)
-            self._local_trait_mappings[key] = mapping
-            # @TODO: Also link up superclasses of the provided Trait to the FIDIA level.
-        else:
-            raise ValueError("TraitManager can only register a TraitMapping, got %s"
-                             % mapping)
-
-        # If we are connected to the persistence database, add this mapping:
-        if self.session is not None:
-            self.session.add(mapping)
-
-        self._mappings.append(mapping)
-
-    @property
-    def trait_mappings(self):
-        result = MultiDexDict(2)
-        for sub_db in self.linked_mappings:
-            result.update(sub_db.trait_mappings)
-        result.update(self._local_trait_mappings)
-        return result
-
-    def register_mapping_list(self, trait_mapping_list):
-        # type: (List[fidia.traits.TraitMapping]) -> None
-        """Simply calls `.register_trait_mapping` for each item in the supplied list."""
-        for mapping in trait_mapping_list:
-            self.register_mapping(mapping)
-
-    def get_trait_mappings(self):
-
-        # @TODO: This raises an exception if there are duplicate TraitMapping entries in the system.
-
-        trait_mapping_keys_returned = set()
-
-        for tm in self._mappings:
-            string_key = "-".join(tm.key())
-            if string_key in trait_mapping_keys_returned:
-                raise FIDIAException('Duplicate TraitMappings found: %s' % string_key)
-            trait_mapping_keys_returned.add(string_key)
-            yield tm
-
-        for sub_database in self.linked_mappings:
-            for tm in sub_database._mappings:
-                string_key = "-".join(tm.key())
-                if string_key in trait_mapping_keys_returned:
-                    # @TODO: This should perhaps be changed to simply skip shadowed mappings
-                    raise FIDIAException('Duplicate TraitMappings found: %s' % string_key)
-                yield tm
-
 
 class MappingBranchVersionHandling:
     """Mixin class to provide Branch and version handling to Mappings."""

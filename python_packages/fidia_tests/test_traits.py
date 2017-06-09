@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pytest
 
 from fidia.traits import Trait, TraitProperty, TraitKey, TraitPath
-from fidia.traits.trait_utilities import TraitManager
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
@@ -128,70 +127,70 @@ class TestTraits:
         assert 'extra' not in schema_by_non_catalog['sub_trait']
         assert 'non_catalog_data' in schema_by_non_catalog['sub_trait']
 
-    @pytest.mark.xfail
-    def test_trait_schema_catalog_non_catalog_trims_empty(self):
-
-        # This only tests the schema by trait_name
-
-        class SimpleTraitWithSubtraits(Trait):
-            # NOTE: Tests rely on this class, so changing it will require updating the tests!
-
-            trait_type = "simple_heir_trait"
-
-            sub_traits = TraitRegistry()
-
-            @sub_traits.register
-            class SubTrait(example_archive.SimpleTrait):
-                trait_type = 'sub_trait'
-
-            @sub_traits.register
-            class CatalogSubTrait(Trait):
-                trait_type ='sub_trait_catalog_only'
-
-                @trait_property('float')
-                def value(self):
-                    return 1.0
-
-            @sub_traits.register
-            class NonCatalogSubTrait(Trait):
-                trait_type = 'sub_trait_non_catalog_only'
-
-                @trait_property('float.array.1')
-                def value(self):
-                    return [1.0, 2.0]
-
-            @trait_property('float')
-            def value(self):
-                return 5.5
-
-            @trait_property('float.array.1')
-            def non_catalog_data(self):
-                return [1.1, 2.2, 3.3]
-
-            @trait_property('string')
-            def extra(self):
-                return "Extra info"
-
-        test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
-                                              object_id='1')
-
-        # Test the catalog-only version of the schema:
-
-        schema_by_catalog = test_trait.schema(by_trait_name=True, data_class='catalog')
-
-        # Hierarchical part of schema:
-        assert 'sub_trait_non_catalog_only' not in schema_by_catalog
-        assert 'sub_trait_catalog_only' in schema_by_catalog
-
-        del schema_by_catalog
-
-        # Test the non-catalog version of the schema:
-
-        schema_by_non_catalog = test_trait.schema(by_trait_name=True, data_class='non-catalog')
-
-        # Hierarchical part of schema:
-        assert 'sub_trait_non_catalog_only' in schema_by_non_catalog
-        assert 'sub_trait_catalog_only' not in schema_by_non_catalog
+    # @pytest.mark.xfail
+    # def test_trait_schema_catalog_non_catalog_trims_empty(self):
+    #
+    #     # This only tests the schema by trait_name
+    #
+    #     class SimpleTraitWithSubtraits(Trait):
+    #         # NOTE: Tests rely on this class, so changing it will require updating the tests!
+    #
+    #         trait_type = "simple_heir_trait"
+    #
+    #         sub_traits = TraitRegistry()
+    #
+    #         @sub_traits.register
+    #         class SubTrait(example_archive.SimpleTrait):
+    #             trait_type = 'sub_trait'
+    #
+    #         @sub_traits.register
+    #         class CatalogSubTrait(Trait):
+    #             trait_type ='sub_trait_catalog_only'
+    #
+    #             @trait_property('float')
+    #             def value(self):
+    #                 return 1.0
+    #
+    #         @sub_traits.register
+    #         class NonCatalogSubTrait(Trait):
+    #             trait_type = 'sub_trait_non_catalog_only'
+    #
+    #             @trait_property('float.array.1')
+    #             def value(self):
+    #                 return [1.0, 2.0]
+    #
+    #         @trait_property('float')
+    #         def value(self):
+    #             return 5.5
+    #
+    #         @trait_property('float.array.1')
+    #         def non_catalog_data(self):
+    #             return [1.1, 2.2, 3.3]
+    #
+    #         @trait_property('string')
+    #         def extra(self):
+    #             return "Extra info"
+    #
+    #     test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
+    #                                           object_id='1')
+    #
+    #     # Test the catalog-only version of the schema:
+    #
+    #     schema_by_catalog = test_trait.schema(by_trait_name=True, data_class='catalog')
+    #
+    #     # Hierarchical part of schema:
+    #     assert 'sub_trait_non_catalog_only' not in schema_by_catalog
+    #     assert 'sub_trait_catalog_only' in schema_by_catalog
+    #
+    #     del schema_by_catalog
+    #
+    #     # Test the non-catalog version of the schema:
+    #
+    #     schema_by_non_catalog = test_trait.schema(by_trait_name=True, data_class='non-catalog')
+    #
+    #     # Hierarchical part of schema:
+    #     assert 'sub_trait_non_catalog_only' in schema_by_non_catalog
+    #     assert 'sub_trait_catalog_only' not in schema_by_non_catalog
 
 
     @pytest.mark.xfail   # @TODO: Failing because sub-traits not implemented
