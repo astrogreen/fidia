@@ -70,26 +70,56 @@ class SurveyRetrieve(serializers.Serializer):
     objects = AstroObjectList(many=True, read_only=True)
 
 
-class DataFor(serializers.Serializer):
+class TraitLookUp(serializers.Serializer):
     # TODO replace this by list of available archives from FIDIA
     survey = serializers.ChoiceField(choices=[('sami', 'SAMI'), ('gama', 'GAMA')], required=True)
     astroObject = serializers.CharField(max_length=256, required=True)
 
 
-class DataForTrait(DataFor):
+# ____________________________________DATA_____________________________________
+
+# ____________Request__________
+
+class DataForTrait(TraitLookUp):
     pass
 
 
-class DataForTraitProperty(DataFor):
+class DataForTraitProperty(DataForTrait):
     trait_key = serializers.CharField(max_length=256, required=True)
 
 
+# ____________Response__________
 class AOByTrait(serializers.Serializer):
     pass
 
 
 class TraitByTraitProperty(serializers.Serializer):
     pass
+
+
+# ____________________________________SCHEMA____________________________________
+
+# ____________Request__________
+class SchemaForArchives(serializers.Serializer):
+    pass
+
+
+class SchemaForTrait(serializers.Serializer):
+    archive = serializers.ChoiceField(required=True, choices=[('1', '1')])
+
+
+class SchemaForTraitProperty(DataForTrait):
+    trait_key = serializers.CharField(max_length=256, required=True)
+
+
+# ____________Response__________
+class ArchiveSchema(serializers.Serializer):
+    archives = serializers.ListField()
+
+
+class TraitSchema(serializers.Serializer):
+    traits = serializers.ListField()
+    trait_schema = serializers.ListField()
 
 # class DocumentationHTMLField(serializers.Field):
 #     """Serializer for the FIDIA documentation for an object as HTML."""

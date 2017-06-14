@@ -30,6 +30,8 @@ import sov.serializers
 from sov.helpers.dummy_data.astro_object import ARCHIVE
 from sov.helpers.dummy_data.survey import SURVEYS
 
+# from fidia.traits.generic_traits import __all__ as available_traits
+import fidia.traits.generic_traits
 # import fidia.exceptions
 # from fidia.traits import Trait, TraitProperty, TraitKey
 # from fidia import traits
@@ -204,6 +206,90 @@ class DataForType(generics.CreateAPIView):
 DataForType.__doc__ = DATAFOR_DOC_STRING
 
 
+class SchemaFor(views.APIView):
+    # Root view for filter-by, returns available urls for various types of filter
+    # (keyword or position)
+    def get(self, request, *args, **kwargs):
+        return Response({
+            'fidia_types': [
+                {'type': 'archives', 'url': reverse('sov:schema-for', kwargs={"fidia_type": "archives"}, request=request)},
+                {'type': 'traits', 'url': reverse('sov:schema-for', kwargs={"fidia_type": "traits"}, request=request)},
+            ]
+        })
+
+
+class SchemaForType(generics.CreateAPIView):
+    # Filter by a keyword or position
+    queryset = get_archive().values()
+    available_keywords = ['archives', 'traits']
+
+    serializer_action_classes = {
+        'archives': sov.serializers.SchemaForArchives,
+        'traits': sov.serializers.SchemaForTrait,
+    }
+
+    filter_serializer_classes = {
+        'archives': sov.serializers.ArchiveSchema,
+        'traits': sov.serializers.TraitSchema,
+    }
+
+    def get_serializer_class(self):
+        # Override the base method, using a different serializer
+        # depending on the url parameter (these serializers govern the fields
+        # that are accessible to the route, form rendering, validation)
+        fidia_type = self.kwargs['fidia_type']
+        try:
+            return self.serializer_action_classes[fidia_type]
+        except (KeyError, AttributeError):
+            return super(SchemaForType, self).get_serializer_class()
+
+    def get_filter_serializer_class(self):
+        # returns the list serializer used to display the results
+        fidia_type = self.kwargs['fidia_type']
+        return self.filter_serializer_classes[fidia_type]
+
+    def get_schema_from_fidia(self, fidia_type=None, archive=None, astroObject=None, survey=None, trait_key=None):
+        try:
+            # get fidia trait schema
+            print(fidia.known_archives.all())
+            # _available_traits = fidia.traits.generic_traits.__all__
+            # _trait_schema = []
+            # print(fidia.traits.generic_traits.Image.__dict__)
+
+            # return [{'traits': _available_traits, 'trait_schema': _trait_schema}]
+            return []
+        except (KeyError, AttributeError):
+            _message = "Cannot access data for : %s" % fidia_type
+            return Response({'error': _message})
+
+    def create(self, request, fidia_type=None, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if fidia_type in self.available_keywords:
+            _archive = serializer.data.get('archive')
+            _astroObject = serializer.data.get('astroObject')
+            _survey = serializer.data.get('survey')
+            _trait_key = serializer.data.get('trait_key')
+            data = self.get_schema_from_fidia(fidia_type=fidia_type, archive=_archive, astroObject=_astroObject, survey=_survey, trait_key=_trait_key)
+        else:
+            # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
+            _message = "fidia_type by must be one of the following values: %s" % self.available_keywords
+            return Response({'error': _message})
+
+        completed_data = dict(enumerate(data))
+        page = self.paginate_queryset(list(completed_data.values()))
+
+        if page is not None:
+            filter_serializer_class = self.get_filter_serializer_class()
+            filter_serializer = filter_serializer_class(page, many=True)
+            return self.get_paginated_response(filter_serializer.data)
+
+        headers = self.get_success_headers(serializer.data)
+        # return each as json using
+        filter_serializer_class = self.get_filter_serializer_class()
+        filter_serializer = filter_serializer_class(instance=completed_data.values(), many=True)
+        return Response(filter_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 # class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

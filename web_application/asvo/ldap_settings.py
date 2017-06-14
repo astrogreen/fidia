@@ -1,27 +1,17 @@
 import ldap
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
-
+# ldap.set_option('TLS_CACERT', '/Users/lmannering/Documents/certs')
 print('--- loading ldap ---')
+ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
 # Baseline configuration.
-AUTH_LDAP_SERVER_URI = "ldap://asvo.aao.gov.au"
+AUTH_LDAP_SERVER_URI = "ldaps://aaopca.asvo.aao.gov.au:636"
 
-AUTH_LDAP_BIND_DN = "cn=adbinder,ou=accounts,ou=admin,dc=asvo,dc=aao,dc=gov,dc=au"
+# AUTH_LDAP_BIND_DN = "ASVO\adc_connect"
+AUTH_LDAP_BIND_DN = "cn=adc_connect,cn=Users,dc=ASVO,dc=AAO,dc=gov,dc=au"
 AUTH_LDAP_BIND_PASSWORD = "2BL0gged1n"
-AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=accounts,dc=asvo,dc=aao,dc=gov,dc=au",
-                                   ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
-# or perhaps:
-# AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=users,dc=example,dc=com"
-
-# Set up the basic group parameters.
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=surveys,ou=accounts,dc=asvo,dc=aao,dc=gov,dc=au",
-                                    ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)"
-                                    )
-AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
-
-# Simple group restrictions
-AUTH_LDAP_REQUIRE_GROUP = "cn=enabled,ou=django,ou=groups,dc=example,dc=com"
-AUTH_LDAP_DENY_GROUP = "cn=disabled,ou=django,ou=groups,dc=example,dc=com"
+AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=Standard,ou=Accounts,dc=asvo,dc=aao,dc=gov,dc=au",
+                                   ldap.SCOPE_SUBTREE, "(&(objectClass=*)(sAMAccountName=%(user)s))")
 
 # Populate the Django user from the LDAP directory.
 AUTH_LDAP_USER_ATTR_MAP = {
@@ -30,32 +20,16 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "email": "mail"
 }
 
-# We might need this kind of thing later
-# AUTH_LDAP_PROFILE_ATTR_MAP = {
-#    "employee_number": "employeeNumber"
-# }
-
-# We might need this kind of thing later
-# AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-#    "is_active": "cn=active,ou=django,ou=groups,dc=example,dc=com",
-#    "is_staff": "cn=staff,ou=django,ou=groups,dc=example,dc=com",
-#    "is_superuser": "cn=superuser,ou=django,ou=groups,dc=example,dc=com"
-# }
-
-# We might need this kind of thing later
-# AUTH_LDAP_PROFILE_FLAGS_BY_GROUP = {
-#    "is_awesome": "cn=awesome,ou=django,ou=groups,dc=example,dc=com",
-# }
+# enable TLS via start_tls_s() on default LDAP port 389
+# AUTH_LDAP_START_TLS = True
 
 # This is the default, but I like to be explicit.
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
 
-# Use LDAP group membership to calculate group permissions.
-AUTH_LDAP_FIND_GROUP_PERMS = True
-
-# Cache group memberships for an hour to minimize LDAP traffic
-AUTH_LDAP_CACHE_GROUPS = True
-AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+AUTH_LDAP_CONNECTION_OPTIONS = {
+    ldap.OPT_DEBUG_LEVEL: 0,
+    ldap.OPT_REFERRALS: 0,
+}
 
 # Keep ModelBackend around for per-user permissions and maybe a local
 # superuser.
