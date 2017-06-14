@@ -113,6 +113,96 @@ class AstroObject(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
+DATAFOR_DOC_STRING = (r"""
+    Return data from FIDIA by type:
+
+    keyword [trait, trait_property]:
+""")
+
+
+class DataFor(views.APIView):
+    # Root view for filter-by, returns available urls for various types of filter
+    # (keyword or position)
+    def get(self, request, *args, **kwargs):
+        return Response({
+            'fidia_types': [
+                {'type': 'trait', 'url': reverse('sov:data-for', kwargs={"fidia_type": "trait"}, request=request)},
+                {'type': 'trait_property', 'url': reverse('sov:data-for', kwargs={"fidia_type": "trait_property"}, request=request)},
+            ]
+        })
+
+DataFor.__doc__ = DATAFOR_DOC_STRING
+
+
+class DataForType(generics.CreateAPIView):
+    # Filter by a keyword or position
+    queryset = get_archive().values()
+    available_keywords = ['trait', 'trait_property']
+
+    serializer_action_classes = {
+        'trait': sov.serializers.DataForTrait,
+        'trait_property': sov.serializers.DataForTraitProperty,
+    }
+
+    filter_serializer_classes = {
+        'trait': sov.serializers.AOByTrait,
+        'trait_property': sov.serializers.TraitByTraitProperty,
+    }
+
+    def get_serializer_class(self):
+        # Override the base method, using a different serializer
+        # depending on the url parameter (these serializers govern the fields
+        # that are accessible to the route, form rendering, validation)
+        fidia_type = self.kwargs['fidia_type']
+        try:
+            return self.serializer_action_classes[fidia_type]
+        except (KeyError, AttributeError):
+            return super(DataForType, self).get_serializer_class()
+
+    def get_filter_serializer_class(self):
+        # returns the list serializer used to display the results
+        fidia_type = self.kwargs['fidia_type']
+        return self.filter_serializer_classes[fidia_type]
+
+    def get_data_from_fidia(self, fidia_type=None, astroObject=None, survey=None, trait_key=None):
+        try:
+            # TODO get data from fidia according to the fidia_type (trait-collection/trait/sub-trait/trait-property)
+            # TODO should the method call include information on the instance type? (e.g., dmu)
+            return []
+        except (KeyError, AttributeError):
+            _message = "Cannot access data for : %s" % fidia_type
+            return Response({'error': _message})
+
+    def create(self, request, fidia_type=None, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if fidia_type in self.available_keywords:
+            _astroObject = serializer.data.get('astroObject')
+            _survey = serializer.data.get('survey')
+            _trait_key = serializer.data.get('trait_key')
+            data = self.get_data_from_fidia(fidia_type=fidia_type, astroObject=_astroObject, survey=_survey, trait_key=_trait_key)
+        else:
+            # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
+            _message = "fidia_type by must be one of the following values: %s" % self.available_keywords
+            return Response({'error': _message})
+
+        completed_data = dict(enumerate(data))
+        page = self.paginate_queryset(list(completed_data.values()))
+
+        if page is not None:
+            filter_serializer_class = self.get_filter_serializer_class()
+            filter_serializer = filter_serializer_class(page, many=True)
+            return self.get_paginated_response(filter_serializer.data)
+
+        headers = self.get_success_headers(serializer.data)
+        # return each as json using
+        filter_serializer_class = self.get_filter_serializer_class()
+        filter_serializer = filter_serializer_class(instance=completed_data.values(), many=True)
+        return Response(filter_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+DataForType.__doc__ = DATAFOR_DOC_STRING
+
 
 
 

@@ -4,7 +4,7 @@ from search.helpers.dummy_positions import DUMMY_POSITIONS
 
 class AstroObject(object):
     def __init__(self, **kwargs):
-        for field in ('adcid', 'name', 'survey', 'surveys', 'status', 'position'):
+        for field in ('adcid', 'name', 'survey', 'surveys', 'status', 'position', 'traits'):
             setattr(self, field, kwargs.get(field, None))
 
 ARCHIVE = OrderedDict()
@@ -23,5 +23,6 @@ for i in range(lower, upper):
         surveys=surveys,
         status=['new', 'released'],
         position={"ra": DUMMY_POSITIONS[i][2], "dec": DUMMY_POSITIONS[i][1]},
+        traits={'images': ['trait_1', 'trait_2'], 'tables': ['table1'], 'spectra': ['spectrum1'], 'ifu': ['ifu_trait']}
     )
 

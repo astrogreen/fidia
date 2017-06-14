@@ -48,6 +48,7 @@ class FilterByPosition(serializers.Serializer):
     ra = serializers.RegexField(hre.RA_RE.pattern, required=True, label="RA*", initial='184.899719198317')
     dec = serializers.RegexField(hre.DEC_RE.pattern, required=True, label="Dec*", initial='0.745403840164056')
     radius = serializers.FloatField(required=False, label="Radius (arcsec)", default=3, initial='300')
+    equinox = serializers.ChoiceField(choices=[('J2000', 'J2000'), ('B1950', 'B1950')], allow_blank=False)
 
 
 class NameResolver(serializers.Serializer):

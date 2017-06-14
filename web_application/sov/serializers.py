@@ -33,25 +33,26 @@ import sov.mixins
 
 
 class AstroObjectList(serializers.Serializer):
-    id = serializers.CharField(read_only=True)
+    adcid = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
-    owner = serializers.CharField(max_length=256)
+    survey = serializers.CharField(max_length=256)
     surveys = serializers.ListField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
     url = serializers.SerializerMethodField()
 
     def get_url(self, obj):
-        return reverse('sov:astro-object-detail', kwargs={"pk": obj.id}, request=self.context.get("request"))
+        return reverse('sov:astro-object-detail', kwargs={"pk": obj.adcid}, request=self.context.get("request"))
 
 
 class AstroObjectRetrieve(serializers.Serializer):
-    id = serializers.CharField(read_only=True)
+    adcid = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
-    owner = serializers.CharField(max_length=256)
     survey = serializers.CharField(max_length=256)
+    surveys = serializers.ListField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
+    traits = serializers.DictField()
 
 
 class SurveyList(serializers.Serializer):
@@ -68,6 +69,27 @@ class SurveyRetrieve(serializers.Serializer):
     name = serializers.CharField(max_length=256)
     objects = AstroObjectList(many=True, read_only=True)
 
+
+class DataFor(serializers.Serializer):
+    # TODO replace this by list of available archives from FIDIA
+    survey = serializers.ChoiceField(choices=[('sami', 'SAMI'), ('gama', 'GAMA')], required=True)
+    astroObject = serializers.CharField(max_length=256, required=True)
+
+
+class DataForTrait(DataFor):
+    pass
+
+
+class DataForTraitProperty(DataFor):
+    trait_key = serializers.CharField(max_length=256, required=True)
+
+
+class AOByTrait(serializers.Serializer):
+    pass
+
+
+class TraitByTraitProperty(serializers.Serializer):
+    pass
 
 # class DocumentationHTMLField(serializers.Field):
 #     """Serializer for the FIDIA documentation for an object as HTML."""

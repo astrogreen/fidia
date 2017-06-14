@@ -37,6 +37,7 @@ python_packages/fidia_astropy/docs/_build
 
 # Packages/installer info
 python_packages/fidia_astropy/*.egg
+python_packages/fidia_astropy/*.eggs
 python_packages/fidia_astropy/*.egg-info
 python_packages/fidia_astropy/dist
 python_packages/fidia_astropy/build

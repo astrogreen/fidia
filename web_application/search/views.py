@@ -117,7 +117,7 @@ class FilterByTerm(generics.CreateAPIView):
         filter_term = self.kwargs['filter_term']
         return self.filter_serializer_classes[filter_term]
 
-    def filter_by_position(self, ra=None, dec=None, radius=None):
+    def filter_by_position(self, ra=None, dec=None, radius=None, equinox=None):
         """
         
         Args:
@@ -136,7 +136,7 @@ class FilterByTerm(generics.CreateAPIView):
         if ':' in dec:
             dec_unit = unit.hourangle
 
-        c1 = SkyCoord(ra=ra, dec=dec, unit=(ra_unit, dec_unit))
+        c1 = SkyCoord(ra=ra, dec=dec, unit=(ra_unit, dec_unit), equinox=equinox)
 
         ra_deg = c1.ra.degree
         dec_deg = c1.dec.degree
@@ -148,12 +148,13 @@ class FilterByTerm(generics.CreateAPIView):
         dec_max = dec_deg + 2 * rad_deg
         # t0 = time.time()
         # print(_ra_min, _ra_max, _dec_min, _dec_max)
+        # TODO talk to minh here - can the TAP server replace this? (output json)
         data = []
         for key, x in get_archive().items():
             # initial cut around box twice size of radius
             if (x.position['ra'] < ra_max) and (x.position['ra'] > ra_min) and \
                     (x.position['dec'] < dec_max) and (x.position['dec'] > dec_min):
-                c2 = SkyCoord(ra=x.position['ra'], dec=x.position['dec'], unit=(unit.deg, unit.deg))
+                c2 = SkyCoord(ra=x.position['ra'], dec=x.position['dec'], unit=(unit.deg, unit.deg), equinox='J2000')
                 sep = c1.separation(c2)
                 if sep.degree < rad_deg:
                     # print(sep.arcsec)
@@ -161,7 +162,8 @@ class FilterByTerm(generics.CreateAPIView):
                     data.append(x)
         # t1 = time.time()
         # print(t1-t0)
-        # todo sort by separation
+        # sort by separation
+        data.sort(key=lambda d: d.separation)
         return data
 
     def filter_by_keyword(self, data=None, filter_term=None, search_value=None):
@@ -184,7 +186,8 @@ class FilterByTerm(generics.CreateAPIView):
             _ra = serializer.data.get('ra')
             _dec = serializer.data.get('dec')
             _radius = serializer.data.get('radius')
-            data = self.filter_by_position(ra=_ra, dec=_dec, radius=_radius)
+            _equinox = serializer.data.get('equinox')
+            data = self.filter_by_position(ra=_ra, dec=_dec, radius=_radius, equinox=_equinox)
 
         else:
             # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
@@ -219,15 +222,21 @@ class NameResolver(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        _url = "http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxp/NSV?%s" % serializer.data.get('name')
+        _url = "http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxpI/NSV?%s" % serializer.data.get('name')
         r = requests.get(_url)
         root = ET.fromstring(r.text)
 
         data = OrderedDict()
+        aliases = []
+
         for elt in root.iter():
             # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
-            data[elt.tag] = str(elt.text).strip()
+            if elt.tag == 'alias':
+                aliases.append(str(elt.text).strip())
+            else:
+                data[elt.tag] = str(elt.text).strip()
 
+        data.update({'aliases': aliases})
         headers = self.get_success_headers(serializer.data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
