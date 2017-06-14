@@ -8,6 +8,7 @@ from copy import deepcopy
 import re
 from collections import Iterable, Sized, MutableMapping
 from contextlib import contextmanager
+from inspect import isclass, getattr_static
 import os
 import errno
 import fcntl
@@ -23,6 +24,24 @@ import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
+
+__all__ = [
+    'none_at_indices', 'camel_case', 'fidia_classname', 'snake_case', 'is_list_or_set',
+    'WildcardDictionary', 'SchemaDictionary', 'MultiDexDict', 'DefaultsRegistry',
+    'Inherit', 'Default',
+    'RegexpGroup', 'exclusive_file_lock', 'classorinstancemethod', 'reset_cached_property'
+]
+
+def reset_cached_property(object, property_name):
+    """Checks if a cached_property has been cached, and if so, resets it.
+
+    UNTESTED!!!
+
+    """
+    # @TODO: Write some unit tests for this!
+    if getattr(type(object), property_name) is not getattr_static(object, property_name):
+        # The instance has something other than the descriptor at the
+        delattr(object, property_name)
 
 def none_at_indices(tup, indices):
     result = tuple()
@@ -326,6 +345,40 @@ def snake_case(camel_case_string):
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
     return isinstance(obj, Iterable) and isinstance(obj, Sized) and not isinstance(obj, str) and not isinstance(obj, bytes)
+
+def fidia_classname(obj, check_fidia=False):
+    """Determine the name of the class for the given object in the context of FIDIA.
+    
+    This basically just returns the name of the class for the given object. Object can be a class or instance.
+    
+    If the object is not from FIDIA itself, it will return the full module path to the object, e.g.:
+    
+        >>> import collections
+        >>> fidia_classname(collections.OrderedDict)
+        collections.OrderedDict
+        >>> import fidia.utilities
+        >>> fidia_classname(fidia.utilities.SchemaDictionary)
+        SchemaDictionary
+
+    """
+    if isclass(obj):
+        klass = obj
+    else:
+        klass = obj.__class__
+
+    if klass.__module__.startswith("fidia."):
+        is_fidia = True
+        name = ""
+    else:
+        is_fidia = False
+        name = klass.__module__ + "."
+
+    name += klass.__name__
+
+    if check_fidia:
+        return name, is_fidia
+    else:
+        return name
 
 class exclusive_file_lock:
     """A context manager which will block while another process holds a lock on the named file.

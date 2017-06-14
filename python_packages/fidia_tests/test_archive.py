@@ -122,6 +122,19 @@ class TestExampleArchive:
         assert isinstance(image.data, np.ndarray)
         assert image.data.ndim == 2
 
+
+class TestKnownArchives:
+    """These tests check whether the archive persistance is working correctly.
+
+    They should perhaps be stored in database_tools tests, but anyway...
+
+    """
+
+    def test_known_archives_exists(self):
+        import fidia.archive.archive
+        assert isinstance(fidia.known_archives, fidia.archive.archive.KnownArchives)
+
+
 class TestArchive:
     pass
     # @pytest.fixture

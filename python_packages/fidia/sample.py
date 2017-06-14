@@ -17,7 +17,7 @@ by creating new (sub) sample.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Dict
 import fidia
 
 # Python Standard Library Imports
@@ -25,11 +25,12 @@ import fidia
 # Other Library Imports
 import pandas as pd
 import numpy as np
+from cached_property import cached_property
 
 # FIDIA Imports
 from .import base_classes as bases
-from .column import ColumnID
 from .exceptions import *
+from .utilities import MultiDexDict, reset_cached_property
 
 # Set up logging
 import fidia.slogging as slogging
@@ -45,8 +46,6 @@ class Sample(bases.Sample):
 
     def __init__(self):
 
-        from . import traits
-
         # Until there is something in the sample, it is useless.
         self.is_populated = False
 
@@ -61,14 +60,13 @@ class Sample(bases.Sample):
 
         # List of archives included in this Sample
         self._archives = []  # type: List[fidia.Archive]
-        self._archives_by_id = dict() # type: Dict[str, fidia.Archive]
         self._primary_archive = None
 
         # The archive which receives write requests
         self._write_archive = None
 
         # Trait Mapping database for this sample
-        self.trait_registry = traits.TraitMappingDatabase()
+        # self.trait_registry = traits.TraitManager()
 
         # The mutable property defines whether objects can be added and
         # removed from this sample. The property latches on False.
@@ -83,11 +81,28 @@ class Sample(bases.Sample):
         sample = cls()
 
         sample._id_cross_matches = pd.DataFrame(pd.Series(archive.contents, name=archive.name, index=archive.contents))
-        sample._archives = [archive]
-        sample._archives_by_id[archive.archive_id] = archive
-        sample.trait_registry.link_database(archive.trait_mappings)
+        sample.link_archive(archive)
 
         return sample
+
+
+    def link_archive(self, archive, index=-1):
+        # type: (fidia.Archive, int) -> None
+        assert isinstance(archive, fidia.Archive)
+        self._archives.insert(index, archive)
+
+        # Reset the corresponding cached_property if necessary.
+        reset_cached_property(self, '_archives_by_id')
+
+    @property
+    def trait_mappings(self):
+        # type: () -> Dict[Tuple[str, str], fidia.traits.TraitMapping]
+        result = MultiDexDict(2)
+        for archive in self._archives:
+            # @TODO: Check that this is actually going through the archives in the right order!
+            result.update(archive._local_trait_mappings)
+        return result
+
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
 
@@ -230,6 +245,11 @@ class Sample(bases.Sample):
     @property
     def archives(self):
         return self._archives
+
+    @cached_property
+    def _archives_by_id(self):
+        # type: () -> Dict[str, fidia.Archive]
+        return {a.archive_id: a for a in self._archives}
 
     def add_archive(self, archive):
         if not isinstance(archive, bases.Archive):

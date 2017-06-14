@@ -14,6 +14,7 @@ import collections
 from abc import ABCMeta, abstractclassmethod, abstractproperty
 
 # Other Library Imports
+from sqlalchemy.ext.declarative import declarative_base
 
 # FIDIA Imports
 
@@ -25,6 +26,10 @@ import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
+
+
+# Set up SQL Alchemy in declarative base mode:
+SQLAlchemyBase = declarative_base()
 
 
 class Sample(collections.MutableMapping):

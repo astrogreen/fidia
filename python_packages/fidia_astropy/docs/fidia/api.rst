@@ -12,11 +12,12 @@ FIDIA is composed of several major components:
 	.. automodule:: fidia.column
 
 .. toctree::
-	:maxdepth: 2
+	:maxdepth: 1
 
 	archives
 	samples
 	astro_objects
 	columns
 	traits
+	utilities
 

@@ -45,13 +45,14 @@ import fidia
 import pickle
 from io import BytesIO
 from collections import OrderedDict
+import operator
 
 # Other library imports
 
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry
+from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, fidia_classname
 from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
 from .trait_utilities import TraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
@@ -218,8 +219,8 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
 
     @classmethod
-    def trait_class_name(cls):
-        return cls.__name__
+    def trait_class_nametrait_class_name(cls):
+        return fidia_classname(cls)
 
 
     #
@@ -468,7 +469,9 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     # Functions to augment behaviour in Python
 
     def __str__(self):
-        return "<Trait class '{classname}': {trait_type}>".format(classname=self.__class__.__name__, trait_type=self.trait_type)
+        return "<Trait class '{classname}': {trait_type}>".format(
+            classname=fidia_classname(self),
+            trait_type=self.trait_type)
 
 
 
@@ -493,14 +496,14 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
         #   actual TraitProperty object.
 
 
-        if item in self.trait_mapping.named_sub_mappings:
+        if item in map(operator.itemgetter(0), self.trait_mapping.named_sub_mappings.keys()):
             # item is a Trait or TraitCollection, so should return a
             # TraitPointer object with the corresponding sub-schema.
-            return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping, self.sample.trait_registry)
+            return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping, None)
 
         elif item in self.trait_mapping.trait_property_mappings:
             # item is a TraitProperty. Behave like TraitProperty
-            column_id = self.trait_mapping.trait_property_mappings[item]
+            column_id = self.trait_mapping.trait_property_mappings[item].id
             # Get the result
             result = self._get_column_data(column_id)
             # Cache the result against the trait (so this code will not be called again!)
