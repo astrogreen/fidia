@@ -3,14 +3,23 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from typing import List
 
 # Python Standard Library Imports
-from collections import OrderedDict
+from collections import OrderedDict, Mapping
+from copy import deepcopy
 
 # Other Library Imports
 import pandas as pd
 
+import sqlalchemy as sa
+from sqlalchemy.orm import relationship, reconstructor
+# from sqlalchemy.orm.collections import attribute_mapped_collection
+
+
+
 # FIDIA Imports
 import fidia.base_classes as bases
-from ..utilities import SchemaDictionary
+from ..exceptions import *
+from ..utilities import SchemaDictionary, fidia_classname, MultiDexDict
+from ..database_tools import Session, database_transaction
 # import fidia.sample as sample
 import fidia.traits as traits
 import fidia.column as columns
@@ -24,41 +33,32 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-__all__ = ['Archive']
+__all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
 
-class Archive(bases.Archive):
-    """An archive of data."""
+class Archive(bases.Archive, bases.SQLAlchemyBase):
+    """An archive of data.
+
+    An `.Archive` can define Traits and TraitCollections, which are checked and
+    registered when the archive is created. As part of the registration, each
+    TraitMapping is validated. This validation checks each Trait's slots have
+    been correctly filled (e.g. with another trait or a column of a particular
+    type).
+
+
+    """
     column_definitions = columns.ColumnDefinitionList()
 
+    # Set up how Archive objects will appear in the MappingDB
+    __tablename__ = "archives"
+    _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
+    _db_archive_class = sa.Column(sa.String)
+    _db_calling_arguments = sa.Column(sa.String)
+    __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
+
+    _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
+
     _id = None
-
-    trait_mappings = []
-
-    def __init__(self):
-
-        # Traits (or properties)
-        mappings = self.trait_mappings
-        assert isinstance(mappings, list)
-        self.trait_mappings = traits.TraitMappingDatabase()
-        self.trait_mappings.register_mapping_list(mappings)
-        self._trait_cache = OrderedDict()
-
-        self.cache = cache.DummyCache()
-
-        self._schema = {'by_trait_type': None, 'by_trait_name': None}
-
-        super(Archive, self).__init__()
-
-        # Associate column instances with this archive instance
-        local_columns = columns.ColumnDefinitionList()
-        for alias, column in self.column_definitions:
-            log.debug("Associating column %s with archive %s", column, self)
-            instance_column = column.associate(self)
-            local_columns.add((alias, instance_column))
-        self.columns = local_columns
-
-        self.update_trait_mappings()
 
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when
@@ -66,12 +66,77 @@ class Archive(bases.Archive):
     # object.
     feature_catalog_data = []  # type: List[traits.TraitPath]
 
-    def update_trait_mappings(self):
-        """Iterates over the trait mappings provided with this archive and, if necessary, populates any ommited fields."""
-        pass
 
-    def writeable(self):
-        raise NotImplementedError("")
+    def __init__(self, **kwargs):
+
+        self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
+
+
+        # Create a database session which will be used to handle transactions
+        # associated with this archive.
+        #  @TODO: Do this only if the archive is to be persisted.
+        if kwargs.pop('persist', False):
+            pass
+        self._db_session = Session()
+
+        self._db_calling_arguments = repr(kwargs)
+
+        with database_transaction(self._db_session):
+            # We wrap the rest of the initialisation in a database transaction, so
+            # if the archive cannot be initialised, it will not appear in the
+            # database.
+
+            assert isinstance(self.trait_mappings, list)
+            # self.trait_manager = traits.TraitManager(session=self._db_session)
+            # self.trait_manager.register_mapping_list(self.trait_mappings)
+
+            for mapping in self.trait_mappings:
+                self.register_mapping(mapping)
+
+
+
+            self._db_archive_class = fidia_classname(self)
+
+            super(Archive, self).__init__()
+
+            # Associate column instances with this archive instance
+            local_columns = columns.ColumnDefinitionList()
+            for alias, column in self.column_definitions:
+                log.debug("Associating column %s with archive %s", column, self)
+                instance_column = column.associate(self)
+                local_columns.add((alias, instance_column))
+            self.columns = local_columns
+
+            # self._db_session.add(self.trait_manager)
+            self._db_session.add(self)
+
+    @reconstructor
+    def __db_init__(self):
+        """Initializer called when the object is reconstructed from the database."""
+        # Since this archive is being recovered from the database, it must have
+        # requested persistence.
+        self._db_session = Session()
+
+    def register_mapping(self, mapping):
+        # type: (TraitMapping) -> None
+
+        from fidia.traits import TraitMapping
+
+        if isinstance(mapping, TraitMapping):
+            mapping.validate()
+            key = mapping.key()
+            log.debug("Registering mapping for key %s", key)
+            # Check if key already exists in this database
+            if key in self._local_trait_mappings:
+                raise FIDIAException("Attempt to add/change an existing mapping")
+            self._local_trait_mappings[key] = mapping
+            # @TODO: Also link up superclasses of the provided Trait to the FIDIA level.
+        else:
+            raise ValueError("TraitManager can only register a TraitMapping, got %s"
+                             % mapping)
+
+
+        self._mappings.append(mapping)
 
     @property
     def contents(self):
@@ -86,10 +151,6 @@ class Archive(bases.Archive):
         if self._id is None:
             return repr(self)
         return self._id
-
-    @property
-    def name(self):
-        raise NotImplementedError("")
 
     def get_full_sample(self):
         """Return a sample containing all objects in the archive."""
@@ -111,36 +172,6 @@ class Archive(bases.Archive):
 
         return new_sample
 
-    def get_trait(self, object_id=None, trait_key=None, parent_trait=None):
-
-        if trait_key is None:
-            raise ValueError("The TraitKey must be provided.")
-        if object_id is None:
-            raise ValueError("The object_id must be provided.")
-        trait_key = traits.TraitKey.as_traitkey(trait_key)
-
-        # Fill in default values for any `None`s in `TraitKey`
-        trait_key = self.available_traits.update_key_with_defaults(trait_key)
-
-        # Check if we have already loaded this trait, otherwise load and cache it here.
-        if (object_id, trait_key, parent_trait) not in self._trait_cache:
-
-            # Check the size of the cache, and remove item if necessary
-            # This should probably be more clever.
-            while len(self._trait_cache) > 20:
-                self._trait_cache.popitem(last=False)
-
-            # Determine which class responds to the requested trait.
-            # Potential for far more complex logic here in future.
-            trait_class = self.available_traits.retrieve_with_key(trait_key)
-
-            # Create the trait object and cache it
-            log.debug("Returning trait_class %s", type(trait_class))
-            trait = trait_class(self, trait_key, object_id=object_id, parent_trait=parent_trait)
-
-            self._trait_cache[(object_id, trait_key, parent_trait)] = trait
-
-        return self._trait_cache[(object_id, trait_key, parent_trait)]
 
     def type_for_trait_path(self, path):
         """Return the type for the provided Trait path.
@@ -181,150 +212,92 @@ class Archive(bases.Archive):
         trait_key = traits.TraitKey.as_traitkey(trait_key)
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
-    def schema(self, by_trait_name=False, data_class='all'):
-        """Get the schema of this Archive.
-
-        The Schema is provided as a set of nested dictionaries. Generally, the
-        top level gives different trait_types, each of which is a dictionary.
-        For each trait_type, the dictionary keys are the names of the
-        TraitProperty or sub-Trait. Sub-traits have dictionaries as values,
-        which have the same structure. TraitProperties have the (string) type of
-        the TraitProperty as their value.
-
-        Example:
-
-            {
-                "redshift":
-                {
-                    "value": 'float',
-                    "variance": 'float'
-                },
-                "line_map-NII":
-                {
-                    "value": 'float.array',
-                    "variance": 'float.array',
-                    "source": 'string'
-                },
-                "line_map-Ha":
-                {
-                    "value": 'float.array',
-                    "variance": 'float.array',
-                    "source": 'string'
-                },
-                "velocity_map":
-                {
-                    "value": 'float.array',
-                    "systemic_redshift":
-                    {
-                        "value": 'float',
-                        "variance": 'float
-                    }
-                }
-            }
-
-        The keyword `by_trait_name` can be set to True to add an extra layer to
-        the hierarchy. That layer separates out the trait_type from the combined
-        trait_type + trait_qualifier, or trait_name. The above example becomes:
-
-            {
-                "redshift":
-                {
-                    None:
-                    {
-                        "value": 'float',
-                        "variance": 'float'
-                    },
-                },
-                "line_map":
-                {
-                    "NII":
-                    {
-                        "value": 'float.array',
-                        "variance": 'float.array',
-                        "source": 'string'
-                    },
-                    "Ha":
-                    {
-                        "value": 'float.array',
-                        "variance": 'float.array',
-                        "source": 'string'
-                    }
-
-                }
-                "velocity_map":
-                {
-                    "value": 'float.array',
-                    "systemic_redshift":
-                    {
-                        "value": 'float',
-                        "variance": 'float
-                    }
-                }
-            }
-
-        data_class:
-            One of 'all', 'catalog', or 'non-catalog'
-
-            'all' returns the full schema.
-
-            'catalog' returns only items which contain TraitProperties of catalog type.
-
-            'non-catalog' returns only items which contain TraitProperties of non-catalog type.
-
-            Both 'catalog' and 'non-catalog' will not include Traits that
-            consist only of TraitProperties not matching the request.
 
 
-        """
-
-        if by_trait_name:
-            # Produce a version of the schema which has trait_type and
-            # trait_name combined on a single level.
-            return self.full_schema(combine_levels=('trait_name', 'branch_version'), verbosity='simple', data_class=data_class)
-        else:
-            return self.full_schema(combine_levels=('branch_version', ), verbosity='simple', data_class=data_class)
-
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=None, verbosity='data_only',
-                    separate_metadata=False):
-
-        # Handle default combine_levels argument.
-        if combine_levels is None:
-            combine_levels = tuple()
-
-        # Validate verbosity arguments.
-        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
-        if verbosity == 'descriptions':
-            if 'branches_versions' in combine_levels:
-                raise ValueError("Schema verbosity 'descriptions' requires that " +
-                                 "combine_levels not include branches_versions")
-
-        schema = SchemaDictionary()
-
-        # Add meta data about the archive, if requested
-        if verbosity == 'descriptions':
-            schema['pretty_name'] = "Pretty Name for Archive"
-
-        if separate_metadata:
-            if 'trait_name' in combine_levels:
-                schema_piece = schema.setdefault('trait_names', SchemaDictionary())
-            else:
-                schema_piece = schema.setdefault('trait_types', SchemaDictionary())
-        else:
-            schema_piece = schema
-
-        available_traits_schema = cls.available_traits.schema(
-                include_subtraits=include_subtraits,
-                data_class=data_class,
-                combine_levels=combine_levels,
-                verbosity=verbosity,
-                separate_metadata=separate_metadata
-            )
-
-        schema_piece.update(available_traits_schema)
-
-        return schema
 
 class BasePathArchive(Archive):
     def __init__(self, **kwargs):
-        self.basepath = kwargs.pop('basepath')
+        self.basepath = kwargs['basepath']
         super(BasePathArchive, self).__init__(**kwargs)
+
+class ArchiveDefinition(object):
+
+    name = None
+    archive_id = None
+
+    archive_type = Archive
+    writable = False
+
+    def __init__(self, **kwargs):
+        # __init__ of superclasses not called.
+        pass
+
+    def __new__(cls, **kwargs):
+
+        from fidia import known_archives
+
+        definition = object.__new__(cls)
+        definition.__init__(**kwargs)
+
+        # @TODO: Validate definition
+
+        # Check if archive already exists:
+        try:
+            return known_archives.by_id[definition.archive_id]
+        except KeyError:
+            pass
+
+        # Archive doesn't exist, so it must be created
+        archive = definition.archive_type.__new__(definition.archive_type)
+
+        # I n i t i a l i s e   t h e   A r  c h i v e
+
+        # Basics
+        archive._id = definition.archive_id
+        archive.name = definition.name
+        archive.writeable = definition.writable
+        # archive._db_calling_arguments = repr(kwargs)
+        archive._contents = definition._contents
+
+        # TraitMappings
+        archive.trait_mappings = deepcopy(definition.trait_mappings)
+        archive.column_definitions = deepcopy(definition.column_definitions)
+        #     Ensure that this instance of the archive has local copies of all
+        #     of the Trait Mappings and Column definitions. This is necessary so
+        #     that e.g. if they are defined on a class instead of an instance,
+        #     the copies belonging to an instance are unique. Without this,
+        #     SQLAlchemy will complain that individual TraitMappings are owned
+        #     by multiple archives.
+
+        archive.__init__(**kwargs)
+
+        return archive
+
+class KnownArchives(object):
+
+    __instance = None
+
+    # The following __new__ function implements a Singleton.
+    def __new__(cls, *args, **kwargs):
+        if KnownArchives.__instance is None:
+            instance = object.__new__(cls)
+
+            instance._query = Session().query(Archive)  # type: sa.orm.query.Query
+
+            KnownArchives.__instance = instance
+        return KnownArchives.__instance
+
+    @property
+    def all(self):
+        # type: () -> List[Archive]
+        return self._query.order_by('archive_id').all()
+
+
+    class by_id(object):
+        def __getitem__(self, item):
+            try:
+                return KnownArchives.__instance._query.filter_by(archive_id=item).one()
+            except:
+                raise KeyError("No archive with id '%s'" % item)
+    by_id = by_id()
+
