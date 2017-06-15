@@ -79,6 +79,12 @@ class TraitLookUp(serializers.Serializer):
 # ____________________________________DATA_____________________________________
 
 # ____________Request__________
+class DataForObject(serializers.Serializer):
+    # TODO this should return a list of available traits for a single object across ALL archives
+    # e.g., gama-sami, split by archive
+    # {'archive_id': }
+    pass
+
 
 class DataForTrait(TraitLookUp):
     pass
@@ -100,26 +106,47 @@ class TraitByTraitProperty(serializers.Serializer):
 # ____________________________________SCHEMA____________________________________
 
 # ____________Request__________
-class SchemaForArchives(serializers.Serializer):
+class SchemaForDataCentral(serializers.Serializer):
     pass
 
 
-class SchemaForTrait(serializers.Serializer):
-    archive = serializers.ChoiceField(required=True, choices=[('1', '1')])
+class SchemaForArchive(serializers.Serializer):
+    # TODO add archive choices
+    archive = serializers.ChoiceField(required=True, choices=[('1', 'SAMIDR1'), ('2', 'GAMADR2')])
 
 
-class SchemaForTraitProperty(DataForTrait):
-    trait_key = serializers.CharField(max_length=256, required=True)
+class SchemaForAstroObject(SchemaForArchive):
+    astroObject = serializers.CharField(max_length=256, required=True)
+
+
+class SchemaForTrait(SchemaForArchive):
+    pass
+
+
+class SchemaForTraitProperty(SchemaForTrait):
+    # TODO enforce choicefield here?
+    trait = serializers.CharField(max_length=256, required=True)
 
 
 # ____________Response__________
+class DataCentralSchema(serializers.Serializer):
+    archives = serializers.DictField()
+
+
 class ArchiveSchema(serializers.Serializer):
-    archives = serializers.ListField()
+    traits = serializers.DictField()
+
+
+class AstroObject(serializers.Serializer):
+    schema = serializers.DictField()
 
 
 class TraitSchema(serializers.Serializer):
-    traits = serializers.ListField()
-    trait_schema = serializers.ListField()
+    schema = serializers.DictField()
+
+
+class TraitPropertySchema(serializers.Serializer):
+    schema = serializers.DictField()
 
 # class DocumentationHTMLField(serializers.Field):
 #     """Serializer for the FIDIA documentation for an object as HTML."""

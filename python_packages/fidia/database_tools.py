@@ -42,12 +42,19 @@ log.enable_console_logging()
 __all__ = ['Session']
 
 
+def str_to_bool(s):
+    if s == 'True':
+        return True
+    elif s == 'False':
+        return False
+    else:
+        raise ValueError
 
 db_engine = create_engine("{engine}://{location}/{database}".format(
         engine=config["MappingDatabase"]["engine"],
         location=config["MappingDatabase"]["location"],
         database=config["MappingDatabase"]["database"]),
-    echo=True)
+    echo=str_to_bool(config["MappingDatabase"]["sqlalchemy_logging"]))
 # db_engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
 
 Session = sessionmaker(bind=db_engine)

@@ -43,10 +43,10 @@ urlpatterns = [
 
     url(r'', include(router.urls)),
     url(r'^data-for/$', sov.views.DataFor.as_view(), name='data'),
-    url(r'^data-for/(?:(?P<fidia_type>[\w]+)/?)?$', sov.views.DataForType.as_view(), name='data-for'),
+    url(r'^data-for/(?:(?P<object_type>[\w]+)/?)?$', sov.views.DataForType.as_view(), name='data-for'),
 
     url(r'^schema-for/$', sov.views.SchemaFor.as_view(), name='schema'),
-    url(r'^schema-for/(?:(?P<fidia_type>[\w]+)/?)?$', sov.views.SchemaForType.as_view(), name='schema-for'),
+    url(r'^schema-for/(?:(?P<object_type>[\w]+)/?)?$', sov.views.SchemaForType.as_view(), name='schema-for'),
 
 
     # url(r'^(?i)', include(router.urls)),

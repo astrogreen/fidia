@@ -67,3 +67,6 @@ python_packages/fidia_astropy/distribute-*.tar.gz
 
 #virtual environments
 adc_venv
+
+#custom settings
+web_application/asvo/custom_settings.py
