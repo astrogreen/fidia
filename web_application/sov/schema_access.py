@@ -2,6 +2,40 @@ import fidia
 from collections import OrderedDict
 
 
+def get_sov_schema(astro_object=None):
+    """
+    return sov schema for astroobject
+    Args:
+        astro_object:
+
+    Returns:
+
+    """
+    # _s = {'archives': {}}
+    _s = {}
+    _s.update(get_data_central_archive_schema())
+
+    for archive in _s["archives"]:
+        archive.update(get_archive_trait_schema(archive_id=archive.get('archive_id')))
+
+    return OrderedDict(sorted(_s.items(), key=lambda t: t[0]))
+
+
+def get_sov_defaults_schema(astro_object=None):
+    """
+    return sov defaults for schema for astroobject
+    Args:
+        astro_object:
+
+    Returns:
+
+    """
+    defaults = {
+        "traits": [{'name': 'trait1', 'trait_class': 'image'}, {'name': 'trait2', 'trait_class': 'table'}]
+    }
+    return OrderedDict(sorted(defaults.items(), key=lambda t: t[0]))
+
+
 def get_data_central_archive_schema():
     """
     List the data releases (FIDIA archives) currently ingested in ADC
@@ -10,18 +44,14 @@ def get_data_central_archive_schema():
     # data releases (archives) organised by survey
 
     # print(fidia.known_archives.all())
-    d = {'archives': {
-        'sami': [
-            {'name': 'SAMIDR1', 'archive_id': 1},
-            {'name': 'SAMIDR2', 'archive_id': 4}
-        ],
-        'gama': [
-            {'name': 'GAMADR2', 'archive_id': 2}
-        ],
-        'galah': [
-            {'name': 'GALAHDR1', 'archive_id': 3}
+    d = {
+        'archives': [
+            {'name': 'SAMIDR1', 'archive_id': 1, 'survey': 'sami'},
+            {'name': 'SAMIDR2', 'archive_id': 4, 'survey': 'sami'},
+            {'name': 'GAMADR2', 'archive_id': 2, 'survey': 'gama'},
+            {'name': 'GALAHDR1', 'archive_id': 3, 'survey': 'galah'}
         ]
-    }}
+    }
     return OrderedDict(sorted(d.items(), key=lambda t: t[0]))
 
 
@@ -37,14 +67,18 @@ def get_archive_trait_schema(archive_id=None):
     Returns:
 
     """
+    _trait_classes = fidia.traits.generic_traits.__all__
+    _traits = []
+    for t in _trait_classes:
+        _traits.append({'name': 'trait1', 'trait_class': t.lower()})
+        _traits.append({'name': 'trait2', 'trait_class': t.lower()})
+
     _dc_schema = dict(get_data_central_archive_schema())
     d = {}
-    for survey_key, survey_value in _dc_schema['archives'].items():
-        for dr_value in survey_value:
-            if str(dr_value.get('archive_id')) == str(archive_id):
-                # get the archive's traits
-                # print(dr_value)
-                d = {'traits': fidia.traits.generic_traits.__all__}
+    for archive in _dc_schema["archives"]:
+        if str(archive.get('archive_id')) == str(archive_id):
+            # TODO get the archive's traits
+            d = {'traits': _traits}
 
     return OrderedDict(sorted(d.items(), key=lambda t: t[0]))
 

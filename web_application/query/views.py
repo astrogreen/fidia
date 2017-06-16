@@ -58,7 +58,7 @@ class Query(viewsets.ModelViewSet):
         Return a list of all queries for the currently authenticated user.
         """
         user = self.request.user
-        return query.models.Query.objects.filter(owner=user).exclude(pk=32).order_by('-updated')
+        return query.models.Query.objects.filter(owner=user).order_by('-updated')
 
     def perform_create(self, serializer):
         """
@@ -197,6 +197,19 @@ class QueryResultTables(object):
 #         'data': data
 #     }
     # results[i] = QueryResultTables(id=i, col1='test', col2='test', col3='Done'),
+
+
+class AdminQuery(Query):
+    permission_classes = [permissions.IsAdminUser]
+
+    serializer_class = query.serializers.QueryListSerializer
+
+    def get_queryset(self):
+        """
+        Return a list of all queries
+        """
+        user = self.request.user
+        return query.models.Query.objects.order_by('-updated')
 
 
 # class Result(viewsets.GenericViewSet):

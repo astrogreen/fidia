@@ -70,3 +70,6 @@ adc_venv
 
 #custom settings
 web_application/asvo/custom_settings.py
+
+#migrations
+web_application/download/migrations

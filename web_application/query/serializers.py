@@ -52,7 +52,7 @@ class QueryListSerializer(serializers.HyperlinkedModelSerializer):
         model = query.models.Query
         fields = ('id', 'title', 'created', 'updated', 'url', 'is_completed')
         extra_kwargs = {'results': {'required': False}, "query_builder_state": {"required": False},
-                        "title": {"required": False}}
+                        "title": {"required": False}, 'url': {'view_name': 'query:query-detail'}}
 
 
 class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
@@ -111,7 +111,7 @@ class QueryRetrieveSerializer(serializers.HyperlinkedModelSerializer):
             'error')
 
         extra_kwargs = {"query_builder_state": {"required": False},
-                        "title": {"required": False}}
+                        "title": {"required": False}, 'url': {'view_name': 'query:query-detail'}}
 
 
 class QueryCreateSerializer(serializers.HyperlinkedModelSerializer):
@@ -129,6 +129,46 @@ class QueryCreateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = query.models.Query
         fields = ('title', 'query_builder_state', 'sql', 'id')
+
+
+class AdminQuerySerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Admin version
+    """
+    created = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    updated = serializers.DateTimeField(format="%Y-%m-%d, %H:%M:%S", read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username')
+    title = serializers.CharField(default='My Query', max_length=100, required=False)
+    is_completed = serializers.BooleanField(default=False, read_only=True)
+
+    class Meta:
+        model = query.models.Query
+        fields = (
+            'created',
+            'updated',
+            'owner',
+
+            'query_builder_state',
+            'title',
+            'sql',
+
+            'url',
+            'id',
+
+            'is_completed',
+            'is_expired',
+            'table_name',
+            'row_count',
+
+            'result_url',
+            'csv_completed',
+            'csv_link',
+
+            'has_error',
+            'error'
+        )
+        extra_kwargs = {'results': {'required': False}, "query_builder_state": {"required": False},
+                        "title": {"required": False}, 'url': {'view_name': 'query:query-detail'}}
 
 
 # Testing in django

@@ -48,6 +48,7 @@ urlpatterns = [
     url(r'^schema-for/$', sov.views.SchemaFor.as_view(), name='schema'),
     url(r'^schema-for/(?:(?P<object_type>[\w]+)/?)?$', sov.views.SchemaForType.as_view(), name='schema-for'),
 
+    url(r'^export-as/$', sov.views.ExportAs.as_view(), name='export-as'),
 
     # url(r'^(?i)', include(router.urls)),
     # url(r'^(?i)', include(survey_nested_router.urls)),

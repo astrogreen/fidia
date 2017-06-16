@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'cutout',
     'documentation',
+    'download',
     'django_extensions',
     'hitcount',
     'feature',

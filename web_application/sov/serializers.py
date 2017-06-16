@@ -106,6 +106,14 @@ class TraitByTraitProperty(serializers.Serializer):
 # ____________________________________SCHEMA____________________________________
 
 # ____________Request__________
+class SchemaForSOV(serializers.Serializer):
+    astro_object = serializers.CharField(max_length=256, required=True)
+
+
+class SchemaForSOVDefaults(serializers.Serializer):
+    astro_object = serializers.CharField(max_length=256, required=True)
+
+
 class SchemaForDataCentral(serializers.Serializer):
     pass
 
@@ -116,7 +124,7 @@ class SchemaForArchive(serializers.Serializer):
 
 
 class SchemaForAstroObject(SchemaForArchive):
-    astroObject = serializers.CharField(max_length=256, required=True)
+    astro_object = serializers.CharField(max_length=256, required=True)
 
 
 class SchemaForTrait(SchemaForArchive):
@@ -124,11 +132,21 @@ class SchemaForTrait(SchemaForArchive):
 
 
 class SchemaForTraitProperty(SchemaForTrait):
-    # TODO enforce choicefield here?
+    # TODO enforce trait regex here
     trait = serializers.CharField(max_length=256, required=True)
 
 
 # ____________Response__________
+class SOVSchema(serializers.Serializer):
+    archives = serializers.DictField()
+    # traits = serializers.DictField()
+    # defaults = serializers.DictField()
+
+
+class SOVDefaultsSchema(serializers.Serializer):
+    pass
+
+
 class DataCentralSchema(serializers.Serializer):
     archives = serializers.DictField()
 
@@ -147,6 +165,21 @@ class TraitSchema(serializers.Serializer):
 
 class TraitPropertySchema(serializers.Serializer):
     schema = serializers.DictField()
+
+
+
+# ____________________________________SCHEMA____________________________________
+
+# ____________Request__________
+class ExportAsSOV(serializers.Serializer):
+    astro_object = serializers.CharField(max_length=256, required=True)
+    trait = serializers.CharField(max_length=256, required=True)
+    format = serializers.ChoiceField(choices=[('fits', 'fits'), ('csv', 'csv'), ('votable', 'VOTable'), ('ascii', 'ascii')])
+
+# ____________Response__________
+class ExportAs(serializers.Serializer):
+    pass
+
 
 # class DocumentationHTMLField(serializers.Field):
 #     """Serializer for the FIDIA documentation for an object as HTML."""

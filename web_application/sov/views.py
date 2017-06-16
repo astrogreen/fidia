@@ -1,11 +1,13 @@
-from rest_framework.decorators import detail_route, list_route
+from django.http import HttpResponse
+from django.core.files.base import ContentFile
+from io import StringIO
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions, renderers
 from rest_framework.response import Response
 
 from collections import OrderedDict
 import random, collections, logging, json, requests, zipfile, io, itertools
 
-from .schema_access import get_data_central_archive_schema, get_archive_trait_schema, get_astro_object_default_traits_schema
+from .schema_access import get_sov_schema,get_sov_defaults_schema, get_data_central_archive_schema, get_archive_trait_schema, get_astro_object_default_traits_schema
 from .data_access import get_archive
 
 from rest_framework.settings import api_settings
@@ -13,11 +15,8 @@ from rest_framework.reverse import reverse
 
 import sov.serializers
 
-
 from sov.helpers.dummy_data.astro_object import ARCHIVE
 from sov.helpers.dummy_data.survey import SURVEYS
-
-import fidia.traits.generic_traits
 
 log = logging.getLogger(__name__)
 
@@ -146,7 +145,7 @@ class DataForType(generics.CreateAPIView):
         object_type = self.kwargs['object_type']
         return self.filter_serializer_classes[object_type]
 
-    def get_data_from_fidia(self, object_type=None, astroObject=None, survey=None, trait_key=None):
+    def get_data_from_fidia(self, object_type=None, astro_object=None, survey=None, trait_key=None):
         try:
             # TODO get data from fidia according to the object_type (trait-collection/trait/sub-trait/trait-property)
             # TODO should the method call include information on the instance type? (e.g., dmu)
@@ -160,10 +159,10 @@ class DataForType(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         if object_type in self.available_keywords:
-            _astroObject = serializer.data.get('astroObject')
+            _astro_object = serializer.data.get('astro_object')
             _survey = serializer.data.get('survey')
             _trait_key = serializer.data.get('trait_key')
-            data = self.get_data_from_fidia(object_type=object_type, astroObject=_astroObject, survey=_survey, trait_key=_trait_key)
+            data = self.get_data_from_fidia(object_type=object_type, astro_object=_astro_object, survey=_survey, trait_key=_trait_key)
         else:
             # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
             _message = "object_type by must be one of the following values: %s" % self.available_keywords
@@ -188,7 +187,7 @@ DataForType.__doc__ = DATAFOR_DOC_STRING
 
 class SchemaFor(views.APIView):
     # Root view for SchemaFor, returns available urls for various types of schema request
-    available_keywords = ['data_central', 'archive', 'trait', 'astro_object', 'trait_property']
+    available_keywords = ['sov', 'sov_defaults', 'data_central', 'archive', 'trait', 'astro_object', 'trait_property']
 
     def get(self, request, *args, **kwargs):
         _urls = []
@@ -210,10 +209,12 @@ class SchemaForType(generics.CreateAPIView):
     astro_object: List only traits for archive+astro_object that should be turned on in the SOV by default
     """
     # Filter by a keyword or position
-    queryset = get_archive().values()
-    available_keywords = ['data_central', 'archive', 'astro_object', 'trait', 'trait_property']
+    # queryset = get_archive().values()
+    available_keywords = ['sov', 'sov_defaults', 'data_central', 'archive', 'trait', 'astro_object', 'trait_property']
 
     serializer_action_classes = {
+        'sov': sov.serializers.SchemaForSOV,
+        'sov_defaults': sov.serializers.SchemaForSOVDefaults,
         'data_central': sov.serializers.SchemaForDataCentral,
         'archive': sov.serializers.SchemaForArchive,
         'astro_object': sov.serializers.SchemaForAstroObject,
@@ -222,6 +223,8 @@ class SchemaForType(generics.CreateAPIView):
     }
 
     filter_serializer_classes = {
+        'sov': sov.serializers.SOVSchema,
+        'sov_defaults': sov.serializers.SOVDefaultsSchema,
         'data_central': sov.serializers.DataCentralSchema,
         'archive': sov.serializers.ArchiveSchema,
         'astro_object': sov.serializers.AstroObject,
@@ -244,8 +247,16 @@ class SchemaForType(generics.CreateAPIView):
         object_type = self.kwargs['object_type']
         return self.filter_serializer_classes[object_type]
 
-    def get_schema_from_fidia(self, object_type=None, archive=None, astroObject=None, survey=None, trait=None):
+    def get_schema_from_fidia(self, object_type=None, archive=None, astro_object=None, survey=None, trait=None):
         try:
+            if object_type == 'sov':
+                # get list of available archives
+                return get_sov_schema(astro_object=astro_object)
+
+            if object_type == 'sov_defaults':
+                # get list of available archives
+                return get_sov_defaults_schema(astro_object=astro_object)
+
             if object_type == 'data_central':
                 # get list of available archives
                 return get_data_central_archive_schema()
@@ -259,12 +270,10 @@ class SchemaForType(generics.CreateAPIView):
 
             elif object_type == 'trait':
                 # trait schema (tp list)
-                print(trait)
                 return {'schema': []}
 
             elif object_type == 'trait_property':
                 # get fidia trait schema for archive
-                print(archive, trait)
                 return {'schema': []}
 
             # print(fidia.traits.generic_traits.Image.__dict__)
@@ -274,16 +283,17 @@ class SchemaForType(generics.CreateAPIView):
             _message = "Cannot access data for : %s" % object_type
             return Response({'error': _message})
 
-    def create(self, request, object_type=None, *args, **kwargs):
+    def create(self, request, format=None, object_type=None, *args, **kwargs):
+        print(format)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         if object_type in self.available_keywords:
             _archive = serializer.data.get('archive')
-            _astroObject = serializer.data.get('astroObject')
+            _astro_object = serializer.data.get('astro_object')
             _survey = serializer.data.get('survey')
             _trait = serializer.data.get('trait')
-            data = self.get_schema_from_fidia(object_type=object_type, archive=_archive, astroObject=_astroObject, survey=_survey, trait=_trait)
+            data = self.get_schema_from_fidia(object_type=object_type, archive=_archive, astro_object=_astro_object, survey=_survey, trait=_trait)
         else:
             # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
             _message = "object_type by must be one of the following values: %s" % self.available_keywords
@@ -297,6 +307,39 @@ class SchemaForType(generics.CreateAPIView):
         # filter_serializer = filter_serializer_class(instance=data, many=False)
 
         # return Response(filter_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ExportAs(generics.CreateAPIView):
+    serializer_class = sov.serializers.ExportAsSOV
+    # TODO remove queryset
+    queryset = get_archive().values()
+
+    def export_from_fidia(self, astro_object=None, trait=None, format=None):
+        # generate the file
+        return json.dumps({'data': 'lovely data'})
+
+    def create(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        _trait = serializer.data.get('trait')
+        _astro_object = serializer.data.get('astro_object')
+        _format = serializer.data.get('format')
+
+        try:
+            file_to_send = ContentFile(self.export_from_fidia(astro_object=_astro_object, trait=_trait, format=_format))
+            response = HttpResponse(file_to_send, 'application/x-gzip')
+            response['Content-Length'] = file_to_send.size
+            filename = _astro_object + _trait
+            response['Content-Disposition'] = 'attachment; filename="%s.tar.gz"' % filename
+            return response
+
+        # TODO catch fidia exception here
+        except ValueError:
+            # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
+            _message = "Cannot download %s %s as type: %s" % _astro_object, _trait, 'fits'
+            return Response({'error': _message})
 
 
 # class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
