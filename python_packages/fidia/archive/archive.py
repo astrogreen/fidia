@@ -217,6 +217,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
 
 class BasePathArchive(Archive):
+
+    __mapper_args__ = {'polymorphic_identity': 'BasePathArchive'}
+
     def __init__(self, **kwargs):
         self.basepath = kwargs['basepath']
         super(BasePathArchive, self).__init__(**kwargs)
