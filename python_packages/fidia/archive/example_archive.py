@@ -12,6 +12,8 @@ class ExampleArchive(fidia.ArchiveDefinition):
 
     archive_type = fidia.BasePathArchive
 
+    is_persisted = False
+
     def __init__(self, **kwargs):
         # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
         self.contents = ['Gal1', 'Gal2', 'Gal3']

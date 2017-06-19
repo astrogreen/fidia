@@ -209,6 +209,8 @@ class ArchiveDefinition(object):
     trait_mappings = []  # type: List[traits.TraitMapping]
     column_definitions = []  # type: List[columns.ColumnDefinition]
 
+    is_persisted = True
+
     def __init__(self, **kwargs):
         # __init__ of superclasses not called.
         pass
@@ -220,13 +222,17 @@ class ArchiveDefinition(object):
         definition = object.__new__(cls)
         definition.__init__(**kwargs)
 
+        # Allow an archive not to (individually) be persisted in the database
+        is_persisted = kwargs.pop("persist", True) and definition.is_persisted
+
         # @TODO: Validate definition
 
-        # Check if archive already exists:
-        try:
-            return known_archives.by_id[definition.archive_id]
-        except KeyError:
-            pass
+        if is_persisted:
+            # Check if archive already exists:
+            try:
+                return known_archives.by_id[definition.archive_id]
+            except KeyError:
+                pass
 
         # Archive doesn't exist, so it must be created
         archive = definition.archive_type.__new__(definition.archive_type)
@@ -275,7 +281,8 @@ class ArchiveDefinition(object):
             archive.columns = local_columns
 
             # self._db_session.add(self.trait_manager)
-            fidia.mappingdb_session.add(archive)
+            if is_persisted:
+                fidia.mappingdb_session.add(archive)
 
         return archive
 
