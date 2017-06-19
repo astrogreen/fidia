@@ -116,7 +116,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
     @property
     def trait_mappings(self):
-        # type: () -> Dict[Tuple[str, str], traits.TraitMapping]
+        # type: () -> MultiDexDict
         if self._local_trait_mappings is None:
             # Have not been initialised
             self._local_trait_mappings = MultiDexDict(2)
@@ -215,6 +215,7 @@ class ArchiveDefinition(object):
         # __init__ of superclasses not called.
         pass
 
+    # noinspection PyProtectedMember
     def __new__(cls, **kwargs):
 
         from fidia import known_archives
@@ -263,6 +264,8 @@ class ArchiveDefinition(object):
 
             archive._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], traits.TraitMapping]
             archive._mappings = deepcopy(definition.trait_mappings)
+            for mapping in archive._mappings:
+                archive._register_mapping_locally(mapping)
 
             # Columns
 

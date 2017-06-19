@@ -309,7 +309,8 @@ class Sample(bases.Sample):
         return col
 
     def get_archive_id(self, archive, sample_id):
+        # type: (fidia.Archive, str) -> str
         # @TODO: Sanity checking, e.g. archive is actually valid, etc.
 
-        return self._id_cross_matches.loc[sample_id][archive.name]
+        return self._id_cross_matches.loc[sample_id][archive.archive_id]
 
