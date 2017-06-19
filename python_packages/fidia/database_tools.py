@@ -26,6 +26,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Imports for is_sane_database
 from sqlalchemy import inspect
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from sqlalchemy.orm import RelationshipProperty
 
@@ -43,14 +44,28 @@ __all__ = ['Session']
 
 
 
+if "sqlite" in config["MappingDatabase"]["engine"]:
+    poolclass = QueuePool
+else:
+    poolclass = None
 db_engine = create_engine("{engine}://{location}/{database}".format(
         engine=config["MappingDatabase"]["engine"],
         location=config["MappingDatabase"]["location"],
         database=config["MappingDatabase"]["database"]),
-    echo=True)
+    echo=True,
+    poolclass=poolclass,
+    echo_pool=True
+)
 # db_engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
 
-Session = sessionmaker(bind=db_engine)
+if "sqlite" in config["MappingDatabase"]["engine"]:
+    session = sessionmaker(bind=db_engine)()
+
+    def Session():
+        return session
+        
+else:
+    Session = sessionmaker(bind=db_engine)
 
 @contextmanager
 def database_transaction(session):
