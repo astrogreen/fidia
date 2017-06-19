@@ -6,11 +6,15 @@ These tests check that the database parts of FIDIA are working as expected.
 import pytest
 
 
-@pytest.fixture(scope='function')
+import random
+
+import fidia
+
+@pytest.fixture('module')
 def engine():
     engine = create_engine('sqlite:///:memory:', echo=True)
     # engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
-    
+
     from fidia.base_classes import SQLAlchemyBase
     SQLAlchemyBase.metadata.create_all(engine)
 
@@ -19,10 +23,13 @@ def engine():
 
 class TestDatabaseBasics:
 
-    @pytest.fixture(scope='function')
-    def session(self, engine):
+    @pytest.yield_fixture
+    def session(self, engine, monkeypatch):
         Session = sessionmaker(bind=engine)
-        return Session()
+        session = Session()
+        monkeypatch.setattr(fidia, 'mappingdb_session', session)
+        yield session
+        session.close()
 
     def test_trait_property_mapping(self, session, engine):
         from fidia.traits.trait_utilities import TraitPropertyMapping
@@ -31,19 +38,23 @@ class TestDatabaseBasics:
             'my_test_ctype2',
             'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')
         session.add(tpm)
+        session.commit()
 
+        # Make SQLAlchemy forget about the object:
+        session.expunge(tpm)
         del tpm
 
         # The data has been pushed to the database and removed from Python. Now
         # try to reload the data from the DB.
-
-
         tpm = session.query(TraitPropertyMapping).filter_by(name='my_test_ctype2').one()
+
+        # Confirm that the object has really been reconstructed from the database
+        assert tpm._is_reconstructed is True
+
         print(tpm)
+        assert isinstance(tpm, TraitPropertyMapping)
         assert tpm.id == 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1'
         assert tpm.name == 'my_test_ctype2'
-
-        session.rollback()
 
     def test_simple_trait_mapping(self, session, engine):
 
@@ -59,15 +70,19 @@ class TestDatabaseBasics:
         session.add(tm)
         session.commit()
 
+        # Make SQLAlchemy forget about the object:
+        session.expunge(tm)
         del tm
 
         # The data has been pushed to the database and removed from Python. Now
         # try to reload the data from the DB.
-
-
         tm = session.query(TraitMapping).filter_by(_db_trait_key="red").one()
-        assert isinstance(tm, TraitMapping)
+
+        # Confirm that the object has really been reconstructed from the database
+        assert tm._is_reconstructed is True
+
         print(tm)
+        assert isinstance(tm, TraitMapping)
         assert tm.trait_class is Image
         assert tm.trait_key == TraitKey("red")
 
@@ -95,20 +110,23 @@ class TestDatabaseBasics:
             ]
         )
         session.add(stm)
+        session.commit()
 
+        # Make SQLAlchemy forget about the object:
+        session.expunge(stm)
         del stm
 
         # The data has been pushed to the database and removed from Python. Now
         # try to reload the data from the DB.
-
-
         stm = session.query(SubTraitMapping).filter_by(name='wcs').one()
+
+        # Confirm that the object has really been reconstructed from the database
+        assert stm._is_reconstructed is True
+
         print(stm)
         assert isinstance(stm, SubTraitMapping)
         assert stm.trait_class is ImageWCS
         assert stm.name == "wcs"
-
-        session.rollback()
 
 
     def test_trait_mapping_with_subtraits(self, session, engine):
@@ -131,14 +149,19 @@ class TestDatabaseBasics:
         session.add(tm)
         session.commit()
 
+        # Make SQLAlchemy forget about the object:
+        session.expunge(tm)
         del tm
 
         # The data has been pushed to the database and removed from Python. Now
         # try to reload the data from the DB.
-
-
         tm = session.query(TraitMapping).filter_by(_db_trait_key="redsubtrait").one()
+
+        # Confirm that the object has really been reconstructed from the database
+        assert tm._is_reconstructed is True
+
         assert isinstance(tm, TraitMapping)
+
         print(tm)
         assert tm.trait_class is Image
         assert tm.trait_key == TraitKey("redsubtrait")
@@ -179,15 +202,20 @@ class TestDatabaseBasics:
         session.add(tm)
         session.commit()
 
+        # Make SQLAlchemy forget about the object:
+        session.expunge(tm)
         del tm
 
         # The data has been pushed to the database and removed from Python. Now
         # try to reload the data from the DB.
 
-
         tm = session.query(TraitMapping).filter_by(_db_trait_key="StellarMasses", _parent_id=None).one()
-        assert isinstance(tm, TraitMapping)
+
+        # Confirm that the object has really been reconstructed from the database
+        assert tm._is_reconstructed is True
+
         print(tm)
+        assert isinstance(tm, TraitMapping)
         assert tm.trait_class is DMU
         assert tm.trait_key == TraitKey("StellarMasses")
 
@@ -200,14 +228,23 @@ class TestDatabaseBasics:
                     assert isinstance(tp, TraitPropertyMapping)
                     tp.name in ("stellar_mass", "stellar_mass_err")
 
-    def test_archive_persistance_in_db(self, session, engine):
-        from fidia.archive import BasePathArchive
+    def test_archive_persistance_in_db(self):
+        from fidia.archive import BasePathArchive, ArchiveDefinition, Archive
         from fidia.traits import TraitMapping, Image, TraitPropertyMapping
-        from fidia.column import FITSDataColumn
+        from fidia.column import FITSDataColumn, ColumnDefinitionList
+
+        random_id = "testArchive" + str(random.randint(10000, 20000))
+
+        class ArchiveWithColumns(ArchiveDefinition):
 
 
-        class ArchiveWithColumns(BasePathArchive):
-            _id = "testArchive"
+
+            archive_id = random_id
+
+            archive_type = BasePathArchive
+
+            contents = ["Gal1", "Gal2", "Gal3"]
+
             column_definitions = [
                 ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
                                        ndim=2,
@@ -226,21 +263,44 @@ class TestDatabaseBasics:
 
         ar = ArchiveWithColumns(basepath='')
 
-        #
-        #
-        # del stm
-        #
-        # # The data has been pushed to the database and removed from Python. Now
-        # # try to reload the data from the DB.
-        #
-        #
-        # stm = session.query(SubTraitMapping).filter_by(name='wcs').one()
-        # print(stm)
-        # assert isinstance(stm, SubTraitMapping)
-        # assert stm.trait_class is ImageWCS
-        # assert stm.name == "wcs"
-        #
-        # session.rollback()
+        # Make SQLAlchemy forget about the object:
+        fidia.mappingdb_session.expunge(ar)
+        del ar
+
+        ar = fidia.mappingdb_session.query(Archive).filter_by(_db_archive_id=random_id).one()
+
+        # Check that we actually have reconstructed the object from the
+        # database, and not just holding a pointer to the original object:
+        assert ar._is_reconstructed is True
+
+        # Check validity of archive itself
+        print(ar)
+        assert isinstance(ar, Archive)
+        assert isinstance(ar, BasePathArchive)
+        assert ar.archive_id == random_id
+
+        # Check archive contents
+        print(ar.contents)
+        assert ar.contents == ["Gal1", "Gal2", "Gal3"]
+
+        # Check TraitMappings
+        tm_key = ArchiveWithColumns.trait_mappings[0].key()
+        print(tm_key)
+        tm = ar.trait_mappings[tm_key]
+        assert isinstance(tm, TraitMapping)
+        assert str(tm.trait_key) == "red"
+
+        # Check Columns
+        cols = ar.column_definitions
+        assert isinstance(cols, ColumnDefinitionList)
+        col = cols['col']
+        assert isinstance(col, FITSDataColumn)
+        print(col)
+
+        assert False
+
+
+
 from sqlalchemy import create_engine
 
 

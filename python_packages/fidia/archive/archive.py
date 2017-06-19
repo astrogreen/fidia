@@ -37,7 +37,7 @@ log.enable_console_logging()
 __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
 
-class Archive(bases.Archive, bases.SQLAlchemyBase):
+class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     """An archive of data.
 
     An `.Archive` can define Traits and TraitCollections, which are checked and
@@ -76,6 +76,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
     @reconstructor
     def __db_init__(self):
         """Initializer called when the object is reconstructed from the database."""
+        super(Archive, self).__db_init__()
         # Since this archive is being recovered from the database, it must have
         # requested persistence.
         # self._db_session = Session()

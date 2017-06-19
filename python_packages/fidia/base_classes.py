@@ -15,6 +15,7 @@ from abc import ABCMeta, abstractclassmethod, abstractproperty
 
 # Other Library Imports
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import reconstructor
 
 # FIDIA Imports
 
@@ -30,6 +31,19 @@ log.enable_console_logging()
 
 # Set up SQL Alchemy in declarative base mode:
 SQLAlchemyBase = declarative_base()
+
+class PersistenceBase:
+    """A mix in class that adds SQLAchemy database persistence with some extra features."""
+
+    _is_reconstructed = None  # type: bool
+
+    def __init__(self):
+        super(PersistenceBase, self).__init__()
+        self._is_reconstructed = False
+
+    @reconstructor
+    def __db_init__(self):
+        self._is_reconstructed = True
 
 
 class Sample(collections.MutableMapping):
