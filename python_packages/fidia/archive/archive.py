@@ -69,46 +69,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
 
 
     def __init__(self, **kwargs):
+        """Pass through initializer. Initialization is handled by `ArchiveDefinition.__new__()`"""
+        super(Archive, self).__init__()
 
-        self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
-
-
-        # Create a database session which will be used to handle transactions
-        # associated with this archive.
-        #  @TODO: Do this only if the archive is to be persisted.
-        if kwargs.pop('persist', False):
-            pass
-
-        self._db_calling_arguments = repr(kwargs)
-
-        with database_transaction(fidia.mappingdb_session):
-            # We wrap the rest of the initialisation in a database transaction, so
-            # if the archive cannot be initialised, it will not appear in the
-            # database.
-
-            assert isinstance(self.trait_mappings, list)
-            # self.trait_manager = traits.TraitManager(session=self._db_session)
-            # self.trait_manager.register_mapping_list(self.trait_mappings)
-
-            for mapping in self.trait_mappings:
-                self.register_mapping(mapping)
-
-
-
-            self._db_archive_class = fidia_classname(self)
-
-            super(Archive, self).__init__()
-
-            # Associate column instances with this archive instance
-            local_columns = columns.ColumnDefinitionList()
-            for alias, column in self.column_definitions:
-                log.debug("Associating column %s with archive %s", column, self)
-                instance_column = column.associate(self)
-                local_columns.add((alias, instance_column))
-            self.columns = local_columns
-
-            # self._db_session.add(self.trait_manager)
-            fidia.mappingdb_session.add(self)
 
     @reconstructor
     def __db_init__(self):
@@ -255,6 +218,7 @@ class ArchiveDefinition(object):
         archive = definition.archive_type.__new__(definition.archive_type)
 
         # I n i t i a l i s e   t h e   A r  c h i v e
+        archive.__init__(**kwargs)
 
         # Basics
         archive._id = definition.archive_id
@@ -273,7 +237,43 @@ class ArchiveDefinition(object):
         #     SQLAlchemy will complain that individual TraitMappings are owned
         #     by multiple archives.
 
-        archive.__init__(**kwargs)
+
+        archive._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
+
+
+        # Create a database session which will be used to handle transactions
+        # associated with this archive.
+        #  @TODO: Do this only if the archive is to be persisted.
+        if kwargs.pop('persist', False):
+            pass
+
+        archive._db_calling_arguments = repr(kwargs)
+
+        with database_transaction(fidia.mappingdb_session):
+            # We wrap the rest of the initialisation in a database transaction, so
+            # if the archive cannot be initialised, it will not appear in the
+            # database.
+
+            assert isinstance(archive.trait_mappings, list)
+            # self.trait_manager = traits.TraitManager(session=self._db_session)
+            # self.trait_manager.register_mapping_list(self.trait_mappings)
+
+            for mapping in archive.trait_mappings:
+                archive.register_mapping(mapping)
+
+            archive._db_archive_class = fidia_classname(archive)
+
+
+            # Associate column instances with this archive instance
+            local_columns = columns.ColumnDefinitionList()
+            for alias, column in archive.column_definitions:
+                log.debug("Associating column %s with archive %s", column, archive)
+                instance_column = column.associate(archive)
+                local_columns.add((alias, instance_column))
+            archive.columns = local_columns
+
+            # self._db_session.add(self.trait_manager)
+            fidia.mappingdb_session.add(archive)
 
         return archive
 
