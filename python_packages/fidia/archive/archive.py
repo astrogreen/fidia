@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List
+from typing import List, Dict, Tuple, Iterable
 import fidia
 
 # Python Standard Library Imports
@@ -54,12 +54,12 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
     __tablename__ = "archives"
     _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
     _db_archive_class = sa.Column(sa.String)
-    _db_calling_arguments = sa.Column(sa.String)
+    _db_archive_id = sa.Column(sa.String)
+    _db_calling_arguments = sa.Column(sa.PickleType)
+    _db_contents = sa.Column(sa.PickleType)
     __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
 
-    _mappings = relationship('TraitMapping')  # type: List[TraitMapping]
-
-    _id = None
+    _mappings = relationship('TraitMapping')  # type: List[traits.TraitMapping]
 
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when
@@ -79,14 +79,17 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
         # Since this archive is being recovered from the database, it must have
         # requested persistence.
         # self._db_session = Session()
-        pass
+        self._local_trait_mappings = None
 
     def register_mapping(self, mapping):
-        # type: (TraitMapping) -> None
+        # type: (traits.TraitMapping) -> None
+        """Register a new TraitMapping to this Archive."""
+        self._register_mapping_locally(mapping)
+        self._mappings.append(mapping)
 
-        from fidia.traits import TraitMapping
-
-        if isinstance(mapping, TraitMapping):
+    def _register_mapping_locally(self, mapping):
+        """Add a TraitMapping to the `_local_trait_mappings`."""
+        if isinstance(mapping, traits.TraitMapping):
             mapping.validate()
             key = mapping.key()
             log.debug("Registering mapping for key %s", key)
@@ -99,22 +102,29 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
             raise ValueError("TraitManager can only register a TraitMapping, got %s"
                              % mapping)
 
-
-        self._mappings.append(mapping)
-
     @property
     def contents(self):
-        return self._contents
+        return self._db_contents
 
     @contents.setter
     def contents(self, value):
-        self._contents = set(value)
+        self._db_contents = list(value)
 
     @property
     def archive_id(self):
-        if self._id is None:
-            return repr(self)
-        return self._id
+        return self._db_archive_id
+
+    @property
+    def trait_mappings(self):
+        # type: () -> Dict[Tuple[str, str], traits.TraitMapping]
+        if self._local_trait_mappings is None:
+            # Have not been initialised
+            self._local_trait_mappings = MultiDexDict(2)
+            for mapping in self._mappings:
+                self._register_mapping_locally(mapping)
+        return self._local_trait_mappings
+
+
 
     def get_full_sample(self):
         """Return a sample containing all objects in the archive."""
@@ -122,7 +132,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
         # (no suitable public interface at this time.)
         from fidia.sample import Sample
         new_sample = Sample()
-        id_cross_match = pd.DataFrame(pd.Series(map(str, self.contents), name=self.name, index=self.contents))
+        id_cross_match = pd.DataFrame(pd.Series(map(str, self.contents), name=self.archive_id, index=self.contents))
 
         # For a new, empty sample, extend effectively just copies the id_cross_match into the sample's ID list.
         new_sample.extend(id_cross_match)
@@ -189,11 +199,15 @@ class BasePathArchive(Archive):
 
 class ArchiveDefinition(object):
 
-    name = None
     archive_id = None
 
     archive_type = Archive
     writable = False
+
+    contents = []  # type: Iterable
+
+    trait_mappings = []  # type: List[traits.TraitMapping]
+    column_definitions = []  # type: List[columns.ColumnDefinition]
 
     def __init__(self, **kwargs):
         # __init__ of superclasses not called.
@@ -220,46 +234,34 @@ class ArchiveDefinition(object):
         # I n i t i a l i s e   t h e   A r  c h i v e
         archive.__init__(**kwargs)
 
-        # Basics
-        archive._id = definition.archive_id
-        archive.name = definition.name
-        archive.writeable = definition.writable
-        # archive._db_calling_arguments = repr(kwargs)
-        archive._contents = definition._contents
-
-        # TraitMappings
-        archive.trait_mappings = deepcopy(definition.trait_mappings)
-        archive.column_definitions = deepcopy(definition.column_definitions)
-        #     Ensure that this instance of the archive has local copies of all
-        #     of the Trait Mappings and Column definitions. This is necessary so
-        #     that e.g. if they are defined on a class instead of an instance,
-        #     the copies belonging to an instance are unique. Without this,
-        #     SQLAlchemy will complain that individual TraitMappings are owned
-        #     by multiple archives.
-
-
-        archive._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], TraitMapping]
-
-
-        # Create a database session which will be used to handle transactions
-        # associated with this archive.
-        #  @TODO: Do this only if the archive is to be persisted.
-        if kwargs.pop('persist', False):
-            pass
-
-        archive._db_calling_arguments = repr(kwargs)
-
+        # We wrap the rest of the initialisation in a database transaction, so
+        # if the archive cannot be initialised, it will not appear in the
+        # database.
         with database_transaction(fidia.mappingdb_session):
-            # We wrap the rest of the initialisation in a database transaction, so
-            # if the archive cannot be initialised, it will not appear in the
-            # database.
 
-            assert isinstance(archive.trait_mappings, list)
-            # self.trait_manager = traits.TraitManager(session=self._db_session)
-            # self.trait_manager.register_mapping_list(self.trait_mappings)
+            # Basics
+            archive._db_archive_id = definition.archive_id
+            archive.writeable = definition.writable
+            archive.contents = definition.contents
+            archive._db_calling_arguments = kwargs
 
-            for mapping in archive.trait_mappings:
-                archive.register_mapping(mapping)
+            # TraitMappings
+
+            #     Note: To ensure that this instance of the archive has local copies
+            #     of all of the Trait Mappings and Column definitions, we make
+            #     copies of the originals. This is necessary so that e.g. if they
+            #     are defined on a class instead of an instance, the copies
+            #     belonging to an instance are unique. Without this, SQLAlchemy will
+            #     complain that individual TraitMappings are owned by multiple
+            #     archives.
+
+            archive._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], traits.TraitMapping]
+            archive._mappings = deepcopy(definition.trait_mappings)
+
+            # Columns
+
+            archive.column_definitions = deepcopy(definition.column_definitions)
+
 
             archive._db_archive_class = fidia_classname(archive)
 

@@ -26,8 +26,14 @@ def test_data_dir():
 class TestArchiveAndColumns:
     @pytest.fixture
     def ArchiveWithColumns(self):
-        class ArchiveWithColumns(BasePathArchive):
-            _id = "testArchive"
+        class ArchiveWithColumns(fidia.ArchiveDefinition):
+
+            archive_id = "testArchive"
+
+            contents = ["Gal1"]
+
+            archive_type = BasePathArchive
+
             column_definitions = [
                 ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
                                        ndim=2,
