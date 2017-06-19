@@ -60,6 +60,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
 
     _mappings = relationship('TraitMapping')  # type: List[traits.TraitMapping]
+    _columns = relationship('FIDIAColumn')  # type: List[columns.FIDIAColumn]
 
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when

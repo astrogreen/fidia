@@ -11,8 +11,12 @@ from collections import OrderedDict
 # Other Library Imports
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.orm.collections import attribute_mapped_collection, mapped_collection
 
 # FIDIA Imports
+import fidia.base_classes as bases
 from ..exceptions import FIDIAException
 from ..utilities import RegexpGroup
 
@@ -147,7 +151,7 @@ class ColumnIDDict(OrderedDict):
 
 
 
-class FIDIAColumn(object):
+class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     """FIDIAColumns represent the atomic data unit in FIDIA.
 
 
@@ -173,6 +177,26 @@ class FIDIAColumn(object):
     Previously known as TraitProperties
 
     """
+
+    __tablename__ = "fidia_columns"  # Note this table is shared with FIDIAArrayColumn subclass
+    _database_id = sa.Column(sa.Integer, sa.Sequence('column_seq'), primary_key=True)
+
+    # Polymorphism (subclasses stored in same table)
+    _db_type = sa.Column('type', sa.String(50))
+    __mapper_args__ = {'polymorphic_on': "_db_type"}
+
+    # Relationships (foreign keys)
+    _db_archive_id = sa.Column(sa.Integer, sa.ForeignKey("archives._db_id"))
+    # trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
+    #                                        collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
+
+    # Storage Columns
+    _dtype = sa.Column(sa.PickleType)
+    _fidia_type = sa.Column(sa.String)
+    _ucd = sa.Column(sa.String)
+    _archive_id = sa.Column(sa.String)
+    _timestamp = sa.Column(sa.Integer)
+    _coldef_id = sa.Column(sa.String)
 
     allowed_types = RegexpGroup(
         'string',
@@ -210,9 +234,10 @@ class FIDIAColumn(object):
 
     def __init__(self, *args, **kwargs):
 
+        super(FIDIAColumn, self).__init__()
+
         # Internal storage for data of this column
         self._data = kwargs.pop('data', None)
-        self._id = kwargs.pop('id', None)
 
         # Data Type information
         dtype = kwargs.pop('dtype', None)
@@ -330,6 +355,8 @@ class FIDIAColumn(object):
 
 
 class FIDIAArrayColumn(FIDIAColumn):
+
+    __mapper_args__ = {'polymorphic_identity': 'FIDIAArrayColumn'}
 
     def __init__(self, *args, **kwargs):
 

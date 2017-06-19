@@ -122,12 +122,23 @@ class ColumnDefinition(object):
     @cached_property
     def id(self):
         """The column part of a full column ID."""
-        klass = type(self).__module__ + "." + type(self).__name__
-        if klass.startswith('fidia.'):
-            klass = type(self).__name__
+        klass = self.class_name()
         if hasattr(self, '_id'):
             return ":".join((klass, self._id))
         return ":".join((klass, repr(self)))
+
+    def class_name(self):
+        # type: () -> str
+        """Determine the class-name of the ColumnDefinition.
+
+        If the column definition is part of FIDIA, then this is the bare class.
+        If not, then it includes the module path to the class.
+
+        """
+        klass = type(self).__module__ + "." + type(self).__name__
+        if klass.startswith('fidia.'):
+            klass = type(self).__name__
+        return klass
 
     def _timestamp_helper(self, archive):
         # type: (fidia.archive.archive.Archive) -> Union[None, int, float]

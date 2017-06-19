@@ -228,6 +228,46 @@ class TestDatabaseBasics:
                     assert isinstance(tp, TraitPropertyMapping)
                     tp.name in ("stellar_mass", "stellar_mass_err")
 
+    def test_column_persistence(self, session, engine):
+
+        from fidia.column import FITSHeaderColumn, FIDIAColumn
+
+        class DummyArchive(object):
+            archive_id = 'myArchive'
+
+        col_def = FITSHeaderColumn(
+            "{object_id}/{object_id}_red_image.fits",
+            0, "NAXIS", timestamp=1)
+
+        col = col_def.associate(DummyArchive())
+
+        session.add(col)
+        session.commit()
+
+        print("Results of SELECT * FROM fidia_columns")
+        res = engine.execute("SELECT * FROM fidia_columns")
+        print(list(res.keys()))
+        for row in res:
+            print(row)
+
+        # Make SQLAlchemy forget about the object:
+        session.expunge(col)
+        del col
+
+        # The data has been pushed to the database and removed from Python. Now
+        # try to reload the data from the DB.
+
+        col = session.query(FIDIAColumn).filter_by(
+            _coldef_id="FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[NAXIS]"
+            ).one()
+
+        # Confirm that the object has really been reconstructed from the database
+        assert col._is_reconstructed is True
+
+        print(col)
+        assert isinstance(col, FIDIAColumn)
+
+
     def test_archive_persistance_in_db(self):
         from fidia.archive import BasePathArchive, ArchiveDefinition, Archive
         from fidia.traits import TraitMapping, Image, TraitPropertyMapping
