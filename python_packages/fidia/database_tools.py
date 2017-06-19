@@ -3,11 +3,26 @@
 This module contains tools necessary to access databases through SQLAlchemy.
 
 A single database engine is created to connect to the database defined by the
-configuration files. Then, a single `Session` factory is created for use in the
+configuration files. Then, a single `Session` is created for use in the
 whole of application. This is per instructions from:
 
 - http://docs.sqlalchemy.org/en/latest/orm/session_basics.html
 - http://docs.sqlalchemy.org/en/latest/core/connections.html#basic-usage
+
+The choice of the single session object may not be the best, but it has been
+chosen for the reasons as follows:
+
+- Some database engines can cause locking problems if one session is doing
+  something that another session needs access to. Since FIDIA manages it's
+  own state, it should not need to worry about another part of the same
+  instance of FIDIA causing problems that would require Session level isolation
+- There is a clear case for transaction level isolation (e.g. try..except blocks)
+  This is already catered for by the `database_transaction` context manager.
+- Having multiple sessions around causes problems where objects may belong to different
+  sessions. So just dont.
+- Having a single session may make some test cases easier to handle using monkey patching.
+
+Note, however, it may be better to use the `sqlalchemy.pool.StaticPool` instead.
 
 """
 
@@ -40,7 +55,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-__all__ = ['Session']
+__all__ = ['mappingdb_session']
 
 
 
@@ -58,14 +73,10 @@ db_engine = create_engine("{engine}://{location}/{database}".format(
 )
 # db_engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
 
-if "sqlite" in config["MappingDatabase"]["engine"]:
-    session = sessionmaker(bind=db_engine)()
+# A single session is used to access the Mapping Database for the whole of
+# application. See docstring at the top of this file.
+mappingdb_session = sessionmaker(bind=db_engine)()
 
-    def Session():
-        return session
-        
-else:
-    Session = sessionmaker(bind=db_engine)
 
 @contextmanager
 def database_transaction(session):

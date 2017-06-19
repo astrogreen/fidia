@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from typing import List
+import fidia
 
 # Python Standard Library Imports
 from collections import OrderedDict, Mapping
@@ -19,7 +20,7 @@ from sqlalchemy.orm import relationship, reconstructor
 import fidia.base_classes as bases
 from ..exceptions import *
 from ..utilities import SchemaDictionary, fidia_classname, MultiDexDict
-from ..database_tools import Session, database_transaction
+from ..database_tools import database_transaction
 # import fidia.sample as sample
 import fidia.traits as traits
 import fidia.column as columns
@@ -77,11 +78,10 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
         #  @TODO: Do this only if the archive is to be persisted.
         if kwargs.pop('persist', False):
             pass
-        self._db_session = Session()
 
         self._db_calling_arguments = repr(kwargs)
 
-        with database_transaction(self._db_session):
+        with database_transaction(fidia.mappingdb_session):
             # We wrap the rest of the initialisation in a database transaction, so
             # if the archive cannot be initialised, it will not appear in the
             # database.
@@ -108,14 +108,15 @@ class Archive(bases.Archive, bases.SQLAlchemyBase):
             self.columns = local_columns
 
             # self._db_session.add(self.trait_manager)
-            self._db_session.add(self)
+            fidia.mappingdb_session.add(self)
 
     @reconstructor
     def __db_init__(self):
         """Initializer called when the object is reconstructed from the database."""
         # Since this archive is being recovered from the database, it must have
         # requested persistence.
-        self._db_session = Session()
+        # self._db_session = Session()
+        pass
 
     def register_mapping(self, mapping):
         # type: (TraitMapping) -> None
@@ -282,7 +283,7 @@ class KnownArchives(object):
         if KnownArchives.__instance is None:
             instance = object.__new__(cls)
 
-            instance._query = Session().query(Archive)  # type: sa.orm.query.Query
+            instance._query = fidia.mappingdb_session.query(Archive)  # type: sa.orm.query.Query
 
             KnownArchives.__instance = instance
         return KnownArchives.__instance

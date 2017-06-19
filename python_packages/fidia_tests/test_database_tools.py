@@ -6,11 +6,11 @@ These tests check that the database parts of FIDIA are working as expected.
 import pytest
 
 
-@pytest.fixture('module')
+@pytest.fixture(scope='function')
 def engine():
     engine = create_engine('sqlite:///:memory:', echo=True)
     # engine = create_engine('sqlite:////Users/agreen/Desktop/fidia.sql', echo=True)
-
+    
     from fidia.base_classes import SQLAlchemyBase
     SQLAlchemyBase.metadata.create_all(engine)
 
@@ -19,7 +19,7 @@ def engine():
 
 class TestDatabaseBasics:
 
-    @pytest.fixture
+    @pytest.fixture(scope='function')
     def session(self, engine):
         Session = sessionmaker(bind=engine)
         return Session()
