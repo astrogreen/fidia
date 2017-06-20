@@ -264,6 +264,8 @@ class TestDatabaseBasics:
         # Confirm that the object has really been reconstructed from the database
         assert col._is_reconstructed is True
 
+        assert hasattr(col, "_data")
+
         print(col)
         assert isinstance(col, FIDIAColumn)
 
@@ -306,7 +308,7 @@ class TestDatabaseBasics:
     def test_archive_persistance_in_db(self):
         from fidia.archive import BasePathArchive, ArchiveDefinition, Archive
         from fidia.traits import TraitMapping, Image, TraitPropertyMapping
-        from fidia.column import FITSDataColumn, ColumnDefinitionList
+        from fidia.column import FITSDataColumn, ColumnDefinitionList, FIDIAArrayColumn
 
         random_id = "testArchive" + str(random.randint(10000, 20000))
 
@@ -338,6 +340,10 @@ class TestDatabaseBasics:
 
         ar = ArchiveWithColumns(basepath='')
 
+        column_id = ar.columns[next(iter(ar.columns.keys()))].id
+
+        print("ColumnID: %s" % repr(column_id))
+
         # Make SQLAlchemy forget about the object:
         fidia.mappingdb_session.expunge(ar)
         del ar
@@ -366,13 +372,14 @@ class TestDatabaseBasics:
         assert str(tm.trait_key) == "red"
 
         # Check Columns
-        cols = ar.column_definitions
-        assert isinstance(cols, ColumnDefinitionList)
-        col = cols['col']
-        assert isinstance(col, FITSDataColumn)
+        cols = ar.columns
+        print(list(cols.keys()))
+        print(repr(next(iter(cols.keys()))))
+        col = cols[column_id]
+        assert isinstance(col, FIDIAArrayColumn)
         print(col)
 
-        assert False
+        # assert False
 
 
 

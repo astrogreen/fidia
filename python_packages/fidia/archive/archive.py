@@ -12,7 +12,7 @@ import pandas as pd
 
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship, reconstructor
-# from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 
 
@@ -60,7 +60,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
 
     _mappings = relationship('TraitMapping')  # type: List[traits.TraitMapping]
-    _columns = relationship('FIDIAColumn')  # type: List[columns.FIDIAColumn]
+    columns = relationship('FIDIAColumn',
+                           collection_class=attribute_mapped_collection('id')
+                           )  # type: Dict[str, columns.FIDIAColumn]
 
     # This provides a space for an archive to set which catalog data to
     # "feature". These properties are those that would be displayed e.g. when
@@ -209,7 +211,7 @@ class ArchiveDefinition(object):
     contents = []  # type: Iterable
 
     trait_mappings = []  # type: List[traits.TraitMapping]
-    column_definitions = []  # type: List[columns.ColumnDefinition]
+    column_definitions = dict()  # type: Dict[str, columns.ColumnDefinition]
 
     is_persisted = True
 
@@ -269,21 +271,16 @@ class ArchiveDefinition(object):
             for mapping in archive._mappings:
                 archive._register_mapping_locally(mapping)
 
-            # Columns
-
-            archive.column_definitions = deepcopy(definition.column_definitions)
-
-
             archive._db_archive_class = fidia_classname(archive)
 
+            # Columns
+            column_definitions = deepcopy(definition.column_definitions)
 
             # Associate column instances with this archive instance
-            local_columns = columns.ColumnDefinitionList()
-            for alias, column in archive.column_definitions:
+            for alias, column in column_definitions:
                 log.debug("Associating column %s with archive %s", column, archive)
                 instance_column = column.associate(archive)
-                local_columns.add((alias, instance_column))
-            archive.columns = local_columns
+                archive.columns[instance_column.id] = instance_column
 
             # self._db_session.add(self.trait_manager)
             if is_persisted:

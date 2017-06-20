@@ -263,6 +263,10 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
             raise ValueError("Either column_id or all of (archive_id, coldef_id and timestamp) must be provided.")
 
 
+    @reconstructor
+    def __db_init__(self):
+        super(FIDIAColumn, self).__db_init__()
+        self._data = None
 
 
     @property
