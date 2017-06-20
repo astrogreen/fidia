@@ -258,7 +258,7 @@ class TestDatabaseBasics:
         # try to reload the data from the DB.
 
         col = session.query(FIDIAColumn).filter_by(
-            _coldef_id="FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[NAXIS]"
+            _column_id="myArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[NAXIS]:1"
             ).one()
 
         # Confirm that the object has really been reconstructed from the database
@@ -266,6 +266,41 @@ class TestDatabaseBasics:
 
         print(col)
         assert isinstance(col, FIDIAColumn)
+
+    @pytest.mark.xfail
+    def test_column_retriever_persistance(self, session, engine):
+        """Check that the backup data retriever still works after recovering from the database."""
+        # @TODO: This is currently failing: see ASVO-1057
+
+        from fidia.column import FITSHeaderColumn, FIDIAColumn, ColumnDefinition
+
+        class DummyArchive(object):
+            archive_id = 'myArchive2'
+
+        class MyColumnDef(ColumnDefinition):
+            def __init__(self, param):
+                self.param = param
+            column_type = FIDIAColumn
+            def object_getter(self, archive, object_id):
+                return "{id}: {obj} ({coldef})".format(id=archive.archive_id, obj=object_id, coldef=self.param)
+
+        coldef = MyColumnDef('test')
+        col = coldef.associate(DummyArchive())
+
+        session.add(col)
+        session.commit()
+        session.expunge(col)
+        del col
+
+        # The data has been pushed to the database and removed from Python. Now
+        # try to reload the data from the DB.
+
+        col = session.query(FIDIAColumn).filter(
+            FIDIAColumn._column_id.like("myArchive2:%")
+            ).one()
+
+
+        assert col.get_value('Gal1') == "Archive123: Gal1 (test)"
 
 
     def test_archive_persistance_in_db(self):

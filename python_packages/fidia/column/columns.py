@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from typing import Union
+import fidia
 
 # Python Standard Library Imports
 import re
@@ -189,14 +190,10 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     _db_archive_id = sa.Column(sa.Integer, sa.ForeignKey("archives._db_id"))
     # trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
     #                                        collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
+    # _archive = relationship("Archive")  # type: fidia.Archive
 
     # Storage Columns
-    _dtype = sa.Column(sa.PickleType)
-    _fidia_type = sa.Column(sa.String)
-    _ucd = sa.Column(sa.String)
-    _archive_id = sa.Column(sa.String)
-    _timestamp = sa.Column(sa.Integer)
-    _coldef_id = sa.Column(sa.String)
+    _column_id = sa.Column(sa.String)
 
     allowed_types = RegexpGroup(
         'string',
@@ -240,30 +237,37 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         self._data = kwargs.pop('data', None)
 
         # Data Type information
-        dtype = kwargs.pop('dtype', None)
-        self._dtype = dtype
-        fidia_type = kwargs.pop('fidia_type', None)
-        self._fidia_type = fidia_type
+        # dtype = kwargs.pop('dtype', None)
+        # self._dtype = dtype
 
         # Internal storage for IVOA Uniform Content Descriptor
-        self._ucd = kwargs.get('ucd', None)
+        # self._ucd = kwargs.get('ucd', None)
 
         # Archive Connection
-        self._archive = kwargs.pop('archive', None)
+        # self._archive = kwargs.pop('archive', None)  # type: fidia.Archive
         self._archive_id = kwargs.pop('archive_id', None)
 
+        # Construct the ID
         self._timestamp = kwargs.pop('timestamp', None)
         self._coldef_id = kwargs.pop('coldef_id', None)
+        if "column_id" in kwargs:
+            self._column_id = kwargs["column_id"]
+        elif (self._archive_id is not None and
+              self._timestamp is not None and
+              self._coldef_id is not None):
+            self._column_id = "{archive_id}:{coldef_id}:{timestamp}".format(
+                archive_id=self._archive_id,
+                coldef_id=self._coldef_id,
+                timestamp=self._timestamp)
+        else:
+            raise ValueError("Either column_id or all of (archive_id, coldef_id and timestamp) must be provided.")
+
+
+
 
     @property
     def id(self):
-        return "{archive_id}:{coldef_id}:{timestamp}".format(
-            archive_id=self._archive_id,
-            coldef_id=self._coldef_id,
-            timestamp=self._timestamp
-        )
-        # coldef_id = ColumnID.as_column_id(self._coldef_id)
-        # return ColumnID(self._archive_id, coldef_id.column_type, coldef_id.column_name, self._timestamp)
+        return self._column_id
 
     def __repr__(self):
         return str(self.id)
