@@ -31,7 +31,10 @@ def get_sov_defaults_schema(astro_object=None):
 
     """
     defaults = {
-        "traits": [{'name': 'trait1', 'trait_class': 'image'}, {'name': 'trait2', 'trait_class': 'table'}]
+        "traits": [
+            {'name': 'trait1', 'trait_class': 'image', 'archive_id': 1},
+            # {'name': 'trait2', 'trait_class': 'table', 'archive_id': 1}
+        ]
     }
     return OrderedDict(sorted(defaults.items(), key=lambda t: t[0]))
 
@@ -70,8 +73,10 @@ def get_archive_trait_schema(archive_id=None):
     _trait_classes = fidia.traits.generic_traits.__all__
     _traits = []
     for t in _trait_classes:
-        _traits.append({'name': 'trait1', 'trait_class': t.lower()})
-        _traits.append({'name': 'trait2', 'trait_class': t.lower()})
+        _traits.append(
+            {'name': 'trait1', 'trait_class': t.lower(), 'formats': ['fits'], 'description': 'very short description'})
+        _traits.append({'name': 'trait2', 'trait_class': t.lower(), 'formats': ['csv', 'ascii', 'votable'],
+                        'description': 'very short description'})
 
     _dc_schema = dict(get_data_central_archive_schema())
     d = {}
@@ -92,3 +97,4 @@ def get_astro_object_default_traits_schema(archive_id=None, astro_object=None):
     """
     s = {'schema': []}
     return OrderedDict(sorted(s.items(), key=lambda t: t[0]))
+

@@ -72,34 +72,35 @@ class SurveyRetrieve(serializers.Serializer):
 
 class TraitLookUp(serializers.Serializer):
     # TODO replace this by list of available archives from FIDIA
-    survey = serializers.ChoiceField(choices=[('sami', 'SAMI'), ('gama', 'GAMA')], required=True)
-    astroObject = serializers.CharField(max_length=256, required=True)
+    archive = serializers.ChoiceField(required=True, choices=[('1', 'SAMIDR1'), ('2', 'GAMADR2')])
+    astro_object = serializers.CharField(max_length=256, required=True)
 
 
 # ____________________________________DATA_____________________________________
 
 # ____________Request__________
 class DataForObject(serializers.Serializer):
-    # TODO this should return a list of available traits for a single object across ALL archives
-    # e.g., gama-sami, split by archive
-    # {'archive_id': }
+    # TODO what does this provide?
+    # meta about object?
+    # list of traits is covered in schema
+    # could be the overview panel?
     pass
 
 
 class DataForTrait(TraitLookUp):
-    pass
-
-
-class DataForTraitProperty(DataForTrait):
     trait_key = serializers.CharField(max_length=256, required=True)
 
 
+class DataForTraitProperty(DataForTrait):
+    trait_property_key = serializers.CharField(max_length=256, required=True)
+
+
 # ____________Response__________
-class AOByTrait(serializers.Serializer):
+class TraitData(serializers.Serializer):
     pass
 
 
-class TraitByTraitProperty(serializers.Serializer):
+class TraitPropertyData(serializers.Serializer):
     pass
 
 

@@ -4,7 +4,7 @@ import numpy as np
 from django.http import HttpResponse
 from wsgiref.util import FileWrapper
 from django.utils.encoding import smart_str
-from rest_framework import permissions, views, viewsets
+from rest_framework import permissions, views, viewsets, pagination
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
@@ -36,7 +36,7 @@ class Query(viewsets.ModelViewSet):
     """
     serializer_class = query.serializers.QueryListSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = None
+    # pagination_class = None
     # renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (query.renderers.MyCSVQueryRenderer,)
 
     serializer_action_classes = {
@@ -119,7 +119,10 @@ class Query(viewsets.ModelViewSet):
             ]}
 
         # Retrieve the top 1000 rows from the table
-        if obj.is_completed and not obj.is_expired and obj.table_name:
+
+        # remove expiry - we are managing this in webdav now?
+        # if obj.is_completed and not obj.is_expired and obj.table_name:
+        if obj.is_completed and obj.table_name:
             if settings.DB_LOCAL:
                 # data = dummy_results
                 data = json.loads(query.dummy_data.dummy_result.DUMMY_RESULT)
@@ -201,7 +204,6 @@ class QueryResultTables(object):
 
 class AdminQuery(Query):
     permission_classes = [permissions.IsAdminUser]
-
     serializer_class = query.serializers.QueryListSerializer
 
     def get_queryset(self):

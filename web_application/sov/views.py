@@ -125,9 +125,9 @@ class DataForType(generics.CreateAPIView):
     }
 
     filter_serializer_classes = {
-        'available_traits': sov.serializers.AOByTrait,
-        'trait': sov.serializers.AOByTrait,
-        'trait_property': sov.serializers.TraitByTraitProperty,
+        'available_traits': sov.serializers.TraitData,
+        'trait': sov.serializers.TraitData,
+        'trait_property': sov.serializers.TraitPropertyData,
     }
 
     def get_serializer_class(self):
@@ -145,11 +145,12 @@ class DataForType(generics.CreateAPIView):
         object_type = self.kwargs['object_type']
         return self.filter_serializer_classes[object_type]
 
-    def get_data_from_fidia(self, object_type=None, astro_object=None, survey=None, trait_key=None):
+    def get_data_from_fidia(self, object_type=None, astro_object=None, archive=None, trait_key=None):
         try:
-            # TODO get data from fidia according to the object_type (trait-collection/trait/sub-trait/trait-property)
-            # TODO should the method call include information on the instance type? (e.g., dmu)
-            return []
+            # TODO get data from fidia according to the object_type (trait-collection/trait/sub-trait/trait-property) ?
+            # TODO chat to Andy, can this be encompassed in one method? How is data below trait-level addressed?
+
+            return ['data', 'from', 'fidia']
         except (KeyError, AttributeError):
             _message = "Cannot access data for : %s" % object_type
             return Response({'error': _message})
@@ -160,27 +161,27 @@ class DataForType(generics.CreateAPIView):
 
         if object_type in self.available_keywords:
             _astro_object = serializer.data.get('astro_object')
-            _survey = serializer.data.get('survey')
+            _archive = serializer.data.get('archive')
             _trait_key = serializer.data.get('trait_key')
-            data = self.get_data_from_fidia(object_type=object_type, astro_object=_astro_object, survey=_survey, trait_key=_trait_key)
+            data = self.get_data_from_fidia(object_type=object_type, astro_object=_astro_object, archive=_archive, trait_key=_trait_key)
         else:
             # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
             _message = "object_type by must be one of the following values: %s" % self.available_keywords
             return Response({'error': _message})
 
-        completed_data = dict(enumerate(data))
-        page = self.paginate_queryset(list(completed_data.values()))
-
-        if page is not None:
-            filter_serializer_class = self.get_filter_serializer_class()
-            filter_serializer = filter_serializer_class(page, many=True)
-            return self.get_paginated_response(filter_serializer.data)
+        # completed_data = dict(enumerate(data))
+        # page = self.paginate_queryset(list(completed_data.values()))
+        #
+        # if page is not None:
+        #     filter_serializer_class = self.get_filter_serializer_class()
+        #     filter_serializer = filter_serializer_class(page, many=True)
+        #     return self.get_paginated_response(filter_serializer.data)
 
         headers = self.get_success_headers(serializer.data)
         # return each as json using
-        filter_serializer_class = self.get_filter_serializer_class()
-        filter_serializer = filter_serializer_class(instance=completed_data.values(), many=True)
-        return Response(filter_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        # filter_serializer_class = self.get_filter_serializer_class()
+        # filter_serializer = filter_serializer_class(instance=data, many=False)
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
 DataForType.__doc__ = DATAFOR_DOC_STRING
 
@@ -283,8 +284,7 @@ class SchemaForType(generics.CreateAPIView):
             _message = "Cannot access data for : %s" % object_type
             return Response({'error': _message})
 
-    def create(self, request, format=None, object_type=None, *args, **kwargs):
-        print(format)
+    def create(self, request, object_type=None, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
