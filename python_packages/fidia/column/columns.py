@@ -162,7 +162,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
 
     # Polymorphism (subclasses stored in same table)
     _db_type = sa.Column('type', sa.String(50))
-    __mapper_args__ = {'polymorphic_on': "_db_type"}
+    __mapper_args__ = {'polymorphic_on': "_db_type", 'polymorphic_identity': 'FIDIAColumn'}
 
     # Relationships (foreign keys)
     _db_archive_id = sa.Column(sa.Integer, sa.ForeignKey("archives._db_id"))
