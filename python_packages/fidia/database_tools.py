@@ -67,7 +67,7 @@ db_engine = create_engine("{engine}://{location}/{database}".format(
         engine=config["MappingDatabase"]["engine"],
         location=config["MappingDatabase"]["location"],
         database=config["MappingDatabase"]["database"]),
-    echo=True,
+    echo=config["MappingDatabase"].getboolean("echo"),
     poolclass=poolclass,
     echo_pool=True
 )
