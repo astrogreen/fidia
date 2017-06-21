@@ -9,6 +9,8 @@ import pytest
 import random
 
 import fidia
+from fidia.column import FITSHeaderColumn, FIDIAColumn, ColumnDefinition
+
 
 @pytest.fixture('module')
 def engine():
@@ -21,7 +23,21 @@ def engine():
     return engine
 
 
+class MyColumnDef(ColumnDefinition):
+    # Note, this class must exist where Pickle can find it, or some tests
+    # will fail. That means it must be at the class or module level, not
+    # defined inside a function
+
+    def __init__(self, param):
+        self.param = param
+
+    column_type = FIDIAColumn
+
+    def object_getter(self, object_id, archive_id):
+        return "{id}: {obj} ({coldef})".format(id=archive_id, obj=object_id, coldef=self.param)
+
 class TestDatabaseBasics:
+
 
     @pytest.yield_fixture
     def session(self, engine, monkeypatch):
@@ -270,22 +286,18 @@ class TestDatabaseBasics:
         print(col)
         assert isinstance(col, FIDIAColumn)
 
-    @pytest.mark.xfail
     def test_column_retriever_persistance(self, session, engine):
-        """Check that the backup data retriever still works after recovering from the database."""
-        # @TODO: This is currently failing: see ASVO-1057
+        """Check that the backup data retriever still works after recovering from the database.
+
+        see ASVO-1057
+
+        """
 
         from fidia.column import FITSHeaderColumn, FIDIAColumn, ColumnDefinition
 
         class DummyArchive(object):
             archive_id = 'myArchive2'
 
-        class MyColumnDef(ColumnDefinition):
-            def __init__(self, param):
-                self.param = param
-            column_type = FIDIAColumn
-            def object_getter(self, archive, object_id):
-                return "{id}: {obj} ({coldef})".format(id=archive.archive_id, obj=object_id, coldef=self.param)
 
         coldef = MyColumnDef('test')
         col = coldef.associate(DummyArchive())
@@ -303,7 +315,7 @@ class TestDatabaseBasics:
             ).one()
 
 
-        assert col.get_value('Gal1') == "Archive123: Gal1 (test)"
+        assert col.get_value('Gal1') == "myArchive2: Gal1 (test)"
 
 
     def test_archive_persistance_in_db(self):
