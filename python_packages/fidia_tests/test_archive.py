@@ -148,6 +148,30 @@ class TestKnownArchives:
         import fidia.archive.archive
         assert isinstance(fidia.known_archives, fidia.archive.archive.KnownArchives)
 
+    def test_known_archives_get_by_id(self, test_data_dir):
+        # Guarantee that ExampleArchive will appear it the persistence database:
+        ExampleArchive(basepath=test_data_dir)
+        ar = fidia.known_archives.by_id["ExampleArchive"]
+
+        print(ar)
+        # assert False
+
+    def test_known_archives_get_all(self):
+        # Guarantee that ExampleArchive will appear it the persistence database:
+        ExampleArchive(basepath=test_data_dir)
+
+
+        import fidia.archive.archive
+        all_archives = fidia.known_archives.all
+        assert isinstance(all_archives, list)
+        if len(all_archives) > 0:
+            for ar in all_archives:
+                assert isinstance(ar, fidia.Archive)
+        print(all_archives)
+        print([ar.archive_id for ar in all_archives])
+
+
+        # assert False
 
 class TestArchive:
     pass

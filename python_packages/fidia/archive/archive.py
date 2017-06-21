@@ -290,29 +290,38 @@ class ArchiveDefinition(object):
 
 class KnownArchives(object):
 
-    __instance = None
+    _instance = None
+
+    @property
+    def _query(self):
+        # type: () -> sa.orm.query.Query
+        return fidia.mappingdb_session.query(Archive)
 
     # The following __new__ function implements a Singleton.
     def __new__(cls, *args, **kwargs):
-        if KnownArchives.__instance is None:
+        if KnownArchives._instance is None:
             instance = object.__new__(cls)
 
-            instance._query = fidia.mappingdb_session.query(Archive)  # type: sa.orm.query.Query
-
-            KnownArchives.__instance = instance
-        return KnownArchives.__instance
+            KnownArchives._instance = instance
+        return KnownArchives._instance
 
     @property
     def all(self):
         # type: () -> List[Archive]
-        return self._query.order_by('archive_id').all()
+        return self._query.order_by('_db_archive_id').all()
 
 
     class by_id(object):
         def __getitem__(self, item):
+            log.debug("Retrieving archive with id \"%s\"...", item)
+            log.debug("Query object: %s", KnownArchives()._query)
             try:
-                return KnownArchives.__instance._query.filter_by(archive_id=item).one()
+                archive = KnownArchives()._query.filter_by(_db_archive_id=item).one()
             except:
+                log.warn("Request for unknown archive %s.", item)
                 raise KeyError("No archive with id '%s'" % item)
+            else:
+                log.debug("...archive %s found.", item)
+                return archive
     by_id = by_id()
 
