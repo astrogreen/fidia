@@ -9,13 +9,16 @@ from fidia.traits import *
 class ExampleArchive(fidia.ArchiveDefinition):
 
     archive_id = "ExampleArchive"
-    name = "ExampleArchive"
 
     archive_type = fidia.BasePathArchive
 
+    # For general testing, this should be set to True (commented out)
+    # For testing of the system without database persistence, it should be False.
+    # is_persisted = False
+
     def __init__(self, **kwargs):
         # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
-        self._contents = ['Gal1', 'Gal2', 'Gal3']
+        self.contents = ['Gal1', 'Gal2', 'Gal3']
 
         # Local cache for traits
         self._trait_cache = dict()

@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tempfile
 
+import re
+
 # noinspection PyUnresolvedReferences
 import generate_test_data as testdata
 import pytest
@@ -71,16 +73,19 @@ class TestColumnDefColumnCreation:
         coldef.column_type = FIDIAColumn
         col = coldef.associate(archive)
 
-        assert col.archive is archive
-        assert col._archive_id == 'Archive123'
+        # assert col.archive is archive
+        # assert col._archive_id == 'Archive123'
+
+        assert isinstance(col.id, str)
+        assert re.match(r"Archive123:ColumnDefinition:.+:[\d\.]+", col.id) is not None
 
     def test_new_column_has_working_retriever_from_colum_definition(self, archive):
         class MyColumnDef(ColumnDefinition):
             def __init__(self, param):
                 self.param = param
             column_type = FIDIAColumn
-            def object_getter(self, archive, object_id):
-                return "{id}: {obj} ({coldef})".format(id=archive.archive_id, obj=object_id, coldef=self.param)
+            def object_getter(self, object_id, archive_id):
+                return "{id}: {obj} ({coldef})".format(id=archive_id, obj=object_id, coldef=self.param)
 
         coldef = MyColumnDef('test')
         col = coldef.associate(archive)

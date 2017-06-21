@@ -674,15 +674,8 @@ class MappingBranchVersionHandling:
         return tk
 
 
-class MappingBase:
 
-    _reconstructed = None
-
-    def validate(self):
-        raise NotImplementedError()
-
-
-class TraitMappingBase(MappingBase, bases.SQLAlchemyBase):
+class TraitMappingBase(bases.SQLAlchemyBase, bases.PersistenceBase):
 
     __tablename__ = "trait_mappings"  # Note this table is shared with TraitMapping and SubTraitMapping classes.
 
@@ -697,6 +690,7 @@ class TraitMappingBase(MappingBase, bases.SQLAlchemyBase):
                                            collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
 
     def __init__(self):
+        super(TraitMappingBase, self).__init__()
         self._trait_class = None  # type: Type[fidia.traits.BaseTrait]
 
 
@@ -751,7 +745,8 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
     def __db_init__(self):
         self._reconstruct_trait_class()
         self._reconstruct_trait_key()
-        self._reconstructed = True
+        super(TraitMapping, self).__db_init__()
+
 
     def _reconstruct_trait_key(self):
         self._trait_key = TraitKey.as_traitkey(self._db_trait_key)
@@ -819,7 +814,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         return self.name, str(self.trait_key)
 
     def __repr__(self):
-        if self._reconstructed is None:
+        if self._is_reconstructed is None:
             return "Unreconstructed " + super(TraitMapping, self).__repr__()
 
         mappings = list(self.trait_property_mappings.values())
@@ -867,7 +862,7 @@ class SubTraitMapping(TraitMappingBase):
                 (repr(self.name), fidia_classname(self.trait_class), repr(mappings)))
 
 
-class TraitPropertyMapping(bases.SQLAlchemyBase, MappingBase):
+class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
 
     # Database fields and setup (SQLAlchemy)
     __tablename__ = "trait_property_mappings"
@@ -879,6 +874,7 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, MappingBase):
 
     def __init__(self, property_name, column_id):
         # type: (str, str) -> None
+        super(TraitPropertyMapping, self).__init__()
         self.name = property_name
         self.id = column_id
 

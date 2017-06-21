@@ -6,6 +6,6 @@
 
 # import fidia.archive.archive
 
-from fidia.archive.archive import Archive, BasePathArchive
+from fidia.archive.archive import Archive, BasePathArchive, ArchiveDefinition
 
 # from fidia.archive.archive import *

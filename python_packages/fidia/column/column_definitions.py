@@ -23,6 +23,7 @@ import fidia
 import os
 import time
 from collections import OrderedDict
+import inspect
 
 # Other Library Imports
 import pandas as pd
@@ -122,12 +123,23 @@ class ColumnDefinition(object):
     @cached_property
     def id(self):
         """The column part of a full column ID."""
-        klass = type(self).__module__ + "." + type(self).__name__
-        if klass.startswith('fidia.'):
-            klass = type(self).__name__
+        klass = self.class_name()
         if hasattr(self, '_id'):
             return ":".join((klass, self._id))
         return ":".join((klass, repr(self)))
+
+    def class_name(self):
+        # type: () -> str
+        """Determine the class-name of the ColumnDefinition.
+
+        If the column definition is part of FIDIA, then this is the bare class.
+        If not, then it includes the module path to the class.
+
+        """
+        klass = type(self).__module__ + "." + type(self).__name__
+        if klass.startswith('fidia.'):
+            klass = type(self).__name__
+        return klass
 
     def _timestamp_helper(self, archive):
         # type: (fidia.archive.archive.Archive) -> Union[None, int, float]
@@ -207,30 +219,39 @@ class ColumnDefinition(object):
         # This is only done if the corresponding functions have actually been
         # overridden, as determined by the `.is_implemented` property.
         #
-        # When the functions are copied, a pointer to the archive is "baked in"
-        # so that the function no longer requires the archive as an argument.
+        # When the functions are copied, attributes required from the archive
+        # instance are copied here so that database persistence will not need to
+        # Pickle the archive to store the getters.
+
         if getattr(self.object_getter, 'is_implemented',True):
             log.debug("Copying object_getter function from ColumnDefinition %s to new Column", self)
             # Bake in parameters to object_getter function and associate:
-            def baked_object_getter(object_id):
-                return self.object_getter(archive, object_id)
-            column.get_value = baked_object_getter
-            # Note: `baked_object_getter` is a static method, so it will only be
-            # passed one argument when invoked.
+            sig = inspect.signature(self.object_getter)
+            baked_args = dict()
+            for archive_attr in sig.parameters.keys():
+                if archive_attr is 'object_id':
+                    # Don't process the object_id parameter as an archive attribute.
+                    continue
+                baked_args[archive_attr] = getattr(archive, archive_attr)
+
+            column._object_getter = self.object_getter
+            column._object_getter_args = baked_args
+
         if getattr(self.array_getter, 'is_implemented', True):
             log.debug("Copying array_getter function from ColumnDefinition %s to new Column", self)
             # Bake in parameters to object_getter function and associate:
-            def baked_array_getter():
-                column._data = self.array_getter(archive)
-            column.get_array = baked_array_getter
-            # Note: `baked_array_getter` is a static method, so it will only be
-            # passed one argument when invoked.
+            sig = inspect.signature(self.array_getter)
+            baked_args = dict()
+            for archive_attr in sig.parameters.keys():
+                baked_args[archive_attr] = getattr(archive, archive_attr)
+            column._array_getter = self.array_getter
+            column._array_getter_args = baked_args
 
         log.debug("Created column: %s", str(column))
 
         return column
 
-    def object_getter(self, archive, object_id):
+    def object_getter(self, object_id):
         """Method to get data in this column for a single object.
         
         When this column definition is used to create a `.FIDIAColumn`, this
@@ -243,7 +264,7 @@ class ColumnDefinition(object):
     # hasn't, it shouldn't be copied onto the FIDIAColumn instance.
     object_getter.is_implemented = False
 
-    def array_getter(self, archive, object_id):
+    def array_getter(self, object_id):
         """Method to get data in this column for a single object.
 
         When this column definition is used to create a `.FIDIAColumn`, this
@@ -273,8 +294,8 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
         self._id = "{file}[{ext}]".format(file=filename_pattern, ext=extension)
 
-    def object_getter(self, archive, object_id):
-        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+    def object_getter(self, object_id, basepath):
+        full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.fits_extension_identifier].data
 
@@ -293,8 +314,8 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
         self._id = "{file}[{ext}].header[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=keyword_name)
 
 
-    def object_getter(self, archive, object_id):
-        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+    def object_getter(self, object_id, basepath):
+        full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.fits_extension_identifier].header[self.keyword_name]
 
@@ -330,8 +351,8 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
         self._id = "{file}[{ext}].data[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=column_name)
 
 
-    def array_getter(self, archive):
-        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+    def array_getter(self, basepath):
+        full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern) as hdulist:
             column_data = hdulist[self.fits_extension_identifier].data[self.column_name]
             index = hdulist[self.fits_extension_identifier].data[self.index_column_name]

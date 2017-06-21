@@ -21,7 +21,7 @@ if not _ASTROPY_SETUP_:
     #     information (or use the default in-memory persistance database). Then
     #     get the database Session factory to be used for this instance of
     #     FIDIA.
-    from fidia.database_tools import Session
+    from fidia.database_tools import mappingdb_session
 
 
     # Set up the namespace

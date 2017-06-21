@@ -14,20 +14,31 @@ from fidia.archive.example_archive import ExampleArchive
 from fidia.column.column_definitions import FITSDataColumn
 from fidia.column.columns import FIDIAColumn
 
-
-@pytest.yield_fixture(scope='module')
-def test_data_dir():
-    with tempfile.TemporaryDirectory() as tempdir:
-        testdata.generate_simple_dataset(tempdir, 5)
-
-        yield tempdir
+# Pytest fixture 'test_data_dir' now session wide and stored in conftest.py
+# @pytest.yield_fixture(scope='module')
+# def test_data_dir():
+#     with tempfile.TemporaryDirectory() as tempdir:
+#         testdata.generate_simple_dataset(tempdir, 5)
+#
+#         yield tempdir
 
 
 class TestArchiveAndColumns:
     @pytest.fixture
     def ArchiveWithColumns(self):
-        class ArchiveWithColumns(BasePathArchive):
-            _id = "testArchive"
+        class ArchiveWithColumns(fidia.ArchiveDefinition):
+
+            # For general testing, this should be set to True (commented out)
+            # For testing of the system without database persistence, it should be False.
+            # is_persisted = False
+
+
+            archive_id = "testArchive"
+
+            contents = ["Gal1"]
+
+            archive_type = BasePathArchive
+
             column_definitions = [
                 ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
                                        ndim=2,
@@ -65,13 +76,15 @@ class TestArchiveAndColumns:
     def test_get_column_with_id(self, test_data_dir, ArchiveWithColumns):
         ar = ArchiveWithColumns(basepath=test_data_dir)  # type: fidia.archive.archive.Archive
         print(ar.archive_id)
-        print(ar.columns._contents_by_alias.items())
+        print(ar.columns.keys())
         column = ar.columns["testArchive:FITSDataColumn:" +
                             "{object_id}/{object_id}_red_image.fits[0]:1"]
 
         assert isinstance(column, FIDIAColumn)
 
+    @pytest.mark.xfail
     def test_get_column_with_alias(self, test_data_dir, ArchiveWithColumns):
+        """Failing because this functionality is not implemented and may be dropped."""
         ar = ArchiveWithColumns(basepath=test_data_dir)
         column = ar.columns["col"]
 
@@ -79,7 +92,8 @@ class TestArchiveAndColumns:
 
     def test_retrieve_data_from_path_column(self, test_data_dir, ArchiveWithColumns):
         ar = ArchiveWithColumns(basepath=test_data_dir)
-        value = ar.columns["col"].get_value('Gal1')
+        value = ar.columns["testArchive:FITSDataColumn:" +
+                           "{object_id}/{object_id}_red_image.fits[0]:1"].get_value('Gal1')
 
         assert value.shape == (200, 200)
 
@@ -101,11 +115,11 @@ class TestExampleArchive:
         return fidia.Sample.new_from_archive(example_archive)
 
     def test_red_image_data(self, example_archive):
-        img = example_archive.columns["red_image"].get_value('Gal1')
+        img = example_archive.columns["ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"].get_value('Gal1')
         assert img.shape == (200, 200)
 
     def test_red_image_exposed_data(self, example_archive):
-        img = example_archive.columns["red_image_exposed"].get_value('Gal1')
+        img = example_archive.columns["ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1"].get_value('Gal1')
         assert img in (3500, 3600, 2400)
 
     def test_example_archive_columns_available(self, example_archive):
@@ -134,6 +148,30 @@ class TestKnownArchives:
         import fidia.archive.archive
         assert isinstance(fidia.known_archives, fidia.archive.archive.KnownArchives)
 
+    def test_known_archives_get_by_id(self, test_data_dir):
+        # Guarantee that ExampleArchive will appear it the persistence database:
+        ExampleArchive(basepath=test_data_dir)
+        ar = fidia.known_archives.by_id["ExampleArchive"]
+
+        print(ar)
+        # assert False
+
+    def test_known_archives_get_all(self, test_data_dir):
+        # Guarantee that ExampleArchive will appear it the persistence database:
+        ExampleArchive(basepath=test_data_dir)
+
+
+        import fidia.archive.archive
+        all_archives = fidia.known_archives.all
+        assert isinstance(all_archives, list)
+        if len(all_archives) > 0:
+            for ar in all_archives:
+                assert isinstance(ar, fidia.Archive)
+        print(all_archives)
+        print([ar.archive_id for ar in all_archives])
+
+
+        # assert False
 
 class TestArchive:
     pass
