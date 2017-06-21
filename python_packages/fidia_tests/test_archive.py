@@ -14,13 +14,13 @@ from fidia.archive.example_archive import ExampleArchive
 from fidia.column.column_definitions import FITSDataColumn
 from fidia.column.columns import FIDIAColumn
 
-
-@pytest.yield_fixture(scope='module')
-def test_data_dir():
-    with tempfile.TemporaryDirectory() as tempdir:
-        testdata.generate_simple_dataset(tempdir, 5)
-
-        yield tempdir
+# Pytest fixture 'test_data_dir' now session wide and stored in conftest.py
+# @pytest.yield_fixture(scope='module')
+# def test_data_dir():
+#     with tempfile.TemporaryDirectory() as tempdir:
+#         testdata.generate_simple_dataset(tempdir, 5)
+#
+#         yield tempdir
 
 
 class TestArchiveAndColumns:
@@ -156,7 +156,7 @@ class TestKnownArchives:
         print(ar)
         # assert False
 
-    def test_known_archives_get_all(self):
+    def test_known_archives_get_all(self, test_data_dir):
         # Guarantee that ExampleArchive will appear it the persistence database:
         ExampleArchive(basepath=test_data_dir)
 
