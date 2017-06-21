@@ -1,18 +1,24 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union
+from typing import Union, Callable
+import fidia
 
 # Python Standard Library Imports
 import re
 from contextlib import contextmanager
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 from collections import OrderedDict
+import types
 
 # Other Library Imports
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.orm.collections import attribute_mapped_collection, mapped_collection
 
 # FIDIA Imports
+import fidia.base_classes as bases
 from ..exceptions import FIDIAException
 from ..utilities import RegexpGroup
 
@@ -27,17 +33,25 @@ log.enable_console_logging()
 class ColumnID(str):
     """ColumnID(archive_id, column_type, column_name, timestamp)"""
 
-    # Originally, this class was created using the following command:
-    #     TraitKey = collections.namedtuple('TraitKey', ['trait_type', 'trait_name', 'object_id'], verbose=True)
+    # @TODO: More tests required of this.
 
-
-    __slots__ = ()
-
-    _fields = ('archive_id', 'column_type', 'column_name', 'timestamp')
+    __slots__ = ('archive_id', 'column_type', 'column_name', 'timestamp')
 
     def __new__(cls, string):
         # @TODO: Validation
-        return str.__new__(cls, string)
+        self = str.__new__(cls, string)
+        split = string.split(":")
+        if len(split) == 2:
+            # Only column type and name
+            self.column_type = split[0]
+            self.column_name = split[1]
+        if len(split) == 4:
+            # Fully defined
+            self.archive_id = split[0]
+            self.column_type = split[1]
+            self.column_name = split[2]
+            self.timestamp = split[3]
+        return self
 
     @classmethod
     def as_column_id(cls, key):
@@ -65,11 +79,10 @@ class ColumnID(str):
 
     def replace(self, **kwargs):
         """Return a new ColumnID object replacing specified fields with new values"""
-        result = ColumnID(map(kwargs.pop, self._fields, self))
+        result = ColumnID.as_column_id(map(kwargs.pop, self.__slots__, self.as_tuple))
         if kwargs:
             raise ValueError('Got unexpected field names: %r' % kwargs.keys())
         return result
-
 
     # def __str__(self):
     #     string = self.column_name
@@ -91,38 +104,8 @@ class ColumnID(str):
             # Fully defined
             return {'archive_id': split[0], 'column_type': split[1], 'column_name': split[2], 'timestamp': split[3]}
 
-    @property
-    def archive_id(self):
-        """ID of the Archive providing this column"""
-        return self.as_dict().get('archive_id', None)
-
-    @property
-    def column_type(self):
-        """class of the corresponding column definition"""
-        return self.as_dict().get('column_type', None)
-
-    @property
-    def column_name(self):
-        return self.as_dict().get('column_name', None)
-
-    @property
-    def timestamp(self):
-        return self.as_dict().get('timestamp', None)
-
-    # def __eq__(self, other):
-    #     if not isinstance(other, ColumnID):
-    #         other_id = ColumnID(other)
-    #     else:
-    #         other_id = other
-    #     if self.archive_id != other_id.archive_id: return False
-    #     if self.column_type != other_id.column_type: return False
-    #     if self.column_name != other_id.column_name: return False
-    #     if self.timestamp != other_id.timestamp:
-    #         if self.timestamp == 'latest' or other_id.timestamp == 'latest':
-    #             return True
-    #         else:
-    #             return False
-    #     return True
+    def as_tuple(self):
+        return tuple(map(attrgetter, self.__slots__))
 
 
 class ColumnIDDict(OrderedDict):
@@ -147,7 +130,7 @@ class ColumnIDDict(OrderedDict):
 
 
 
-class FIDIAColumn(object):
+class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     """FIDIAColumns represent the atomic data unit in FIDIA.
 
 
@@ -173,6 +156,26 @@ class FIDIAColumn(object):
     Previously known as TraitProperties
 
     """
+
+    __tablename__ = "fidia_columns"  # Note this table is shared with FIDIAArrayColumn subclass
+    _database_id = sa.Column(sa.Integer, sa.Sequence('column_seq'), primary_key=True)
+
+    # Polymorphism (subclasses stored in same table)
+    _db_type = sa.Column('type', sa.String(50))
+    __mapper_args__ = {'polymorphic_on': "_db_type", 'polymorphic_identity': 'FIDIAColumn'}
+
+    # Relationships (foreign keys)
+    _db_archive_id = sa.Column(sa.Integer, sa.ForeignKey("archives._db_id"))
+    # trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
+    #                                        collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
+    _archive = relationship("Archive")  # type: fidia.Archive
+
+    # Storage Columns
+    _column_id = sa.Column(sa.String)
+    _object_getter = sa.Column(sa.PickleType)  # type: Callable
+    _object_getter_args = sa.Column(sa.PickleType)
+    _array_getter = sa.Column(sa.PickleType)  # type: Callable
+    _array_getter_args = sa.Column(sa.PickleType)
 
     allowed_types = RegexpGroup(
         'string',
@@ -210,35 +213,47 @@ class FIDIAColumn(object):
 
     def __init__(self, *args, **kwargs):
 
+        super(FIDIAColumn, self).__init__()
+
         # Internal storage for data of this column
         self._data = kwargs.pop('data', None)
-        self._id = kwargs.pop('id', None)
 
         # Data Type information
-        dtype = kwargs.pop('dtype', None)
-        self._dtype = dtype
-        fidia_type = kwargs.pop('fidia_type', None)
-        self._fidia_type = fidia_type
+        # dtype = kwargs.pop('dtype', None)
+        # self._dtype = dtype
 
         # Internal storage for IVOA Uniform Content Descriptor
-        self._ucd = kwargs.get('ucd', None)
+        # self._ucd = kwargs.get('ucd', None)
 
         # Archive Connection
-        self._archive = kwargs.pop('archive', None)
+        # self._archive = kwargs.pop('archive', None)  # type: fidia.Archive
         self._archive_id = kwargs.pop('archive_id', None)
 
+        # Construct the ID
         self._timestamp = kwargs.pop('timestamp', None)
         self._coldef_id = kwargs.pop('coldef_id', None)
+        if "column_id" in kwargs:
+            self._column_id = kwargs["column_id"]
+        elif (self._archive_id is not None and
+              self._timestamp is not None and
+              self._coldef_id is not None):
+            self._column_id = "{archive_id}:{coldef_id}:{timestamp}".format(
+                archive_id=self._archive_id,
+                coldef_id=self._coldef_id,
+                timestamp=self._timestamp)
+        else:
+            raise ValueError("Either column_id or all of (archive_id, coldef_id and timestamp) must be provided.")
+
+
+    @reconstructor
+    def __db_init__(self):
+        super(FIDIAColumn, self).__db_init__()
+        self._data = None
+
 
     @property
     def id(self):
-        return "{archive_id}:{coldef_id}:{timestamp}".format(
-            archive_id=self._archive_id,
-            coldef_id=self._coldef_id,
-            timestamp=self._timestamp
-        )
-        # coldef_id = ColumnID.as_column_id(self._coldef_id)
-        # return ColumnID(self._archive_id, coldef_id.column_type, coldef_id.column_name, self._timestamp)
+        return self._column_id
 
     def __repr__(self):
         return str(self.id)
@@ -251,20 +266,32 @@ class FIDIAColumn(object):
     #         if issubclass(owner, Trait):
     #             return self.data[instance.archive_index]
 
-    def associate(self, archive):
-        # type: (fidia.archive.archive.Archive) -> None
-        try:
-            instance_column = super(FIDIAColumn, self).associate(archive)
-        except:
-            raise
-        else:
-            instance_column._archive = archive
-            instance_column._archive_id = archive.archive_id
-        return instance_column
-
-    get_array = None
+    # def associate(self, archive):
+    #     # type: (fidia.archive.archive.Archive) -> None
+    #     try:
+    #         instance_column = super(FIDIAColumn, self).associate(archive)
+    #     except:
+    #         raise
+    #     else:
+    #         instance_column._archive = archive
+    #         instance_column._archive_id = archive.archive_id
+    #     return instance_column
 
     def get_value(self, object_id):
+        if self._object_getter is not None:
+            return self._object_getter(object_id, **self._object_getter_args)
+        elif self._array_getter is not None:
+            return self._default_get_value(object_id)
+        else:
+            raise FIDIAException("No getter functions available for column")
+
+    def get_array(self):
+        if self._array_getter is not None:
+            return self._array_getter(**self._array_getter_args)
+        else:
+            raise FIDIAException("No array getter function available for column")
+
+    def _default_get_value(self, object_id):
         """Individual value getter, takes object_id as argument.
 
         Notes
@@ -282,8 +309,8 @@ class FIDIAColumn(object):
             assert isinstance(self._data, pd.Series)
             return self._data.at[object_id]
         elif self.get_array is not None:
-            self.get_array()
-            assert self._data is not None, "Programming Error: get_array should populate _data"
+            self._data = self.get_array()
+            # assert self._data is not None, "Programming Error: get_array should populate _data"
             return self._data[object_id]
         raise FIDIAException("Column has no data")
 
@@ -330,6 +357,8 @@ class FIDIAColumn(object):
 
 
 class FIDIAArrayColumn(FIDIAColumn):
+
+    __mapper_args__ = {'polymorphic_identity': 'FIDIAArrayColumn'}
 
     def __init__(self, *args, **kwargs):
 

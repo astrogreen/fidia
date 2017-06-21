@@ -80,7 +80,8 @@ class Sample(bases.Sample):
             raise ValueError("Argument must be a FIDIA Archive.")
         sample = cls()
 
-        sample._id_cross_matches = pd.DataFrame(pd.Series(archive.contents, name=archive.name, index=archive.contents))
+        sample._id_cross_matches = pd.DataFrame(
+            pd.Series(archive.contents, name=archive.archive_id, index=archive.contents))
         sample.link_archive(archive)
 
         return sample
@@ -96,11 +97,11 @@ class Sample(bases.Sample):
 
     @property
     def trait_mappings(self):
-        # type: () -> Dict[Tuple[str, str], fidia.traits.TraitMapping]
+        # type: () -> MultiDexDict
         result = MultiDexDict(2)
         for archive in self._archives:
             # @TODO: Check that this is actually going through the archives in the right order!
-            result.update(archive._local_trait_mappings)
+            result.update(archive.trait_mappings)
         return result
 
     # ____________________________________________________________________
@@ -308,7 +309,8 @@ class Sample(bases.Sample):
         return col
 
     def get_archive_id(self, archive, sample_id):
+        # type: (fidia.Archive, str) -> str
         # @TODO: Sanity checking, e.g. archive is actually valid, etc.
 
-        return self._id_cross_matches.loc[sample_id][archive.name]
+        return self._id_cross_matches.loc[sample_id][archive.archive_id]
 
