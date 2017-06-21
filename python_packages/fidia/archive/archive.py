@@ -274,7 +274,7 @@ class ArchiveDefinition(object):
             archive._db_archive_class = fidia_classname(archive)
 
             # Columns
-            column_definitions = deepcopy(definition.column_definitions)
+            column_definitions = deepcopy(definition.column_definitions)  # type: List[Tuple[str, columns.ColumnDefinition]]
 
             # Associate column instances with this archive instance
             for alias, column in column_definitions:

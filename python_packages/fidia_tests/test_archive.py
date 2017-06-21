@@ -28,7 +28,10 @@ class TestArchiveAndColumns:
     def ArchiveWithColumns(self):
         class ArchiveWithColumns(fidia.ArchiveDefinition):
 
-            is_persisted = False
+            # For general testing, this should be set to True (commented out)
+            # For testing of the system without database persistence, it should be False.
+            # is_persisted = False
+
 
             archive_id = "testArchive"
 

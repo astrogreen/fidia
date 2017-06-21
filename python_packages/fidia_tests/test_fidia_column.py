@@ -84,8 +84,8 @@ class TestColumnDefColumnCreation:
             def __init__(self, param):
                 self.param = param
             column_type = FIDIAColumn
-            def object_getter(self, archive, object_id):
-                return "{id}: {obj} ({coldef})".format(id=archive.archive_id, obj=object_id, coldef=self.param)
+            def object_getter(self, object_id, archive_id):
+                return "{id}: {obj} ({coldef})".format(id=archive_id, obj=object_id, coldef=self.param)
 
         coldef = MyColumnDef('test')
         col = coldef.associate(archive)

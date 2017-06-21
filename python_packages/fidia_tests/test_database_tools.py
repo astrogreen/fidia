@@ -234,6 +234,7 @@ class TestDatabaseBasics:
 
         class DummyArchive(object):
             archive_id = 'myArchive'
+            basepath = ''
 
         col_def = FITSHeaderColumn(
             "{object_id}/{object_id}_red_image.fits",

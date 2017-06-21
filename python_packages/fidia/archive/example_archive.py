@@ -12,7 +12,9 @@ class ExampleArchive(fidia.ArchiveDefinition):
 
     archive_type = fidia.BasePathArchive
 
-    is_persisted = False
+    # For general testing, this should be set to True (commented out)
+    # For testing of the system without database persistence, it should be False.
+    # is_persisted = False
 
     def __init__(self, **kwargs):
         # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
