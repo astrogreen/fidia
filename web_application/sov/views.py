@@ -8,7 +8,7 @@ from collections import OrderedDict
 import random, collections, logging, json, requests, zipfile, io, itertools
 
 from .schema_access import get_sov_schema,get_sov_defaults_schema, get_data_central_archive_schema, get_archive_trait_schema, get_astro_object_default_traits_schema
-from .data_access import get_archive
+from .data_access import get_archive, get_data_for_trait
 
 from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
@@ -149,8 +149,7 @@ class DataForType(generics.CreateAPIView):
         try:
             # TODO get data from fidia according to the object_type (trait-collection/trait/sub-trait/trait-property) ?
             # TODO chat to Andy, can this be encompassed in one method? How is data below trait-level addressed?
-
-            return ['data', 'from', 'fidia']
+            return get_data_for_trait(archive=archive, astro_object=astro_object, trait_key=trait_key)
         except (KeyError, AttributeError):
             _message = "Cannot access data for : %s" % object_type
             return Response({'error': _message})
@@ -316,7 +315,7 @@ class ExportAs(generics.CreateAPIView):
 
     def export_from_fidia(self, astro_object=None, trait=None, format=None):
         # generate the file
-        return json.dumps({'data': 'lovely data'})
+        return json.dumps({'data': 'astroobject trait data'})
 
     def create(self, request, *args, **kwargs):
 

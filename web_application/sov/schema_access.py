@@ -33,7 +33,7 @@ def get_sov_defaults_schema(astro_object=None):
     defaults = {
         "traits": [
             {'name': 'trait1', 'trait_class': 'image', 'archive_id': 1},
-            # {'name': 'trait2', 'trait_class': 'table', 'archive_id': 1}
+            {'name': 'trait2', 'trait_class': 'table', 'archive_id': 1}
         ]
     }
     return OrderedDict(sorted(defaults.items(), key=lambda t: t[0]))
@@ -58,6 +58,14 @@ def get_data_central_archive_schema():
     return OrderedDict(sorted(d.items(), key=lambda t: t[0]))
 
 
+def get_format_for_trait_class(trait_class):
+    if trait_class == "Image":
+        return ["jpg"]
+    if trait_class == "Table":
+        return ["csv", "ascii", "votable"]
+    return ["fits"]
+
+
 def get_archive_trait_schema(archive_id=None):
     """
     All available traits for an archive
@@ -74,8 +82,8 @@ def get_archive_trait_schema(archive_id=None):
     _traits = []
     for t in _trait_classes:
         _traits.append(
-            {'name': 'trait1', 'trait_class': t.lower(), 'formats': ['fits'], 'description': 'very short description'})
-        _traits.append({'name': 'trait2', 'trait_class': t.lower(), 'formats': ['csv', 'ascii', 'votable'],
+            {'name': 'trait1', 'trait_class': t.lower(), 'formats': get_format_for_trait_class(t), 'description': 'very short description'})
+        _traits.append({'name': 'trait2', 'trait_class': t.lower(), 'formats': get_format_for_trait_class(t),
                         'description': 'very short description'})
 
     _dc_schema = dict(get_data_central_archive_schema())
