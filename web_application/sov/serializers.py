@@ -3,6 +3,7 @@ import json, os
 
 from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
+from .schema_access import get_data_central_archive_schema
 
 # from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
@@ -30,6 +31,11 @@ import sov.mixins
 #     if trait_pk == 'spectral_cube':
 #         depth_limit = 0
 #     return depth_limit
+
+arc = get_data_central_archive_schema()
+ARCHIVES = []
+for a in arc['archives']:
+    ARCHIVES.append((a.get('archive_id'), a.get('name')))
 
 
 class AstroObjectList(serializers.Serializer):
@@ -72,7 +78,7 @@ class SurveyRetrieve(serializers.Serializer):
 
 class TraitLookUp(serializers.Serializer):
     # TODO replace this by list of available archives from FIDIA
-    archive = serializers.ChoiceField(required=True, choices=[('1', 'SAMIDR1'), ('2', 'GAMADR2')])
+    archive = serializers.ChoiceField(required=True, choices=ARCHIVES)
     astro_object = serializers.CharField(max_length=256, required=True)
 
 
@@ -121,7 +127,7 @@ class SchemaForDataCentral(serializers.Serializer):
 
 class SchemaForArchive(serializers.Serializer):
     # TODO add archive choices
-    archive = serializers.ChoiceField(required=True, choices=[('1', 'SAMIDR1'), ('2', 'GAMADR2')])
+    archive = serializers.ChoiceField(required=True, choices=ARCHIVES)
 
 
 class SchemaForAstroObject(SchemaForArchive):
@@ -175,7 +181,7 @@ class TraitPropertySchema(serializers.Serializer):
 class ExportAsSOV(serializers.Serializer):
     astro_object = serializers.CharField(max_length=256, required=True)
     trait = serializers.CharField(max_length=256, required=True)
-    format = serializers.ChoiceField(choices=[('fits', 'fits'), ('csv', 'csv'), ('votable', 'VOTable'), ('ascii', 'ascii')])
+    format = serializers.ChoiceField(choices=[('fits', 'fits'), ('jpg', 'jpg'), ('csv', 'csv'), ('votable', 'VOTable'), ('ascii', 'ascii')])
 
 # ____________Response__________
 class ExportAs(serializers.Serializer):
