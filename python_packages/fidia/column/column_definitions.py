@@ -116,9 +116,27 @@ class ColumnDefinition(object):
 
     column_type = None  # type: Type[FIDIAColumn]
 
-    def __init__(self, **kwargs):
+    _id_string = ""
+
+    _parameters = []
+
+    def __init__(self, *args, **kwargs):
+        # self._parameters = []
+        # for name, param in inspect.signature(self.__init__).parameters.items():
+        #     if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
+        #         self._parameters.append(name)
+        # self._parameters = [param.name
+        #                     for param in inspect.signature(self.__init__).parameters.values()
+        #                     if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD]
+        for arg, param in zip(args, self._parameters):
+            setattr(self, param, arg)
+
         if 'timestamp' in kwargs:
             self._timestamp = kwargs['timestamp']
+
+        self._id = self._id_string.format(
+            **{param: arg for arg, param in zip(args, self._parameters)}
+        )
 
     @cached_property
     def id(self):
@@ -140,6 +158,11 @@ class ColumnDefinition(object):
         if klass.startswith('fidia.'):
             klass = type(self).__name__
         return klass
+
+    def __repr__(self):
+        return (self.__class__.__name__ + "(" +
+                ", ".join([repr(getattr(self, attr)) for attr in self._parameters]) +
+                ")")
 
     def _timestamp_helper(self, archive):
         # type: (fidia.archive.archive.Archive) -> Union[None, int, float]
@@ -286,32 +309,44 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAArrayColumn
 
-    def __init__(self, filename_pattern, extension,
-                 **kwargs):
-        super(FITSDataColumn, self).__init__(**kwargs)
-        self.filename_pattern = filename_pattern
-        self.fits_extension_identifier = extension
+    _id_string = "{filename_pattern}[{extension}]"
 
-        self._id = "{file}[{ext}]".format(file=filename_pattern, ext=extension)
+    _parameters = ("filename_pattern", "extension")
+
+    # def __init__(self, filename_pattern, extension,
+    #              **kwargs):
+    #     super(FITSDataColumn, self).__init__(filename_pattern, extension, **kwargs)
+
+    # def __init__(self, filename_pattern, extension,
+    #              **kwargs):
+    #     super(FITSDataColumn, self).__init__(**kwargs)
+    #     self.filename_pattern = filename_pattern
+    #     self.extension = extension
+    #
+    #     self._id = "{file}[{ext}]".format(file=filename_pattern, ext=extension)
 
     def object_getter(self, object_id, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
-            return hdulist[self.fits_extension_identifier].data
+            return hdulist[self.extension].data
 
 
 class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAColumn
 
-    def __init__(self, filename_pattern, fits_extension_id, keyword_name,
-                 **kwargs):
-        super(FITSHeaderColumn, self).__init__(**kwargs)
-        self.filename_pattern = filename_pattern
-        self.fits_extension_identifier = fits_extension_id
-        self.keyword_name = keyword_name
+    _id_string = "{filename_pattern}[{fits_extension_id}].header[{keyword_name}]"
 
-        self._id = "{file}[{ext}].header[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=keyword_name)
+    _parameters = ("filename_pattern", "fits_extension_id", "keyword_name")
+
+    # def __init__(self, filename_pattern, fits_extension_id, keyword_name, **kwargs):
+    #     super(FITSHeaderColumn, self).__init__(filename_pattern, fits_extension_id, keyword_name, **kwargs)
+        # super(FITSHeaderColumn, self).__init__(**kwargs)
+        # self.filename_pattern = filename_pattern
+        # self.fits_extension_identifier = fits_extension_id
+        # self.keyword_name = keyword_name
+        #
+        # self._id = "{file}[{ext}].header[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=keyword_name)
 
 
     def object_getter(self, object_id, basepath):
@@ -335,27 +370,31 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAColumn
 
-    def __init__(self, filename_pattern, fits_extension_id, column_name, index_column_name,
-                 **kwargs):
-        super(FITSBinaryTableColumn, self).__init__(**kwargs)
-        self.filename_pattern = filename_pattern
+    _id_string = "{filename_pattern}[{fits_extension_id}].data[{column_name}]"
 
-        if fits_extension_id == 0:
-            raise FIDIAException("FITSBinaryTableColumn cannot use extension 0. Perhaps you want 1?")
-        self.fits_extension_identifier = fits_extension_id
+    _parameters = ("filename_pattern", "fits_extension_id", "column_name", "index_column_name")
 
-        self.column_name = column_name
-
-        self.index_column_name = index_column_name
-
-        self._id = "{file}[{ext}].data[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=column_name)
+    # def __init__(self, filename_pattern, fits_extension_id, column_name, index_column_name,
+    #              **kwargs):
+    #     super(FITSBinaryTableColumn, self).__init__(**kwargs)
+    #     self.filename_pattern = filename_pattern
+    #
+    #     if fits_extension_id == 0:
+    #         raise FIDIAException("FITSBinaryTableColumn cannot use extension 0. Perhaps you want 1?")
+    #     self.fits_extension_identifier = fits_extension_id
+    #
+    #     self.column_name = column_name
+    #
+    #     self.index_column_name = index_column_name
+    #
+    #     self._id = "{file}[{ext}].data[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=column_name)
 
 
     def array_getter(self, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern) as hdulist:
-            column_data = hdulist[self.fits_extension_identifier].data[self.column_name]
-            index = hdulist[self.fits_extension_identifier].data[self.index_column_name]
+            column_data = hdulist[self.fits_extension_id].data[self.column_name]
+            index = hdulist[self.fits_extension_id].data[self.index_column_name]
             return pd.Series(column_data, index=index, name=self._id, copy=True)
 
     def _timestamp_helper(self, archive):
