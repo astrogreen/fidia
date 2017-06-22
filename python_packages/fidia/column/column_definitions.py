@@ -337,7 +337,7 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
 
     _id_string = "{filename_pattern}[{fits_extension_id}].header[{keyword_name}]"
 
-    _parameters = ("filename_pattern", "fits_extension_id", "keyword_name")
+    _parameters = ('filename_pattern', 'fits_extension_id', 'keyword_name')
 
     # def __init__(self, filename_pattern, fits_extension_id, keyword_name, **kwargs):
     #     super(FITSHeaderColumn, self).__init__(filename_pattern, fits_extension_id, keyword_name, **kwargs)
@@ -352,7 +352,7 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
     def object_getter(self, object_id, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
-            return hdulist[self.fits_extension_identifier].header[self.keyword_name]
+            return hdulist[self.fits_extension_id].header[self.keyword_name]
 
     def _timestamp_helper(self, archive):
         if archive is None:
