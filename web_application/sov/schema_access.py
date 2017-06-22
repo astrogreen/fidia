@@ -44,9 +44,12 @@ def get_data_central_archive_schema():
     List the data releases (FIDIA archives) currently ingested in ADC
     Returns:
     """
+    print(fidia.known_archives.all)
+    _archives = fidia.known_archives.all
+    for _archive in _archives:
+        print(_archive)
+        print(_archive.archive_id)
     # data releases (archives) organised by survey
-
-    # print(fidia.known_archives.all())
     d = {
         'archives': [
             {'name': 'SAMIDR1', 'archive_id': 1, 'survey': 'sami'},
