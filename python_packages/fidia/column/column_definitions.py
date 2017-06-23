@@ -120,6 +120,10 @@ class ColumnDefinition(object):
 
     _parameters = []
 
+    _meta_kwargs = ('dtype', 'n_dim', 'unit', 'ucd')
+    _desc_kwargs = ('short_desc', 'long_desc')
+
+
     def __init__(self, *args, **kwargs):
         # self._parameters = []
         # for name, param in inspect.signature(self.__init__).parameters.items():
@@ -134,6 +138,15 @@ class ColumnDefinition(object):
         if 'timestamp' in kwargs:
             self._timestamp = kwargs['timestamp']
 
+        self.dtype = kwargs.pop('dtype', str)
+        self.n_dim = kwargs.pop('n_dim', 0)
+
+        self.short_desc = kwargs.pop('short_desc', "")
+        self.long_desc = kwargs.pop('long_desc', "")
+
+        self.unit = kwargs.pop('unit', "")
+        self.ucd = kwargs.pop('ucd', "")
+
         self._id = self._id_string.format(
             **{param: arg for arg, param in zip(args, self._parameters)}
         )
@@ -146,7 +159,8 @@ class ColumnDefinition(object):
             return ":".join((klass, self._id))
         return ":".join((klass, repr(self)))
 
-    def class_name(self):
+    @classmethod
+    def class_name(cls):
         # type: () -> str
         """Determine the class-name of the ColumnDefinition.
 
@@ -154,14 +168,16 @@ class ColumnDefinition(object):
         If not, then it includes the module path to the class.
 
         """
-        klass = type(self).__module__ + "." + type(self).__name__
+        klass = cls.__module__ + "." + cls.__name__
         if klass.startswith('fidia.'):
-            klass = type(self).__name__
+            klass = cls.__name__
         return klass
 
     def __repr__(self):
         return (self.__class__.__name__ + "(" +
-                ", ".join([repr(getattr(self, attr)) for attr in self._parameters]) +
+                ", ".join([repr(getattr(self, attr)) for attr in self._parameters]) + ", " +
+                ", ".join([kw + "=" + repr(getattr(self, kw)) for kw in self._meta_kwargs]) + ", " +
+                ",\n ".join([kw + "=" + repr(getattr(self, kw)) for kw in self._desc_kwargs]) +
                 ")")
 
     def _timestamp_helper(self, archive):
