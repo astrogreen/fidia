@@ -4,13 +4,15 @@ from typing import List, Dict, Tuple, Iterable
 import fidia
 
 # Python Standard Library Imports
+import os.path
+import json
+import re
 
 # Other Library Imports
 import pandas as pd
 from astropy.io import fits
 import yaml
-import json
-import re
+
 
 
 # FIDIA Imports
@@ -26,17 +28,17 @@ log.enable_console_logging()
 
 # __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
-def finder_fits_file(fits_path_pattern, object_id):
+def finder_fits_file(fits_path_pattern, object_id, basepath=''):
 
     columns_found = []
-    fits_mapping = []
+    fits_mapping = dict()
 
-    fits_path = fits_path_pattern.format(object_id=object_id)
+    fits_path = os.path.join(basepath, fits_path_pattern.format(object_id=object_id))
     with fits.open(fits_path) as f:
         # Iterate over each Header Data Unit
         for hdu in f:
 
-            header_mapping = []
+            header_mapping = dict()
 
             for header in hdu.header:
                 if header == "":
@@ -67,14 +69,16 @@ def finder_fits_file(fits_path_pattern, object_id):
 
                 log.info("FOUND COLUMN_ID: %s", column_id)
                 columns_found.append(column)
-                header_mapping.append((header, column_id))
+                header_mapping[header] = column_id
 
             column = FITSDataColumn(fits_path, hdu.name)
-            hdu_mapping = [("data", column.id), ("header", header_mapping)]
+            hdu_mapping = {"data": column.id, "header":header_mapping}
 
-            fits_mapping.append(hdu_mapping)
+            fits_mapping[hdu.name] = hdu_mapping
 
     # print(yaml.dump(fits_mapping))
-    print(json.dumps(fits_mapping, indent=2))
+    # print(json.dumps(fits_mapping, indent=2))
     # print(yaml.dump(columns_found))
     # print(json.dumps(columns_found, indent=2))
+
+    return columns_found, fits_mapping
