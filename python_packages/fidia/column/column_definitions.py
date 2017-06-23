@@ -28,6 +28,7 @@ import inspect
 # Other Library Imports
 import pandas as pd
 from astropy.io import fits
+from astropy.io import ascii
 from cached_property import cached_property
 
 # FIDIA Imports
@@ -42,7 +43,8 @@ log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
-           'FITSDataColumn', 'FITSHeaderColumn', 'FITSBinaryTableColumn']
+           'FITSDataColumn', 'FITSHeaderColumn', 'FITSBinaryTableColumn',
+           'CSVTableColumn']
 
 class ColumnDefinitionList(object):
     def __init__(self, column_definitions=()):
@@ -422,6 +424,30 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
         timestamp = stats.st_mtime
         return timestamp
 
+class CSVTableColumn(ColumnDefinition, PathBasedColumn):
+    column_type = FIDIAColumn
+    _id_string = "{filename_pattern}[index_column_name->column_name](comment={comment})"
+    _parameters = ('filename_pattern', 'column_name', 'index_column_name', 'comment')
+
+    def array_getter(self, basepath):
+        full_path_pattern = os.path.join(basepath, self.filename_pattern)
+        table = ascii.read(full_path_pattern, format="csv", comment=self.comment)
+
+        assert self.column_name in table.colnames
+        assert self.index_column_name in table.colnames
+
+        column_data = table[self.column_name].data
+        index = table[self.index_column_name].data
+        return pd.Series(column_data, index=index, name=self._id, copy=True)
+
+    def _timestamp_helper(self, archive):
+        if archive is None:
+            return None
+        log.debug("archive.basepath: %s, filename_pattern: %s", archive.basepath, self.filename_pattern)
+        full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
+        stats = os.stat(full_path_pattern)
+        timestamp = stats.st_mtime
+        return timestamp
 
 class ColumnFromData(ColumnDefinition):
 

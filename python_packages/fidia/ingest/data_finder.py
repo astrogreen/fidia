@@ -11,12 +11,13 @@ import re
 # Other Library Imports
 import pandas as pd
 from astropy.io import fits
+from astropy.io import ascii
 import yaml
 
 
 
 # FIDIA Imports
-from fidia.column import FITSHeaderColumn, FITSDataColumn
+from fidia.column import *
 from fidia.traits import *
 # Other modules within this package
 
@@ -38,7 +39,8 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
         # Iterate over each Header Data Unit
         for hdu in f:
 
-            header_mapping = dict()
+            header_dict = dict()
+            header_mappings = []
 
             for header in hdu.header:
                 if header == "":
@@ -69,12 +71,21 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
 
                 log.info("FOUND COLUMN_ID: %s", column_id)
                 columns_found.append(column)
-                header_mapping[header] = column_id
+                header_dict[header] = column_id
+
+                # header_mappings.append(TraitPropertyMapping(header, column.id))
+
+
 
             column = FITSDataColumn(fits_path, hdu.name)
-            hdu_mapping = {"data": column.id, "header":header_mapping}
+            hdu_dict = {"data": column.id, "header": header_dict}
+            # hdu_mapping = TraitMapping(FitsImageHdu, hdu.name, [
+            #     TraitPropertyMapping("data", column.id),
+            #     TraitMapping(FITSHeader, )
+            # ])
 
-            fits_mapping[hdu.name] = hdu_mapping
+
+            fits_mapping[hdu.name] = hdu_dict
 
     # print(yaml.dump(fits_mapping))
     # print(json.dumps(fits_mapping, indent=2))
@@ -82,3 +93,24 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
     # print(json.dumps(columns_found, indent=2))
 
     return columns_found, fits_mapping
+
+def finder_csv_file(file_pattern, comment="\s*#", index_column=None, basepath=""):
+
+    columns_found = []
+
+    table_mapping = dict()
+
+    csv_path = os.path.join(basepath, file_pattern)
+    table = ascii.read(csv_path, format="csv", comment=comment)
+
+    import astropy.table.column
+
+    for colname in table.colnames:
+        # col = table.columns[colname]  # type: astropy.table.column.MaskedColumn
+
+        column = CSVTableColumn(file_pattern, colname, index_column, comment)
+        columns_found.append(column)
+
+        table_mapping[colname] = column.id
+
+    return columns_found, table_mapping
