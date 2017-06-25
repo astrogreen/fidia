@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from collections import OrderedDict
+
 from typing import List, Dict, Tuple, Iterable
 import fidia
 
@@ -32,14 +34,23 @@ log.enable_console_logging()
 def finder_fits_file(fits_path_pattern, object_id, basepath=''):
 
     columns_found = []
-    fits_mapping = dict()
+    fits_dict = OrderedDict()
+
+    fits_mapping = []
 
     fits_path = os.path.join(basepath, fits_path_pattern.format(object_id=object_id))
     with fits.open(fits_path) as f:
+
+        log.debug("Input FITS HDU Ordering: %s", [hdu.name for hdu in f])
+
         # Iterate over each Header Data Unit
         for hdu in f:
 
-            header_dict = dict()
+            if hdu.data is None:
+                # Skip empty HDUs
+                continue
+
+            header_dict = OrderedDict()
             header_mappings = []
 
             for header in hdu.header:
@@ -73,32 +84,37 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
                 columns_found.append(column)
                 header_dict[header] = column_id
 
+                header_mappings.append(TraitPropertyMapping(header, column.id))
+
                 # header_mappings.append(TraitPropertyMapping(header, column.id))
 
 
 
             column = FITSDataColumn(fits_path, hdu.name)
             hdu_dict = {"data": column.id, "header": header_dict}
-            # hdu_mapping = TraitMapping(FitsImageHdu, hdu.name, [
-            #     TraitPropertyMapping("data", column.id),
-            #     TraitMapping(FITSHeader, )
-            # ])
+
+            hdu_mapping = TraitMapping(FitsImageHdu, hdu.name, [
+                TraitPropertyMapping("data", column.id),
+                TraitMapping(FITSHeader, "header", header_mappings)
+            ])
 
 
-            fits_mapping[hdu.name] = hdu_dict
+            fits_dict[hdu.name] = hdu_dict
+            fits_mapping.append(hdu_mapping)
 
-    # print(yaml.dump(fits_mapping))
-    # print(json.dumps(fits_mapping, indent=2))
+    # print(yaml.dump(fits_dict))
+    # print(json.dumps(fits_dict, indent=2))
     # print(yaml.dump(columns_found))
     # print(json.dumps(columns_found, indent=2))
 
-    return columns_found, fits_mapping
+    return columns_found, fits_dict, fits_mapping
 
 def finder_csv_file(file_pattern, comment="\s*#", index_column=None, basepath=""):
 
     columns_found = []
 
-    table_mapping = dict()
+    table_dict = OrderedDict()
+    table_mapping = []
 
     csv_path = os.path.join(basepath, file_pattern)
     table = ascii.read(csv_path, format="csv", comment=comment)
@@ -111,6 +127,8 @@ def finder_csv_file(file_pattern, comment="\s*#", index_column=None, basepath=""
         column = CSVTableColumn(file_pattern, colname, index_column, comment)
         columns_found.append(column)
 
-        table_mapping[colname] = column.id
+        table_dict[colname] = column.id
+        table_mapping.append(TraitPropertyMapping(colname, column.id))
 
-    return columns_found, table_mapping
+
+    return columns_found, table_dict, table_mapping

@@ -17,7 +17,7 @@ log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 __all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS', 'Table',
-           'FITSFile', 'TarFileGroup', 'FitsImageHdu']
+           'FITSFile', 'TarFileGroup', 'FitsImageHdu', 'FITSHeader']
 
 class ImageWCS(Trait):
     n_axis = 2

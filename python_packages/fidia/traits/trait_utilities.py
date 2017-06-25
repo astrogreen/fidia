@@ -675,7 +675,7 @@ class MappingBranchVersionHandling:
 
 
 
-class TraitMappingBase(bases.SQLAlchemyBase, bases.PersistenceBase):
+class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
 
     __tablename__ = "trait_mappings"  # Note this table is shared with TraitMapping and SubTraitMapping classes.
 
@@ -821,6 +821,17 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
                 (fidia_classname(self.trait_class), str(self.trait_key), repr(mappings)))
 
+    def as_specification_dict(self, columns):
+        result = OrderedDict()
+        for name, mapping in self.trait_property_mappings.items():
+            result.update(mapping.as_specification_dict(columns))
+        for name, mapping in self.sub_trait_mappings.items():
+            result.update(mapping.as_specification_dict(columns))
+        for name, mapping in self.named_sub_mappings.items():
+            result.update(mapping.as_specification_dict(columns))
+        return {
+            ":".join(self.key()): result
+        }
 
 class SubTraitMapping(TraitMappingBase):
 
@@ -861,6 +872,11 @@ class SubTraitMapping(TraitMappingBase):
         return ("SubTraitMapping(sub_trait_name=%s, trait_class=%s, mappings=%s)" %
                 (repr(self.name), fidia_classname(self.trait_class), repr(mappings)))
 
+    def as_specification_dict(self, columns):
+        result = OrderedDict()
+        for mapping in self.trait_property_mappings.values():
+            result[mapping.name] = mapping.as_specification_dict(columns)
+        return {self.name: result}
 
 class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
 
@@ -885,3 +901,5 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
         return ("TraitPropertyMapping(%s, %s)" %
                 (repr(self.name), repr(self.id)))
 
+    def as_specification_dict(self, columns):
+        return {self.name: {"column_id": self.id}}

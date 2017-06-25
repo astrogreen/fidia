@@ -1,69 +1,81 @@
 import json
+from collections import OrderedDict
 
 import fidia
 from fidia.ingest.data_finder import *
+from indenter import Indenter
 
+dict = OrderedDict
 
 all_columns_found = []
-all_mappings = dict()
+all_dicts = dict()
+all_mappings = []
 
 # C u b e s
 
-cube_mappings = dict()
+cube_dicts = dict()
+cube_mappings = []
 
 # Blue Cubes
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "0_Cubes/{object_id}_B.fits.gz", object_id="3C278",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-cube_mappings["FITSFile:cube_blue"] = fits_mapping
+cube_dicts["FITSFile:cube_blue"] = fits_dict
+cube_mappings.append(TraitMapping(FITSFile, "cube_blue", fits_mapping))
 # cube_mappings.append(
 #     # TraitMapping(FITSFile, "cube_blue", fits_mapping)
 #     {"FITSFile:cube_blue": fits_mapping}
 # )
 
 # Red Cubes
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "0_Cubes/{object_id}_R.fits.gz", object_id="3C278",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-cube_mappings["FITSFile:cube_red"] = fits_mapping
+cube_dicts["FITSFile:cube_red"] = fits_dict
+cube_mappings.append(TraitMapping(FITSFile, "cube_red", fits_mapping))
 # cube_mappings.append(
 #     # TraitMapping(FITSFile, "cube_blue", fits_mapping)
 #     {"FITSFile:cube_blue": fits_mapping}
 # )
 
-broad_cube_mappings = dict()
+
+
+broad_cube_dict = dict()
+broad_cube_mappings = []
 
 # Blue Cubes
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "0_Broadsub_cubes/{object_id}-broadsub_B.fits.gz", object_id="ESO323-G77",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-broad_cube_mappings["FITSFile:cube_blue"] = fits_mapping
+broad_cube_dict["FITSFile:cube_blue"] = fits_dict
+broad_cube_mappings.append(TraitMapping(FITSFile, "cube_blue", fits_mapping))
 # broad_cube_mappings.append(
 #     # TraitMapping(FITSFile, "cube_blue", fits_mapping)
 # )
 
 # Red Cubes
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "0_Broadsub_cubes/{object_id}-broadsub_R.fits.gz", object_id="ESO323-G77",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-broad_cube_mappings["FITSFile:cube_red"] = fits_mapping
+broad_cube_dict["FITSFile:cube_red"] = fits_dict
+broad_cube_mappings.append(TraitMapping(FITSFile, "cube_red", fits_mapping))
 # broad_cube_mappings.append(
 #     # TraitMapping(FITSFile, "cube_blue", fits_mapping)
 #     {"FITSFile:cube_blue": fits_mapping}
 # )
 
 
-all_mappings["Group:cubes"] = {
-    "Group:normal_cubes": cube_mappings,
-    "Group:broad_cubes": broad_cube_mappings
+all_dicts["Group:cubes"] = {
+    "Group:normal_cubes": cube_dicts,
+    "Group:broad_cubes": broad_cube_dict
 }
 
 #   L Z I F U    G r o u p s
@@ -158,7 +170,19 @@ all_mappings["Table:nuclear_luminosities"] = table_mapping
 
 
 # print(repr(all_columns_found))
-# print(json.dumps(all_mappings, indent=2))
+# for mapping in all_mappings:
+#     d = mapping.as_specification_dict("")
+#     print(d)
+#     print(json.dumps(d, indent=2))
+#     print("\n\n\n")
+print(json.dumps([mapping.as_specification_dict("") for mapping in all_mappings], indent=2))
 
 with open("/Users/agreen/Desktop/s7-datacentral.json", "w") as f:
-    json.dump(all_mappings, f)
+    json.dump(
+        [mapping.as_specification_dict("") for mapping in all_mappings],
+        f)
+
+# indenter = Indenter()
+# indenter.add_line(repr(all_mappings))
+#
+# print(indenter.code)
