@@ -831,7 +831,8 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
                 (fidia_classname(self.trait_class), str(self.trait_key), repr(mappings)))
 
-    def as_specification_dict(self, columns):
+    def as_specification_dict(self, columns=None):
+        # type: (fidia.column.ColumnDefinitionList) -> dict
         result = OrderedDict()
         for name, mapping in self.trait_property_mappings.items():
             result.update(mapping.as_specification_dict(columns))
@@ -883,7 +884,8 @@ class SubTraitMapping(TraitMappingBase):
         return ("SubTraitMapping(sub_trait_name=%s, trait_class=%s, mappings=%s)" %
                 (repr(self.name), fidia_classname(self.trait_class), repr(mappings)))
 
-    def as_specification_dict(self, columns):
+    def as_specification_dict(self, columns=None):
+        # type: (fidia.column.ColumnDefinitionList) -> dict
         result = OrderedDict()
         for mapping in self.trait_property_mappings.values():
             result[mapping.name] = mapping.as_specification_dict(columns)
@@ -912,5 +914,19 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
         return ("TraitPropertyMapping(%s, %s)" %
                 (repr(self.name), repr(self.id)))
 
-    def as_specification_dict(self, columns):
-        return {self.name: {"column_id": self.id}}
+    def as_specification_dict(self, columns=None):
+        # type: (fidia.column.ColumnDefinitionList) -> dict
+        if columns is not None:
+            column = columns[self.id]  # type: fidia.column.ColumnDefinition
+            result = {self.name: {
+                "column_id": self.id,
+                "dtype": repr(column.dtype),
+                "n_dim": column.n_dim,
+                "unit": column.unit,
+                "ucd": column.ucd,
+                "short_description": column.short_desc,
+                "long_description": column.long_desc
+            }}
+        else:
+            result = {self.name: {"column_id": self.id}}
+        return result
