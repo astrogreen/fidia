@@ -63,6 +63,7 @@ class ColumnDefinitionList(object):
         if item in self._contents:
             return self._contents[item]
         log.warning("ColumnID '%s' not in %s", item, self)
+        raise KeyError("Unknown column ID %s" % item)
 
     def add(self, coldef):
         # type: (Union[Union[ColumnDefinition, FIDIAColumn], Tuple[str, Union[ColumnDefinition, FIDIAColumn]]]) -> None
@@ -86,6 +87,10 @@ class ColumnDefinitionList(object):
             self._contents_by_alias[alias] = col
         self._contents[col.id] = col
         self._alias_by_id[col.id] = alias
+
+    def extend(self, list):
+        for item in list:
+            self.add(item)
 
     def __iter__(self):
         for column_id in self._alias_by_id:

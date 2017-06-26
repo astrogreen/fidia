@@ -3,11 +3,13 @@ from collections import OrderedDict
 
 import fidia
 from fidia.ingest.data_finder import *
+from fidia.column import ColumnDefinitionList
+
 from indenter import Indenter
 
 dict = OrderedDict
 
-all_columns_found = []
+all_columns_found = ColumnDefinitionList()
 all_dicts = dict()
 all_mappings = []
 
@@ -78,94 +80,137 @@ all_dicts["Group:cubes"] = {
     "Group:broad_cubes": broad_cube_dict
 }
 
+all_mappings.append(TraitMapping(TarFileGroup, "cubes", [
+    TraitMapping(TarFileGroup, "normal_cubes", cube_mappings),
+    TraitMapping(TarFileGroup, "broad_cubes", broad_cube_mappings),
+]))
+
 #   L Z I F U    G r o u p s
 
-lzifu_mappings = dict()
+lzifu_dict = dict()
+lzifu_mappings = []
 
 # Specific Components
 for n_comp in "1", "2", "3":
-    columns_found, fits_mapping = finder_fits_file(
+    columns_found, fits_dict, fits_mapping = finder_fits_file(
         "1_LZIFU_n_comp_fits/{object_id}_" + n_comp + "_comp.fits", object_id="ESO323-G77",
         basepath="/Users/agreen/Desktop/S7 Data"
     )
     all_columns_found.extend(columns_found)
-    lzifu_mappings["FITSFile:" + n_comp +"_component"] = fits_mapping
-
+    lzifu_dict["FITSFile:comp_" + n_comp] = fits_dict
+    lzifu_mappings.append(TraitMapping(FITSFile, "comp_" + n_comp, fits_mapping))
 
 # Best Component (LZComp)
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "2_Post-processed_mergecomps/{object_id}_best_components.fits", object_id="ESO323-G77",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-lzifu_mappings["FITSFile:best_component"] = fits_mapping
+lzifu_dict["FITSFile:best_component"] = fits_dict
+lzifu_mappings.append(TraitMapping(FITSFile, "best_component", fits_mapping))
 
-all_mappings["Group:lzifu"] = lzifu_mappings
+all_dicts["Group:lzifu"] = lzifu_dict
+all_mappings.append(TraitMapping(TarFileGroup, "lzifu", lzifu_mappings))
 
 
 #   N u c l e a r   S p e c t r a
 
-nuclear_mappings = dict()
+nuclear_dict = dict()
+nuclear_mappings = []
 
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "3_Nuclear_spectra/{object_id}_R.fits.gz", object_id="ESO323-G77",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-nuclear_mappings["FITSFile:red"] = fits_mapping
+nuclear_dict["FITSFile:red"] = fits_dict
+nuclear_mappings.append(TraitMapping(FITSFile, "red", fits_mapping))
 
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "3_Nuclear_spectra/{object_id}_B.fits.gz", object_id="ESO323-G77",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-nuclear_mappings["FITSFile:blue"] = fits_mapping
+nuclear_dict["FITSFile:blue"] = fits_dict
+nuclear_mappings.append(TraitMapping(FITSFile, "blue", fits_mapping))
 
 # Broad-line subtracted
-columns_found, fits_mapping = finder_fits_file(
+columns_found, fits_dict, fits_mapping = finder_fits_file(
     "3_Broadsub_nuclear_spectra/{object_id}-broadsub_B.fits.gz", object_id="ESO323-G77",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-nuclear_mappings["FITSFile:red_broad_line_subtracted"] = fits_mapping
+nuclear_dict["FITSFile:blue_broad_line_subtracted"] = fits_dict
+nuclear_mappings.append(TraitMapping(FITSFile, "blue_broad_line_subtracted", fits_mapping))
 
-columns_found, fits_mapping = finder_fits_file(
-    "3_Broadsub_nuclear_spectra/{object_id}-broadsub_B.fits.gz", object_id="ESO323-G77",
+columns_found, fits_dict, fits_mapping = finder_fits_file(
+    "3_Broadsub_nuclear_spectra/{object_id}-broadsub_R.fits.gz", object_id="ESO323-G77",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
 all_columns_found.extend(columns_found)
-nuclear_mappings["FITSFile:blue_broad_line_subtracted"] = fits_mapping
+nuclear_dict["FITSFile:red_broad_line_subtracted"] = fits_dict
+nuclear_mappings.append(TraitMapping(FITSFile, "red_broad_line_subtracted", fits_mapping))
 
-all_mappings["Group:nuclear_spectra"] = nuclear_mappings
+all_dicts["Group:nuclear_spectra"] = nuclear_dict
+all_mappings.append(TraitMapping(TarFileGroup, "nuclear_spectra", nuclear_mappings))
 
 
 #   T a b u l a r   D a t a
 
+
+def update_s7_csv(table_mapping, columns, csv_file):
+    with open(csv_file, 'r') as f:
+        column_meta = dict()
+        for line in f:
+            m = re.match(r"\$ *(?P<colname>[^,]+),\"(?P<desc>[^\"]+)\",+$", line)
+            if m is None:
+                continue
+            column_meta[m.group('colname')] = {'short_description': m.group('desc')}
+
+    log.debug(list(column_meta.keys()))
+    for column in columns:
+        column.short_desc = column_meta[column.column_name]['short_description']
+
 # tabular_mappings = dict()
 
-columns_found, table_mapping = finder_csv_file(
+columns_found, table_dict, table_mapping = finder_csv_file(
     "4_Table_2_Catalogue.csv", comment="\$", index_column="S7_Name",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
-all_mappings["Table:catalog"] = table_mapping
+update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_2_Catalogue.csv")
+all_columns_found.extend(columns_found)
+all_dicts["Table:catalog"] = table_dict
+all_mappings.append(TraitMapping(Table, "catalog", table_mapping))
 
-columns_found, table_mapping = finder_csv_file(
+
+
+columns_found, table_dict, table_mapping = finder_csv_file(
     "4_Table_3a_Nuclear_fluxes.csv", comment="\$", index_column="S7_Name",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
-all_mappings["Table:nuclear_fluxes"] = table_mapping
+# update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_3a_Nuclear_fluxes.csv")
+all_columns_found.extend(columns_found)
+all_dicts["Table:nuclear_fluxes"] = table_dict
+all_mappings.append(TraitMapping(Table, "nuclear_fluxes", table_mapping))
 
-columns_found, table_mapping = finder_csv_file(
+columns_found, table_dict, table_mapping = finder_csv_file(
     "4_Table_3b_Nuclear_flux_errors.csv", comment="\$", index_column="S7_Name",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
-all_mappings["Table:nuclear_flux_errors"] = table_mapping
+# update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_3b_Nuclear_flux_errors.csv")
 
-columns_found, table_mapping = finder_csv_file(
+all_columns_found.extend(columns_found)
+all_dicts["Table:nuclear_flux_errors"] = table_dict
+all_mappings.append(TraitMapping(Table, "nuclear_flux_errors", table_mapping))
+
+columns_found, table_dict, table_mapping = finder_csv_file(
     "4_Table_4_Nuclear_luminosities.csv", comment="\$", index_column="S7_Name",
     basepath="/Users/agreen/Desktop/S7 Data"
 )
-all_mappings["Table:nuclear_luminosities"] = table_mapping
+# update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_4_Nuclear_luminosities.csv")
+all_columns_found.extend(columns_found)
+all_dicts["Table:nuclear_luminosities"] = table_dict
+all_mappings.append(TraitMapping(Table, "nuclear_luminosities", table_mapping))
 
 
 
@@ -175,11 +220,13 @@ all_mappings["Table:nuclear_luminosities"] = table_mapping
 #     print(d)
 #     print(json.dumps(d, indent=2))
 #     print("\n\n\n")
-print(json.dumps([mapping.as_specification_dict("") for mapping in all_mappings], indent=2))
+[print(key) for key in all_columns_found._contents.keys()]
+
+print(json.dumps([mapping.as_specification_dict(all_columns_found) for mapping in all_mappings], indent=2))
 
 with open("/Users/agreen/Desktop/s7-datacentral.json", "w") as f:
     json.dump(
-        [mapping.as_specification_dict("") for mapping in all_mappings],
+        [mapping.as_specification_dict(all_columns_found) for mapping in all_mappings],
         f)
 
 # indenter = Indenter()

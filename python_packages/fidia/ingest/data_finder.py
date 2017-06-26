@@ -74,7 +74,7 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
                 else:
                     unit = ""
 
-                column = FITSHeaderColumn(fits_path, hdu.name, header,
+                column = FITSHeaderColumn(fits_path_pattern, hdu.name, header,
                                           type=kw_type, unit=unit, short_desc=kw_comment)
 
                 column_id = column.id
@@ -90,7 +90,8 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
 
 
 
-            column = FITSDataColumn(fits_path, hdu.name)
+            column = FITSDataColumn(fits_path_pattern, hdu.name)
+            columns_found.append(column)
             hdu_dict = {"data": column.id, "header": header_dict}
 
             hdu_mapping = TraitMapping(FitsImageHdu, hdu.name, [
