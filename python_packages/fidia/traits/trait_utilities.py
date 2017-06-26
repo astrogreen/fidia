@@ -689,9 +689,18 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
     trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
                                            collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
 
-    def __init__(self):
+    pretty_name = sa.Column(sa.UnicodeText(length=30))
+    short_description = sa.Column(sa.Unicode(length=150))
+    long_descrription = sa.Column(sa.UnicodeText)
+
+
+    def __init__(self, pretty_name=u"", short_desc=u"", long_desc=u""):
         super(TraitMappingBase, self).__init__()
         self._trait_class = None  # type: Type[fidia.traits.BaseTrait]
+
+        self.pretty_name = pretty_name
+        self.short_description = short_desc
+        self.long_descrription = long_desc
 
 
     def _reconstruct_trait_class(self):
@@ -751,7 +760,8 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
     def _reconstruct_trait_key(self):
         self._trait_key = TraitKey.as_traitkey(self._db_trait_key)
 
-    def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None):
+    def __init__(self, trait_class, trait_key, mappings, branches_versions=None, branch_version_defaults=None,
+                 pretty_name=u"", short_desc=u"", long_desc=u""):
         # type: (Type[fidia.traits.BaseTrait], str, List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
 
         # Initialise internal variables
@@ -764,7 +774,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         # Super calls
         #     These are individual because not all super initialisers
         #     need to be called, and the arguments are different.
-        TraitMappingBase.__init__(self)
+        TraitMappingBase.__init__(self, pretty_name=pretty_name, short_desc=short_desc, long_desc=long_desc)
         MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
         # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
 
@@ -839,7 +849,8 @@ class SubTraitMapping(TraitMappingBase):
 
     name = sa.Column(sa.String)
 
-    def __init__(self, sub_trait_name, trait_class, mappings):
+    def __init__(self, sub_trait_name, trait_class, mappings,
+                 pretty_name=u"", short_desc=u"", long_desc=u""):
         # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
         assert issubclass(trait_class, fidia.traits.BaseTrait)
         self.trait_class = trait_class
@@ -849,7 +860,7 @@ class SubTraitMapping(TraitMappingBase):
         # Super calls
         #     These are individual because not all super initialisers
         #     need to be called, and the arguments are different.
-        TraitMappingBase.__init__(self)
+        TraitMappingBase.__init__(self, pretty_name=pretty_name, short_desc=short_desc, long_desc=long_desc)
 
 
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
