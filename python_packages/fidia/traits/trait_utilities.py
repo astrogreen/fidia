@@ -556,13 +556,12 @@ class TraitPointer(bases.TraitPointer):
 
     """
 
-    def __init__(self, name, sample, astro_object, trait_mapping=None, trait_registry=None):
+    def __init__(self, name, sample, astro_object, trait_mapping=None):
         # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping, TraitManager) -> None
         self.name = name
         self.sample = sample
         self.astro_object = astro_object
         self.trait_mapping = trait_mapping
-        self.trait_registry = trait_registry
 
     def __getitem__(self, item):
         tk = TraitKey.as_traitkey(item)

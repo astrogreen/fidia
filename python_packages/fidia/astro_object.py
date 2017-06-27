@@ -78,7 +78,7 @@ class AstronomicalObject:
         for trait_type in self.sample.trait_mappings.keys(1):
             # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
             log.debug("Adding TraitPointer '%s'", trait_type)
-            setattr(self, trait_type, TraitPointer(trait_type, self.sample, self, None, None))
+            setattr(self, trait_type, TraitPointer(trait_type, self.sample, self, None))
 
     def get_archive_id(self, archive):
         return self.sample.get_archive_id(archive, self._identifier)
