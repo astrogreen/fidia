@@ -31,8 +31,11 @@ def get_top_level_traits_for_archive(archive_id):
 
     for mapping in archive.trait_mappings.values():
         result.append({
-                "type": mapping.name,
-                "key": str(mapping.trait_key)
+            "type": mapping.name,
+            "key": str(mapping.trait_key),
+            "pretty_name": mapping.pretty_name,
+            "short_description": mapping.short_description,
+            "long_description": mapping.long_descrription
         })
 
     return result
