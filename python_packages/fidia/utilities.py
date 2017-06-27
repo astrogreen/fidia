@@ -201,6 +201,10 @@ class MultiDexDict(MutableMapping):
     def __iter__(self):
         return iter(self._internal_dict)
 
+    def values(self):
+        for key in self.keys():
+            yield self[key]
+
     def keys(self, depth=0):
 
         if depth == 0:

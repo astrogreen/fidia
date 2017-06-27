@@ -120,7 +120,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
 
     @property
     def trait_mappings(self):
-        # type: () -> MultiDexDict
+        # type: () -> Dict[Tuple[str, str], fidia.traits.TraitMapping]
         if self._local_trait_mappings is None:
             # Have not been initialised
             self._local_trait_mappings = MultiDexDict(2)
@@ -313,6 +313,7 @@ class KnownArchives(object):
 
     class by_id(object):
         def __getitem__(self, item):
+            # type: (str) -> Archive
             log.debug("Retrieving archive with id \"%s\"...", item)
             log.debug("Query object: %s", KnownArchives()._query)
             try:
