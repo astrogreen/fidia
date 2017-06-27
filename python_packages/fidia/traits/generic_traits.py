@@ -16,7 +16,8 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
-__all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS', 'Table']
+__all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS', 'Table',
+           'FITSFile', 'TarFileGroup', 'FitsImageHdu', 'FITSHeader']
 
 class ImageWCS(Trait):
     n_axis = 2
@@ -45,4 +46,19 @@ class DMU(TraitCollection):
     pass
 
 class Table(TraitCollection):
+    pass
+
+class FITSFile(TraitCollection):
+    pass
+
+class FITSHeader(TraitCollection):
+    pass
+
+class FitsImageHdu(TraitCollection):
+    data = TraitProperty(dtype=(float, int))
+    # header = SubTrait(FITSHeader, optional=True)
+    pass
+
+
+class TarFileGroup(TraitCollection):
     pass

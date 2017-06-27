@@ -28,8 +28,9 @@ class MyColumnDef(ColumnDefinition):
     # will fail. That means it must be at the class or module level, not
     # defined inside a function
 
-    def __init__(self, param):
-        self.param = param
+    _parameters = ('param', )
+    # def __init__(self, param):
+    #     self.param = param
 
     column_type = FIDIAColumn
 

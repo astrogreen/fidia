@@ -18,5 +18,4 @@ of data themselves (based on :class:`.FIDIAColumn`).
 
 from .columns import FIDIAColumn, FIDIAArrayColumn, ColumnID
 
-from .column_definitions import ColumnDefinition, ColumnDefinitionList, \
-    FITSHeaderColumn, FITSDataColumn
+from .column_definitions import *
