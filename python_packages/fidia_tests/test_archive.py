@@ -182,7 +182,7 @@ class TestExampleArchive:
 
         print(list(ar.trait_mappings.keys()))
 
-        tm = ar.trait_mappings['dmu', 'trait']
+        tm = ar.trait_mappings[ArchiveWithOrder.trait_mappings[0].mapping_key]
         # tm = list(ar.trait_mappings.values())[0]
         assert isinstance(tm, TraitMapping)
         keys = list(tm.trait_property_mappings.keys())
@@ -241,7 +241,7 @@ class TestExampleArchive:
 
         print(list(ar.trait_mappings.keys()))
 
-        tm = ar.trait_mappings['image', 'image']
+        tm = ar.trait_mappings[ArchiveWithOrder.trait_mappings[0].mapping_key]
         # tm = list(ar.trait_mappings.values())[0]
         assert isinstance(tm, TraitMapping)
         stm = tm.sub_trait_mappings['wcs']
@@ -289,7 +289,7 @@ class TestExampleArchive:
 
         print(list(ar.trait_mappings.keys()))
 
-        tm = ar.trait_mappings[ArchiveWithOrder.trait_mappings[0].key()]
+        tm = ar.trait_mappings[ArchiveWithOrder.trait_mappings[0].mapping_key]
         assert isinstance(tm, TraitMapping)
         keys = [i[1] for i in tm.named_sub_mappings.keys()]
 

@@ -97,7 +97,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
         """Add a TraitMapping to the `_local_trait_mappings`."""
         if isinstance(mapping, traits.TraitMapping):
             mapping.validate()
-            key = mapping.key()
+            key = mapping.mapping_key
             log.debug("Registering mapping for key %s", key)
             # Check if key already exists in this database
             if key in self._local_trait_mappings:

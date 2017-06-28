@@ -746,7 +746,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
     named_sub_mappings = relationship(
         'TraitMapping', # back_populates="_trait_mappings",
-        collection_class=mapped_collection(lambda o: o.key()))  # type: Dict[Tuple[str, str], TraitMapping]
+        collection_class=mapped_collection(lambda o: o.mapping_key))  # type: Dict[Tuple[str, str], TraitMapping]
 
 
     @reconstructor
@@ -789,7 +789,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
             elif isinstance(item, TraitMapping):
                 if issubclass(self.trait_class, fidia.Trait):
                     raise ValueError("Named sub-traits not yet supported for Traits.")
-                self.named_sub_mappings[item.key()] = item
+                self.named_sub_mappings[item.mapping_key] = item
             else:
                 raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
@@ -819,7 +819,8 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
 
-    def key(self):
+    @property
+    def mapping_key(self):
         return self.name, str(self.trait_key)
 
     def __repr__(self):
@@ -840,7 +841,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         for name, mapping in self.named_sub_mappings.items():
             result.update(mapping.as_specification_dict(columns))
         return {
-            ":".join(self.key()): result
+            ":".join(self.mapping_key): result
         }
 
 class SubTraitMapping(TraitMappingBase):

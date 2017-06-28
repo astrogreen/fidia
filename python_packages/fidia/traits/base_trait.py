@@ -512,7 +512,7 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
 
         else:
             log.warn("Unknown attribute %s for object %s", item, self)
-            log.warn("  Known Trait Mappings: %s", self.trait_mapping.named_sub_mappings.keys())
+            log.warn("  Known Trait Mappings: %s", list(self.trait_mapping.named_sub_mappings.keys()))
             log.warn("  Known Trait Properties: %s", list(self.trait_mapping.trait_property_mappings.keys()))
 
             raise AttributeError("Unknown attribute %s for object %s" % (item, self))

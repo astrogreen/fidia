@@ -379,7 +379,7 @@ class TestDatabaseBasics:
         assert ar.contents == ["Gal1", "Gal2", "Gal3"]
 
         # Check TraitMappings
-        tm_key = ArchiveWithColumns.trait_mappings[0].key()
+        tm_key = ArchiveWithColumns.trait_mappings[0].mapping_key
         print(tm_key)
         tm = ar.trait_mappings[tm_key]
         assert isinstance(tm, TraitMapping)
