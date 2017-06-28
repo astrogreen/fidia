@@ -674,6 +674,186 @@ class MappingBranchVersionHandling:
         return tk
 
 
+from sqlalchemy.ext.orderinglist import count_from_0, collection_adapter, collection, _reconstitute, util
+
+class OrderingList(list):
+    """A custom list that manages position information for its children.
+
+    The :class:`.OrderingList` object is normally set up using the
+    :func:`.ordering_list` factory function, used in conjunction with
+    the :func:`.relationship` function.
+
+    """
+
+    def __init__(self, ordering_attr=None, ordering_func=None,
+                 reorder_on_append=False):
+        """A custom list that manages position information for its children.
+
+        ``OrderingList`` is a ``collection_class`` list implementation that
+        syncs position in a Python list with a position attribute on the
+        mapped objects.
+
+        This implementation relies on the list starting in the proper order,
+        so be **sure** to put an ``order_by`` on your relationship.
+
+        :param ordering_attr:
+          Name of the attribute that stores the object's order in the
+          relationship.
+
+        :param ordering_func: Optional.  A function that maps the position in
+          the Python list to a value to store in the
+          ``ordering_attr``.  Values returned are usually (but need not be!)
+          integers.
+
+          An ``ordering_func`` is called with two positional parameters: the
+          index of the element in the list, and the list itself.
+
+          If omitted, Python list indexes are used for the attribute values.
+          Two basic pre-built numbering functions are provided in this module:
+          ``count_from_0`` and ``count_from_1``.  For more exotic examples
+          like stepped numbering, alphabetical and Fibonacci numbering, see
+          the unit tests.
+
+        :param reorder_on_append:
+          Default False.  When appending an object with an existing (non-None)
+          ordering value, that value will be left untouched unless
+          ``reorder_on_append`` is true.  This is an optimization to avoid a
+          variety of dangerous unexpected database writes.
+
+          SQLAlchemy will add instances to the list via append() when your
+          object loads.  If for some reason the result set from the database
+          skips a step in the ordering (say, row '1' is missing but you get
+          '2', '3', and '4'), reorder_on_append=True would immediately
+          renumber the items to '1', '2', '3'.  If you have multiple sessions
+          making changes, any of whom happen to load this collection even in
+          passing, all of the sessions would try to "clean up" the numbering
+          in their commits, possibly causing all but one to fail with a
+          concurrent modification error.
+
+          Recommend leaving this with the default of False, and just call
+          ``reorder()`` if you're doing ``append()`` operations with
+          previously ordered instances or when doing some housekeeping after
+          manual sql operations.
+
+        """
+
+        log.debug("__init__ called")
+
+        self.ordering_attr = ordering_attr
+        if ordering_func is None:
+            ordering_func = count_from_0
+        self.ordering_func = ordering_func
+        self.reorder_on_append = reorder_on_append
+
+    # More complex serialization schemes (multi column, e.g.) are possible by
+    # subclassing and reimplementing these two methods.
+    def _get_order_value(self, entity):
+        log.debug("_get_order_value: %s", entity)
+        return getattr(entity, self.ordering_attr)
+
+    def _set_order_value(self, entity, value):
+        log.debug("_set_order_value: %s", (entity, value))
+        setattr(entity, self.ordering_attr, value)
+
+    def reorder(self):
+        """Synchronize ordering for the entire collection.
+
+        Sweeps through the list and ensures that each object has accurate
+        ordering information set.
+
+        """
+        for index, entity in enumerate(self):
+            self._order_entity(index, entity, True)
+
+    # As of 0.5, _reorder is no longer semi-private
+    _reorder = reorder
+
+    def _order_entity(self, index, entity, reorder=True):
+        log.debug("%s", (index, entity, reorder))
+        have = self._get_order_value(entity)
+
+        # Don't disturb existing ordering if reorder is False
+        if have is not None and not reorder:
+            return
+
+        should_be = self.ordering_func(index, self)
+        if have != should_be:
+            self._set_order_value(entity, should_be)
+
+    def append(self, entity):
+        log.debug("%s", entity)
+        super(OrderingList, self).append(entity)
+        self._order_entity(len(self) - 1, entity, self.reorder_on_append)
+
+    def _raw_append(self, entity):
+        """Append without any ordering behavior."""
+        log.debug("%s", entity)
+
+        super(OrderingList, self).append(entity)
+    _raw_append = collection.adds(1)(_raw_append)
+
+    def insert(self, index, entity):
+        log.debug("%s", (entity, index))
+        super(OrderingList, self).insert(index, entity)
+        self._reorder()
+
+    def remove(self, entity):
+        log.debug("%s", entity)
+        super(OrderingList, self).remove(entity)
+
+        adapter = collection_adapter(self)
+        if adapter and adapter._referenced_by_owner:
+            self._reorder()
+
+    def pop(self, index=-1):
+        log.debug("%s", index)
+        entity = super(OrderingList, self).pop(index)
+        self._reorder()
+        return entity
+
+    def __setitem__(self, index, entity):
+        log.debug("%s", (index, entity))
+        if isinstance(index, slice):
+            step = index.step or 1
+            start = index.start or 0
+            if start < 0:
+                start += len(self)
+            stop = index.stop or len(self)
+            if stop < 0:
+                stop += len(self)
+
+            for i in range(start, stop, step):
+                self.__setitem__(i, entity[i])
+        else:
+            self._order_entity(index, entity, True)
+            super(OrderingList, self).__setitem__(index, entity)
+
+    def __delitem__(self, index):
+        log.debug("%s", index)
+        super(OrderingList, self).__delitem__(index)
+        self._reorder()
+
+    def __setslice__(self, start, end, values):
+        log.debug("")
+        super(OrderingList, self).__setslice__(start, end, values)
+        self._reorder()
+
+    def __delslice__(self, start, end):
+        log.debug("")
+        super(OrderingList, self).__delslice__(start, end)
+        self._reorder()
+
+    # def __reduce__(self):
+    #     log.debug("")
+    #     return _reconstitute, (self.__class__, self.__dict__, list(self))
+
+    for func_name, func in list(locals().items()):
+        if (util.callable(func) and func.__name__ == func_name and
+                not func.__doc__ and hasattr(list, func_name)):
+            func.__doc__ = getattr(list, func_name).__doc__
+    del func_name, func
+
+my_ordering_list = lambda: OrderingList('ordering')
 
 class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
 
@@ -686,14 +866,16 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
     _db_trait_class = sa.Column(sa.String)
     _parent_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 
-    # _db_trait_property_mappings = relationship(
-    #     'TraitPropertyMapping',
-    #     order_by='TraitPropertyMapping.ordering',
-    #     collection_class=ordering_list('index'))  # type: List[TraitPropertyMapping]
+    _db_trait_property_mappings = relationship(
+        'TraitPropertyMapping',
+        order_by='TraitPropertyMapping.ordering',
+        collection_class=ordering_list('ordering'))  # type: List[TraitPropertyMapping]
 
     _db_trait_property_mappings = relationship(
         'TraitPropertyMapping',
-        order_by='TraitPropertyMapping.ordering')  # type: List[TraitPropertyMapping]
+        order_by='TraitPropertyMapping.ordering',
+        collection_class=my_ordering_list
+    )  # type: List[TraitPropertyMapping]
 
 
     pretty_name = sa.Column(sa.UnicodeText(length=30))
