@@ -737,7 +737,7 @@ class OrderingList(list):
 
         """
 
-        log.debug("__init__ called")
+        log.vdebug("__init__ called")
 
         self.ordering_attr = ordering_attr
         if ordering_func is None:
@@ -748,11 +748,11 @@ class OrderingList(list):
     # More complex serialization schemes (multi column, e.g.) are possible by
     # subclassing and reimplementing these two methods.
     def _get_order_value(self, entity):
-        log.debug("_get_order_value: %s", entity)
+        log.vdebug("_get_order_value: %s", entity)
         return getattr(entity, self.ordering_attr)
 
     def _set_order_value(self, entity, value):
-        log.debug("_set_order_value: %s", (entity, value))
+        log.vdebug("_set_order_value: %s", (entity, value))
         setattr(entity, self.ordering_attr, value)
 
     def reorder(self):
@@ -769,7 +769,7 @@ class OrderingList(list):
     _reorder = reorder
 
     def _order_entity(self, index, entity, reorder=True):
-        log.debug("%s", (index, entity, reorder))
+        log.vdebug("%s", (index, entity, reorder))
         have = self._get_order_value(entity)
 
         # Don't disturb existing ordering if reorder is False
@@ -781,24 +781,24 @@ class OrderingList(list):
             self._set_order_value(entity, should_be)
 
     def append(self, entity):
-        log.debug("%s", entity)
+        log.vdebug("%s", entity)
         super(OrderingList, self).append(entity)
         self._order_entity(len(self) - 1, entity, self.reorder_on_append)
 
     def _raw_append(self, entity):
         """Append without any ordering behavior."""
-        log.debug("%s", entity)
+        log.vdebug("%s", entity)
 
         super(OrderingList, self).append(entity)
     _raw_append = collection.adds(1)(_raw_append)
 
     def insert(self, index, entity):
-        log.debug("%s", (entity, index))
+        log.vdebug("%s", (entity, index))
         super(OrderingList, self).insert(index, entity)
         self._reorder()
 
     def remove(self, entity):
-        log.debug("%s", entity)
+        log.vdebug("%s", entity)
         super(OrderingList, self).remove(entity)
 
         adapter = collection_adapter(self)
@@ -806,13 +806,13 @@ class OrderingList(list):
             self._reorder()
 
     def pop(self, index=-1):
-        log.debug("%s", index)
+        log.vdebug("%s", index)
         entity = super(OrderingList, self).pop(index)
         self._reorder()
         return entity
 
     def __setitem__(self, index, entity):
-        log.debug("%s", (index, entity))
+        log.vdebug("%s", (index, entity))
         if isinstance(index, slice):
             step = index.step or 1
             start = index.start or 0
@@ -829,22 +829,22 @@ class OrderingList(list):
             super(OrderingList, self).__setitem__(index, entity)
 
     def __delitem__(self, index):
-        log.debug("%s", index)
+        log.vdebug("%s", index)
         super(OrderingList, self).__delitem__(index)
         self._reorder()
 
     def __setslice__(self, start, end, values):
-        log.debug("")
+        log.vdebug("")
         super(OrderingList, self).__setslice__(start, end, values)
         self._reorder()
 
     def __delslice__(self, start, end):
-        log.debug("")
+        log.vdebug("")
         super(OrderingList, self).__delslice__(start, end)
         self._reorder()
 
     # def __reduce__(self):
-    #     log.debug("")
+    #     log.vdebug("")
     #     return _reconstitute, (self.__class__, self.__dict__, list(self))
 
     for func_name, func in list(locals().items()):
