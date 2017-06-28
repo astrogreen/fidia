@@ -431,7 +431,7 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
 
 class CSVTableColumn(ColumnDefinition, PathBasedColumn):
     column_type = FIDIAColumn
-    _id_string = "{filename_pattern}[index_column_name->column_name](comment={comment})"
+    _id_string = "{filename_pattern}[{index_column_name}->{column_name}](comment={comment})"
     _parameters = ('filename_pattern', 'column_name', 'index_column_name', 'comment')
 
     def array_getter(self, basepath):
