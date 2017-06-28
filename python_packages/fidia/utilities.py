@@ -690,6 +690,10 @@ class OrderingListDict(list):
 
     def values(self):
         return self
+
+    def items(self):
+        for item in self:
+            yield getattr(item, self._mapping_attribute), item
     
     def __contains__(self, item):
         # First check as though dictionary-like:

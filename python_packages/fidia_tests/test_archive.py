@@ -255,6 +255,51 @@ class TestExampleArchive:
 
         assert keys_original_order == keys
 
+    def test_ordering_of_named_sub_traits_preserved_in_trait_collections(self):
+        from fidia.traits import TraitPropertyMapping, DMU, TraitMapping, Table, ImageWCS, Image
+
+        tm_list = [
+            TraitMapping(Table, "a1", []),
+            TraitMapping(Table, "a2", []),
+            TraitMapping(Table, "a3", []),
+            TraitMapping(Table, "a4", []),
+            TraitMapping(Table, "a5", []),
+            TraitMapping(Table, "a6", [])
+        ]
+
+        class ArchiveWithOrder(fidia.ArchiveDefinition):
+            # For general testing, this should be set to True (commented out)
+            # For testing of the system without database persistence, it should be False.
+            # is_persisted = False
+
+
+            archive_id = "testArchiveWithOrder3"
+
+            contents = ["Gal1"]
+
+            archive_type = fidia.Archive
+
+            trait_mappings = [
+                TraitMapping(DMU, "dmu", tm_list)
+            ]
+
+        ar = ArchiveWithOrder()
+
+        assert isinstance(ar, fidia.Archive)
+
+        print(list(ar.trait_mappings.keys()))
+
+        tm = ar.trait_mappings[ArchiveWithOrder.trait_mappings[0].key()]
+        assert isinstance(tm, TraitMapping)
+        keys = [i[1] for i in tm.named_sub_mappings.keys()]
+
+        keys_original_order = list(map(lambda x: str(x.trait_key), tm_list))
+
+        print("Expected Order: %s" % keys_original_order)
+        print("Actual Order: %s" % keys)
+
+        assert keys_original_order == keys
+
 
 class TestKnownArchives:
     """These tests check whether the archive persistance is working correctly.
