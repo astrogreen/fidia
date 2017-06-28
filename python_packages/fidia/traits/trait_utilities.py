@@ -18,11 +18,12 @@ from cached_property import cached_property
 import sqlalchemy as sa
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection, mapped_collection
+from sqlalchemy.ext.orderinglist import ordering_list
 
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict, fidia_classname
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict, fidia_classname, FreezableDict
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -685,13 +686,20 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
     _db_trait_class = sa.Column(sa.String)
     _parent_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 
-    trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
-                                           collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
+    # _db_trait_property_mappings = relationship(
+    #     'TraitPropertyMapping',
+    #     order_by='TraitPropertyMapping.ordering',
+    #     collection_class=ordering_list('index'))  # type: List[TraitPropertyMapping]
+
+    _db_trait_property_mappings = relationship(
+        'TraitPropertyMapping',
+        order_by='TraitPropertyMapping.ordering')  # type: List[TraitPropertyMapping]
+
 
     pretty_name = sa.Column(sa.UnicodeText(length=30))
     short_description = sa.Column(sa.Unicode(length=150))
     long_descrription = sa.Column(sa.UnicodeText)
-
+    index = sa.Column(sa.Integer)
 
     def __init__(self, pretty_name=u"", short_desc=u"", long_desc=u""):
         super(TraitMappingBase, self).__init__()
@@ -700,6 +708,8 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
         self.pretty_name = pretty_name
         self.short_description = short_desc
         self.long_descrription = long_desc
+
+        self._trait_property_mappings = dict()
 
 
     def _reconstruct_trait_class(self):
@@ -728,6 +738,16 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
         assert issubclass(value, fidia.traits.BaseTrait)
         self._db_trait_class = fidia_classname(value)
         self._trait_class = value
+
+    @property
+    def trait_property_mappings(self):
+        if getattr(self, '_trait_property_mappings', None) is None or \
+                        len(self._trait_property_mappings) < len(self._db_trait_property_mappings):
+            self._trait_property_mappings = FreezableDict()
+            for tpmapping in self._db_trait_property_mappings:
+                self._trait_property_mappings[tpmapping.name] = tpmapping
+            self._trait_property_mappings.freeze()
+        return self._trait_property_mappings
 
 
 class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
@@ -781,7 +801,8 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
 
         for item in mappings:
             if isinstance(item, TraitPropertyMapping):
-                self.trait_property_mappings[item.name] = item
+                self._db_trait_property_mappings.append(item)
+                self._trait_property_mappings[item.name] = item
             elif isinstance(item, SubTraitMapping):
                 if issubclass(self.trait_class, fidia.TraitCollection):
                     raise ValueError("TraitCollections don't support sub-Traits")
@@ -867,7 +888,8 @@ class SubTraitMapping(TraitMappingBase):
 
         for item in mappings:
             if isinstance(item, TraitPropertyMapping):
-                self.trait_property_mappings[item.name] = item
+                self._db_trait_property_mappings.append(item)
+                self._trait_property_mappings[item.name] = item
             elif isinstance(item, SubTraitMapping):
                 self.sub_trait_mappings[item.name] = item
             elif isinstance(item, TraitMapping):
@@ -897,7 +919,8 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
     database_id = sa.Column(sa.Integer, sa.Sequence('trait_mapping_seq'), primary_key=True)
     name = sa.Column(sa.String)
     id = sa.Column(sa.String)
-    _trait_mappings = relationship("TraitMappingBase", back_populates="trait_property_mappings")
+    ordering = sa.Column(sa.Integer)  # Column for ordering index.
+    _trait_mappings = relationship('TraitMappingBase', back_populates='_db_trait_property_mappings')
     _trait_mapping_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 
     def __init__(self, property_name, column_id):

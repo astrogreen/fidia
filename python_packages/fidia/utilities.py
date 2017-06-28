@@ -469,3 +469,18 @@ class RegexpGroup:
                 if regex.match(item):
                     return True
         return False
+
+class FreezableDict(dict):
+
+    def freeze(self):
+        def __readonly__(*args, **kwargs):
+            raise RuntimeError("Cannot modify frozen dictionary")
+
+        self.__setitem__ = __readonly__
+        self.__delitem__ = __readonly__
+        self.pop = __readonly__
+        self.popitem = __readonly__
+        self.clear = __readonly__
+        self.update = __readonly__
+        self.setdefault = __readonly__
+        del __readonly__
