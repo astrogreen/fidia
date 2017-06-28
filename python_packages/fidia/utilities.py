@@ -19,6 +19,7 @@ from time import sleep
 from six.moves import reduce, zip
 from sortedcontainers import SortedDict
 from sqlalchemy.ext.orderinglist import OrderingList
+import sqlalchemy.orm.collections as sa_collections
 
 
 # Set up logging
@@ -476,7 +477,7 @@ def ordering_list_dict(ordering_attr, mapping_attribute):
     """Factory to create an ordered dictionary-like relationship for a :func:`.relationship`."""
     return lambda: OrderingListDict(ordering_attr, mapping_attribute)
 
-class OrderingListDict(OrderingList):
+class OrderingListDict(list):
     """A custom list that manages position information for its children.
 
     The :class:`.OrderingListDict` object is normally set up using the
@@ -487,7 +488,7 @@ class OrderingListDict(OrderingList):
 
     __emulates__ = list
 
-    def __init__(self, ordering_attr=None, mapping_attribute=None, ordering_func=None,
+    def __init__(self, ordering_attr=None, mapping_attribute=None,
     reorder_on_append=False):
         """A custom list that manages position information for its children, and
         also provides dictionary like access on a specified child attribute.
@@ -542,10 +543,12 @@ class OrderingListDict(OrderingList):
           manual sql operations.
 
         """
-        super(OrderingListDict, self).__init__(
-            ordering_attr=ordering_attr, ordering_func=ordering_func, reorder_on_append=reorder_on_append)
+        self.ordering_attr = ordering_attr
+        self.reorder_on_append = reorder_on_append
+
         self._mapping = dict()
         self._mapping_attribute = mapping_attribute
+
 
 
     def _add_mapping(self, item):
@@ -565,7 +568,6 @@ class OrderingListDict(OrderingList):
 
             self._mapping[key] = item
 
-
     def _remove_mapping(self, item):
         """Remove an item from the mapping cache."""
         try:
@@ -574,6 +576,14 @@ class OrderingListDict(OrderingList):
             pass
         else:
             del self._mapping[key]
+
+    def _get_order_value(self, entity):
+        return getattr(entity, self.ordering_attr)
+
+    def _set_order_value(self, entity, value):
+        setattr(entity, self.ordering_attr, value)
+
+
 
     def reorder(self):
         """Synchronize ordering for the entire collection.
@@ -584,19 +594,57 @@ class OrderingListDict(OrderingList):
         Also checks and updates the dictionary-like access cache.
 
         """
-        super(OrderingListDict, self).reorder()
+        for index, entity in enumerate(self):
+            self._order_entity(index, entity, True)
 
         self._mapping = dict()
         for item in self:
             self._add_mapping(item)
 
+    # As of 0.5, _reorder is no longer semi-private
+    _reorder = reorder
+
+    def _order_entity(self, index, entity, reorder=True):
+        have = self._get_order_value(entity)
+
+        # Don't disturb existing ordering if reorder is False
+        if have is not None and not reorder:
+            return
+
+        # should_be = self.ordering_func(index, self)
+        should_be = index
+        if have != should_be:
+            self._set_order_value(entity, should_be)
+
+
     def append(self, entity):
         super(OrderingListDict, self).append(entity)
+        self._order_entity(len(self) - 1, entity, self.reorder_on_append)
         self._add_mapping(entity)
 
+    def _raw_append(self, entity):
+        """Append without any ordering behavior."""
+
+        super(OrderingList, self).append(entity)
+    _raw_append = sa_collections.collection.adds(1)(_raw_append)
+
+    def insert(self, index, entity):
+        super(OrderingList, self).insert(index, entity)
+        self._reorder()
+
     def remove(self, entity):
-        self._remove_mapping(entity)
+
         super(OrderingListDict, self).remove(entity)
+
+        adapter = sa_collections.collection_adapter(self)
+        if adapter and adapter._referenced_by_owner:
+            self._reorder()
+        self._remove_mapping(entity)
+
+    def pop(self, index=-1):
+        entity = super(OrderingList, self).pop(index)
+        self._reorder()
+        return entity
 
     def __getitem__(self, item):
         if not isinstance(item, int):
@@ -622,17 +670,36 @@ class OrderingListDict(OrderingList):
 
     def __setitem__(self, index, entity):
         if isinstance(index, slice):
-            super(OrderingListDict, self).__setitem__(index, entity)
+            step = index.step or 1
+            start = index.start or 0
+            if start < 0:
+                start += len(self)
+            stop = index.stop or len(self)
+            if stop < 0:
+                stop += len(self)
+
+            for i in range(start, stop, step):
+                self.__setitem__(i, entity[i])
         else:
             if not isinstance(index, int):
                 self.append(entity)
                 return
             self._add_mapping(entity)
+            self._order_entity(index, entity, True)
             super(OrderingListDict, self).__setitem__(index, entity)
 
     def __delitem__(self, index):
-        self._remove_mapping(self[index])
         super(OrderingListDict, self).__delitem__(index)
+        self._remove_mapping(self[index])
+        self._reorder()
+
+    def __setslice__(self, start, end, values):
+        super(OrderingList, self).__setslice__(start, end, values)
+        self._reorder()
+
+    def __delslice__(self, start, end):
+        super(OrderingList, self).__delslice__(start, end)
+        self._reorder()
 
     def keys(self):
         return self._mapping.keys()
