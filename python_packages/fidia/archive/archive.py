@@ -57,7 +57,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     _db_archive_id = sa.Column(sa.String)
     _db_calling_arguments = sa.Column(sa.PickleType)
     _db_contents = sa.Column(sa.PickleType)
-    __mapper_args__ = {'polymorphic_on': "_db_archive_class"}
+    __mapper_args__ = {
+        'polymorphic_on': '_db_archive_class',
+        'polymorphic_identity': 'Archive'}
 
     _mappings = relationship('TraitMapping')  # type: List[traits.TraitMapping]
     columns = relationship('FIDIAColumn',

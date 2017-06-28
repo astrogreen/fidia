@@ -1,13 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List
+# from typing import List
 
 # Python Standard Library Imports
-import operator
 from copy import deepcopy
 import re
 from collections import Iterable, Sized, MutableMapping
-from contextlib import contextmanager
 from inspect import isclass, getattr_static
 import os
 import errno
@@ -16,8 +14,9 @@ import functools
 from time import sleep
 
 # Other Library Imports
-from six.moves import reduce
 from sortedcontainers import SortedDict
+import sqlalchemy.orm.collections as sa_collections
+
 
 # Set up logging
 import fidia.slogging as slogging
@@ -235,6 +234,7 @@ class MultiDexDict(MutableMapping):
     def __repr__(self):
         return repr(self.as_nested_dict())
 
+    # noinspection PyMethodOverriding
     def update(self, other):
         # if isinstance(other, MultiDexDict):
         if isinstance(other, MultiDexDict) and self.index_cardinality != other.index_cardinality:
@@ -252,7 +252,8 @@ class MultiDexDict(MutableMapping):
                 result[key] = self._internal_dict[key].as_nested_dict()
             return result
 
-class Inherit: pass
+class Inherit:
+    pass
 
 class DefaultsRegistry:
 
@@ -344,7 +345,8 @@ def snake_case(camel_case_string):
 
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
-    return isinstance(obj, Iterable) and isinstance(obj, Sized) and not isinstance(obj, str) and not isinstance(obj, bytes)
+    return (isinstance(obj, Iterable) and isinstance(obj, Sized) and
+            not isinstance(obj, str) and not isinstance(obj, bytes))
 
 def fidia_classname(obj, check_fidia=False):
     """Determine the name of the class for the given object in the context of FIDIA.
@@ -398,6 +400,7 @@ class exclusive_file_lock:
         # Loop until a lock file can be created:
         lock_aquired = False
         n_waits = 0
+        fd = None
         while not lock_aquired:
             try:
                 fd = os.open(self.lockfilename, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -419,6 +422,8 @@ class exclusive_file_lock:
                 raise
             else:
                 lock_aquired = True
+
+        assert fd is not None
 
         # Lock has been aquired. Open the file
         self.f = os.fdopen(fd)
@@ -470,17 +475,225 @@ class RegexpGroup:
                     return True
         return False
 
-class FreezableDict(dict):
+def ordering_list_dict(ordering_attr, mapping_attribute):
+    """Factory to create an ordered dictionary-like relationship for a :func:`.relationship`."""
+    return lambda: OrderingListDict(ordering_attr, mapping_attribute)
 
-    def freeze(self):
-        def __readonly__(*args, **kwargs):
-            raise RuntimeError("Cannot modify frozen dictionary")
 
-        self.__setitem__ = __readonly__
-        self.__delitem__ = __readonly__
-        self.pop = __readonly__
-        self.popitem = __readonly__
-        self.clear = __readonly__
-        self.update = __readonly__
-        self.setdefault = __readonly__
-        del __readonly__
+# noinspection PyMissingConstructor
+class OrderingListDict(list):
+    """A custom list that manages position information for its children.
+
+    The :class:`.OrderingListDict` object is normally set up using the
+    :func:`.ordering_list` factory function, used in conjunction with
+    the :func:`.relationship` function.
+
+    """
+
+    __emulates__ = list
+
+    def __init__(self, ordering_attr=None, mapping_attribute=None,
+                 reorder_on_append=False):
+        """A custom list that manages position information for its children, and
+        also provides dictionary like access on a specified child attribute.
+
+        This is based on the SQLAlchemy extension
+        `sqlalchemy.ext.ordering_list.OrderingList`, and the documentation there
+        should be read.
+
+        This implementation relies on the list starting in the proper order,
+        so be **sure** to put an ``order_by`` on your relationship.
+
+        :param ordering_attr:
+          Name of the attribute that stores the object's order in the
+          relationship.
+
+        :param mapping_attribute:
+          Name of the child attribute to use as the key for dictionary-like
+          access.
+
+        :param reorder_on_append:
+          Default False.  When appending an object with an existing (non-None)
+          ordering value, that value will be left untouched unless
+          ``reorder_on_append`` is true.  This is an optimization to avoid a
+          variety of dangerous unexpected database writes.
+
+          SQLAlchemy will add instances to the list via append() when your
+          object loads.  If for some reason the result set from the database
+          skips a step in the ordering (say, row '1' is missing but you get
+          '2', '3', and '4'), reorder_on_append=True would immediately
+          renumber the items to '1', '2', '3'.  If you have multiple sessions
+          making changes, any of whom happen to load this collection even in
+          passing, all of the sessions would try to "clean up" the numbering
+          in their commits, possibly causing all but one to fail with a
+          concurrent modification error.
+
+          Recommend leaving this with the default of False, and just call
+          ``reorder()`` if you're doing ``append()`` operations with
+          previously ordered instances or when doing some housekeeping after
+          manual sql operations.
+
+        """
+        self.ordering_attr = ordering_attr
+        self.reorder_on_append = reorder_on_append
+
+        self._mapping = dict()
+        self._mapping_attribute = mapping_attribute
+
+
+
+    def _add_mapping(self, item):
+        """Add an item to the mapping cache."""
+        try:
+            key = getattr(item, self._mapping_attribute)
+        except KeyError:
+            log.warn("Item '%s' does not provide the mapping attribute '%s'", item, self._mapping_attribute)
+            return
+        else:
+            if key in self._mapping and self._mapping[key] is not item:
+                log.error("Item '%s' added has same key as existing item '%s'", item, self._mapping[key])
+                # To raise an exception here, the state must be correctly
+                # cleaned up in higher level functions. So for now we just print
+                # an error and continue. This will make the mapping access
+                # problematic, but keeps state consistent.
+
+            self._mapping[key] = item
+
+    def _remove_mapping(self, item):
+        """Remove an item from the mapping cache."""
+        try:
+            key = getattr(item, self._mapping_attribute)
+        except KeyError:
+            pass
+        else:
+            del self._mapping[key]
+
+    def _get_order_value(self, entity):
+        return getattr(entity, self.ordering_attr)
+
+    def _set_order_value(self, entity, value):
+        setattr(entity, self.ordering_attr, value)
+
+
+
+    def reorder(self):
+        """Synchronize ordering for the entire collection.
+
+        Sweeps through the list and ensures that each object has accurate
+        ordering information set.
+
+        Also checks and updates the dictionary-like access cache.
+
+        """
+        for index, entity in enumerate(self):
+            self._order_entity(index, entity, True)
+
+        self._mapping = dict()
+        for item in self:
+            self._add_mapping(item)
+
+    def _order_entity(self, index, entity, reorder=True):
+        have = self._get_order_value(entity)
+
+        # Don't disturb existing ordering if reorder is False
+        if have is not None and not reorder:
+            return
+
+        # should_be = self.ordering_func(index, self)
+        should_be = index
+        if have != should_be:
+            self._set_order_value(entity, should_be)
+
+
+    def append(self, entity):
+        super(OrderingListDict, self).append(entity)
+        self._order_entity(len(self) - 1, entity, self.reorder_on_append)
+        self._add_mapping(entity)
+
+    def _raw_append(self, entity):
+        """Append without any ordering behavior."""
+
+        super(OrderingListDict, self).append(entity)
+    _raw_append = sa_collections.collection.adds(1)(_raw_append)
+
+    def insert(self, index, entity):
+        super(OrderingListDict, self).insert(index, entity)
+        self.reorder()
+
+    # noinspection PyProtectedMember
+    def remove(self, entity):
+
+        super(OrderingListDict, self).remove(entity)
+
+        adapter = sa_collections.collection_adapter(self)
+        if adapter and adapter._referenced_by_owner:
+            self.reorder()
+        self._remove_mapping(entity)
+
+    def pop(self, index=-1):
+        entity = super(OrderingListDict, self).pop(index)
+        self.reorder()
+        return entity
+
+    def __getitem__(self, item):
+        if not isinstance(item, int) or not isinstance(item, slice):
+            if item in self._mapping:
+                return self._mapping[item]
+            else:
+                log.debug("Key '%s' not found. Availblae keys: %s", item, list(self._mapping.keys()))
+
+                # We have most likely reached this point when the instrumented
+                # list `setitem` at sqlaclchemy.orm.collections is called. When
+                # setitem is called on a list, e.g.:
+                #
+                # >>> mylist[3] = 'item'
+                #
+                # the indexed item already exists, and we are asking for it to
+                # be replaced with the new item. SQLAlchemy expects this, and so
+                # it must get the existing item and delete it. However, if we
+                # are accessing the list as a dictionary, then this item won't
+                # exist. We return `None` here so that alchemy skips it's delete
+                # step.
+                return None
+        return super(OrderingListDict, self).__getitem__(item)
+
+    def __setitem__(self, index, entity):
+        if isinstance(index, slice):
+            step = index.step or 1
+            start = index.start or 0
+            if start < 0:
+                start += len(self)
+            stop = index.stop or len(self)
+            if stop < 0:
+                stop += len(self)
+
+            for i in range(start, stop, step):
+                self.__setitem__(i, entity[i])
+        else:
+            if not isinstance(index, int):
+                self.append(entity)
+                return
+            self._add_mapping(entity)
+            self._order_entity(index, entity, True)
+            super(OrderingListDict, self).__setitem__(index, entity)
+
+    def __delitem__(self, index):
+        super(OrderingListDict, self).__delitem__(index)
+        self._remove_mapping(self[index])
+        self.reorder()
+
+    # The __setslice__ and __delslice__ methods are deprecated, and not implemented here.
+
+    def keys(self):
+        for item in self:
+            yield getattr(item, self._mapping_attribute)
+
+    def values(self):
+        return self
+    
+    def __contains__(self, item):
+        # First check as though dictionary-like:
+        if item in self._mapping:
+            return True
+        # Second check normal contains
+        return super(OrderingListDict, self).__contains__(item)
