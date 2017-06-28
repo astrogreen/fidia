@@ -1,13 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List
+# from typing import List
 
 # Python Standard Library Imports
-import operator
 from copy import deepcopy
 import re
 from collections import Iterable, Sized, MutableMapping
-from contextlib import contextmanager
 from inspect import isclass, getattr_static
 import os
 import errno
@@ -16,9 +14,7 @@ import functools
 from time import sleep
 
 # Other Library Imports
-from six.moves import reduce, zip
 from sortedcontainers import SortedDict
-from sqlalchemy.ext.orderinglist import OrderingList
 import sqlalchemy.orm.collections as sa_collections
 
 
@@ -238,6 +234,7 @@ class MultiDexDict(MutableMapping):
     def __repr__(self):
         return repr(self.as_nested_dict())
 
+    # noinspection PyMethodOverriding
     def update(self, other):
         # if isinstance(other, MultiDexDict):
         if isinstance(other, MultiDexDict) and self.index_cardinality != other.index_cardinality:
@@ -255,7 +252,8 @@ class MultiDexDict(MutableMapping):
                 result[key] = self._internal_dict[key].as_nested_dict()
             return result
 
-class Inherit: pass
+class Inherit:
+    pass
 
 class DefaultsRegistry:
 
@@ -347,7 +345,8 @@ def snake_case(camel_case_string):
 
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
-    return isinstance(obj, Iterable) and isinstance(obj, Sized) and not isinstance(obj, str) and not isinstance(obj, bytes)
+    return (isinstance(obj, Iterable) and isinstance(obj, Sized) and
+            not isinstance(obj, str) and not isinstance(obj, bytes))
 
 def fidia_classname(obj, check_fidia=False):
     """Determine the name of the class for the given object in the context of FIDIA.
@@ -401,6 +400,7 @@ class exclusive_file_lock:
         # Loop until a lock file can be created:
         lock_aquired = False
         n_waits = 0
+        fd = None
         while not lock_aquired:
             try:
                 fd = os.open(self.lockfilename, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -422,6 +422,8 @@ class exclusive_file_lock:
                 raise
             else:
                 lock_aquired = True
+
+        assert fd is not None
 
         # Lock has been aquired. Open the file
         self.f = os.fdopen(fd)
@@ -477,6 +479,8 @@ def ordering_list_dict(ordering_attr, mapping_attribute):
     """Factory to create an ordered dictionary-like relationship for a :func:`.relationship`."""
     return lambda: OrderingListDict(ordering_attr, mapping_attribute)
 
+
+# noinspection PyMissingConstructor
 class OrderingListDict(list):
     """A custom list that manages position information for its children.
 
@@ -489,12 +493,13 @@ class OrderingListDict(list):
     __emulates__ = list
 
     def __init__(self, ordering_attr=None, mapping_attribute=None,
-    reorder_on_append=False):
+                 reorder_on_append=False):
         """A custom list that manages position information for its children, and
         also provides dictionary like access on a specified child attribute.
 
-        This is based on the SQLAlchemy extension `OrderingList`, and the
-        documentation there should be read.
+        This is based on the SQLAlchemy extension
+        `sqlalchemy.ext.ordering_list.OrderingList`, and the documentation there
+        should be read.
 
         This implementation relies on the list starting in the proper order,
         so be **sure** to put an ``order_by`` on your relationship.
@@ -506,20 +511,6 @@ class OrderingListDict(list):
         :param mapping_attribute:
           Name of the child attribute to use as the key for dictionary-like
           access.
-
-        :param ordering_func: Optional.  A function that maps the position in
-          the Python list to a value to store in the
-          ``ordering_attr``.  Values returned are usually (but need not be!)
-          integers.
-
-          An ``ordering_func`` is called with two positional parameters: the
-          index of the element in the list, and the list itself.
-
-          If omitted, Python list indexes are used for the attribute values.
-          Two basic pre-built numbering functions are provided in this module:
-          ``count_from_0`` and ``count_from_1``.  For more exotic examples
-          like stepped numbering, alphabetical and Fibonacci numbering, see
-          the unit tests.
 
         :param reorder_on_append:
           Default False.  When appending an object with an existing (non-None)
@@ -601,9 +592,6 @@ class OrderingListDict(list):
         for item in self:
             self._add_mapping(item)
 
-    # As of 0.5, _reorder is no longer semi-private
-    _reorder = reorder
-
     def _order_entity(self, index, entity, reorder=True):
         have = self._get_order_value(entity)
 
@@ -625,29 +613,30 @@ class OrderingListDict(list):
     def _raw_append(self, entity):
         """Append without any ordering behavior."""
 
-        super(OrderingList, self).append(entity)
+        super(OrderingListDict, self).append(entity)
     _raw_append = sa_collections.collection.adds(1)(_raw_append)
 
     def insert(self, index, entity):
-        super(OrderingList, self).insert(index, entity)
-        self._reorder()
+        super(OrderingListDict, self).insert(index, entity)
+        self.reorder()
 
+    # noinspection PyProtectedMember
     def remove(self, entity):
 
         super(OrderingListDict, self).remove(entity)
 
         adapter = sa_collections.collection_adapter(self)
         if adapter and adapter._referenced_by_owner:
-            self._reorder()
+            self.reorder()
         self._remove_mapping(entity)
 
     def pop(self, index=-1):
-        entity = super(OrderingList, self).pop(index)
-        self._reorder()
+        entity = super(OrderingListDict, self).pop(index)
+        self.reorder()
         return entity
 
     def __getitem__(self, item):
-        if not isinstance(item, int):
+        if not isinstance(item, int) or not isinstance(item, slice):
             if item in self._mapping:
                 return self._mapping[item]
             else:
@@ -691,15 +680,9 @@ class OrderingListDict(list):
     def __delitem__(self, index):
         super(OrderingListDict, self).__delitem__(index)
         self._remove_mapping(self[index])
-        self._reorder()
+        self.reorder()
 
-    def __setslice__(self, start, end, values):
-        super(OrderingList, self).__setslice__(start, end, values)
-        self._reorder()
-
-    def __delslice__(self, start, end):
-        super(OrderingList, self).__delslice__(start, end)
-        self._reorder()
+    # The __setslice__ and __delslice__ methods are deprecated, and not implemented here.
 
     def keys(self):
         return self._mapping.keys()
