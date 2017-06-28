@@ -194,7 +194,66 @@ class TestExampleArchive:
 
         assert keys_original_order == keys
 
+    def test_ordering_of_trait_property_mappings_preserved_in_subtraits(self):
+        from fidia.traits import TraitPropertyMapping, DMU, TraitMapping, SubTraitMapping, ImageWCS, Image
 
+        tpm_list = [TraitPropertyMapping('crpix1',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
+                    TraitPropertyMapping('crpix2',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),
+                    TraitPropertyMapping('crval1',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX1]:1'),
+                    TraitPropertyMapping('crval2',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX2]:1'),
+                    TraitPropertyMapping('cdelt1',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT1]:1'),
+                    TraitPropertyMapping('cdelt2',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT2]:1'),
+                    TraitPropertyMapping('ctype1',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE1]:1'),
+                    TraitPropertyMapping('ctype2',
+                                         'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')]
+
+        tpm_image_list = [
+            TraitPropertyMapping('data', "mydatacolumn"),
+            SubTraitMapping('wcs', ImageWCS, tpm_list)
+        ]
+
+        class ArchiveWithOrder(fidia.ArchiveDefinition):
+            # For general testing, this should be set to True (commented out)
+            # For testing of the system without database persistence, it should be False.
+            # is_persisted = False
+
+
+            archive_id = "testArchiveWithOrder2"
+
+            contents = ["Gal1"]
+
+            archive_type = fidia.Archive
+
+            trait_mappings = [
+                TraitMapping(Image, "image", tpm_image_list)
+            ]
+
+        ar = ArchiveWithOrder()
+
+        assert isinstance(ar, fidia.Archive)
+
+        print(list(ar.trait_mappings.keys()))
+
+        tm = ar.trait_mappings['image', 'image']
+        # tm = list(ar.trait_mappings.values())[0]
+        assert isinstance(tm, TraitMapping)
+        stm = tm.sub_trait_mappings['wcs']
+        assert isinstance(stm, SubTraitMapping)
+        keys = list(stm.trait_property_mappings.keys())
+
+        keys_original_order = list(map(lambda x: x.name, tpm_list))
+
+        print("Expected Order: %s" % keys_original_order)
+        print("Actual Order: %s" % keys)
+
+        assert keys_original_order == keys
 
 
 class TestKnownArchives:
