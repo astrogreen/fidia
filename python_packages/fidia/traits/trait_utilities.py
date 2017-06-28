@@ -685,8 +685,11 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
     _db_trait_class = sa.Column(sa.String)
     _parent_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 
-    trait_property_mappings = relationship('TraitPropertyMapping', back_populates="_trait_mappings",
-                                           collection_class=ordering_list_dict('index', 'name'))  # type: Dict[str, TraitPropertyMapping]
+    trait_property_mappings = relationship(
+        'TraitPropertyMapping',
+        back_populates="_trait_mappings",
+        collection_class=ordering_list_dict('index', 'name'),
+        order_by='TraitPropertyMapping.index')  # type: Dict[str, TraitPropertyMapping]
 
     pretty_name = sa.Column(sa.UnicodeText(length=30))
     short_description = sa.Column(sa.Unicode(length=150))
@@ -745,8 +748,9 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
         'SubTraitMapping', # back_populates="_trait_mappings",
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
     named_sub_mappings = relationship(
-        'TraitMapping', # back_populates="_trait_mappings",
-        collection_class=mapped_collection(lambda o: o.mapping_key))  # type: Dict[Tuple[str, str], TraitMapping]
+        'TraitMapping',
+        collection_class=ordering_list_dict('index', 'mapping_key'),
+        order_by='TraitMapping.index')  # type: Dict[Tuple[str, str], TraitMapping]
 
 
     @reconstructor

@@ -21,7 +21,7 @@ import sqlalchemy.orm.collections as sa_collections
 # Set up logging
 import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 __all__ = [
