@@ -891,7 +891,7 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
         self.short_description = short_desc
         self.long_descrription = long_desc
 
-        self._trait_property_mappings = dict()
+        self._trait_property_mappings = OrderedDict()
 
 
     def _reconstruct_trait_class(self):
@@ -925,10 +925,10 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
     def trait_property_mappings(self):
         if getattr(self, '_trait_property_mappings', None) is None or \
                         len(self._trait_property_mappings) < len(self._db_trait_property_mappings):
-            self._trait_property_mappings = FreezableDict()
+            self._trait_property_mappings = OrderedDict()
             for tpmapping in self._db_trait_property_mappings:
                 self._trait_property_mappings[tpmapping.name] = tpmapping
-            self._trait_property_mappings.freeze()
+            # self._trait_property_mappings.freeze()
         return self._trait_property_mappings
 
 
