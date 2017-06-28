@@ -685,7 +685,8 @@ class OrderingListDict(list):
     # The __setslice__ and __delslice__ methods are deprecated, and not implemented here.
 
     def keys(self):
-        return self._mapping.keys()
+        for item in self:
+            yield getattr(item, self._mapping_attribute)
 
     def values(self):
         return self
