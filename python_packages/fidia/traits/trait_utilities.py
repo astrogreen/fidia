@@ -22,7 +22,7 @@ from sqlalchemy.orm.collections import attribute_mapped_collection, mapped_colle
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict, fidia_classname
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict, fidia_classname, ordering_list_dict
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -685,13 +685,13 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
     _db_trait_class = sa.Column(sa.String)
     _parent_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 
-    trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
-                                           collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
+    trait_property_mappings = relationship('TraitPropertyMapping', back_populates="_trait_mappings",
+                                           collection_class=ordering_list_dict('index', 'name'))  # type: Dict[str, TraitPropertyMapping]
 
     pretty_name = sa.Column(sa.UnicodeText(length=30))
     short_description = sa.Column(sa.Unicode(length=150))
     long_descrription = sa.Column(sa.UnicodeText)
-
+    index = sa.Column(sa.Integer)
 
     def __init__(self, pretty_name=u"", short_desc=u"", long_desc=u""):
         super(TraitMappingBase, self).__init__()
@@ -897,6 +897,7 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
     database_id = sa.Column(sa.Integer, sa.Sequence('trait_mapping_seq'), primary_key=True)
     name = sa.Column(sa.String)
     id = sa.Column(sa.String)
+    index = sa.Column(sa.Integer)  # Column for ordering index.
     _trait_mappings = relationship("TraitMappingBase", back_populates="trait_property_mappings")
     _trait_mapping_id = sa.Column(sa.Integer, sa.ForeignKey('trait_mappings._database_id'))
 

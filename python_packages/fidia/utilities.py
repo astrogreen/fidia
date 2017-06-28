@@ -16,8 +16,10 @@ import functools
 from time import sleep
 
 # Other Library Imports
-from six.moves import reduce
+from six.moves import reduce, zip
 from sortedcontainers import SortedDict
+from sqlalchemy.ext.orderinglist import OrderingList
+
 
 # Set up logging
 import fidia.slogging as slogging
@@ -469,3 +471,178 @@ class RegexpGroup:
                 if regex.match(item):
                     return True
         return False
+
+def ordering_list_dict(ordering_attr, mapping_attribute):
+    """Factory to create an ordered dictionary-like relationship for a :func:`.relationship`."""
+    return lambda: OrderingListDict(ordering_attr, mapping_attribute)
+
+class OrderingListDict(OrderingList):
+    """A custom list that manages position information for its children.
+
+    The :class:`.OrderingListDict` object is normally set up using the
+    :func:`.ordering_list` factory function, used in conjunction with
+    the :func:`.relationship` function.
+
+    """
+
+    __emulates__ = list
+
+    def __init__(self, ordering_attr=None, mapping_attribute=None, ordering_func=None,
+    reorder_on_append=False):
+        """A custom list that manages position information for its children, and
+        also provides dictionary like access on a specified child attribute.
+
+        This is based on the SQLAlchemy extension `OrderingList`, and the
+        documentation there should be read.
+
+        This implementation relies on the list starting in the proper order,
+        so be **sure** to put an ``order_by`` on your relationship.
+
+        :param ordering_attr:
+          Name of the attribute that stores the object's order in the
+          relationship.
+
+        :param mapping_attribute:
+          Name of the child attribute to use as the key for dictionary-like
+          access.
+
+        :param ordering_func: Optional.  A function that maps the position in
+          the Python list to a value to store in the
+          ``ordering_attr``.  Values returned are usually (but need not be!)
+          integers.
+
+          An ``ordering_func`` is called with two positional parameters: the
+          index of the element in the list, and the list itself.
+
+          If omitted, Python list indexes are used for the attribute values.
+          Two basic pre-built numbering functions are provided in this module:
+          ``count_from_0`` and ``count_from_1``.  For more exotic examples
+          like stepped numbering, alphabetical and Fibonacci numbering, see
+          the unit tests.
+
+        :param reorder_on_append:
+          Default False.  When appending an object with an existing (non-None)
+          ordering value, that value will be left untouched unless
+          ``reorder_on_append`` is true.  This is an optimization to avoid a
+          variety of dangerous unexpected database writes.
+
+          SQLAlchemy will add instances to the list via append() when your
+          object loads.  If for some reason the result set from the database
+          skips a step in the ordering (say, row '1' is missing but you get
+          '2', '3', and '4'), reorder_on_append=True would immediately
+          renumber the items to '1', '2', '3'.  If you have multiple sessions
+          making changes, any of whom happen to load this collection even in
+          passing, all of the sessions would try to "clean up" the numbering
+          in their commits, possibly causing all but one to fail with a
+          concurrent modification error.
+
+          Recommend leaving this with the default of False, and just call
+          ``reorder()`` if you're doing ``append()`` operations with
+          previously ordered instances or when doing some housekeeping after
+          manual sql operations.
+
+        """
+        super(OrderingListDict, self).__init__(
+            ordering_attr=ordering_attr, ordering_func=ordering_func, reorder_on_append=reorder_on_append)
+        self._mapping = dict()
+        self._mapping_attribute = mapping_attribute
+
+
+    def _add_mapping(self, item):
+        """Add an item to the mapping cache."""
+        try:
+            key = getattr(item, self._mapping_attribute)
+        except KeyError:
+            log.warn("Item '%s' does not provide the mapping attribute '%s'", item, self._mapping_attribute)
+            return
+        else:
+            if key in self._mapping and self._mapping[key] is not item:
+                log.error("Item '%s' added has same key as existing item '%s'", item, self._mapping[key])
+                # To raise an exception here, the state must be correctly
+                # cleaned up in higher level functions. So for now we just print
+                # an error and continue. This will make the mapping access
+                # problematic, but keeps state consistent.
+
+            self._mapping[key] = item
+
+
+    def _remove_mapping(self, item):
+        """Remove an item from the mapping cache."""
+        try:
+            key = getattr(item, self._mapping_attribute)
+        except KeyError:
+            pass
+        else:
+            del self._mapping[key]
+
+    def reorder(self):
+        """Synchronize ordering for the entire collection.
+
+        Sweeps through the list and ensures that each object has accurate
+        ordering information set.
+
+        Also checks and updates the dictionary-like access cache.
+
+        """
+        super(OrderingListDict, self).reorder()
+
+        self._mapping = dict()
+        for item in self:
+            self._add_mapping(item)
+
+    def append(self, entity):
+        super(OrderingListDict, self).append(entity)
+        self._add_mapping(entity)
+
+    def remove(self, entity):
+        self._remove_mapping(entity)
+        super(OrderingListDict, self).remove(entity)
+
+    def __getitem__(self, item):
+        if not isinstance(item, int):
+            if item in self._mapping:
+                return self._mapping[item]
+            else:
+                log.debug("Key '%s' not found. Availblae keys: %s", item, list(self._mapping.keys()))
+
+                # We have most likely reached this point when the instrumented
+                # list `setitem` at sqlaclchemy.orm.collections is called. When
+                # setitem is called on a list, e.g.:
+                #
+                # >>> mylist[3] = 'item'
+                #
+                # the indexed item already exists, and we are asking for it to
+                # be replaced with the new item. SQLAlchemy expects this, and so
+                # it must get the existing item and delete it. However, if we
+                # are accessing the list as a dictionary, then this item won't
+                # exist. We return `None` here so that alchemy skips it's delete
+                # step.
+                return None
+        return super(OrderingListDict, self).__getitem__(item)
+
+    def __setitem__(self, index, entity):
+        if isinstance(index, slice):
+            super(OrderingListDict, self).__setitem__(index, entity)
+        else:
+            if not isinstance(index, int):
+                self.append(entity)
+                return
+            self._add_mapping(entity)
+            super(OrderingListDict, self).__setitem__(index, entity)
+
+    def __delitem__(self, index):
+        self._remove_mapping(self[index])
+        super(OrderingListDict, self).__delitem__(index)
+
+    def keys(self):
+        return self._mapping.keys()
+
+    def values(self):
+        return self
+    
+    def __contains__(self, item):
+        # First check as though dictionary-like:
+        if item in self._mapping:
+            return True
+        # Second check normal contains
+        return super(OrderingListDict, self).__contains__(item)
