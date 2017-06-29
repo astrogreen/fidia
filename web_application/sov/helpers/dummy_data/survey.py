@@ -5,7 +5,7 @@ from sov.helpers.dummy_data.astro_object import ARCHIVE
 def get_survey_objects(survey=None):
     survey_objects = []
     for key, value in ARCHIVE.items():
-        if str(survey) in str(getattr(value, 'owner')):
+        if str(survey) in str(getattr(value, 'survey')):
             survey_objects.append(value)
     completed_data = dict(enumerate(survey_objects))
     return list(completed_data.values())

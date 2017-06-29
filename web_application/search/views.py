@@ -58,7 +58,7 @@ class AstronomicalObjects(viewsets.ReadOnlyModelViewSet):
 FILTERBY_DOC_STRING = (r"""
     Filter objects in the DC archive by:
 
-    keyword [id, name]:
+    keyword [adcid, name, survey]:
     Return objects with keyword value containing the search term.
 
     position:
@@ -75,8 +75,9 @@ class FilterBy(views.APIView):
     # (keyword or position)
     def get(self, request, *args, **kwargs):
         return Response({
-            'urls': [reverse('search:filter-by', kwargs={"filter_term": "id"}, request=request),
+            'urls': [reverse('search:filter-by', kwargs={"filter_term": "adcid"}, request=request),
                      reverse('search:filter-by', kwargs={"filter_term": "name"}, request=request),
+                     reverse('search:filter-by', kwargs={"filter_term": "survey"}, request=request),
                      reverse('search:filter-by', kwargs={"filter_term": "position"}, request=request)]
         })
 FilterBy.__doc__ = FILTERBY_DOC_STRING
@@ -85,17 +86,25 @@ FilterBy.__doc__ = FILTERBY_DOC_STRING
 class FilterByTerm(generics.CreateAPIView):
     # Filter by a keyword or position
     queryset = get_archive().values()
-    available_keywords = ['id', 'name']
+    available_keywords = ['adcid', 'name', 'survey']
 
     serializer_action_classes = {
-        'id': search.serializers.FilterById,
+        'adcid': search.serializers.FilterByADCID,
         'name': search.serializers.FilterByName,
+        'survey': search.serializers.FilterBySurvey,
         'position': search.serializers.FilterByPosition,
+    }
+
+    filter_serializer_classes = {
+        'adcid': search.serializers.AOListByADCID,
+        'name': search.serializers.AOListByName,
+        'survey': search.serializers.AOListBySurvey,
+        'position': search.serializers.AOListByPosition,
     }
 
     def get_serializer_class(self):
         # Override the base method, using a different serializer
-        # depending on the url parameter (serializer governs the fields
+        # depending on the url parameter (these serializers govern the fields
         # that are accessible to the route, form rendering, validation)
         filter_term = self.kwargs['filter_term']
         try:
@@ -103,7 +112,12 @@ class FilterByTerm(generics.CreateAPIView):
         except (KeyError, AttributeError):
             return super(FilterByTerm, self).get_serializer_class()
 
-    def filter_by_position(self, ra=None, dec=None, radius=None):
+    def get_filter_serializer_class(self):
+        # returns the list serializer used to display the results
+        filter_term = self.kwargs['filter_term']
+        return self.filter_serializer_classes[filter_term]
+
+    def filter_by_position(self, ra=None, dec=None, radius=None, equinox=None):
         """
         
         Args:
@@ -122,7 +136,7 @@ class FilterByTerm(generics.CreateAPIView):
         if ':' in dec:
             dec_unit = unit.hourangle
 
-        c1 = SkyCoord(ra=ra, dec=dec, unit=(ra_unit, dec_unit))
+        c1 = SkyCoord(ra=ra, dec=dec, unit=(ra_unit, dec_unit), equinox=equinox)
 
         ra_deg = c1.ra.degree
         dec_deg = c1.dec.degree
@@ -134,23 +148,28 @@ class FilterByTerm(generics.CreateAPIView):
         dec_max = dec_deg + 2 * rad_deg
         # t0 = time.time()
         # print(_ra_min, _ra_max, _dec_min, _dec_max)
+        # TODO talk to minh here - can the TAP server replace this? (output json)
         data = []
         for key, x in get_archive().items():
             # initial cut around box twice size of radius
             if (x.position['ra'] < ra_max) and (x.position['ra'] > ra_min) and \
                     (x.position['dec'] < dec_max) and (x.position['dec'] > dec_min):
-                c2 = SkyCoord(ra=x.position['ra'], dec=x.position['dec'], unit=(unit.deg, unit.deg))
+                c2 = SkyCoord(ra=x.position['ra'], dec=x.position['dec'], unit=(unit.deg, unit.deg), equinox='J2000')
                 sep = c1.separation(c2)
                 if sep.degree < rad_deg:
+                    # print(sep.arcsec)
+                    setattr(x, 'separation', sep.arcsec)
                     data.append(x)
         # t1 = time.time()
         # print(t1-t0)
+        # sort by separation
+        data.sort(key=lambda d: d.separation)
         return data
 
     def filter_by_keyword(self, data=None, filter_term=None, search_value=None):
         filtered_list = []
         for key, value in data:
-            if str(search_value) in str(getattr(value, filter_term)):
+            if str(search_value).lower() in str(getattr(value, filter_term)).lower():
                 filtered_list.append(value)
         return filtered_list
 
@@ -167,7 +186,8 @@ class FilterByTerm(generics.CreateAPIView):
             _ra = serializer.data.get('ra')
             _dec = serializer.data.get('dec')
             _radius = serializer.data.get('radius')
-            data = self.filter_by_position(ra=_ra, dec=_dec, radius=_radius)
+            _equinox = serializer.data.get('equinox')
+            data = self.filter_by_position(ra=_ra, dec=_dec, radius=_radius, equinox=_equinox)
 
         else:
             # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
@@ -178,13 +198,16 @@ class FilterByTerm(generics.CreateAPIView):
         page = self.paginate_queryset(list(completed_data.values()))
 
         if page is not None:
-            serializer = search.serializers.AstroObjectList(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            filter_serializer_class = self.get_filter_serializer_class()
+            filter_serializer = filter_serializer_class(page, many=True)
+            # _serializer = search.serializers.AstroObjectList(page, many=True)
+            return self.get_paginated_response(filter_serializer.data)
 
         headers = self.get_success_headers(serializer.data)
         # return each as json using
-        _serializer = search.serializers.AstroObjectRetrieve(instance=completed_data.values(), many=True)
-        return Response(_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        filter_serializer_class = self.get_filter_serializer_class()
+        filter_serializer = filter_serializer_class(instance=completed_data.values(), many=True)
+        return Response(filter_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 FilterByTerm.__doc__ = FILTERBY_DOC_STRING
 
 
@@ -199,15 +222,21 @@ class NameResolver(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        _url = "http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxp/NSV?%s" % serializer.data.get('name')
+        _url = "http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oxpI/NSV?%s" % serializer.data.get('name')
         r = requests.get(_url)
         root = ET.fromstring(r.text)
 
         data = OrderedDict()
+        aliases = []
+
         for elt in root.iter():
             # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
-            data[elt.tag] = str(elt.text).strip()
+            if elt.tag == 'alias':
+                aliases.append(str(elt.text).strip())
+            else:
+                data[elt.tag] = str(elt.text).strip()
 
+        data.update({'aliases': aliases})
         headers = self.get_success_headers(serializer.data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 

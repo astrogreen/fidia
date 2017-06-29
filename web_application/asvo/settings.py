@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'cutout',
     'documentation',
+    'download',
     'django_extensions',
     'hitcount',
     'feature',
@@ -106,6 +107,11 @@ TEMPLATES = [
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend', # default
 )
+
+try:
+    from .ldap_settings import *
+except ImportError:
+    pass
 
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_URL = 'rest_framework:login'
@@ -301,7 +307,7 @@ os.environ.setdefault('PYPANDOC_PANDOC', PANDOC_PATH)
 
 
 REST_FRAMEWORK = {
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': 100,
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',

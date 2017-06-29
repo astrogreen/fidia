@@ -1,47 +1,24 @@
-from rest_framework.decorators import detail_route, list_route
+from django.http import HttpResponse
+from django.core.files.base import ContentFile
+from io import StringIO
 from rest_framework import generics, permissions, renderers, mixins, views, viewsets, status, mixins, exceptions, renderers
 from rest_framework.response import Response
 
 from collections import OrderedDict
 import random, collections, logging, json, requests, zipfile, io, itertools
-import xml.etree.ElementTree as ET
 
-import django.core.exceptions
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.http import HttpResponse, StreamingHttpResponse
-from django.views.generic import View
-
-# from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
+from .schema_access import get_sov_schema,get_sov_defaults_schema, get_data_central_archive_schema, get_archive_trait_schema, get_astro_object_default_traits_schema
+from .data_access import get_archive, get_data_for_trait
 
 from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
 
-import restapi_app.permissions
-import restapi_app.exceptions
-import restapi_app.renderers
-import restapi_app.utils.helpers
-
 import sov.serializers
-# import sov.renderers
-# import sov.mixins
-# import sov.helpers
 
 from sov.helpers.dummy_data.astro_object import ARCHIVE
 from sov.helpers.dummy_data.survey import SURVEYS
 
-# import fidia.exceptions
-# from fidia.traits import Trait, TraitProperty, TraitKey
-# from fidia import traits
-
-# import fidia_tarfile_helper
-
 log = logging.getLogger(__name__)
-
-
-def get_archive():
-    return ARCHIVE
-
 
 class Survey(viewsets.ReadOnlyModelViewSet):
     """
@@ -113,7 +90,255 @@ class AstroObject(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
+DATAFOR_DOC_STRING = (r"""
+    Return data from FIDIA by type:
 
+    keyword [trait, trait_property]:
+""")
+
+
+class DataFor(views.APIView):
+    # Root view for filter-by, returns available urls for various types of filter
+    # (keyword or position)
+    available_keywords = ['trait', 'trait_property']
+
+    def get(self, request, *args, **kwargs):
+        _urls = []
+        for k in self.available_keywords:
+            _urls.append(
+                {'type': k, 'url': reverse('sov:data-for', kwargs={"object_type": k}, request=request)},
+            )
+        return Response({'object_types': _urls})
+
+DataFor.__doc__ = DATAFOR_DOC_STRING
+
+
+class DataForType(generics.CreateAPIView):
+    # Filter by a keyword or position
+    queryset = get_archive().values()
+    available_keywords = ['trait', 'trait_property']
+
+    serializer_action_classes = {
+        'available_traits': sov.serializers.DataForObject,
+        'trait': sov.serializers.DataForTrait,
+        'trait_property': sov.serializers.DataForTraitProperty,
+    }
+
+    filter_serializer_classes = {
+        'available_traits': sov.serializers.TraitData,
+        'trait': sov.serializers.TraitData,
+        'trait_property': sov.serializers.TraitPropertyData,
+    }
+
+    def get_serializer_class(self):
+        # Override the base method, using a different serializer
+        # depending on the url parameter (these serializers govern the fields
+        # that are accessible to the route, form rendering, validation)
+        object_type = self.kwargs['object_type']
+        try:
+            return self.serializer_action_classes[object_type]
+        except (KeyError, AttributeError):
+            return super(DataForType, self).get_serializer_class()
+
+    def get_filter_serializer_class(self):
+        # returns the list serializer used to display the results
+        object_type = self.kwargs['object_type']
+        return self.filter_serializer_classes[object_type]
+
+    def get_data_from_fidia(self, object_type=None, astro_object=None, archive=None, trait_key=None):
+        try:
+            # TODO get data from fidia according to the object_type (trait-collection/trait/sub-trait/trait-property) ?
+            # TODO chat to Andy, can this be encompassed in one method? How is data below trait-level addressed?
+            return get_data_for_trait(archive=archive, astro_object=astro_object, trait_key=trait_key)
+        except (KeyError, AttributeError):
+            _message = "Cannot access data for : %s" % object_type
+            return Response({'error': _message})
+
+    def create(self, request, object_type=None, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if object_type in self.available_keywords:
+            _astro_object = serializer.data.get('astro_object')
+            _archive = serializer.data.get('archive')
+            _trait_key = serializer.data.get('trait_key')
+            data = self.get_data_from_fidia(object_type=object_type, astro_object=_astro_object, archive=_archive, trait_key=_trait_key)
+        else:
+            # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
+            _message = "object_type by must be one of the following values: %s" % self.available_keywords
+            return Response({'error': _message})
+
+        # completed_data = dict(enumerate(data))
+        # page = self.paginate_queryset(list(completed_data.values()))
+        #
+        # if page is not None:
+        #     filter_serializer_class = self.get_filter_serializer_class()
+        #     filter_serializer = filter_serializer_class(page, many=True)
+        #     return self.get_paginated_response(filter_serializer.data)
+
+        headers = self.get_success_headers(serializer.data)
+        # return each as json using
+        # filter_serializer_class = self.get_filter_serializer_class()
+        # filter_serializer = filter_serializer_class(instance=data, many=False)
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+DataForType.__doc__ = DATAFOR_DOC_STRING
+
+
+class SchemaFor(views.APIView):
+    # Root view for SchemaFor, returns available urls for various types of schema request
+    available_keywords = ['sov', 'sov_defaults', 'data_central', 'archive', 'trait', 'astro_object', 'trait_property']
+
+    def get(self, request, *args, **kwargs):
+        _urls = []
+        for k in self.available_keywords:
+            _urls.append(
+                {'type': k,
+                 'url': reverse('sov:schema-for', kwargs={"object_type": k}, request=request)},
+            )
+        return Response({'object_types': _urls})
+
+
+class SchemaForType(generics.CreateAPIView):
+    """
+    Return schema for object type.
+
+    data_central: List the data releases (FIDIA archives) currently ingested in ADC
+    archive: List all available traits for an archive (used to populate the control panel of the SOV).
+    trait: List all traits for an archive
+    astro_object: List only traits for archive+astro_object that should be turned on in the SOV by default
+    """
+    # Filter by a keyword or position
+    # queryset = get_archive().values()
+    available_keywords = ['sov', 'sov_defaults', 'data_central', 'archive', 'trait', 'astro_object', 'trait_property']
+
+    serializer_action_classes = {
+        'sov': sov.serializers.SchemaForSOV,
+        'sov_defaults': sov.serializers.SchemaForSOVDefaults,
+        'data_central': sov.serializers.SchemaForDataCentral,
+        'archive': sov.serializers.SchemaForArchive,
+        'astro_object': sov.serializers.SchemaForAstroObject,
+        'trait': sov.serializers.SchemaForTrait,
+        'trait_property': sov.serializers.SchemaForTraitProperty,
+    }
+
+    filter_serializer_classes = {
+        'sov': sov.serializers.SOVSchema,
+        'sov_defaults': sov.serializers.SOVDefaultsSchema,
+        'data_central': sov.serializers.DataCentralSchema,
+        'archive': sov.serializers.ArchiveSchema,
+        'astro_object': sov.serializers.AstroObject,
+        'trait': sov.serializers.TraitSchema,
+        'trait_property': sov.serializers.TraitPropertySchema,
+    }
+
+    def get_serializer_class(self):
+        # Override the base method, using a different serializer
+        # depending on the url parameter (these serializers govern the fields
+        # that are accessible to the route, form rendering, validation)
+        object_type = self.kwargs['object_type']
+        try:
+            return self.serializer_action_classes[object_type]
+        except (KeyError, AttributeError):
+            return super(SchemaForType, self).get_serializer_class()
+
+    def get_filter_serializer_class(self):
+        # returns the list serializer used to display the results
+        object_type = self.kwargs['object_type']
+        return self.filter_serializer_classes[object_type]
+
+    def get_schema_from_fidia(self, object_type=None, archive=None, astro_object=None, survey=None, trait=None):
+        try:
+            if object_type == 'sov':
+                # get list of available archives
+                return get_sov_schema(astro_object=astro_object)
+
+            if object_type == 'sov_defaults':
+                # get list of available archives
+                return get_sov_defaults_schema(astro_object=astro_object)
+
+            if object_type == 'data_central':
+                # get list of available archives
+                return get_data_central_archive_schema()
+
+            elif object_type == 'archive':
+                # archive schema (trait_list)
+                return get_archive_trait_schema(archive_id=archive)
+
+            elif object_type == 'astro_object':
+                return get_astro_object_default_traits_schema(archive_id=archive)
+
+            elif object_type == 'trait':
+                # trait schema (tp list)
+                return {'schema': []}
+
+            elif object_type == 'trait_property':
+                # get fidia trait schema for archive
+                return {'schema': []}
+
+            # print(fidia.traits.generic_traits.Image.__dict__)
+            # return [{'traits': _available_traits, 'trait_schema': _trait_schema}]
+            return []
+        except (KeyError, AttributeError):
+            _message = "Cannot access data for : %s" % object_type
+            return Response({'error': _message})
+
+    def create(self, request, object_type=None, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if object_type in self.available_keywords:
+            _archive = serializer.data.get('archive')
+            _astro_object = serializer.data.get('astro_object')
+            _survey = serializer.data.get('survey')
+            _trait = serializer.data.get('trait')
+            data = self.get_schema_from_fidia(object_type=object_type, archive=_archive, astro_object=_astro_object, survey=_survey, trait=_trait)
+        else:
+            # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
+            _message = "object_type by must be one of the following values: %s" % self.available_keywords
+            return Response({'error': _message})
+
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+        # return using schema serializer
+        # filter_serializer_class = self.get_filter_serializer_class()
+        # filter_serializer = filter_serializer_class(instance=data, many=False)
+
+        # return Response(filter_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ExportAs(generics.CreateAPIView):
+    serializer_class = sov.serializers.ExportAsSOV
+    # TODO remove queryset
+    queryset = get_archive().values()
+
+    def export_from_fidia(self, astro_object=None, trait=None, format=None):
+        # generate the file
+        return json.dumps({'data': 'astroobject trait data'})
+
+    def create(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        _trait = serializer.data.get('trait')
+        _astro_object = serializer.data.get('astro_object')
+        _format = serializer.data.get('format')
+
+        try:
+            file_to_send = ContentFile(self.export_from_fidia(astro_object=_astro_object, trait=_trait, format=_format))
+            response = HttpResponse(file_to_send, 'application/x-gzip')
+            response['Content-Length'] = file_to_send.size
+            filename = _astro_object + _trait
+            response['Content-Disposition'] = 'attachment; filename="%s.tar.gz"' % filename
+            return response
+
+        # TODO catch fidia exception here
+        except ValueError:
+            # print("%s: '%s'" % (elt.tag, str(elt.text).strip()))
+            _message = "Cannot download %s %s as type: %s" % _astro_object, _trait, 'fits'
+            return Response({'error': _message})
 
 
 # class RootViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

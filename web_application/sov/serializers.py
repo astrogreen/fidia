@@ -3,6 +3,7 @@ import json, os
 
 from rest_framework import serializers, mixins, status
 from rest_framework.reverse import reverse
+from .schema_access import get_data_central_archive_schema
 
 # from asvo.fidia_samples_archives import sami_dr1_sample, sami_dr1_archive as ar
 
@@ -31,27 +32,33 @@ import sov.mixins
 #         depth_limit = 0
 #     return depth_limit
 
+arc = get_data_central_archive_schema()
+ARCHIVES = []
+for a in arc['archives']:
+    ARCHIVES.append((a.get('archive_id'), a.get('name')))
+
 
 class AstroObjectList(serializers.Serializer):
-    id = serializers.CharField(read_only=True)
+    adcid = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
-    owner = serializers.CharField(max_length=256)
+    survey = serializers.CharField(max_length=256)
     surveys = serializers.ListField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
     url = serializers.SerializerMethodField()
 
     def get_url(self, obj):
-        return reverse('sov:astro-object-detail', kwargs={"pk": obj.id}, request=self.context.get("request"))
+        return reverse('sov:astro-object-detail', kwargs={"pk": obj.adcid}, request=self.context.get("request"))
 
 
 class AstroObjectRetrieve(serializers.Serializer):
-    id = serializers.CharField(read_only=True)
+    adcid = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=256)
-    owner = serializers.CharField(max_length=256)
     survey = serializers.CharField(max_length=256)
+    surveys = serializers.ListField(max_length=256)
     status = serializers.ListField(max_length=256)
     position = serializers.DictField()
+    traits = serializers.DictField()
 
 
 class SurveyList(serializers.Serializer):
@@ -67,6 +74,118 @@ class SurveyRetrieve(serializers.Serializer):
     id = serializers.IntegerField(allow_null=False)
     name = serializers.CharField(max_length=256)
     objects = AstroObjectList(many=True, read_only=True)
+
+
+class TraitLookUp(serializers.Serializer):
+    # TODO replace this by list of available archives from FIDIA
+    archive = serializers.ChoiceField(required=True, choices=ARCHIVES)
+    astro_object = serializers.CharField(max_length=256, required=True)
+
+
+# ____________________________________DATA_____________________________________
+
+# ____________Request__________
+class DataForObject(serializers.Serializer):
+    # TODO what does this provide?
+    # meta about object?
+    # list of traits is covered in schema
+    # could be the overview panel?
+    pass
+
+
+class DataForTrait(TraitLookUp):
+    trait_key = serializers.CharField(max_length=256, required=True)
+
+
+class DataForTraitProperty(DataForTrait):
+    trait_property_key = serializers.CharField(max_length=256, required=True)
+
+
+# ____________Response__________
+class TraitData(serializers.Serializer):
+    pass
+
+
+class TraitPropertyData(serializers.Serializer):
+    pass
+
+
+# ____________________________________SCHEMA____________________________________
+
+# ____________Request__________
+class SchemaForSOV(serializers.Serializer):
+    astro_object = serializers.CharField(max_length=256, required=True)
+
+
+class SchemaForSOVDefaults(serializers.Serializer):
+    astro_object = serializers.CharField(max_length=256, required=True)
+
+
+class SchemaForDataCentral(serializers.Serializer):
+    pass
+
+
+class SchemaForArchive(serializers.Serializer):
+    # TODO add archive choices
+    archive = serializers.ChoiceField(required=True, choices=ARCHIVES)
+
+
+class SchemaForAstroObject(SchemaForArchive):
+    astro_object = serializers.CharField(max_length=256, required=True)
+
+
+class SchemaForTrait(SchemaForArchive):
+    pass
+
+
+class SchemaForTraitProperty(SchemaForTrait):
+    # TODO enforce trait regex here
+    trait = serializers.CharField(max_length=256, required=True)
+
+
+# ____________Response__________
+class SOVSchema(serializers.Serializer):
+    archives = serializers.DictField()
+    # traits = serializers.DictField()
+    # defaults = serializers.DictField()
+
+
+class SOVDefaultsSchema(serializers.Serializer):
+    pass
+
+
+class DataCentralSchema(serializers.Serializer):
+    archives = serializers.DictField()
+
+
+class ArchiveSchema(serializers.Serializer):
+    traits = serializers.DictField()
+
+
+class AstroObject(serializers.Serializer):
+    schema = serializers.DictField()
+
+
+class TraitSchema(serializers.Serializer):
+    schema = serializers.DictField()
+
+
+class TraitPropertySchema(serializers.Serializer):
+    schema = serializers.DictField()
+
+
+
+# ____________________________________SCHEMA____________________________________
+
+# ____________Request__________
+class ExportAsSOV(serializers.Serializer):
+    astro_object = serializers.CharField(max_length=256, required=True)
+    trait = serializers.CharField(max_length=256, required=True)
+    format = serializers.ChoiceField(choices=[('fits', 'fits'), ('jpg', 'jpg'), ('csv', 'csv'), ('votable', 'VOTable'), ('ascii', 'ascii')])
+
+# ____________Response__________
+class ExportAs(serializers.Serializer):
+    pass
 
 
 # class DocumentationHTMLField(serializers.Field):

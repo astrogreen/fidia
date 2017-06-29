@@ -141,15 +141,25 @@
                                             <ul class="nav nav-pills nav-stacked nav-sidebar">
                                                 <li role="presentation"><a href="{% url 'index' %}"> Overview</a></li>
                                                 {% if request.user.is_staff %}
-                                                <li role="presentation"><a href="{% url 'admin:index' %}"> Admin</a></li>
+                                                <h6>Admin</h6>
+                                                <li role="presentation"><a href="{% url 'admin:index' %}">Django</a></li>
+                                                <li role="presentation"><a href="{% url 'download:admin-download-manager-list' %}"> Download Manager</a></li>
+                                                <li role="presentation"><a href="{% url 'query:admin-query-list' %}"> Query</a></li>
                                                 {% endif %}
                                                 <h5>Endpoints</h5>
                                                 <h6>Query</h6>
-                                                <li role="presentation"><a href="{% url 'query-list' %}" class="indent">Queries</a></li>
-                                                <li role="presentation"><a href="{% url 'query-schema' %}" class="indent">Schema</a></li>
+                                                <li role="presentation"><a href="{% url 'query:query-list' %}" class="indent">Query</a></li>
+                                                <li role="presentation"><a href="{% url 'query:query-schema' %}" class="indent">Schema</a></li>
+
                                                 <h6>SOV</h6>
                                                 <li role="presentation"><a href="{% url 'sov:survey-list' %}" class="indent">Surveys</a></li>
                                                 <li role="presentation"><a href="{% url 'sov:astro-object-list' %}" class="indent">AstroObjects</a></li>
+                                                <li role="presentation"><a href="{% url 'sov:data-for' %}" class="indent">Data For</a></li>
+                                                <li role="presentation"><a href="{% url 'sov:schema-for' %}" class="indent">Schema For</a></li>
+                                                <li role="presentation"><a href="{% url 'sov:export-as' %}" class="indent">Export As</a></li>
+
+                                                <h6>Download</h6>
+                                                <li role="presentation"><a href="{% url 'download:download-manager-list' %}" class="indent">Download Manager</a></li>
 
                                                 <h6>Search</h6>
                                                 <li role="presentation"><a href="{% url 'search:astro-object-list' %}" class="indent">Available Astro Objects</a></li>
@@ -157,12 +167,12 @@
                                                 <li role="presentation"><a href="{% url 'search:filter' %}" class="indent">Filter By</a></li>
 
                                                 <h6>Documentation</h6>
-                                                <li role="presentation"><a href="{% url 'documentation:topic-list' %}" class="indent">Topics</a></li>
-                                                <li role="presentation"><a href="{% url 'documentation:article-list' %}" class="indent">Articles</a></li>
+                                                <li role="presentation"><a href="{% url 'documentation:topic-list' %}" class="indent">Topic</a></li>
+                                                <li role="presentation"><a href="{% url 'documentation:article-list' %}" class="indent">Article</a></li>
                                                 <h6>Support</h6>
                                                 <li role="presentation"><a href="{% url 'support:contact-list' %}" class="indent">Contact</a></li>
                                                 <li role="presentation"><a href="{% url 'support:bug-report-list' %}" class="indent">Report an Issue</a></li>
-                                                <li role="presentation"><a href="{% url 'feature-list' %}" class="indent">Features</a></li>
+                                                <li role="presentation"><a href="{% url 'feature-list' %}" class="indent">Feature</a></li>
                                                 <li role="presentation"><a href="{% url 'vote-list' %}" class="indent">Vote</a></li>
 
                                                 <h5>Authentication and Headers</h5>

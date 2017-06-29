@@ -4,7 +4,7 @@ import numpy as np
 from django.http import HttpResponse
 from wsgiref.util import FileWrapper
 from django.utils.encoding import smart_str
-from rest_framework import permissions, views, viewsets
+from rest_framework import permissions, views, viewsets, pagination
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
@@ -20,6 +20,7 @@ import query.renderers
 
 import query.dummy_schema
 import query.dummy_data.dummy_result
+import query.dummy_data.dummy_schema
 
 # from fidia.archive.asvo_spark import AsvoSparkArchive
 # from fidia.archive.presto import PrestoArchive
@@ -35,7 +36,7 @@ class Query(viewsets.ModelViewSet):
     """
     serializer_class = query.serializers.QueryListSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = None
+    # pagination_class = None
     # renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (query.renderers.MyCSVQueryRenderer,)
 
     serializer_action_classes = {
@@ -57,7 +58,7 @@ class Query(viewsets.ModelViewSet):
         Return a list of all queries for the currently authenticated user.
         """
         user = self.request.user
-        return query.models.Query.objects.filter(owner=user).exclude(pk=32).order_by('-updated')
+        return query.models.Query.objects.filter(owner=user).order_by('-updated')
 
     def perform_create(self, serializer):
         """
@@ -118,7 +119,10 @@ class Query(viewsets.ModelViewSet):
             ]}
 
         # Retrieve the top 1000 rows from the table
-        if obj.is_completed and not obj.is_expired and obj.table_name:
+
+        # remove expiry - we are managing this in webdav now?
+        # if obj.is_completed and not obj.is_expired and obj.table_name:
+        if obj.is_completed and obj.table_name:
             if settings.DB_LOCAL:
                 # data = dummy_results
                 data = json.loads(query.dummy_data.dummy_result.DUMMY_RESULT)
@@ -167,7 +171,8 @@ class QuerySchema(views.APIView):
 
     def get(self, request, format=None):
         if settings.DB_LOCAL:
-            schema = query.dummy_schema.DUMMY_SCHEMA
+            # schema = query.dummy_schema.DUMMY_SCHEMA
+            schema = json.loads(query.dummy_data.dummy_schema.DUMMY_SCHEMA)
         else:
             schema = MappingDatabase.get_sql_schema()
         return Response(schema)
@@ -195,6 +200,18 @@ class QueryResultTables(object):
 #         'data': data
 #     }
     # results[i] = QueryResultTables(id=i, col1='test', col2='test', col3='Done'),
+
+
+class AdminQuery(Query):
+    permission_classes = [permissions.IsAdminUser]
+    serializer_class = query.serializers.QueryListSerializer
+
+    def get_queryset(self):
+        """
+        Return a list of all queries
+        """
+        user = self.request.user
+        return query.models.Query.objects.order_by('-updated')
 
 
 # class Result(viewsets.GenericViewSet):

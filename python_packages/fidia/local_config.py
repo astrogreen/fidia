@@ -35,6 +35,7 @@ DEFAULT_CONFIG = """
 engine = sqlite
 location = 
 database = :memory:
+echo = False
 """
 
 def find_config_files():

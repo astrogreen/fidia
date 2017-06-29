@@ -13,7 +13,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     'query' is a reverse relationship on the User model, and will not be included by
     default in the (Hyperlinked)ModelSerializer class - so an explicit field is added.
     """
-    query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True)
+    query = serializers.HyperlinkedRelatedField(many=True, view_name='query:query-detail', read_only=True)
 
     class Meta:
         model = User
@@ -36,7 +36,7 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     email = serializers.EmailField(label="Email")
     date_joined = serializers.DateTimeField(read_only=True, format="%d/%m/%y %X", label="Date Joined")
     last_login = serializers.DateTimeField(read_only=True, format="%d/%m/%y %X", label="Last Login")
-    query = serializers.HyperlinkedRelatedField(many=True, view_name='query-detail', read_only=True, label="Queries")
+    query = serializers.HyperlinkedRelatedField(many=True, view_name='query:query-detail', read_only=True, label="Queries")
     can_update = serializers.SerializerMethodField()
 
     def get_can_update(self, obj):

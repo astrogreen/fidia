@@ -8,6 +8,7 @@ import query.views
 router = rest_framework.routers.SimpleRouter()
 
 router.register(r'query', query.views.Query, base_name='query')
+router.register(r'admin/query', query.views.Query, base_name='admin-query')
 
 urlpatterns = [
     url(r'^query-schema/$', query.views.QuerySchema.as_view(), name='query-schema'),

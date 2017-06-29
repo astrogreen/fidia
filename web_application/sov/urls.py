@@ -40,11 +40,15 @@ urlpatterns = [
 
     # url(r'^astro-objects/$', sov.views.AstroObjects.as_view(), name='astro-objects'),
     # url(r'^astro-objects/(?:(?P<astro_object_name>[\w]+)/?)?$', sov.views.AstroObjects.as_view(), name='astro-objects'),
+
     url(r'', include(router.urls)),
+    url(r'^data-for/$', sov.views.DataFor.as_view(), name='data'),
+    url(r'^data-for/(?:(?P<object_type>[\w]+)/?)?$', sov.views.DataForType.as_view(), name='data-for'),
 
+    url(r'^schema-for/$', sov.views.SchemaFor.as_view(), name='schema'),
+    url(r'^schema-for/(?:(?P<object_type>[\w]+)/?)?$', sov.views.SchemaForType.as_view(), name='schema-for'),
 
-    # url(r'^filter-by/$', search.views.FilterBy.as_view(), name='filter'),
-    # url(r'^filter-by/(?:(?P<filter_term>[\w]+)/?)?$', search.views.FilterByTerm.as_view(), name='filter-by'),
+    url(r'^export-as/$', sov.views.ExportAs.as_view(), name='export-as'),
 
     # url(r'^(?i)', include(router.urls)),
     # url(r'^(?i)', include(survey_nested_router.urls)),
