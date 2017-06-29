@@ -70,6 +70,8 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
                 comment_match = re.match("(?:\[(?P<unit>[^\]]+)\] )?(?P<comment>.*)", kw_comment)
                 if comment_match is not None:
                     unit = comment_match.group("unit")
+                    if unit == "Angstroem":
+                        unit = "Angstrom"
                     kw_comment = comment_match.group("comment")
                 else:
                     unit = None

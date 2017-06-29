@@ -254,7 +254,7 @@ specification_dict = [mapping.as_specification_dict(all_columns_found) for mappi
 with open("/Users/agreen/Desktop/s7-datacentral.json", "w") as f:
     json.dump(specification_dict, f)
 
-with open("/Users/agreen/Desktop/s7-datacentral-error-summary", "w") as f:
+with open("/Users/agreen/Desktop/s7-datacentral-error-summary.txt", "w") as f:
     f.write(format_validation_errors(collect_validation_errors(specification_dict)))
 
 # print(format_validation_errors(collect_validation_errors(specification_dict)))

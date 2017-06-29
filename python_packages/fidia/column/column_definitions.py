@@ -40,7 +40,7 @@ from ..utilities import is_list_or_set
 # Set up logging
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
@@ -204,7 +204,7 @@ class ColumnDefinition(object):
         log.debug("Attempting to create unit for '%s'", self.unit)
         try:
             # noinspection PyTypeChecker
-            unit = units.Unit(self.unit, format="vounit")  #, parse_strict='raise')
+            unit = units.Unit(self.unit)  # , format="vounit", parse_strict='raise')
             # @TODO: Astropy units doesn't correctly validate when the format is 'vounit'.
             # See https://github.com/astropy/astropy/issues/6302
         except:
