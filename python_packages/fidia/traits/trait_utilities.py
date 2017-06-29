@@ -582,7 +582,7 @@ class TraitPointer(bases.TraitPointer):
         return trait
 
     def __str__(self):
-        "TraitPointer: %s" % self.trait_mapping
+        return "TraitPointer: %s" % self.trait_mapping
 
 
 # ___  __         ___                __   __          __      __   __
@@ -798,7 +798,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
                 raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
     @cached_property
-    def name(self):
+    def trait_class_name(self):
         # @TODO: This will break with external Trait names.
         #   To fix this, we should modify fidia_classname to have the option to
         #   only return the classname, but guarantee that there are no conflicts
@@ -825,7 +825,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
 
     @property
     def mapping_key(self):
-        return self.name, str(self.trait_key)
+        return self.trait_class_name, str(self.trait_key)
 
     def __repr__(self):
         if self._is_reconstructed is None:

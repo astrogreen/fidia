@@ -127,6 +127,11 @@ class TestExampleArchive:
 
     def test_example_archive_image_trait(self, sample):
 
+        print("dir of AstroObject:")
+        print(dir(sample['Gal1']))
+
+        print(sample['Gal1'].image)
+
         image = sample['Gal1'].image['red']
 
         print(image.exposed)

@@ -118,7 +118,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         if not cls.trait_class_initialized:
             # Make sure all attached TraitProperties have their names set:
             for attr in cls.trait_property_dir():
-                tp = getattr(cls, attr)
+                tp = getattr(cls, attr)  # type: TraitProperty
                 if tp.name is None:
                     tp.name = attr
                 else:
@@ -126,7 +126,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
                         "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
             # Make sure all attached SubTraits have their names set:
             for attr in cls.dir_sub_traits():
-                tp = getattr(cls, attr)
+                tp = getattr(cls, attr)  # type: Trait
                 if tp.name is None:
                     tp.name = attr
                 else:
