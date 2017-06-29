@@ -589,7 +589,8 @@ class TraitPointer(bases.TraitPointer):
         tk = TraitKey.as_traitkey(item)
 
         if self.trait_mapping is not None:
-            tk = self.trait_mapping.update_trait_key_with_defaults(tk)
+            # tk = self.trait_mapping.update_trait_key_with_defaults(tk)
+            # (NOTE: Branch and version handling is disabled: see MappingBranchVersionHandling class)
             mapping = self.trait_mapping.named_sub_mappings[self.name, str(tk)]  # type: TraitMapping
         else:
             mapping = self.sample.trait_mappings[self.name, str(tk)]  # type: TraitMapping
@@ -612,87 +613,123 @@ class TraitPointer(bases.TraitPointer):
 #  |  |  \ /~~\ |  |      |  | /~~\ |    |    | | \| \__>    |__/ |__)
 #
 
+
+
 class MappingBranchVersionHandling:
-    """Mixin class to provide Branch and version handling to Mappings."""
+    """Mixin class to provide Branch and version handling to Mappings.
 
-    def __init__(self, branches_versions=None, branch_version_defaults=None):
-        self.branches_versions = self._init_branches_versions(branches_versions)
-        self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
+    NOTE: I have disabled the branches and versions code until it is actually
+    needed. This has been done to minimise the support load in maintaining code
+    that isn't currently required.
 
-    @staticmethod
-    def _init_branches_versions(branches_versions):
-        # type: (Any) -> Union[dict, None]
-        """Interpret the provided branch and version information and return a valid result for TraitMappings.
+    At this time, there are some minor issues with this code that will need to be
+    addressed when it is brought back into use:
 
-        This basically checks that the provided input can be interpreted as either:
-            None:
-                No branch and version information is allowed for this Trait.
-            dict of lists of versions keyed by the associated branch:
-                Only these branches and versions are explicitly allowed
-
-        @TODO: Perhaps in future, support an "Any" option which would allow
-        tokenized branch and version information in the column identifiers.
-
-        """
-        if branches_versions is None:
-            return None
-        else:
-            if not isinstance(branches_versions, dict):
-                raise ValueError(
-                    "branches_versions keyword must be a dictionary or none, got: %s" % branches_versions)
-            for branch in branches_versions:
-                validate_trait_branch(branch)
-                for version in branches_versions[branch]:
-                    validate_trait_version(version)
-            return branches_versions
-
-    def _init_default_branches_versions(self, branch_version_defaults):
-        # type: (Any) -> Union[None, DefaultsRegistry]
-        if self.branches_versions is None:
-            return None
-        if branch_version_defaults is None:
-            # Try to construct defaults information from the ordering of the branches_versions information
-            version_defaults = dict()
-            for branch in self.branches_versions:
-                version_defaults[branch] = self.branches_versions[branch][0]
-            if isinstance(self.branches_versions, OrderedDict):
-                default_branch = next(iter(self.branches_versions))
-            else:
-                default_branch = None
-            return DefaultsRegistry(default_branch, version_defaults)
-        if isinstance(branch_version_defaults, DefaultsRegistry):
-            return branch_version_defaults
-        raise ValueError("Branch and version defaults not valid, got: %s" % branch_version_defaults)
+        * When an object with MappingBranchVersionHandling is restored from
+          the Alchemy database, the branch and version information is not
+          restored. This will cause some tests to fail, as branch and version
+          checks cannot succeed.
+        * Not all of the validataion code necessarily expects branches and
+          and versions to be present, and may fail when they actually start
+          appearing.
+        * Branch and versions are still tricky: what if different TraitMappings
+          define different b's and v's?
 
 
-    def update_trait_key_with_defaults(self, trait_key):
-        """Return TraitKey with branch and version populated from defaults.
+    It would be in the best interest of this code if it was brought into
+    production sooner, rather than later, as this will minimise the cost of
+    getting it all working. But this should not be done until there is a real
+    benefit to be had.
 
-        Check the provided trait key, and if either the branch or version
-        have not been provided (None), then return an updated version based on
-        the contents of the defaults registry (if possible)
+    Basic changes required to bring this code back into operation:
 
-        """
-        # Ensure we are working with a full TraitKey object (or convert if necessary)
-        tk = TraitKey.as_traitkey(trait_key)
+        * Uncomment the code below.
+        * Add the mixin class back into the necessary mapping classes (probably
+          only TraitMapping), including calling the `__init__` function.
+        * Adjust/uncomment the line in TraitPointer that handles inserting
+          default B&Vs.
 
-        if self.branches_versions is None:
-            return TraitKey(tk.trait_name)
-
-        log.debug("Updating TraitKey '%s' with defaults" % str(trait_key))
-
-        # If the branch has not been specified, get the default from the DefaultsRegistry for this trait_name
-        if tk.branch is None:
-            tk = tk.replace(branch=self._branch_version_defaults.branch)
-            # @TODO: Handle cases where this branch is not in the defaults registry.
-            log.debug("Branch not supplied for '%s', using default '%s'", tk.trait_name, tk.branch)
-
-        # If the version has not been specified, get the default from the DefaultsRegistry for this trait_name
-        if tk.version is None:
-            tk = tk.replace(version=self._branch_version_defaults.version(tk.branch))
-            log.debug("Version not supplied for '%s', using default '%s'", tk.trait_name, tk.version)
-
-        return tk
+    """
+    pass
+#
+#     def __init__(self, branches_versions=None, branch_version_defaults=None):
+#         self.branches_versions = self._init_branches_versions(branches_versions)
+#         self._branch_version_defaults = self._init_default_branches_versions(branch_version_defaults)
+#
+#     @staticmethod
+#     def _init_branches_versions(branches_versions):
+#         # type: (Any) -> Union[dict, None]
+#         """Interpret the provided branch and version information and return a valid result for TraitMappings.
+#
+#         This basically checks that the provided input can be interpreted as either:
+#             None:
+#                 No branch and version information is allowed for this Trait.
+#             dict of lists of versions keyed by the associated branch:
+#                 Only these branches and versions are explicitly allowed
+#
+#         @TODO: Perhaps in future, support an "Any" option which would allow
+#         tokenized branch and version information in the column identifiers.
+#
+#         """
+#         if branches_versions is None:
+#             return None
+#         else:
+#             if not isinstance(branches_versions, dict):
+#                 raise ValueError(
+#                     "branches_versions keyword must be a dictionary or none, got: %s" % branches_versions)
+#             for branch in branches_versions:
+#                 validate_trait_branch(branch)
+#                 for version in branches_versions[branch]:
+#                     validate_trait_version(version)
+#             return branches_versions
+#
+#     def _init_default_branches_versions(self, branch_version_defaults):
+#         # type: (Any) -> Union[None, DefaultsRegistry]
+#         if self.branches_versions is None:
+#             return None
+#         if branch_version_defaults is None:
+#             # Try to construct defaults information from the ordering of the branches_versions information
+#             version_defaults = dict()
+#             for branch in self.branches_versions:
+#                 version_defaults[branch] = self.branches_versions[branch][0]
+#             if isinstance(self.branches_versions, OrderedDict):
+#                 default_branch = next(iter(self.branches_versions))
+#             else:
+#                 default_branch = None
+#             return DefaultsRegistry(default_branch, version_defaults)
+#         if isinstance(branch_version_defaults, DefaultsRegistry):
+#             return branch_version_defaults
+#         raise ValueError("Branch and version defaults not valid, got: %s" % branch_version_defaults)
+#
+#
+#     def update_trait_key_with_defaults(self, trait_key):
+#         """Return TraitKey with branch and version populated from defaults.
+#
+#         Check the provided trait key, and if either the branch or version
+#         have not been provided (None), then return an updated version based on
+#         the contents of the defaults registry (if possible)
+#
+#         """
+#         # Ensure we are working with a full TraitKey object (or convert if necessary)
+#         tk = TraitKey.as_traitkey(trait_key)
+#
+#         if self.branches_versions is None:
+#             return TraitKey(tk.trait_name)
+#
+#         log.debug("Updating TraitKey '%s' with defaults" % str(trait_key))
+#
+#         # If the branch has not been specified, get the default from the DefaultsRegistry for this trait_name
+#         if tk.branch is None:
+#             tk = tk.replace(branch=self._branch_version_defaults.branch)
+#             # @TODO: Handle cases where this branch is not in the defaults registry.
+#             log.debug("Branch not supplied for '%s', using default '%s'", tk.trait_name, tk.branch)
+#
+#         # If the version has not been specified, get the default from the DefaultsRegistry for this trait_name
+#         if tk.version is None:
+#             tk = tk.replace(version=self._branch_version_defaults.version(tk.branch))
+#             log.debug("Version not supplied for '%s', using default '%s'", tk.trait_name, tk.version)
+#
+#         return tk
 
 
 
@@ -755,7 +792,7 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
         self._trait_class = value
 
 
-class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling):
+class TraitMapping(bases.Mapping, TraitMappingBase):
     """Representation of the schema of a Trait.
 
     This can be thought of as a link from a class and name to a set of onward links.
@@ -802,8 +839,8 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
         #     These are individual because not all super initialisers
         #     need to be called, and the arguments are different.
         TraitMappingBase.__init__(self, pretty_name=pretty_name, short_desc=short_desc, long_desc=long_desc)
-        MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
-        # @TODO: Branch and versions are still tricky: what if different TraitMappings define different b's and v's?
+        # MappingBranchVersionHandling.__init__(self, branches_versions, branch_version_defaults)
+        # (NOTE: Branch and versioning handling disabled until needed. See comments above)
 
         self.sub_trait_mappings = dict()  # type: Dict[str, SubTraitMapping]
 
