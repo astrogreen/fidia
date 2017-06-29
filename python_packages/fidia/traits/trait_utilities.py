@@ -733,7 +733,7 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
         self._trait_class = value
 
 
-class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
+class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling):
     """Representation of the schema of a Trait.
 
     This can be thought of as a link from a class and name to a set of onward links.
@@ -848,7 +848,7 @@ class TraitMapping(TraitMappingBase, MappingBranchVersionHandling):
             ":".join(self.mapping_key): result
         }
 
-class SubTraitMapping(TraitMappingBase):
+class SubTraitMapping(bases.Mapping, TraitMappingBase):
 
     __mapper_args__ = {'polymorphic_identity': 'SubTraitMapping'}
 

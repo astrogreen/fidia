@@ -105,15 +105,13 @@ class TraitKey:
 class TraitPointer:
     pass
 
+class Mapping:
 
-class TraitMappingDatabase:
+    def validate(self, recurse=False, raise_exception=False):
+        raise NotImplementedError()
 
-    def get_trait_mappings(self):
-        # type: () -> Iterable[fidia.traits.TraitMapping]
-        raise NotImplemented()
-
-class TraitMapping:
-    pass
+    def as_specification_dict(self, columns=None):
+        raise NotImplementedError()
 
 
 class Column:
