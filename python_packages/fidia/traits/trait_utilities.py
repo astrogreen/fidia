@@ -194,12 +194,12 @@ def validate_trait_name(trait_name, raises_exception=True):
 
     if TRAIT_NAME_RE.fullmatch(trait_name) is None:
         if re.match("[a-zA-Z]", trait_name[0]) is None:
-            errors.append("cannot start with non-alphabetic character '%s'" % trait_name[0])
+            errors.append("Name cannot start with non-alphabetic character '%s'" % trait_name[0])
         match = re.findall(r"[a-zA-Z0-9_]*([^a-zA-Z0-9_])[a-zA-Z0-9_]*", trait_name)
         # re.findall returns a list of strings, one per match.
         if len(match) > 0:
             bad_chars = "".join(match)
-            errors.append("has invalid characters '%s' in its name" % bad_chars)
+            errors.append("Name has invalid characters '%s'" % bad_chars)
 
     return errors
 
@@ -852,13 +852,15 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
         name = self.name
         name_errors = validate_trait_name(name, raises_exception=False)
         for err in name_errors:
-            errors.append(("Trait key for Trait '%s' " % str(self)) + err)
+            # errors.append(("Trait key for Trait '%s' " % str(self)) + err)
+            errors.append(err)
 
         # Check that all required (not optional) TraitProperties are defined in the schema:
         for tp in self.trait_class.trait_properties():
             if tp.name not in self.trait_property_mappings and not tp.optional:
-                errors.append("Trait %s of type %s is missing required TraitProperty %s in definition" %
-                              (self, self.name, tp.name))
+                # errors.append("Trait %s of type %s is missing required TraitProperty %s in definition" %
+                #               (self, self.name, tp.name))
+                errors.append("Missing required TraitProperty %s in definition" % tp.name)
 
         if recurse:
             for mapping in chain(
@@ -877,6 +879,10 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
     def mapping_key(self):
         return self.trait_class_name, str(self.trait_key)
 
+    @property
+    def mapping_key_str(self):
+        return ":".join(self.mapping_key)
+
     def __repr__(self):
         if self._is_reconstructed is None:
             return "Unreconstructed " + super(TraitMapping, self).__repr__()
@@ -894,10 +900,23 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
             result.update(mapping.as_specification_dict(columns))
         for name, mapping in self.named_sub_mappings.items():
             result.update(mapping.as_specification_dict(columns))
-        return {
-            ":".join(self.mapping_key): result
+        result = {
+            self.mapping_key_str: 
+                OrderedDict([
+                    ('name', self.name),
+                    ('pretty_name', self.pretty_name),
+                    ('short_description', self.short_description),
+                    ('long_description', self.long_descrription),
+                    ('contents', result)
+                 ])
         }
-
+        
+        validation_errors = self.validate(recurse=False, raise_exception=False)
+        if len(validation_errors) > 0:
+            result[self.mapping_key_str]["validation_errors"] = validation_errors
+            
+        return result
+            
 class SubTraitMapping(bases.Mapping, TraitMappingBase):
 
     __mapper_args__ = {'polymorphic_identity': 'SubTraitMapping'}
@@ -942,13 +961,12 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
         name = self.name
         name_errors = validate_trait_name(name, raises_exception=False)
         for err in name_errors:
-            errors.append(("Subtrait name '%s' for Trait '%s' " % (name, str(self))) + err)
+            errors.append(err)
 
         # Check that all required (not optional) TraitProperties are defined in the schema:
         for tp in self.trait_class.trait_properties():
             if tp.name not in self.trait_property_mappings and not tp.optional:
-                errors.append("Trait %s of type %s is missing required TraitProperty %s in definition" %
-                              (self, self.trait_class.__name__, tp.name))
+                errors.append("SubTrait is missing required TraitProperty %s in definition" % tp.name)
 
         if recurse:
             for mapping in chain(
@@ -958,7 +976,7 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
                 errors.extend(mapping.validate(recurse=recurse, raise_exception=raise_exception))
 
         if raise_exception and len(errors) > 0:
-                raise TraitValidationError("Trait '%s' of type '%s' has validation errors:\n%s"
+                raise TraitValidationError("SubTrait '%s' of type '%s' has validation errors:\n%s"
                                            % (self, self.name, "\n".join(errors)))
         return errors
 
@@ -970,12 +988,28 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
 
     def as_specification_dict(self, columns=None):
         # type: (fidia.column.ColumnDefinitionList) -> dict
-        result = OrderedDict()
+        contents = OrderedDict()
         for mapping in chain(
                 self.trait_property_mappings.values(),
                 self.sub_trait_mappings.values()):
-            result[mapping.name] = mapping.as_specification_dict(columns)
-        return {self.name: result}
+            contents[mapping.name] = mapping.as_specification_dict(columns)
+        result = {
+            self.mapping_key_str:
+                OrderedDict([
+                    ('name', self.name),
+                    ('pretty_name', self.pretty_name),
+                    ('short_description', self.short_description),
+                    ('long_description', self.long_descrription),
+                    ('contents', contents)
+                ])
+        }
+
+        validation_errors = self.validate(recurse=False, raise_exception=False)
+        if len(validation_errors) > 0:
+            result[self.mapping_key_str]["validation_errors"] = validation_errors
+
+        return result
+
 
 class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.PersistenceBase):
 
@@ -1006,7 +1040,7 @@ class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.Persistenc
         name = self.name
         name_errors = validate_trait_name(name, raises_exception=False)
         for err in name_errors:
-            errors.append(("TraitProperty %s " % str(self)) + err)
+            errors.append(err)
 
         if raise_exception and len(errors) > 0:
                 raise TraitValidationError("TraitProperty '%s' has validation errors:\n%s"
@@ -1024,18 +1058,25 @@ class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.Persistenc
 
         if columns is not None:
             column = columns[self.id]  # type: fidia.column.ColumnDefinition
-            result = {self.name: {
-                "name": self.name,
-                "column_id": self.id,
-                "dtype": repr(column.dtype),
-                "n_dim": column.n_dim,
-                "unit": column.unit,
-                "ucd": column.ucd,
-                "short_description": column.short_desc,
-                "long_description": column.long_desc
-            }}
-            if len(validation_errors) > 0:
-                result[self.name]["validation_errors"] = validation_errors
+
+            try:
+                column._validate_unit()
+            except Exception as e:
+                validation_errors.append("Units '%s' could not be interpreted: %s" % (column.unit, str(e)))
+
+            result = {self.name: OrderedDict([
+                ("name", self.name),
+                ("column_id", self.id),
+                ("dtype", repr(column.dtype)),
+                ("n_dim", column.n_dim),
+                ("unit", column.unit),
+                ("ucd", column.ucd),
+                ("short_description", column.short_desc),
+                ("long_description", column.long_desc)
+            ])}
+
         else:
             result = {self.name: {"column_id": self.id}}
+        if len(validation_errors) > 0:
+            result[self.name]["validation_errors"] = validation_errors
         return result

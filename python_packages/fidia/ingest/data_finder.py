@@ -26,7 +26,7 @@ from fidia.traits import *
 # Set up logging
 import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 # __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
@@ -72,7 +72,8 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
                     unit = comment_match.group("unit")
                     kw_comment = comment_match.group("comment")
                 else:
-                    unit = ""
+                    unit = None
+                    # None is used for units that are "missing", typically in situations where no unit applies.
 
                 column = FITSHeaderColumn(fits_path_pattern, hdu.name, header,
                                           type=kw_type, unit=unit, short_desc=kw_comment)

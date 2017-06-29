@@ -16,7 +16,7 @@ into actual :class:`.FIDIAColumn` objects (which are defined in
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union, Tuple, Dict
+from typing import Union, Tuple, Dict, Type
 import fidia
 
 # Python Standard Library Imports
@@ -29,11 +29,12 @@ import inspect
 import pandas as pd
 from astropy.io import fits
 from astropy.io import ascii
+from astropy import units
 from cached_property import cached_property
 
 # FIDIA Imports
 from ..exceptions import FIDIAException
-from .columns import FIDIAColumn, FIDIAArrayColumn, PathBasedColumn, ColumnID, ColumnIDDict
+from .columns import FIDIAColumn, FIDIAArrayColumn, PathBasedColumn, ColumnID
 from ..utilities import is_list_or_set
 
 # Set up logging
@@ -151,7 +152,20 @@ class ColumnDefinition(object):
         self.short_desc = kwargs.pop('short_desc', "")
         self.long_desc = kwargs.pop('long_desc', "")
 
-        self.unit = kwargs.pop('unit', "")
+        unit = kwargs.pop('unit', None)
+        if isinstance(unit, units.Unit):
+            self._unit = unit
+            self.unit = unit.to_string("vounit")
+        elif unit is None:
+            # If the unit isn't available/hasn't been provided, we store it as
+            # None/NULL, which is distinct from the empty string "", which is
+            # interpreted as a dimensionless unit.
+            #
+            # This requires special handling wherever the astropy.units package comes into play.
+            self.unit = self._unit = unit
+        else:
+            self.unit = unit
+
         self.ucd = kwargs.pop('ucd', "")
 
         self._id = self._id_string.format(
@@ -179,6 +193,29 @@ class ColumnDefinition(object):
         if klass.startswith('fidia.'):
             klass = cls.__name__
         return klass
+
+    def _validate_unit(self):
+        if self.unit is not None and isinstance(getattr(self, '_unit', None), units.UnitBase):
+            # Unit has already been validated, no further action required
+            return
+        if self.unit is None:
+            # This column has no units, so no further action required
+            return
+        log.debug("Attempting to create unit for '%s'", self.unit)
+        try:
+            # noinspection PyTypeChecker
+            unit = units.Unit(self.unit, format="vounit")  #, parse_strict='raise')
+            # @TODO: Astropy units doesn't correctly validate when the format is 'vounit'.
+            # See https://github.com/astropy/astropy/issues/6302
+        except:
+            if log.isEnabledFor(slogging.DEBUG):
+                log.exception("unit creation unsuccessful")
+            raise
+        if isinstance(unit, units.UnrecognizedUnit):
+            raise units.UnitsError("Unrecognized unit %s" % unit)
+        self._unit = unit
+        self.unit = unit.to_string("vounit")
+        log.debug("Unit created: %s", self.unit)
 
     def __repr__(self):
         return (self.__class__.__name__ + "(" +
@@ -258,6 +295,14 @@ class ColumnDefinition(object):
         assert isinstance(column, FIDIAColumn)
         # Call on_associate helpers of any sub-classes:
         if type(self) is not ColumnDefinition:
+
+            # Note, this next line appears to be an invalid reference, but it
+            # actually refers to super-classes only of sub-classes of this
+            # class, so it really refers to `self.on_associate` (which is
+            # defined). This code is not visited if we are not a subclass of
+            # ColumnDefinition
+
+            # noinspection PyUnresolvedReferences
             super(type(self), self).on_associate(archive, column)
 
         # Copy the object_getter and array_getters onto the output column
@@ -328,6 +373,7 @@ class ColumnDefinition(object):
         pass
 
 
+# noinspection PyUnresolvedReferences
 class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAArrayColumn
@@ -348,12 +394,15 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
     #
     #     self._id = "{file}[{ext}]".format(file=filename_pattern, ext=extension)
 
+    # noinspection PyMethodOverriding
     def object_getter(self, object_id, basepath):
+        # Signature of this function differs from base class: see column definition documentation
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
             return hdulist[self.extension].data
 
 
+# noinspection PyUnresolvedReferences
 class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAColumn
@@ -372,6 +421,7 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
         # self._id = "{file}[{ext}].header[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=keyword_name)
 
 
+    # noinspection PyMethodOverriding
     def object_getter(self, object_id, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
@@ -389,6 +439,7 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
                 timestamp = stats.st_mtime
         return timestamp
 
+# noinspection PyUnresolvedReferences
 class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAColumn
@@ -429,6 +480,7 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
         timestamp = stats.st_mtime
         return timestamp
 
+# noinspection PyUnresolvedReferences
 class CSVTableColumn(ColumnDefinition, PathBasedColumn):
     column_type = FIDIAColumn
     _id_string = "{filename_pattern}[{index_column_name}->{column_name}](comment={comment})"

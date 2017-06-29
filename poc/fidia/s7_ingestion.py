@@ -1,21 +1,46 @@
-import json
-from collections import OrderedDict
+# import json
+# from collections import OrderedDict
 
-import fidia
+# import fidia
 from fidia.ingest.data_finder import *
 from fidia.column import ColumnDefinitionList
 
-from indenter import Indenter
+# from indenter import Indenter
 
-dict = OrderedDict
+
+
+
+def collect_validation_errors(output, breadcrumb=tuple()):
+    result = []
+    if isinstance(output, dict):
+        for key, value in output.items():
+            if key == 'validation_errors':
+                result.append(("At " + " -> ".join(breadcrumb), value))
+                # Don't process this key further:
+                continue
+            if isinstance(value, (dict, list)):
+                result.extend(collect_validation_errors(value, breadcrumb=breadcrumb + (str(key),)))
+    if isinstance(output, list):
+        for key, value in enumerate(output):
+            if isinstance(value, (dict, list)):
+                result.extend(collect_validation_errors(value, breadcrumb=breadcrumb + ("(Item:" + str(key) + ")",)))
+    return result
+
+def format_validation_errors(errors):
+    output_lines = []
+    for item in errors:
+        output_lines.append(item[0])
+        for elem in item[1]:
+            output_lines.append(4*" " + elem)
+    return "\n".join(output_lines)
 
 all_columns_found = ColumnDefinitionList()
-all_dicts = dict()
+all_dicts = OrderedDict()
 all_mappings = []
 
 # C u b e s
 
-cube_dicts = dict()
+cube_dicts = OrderedDict()
 cube_mappings = []
 
 # Blue Cubes
@@ -46,7 +71,7 @@ cube_mappings.append(TraitMapping(FITSFile, "cube_red", fits_mapping))
 
 
 
-broad_cube_dict = dict()
+broad_cube_dict = OrderedDict()
 broad_cube_mappings = []
 
 # Blue Cubes
@@ -87,7 +112,7 @@ all_mappings.append(TraitMapping(TarFileGroup, "cubes", [
 
 #   L Z I F U    G r o u p s
 
-lzifu_dict = dict()
+lzifu_dict = OrderedDict()
 lzifu_mappings = []
 
 # Specific Components
@@ -115,7 +140,7 @@ all_mappings.append(TraitMapping(TarFileGroup, "lzifu", lzifu_mappings))
 
 #   N u c l e a r   S p e c t r a
 
-nuclear_dict = dict()
+nuclear_dict = OrderedDict()
 nuclear_mappings = []
 
 columns_found, fits_dict, fits_mapping = finder_fits_file(
@@ -160,7 +185,7 @@ all_mappings.append(TraitMapping(TarFileGroup, "nuclear_spectra", nuclear_mappin
 
 def update_s7_csv(table_mapping, columns, csv_file):
     with open(csv_file, 'r') as f:
-        column_meta = dict()
+        column_meta = OrderedDict()
         for line in f:
             m = re.match(r"\$ *(?P<colname>[^,]+),\"(?P<desc>[^\"]+)\",+$", line)
             if m is None:
@@ -225,10 +250,15 @@ all_mappings.append(TraitMapping(Table, "nuclear_luminosities", table_mapping))
 
 # print(json.dumps([mapping.as_specification_dict(all_columns_found) for mapping in all_mappings], indent=2))
 
+specification_dict = [mapping.as_specification_dict(all_columns_found) for mapping in all_mappings]
 with open("/Users/agreen/Desktop/s7-datacentral.json", "w") as f:
-    json.dump(
-        [mapping.as_specification_dict(all_columns_found) for mapping in all_mappings],
-        f)
+    json.dump(specification_dict, f)
+
+with open("/Users/agreen/Desktop/s7-datacentral-error-summary", "w") as f:
+    f.write(format_validation_errors(collect_validation_errors(specification_dict)))
+
+# print(format_validation_errors(collect_validation_errors(specification_dict)))
+
 
 # indenter = Indenter()
 # indenter.add_line(repr(all_mappings))
