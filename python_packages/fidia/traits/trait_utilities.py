@@ -9,6 +9,7 @@ from typing import Dict, List, Type, Union, Tuple, Any
 import fidia
 
 # Python Standard Library Imports
+from itertools import chain
 from collections import OrderedDict
 import re
 from operator import itemgetter
@@ -17,12 +18,12 @@ from operator import itemgetter
 from cached_property import cached_property
 import sqlalchemy as sa
 from sqlalchemy.orm import reconstructor, relationship
-from sqlalchemy.orm.collections import attribute_mapped_collection, mapped_collection
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, MultiDexDict, fidia_classname, ordering_list_dict
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, fidia_classname, ordering_list_dict
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -176,10 +177,31 @@ TRAIT_KEY_ALT_RE = re.compile(
     re.VERBOSE
 )
 
-def validate_trait_name(trait_type):
-    """Check if a string meets the formatting requirements for a trait name."""
-    if TRAIT_NAME_RE.fullmatch(trait_type) is None:
-        raise ValueError("'%s' is not a valid trait name" % trait_type)
+def validate_trait_name(trait_name, raises_exception=True):
+    """Check if a string meets the formatting requirements for a trait name.
+
+    If `raises_exception` is not set, then returns a list of strings describing
+    the problems with the name. These strings can then be combined with a noun
+    phrase describing the name's source in higher level validations.
+
+    """
+
+    # Perform a quick check if an exception is all that's needed.
+    if raises_exception and TRAIT_NAME_RE.fullmatch(trait_name) is None:
+        raise ValueError("'%s' is not a valid trait name" % trait_name)
+
+    errors = []
+
+    if TRAIT_NAME_RE.fullmatch(trait_name) is None:
+        if re.match("[a-zA-Z]", trait_name[0]) is None:
+            errors.append("cannot start with non-alphabetic character '%s'" % trait_name[0])
+        match = re.findall(r"[a-zA-Z0-9_]*([^a-zA-Z0-9_])[a-zA-Z0-9_]*", trait_name)
+        # re.findall returns a list of strings, one per match.
+        if len(match) > 0:
+            bad_chars = "".join(match)
+            errors.append("has invalid characters '%s' in its name" % bad_chars)
+
+    return errors
 
 def validate_trait_branch(trait_branch):
     """Check if a string meets the formatting requirements for a trait branch."""
@@ -557,7 +579,7 @@ class TraitPointer(bases.TraitPointer):
     """
 
     def __init__(self, name, sample, astro_object, trait_mapping=None):
-        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping, TraitManager) -> None
+        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping) -> None
         self.name = name
         self.sample = sample
         self.astro_object = astro_object
@@ -745,7 +767,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
     _archive_id = sa.Column(sa.Integer, sa.ForeignKey('archives._db_id'))
     # host_manager = relationship(TraitManager)  # type: TraitManager
     sub_trait_mappings = relationship(
-        'SubTraitMapping', # back_populates="_trait_mappings",
+        'SubTraitMapping',
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
     named_sub_mappings = relationship(
         'TraitMapping',
@@ -757,6 +779,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
     def __db_init__(self):
         self._reconstruct_trait_class()
         self._reconstruct_trait_key()
+        self.name = self.trait_key.trait_name
         super(TraitMapping, self).__db_init__()
 
 
@@ -773,6 +796,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
 
         self.trait_class = trait_class
         self.trait_key = TraitKey.as_traitkey(trait_key)
+        self.name = self.trait_key.trait_name
 
         # Super calls
         #     These are individual because not all super initialisers
@@ -817,11 +841,37 @@ class TraitMapping(bases.Mapping, TraitMappingBase, MappingBranchVersionHandling
         self._db_trait_key = str(tk)
         self._trait_key = tk
 
-    def validate(self):
+    def validate(self, recurse=False, raise_exception=False):
+        errors = []
+
+        # Check that trait_name follows naming requirements
+        #
+        # NOTE: This validation is effectively duplicated, but I have put it in
+        # anyway as it may be necessary to allow the mappings to be created
+        # without initial validation in future.
+        name = self.name
+        name_errors = validate_trait_name(name, raises_exception=False)
+        for err in name_errors:
+            errors.append(("Trait key for Trait '%s' " % str(self)) + err)
+
         # Check that all required (not optional) TraitProperties are defined in the schema:
         for tp in self.trait_class.trait_properties():
             if tp.name not in self.trait_property_mappings and not tp.optional:
-                raise TraitValidationError("Trait %s missing required TraitProperty %s in definition" % (self, tp.name))
+                errors.append("Trait %s of type %s is missing required TraitProperty %s in definition" %
+                              (self, self.name, tp.name))
+
+        if recurse:
+            for mapping in chain(
+                    self.named_sub_mappings.values(),
+                    self.sub_trait_mappings.values(),
+                    self.trait_property_mappings.values()):
+                errors.extend(mapping.validate(recurse=recurse, raise_exception=raise_exception))
+
+        if raise_exception and len(errors) > 0:
+                raise TraitValidationError("Trait '%s' of type '%s' has validation errors:\n%s"
+                                           % (self, self.name, "\n".join(errors)))
+        return errors
+
 
     @property
     def mapping_key(self):
@@ -880,8 +930,38 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
             else:
                 raise ValueError("SubTraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
-    def validate(self):
-        pass
+
+    def validate(self, recurse=False, raise_exception=False):
+        errors = []
+
+        # Check that trait_name follows naming requirements
+        #
+        # NOTE: This validation is effectively duplicated, but I have put it in
+        # anyway as it may be necessary to allow the mappings to be created
+        # without initial validation in future.
+        name = self.name
+        name_errors = validate_trait_name(name, raises_exception=False)
+        for err in name_errors:
+            errors.append(("Subtrait name '%s' for Trait '%s' " % (name, str(self))) + err)
+
+        # Check that all required (not optional) TraitProperties are defined in the schema:
+        for tp in self.trait_class.trait_properties():
+            if tp.name not in self.trait_property_mappings and not tp.optional:
+                errors.append("Trait %s of type %s is missing required TraitProperty %s in definition" %
+                              (self, self.trait_class.__name__, tp.name))
+
+        if recurse:
+            for mapping in chain(
+                    self.named_sub_mappings.values(),
+                    self.sub_trait_mappings.values(),
+                    self.trait_property_mappings.values()):
+                errors.extend(mapping.validate(recurse=recurse, raise_exception=raise_exception))
+
+        if raise_exception and len(errors) > 0:
+                raise TraitValidationError("Trait '%s' of type '%s' has validation errors:\n%s"
+                                           % (self, self.name, "\n".join(errors)))
+        return errors
+
 
     def __repr__(self):
         mappings = list(self.trait_property_mappings.values())
@@ -891,11 +971,13 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
     def as_specification_dict(self, columns=None):
         # type: (fidia.column.ColumnDefinitionList) -> dict
         result = OrderedDict()
-        for mapping in self.trait_property_mappings.values():
+        for mapping in chain(
+                self.trait_property_mappings.values(),
+                self.sub_trait_mappings.values()):
             result[mapping.name] = mapping.as_specification_dict(columns)
         return {self.name: result}
 
-class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
+class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.PersistenceBase):
 
     # Database fields and setup (SQLAlchemy)
     __tablename__ = "trait_property_mappings"
@@ -912,8 +994,24 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
         self.name = property_name
         self.id = column_id
 
-    def validate(self):
-        pass
+    def validate(self, recurse=False, raise_exception=False):
+        errors = []
+
+        # Check that trait_name follows naming requirements
+        #
+        # NOTE: This validation is effectively duplicated, but I have put it in
+        # anyway as it may be necessary to allow the mappings to be created
+        # without initial validation in future.
+
+        name = self.name
+        name_errors = validate_trait_name(name, raises_exception=False)
+        for err in name_errors:
+            errors.append(("TraitProperty %s " % str(self)) + err)
+
+        if raise_exception and len(errors) > 0:
+                raise TraitValidationError("TraitProperty '%s' has validation errors:\n%s"
+                                           % (self, "\n".join(errors)))
+        return errors
 
     def __repr__(self):
         return ("TraitPropertyMapping(%s, %s)" %
@@ -921,9 +1019,13 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
 
     def as_specification_dict(self, columns=None):
         # type: (fidia.column.ColumnDefinitionList) -> dict
+
+        validation_errors = self.validate(recurse=False, raise_exception=False)
+
         if columns is not None:
             column = columns[self.id]  # type: fidia.column.ColumnDefinition
             result = {self.name: {
+                "name": self.name,
                 "column_id": self.id,
                 "dtype": repr(column.dtype),
                 "n_dim": column.n_dim,
@@ -932,6 +1034,8 @@ class TraitPropertyMapping(bases.SQLAlchemyBase, bases.PersistenceBase):
                 "short_description": column.short_desc,
                 "long_description": column.long_desc
             }}
+            if len(validation_errors) > 0:
+                result[self.name]["validation_errors"] = validation_errors
         else:
             result = {self.name: {"column_id": self.id}}
         return result

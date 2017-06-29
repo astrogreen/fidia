@@ -169,6 +169,7 @@ def update_s7_csv(table_mapping, columns, csv_file):
 
     log.debug(list(column_meta.keys()))
     for column in columns:
+        log.debug("Updating column '%s' with short description '%s'", column.column_name, column_meta[column.column_name]['short_description'])
         column.short_desc = column_meta[column.column_name]['short_description']
 
 # tabular_mappings = dict()
@@ -220,9 +221,9 @@ all_mappings.append(TraitMapping(Table, "nuclear_luminosities", table_mapping))
 #     print(d)
 #     print(json.dumps(d, indent=2))
 #     print("\n\n\n")
-[print(key) for key in all_columns_found._contents.keys()]
+# [print(key) for key in all_columns_found._contents.keys()]
 
-print(json.dumps([mapping.as_specification_dict(all_columns_found) for mapping in all_mappings], indent=2))
+# print(json.dumps([mapping.as_specification_dict(all_columns_found) for mapping in all_mappings], indent=2))
 
 with open("/Users/agreen/Desktop/s7-datacentral.json", "w") as f:
     json.dump(
