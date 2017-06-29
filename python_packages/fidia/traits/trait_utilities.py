@@ -1066,8 +1066,9 @@ class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.Persistenc
 
             result = {self.name: OrderedDict([
                 ("name", self.name),
+                ("pretty_name", column.pretty_name),
                 ("column_id", self.id),
-                ("dtype", repr(column.dtype)),
+                ("dtype", str(column.dtype)),
                 ("n_dim", column.n_dim),
                 ("unit", column.unit),
                 ("ucd", column.ucd),
