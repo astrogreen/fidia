@@ -11,14 +11,14 @@ import pytest
 from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn, FITSBinaryTableColumn
 from fidia.column.columns import FIDIAColumn, ColumnID
 
-
-@pytest.yield_fixture(scope='module')
-def test_data_dir():
-
-    with tempfile.TemporaryDirectory() as tempdir:
-        testdata.generate_simple_dataset(tempdir, 5)
-
-        yield tempdir
+# Pytest fixture 'test_data_dir' now session wide and stored in conftest.py
+# @pytest.yield_fixture(scope='module')
+# def test_data_dir():
+#
+#     with tempfile.TemporaryDirectory() as tempdir:
+#         testdata.generate_simple_dataset(tempdir, 5)
+#
+#         yield tempdir
 
 
 @pytest.fixture(scope='module')

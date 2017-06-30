@@ -25,7 +25,7 @@ from ..utilities import RegexpGroup
 # Set up logging
 from fidia import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.VDEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 
@@ -278,9 +278,13 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     #     return instance_column
 
     def get_value(self, object_id):
+        log.debug("Column '%s' retrieving value for object %s", self, object_id)
         if self._object_getter is not None:
+            log.vdebug("Retrieving using cell getter from ColumnDefinition")
+            log.vdebug("_object_getter(object_id=\"%s\", %s)", object_id, self._object_getter_args)
             return self._object_getter(object_id, **self._object_getter_args)
         elif self._array_getter is not None:
+            log.vdebug("Retrieving using array getter from ColumnDefinition via `._default_get_value`")
             return self._default_get_value(object_id)
         else:
             raise FIDIAException("No getter functions available for column")

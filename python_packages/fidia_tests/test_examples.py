@@ -10,13 +10,13 @@ from astropy.io import fits
 import fidia
 from fidia.archive.example_archive import ExampleArchive
 
-
-@pytest.yield_fixture(scope='module')
-def test_data_dir():
-    with tempfile.TemporaryDirectory() as tempdir:
-        testdata.generate_simple_dataset(tempdir, 5)
-
-        yield tempdir
+# Pytest fixture 'test_data_dir' now session wide and stored in conftest.py
+# @pytest.yield_fixture(scope='module')
+# def test_data_dir():
+#     with tempfile.TemporaryDirectory() as tempdir:
+#         testdata.generate_simple_dataset(tempdir, 5)
+#
+#         yield tempdir
 
 class TestBasicExamples:
 
@@ -76,9 +76,11 @@ class TestDataIntegrity:
         ea = ExampleArchive(basepath=test_data_dir)
         sample = fidia.Sample.new_from_archive(ea)
         for an_object_id in sample.ids:
+            print("an_object_id = %s" % an_object_id)
             image_data = sample[an_object_id].image['red'].data
 
             file_path = test_data_dir + "/{object_id}/{object_id}_red_image.fits".format(object_id=an_object_id)
+            print("file_path = %s" % file_path)
 
             input_data = fits.open(file_path)
 
