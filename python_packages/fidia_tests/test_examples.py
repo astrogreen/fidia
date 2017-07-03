@@ -70,6 +70,18 @@ class TestBasicExamples:
         print(sfr)
         assert isinstance(sfr, (int, float))
 
+    def test_get_an_astro_object_from_archive(self, test_data_dir):
+        ea = ExampleArchive(basepath=test_data_dir)
+        # an_object_id = next(iter(sample.keys()))
+        an_object_id = 'Gal1'
+        astro_object = ea[an_object_id]
+        assert isinstance(astro_object, fidia.AstronomicalObject)
+
+        sfr = astro_object.dmu['StellarMasses'].table['StarFormationRates'].sfr
+        print(sfr)
+        assert isinstance(sfr, (int, float))
+
+
 class TestDataIntegrity:
 
     def test_output_matches_input(self, test_data_dir):

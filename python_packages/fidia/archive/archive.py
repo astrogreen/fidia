@@ -46,6 +46,17 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     been correctly filled (e.g. with another trait or a column of a particular
     type).
 
+    An `.Archive` also behaves like a `.Sample` in that its objects can be
+    looked up looked up by subscripting. So these two are equivalent:
+
+    >>> ea = fidia.ExampleArchive(basepath=test_data_dir)
+    >>> sample = fidia.Sample.new_from_archive(ea)
+    >>> mass = sample['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
+
+    and
+
+    >>> ea = fidia.ExampleArchive(basepath=test_data_dir)
+    >>> mass = ea['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
 
     """
     column_definitions = columns.ColumnDefinitionList()
@@ -132,6 +143,25 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
 
 
 
+    def get_archive_id(self, archive, id):
+        # Part of the "sample-like interface
+        if archive is not self:
+            raise FIDIAException("Object in Archive cannot get id's for other archives.")
+        else:
+            return id
+
+    def archive_for_column(self, column_id):
+        # Part of the "sample-like interface
+        column_id = fidia.column.ColumnID.as_column_id(column_id)
+        if column_id.archive_id != self.archive_id:
+            raise FIDIAException("Object in Archive cannot get columns from other archives.")
+        return self
+
+    def find_column(self, column_id):
+        # Part of the "sample-like interface
+        column_id = fidia.column.ColumnID.as_column_id(column_id)
+        return self.columns[column_id]
+
     def get_full_sample(self):
         """Return a sample containing all objects in the archive."""
         # Create an empty sample, and populate it via it's private interface
@@ -193,6 +223,17 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
 
+    def __getitem__(self, key):
+        # type: (str) -> AstronomicalObject
+        """Make archives able to retrieve their astro-objects in the same manner as samples."""
+        # Part of the "sample-like interface
+
+        from ..astro_object import AstronomicalObject
+
+        if key in self.contents:
+            return AstronomicalObject(self, identifier=key)
+        else:
+            raise NotInSample("Archive '%s' does not contain object '%s'" % (self, key))
 
 
 class BasePathArchive(Archive):
