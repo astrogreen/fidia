@@ -114,6 +114,11 @@ class TestExampleArchive:
     def sample(self, example_archive):
         return fidia.Sample.new_from_archive(example_archive)
 
+    def test_example_archive_contents(self, example_archive):
+
+        ea_contents = set(example_archive.contents)
+        assert ea_contents == set(ExampleArchive.contents)
+
     def test_red_image_data(self, example_archive):
         img = example_archive.columns["ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"].get_value('Gal1')
         assert img.shape == (200, 200)
