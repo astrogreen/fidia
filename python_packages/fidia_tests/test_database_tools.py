@@ -376,7 +376,7 @@ class TestDatabaseBasics:
 
         # Check archive contents
         print(ar.contents)
-        assert ar.contents == ["Gal1", "Gal2", "Gal3"]
+        assert sorted(ar.contents) == sorted(ArchiveWithColumns.contents)
 
         # Check TraitMappings
         tm_key = ArchiveWithColumns.trait_mappings[0].mapping_key

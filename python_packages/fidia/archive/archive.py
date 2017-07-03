@@ -11,7 +11,8 @@ from copy import deepcopy
 import pandas as pd
 
 import sqlalchemy as sa
-from sqlalchemy.orm import relationship, reconstructor
+from sqlalchemy.sql import and_, or_, not_
+from sqlalchemy.orm import relationship, reconstructor, object_session
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
 
@@ -67,7 +68,7 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     _db_archive_class = sa.Column(sa.String)
     _db_archive_id = sa.Column(sa.String)
     _db_calling_arguments = sa.Column(sa.PickleType)
-    _db_contents = sa.Column(sa.PickleType)
+    # _db_contents = sa.Column(sa.PickleType)
     __mapper_args__ = {
         'polymorphic_on': '_db_archive_class',
         'polymorphic_identity': 'Archive'}
@@ -121,11 +122,55 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
 
     @property
     def contents(self):
-        return self._db_contents
+        # type: () -> List[str]
+        from ..astro_object import AstronomicalObject
+
+        # Get a valid database session:
+        #
+        #   I'm not sure if the object_session is required, but it guarantees
+        #   that we are working with the session that this archive belongs to.
+        #   In theory, fidia.mappingdb_session should be the only session present.
+        session = object_session(self)
+        if session is None:
+            session = fidia.mappingdb_session
+
+        query = session.query(AstronomicalObject._identifier)
+
+        query_results = query.filter_by(_db_archive_id=self._db_archive_id).all()
+        # Results will contain a list of tuples, so we must get the first column out so we have a simple list.
+
+        contents = [i[0] for i in query_results]  # type: List[str]
+        return contents
 
     @contents.setter
     def contents(self, value):
-        self._db_contents = list(value)
+        # type: (Iterable) -> None
+        from ..astro_object import AstronomicalObject
+
+        # Get a valid database session:
+        #
+        #   I'm not sure if the object_session is required, but it guarantees
+        #   that we are working with the session that this archive belongs to.
+        #   In theory, fidia.mappingdb_session should be the only session present.
+        session = object_session(self)
+        if session is None:
+            session = fidia.mappingdb_session
+
+        # Work out what's changed
+        new_contents = set(value)
+        existing_contents = set(self.contents)
+        to_add = new_contents.difference(existing_contents)
+        to_remove = existing_contents.difference(new_contents)
+
+        # Make those changes to the underlying Objects table in the database
+        object_table = AstronomicalObject.__table__
+        if len(to_add) > 0:
+            session.execute(object_table.insert(),
+                            [{"_identifier": i, "_db_archive_id": self._db_archive_id} for i in to_add])
+        if len(to_remove) > 0:
+            session.execute(object_table.delete().where(and_(object_table.c._db_archive_id == self._db_archive_id,
+                                                             object_table.c._identifier in to_remove)))
+
 
     @property
     def archive_id(self):

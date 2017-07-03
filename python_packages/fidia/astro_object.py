@@ -25,16 +25,18 @@ log.enable_console_logging()
 __all__ = ['AstronomicalObject']
 
 
-class AstronomicalObject(object):
+class AstronomicalObject(bases.SQLAlchemyBase):
 
     # Set up how Archive objects will appear in the MappingDB
     __tablename__ = "archive_objects"
     _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
     _db_object_class = sa.Column(sa.String)
-    _db_archive_id = sa.Column(sa.String)
+    _db_archive_id = sa.Column(sa.Integer, sa.ForeignKey('archives._db_archive_id'))
     __mapper_args__ = {
         'polymorphic_on': '_db_object_class',
         'polymorphic_identity': 'AstronomicalObject'}
+
+    archive = relationship('Archive')
 
     _identifier = sa.Column(sa.String(length=50))
     _ra = sa.Column(sa.Float)
@@ -49,7 +51,7 @@ class AstronomicalObject(object):
         else:
             self._identifier = identifier
 
-        # Reference to the sample containing this object.
+        # Reference to the sample-like object containing this object.
         self.sample = sample
 
         # Dictionary of IDs for this object in the various archives attached
