@@ -579,7 +579,7 @@ class TraitPointer(bases.TraitPointer):
     """
 
     def __init__(self, name, sample, astro_object, trait_mapping=None):
-        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping) -> None
+        # type: (str, fidia.Sample, fidia.AstronomicalObject, Union[TraitMapping, None]) -> None
         self.name = name
         self.sample = sample
         self.astro_object = astro_object
