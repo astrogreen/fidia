@@ -6,6 +6,10 @@ import fidia
 # Python Standard Library Imports
 
 # Other Library Imports
+import sqlalchemy as sa
+from sqlalchemy.orm import relationship, reconstructor
+from sqlalchemy.orm.collections import attribute_mapped_collection
+
 
 # FIDIA Imports
 import fidia.base_classes as bases
@@ -22,6 +26,19 @@ __all__ = ['AstronomicalObject']
 
 
 class AstronomicalObject(object):
+
+    # Set up how Archive objects will appear in the MappingDB
+    __tablename__ = "archive_objects"
+    _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
+    _db_object_class = sa.Column(sa.String)
+    _db_archive_id = sa.Column(sa.String)
+    __mapper_args__ = {
+        'polymorphic_on': '_db_object_class',
+        'polymorphic_identity': 'AstronomicalObject'}
+
+    _identifier = sa.Column(sa.String(length=50))
+    _ra = sa.Column(sa.Float)
+    _dec = sa.Column(sa.Float)
 
     def __init__(self, sample, identifier=None, ra=None, dec=None):
         # type: (fidia.Sample, str, float, float) -> None
@@ -44,7 +61,6 @@ class AstronomicalObject(object):
         self._dec = dec
 
         # Associate TraitPointer objects as necessary.
-
         self.update_trait_pointers()
 
         super(AstronomicalObject, self).__init__()
