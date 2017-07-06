@@ -1,15 +1,7 @@
-.. toctree::
-	:maxdepth: 2
-
-	api/fidia.column
-
-The FIDIA API
-=============
+FIDIA Design and API
+====================
 
 FIDIA is composed of several major components:
-
-..
-	.. automodule:: fidia.column
 
 .. toctree::
 	:maxdepth: 1
@@ -18,6 +10,7 @@ FIDIA is composed of several major components:
 	samples
 	astro_objects
 	columns
+	data_access
 	traits
 	utilities
 

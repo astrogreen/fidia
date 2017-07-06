@@ -39,8 +39,19 @@ log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 
-class Sample(bases.Sample):
+__all__ = ['Sample']
 
+class Sample(bases.Sample):
+    """Samples in FIDIA are typically the result of a query.
+
+    Samples provide two main functions: define a specific list of objects
+    included (which need not be all of the objects from any one archive); and
+    provide cross matching functionality between different archives.
+
+    Samples have access to all of the data available in the archives that they
+    are connected with.
+
+    """
     # ____________________________________________________________________
     # Sample Creation
 

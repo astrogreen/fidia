@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List, Dict, Tuple, Iterable
+from typing import List, Dict, Tuple, Iterable, Type
 import fidia
 
 # Python Standard Library Imports
@@ -39,13 +39,18 @@ __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
 
 class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
-    """An archive of data.
+    """An archive of data in FIDIA.
 
-    An `.Archive` can define Traits and TraitCollections, which are checked and
-    registered when the archive is created. As part of the registration, each
-    TraitMapping is validated. This validation checks each Trait's slots have
-    been correctly filled (e.g. with another trait or a column of a particular
-    type).
+    Instances of `.Archive` class are created by calling the constructor for an
+    `.ArchiveDefinition`, which defines the objects, data, and schema of the
+    Archive. `.Archive` and it's sub-classes are generic across all specific
+    Archives in the system.
+
+    An `.ArchiveDefinition` can define Traits and TraitCollections, which are
+    checked and registered when the corresponding archive is created. As part of
+    the registration, each TraitMapping is validated. This validation checks
+    each Trait's slots have been correctly filled (e.g. with another trait or a
+    column of a particular type).
 
     An `.Archive` also behaves like a `.Sample` in that its objects can be
     looked up looked up by subscripting. So these two are equivalent:
@@ -290,10 +295,45 @@ class BasePathArchive(Archive):
         super(BasePathArchive, self).__init__(**kwargs)
 
 class ArchiveDefinition(object):
+    """A definition of the columns (data), objects, and traits (schema) making up an archive.
+
+    This class should be subclassed to define a new Archive for use in FIDIA.
+    Typically, the subclass needs to define the following attributes:
+
+    `.archive_id`: The ID uniquely identifying this archive. Typically, this
+    will be composed of the Survey/Archive name. If individual instances of the
+    archive may need to refer to different data (e.g., because it is stored in
+    different directories, then the ID should contain this distinction in the
+    form of a path or similar. If the data to be referred to is always the same
+    (more typical) then the ID should not contain the path.
+
+    `.archive_type`: The class of the `.Archive` to be constructed.
+    `.BasePathArchive` is the most common example, which provides a base path
+    abstraction to remove details of the particular local path from the rest of
+    the definition of the archive.
+
+    `.contents`: An iterable containing the names of the objects to be included
+    in this Archive. May be instance specific (but only if the `.archive_id` is
+    also instance specific).
+
+    `.column_definitions`: List of definitions of the columns of data to be
+    included in this archive. When the `.ArchiveDefinition` factory creates an
+    instances of an `.Archive`, these definitions will be interpreted into
+    actual references to columns of data.
+
+    `.trait_mappings`: List of TraitMapping objects defining the schemas of the
+    data in this archive.
+
+    `.is_persisted`: bool which determines if FIDIA is allowed to write Archive
+    instances from this definition into the MappingDB. Typically only set to
+    False for testing.
+
+    """
+
 
     archive_id = None
 
-    archive_type = Archive
+    archive_type = Archive  # type: Type[Archive]
     writable = False
 
     contents = []  # type: Iterable
