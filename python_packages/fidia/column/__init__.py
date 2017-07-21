@@ -19,3 +19,5 @@ of data themselves (based on :class:`.FIDIAColumn`).
 from .columns import FIDIAColumn, FIDIAArrayColumn, ColumnID
 
 from .column_definitions import *
+
+__all__ = ['FIDIAColumn', 'FIDIAArrayColumn', 'ColumnID'] + column_definitions.__all__

@@ -33,7 +33,7 @@ from astropy import units
 from cached_property import cached_property
 
 # FIDIA Imports
-from ..exceptions import FIDIAException
+from ..exceptions import FIDIAException, DataNotAvailable
 from .columns import FIDIAColumn, FIDIAArrayColumn, PathBasedColumn, ColumnID
 from ..utilities import is_list_or_set
 
@@ -45,7 +45,8 @@ log.enable_console_logging()
 
 __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
            'FITSDataColumn', 'FITSHeaderColumn', 'FITSBinaryTableColumn',
-           'CSVTableColumn']
+           'CSVTableColumn',
+           'SourcelessColumn']
 
 class ColumnDefinitionList(object):
     def __init__(self, column_definitions=()):
@@ -516,3 +517,28 @@ class ColumnFromData(ColumnDefinition):
     @property
     def data(self):
         return self._data
+
+
+# noinspection PyUnresolvedReferences
+class SourcelessColumn(ColumnDefinition):
+    """A column of data which cannot retrieve it's own data—data must come from the DAL.
+
+    Columns of this type must have their data provided by the Data Access Layer,
+    otherwise they will raise a DataNotAvailable exception.
+
+    This column type is largely useful only for prototyping Trait Mapping
+    schemas, and for use in cases where the data will always be provided by the
+    data access layer.
+
+    """
+
+
+    column_type = FIDIAColumn
+
+    _id_string = "{description}"
+
+    _parameters = ['description']
+
+    # noinspection PyMethodOverriding
+    def object_getter(self, object_id, basepath):
+        raise DataNotAvailable()
