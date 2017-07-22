@@ -40,7 +40,7 @@ from ..utilities import is_list_or_set
 # Set up logging
 from .. import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
@@ -173,16 +173,16 @@ class ColumnDefinition(object):
 
         # Prepare the column id:
         id_string_format = self._id_string.format(**{param: arg for arg, param in zip(args, self._parameters)})
-        log.debug(repr(id_string_format))
+        log.vdebug(repr(id_string_format))
         self._id = id_string_format.replace(":", "_")
-        log.debug(repr(self._id))
+        log.vdebug(repr(self._id))
 
     @cached_property
     def id(self):
         """The column part of a full column ID."""
         klass = self.class_name()
         if hasattr(self, '_id'):
-            log.debug(repr(self._id))
+            log.vdebug(repr(self._id))
             return ":".join((klass, self._id))
         return ":".join((klass, repr(self)))
 

@@ -1,3 +1,63 @@
+At dmu:InputCat -> contents -> table:InputCatA -> contents -> RUN
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:InputCatA -> contents -> STATUS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:InputCatA -> contents -> FLAGS_R
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:InputCatA -> contents -> PRIMTARGET
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:InputCatA -> contents -> FLAGS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:InputCatA -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:InputCatA -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> VIS_CLASS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> MASK_IC_10
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> MASK_IC_12
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> NEIGHBOUR_CLASS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> PRIORITY_CLASS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> SURVEY_CLASS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> TARGET_FLAGS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> NUM_GAMA_SPEC
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> SPECID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> NQ
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> Z
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> SURVEY_CODE
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> VIS_CLASS_USER
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:TilingCat -> contents -> DR2_FLAG
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:SpStandards -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:SpStandards -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:SpStandards -> contents -> SECTARGET
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:SpStandards -> contents -> STATUS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:SpStandards -> contents -> RUN
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:SpStandards -> contents -> PRIORITY_CLASS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:InputCat -> contents -> table:GalacticExtinction -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SpecLineSFR -> contents -> table:EmLinesPhys -> contents -> CATAID
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SpecLineSFR -> contents -> table:EmLinesPhys -> contents -> SPECID_BEST
@@ -31,6 +91,664 @@ At dmu:SpecLineSFR -> contents -> table:EmLinesPhys -> contents -> BALMERDEC_FLA
 At dmu:SpecLineSFR -> contents -> table:EmLinesPhys -> contents -> EMLINE_CLASS
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SpecLineSFR -> contents -> table:EmLinesPhys -> contents -> EMLINE_METHOD
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> THRESHOLD
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_U
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_U
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_U
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_U
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_U
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_U
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_U
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_G
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_G
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_G
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_G
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_G
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_G
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_G
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_R
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_R
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_R
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_R
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_R
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_R
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_R
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_I
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_I
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_I
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_I
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_I
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_I
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_I
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_Z
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_Z
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_Z
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_Z
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_Z
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_Z
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_Y
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_Y
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_Y
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_Y
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_Y
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_Y
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_Y
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_J
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_J
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_J
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_H
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_H
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_H
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_H
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_H
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_H
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_H
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_K
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_K
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_K
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_K
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_K
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_K
+    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_K
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> NQ
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_HELIO
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_LG
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_CMB
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_TONRY
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_TONRY_HIGH
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_TONRY_LOW
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> Z
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> nQ
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> SURVEY_CODE
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> Z_TONRY
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> fluxscale
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> zmax_19p4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> zmax_19p8
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> zmax_17p88
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> nbands
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logmstar
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogmstar
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logmoverl_i
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogmoverl_i
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logage
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogage
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logtau
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogtau
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> metal
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> delmetal
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logLWage
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogLWage
+    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> C_logM_ur
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> C_logM_gi
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> C_logM_eBV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> Z_TONRY
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> nQ
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> Completeness
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> SurfaceDensityFlag
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CountInCyl
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CountInCylErr
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CountInCylFlag
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> AGEErr
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> AGEScale
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> AGEDensityFlag
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> Z_TONRY
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> NQ
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> CHI2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> MASS
+    Units 'M_solar' could not be interpreted: 'M_solar' did not parse as unit: At col 0, M_solar is not a valid unit. 
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> INTSFH
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> METS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> B300
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> B1000
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> Z_TONRY
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> NQ
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_1
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_3
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_5
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> CHI2
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> MASS
+    Units 'M_solar' could not be interpreted: 'M_solar' did not parse as unit: At col 0, M_solar is not a valid unit. 
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> INTSFH
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> METS
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> B300
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> B1000
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUX_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUXERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUX_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUXERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_METHOD
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NMATCHUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NMATCHOPT
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NUVFLAG
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> FUVFLAG
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUX_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUXERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUX_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUXERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUX_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUXERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUX_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUXERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUX_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUXERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUX_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUXERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_CONFSOURCE_NUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_CONFSOURCE_FUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_GGOID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_NMATCH4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_MANY2ONE
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUX_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUXERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUX_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUXERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_ARTIFACT_NUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_ARTIFACT_FUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_SFLAGS_NUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_SFLAGS_FUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> BKGRND_FLUX_NUV
+    Units 'microJy/arcsec^2' could not be interpreted: 'microJy/arcsec^2' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> BKGRND_FLUX_FUV
+    Units 'microJy/arcsec^2' could not be interpreted: 'microJy/arcsec^2' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> NUVFLUXLIMIT2p5
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> FUVFLUXLIMIT2p5
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> NUVFLUXLIMIT5
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> FUVFLUXLIMIT5
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> NUVFLUXLIMIT10
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> FUVFLUXLIMIT10
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> GGOID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> FUVMATCH
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> NMATCH4
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> MANY2ONE
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> GNEIGHBOR_DIST
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> GNEIGHBOR_NAME
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> NMATCHUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> NMATCHOPT
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> UVIDXLIST
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> OPTIDXLIST
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> NUVFLAG
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FUVFLAG
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOT_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOTERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLIT_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLITERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOT_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOTERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLIT_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLITERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> OBJID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPS_NUV
+    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPSERR_NUV
+    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUX_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUXERR_NUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CONFSOURCE_NUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPS_FUV
+    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPSERR_FUV
+    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUX_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUXERR_FUV
+    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
+At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CONFSOURCE_FUV
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> CATAID
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> Z
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> SURVEY_CODE
+    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
+At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> GroupID
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SersicPhotometry -> contents -> table:SersicCatAll -> contents -> CATAID
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
@@ -570,338 +1288,6 @@ At dmu:SersicPhotometry -> contents -> table:SersicCatAll -> contents -> GAL_IND
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SersicPhotometry -> contents -> table:SersicCatAll -> contents -> GAL_ELLIP_ERR_K
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUX_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUXERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUX_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_FLUXERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> BEST_METHOD
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NMATCHUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NMATCHOPT
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NUVFLAG
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> FUVFLAG
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUX_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUXERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUX_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> TOT_FLUXERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUX_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUXERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUX_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> SPLIT_FLUXERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUX_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUXERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUX_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_FLUXERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_CONFSOURCE_NUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> COG_CONFSOURCE_FUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_GGOID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_NMATCH4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_MANY2ONE
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUX_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUXERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUX_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_FLUXERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_ARTIFACT_NUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_ARTIFACT_FUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_SFLAGS_NUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexMain -> contents -> NN_SFLAGS_FUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> BKGRND_FLUX_NUV
-    Units 'microJy/arcsec^2' could not be interpreted: 'microJy/arcsec^2' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> BKGRND_FLUX_FUV
-    Units 'microJy/arcsec^2' could not be interpreted: 'microJy/arcsec^2' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> NUVFLUXLIMIT2p5
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> FUVFLUXLIMIT2p5
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> NUVFLUXLIMIT5
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> FUVFLUXLIMIT5
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> NUVFLUXLIMIT10
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexObsInfo -> contents -> FUVFLUXLIMIT10
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> GGOID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> FUVMATCH
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> NMATCH4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> MANY2ONE
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> GNEIGHBOR_DIST
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexSimpleMatch -> contents -> GNEIGHBOR_NAME
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> NMATCHUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> NMATCHOPT
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> UVIDXLIST
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> OPTIDXLIST
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> NUVFLAG
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FUVFLAG
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOT_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOTERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLIT_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLITERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOT_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXTOTERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLIT_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexAdvancedMatch -> contents -> FLUXSPLITERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPS_NUV
-    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPSERR_NUV
-    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUX_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUXERR_NUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CONFSOURCE_NUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPS_FUV
-    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CPSERR_FUV
-    Units 'counts/s' could not be interpreted: 'counts/s' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUX_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> FLUXERR_FUV
-    Units 'microJy' could not be interpreted: 'microJy' did not parse as unit: At col 0, microJy is not a valid unit. Did you mean microday?
-At dmu:GalexPhotometry -> contents -> table:GalexCoGPhot -> contents -> CONFSOURCE_FUV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> NQ
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_HELIO
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_LG
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_CMB
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_TONRY
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_TONRY_HIGH
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:LocalFlowCorrection -> contents -> table:DistancesFrames -> contents -> Z_TONRY_LOW
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> Z
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> SURVEY_CODE
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:GroupFinding -> contents -> table:G3CGal -> contents -> GroupID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> Z_TONRY
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> nQ
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> Completeness
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> SurfaceDensityFlag
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CountInCyl
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CountInCylErr
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> CountInCylFlag
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> AGEErr
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> AGEScale
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:EnvironmentMeasures -> contents -> table:EnvironmentMeasures -> contents -> AGEDensityFlag
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> THRESHOLD
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_U
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_U
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_U
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_U
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_U
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_U
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_U
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_G
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_G
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_G
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_G
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_G
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_G
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_G
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_R
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_R
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_R
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_R
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_R
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_R
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_R
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_I
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_I
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_I
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_I
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_I
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_I
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_I
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_Z
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_Z
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_Z
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_Z
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_Z
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_Z
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_Y
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_Y
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_Y
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_Y
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_Y
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_Y
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_Y
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_J
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_J
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_J
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_H
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_H
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_H
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_H
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_H
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_H
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_H
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_AUTO_K
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_AUTO_K
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_PETRO_K
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUXERR_PETRO_K
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> BACKGROUND_K
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLUX_MAX_K
-    Units 'counts' could not be interpreted: 'counts' did not parse as unit: At col 0, counts is not a valid unit. Did you mean count?
-At dmu:ApMatchedPhotom -> contents -> table:ApMatchedCat -> contents -> FLAGS_K
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SpecCat -> contents -> table:SpecObj -> contents -> CATAID
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SpecCat -> contents -> table:SpecObj -> contents -> GAMA_NAME
@@ -929,390 +1315,4 @@ At dmu:SpecCat -> contents -> table:SpecObj -> contents -> FILENAME
 At dmu:SpecCat -> contents -> table:SpecObj -> contents -> URL
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
 At dmu:SpecCat -> contents -> table:SpecObj -> contents -> URL_IMG
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> Z_TONRY
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> NQ
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_FUV_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_NUV_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_U_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_G_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_R_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_I_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Z_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_Y_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_J_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_H_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> PCOEFF_K_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> COEFFS_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> CHI2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> MASS
-    Units 'M_solar' could not be interpreted: 'M_solar' did not parse as unit: At col 0, M_solar is not a valid unit. 
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> INTSFH
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> METS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> B300
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z00 -> contents -> B1000
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> Z_TONRY
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> NQ
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_FUV_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_NUV_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_U_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_G_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_R_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_I_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Z_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_Y_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_J_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_H_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> PCOEFF_K_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_1
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_3
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> COEFFS_5
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> CHI2
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> MASS
-    Units 'M_solar' could not be interpreted: 'M_solar' did not parse as unit: At col 0, M_solar is not a valid unit. 
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> INTSFH
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> METS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> B300
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:kCorrections -> contents -> table:kcorr_z01 -> contents -> B1000
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> Z
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> nQ
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> SURVEY_CODE
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> Z_TONRY
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> fluxscale
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> zmax_19p4
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> zmax_19p8
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> zmax_17p88
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> nbands
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logmstar
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogmstar
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logmoverl_i
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogmoverl_i
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logage
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogage
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logtau
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogtau
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> metal
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> delmetal
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> logLWage
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> dellogLWage
-    Units 'dex' could not be interpreted: Unit 'dex' is not part of the VOUnit standard
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> C_logM_ur
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> C_logM_gi
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:StellarMasses -> contents -> table:StellarMasses -> contents -> C_logM_eBV
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:InputCatA -> contents -> RUN
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:InputCatA -> contents -> STATUS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:InputCatA -> contents -> FLAGS_R
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:InputCatA -> contents -> PRIMTARGET
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:InputCatA -> contents -> FLAGS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:InputCatA -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:InputCatA -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> VIS_CLASS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> MASK_IC_10
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> MASK_IC_12
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> NEIGHBOUR_CLASS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> PRIORITY_CLASS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> SURVEY_CLASS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> TARGET_FLAGS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> NUM_GAMA_SPEC
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> SPECID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> NQ
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> Z
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> SURVEY_CODE
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> VIS_CLASS_USER
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:TilingCat -> contents -> DR2_FLAG
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:SpStandards -> contents -> CATAID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:SpStandards -> contents -> OBJID
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:SpStandards -> contents -> SECTARGET
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:SpStandards -> contents -> STATUS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:SpStandards -> contents -> RUN
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:SpStandards -> contents -> PRIORITY_CLASS
-    Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0
-At dmu:InputCat -> contents -> table:GalacticExtinction -> contents -> CATAID
     Units '-' could not be interpreted: '-' did not parse as unit: Invalid character at col 0

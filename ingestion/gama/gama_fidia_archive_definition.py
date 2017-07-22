@@ -52,7 +52,6 @@ def collect_columns(table_id, index_column):
         table_data = connection.execute("SELECT * FROM tables WHERE tableID = %s" % table_id).fetchone()
 
         col = SQLColumn(
-            "mysql+mysqldb://agreen:agreen@10.80.10.137/dr2",
             "SELECT {index_column} as `id`, {data_column} as `data` FROM {table}".format(
                 index_column=index_column, data_column=row["name"], table=table_data["name"]),
             unit=row['units'], ucd=row['ucd'], long_desc=row['description'])
