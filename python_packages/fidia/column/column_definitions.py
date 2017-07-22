@@ -46,6 +46,7 @@ log.enable_console_logging()
 __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
            'FITSDataColumn', 'FITSHeaderColumn', 'FITSBinaryTableColumn',
            'CSVTableColumn',
+           'SQLColumn',
            'SourcelessColumn']
 
 class ColumnDefinitionList(object):
@@ -170,15 +171,18 @@ class ColumnDefinition(object):
 
         self.ucd = kwargs.pop('ucd', "")
 
-        self._id = self._id_string.format(
-            **{param: arg for arg, param in zip(args, self._parameters)}
-        )
+        # Prepare the column id:
+        id_string_format = self._id_string.format(**{param: arg for arg, param in zip(args, self._parameters)})
+        log.debug(repr(id_string_format))
+        self._id = id_string_format.replace(":", "_")
+        log.debug(repr(self._id))
 
     @cached_property
     def id(self):
         """The column part of a full column ID."""
         klass = self.class_name()
         if hasattr(self, '_id'):
+            log.debug(repr(self._id))
             return ":".join((klass, self._id))
         return ":".join((klass, repr(self)))
 
@@ -316,7 +320,7 @@ class ColumnDefinition(object):
         # instance are copied here so that database persistence will not need to
         # Pickle the archive to store the getters.
 
-        if getattr(self.object_getter, 'is_implemented',True):
+        if getattr(self.object_getter, 'is_implemented', True):
             log.debug("Copying object_getter function from ColumnDefinition %s to new Column", self)
             # Bake in parameters to object_getter function and associate:
             sig = inspect.signature(self.object_getter)
@@ -508,6 +512,54 @@ class CSVTableColumn(ColumnDefinition, PathBasedColumn):
         timestamp = stats.st_mtime
         return timestamp
 
+
+class SQLColumn(ColumnDefinition):
+    """A column sourced from an SQL database.
+
+    When executed on the given database, the SQL should return exactly two
+    columns: a column called 'id' containing the object ID and a column called
+    'data' containing data.
+
+    """
+
+    # @TODO: This Column type needs tests, which require SQL data be added to the test data.
+    # Note there is an example in `poc/fidia/gama_archive_poc.py`
+
+    column_type = FIDIAColumn
+
+    _id_string = "{database_url}/{select_stmt}"
+    # Note: Colons in the database_url will be replaced with underscores in producing the actual id.
+
+    _parameters = ['database_url', 'select_stmt']
+
+    def object_getter(self, object_id):
+
+        # Requires SQLAlchemy
+        from sqlalchemy.sql import column, text, select, Select
+        from sqlalchemy import create_engine
+
+
+        # Note, it would be preferrable to store a single connection on the
+        # Archive instance, rather than recreating it here. This can be fixed
+        # after ASVO-1089 has been implemented.
+        # @TODO: Change to use connection associated with the archive.
+
+        engine = create_engine(self.database_url)
+
+        connection = engine.connect()
+
+        stmt = text(self.select_stmt).columns(column('id'), column('data')).alias('st')
+
+        # query = select(stmt).where(stmt.c.id == object_id)
+        query = select([stmt], from_obj=stmt).where(stmt.c.id == object_id)
+
+        result = connection.execute(query)
+
+        row = result.fetchone()
+
+        return row["data"]
+
+
 class ColumnFromData(ColumnDefinition):
 
     def __init__(self, data, **kwargs):
@@ -517,6 +569,7 @@ class ColumnFromData(ColumnDefinition):
     @property
     def data(self):
         return self._data
+
 
 
 # noinspection PyUnresolvedReferences
@@ -540,5 +593,5 @@ class SourcelessColumn(ColumnDefinition):
     _parameters = ['description']
 
     # noinspection PyMethodOverriding
-    def object_getter(self, object_id, basepath):
+    def object_getter(self, object_id):
         raise DataNotAvailable()
