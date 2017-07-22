@@ -57,8 +57,8 @@ def collect_columns(table_id):
 
     return mappings, columns
 
-def table_mappings_for_dumu(dmu_id):
-
+def cataid_table_mappings_for_dumu(dmu_id):
+    """Create Mappings for all tables in the DMU that are uniquely indexed by CATAID"""
     table_mappings = []  # type: List[TraitMapping]
     all_columns = ColumnDefinitionList()
 
@@ -83,6 +83,12 @@ def table_mappings_for_dumu(dmu_id):
 
 
     for row in results:
+
+        # Check if table is uniquely indexed by CATAID:
+        index_result = connection.execute(
+            "SHOW INDEXES FROM %s WHERE `column_name` = 'CATAID' AND key_name = 'PRIMARY'" % row["name"])
+        if index_result.rowcount != 1:
+            continue
 
         mappings, columns = collect_columns(row["tableID"])
 
@@ -121,7 +127,11 @@ def build_traitmapping_from_gama_database():
 
     for row in dmu_results:
 
-        mappings, columns = table_mappings_for_dumu(row['DMUID'])
+        mappings, columns = cataid_table_mappings_for_dumu(row['DMUID'])
+
+        if len(mappings) == 0:
+            # There were no tables indexed by CATAID.
+            continue
 
         trait_mappings.append(
             TraitMapping(DMU, row["name"],
