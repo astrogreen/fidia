@@ -28,7 +28,7 @@ engine = create_engine("mysql+mysqldb://agreen:agreen@10.80.10.137/dr2")
 
 connection = engine.connect()
 
-def collect_columns(table_id):
+def collect_columns(table_id, index_column):
 
     mappings = []  # type: List[TraitPropertyMapping]
     columns = ColumnDefinitionList()
@@ -49,8 +49,13 @@ def collect_columns(table_id):
 
     for row in results:
 
-        col = SourcelessColumn("GAMA:%s:%s" % (row["tableID"], row["columnID"]),
-                               unit=row['units'], ucd=row['ucd'], long_desc=row['description'])
+        table_data = connection.execute("SELECT * FROM tables WHERE tableID = %s" % table_id).fetchone()
+
+        col = SQLColumn(
+            "mysql+mysqldb://agreen:agreen@10.80.10.137/dr2",
+            "SELECT {index_column} as `id`, {data_column} as `data` FROM {table}".format(
+                index_column=index_column, data_column=row["name"], table=table_data["name"]),
+            unit=row['units'], ucd=row['ucd'], long_desc=row['description'])
         columns.add(col)
 
         mappings.append(TraitPropertyMapping(row['name'], col.id))
@@ -90,7 +95,7 @@ def cataid_table_mappings_for_dumu(dmu_id):
         if index_result.rowcount != 1:
             continue
 
-        mappings, columns = collect_columns(row["tableID"])
+        mappings, columns = collect_columns(row["tableID"], "CATAID")
 
         all_columns.extend(columns)
 
