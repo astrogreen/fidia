@@ -1,11 +1,26 @@
+"""
 
+G A M A   I n g e s t e r   f o r   F I D I A
+
+
+
+This produces several archives to support GAMA DR2 data in FIDIA.
+
+The main archive is indexed by GAMA CATAID, and has all of the data that can be
+directly identified for each object.
+
+"""
+
+# noinspection PyUnresolvedReferences
 from typing import List
-
+# noinspection PyUnresolvedReferences
 import fidia
 
 from fidia.ingest.data_finder import *
 from fidia.column import ColumnDefinitionList
 from fidia.traits import *
+
+from fidia.ingest.ingestion_helpers import *
 
 from sqlalchemy import create_engine
 
@@ -118,15 +133,17 @@ def build_traitmapping_from_gama_database():
 
     return trait_mappings, all_columns
 
-def write_specification_dict_as_json(specification_dict, json_filename):
-    with open(json_filename, "w") as f:
-        json.dump(specification_dict, f, indent=4)
 
 if __name__ == "__main__":
 
     mappings, columns = build_traitmapping_from_gama_database()
 
-    specification_dict = [mapping.as_specification_dict(columns) for mapping in mappings]
+    specification_dict = dict()
+    for mapping in mappings:
+        specification_dict.update(mapping.as_specification_dict(columns))
 
+    json_output_path = os.path.join(os.path.dirname(__file__), "gama-datacentral.json")
+    write_specification_dict_as_json(specification_dict, json_output_path)
 
-    write_specification_dict_as_json(specification_dict, "/Users/agreen/Desktop/gama-datacentral.json")
+    validation_error_output_path = os.path.join(os.path.dirname(__file__), "gama-datacentral-errors.txt")
+    write_validataion_errors(specification_dict, validation_error_output_path)
