@@ -91,7 +91,15 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
 
 
     def __init__(self, **kwargs):
-        """Pass through initializer. Initialization is handled by `ArchiveDefinition.__new__()`"""
+        """Pass through initializer. Initialization is handled by `ArchiveDefinition.__new__()`
+
+        Warnings:
+
+            This should be empty, or nearly so. It will be called when an
+            Archive is reconstructed from the database (which is non-standard
+            behavior for SQLAlchemy). See `Archive.__db_init__`
+
+        """
         super(Archive, self).__init__()
 
 
@@ -103,6 +111,9 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
         # requested persistence.
         # self._db_session = Session()
         self._local_trait_mappings = None
+
+        # Call initialisers of subclasses so they can reset attributes stored in _db_calling_args
+        self.__init__(**self._db_calling_arguments)
 
     def register_mapping(self, mapping):
         # type: (traits.TraitMapping) -> None
@@ -291,6 +302,13 @@ class BasePathArchive(Archive):
     __mapper_args__ = {'polymorphic_identity': 'BasePathArchive'}
 
     def __init__(self, **kwargs):
+        """Initializer.
+
+        Note: Normally, this initialiser would not be called when reconstructing
+        form the database, but for Archives, it is. See `Archive.__db_init__`.
+
+        """
+
         self.basepath = kwargs['basepath']
         super(BasePathArchive, self).__init__(**kwargs)
 

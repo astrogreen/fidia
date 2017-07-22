@@ -395,6 +395,58 @@ class TestDatabaseBasics:
 
         # assert False
 
+    def test_base_path_archive_persistance_in_db(self):
+        from fidia.archive import BasePathArchive, ArchiveDefinition, Archive
+        from fidia.traits import TraitMapping, Image, TraitPropertyMapping
+        from fidia.column import FITSDataColumn, ColumnDefinitionList, FIDIAArrayColumn
+
+        random_id = "testArchive" + str(random.randint(10000, 20000))
+        basepath = "/mypath/"
+
+        class MyBasePathArchive(ArchiveDefinition):
+
+            archive_id = random_id
+
+            archive_type = BasePathArchive
+
+            contents = ["Gal1", "Gal2", "Gal3"]
+
+            column_definitions = [
+                ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+                                       ndim=2,
+                                       timestamp=1))
+            ]
+
+            trait_mappings = [
+                TraitMapping(Image, "red", [
+                    TraitPropertyMapping('data',
+                                         "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"),
+                    TraitPropertyMapping(
+                        'exposed',
+                        "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1")]
+                             )
+            ]
+
+        ar = MyBasePathArchive(basepath=basepath)
+
+
+        # Make SQLAlchemy forget about the object:
+        fidia.mappingdb_session.expunge(ar)
+        del ar
+
+        ar = fidia.mappingdb_session.query(Archive).filter_by(_db_archive_id=random_id).one()
+
+        # Check that we actually have reconstructed the object from the
+        # database, and not just holding a pointer to the original object:
+        assert ar._is_reconstructed is True
+
+        # Check validity of archive itself
+        print(ar)
+        assert isinstance(ar, BasePathArchive)
+        assert ar.archive_id == random_id
+        assert ar.basepath == basepath
+
+        # assert False
 
 
 from sqlalchemy import create_engine
