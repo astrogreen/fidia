@@ -527,12 +527,12 @@ class SQLColumn(ColumnDefinition):
 
     column_type = FIDIAColumn
 
-    _id_string = "{database_url}/{select_stmt}"
+    _id_string = "{select_stmt}"
     # Note: Colons in the database_url will be replaced with underscores in producing the actual id.
 
-    _parameters = ['database_url', 'select_stmt']
+    _parameters = ['select_stmt']
 
-    def object_getter(self, object_id):
+    def object_getter(self, object_id, database_url):
 
         # Requires SQLAlchemy
         from sqlalchemy.sql import column, text, select, Select
@@ -544,7 +544,7 @@ class SQLColumn(ColumnDefinition):
         # after ASVO-1089 has been implemented.
         # @TODO: Change to use connection associated with the archive.
 
-        engine = create_engine(self.database_url)
+        engine = create_engine(database_url)
 
         connection = engine.connect()
 

@@ -312,6 +312,23 @@ class BasePathArchive(Archive):
         self.basepath = kwargs['basepath']
         super(BasePathArchive, self).__init__(**kwargs)
 
+
+class DatabaseArchive(Archive):
+
+    __mapper_args__ = {'polymorphic_identity': 'DatabaseArchive'}
+
+    def __init__(self, **kwargs):
+        """Initializer.
+
+        Note: Normally, this initialiser would not be called when reconstructing
+        form the database, but for Archives, it is. See `Archive.__db_init__`.
+
+        """
+
+        self.database_url = kwargs['database_url']
+        super(DatabaseArchive, self).__init__(**kwargs)
+
+
 class ArchiveDefinition(object):
     """A definition of the columns (data), objects, and traits (schema) making up an archive.
 

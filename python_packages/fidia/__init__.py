@@ -32,7 +32,7 @@ if not _ASTROPY_SETUP_:
 
     # from fidia.column import *
     # from fidia.sample import *
-    from fidia.archive.archive import Archive, BasePathArchive
+    from fidia.archive.archive import Archive, BasePathArchive, DatabaseArchive
 
 
     from fidia.column.column_definitions import *

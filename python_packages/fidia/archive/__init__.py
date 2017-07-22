@@ -50,6 +50,6 @@ survey).
 
 # import fidia.archive.archive
 
-from fidia.archive.archive import Archive, BasePathArchive, ArchiveDefinition
+from fidia.archive.archive import Archive, BasePathArchive, DatabaseArchive, ArchiveDefinition
 
 # from fidia.archive.archive import *
