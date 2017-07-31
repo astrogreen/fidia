@@ -858,6 +858,13 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
             else:
                 raise ValueError("TraitMapping accepts only TraitPropertyMappings and SubTraitMappings, got %s" % item)
 
+    def __iter__(self):
+        for mapping in chain(
+                self.sub_trait_mappings.values(),
+                self.named_sub_mappings.values(),
+                self.trait_property_mappings.values()):
+            yield mapping
+
     @cached_property
     def trait_class_name(self):
         # @TODO: This will break with external Trait names.
@@ -900,11 +907,8 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
                 errors.append("Missing required TraitProperty %s in definition" % tp.name)
 
         if recurse:
-            for mapping in chain(
-                    self.named_sub_mappings.values(),
-                    self.sub_trait_mappings.values(),
-                    self.trait_property_mappings.values()):
-                errors.extend(mapping.validate(recurse=recurse, raise_exception=raise_exception))
+            for sub_mapping in self:
+                errors.extend(sub_mapping.validate(recurse=recurse, raise_exception=raise_exception))
 
         if raise_exception and len(errors) > 0:
                 raise TraitValidationError("Trait '%s' of type '%s' has validation errors:\n%s"
@@ -960,6 +964,11 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
 
     name = sa.Column(sa.String)
 
+    sub_trait_mappings = relationship(
+        'SubTraitMapping',
+        collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
+
+
     def __init__(self, sub_trait_name, trait_class, mappings,
                  pretty_name=u"", short_desc=u"", long_desc=u""):
         # type: (str, Type[fidia.Trait], List[Union[TraitMapping, TraitPropertyMapping, SubTraitMapping]]) -> None
@@ -1006,11 +1015,8 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
                 errors.append("SubTrait is missing required TraitProperty %s in definition" % tp.name)
 
         if recurse:
-            for mapping in chain(
-                    self.named_sub_mappings.values(),
-                    self.sub_trait_mappings.values(),
-                    self.trait_property_mappings.values()):
-                errors.extend(mapping.validate(recurse=recurse, raise_exception=raise_exception))
+            for sub_mapping in self:
+                errors.extend(sub_mapping.validate(recurse=recurse, raise_exception=raise_exception))
 
         if raise_exception and len(errors) > 0:
                 raise TraitValidationError("SubTrait '%s' of type '%s' has validation errors:\n%s"
@@ -1022,6 +1028,15 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
         mappings = list(self.trait_property_mappings.values())
         return ("SubTraitMapping(sub_trait_name=%s, trait_class=%s, mappings=%s)" %
                 (repr(self.name), fidia_classname(self.trait_class), repr(mappings)))
+
+    def __iter__(self):
+
+        # Sub-traits don't support named sub-traits.
+        for sub_mapping in chain(
+                self.sub_trait_mappings.values(),
+                # self.named_sub_mappings.values(),
+                self.trait_property_mappings.values()):
+            yield sub_mapping
 
     def as_specification_dict(self, columns=None):
         # type: (fidia.column.ColumnDefinitionList) -> dict

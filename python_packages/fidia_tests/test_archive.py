@@ -11,8 +11,9 @@ import pytest
 import fidia
 from fidia.archive.archive import BasePathArchive
 from fidia.archive.example_archive import ExampleArchive
-from fidia.column.column_definitions import FITSDataColumn
+from fidia.column.column_definitions import FITSDataColumn, FixedValueColumn
 from fidia.column.columns import FIDIAColumn
+from fidia.traits import TraitMapping, TraitPropertyMapping, TraitCollection
 
 # Pytest fixture 'test_data_dir' now session wide and stored in conftest.py
 # @pytest.yield_fixture(scope='module')
@@ -26,6 +27,13 @@ from fidia.column.columns import FIDIAColumn
 class TestArchiveAndColumns:
     @pytest.fixture
     def ArchiveWithColumns(self):
+
+        my_column = FixedValueColumn("data",
+                                       ndim=2,
+                                       timestamp=1)
+
+
+
         class ArchiveWithColumns(fidia.ArchiveDefinition):
 
             # For general testing, this should be set to True (commented out)
@@ -39,10 +47,19 @@ class TestArchiveAndColumns:
 
             archive_type = BasePathArchive
 
-            column_definitions = [
-                ("col", FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
+            column_definitions = fidia.ColumnDefinitionList([
+                ("col", my_column),
+                (FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
                                        ndim=2,
                                        timestamp=1))
+
+            ])
+
+            trait_mappings = [
+                TraitMapping(TraitCollection, "trait", [
+                    TraitPropertyMapping("direct", ":".join([archive_id,  my_column.id, str(my_column.get_timestamp())])),
+                    TraitPropertyMapping("alias", "col"),
+                ])
             ]
 
         return ArchiveWithColumns
@@ -77,18 +94,25 @@ class TestArchiveAndColumns:
         ar = ArchiveWithColumns(basepath=test_data_dir)  # type: fidia.archive.archive.Archive
         print(ar.archive_id)
         print(ar.columns.keys())
+
+        column = ar.columns["testArchive:FixedValueColumn:data:1"]
+        assert isinstance(column, FIDIAColumn)
+
         column = ar.columns["testArchive:FITSDataColumn:" +
                             "{object_id}/{object_id}_red_image.fits[0]:1"]
-
         assert isinstance(column, FIDIAColumn)
 
-    @pytest.mark.xfail
-    def test_get_column_with_alias(self, test_data_dir, ArchiveWithColumns):
-        """Failing because this functionality is not implemented and may be dropped."""
-        ar = ArchiveWithColumns(basepath=test_data_dir)
-        column = ar.columns["col"]
 
-        assert isinstance(column, FIDIAColumn)
+    def test_retrieve_trait_value(self, test_data_dir, ArchiveWithColumns):
+        ar = ArchiveWithColumns(basepath=test_data_dir)  # type: fidia.archive.archive.Archive
+
+        assert ar["Gal1"].trait_collection["trait"].direct == "data"
+
+    def test_retrieve_trait_value_with_alias(self, test_data_dir, ArchiveWithColumns):
+        """Fixed in ASVO-1000"""
+        ar = ArchiveWithColumns(basepath=test_data_dir)  # type: fidia.archive.archive.Archive
+
+        assert ar["Gal1"].trait_collection["trait"].alias == "data"
 
     def test_retrieve_data_from_path_column(self, test_data_dir, ArchiveWithColumns):
         ar = ArchiveWithColumns(basepath=test_data_dir)

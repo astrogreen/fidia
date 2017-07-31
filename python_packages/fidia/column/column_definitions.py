@@ -47,7 +47,7 @@ __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
            'FITSDataColumn', 'FITSHeaderColumn', 'FITSBinaryTableColumn',
            'CSVTableColumn',
            'SQLColumn',
-           'SourcelessColumn']
+           'SourcelessColumn', 'FixedValueColumn']
 
 class ColumnDefinitionList(object):
     def __init__(self, column_definitions=()):
@@ -595,3 +595,23 @@ class SourcelessColumn(ColumnDefinition):
     # noinspection PyMethodOverriding
     def object_getter(self, object_id):
         raise DataNotAvailable()
+
+class FixedValueColumn(ColumnDefinition):
+    """A column which returns a single fixed value in all cases.
+
+    The value must be pickleable.
+
+    Probably mostly useful for testing.
+
+    """
+
+
+    column_type = FIDIAColumn
+
+    _id_string = "{value}"
+
+    _parameters = ['value']
+
+    # noinspection PyMethodOverriding
+    def object_getter(self, object_id):
+        return self.value

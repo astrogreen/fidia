@@ -65,7 +65,6 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     >>> mass = ea['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
 
     """
-    column_definitions = columns.ColumnDefinitionList()
 
     # Set up how Archive objects will appear in the MappingDB
     __tablename__ = "archives"
@@ -328,6 +327,17 @@ class DatabaseArchive(Archive):
         self.database_url = kwargs['database_url']
         super(DatabaseArchive, self).__init__(**kwargs)
 
+def replace_aliases_trait_mappings(mappings, alias_mappings):
+    for mapping in mappings:
+        if isinstance(mapping, fidia.traits.TraitPropertyMapping):
+            if mapping.id in alias_mappings:
+                log.debug("Replacing alias %s with actual ID %s", mapping.id, alias_mappings[mapping.id])
+                mapping.id = alias_mappings[mapping.id]
+            else:
+                continue
+        else:
+            log.debug("Recursing on mapping %s", mapping)
+            replace_aliases_trait_mappings(mapping, alias_mappings)
 
 class ArchiveDefinition(object):
     """A definition of the columns (data), objects, and traits (schema) making up an archive.
@@ -440,10 +450,15 @@ class ArchiveDefinition(object):
             column_definitions = deepcopy(definition.column_definitions)  # type: List[Tuple[str, columns.ColumnDefinition]]
 
             # Associate column instances with this archive instance
+            alias_mappings = dict()
             for alias, column in column_definitions:
                 log.debug("Associating column %s with archive %s", column, archive)
                 instance_column = column.associate(archive)
                 archive.columns[instance_column.id] = instance_column
+                alias_mappings[alias] = instance_column.id
+
+            # Update any columns that have been referred to by an alias:
+            replace_aliases_trait_mappings(archive._mappings, alias_mappings)
 
             # self._db_session.add(self.trait_manager)
             if is_persisted:
