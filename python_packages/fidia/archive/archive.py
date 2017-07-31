@@ -213,7 +213,10 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
     def archive_for_column(self, column_id):
         # Part of the "sample-like interface
         column_id = fidia.column.ColumnID.as_column_id(column_id)
+        log.debug("Column requested: %s", column_id)
         if column_id.archive_id != self.archive_id:
+            log.error("Archive ID mismatch for column %s. This archive: %s, column: %s",
+                      column_id, self.archive_id, column_id.archive_id)
             raise FIDIAException("Object in Archive cannot get columns from other archives.")
         return self
 

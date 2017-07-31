@@ -25,7 +25,7 @@ from ..utilities import RegexpGroup
 # Set up logging
 from fidia import slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 
@@ -45,13 +45,15 @@ class ColumnID(str):
             # Only column type and name
             self.column_type = split[0]
             self.column_name = split[1]
+            return self
         if len(split) == 4:
             # Fully defined
             self.archive_id = split[0]
             self.column_type = split[1]
             self.column_name = split[2]
             self.timestamp = split[3]
-        return self
+            return self
+        raise ValueError("Supplied string cannot be parsed as a ColumnID: %s" % string)
 
     @classmethod
     def as_column_id(cls, key):
@@ -234,6 +236,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         self._coldef_id = kwargs.pop('coldef_id', None)
         if "column_id" in kwargs:
             self._column_id = kwargs["column_id"]
+            log.debug("Column ID Provided: %s", self._column_id)
         elif (self._archive_id is not None and
               self._timestamp is not None and
               self._coldef_id is not None):
@@ -241,6 +244,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
                 archive_id=self._archive_id,
                 coldef_id=self._coldef_id,
                 timestamp=self._timestamp)
+            log.debug("Column ID constructed: %s", self._column_id)
         else:
             raise ValueError("Either column_id or all of (archive_id, coldef_id and timestamp) must be provided.")
 

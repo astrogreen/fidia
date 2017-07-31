@@ -299,6 +299,8 @@ class ColumnDefinition(object):
             coldef_id=self.id
         )
         assert isinstance(column, FIDIAColumn)
+        # assert hasattr(column, "archive_id")
+        # assert column.id.archive_id
         # Call on_associate helpers of any sub-classes:
         if type(self) is not ColumnDefinition:
 
