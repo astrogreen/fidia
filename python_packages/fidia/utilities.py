@@ -484,7 +484,6 @@ def ordering_list_dict(ordering_attr, mapping_attribute):
     return lambda: OrderingListDict(ordering_attr, mapping_attribute)
 
 
-# noinspection PyMissingConstructor
 class OrderingListDict(list):
     """A custom list that manages position information for its children.
 
@@ -493,6 +492,8 @@ class OrderingListDict(list):
     the :func:`.relationship` function.
 
     """
+
+    # @TODO: I don't believe this has any tests!
 
     __emulates__ = list
 
@@ -538,6 +539,7 @@ class OrderingListDict(list):
           manual sql operations.
 
         """
+        super(OrderingListDict, self).__init__()
         self.ordering_attr = ordering_attr
         self.reorder_on_append = reorder_on_append
 
@@ -687,6 +689,23 @@ class OrderingListDict(list):
         self.reorder()
 
     # The __setslice__ and __delslice__ methods are deprecated, and not implemented here.
+
+    def check_key(self, item=None):
+        if item is None:
+            # Check the whole list for any changed keys by simply recreating the mapping cache.
+            self._mapping = dict()
+            for item in self:
+                self._add_mapping(item)
+        else:
+            try:
+                # Find the item in the mapping cache:
+                index = list(self._mapping.values()).index(item)
+                old_key = list(self._mapping.keys())[index]
+                del self._mapping[old_key]
+                self._add_mapping(item)
+            except:
+                # The mapping cache is corrupted. Just generate it again:
+                self.check_key()
 
     def keys(self):
         for item in self:
