@@ -83,7 +83,7 @@ def collect_columns(table_id, index_column):
         col = SQLColumn(
             "SELECT {index_column} as `id`, {data_column} as `data` FROM {table}".format(
                 index_column=index_column, data_column=row["name"], table=table_data["name"]),
-            unit=unit, ucd=row['ucd'], long_desc=row['description'])
+            unit=unit, ucd=row['ucd'], long_description=row['description'])
         columns.add((col_alias, col))
 
         mappings.append(TraitPropertyMapping(row['name'], col_alias))

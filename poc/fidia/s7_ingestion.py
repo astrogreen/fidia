@@ -197,7 +197,7 @@ def collect_tabular_data(all_columns_found, all_dicts, all_mappings):
         log.debug(list(column_meta.keys()))
         for column in columns:
             log.debug("Updating column '%s' with short description '%s'", column.column_name, column_meta[column.column_name]['short_description'])
-            column.short_desc = column_meta[column.column_name]['short_description']
+            column.short_description = column_meta[column.column_name]['short_description']
 
     # tabular_mappings = dict()
 

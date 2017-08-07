@@ -131,7 +131,7 @@ class ColumnDefinition(object):
     _parameters = []
 
     _meta_kwargs = ('dtype', 'n_dim', 'unit', 'ucd')
-    _desc_kwargs = ('pretty_name', 'short_desc', 'long_desc')
+    _desc_kwargs = ('pretty_name', 'short_description', 'long_description')
 
 
     def __init__(self, *args, **kwargs):
@@ -152,8 +152,8 @@ class ColumnDefinition(object):
         self.n_dim = kwargs.pop('n_dim', 0)
 
         self.pretty_name = kwargs.pop('pretty_name', "")
-        self.short_desc = kwargs.pop('short_desc', "")
-        self.long_desc = kwargs.pop('long_desc', "")
+        self.short_description = kwargs.pop('short_description', "")
+        self.long_description = kwargs.pop('long_description', "")
 
         unit = kwargs.pop('unit', None)
         if isinstance(unit, units.Unit):
