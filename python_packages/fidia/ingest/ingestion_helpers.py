@@ -50,3 +50,36 @@ def write_validataion_errors(specification_dict, errors_filename):
 def write_specification_dict_as_json(specification_dict, json_filename):
     with open(json_filename, "w") as f:
         json.dump(specification_dict, f, indent=4)
+
+def update_mappings_list_with_specification_dict(mappings, updated_specification_dict):
+    # type: (List[TraitMapping], Dict[str, dict]) -> None
+    """Update a list of TraitMapping objects using the serialised mapping information in updated_specification_dict.
+
+    This identifies the part of the specification_dict that corresponds to each
+    TraitMapping object in the list, and then calls the
+    `update_with_specification_dict` method.
+
+    """
+
+    update_log = []
+
+    for mapping in mappings:
+        log.debug("Preparing to update %s", mapping.mapping_key_str)
+        if mapping.mapping_key_str in updated_specification_dict:
+            # The mapping appears in the updated information, so update mapping with that representation
+            log.debug("Updated mapping information found, updating mapping...")
+            log_length_before = len(update_log)
+            mapping.update_with_specification_dict(updated_specification_dict[mapping.mapping_key_str], update_log=update_log)
+            log_length_after = len(update_log)
+            if log_length_after > log_length_before:
+                log.debug("%s updates made", log_length_after - log_length_before)
+                if log.isEnabledFor(slogging.VDEBUG):
+                    for line in update_log[log_length_before:]:
+                        log.vdebug(line)
+            else:
+                log.debug("No updates required.")
+        else:
+            # The mapping does not appear in the updated information: perhaps it has been deleted?
+            log.debug("No updated mapping information found! Perhaps item has been deleted from JSON? No changes made.")
+
+    return update_log

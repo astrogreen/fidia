@@ -1,6 +1,8 @@
 # import json
 # from collections import OrderedDict
 
+from typing import List, Union, Dict
+
 # import fidia
 from fidia.ingest.data_finder import *
 from fidia.column import ColumnDefinitionList
@@ -248,6 +250,48 @@ def write_validataion_errors(specification_dict, errors_filename):
     with open(errors_filename, "w") as f:
         f.write(format_validation_errors(collect_validation_errors(specification_dict)))
 
+def update_s7_json_from_list(list_dict):
+    # type: (List[dict]) -> Dict[str, TraitMapping]
+
+    specification_dict = dict()
+    for mapping in list_dict:
+        specification_dict.update(mapping)
+
+    return specification_dict
+
+
+def update_mappings_list_with_specification_dict(mappings, updated_specification_dict):
+    # type: (List[TraitMapping], Dict[str, dict]) -> None
+    """Update a list of TraitMapping objects using the serialised mapping information in updated_specification_dict.
+
+    This identifies the part of the specification_dict that corresponds to each
+    TraitMapping object in the list, and then calls the
+    `update_with_specification_dict` method.
+
+    """
+
+    update_log = []
+
+    for mapping in mappings:
+        log.debug("Preparing to update %s", mapping.mapping_key_str)
+        if mapping.mapping_key_str in updated_specification_dict:
+            # The mapping appears in the updated information, so update mapping with that representation
+            log.debug("Updated mapping information found, updating mapping...")
+            log_length_before = len(update_log)
+            mapping.update_with_specification_dict(updated_specification_dict[mapping.mapping_key_str], update_log=update_log)
+            log_length_after = len(update_log)
+            if log_length_after > log_length_before:
+                log.debug("%s updates made", log_length_after - log_length_before)
+                if log.isEnabledFor(slogging.VDEBUG):
+                    for line in update_log[log_length_before:]:
+                        log.vdebug(line)
+            else:
+                log.debug("No updates required.")
+        else:
+            # The mapping does not appear in the updated information: perhaps it has been deleted?
+            log.debug("No updated mapping information found! Perhaps item has been deleted from JSON? No changes made.")
+
+    return update_log
 
 if __name__ == "__main__":
 
@@ -279,6 +323,27 @@ if __name__ == "__main__":
     write_specification_dict_as_json(specification_dict, "/Users/agreen/Desktop/s7-datacentral.json")
 
     write_validataion_errors(specification_dict, "/Users/agreen/Desktop/s7-datacentral-error-summary.txt")
+
+
+    updated_json_filename = "/Users/agreen/Desktop/s7-datacentral.json"
+
+    with open(updated_json_filename, 'r') as f:
+        updated_json = json.load(f)
+
+
+    # The original S7 JSON given to Adam (the team) was written with code that
+    # produced a top level list, but this was replaced with a top-level
+    # dictionary (as the list provided an unnecessary level of nesting). This
+    # next command changes the old format to match the new one:
+
+    updated_json = update_s7_json_from_list(updated_json)
+
+    # specification_dict = update_s7_json_from_list(specification_dict)
+
+    update_log = update_mappings_list_with_specification_dict(all_mappings, updated_json)
+
+    for line in update_log:
+        print(line)
 
     # print(format_validation_errors(collect_validation_errors(specification_dict)))
 

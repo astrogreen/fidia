@@ -23,7 +23,7 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, fidia_classname, ordering_list_dict
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, fidia_classname, ordering_list_dict, log_to_list
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -752,7 +752,7 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
 
     pretty_name = sa.Column(sa.UnicodeText(length=30))
     short_description = sa.Column(sa.Unicode(length=150))
-    long_descrription = sa.Column(sa.UnicodeText)
+    long_description = sa.Column(sa.UnicodeText)
     index = sa.Column(sa.Integer)
 
     def __init__(self, pretty_name=u"", short_desc=u"", long_desc=u""):
@@ -761,7 +761,7 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
 
         self.pretty_name = pretty_name
         self.short_description = short_desc
-        self.long_descrription = long_desc
+        self.long_description = long_desc
 
 
     def _reconstruct_trait_class(self):
@@ -944,11 +944,11 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
         result = {
             self.mapping_key_str: 
                 OrderedDict([
-                    ('name', self.name),
-                    ('pretty_name', self.pretty_name),
-                    ('short_description', self.short_description),
-                    ('long_description', self.long_descrription),
-                    ('contents', result)
+                    ("name", self.name),
+                    ("pretty_name", self.pretty_name),
+                    ("short_description", self.short_description),
+                    ("long_description", self.long_description),
+                    ("contents", result)
                  ])
         }
         
@@ -957,7 +957,27 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
             result[self.mapping_key_str]["validation_errors"] = validation_errors
             
         return result
-            
+    
+    def update_with_specification_dict(self, specification_dict, update_log=None):
+        
+        # First check meta-data
+        for meta_item in ("name", "pretty_name", "short_description", "long_description"):
+            change_item(meta_item, self, specification_dict, update_log)
+
+        # Now check contents (sub-mappings, TraitPropertyMappings)
+        for name, mapping in self.trait_property_mappings.items():
+            assert name in specification_dict["contents"]
+            mapping.update_with_specification_dict(specification_dict["contents"][name])
+        for name, mapping in self.sub_trait_mappings.items():
+            assert name in specification_dict["contents"]
+            mapping.update_with_specification_dict(specification_dict["contents"][name])
+        for name, mapping in self.named_sub_mappings.items():
+            assert mapping.mapping_key_str in specification_dict["contents"]
+            mapping.update_with_specification_dict(specification_dict["contents"][mapping.mapping_key_str])
+
+        self.trait_property_mappings.check_key()
+        self.named_sub_mappings.check_key()
+
 class SubTraitMapping(bases.Mapping, TraitMappingBase):
 
     __mapper_args__ = {'polymorphic_identity': 'SubTraitMapping'}
@@ -1051,7 +1071,7 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
                     ('name', self.name),
                     ('pretty_name', self.pretty_name),
                     ('short_description', self.short_description),
-                    ('long_description', self.long_descrription),
+                    ('long_description', self.long_description),
                     ('contents', contents)
                 ])
         }
@@ -1062,6 +1082,21 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
 
         return result
 
+    def update_with_specification_dict(self, specification_dict, update_log=None):
+
+        # First check meta-data:
+        for meta_item in ("name", "pretty_name", "short_description", "long_description"):
+            change_item(meta_item, self, specification_dict, update_log)
+
+        # Now check contents (sub-mappings, TraitPropertyMappings)
+        for name, mapping in self.trait_property_mappings.items():
+            assert mapping.name in specification_dict["contents"]
+            mapping.update_with_specification_dict(specification_dict["contents"][name])
+        for name, mapping in self.sub_trait_mappings.items():
+            assert name in specification_dict["contents"]
+            mapping.update_with_specification_dict(specification_dict["contents"][name])
+
+        self.trait_property_mappings.check_key()
 
 class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.PersistenceBase):
 
@@ -1124,8 +1159,8 @@ class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.Persistenc
                 ("n_dim", column.n_dim),
                 ("unit", column.unit),
                 ("ucd", column.ucd),
-                ("short_description", column.short_desc),
-                ("long_description", column.long_desc)
+                ("short_description", column.short_description),
+                ("long_description", column.long_description)
             ])}
 
         else:
@@ -1133,3 +1168,42 @@ class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.Persistenc
         if len(validation_errors) > 0:
             result[self.name]["validation_errors"] = validation_errors
         return result
+
+    def update_with_specification_dict(self, specification_dict, columns=None, update_log=None):
+
+        # Check items on this TraitPropertyMapping
+        change_item("name", self, specification_dict, update_log)
+        # NOTE: column_id is not checked here
+
+        if columns is not None:
+            # Check/update the corresponding column:
+            column = columns[self.id]
+
+            for meta_item in ("pretty_name", "short_description", "long_description", "unit", "ucd"):
+                change_item(meta_item, self, specification_dict, update_log)
+
+            # Confirm that items not allowed to change haven't
+            for meta_item in ("n_dim"):
+                change_item(meta_item, self, specification_dict, update_log, changes_allowed=False)
+            # NOTE: dtype is not checked for changes.
+
+def change_item(meta_item,  mapping, specification_dict, update_log, changes_allowed=True):
+    """Checks and if necessary updates an attribute of a mapping-like class with the dictionary."""
+    my_version = getattr(mapping, meta_item)
+
+    if not changes_allowed:
+        if specification_dict[meta_item] != my_version:
+            log_item = "%s: %s not allowed to change from '%s' to '%s', change ignored." % (
+                mapping, meta_item, my_version, specification_dict[meta_item])
+            log.error(log_item)
+            log_to_list(update_log, log_item)
+        return
+
+    if specification_dict[meta_item] != my_version:
+        setattr(mapping, meta_item, specification_dict[meta_item])
+        log_item = "%s: %s changed from '%s' to '%s'" % (
+            mapping, meta_item, my_version, specification_dict["name"])
+        log.info(log_item)
+        log_to_list(update_log, log_item)
+    else:
+        log.info("%s: %s unchanged", mapping, meta_item)

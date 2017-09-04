@@ -31,6 +31,10 @@ __all__ = [
     'RegexpGroup', 'exclusive_file_lock', 'classorinstancemethod', 'reset_cached_property'
 ]
 
+def log_to_list(list_log, item):
+    if list_log is not None:
+        list_log.append(item)
+
 def reset_cached_property(object, property_name):
     """Checks if a cached_property has been cached, and if so, resets it.
 
