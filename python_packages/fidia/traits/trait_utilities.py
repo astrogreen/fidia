@@ -915,6 +915,20 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
                                            % (self, self.name, "\n".join(errors)))
         return errors
 
+    def check_columns(self, column_list):
+        # type: (ColumnDefinitionList) -> List
+
+        # @TODO: This is draft code and not well tested.
+        # See also SubTraitMapping.check_columns and Archive.validate
+
+        missing_columns = []
+        for tp in self.trait_property_mappings.values():
+            if tp.id not in column_list:
+                missing_columns.append(tp.id)
+        for sub_mapping in chain(self.named_sub_mappings.values(), self.sub_trait_mappings.values()):
+            missing_columns.extend(sub_mapping.check_columns(column_list))
+
+        return missing_columns
 
     @property
     def mapping_key(self):
@@ -1115,6 +1129,22 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
                                                    update_log=update_log)
 
         self.trait_property_mappings.check_key()
+
+    def check_columns(self, column_list):
+        # type: (ColumnDefinitionList) -> List
+
+        # @TODO: This is draft code and not well tested.
+        # See also TraitMapping.check_columns and Archive.validate
+
+        missing_columns = []
+        for tp in self.trait_property_mappings.values():
+            if tp.id not in column_list:
+                missing_columns.append(tp.id)
+        for sub_mapping in self.sub_trait_mappings.values():
+            missing_columns.extend(sub_mapping.check_columns(column_list))
+
+        return missing_columns
+
 
 class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.PersistenceBase):
 

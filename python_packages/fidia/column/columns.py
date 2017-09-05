@@ -43,8 +43,10 @@ class ColumnID(str):
         split = string.split(":")
         if len(split) == 2:
             # Only column type and name
+            self.archive_id = None
             self.column_type = split[0]
             self.column_name = split[1]
+            self.timestamp = None
             return self
         if len(split) == 4:
             # Fully defined
@@ -70,6 +72,20 @@ class ColumnID(str):
         if isinstance(key, str):
             return cls(key)
         raise KeyError("Cannot parse ID '{}' into a ColumnID".format(key))
+
+    @property
+    def type(self):
+        if (self.archive_id is None and
+                self.column_type is not None and
+                self.column_name is not None and
+                self.timestamp is None):
+            return 'short'
+        if (self.archive_id is not None and
+                self.column_type is not None and
+                self.column_name is not None and
+                self.timestamp is not None):
+            return 'full'
+        return 'unknown'
 
     def __repr__(self):
         """Return a nicely formatted representation string"""

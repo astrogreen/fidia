@@ -19,7 +19,7 @@ import fidia.base_classes as bases
 # Set up logging
 import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.VDEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 __all__ = ['AstronomicalObject']

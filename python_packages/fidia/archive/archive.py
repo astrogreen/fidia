@@ -285,6 +285,23 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
         trait_key = traits.TraitKey.as_traitkey(trait_key)
         return trait_key.trait_name in self.available_traits.get_trait_names()
 
+    def validate(self, raise_exception=False):
+
+        self._validate_mapping_column_ids(raise_exception=raise_exception)
+
+    def _validate_mapping_column_ids(self, raise_exception=False):
+
+        # @TODO: This is draft code and not well tested.
+        # See also SubTraitMapping.check_columns and TraitMapping.check_columns
+
+        missing_columns = []
+        for mapping in self._mappings:
+            missing_columns.extend(mapping.check_columns(self.columns))
+
+        if raise_exception and len(missing_columns) > 0:
+            raise ValidationError("Trait Mappings of this archive reference Columns not defined in the Archive.")
+        else:
+            return missing_columns
 
     def __getitem__(self, key):
         # type: (str) -> AstronomicalObject
@@ -341,6 +358,27 @@ def replace_aliases_trait_mappings(mappings, alias_mappings):
         else:
             log.debug("Recursing on mapping %s", mapping)
             replace_aliases_trait_mappings(mapping, alias_mappings)
+
+def expand_column_ids_in_trait_mappings(mappings, archive_columns):
+    # type: (List[Mappings], Dict[str, columns.FIDIAColumn]) -> None
+    short_to_long = None
+    for mapping in mappings:
+        if isinstance(mapping, fidia.traits.TraitPropertyMapping):
+            mapping_column_id = columns.ColumnID.as_column_id(mapping.id)
+            if mapping_column_id.type == 'short':
+                if short_to_long is None:
+                    # Create a database of short to long IDs to make updating quick.
+                    short_to_long = dict()
+                    for colid in archive_columns:
+                        colid = columns.ColumnID.as_column_id(colid)
+                        short_to_long[colid.column_type + ":" + colid.column_name] = colid
+                log.debug("Replacing short ColumnID %s with full ID %s", mapping.id, short_to_long[mapping.id])
+                mapping.id = short_to_long[mapping.id]
+            else:
+                continue
+        else:
+            log.debug("Recursing on mapping %s", mapping)
+            expand_column_ids_in_trait_mappings(mapping, archive_columns)
 
 class ArchiveDefinition(object):
     """A definition of the columns (data), objects, and traits (schema) making up an archive.
@@ -462,6 +500,9 @@ class ArchiveDefinition(object):
 
             # Update any columns that have been referred to by an alias:
             replace_aliases_trait_mappings(archive._mappings, alias_mappings)
+
+            # Update short column ids in mappings to point to local columns where possible
+            expand_column_ids_in_trait_mappings(archive._mappings, archive.columns)
 
             # self._db_session.add(self.trait_manager)
             if is_persisted:
