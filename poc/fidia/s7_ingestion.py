@@ -262,7 +262,7 @@ def update_s7_json_from_list(list_dict):
     return specification_dict
 
 
-def update_mappings_list_with_specification_dict(mappings, updated_specification_dict):
+def update_mappings_list_with_specification_dict(mappings, columns, updated_specification_dict):
     # type: (List[TraitMapping], Dict[str, dict]) -> List
     """Update a list of TraitMapping objects using the serialised mapping information in updated_specification_dict.
 
@@ -280,7 +280,8 @@ def update_mappings_list_with_specification_dict(mappings, updated_specification
             # The mapping appears in the updated information, so update mapping with that representation
             log.debug("Updated mapping information found, updating mapping...")
             log_length_before = len(update_log)
-            mapping.update_with_specification_dict(updated_specification_dict[mapping.mapping_key_str], update_log=update_log)
+            mapping.update_with_specification_dict(updated_specification_dict[mapping.mapping_key_str],
+                                                   columns=columns, update_log=update_log)
             log_length_after = len(update_log)
             if log_length_after > log_length_before:
                 log.debug("%s updates made", log_length_after - log_length_before)
@@ -342,7 +343,7 @@ if __name__ == "__main__":
 
     # specification_dict = update_s7_json_from_list(specification_dict)
 
-    update_log = update_mappings_list_with_specification_dict(all_mappings_main, updated_json)
+    update_log = update_mappings_list_with_specification_dict(all_mappings_main, all_columns_found_main, updated_json)
 
     for line in update_log:
         print(line)

@@ -230,6 +230,10 @@ class ColumnDefinition(object):
                 ",\n ".join([kw + "=" + repr(getattr(self, kw)) for kw in self._desc_kwargs]) +
                 ")")
 
+    def __str__(self):
+        """Prints a representation of the column with its ID."""
+        return "FIDIAColumn(" + self.id + ")"
+
     def _timestamp_helper(self, archive):
         # type: (fidia.archive.archive.Archive) -> Union[None, int, float]
         """A helper function that subclasses can override to change how the column timestamp is determined.
