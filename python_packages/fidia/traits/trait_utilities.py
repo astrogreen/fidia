@@ -932,6 +932,14 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
                 (fidia_classname(self.trait_class), str(self.trait_key), repr(mappings)))
 
+    def __str__(self):
+        """String form, similar to repr, but shorter."""
+        if self._is_reconstructed is None:
+            return "Unreconstructed " + super(TraitMapping, self).__repr__()
+
+        return ("TraitMapping(%s, '%s')" %
+                (fidia_classname(self.trait_class), str(self.trait_key)))
+
     def as_specification_dict(self, columns=None):
         # type: (fidia.column.ColumnDefinitionList) -> dict
         result = OrderedDict()

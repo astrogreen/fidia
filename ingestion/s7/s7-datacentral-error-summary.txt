@@ -1,0 +1,388 @@
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:normal_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_blue -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:FLUX -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:VARIANCE -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> MJD-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> UTC-OBS
+    Name has invalid characters '-'
+At (Item:0) -> tar_file_group:cubes -> contents -> tar_file_group:broad_cubes -> contents -> fits_file:cube_red -> contents -> fits_image_hdu:SY1_MASK -> contents -> fits_header:header -> contents -> LST-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:blue_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LAT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> LONG-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> ALT-OBS
+    Name has invalid characters '-'
+At (Item:2) -> tar_file_group:nuclear_spectra -> contents -> fits_file:red_broad_line_subtracted -> contents -> fits_image_hdu:PRIMARY -> contents -> fits_header:header -> contents -> DATE-OBS
+    Name has invalid characters '-'
+At (Item:3) -> table:catalog -> contents -> S7_Sy1_subtraction?
+    Name has invalid characters '?'
+At (Item:3) -> table:catalog -> contents -> S7_Photometric?
+    Name has invalid characters '?'
+At (Item:3) -> table:catalog -> contents -> S7_mosaic?
+    Name has invalid characters '?'
+At (Item:3) -> table:catalog -> contents -> V_b-v_color
+    Name has invalid characters '-'
+At (Item:3) -> table:catalog -> contents -> V_u-b_color
+    Name has invalid characters '-'
+At (Item:3) -> table:catalog -> contents -> HL_Bar?
+    Name has invalid characters '?'
+At (Item:3) -> table:catalog -> contents -> HL_Ring?
+    Name has invalid characters '?'
+At (Item:3) -> table:catalog -> contents -> HL_Multiple?
+    Name has invalid characters '?'
+At (Item:3) -> table:catalog -> contents -> HL_U-B
+    Name has invalid characters '-'
+At (Item:3) -> table:catalog -> contents -> HL_B-V
+    Name has invalid characters '-'
+At (Item:3) -> table:catalog -> contents -> HL_U-B_in_1Re
+    Name has invalid characters '-'
+At (Item:3) -> table:catalog -> contents -> HL_B-V_in_1Re
+    Name has invalid characters '-'
+At (Item:4) -> table:nuclear_fluxes -> contents -> Broad_subtracted?
+    Name has invalid characters '?'
+At (Item:4) -> table:nuclear_fluxes -> contents -> Linear_continuum?
+    Name has invalid characters '?'
+At (Item:4) -> table:nuclear_fluxes -> contents -> Photometric?
+    Name has invalid characters '?'
+At (Item:4) -> table:nuclear_fluxes -> contents -> Hbeta_flux_E-16_erg/cm2/s
+    Name has invalid characters '-//'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [FeVII]3586
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [OII]3726
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [OII]3729
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [NeIII]3869
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [NeIII]3967
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [SII]4069
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [SII]4076
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [OIII]4363
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [ArIV]4711
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [ArIV]4740
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [OIII]5007
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [NI]5198
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [NI]5200
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [FeII]5273
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [FeXIV]5303
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [ArX]5534
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [FeVII]5721
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [NII]5755
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [FeVII]6087
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [OI]6300
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [SIII]6312
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [OI]6364
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [FeX]6375
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [ArV]6435
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [NII]6583
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [SII]6716
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:4) -> table:nuclear_fluxes -> contents -> [SII]6731
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> Broad_subtracted?
+    Name has invalid characters '?'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> Linear_continuum?
+    Name has invalid characters '?'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> Photometric?
+    Name has invalid characters '?'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> Hbeta_flux_E-16_erg/cm2/s
+    Name has invalid characters '-//'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [FeVII]3586
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [OII]3726
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [OII]3729
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [NeIII]3869
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [NeIII]3967
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [SII]4069
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [SII]4076
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [OIII]4363
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [ArIV]4711
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [ArIV]4740
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [OIII]5007
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [NI]5198
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [NI]5200
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [FeII]5273
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [FeXIV]5303
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [ArX]5534
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [FeVII]5721
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [NII]5755
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [FeVII]6087
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [OI]6300
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [SIII]6312
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [OI]6364
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [FeX]6375
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [ArV]6435
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [NII]6583
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [SII]6716
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:5) -> table:nuclear_flux_errors -> contents -> [SII]6731
+    Name cannot start with non-alphabetic character '['
+    Name has invalid characters '[]'
+At (Item:6) -> table:nuclear_luminosities -> contents -> Broad_subtracted?
+    Name has invalid characters '?'
+At (Item:6) -> table:nuclear_luminosities -> contents -> Linear_continuum?
+    Name has invalid characters '?'
+At (Item:6) -> table:nuclear_luminosities -> contents -> Photometric?
+    Name has invalid characters '?'
+At (Item:6) -> table:nuclear_luminosities -> contents -> FHbeta_E-16_erg_cm-2_s-1
+    Name has invalid characters '---'
+At (Item:6) -> table:nuclear_luminosities -> contents -> FOIII_E-16_erg_cm-2_s-1
+    Name has invalid characters '---'
+At (Item:6) -> table:nuclear_luminosities -> contents -> log_LHbeta_erg_s-1
+    Name has invalid characters '-'
+At (Item:6) -> table:nuclear_luminosities -> contents -> log_LOIII_erg_s-1
+    Name has invalid characters '-'

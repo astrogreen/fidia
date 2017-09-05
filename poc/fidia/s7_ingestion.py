@@ -1,7 +1,7 @@
 # import json
 # from collections import OrderedDict
 
-from typing import List, Union, Dict
+# from typing import List, Dict
 
 # import fidia
 from fidia.ingest.data_finder import *
@@ -9,7 +9,8 @@ from fidia.column import ColumnDefinitionList
 
 # from indenter import Indenter
 
-
+S7_DATA_DIR = "/Users/agreen/Desktop/S7 Data"
+S7_INGESTION_DIR = "/Users/agreen/Documents/ASVO/code/git-repository/ingestion/s7/"
 
 
 def collect_validation_errors(output, breadcrumb=tuple()):
@@ -46,7 +47,7 @@ def collect_cubes(all_columns_found, all_dicts, all_mappings):
     # Blue Cubes
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "0_Cubes/{object_id}_B.fits.gz", object_id="3C278",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     cube_dicts["FITSFile:cube_blue"] = fits_dict
@@ -59,7 +60,7 @@ def collect_cubes(all_columns_found, all_dicts, all_mappings):
     # Red Cubes
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "0_Cubes/{object_id}_R.fits.gz", object_id="3C278",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     cube_dicts["FITSFile:cube_red"] = fits_dict
@@ -77,7 +78,7 @@ def collect_cubes(all_columns_found, all_dicts, all_mappings):
     # Blue Cubes
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "0_Broadsub_cubes/{object_id}-broadsub_B.fits.gz", object_id="ESO323-G77",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     broad_cube_dict["FITSFile:cube_blue"] = fits_dict
@@ -89,7 +90,7 @@ def collect_cubes(all_columns_found, all_dicts, all_mappings):
     # Red Cubes
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "0_Broadsub_cubes/{object_id}-broadsub_R.fits.gz", object_id="ESO323-G77",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     broad_cube_dict["FITSFile:cube_red"] = fits_dict
@@ -121,7 +122,7 @@ def collect_lzifu(all_columns_found, all_dicts, all_mappings):
     for n_comp in "1", "2", "3":
         columns_found, fits_dict, fits_mapping = finder_fits_file(
             "1_LZIFU_n_comp_fits/{object_id}_" + n_comp + "_comp.fits", object_id="ESO323-G77",
-            basepath="/Users/agreen/Desktop/S7 Data"
+            basepath=S7_DATA_DIR
         )
         all_columns_found.extend(columns_found)
         lzifu_dict["FITSFile:comp_" + n_comp] = fits_dict
@@ -130,7 +131,7 @@ def collect_lzifu(all_columns_found, all_dicts, all_mappings):
     # Best Component (LZComp)
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "2_Post-processed_mergecomps/{object_id}_best_components.fits", object_id="ESO323-G77",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     lzifu_dict["FITSFile:best_component"] = fits_dict
@@ -148,7 +149,7 @@ def collect_nuclear_spectra(all_columns_found, all_dicts, all_mappings):
 
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "3_Nuclear_spectra/{object_id}_R.fits.gz", object_id="ESO323-G77",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     nuclear_dict["FITSFile:red"] = fits_dict
@@ -156,7 +157,7 @@ def collect_nuclear_spectra(all_columns_found, all_dicts, all_mappings):
 
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "3_Nuclear_spectra/{object_id}_B.fits.gz", object_id="ESO323-G77",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     nuclear_dict["FITSFile:blue"] = fits_dict
@@ -165,7 +166,7 @@ def collect_nuclear_spectra(all_columns_found, all_dicts, all_mappings):
     # Broad-line subtracted
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "3_Broadsub_nuclear_spectra/{object_id}-broadsub_B.fits.gz", object_id="ESO323-G77",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     nuclear_dict["FITSFile:blue_broad_line_subtracted"] = fits_dict
@@ -173,7 +174,7 @@ def collect_nuclear_spectra(all_columns_found, all_dicts, all_mappings):
 
     columns_found, fits_dict, fits_mapping = finder_fits_file(
         "3_Broadsub_nuclear_spectra/{object_id}-broadsub_R.fits.gz", object_id="ESO323-G77",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
     nuclear_dict["FITSFile:red_broad_line_subtracted"] = fits_dict
@@ -187,6 +188,7 @@ def collect_tabular_data(all_columns_found, all_dicts, all_mappings):
     #   T a b u l a r   D a t a
 
 
+    # noinspection PyShadowingNames
     def update_s7_csv(table_mapping, columns, csv_file):
         with open(csv_file, 'r') as f:
             column_meta = OrderedDict()
@@ -205,9 +207,9 @@ def collect_tabular_data(all_columns_found, all_dicts, all_mappings):
 
     columns_found, table_dict, table_mapping = finder_csv_file(
         "4_Table_2_Catalogue.csv", comment="\$", index_column="S7_Name",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
-    update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_2_Catalogue.csv")
+    update_s7_csv(table_mapping, columns_found, S7_DATA_DIR + "/4_Table_2_Catalogue.csv")
     all_columns_found.extend(columns_found)
     all_dicts["Table:catalog"] = table_dict
     all_mappings.append(TraitMapping(Table, "catalog", table_mapping))
@@ -216,18 +218,18 @@ def collect_tabular_data(all_columns_found, all_dicts, all_mappings):
 
     columns_found, table_dict, table_mapping = finder_csv_file(
         "4_Table_3a_Nuclear_fluxes.csv", comment="\$", index_column="S7_Name",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
-    # update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_3a_Nuclear_fluxes.csv")
+    # update_s7_csv(table_mapping, columns_found, S7_DATA_DIR + "/4_Table_3a_Nuclear_fluxes.csv")
     all_columns_found.extend(columns_found)
     all_dicts["Table:nuclear_fluxes"] = table_dict
     all_mappings.append(TraitMapping(Table, "nuclear_fluxes", table_mapping))
 
     columns_found, table_dict, table_mapping = finder_csv_file(
         "4_Table_3b_Nuclear_flux_errors.csv", comment="\$", index_column="S7_Name",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
-    # update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_3b_Nuclear_flux_errors.csv")
+    # update_s7_csv(table_mapping, columns_found, S7_DATA_DIR + "/4_Table_3b_Nuclear_flux_errors.csv")
 
     all_columns_found.extend(columns_found)
     all_dicts["Table:nuclear_flux_errors"] = table_dict
@@ -235,9 +237,9 @@ def collect_tabular_data(all_columns_found, all_dicts, all_mappings):
 
     columns_found, table_dict, table_mapping = finder_csv_file(
         "4_Table_4_Nuclear_luminosities.csv", comment="\$", index_column="S7_Name",
-        basepath="/Users/agreen/Desktop/S7 Data"
+        basepath=S7_DATA_DIR
     )
-    # update_s7_csv(table_mapping, columns_found, "/Users/agreen/Desktop/S7 Data/4_Table_4_Nuclear_luminosities.csv")
+    # update_s7_csv(table_mapping, columns_found, S7_DATA_DIR + "/4_Table_4_Nuclear_luminosities.csv")
     all_columns_found.extend(columns_found)
     all_dicts["Table:nuclear_luminosities"] = table_dict
     all_mappings.append(TraitMapping(Table, "nuclear_luminosities", table_mapping))
@@ -261,7 +263,7 @@ def update_s7_json_from_list(list_dict):
 
 
 def update_mappings_list_with_specification_dict(mappings, updated_specification_dict):
-    # type: (List[TraitMapping], Dict[str, dict]) -> None
+    # type: (List[TraitMapping], Dict[str, dict]) -> List
     """Update a list of TraitMapping objects using the serialised mapping information in updated_specification_dict.
 
     This identifies the part of the specification_dict that corresponds to each
@@ -295,17 +297,17 @@ def update_mappings_list_with_specification_dict(mappings, updated_specification
 
 if __name__ == "__main__":
 
-    all_columns_found = ColumnDefinitionList()
-    all_dicts = OrderedDict()
-    all_mappings = []
+    all_columns_found_main = ColumnDefinitionList()
+    all_dicts_main = OrderedDict()
+    all_mappings_main = []
 
-    collect_cubes(all_columns_found, all_dicts, all_mappings)
+    collect_cubes(all_columns_found_main, all_dicts_main, all_mappings_main)
 
-    collect_lzifu(all_columns_found, all_dicts, all_mappings)
+    collect_lzifu(all_columns_found_main, all_dicts_main, all_mappings_main)
 
-    collect_nuclear_spectra(all_columns_found, all_dicts, all_mappings)
+    collect_nuclear_spectra(all_columns_found_main, all_dicts_main, all_mappings_main)
 
-    collect_tabular_data(all_columns_found, all_dicts, all_mappings)
+    collect_tabular_data(all_columns_found_main, all_dicts_main, all_mappings_main)
 
     # print(repr(all_columns_found))
     # for mapping in all_mappings:
@@ -317,15 +319,15 @@ if __name__ == "__main__":
 
     # print(json.dumps([mapping.as_specification_dict(all_columns_found) for mapping in all_mappings], indent=2))
 
-    specification_dict = [mapping.as_specification_dict(all_columns_found) for mapping in all_mappings]
+    specification_dict_main = [mapping.as_specification_dict(all_columns_found_main) for mapping in all_mappings_main]
 
 
-    write_specification_dict_as_json(specification_dict, "/Users/agreen/Desktop/s7-datacentral.json")
+    write_specification_dict_as_json(specification_dict_main, S7_INGESTION_DIR + "s7-datacentral.json")
 
-    write_validataion_errors(specification_dict, "/Users/agreen/Desktop/s7-datacentral-error-summary.txt")
+    write_validataion_errors(specification_dict_main, S7_INGESTION_DIR + "s7-datacentral-error-summary.txt")
 
 
-    updated_json_filename = "/Users/agreen/Desktop/s7-datacentral.json"
+    updated_json_filename = S7_INGESTION_DIR + "s7-datacentral_ADT_20170720.json"
 
     with open(updated_json_filename, 'r') as f:
         updated_json = json.load(f)
@@ -340,7 +342,7 @@ if __name__ == "__main__":
 
     # specification_dict = update_s7_json_from_list(specification_dict)
 
-    update_log = update_mappings_list_with_specification_dict(all_mappings, updated_json)
+    update_log = update_mappings_list_with_specification_dict(all_mappings_main, updated_json)
 
     for line in update_log:
         print(line)
