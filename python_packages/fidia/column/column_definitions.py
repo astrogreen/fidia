@@ -284,7 +284,13 @@ class ColumnDefinition(object):
             log.debug("Timestamp for column %s predefined to be %s", self, self._timestamp)
             return self._timestamp
         # Option 2: A timestamp helper function is defined
-        ts = self._timestamp_helper(archive)
+        try:
+            ts = self._timestamp_helper(archive)
+        except:
+            log.warning("Exception occurred while calling `%s._timestamp_helper", self.__class__.__name__)
+            if log.isEnabledFor(slogging.DEBUG):
+                log.exception()
+            pass
         if ts is not None:
             return ts
         # Option 3: Return the current time as the timestamp
@@ -454,9 +460,14 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
         log.debug("archive.basepath: %s, filename_pattern: %s", archive.basepath, self.filename_pattern)
         full_path_pattern = os.path.join(archive.basepath, self.filename_pattern)
         for object_id in archive.contents:
-            stats = os.stat(full_path_pattern.format(object_id=object_id))
-            if stats.st_mtime > timestamp:
-                timestamp = stats.st_mtime
+            try:
+                stats = os.stat(full_path_pattern.format(object_id=object_id))
+            except FileNotFoundError:
+                # Ignore objects where this file is not available (in effect handle as though "DataNotAvailable")
+                pass
+            else:
+                if stats.st_mtime > timestamp:
+                    timestamp = stats.st_mtime
         return timestamp
 
 # noinspection PyUnresolvedReferences
