@@ -51,8 +51,8 @@ def write_specification_dict_as_json(specification_dict, json_filename):
     with open(json_filename, "w") as f:
         json.dump(specification_dict, f, indent=4)
 
-def update_mappings_list_with_specification_dict(mappings, updated_specification_dict):
-    # type: (List[TraitMapping], Dict[str, dict]) -> None
+def update_mappings_list_with_specification_dict(mappings, columns, updated_specification_dict):
+    # type: (List[TraitMapping], Dict[str, dict]) -> List
     """Update a list of TraitMapping objects using the serialised mapping information in updated_specification_dict.
 
     This identifies the part of the specification_dict that corresponds to each
@@ -69,7 +69,8 @@ def update_mappings_list_with_specification_dict(mappings, updated_specification
             # The mapping appears in the updated information, so update mapping with that representation
             log.debug("Updated mapping information found, updating mapping...")
             log_length_before = len(update_log)
-            mapping.update_with_specification_dict(updated_specification_dict[mapping.mapping_key_str], update_log=update_log)
+            mapping.update_with_specification_dict(updated_specification_dict[mapping.mapping_key_str],
+                                                   columns=columns, update_log=update_log)
             log_length_after = len(update_log)
             if log_length_after > log_length_before:
                 log.debug("%s updates made", log_length_after - log_length_before)
