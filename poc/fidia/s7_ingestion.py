@@ -348,7 +348,12 @@ if __name__ == "__main__":
     for line in update_log:
         print(line)
 
-    # print(format_validation_errors(collect_validation_errors(specification_dict)))
+    specification_dict_main = [mapping.as_specification_dict(all_columns_found_main) for mapping in all_mappings_main]
+
+    write_validataion_errors(specification_dict_main, S7_INGESTION_DIR + "s7-datacentral-error-summary-updated.txt")
+
+
+        # print(format_validation_errors(collect_validation_errors(specification_dict)))
 
 
     # indenter = Indenter()

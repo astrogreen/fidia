@@ -1200,6 +1200,13 @@ class TraitPropertyMapping(bases.Mapping, bases.SQLAlchemyBase, bases.Persistenc
             # Check/update the corresponding column:
             column = columns[self.id]
 
+            # If someone editing a JSON file puts the string "null" into a place
+            # holder instead of the javascript NULL we must handle it. S7 had a
+            # lot of these for units, so this is handled here.
+            # @TODO: This should probably be handled higher up.
+            if specification_dict['unit'] == 'null':
+                specification_dict['unit'] = None
+
             for meta_item in ["pretty_name", "short_description", "long_description", "unit", "ucd"]:
                 change_item(meta_item, column, specification_dict, update_log)
 

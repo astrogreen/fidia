@@ -220,7 +220,15 @@ class ColumnDefinition(object):
         if isinstance(unit, units.UnrecognizedUnit):
             raise units.UnitsError("Unrecognized unit %s" % unit)
         self._unit = unit
-        self.unit = unit.to_string("vounit")
+        try:
+            self.unit = unit.to_string("vounit")
+        except ValueError as e:
+            # @TODO: VOUnit in astropy.units should better support logrythmic units in future.
+            if str(e).startswith("Function units cannot be written in vounit format") or \
+                    str(e).startswith("Unit 'dex' is not part of the VOUnit standard"):
+                self.unit = unit.to_string()
+            else:
+                raise
         log.debug("Unit created: %s", self.unit)
 
     def __repr__(self):
