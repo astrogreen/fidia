@@ -316,3 +316,5 @@ if __name__ == "__main__":
         is_persisted = False
 
     ar = S7Archive(basepath=S7_DATA_DIR)
+
+    print(ar['IC5063'].table['catalog'].V_app_mag)
