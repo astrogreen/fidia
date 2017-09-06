@@ -301,12 +301,43 @@ class Sample(bases.Sample):
             available_data[ar.name] = ar.available_data
         return available_data
 
-    def archive_for_column(self, id):
-        """The `.Archive` instance that that has the column id given."""
+    def archive_for_column(self, column_id):
         # type: (str) -> fidia.Archive
-        # column_id = ColumnID.as_column_id(id)
-        archive_id = id.split(":")[0]
-        return self._archives_by_id[archive_id]
+        """The `.Archive` instance that that has the column id given."""
+        # Part of the sample-like interface.
+        #
+        # NOTE: changes to the logic here may also need to be made in `Sample.archive_for_column`
+
+        column_id = fidia.column.ColumnID.as_column_id(column_id)
+        log.debug("Column requested: %s", column_id)
+        column_type = column_id.type  # Cache locally to avoid recalculating.
+        if column_type != 'full':
+            # This column is not fully defined in the FIDIA sense. Either:
+            #    (1) there was an error or problem in associating the column with
+            #        this archive--check the execution of `replace_aliases_trait_mappings`
+            #        and `expand_column_ids_in_trait_mappings` in `ArchiveDefinition.__new__`
+            #    (2) the column id string does not conform to the FIDIA standard, presumably
+            #        because the data access layer recognises a special column id. In this
+            #        case we assume that the column is associated with the Archive providing
+            #        the mapping, but we cannot know which Archive that is here. Perhaps it
+            #        would be possible to raise an exception that could make this clear to
+            #        the calling function.
+            if column_type == 'non-conformant':
+                # @TODO: Handle non-conformant ColumnIDs: see case (2) above.
+                # Case (2) above.
+                raise FIDIAException("Column %s has a non-standard ID and the associated Archive cannot be determined" %
+                                     column_id)
+            else:
+                # Case (1) above.
+                raise FIDIAException("Column %s does not seem to have been correctly associated with any archive" %
+                                     column_id)
+        archive_id = column_id.archive_id
+
+        try:
+            return self._archives_by_id[archive_id]
+        except KeyError:
+            raise FIDIAException("No archive is available in this Sample for column %s" % column_id)
+
 
     def find_column(self, column_id):
         """Look up the `.FIDIAColumn` instance for the provided ID."""

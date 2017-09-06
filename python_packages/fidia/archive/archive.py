@@ -211,9 +211,39 @@ class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase):
             return id
 
     def archive_for_column(self, column_id):
-        # Part of the "sample-like interface
-        column_id = fidia.column.ColumnID.as_column_id(column_id)
+        # type: (str) -> fidia.Archive
+        """The `.Archive` instance that that has the column id given.
+
+        This is part of the sample-like interface for Archives.
+
+        See Also
+        --------
+
+        `Sample.archive_for_column`
+
+        """
+        
+        # NOTE: changes to the logic here may also need to be made in `Sample.archive_for_column`
+
+        column_id = columns.ColumnID.as_column_id(column_id)
         log.debug("Column requested: %s", column_id)
+        column_type = column_id.type  # Cache locally to avoid recalculating.
+        if column_type != 'full':
+            # This column is not fully defined in the FIDIA sense. Either:
+            #    (1) there was an error or problem in associating the column with
+            #        this archive--check the execution of `replace_aliases_trait_mappings`
+            #        and `expand_column_ids_in_trait_mappings` in `ArchiveDefinition.__new__`
+            #    (2) the column id string does not conform to the FIDIA standard, presumably
+            #        because the data access layer recognises a special column id. In this
+            #        we assume that the column is associated with this Archive (what else
+            #        can we do?).
+            if column_type == 'non-conformant':
+                # Case (2) above.
+                return self
+            else:
+                # Case (1) above.
+                raise FIDIAException("Column %s does not seem to have been correctly associated with any archive" %
+                                     column_id)
         if column_id.archive_id != self.archive_id:
             log.error("Archive ID mismatch for column %s. This archive: %s, column: %s",
                       column_id, self.archive_id, column_id.archive_id)

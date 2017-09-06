@@ -55,6 +55,14 @@ class ColumnID(str):
             self.column_name = split[2]
             self.timestamp = split[3]
             return self
+        if len(split) == 1:
+            # Column name contains no colons, so assume it is not a `proper'
+            # ColumnID and just populate the name
+            self.archive_id = None
+            self.column_type = None
+            self.column_name = string
+            self.timestamp = None
+            return self
         raise ValueError("Supplied string cannot be parsed as a ColumnID: %s" % string)
 
     @classmethod
@@ -75,6 +83,21 @@ class ColumnID(str):
 
     @property
     def type(self):
+        """Determine how much information is available in this ColumnID.
+
+        Returns
+        -------
+
+        'short': Only `.column_type` and `.column_name` are defined
+
+        'full': Fully defined ColumnID
+
+        'non-conformant': Cases of arbitrary strings with no colons. Only `.column_name` is defined.
+
+        'unknown': Some other situation is present (possibly a programming error).
+
+        """
+        
         if (self.archive_id is None and
                 self.column_type is not None and
                 self.column_name is not None and
@@ -85,6 +108,11 @@ class ColumnID(str):
                 self.column_name is not None and
                 self.timestamp is not None):
             return 'full'
+        if (self.archive_id is None and
+                self.column_type is None and
+                self.column_name is not None and
+                self.timestamp is None):
+            return 'non-conformant'
         return 'unknown'
 
     def __repr__(self):
