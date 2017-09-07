@@ -47,6 +47,7 @@ __all__ = ['ColumnDefinitionList', 'ColumnDefinition',
            'FITSDataColumn', 'FITSHeaderColumn', 'FITSBinaryTableColumn',
            'CSVTableColumn',
            'SQLColumn',
+           'RawFileColumn',
            'SourcelessColumn', 'FixedValueColumn']
 
 class ColumnDefinitionList(object):
@@ -583,6 +584,28 @@ class SQLColumn(ColumnDefinition):
         row = result.fetchone()
 
         return row["data"]
+
+# noinspection PyUnresolvedReferences
+class RawFileColumn(ColumnDefinition, PathBasedColumn):
+    """RawFileColumns provides access to the raw bytes of a set of files.
+
+    Understanding the structure of the data is left to other places (so a Trait
+    that is using a RawFileColumn must know how to interpret the data in that
+    column.
+
+    """
+    column_type = FIDIAArrayColumn
+
+    _id_string = "{filename_pattern}"
+
+    _parameters = ["filename_pattern"]
+
+    # noinspection PyMethodOverriding
+    def object_getter(self, object_id, basepath):
+        # NOTE: Signature of this function differs from base class: see column definition documentation
+        full_path_pattern = os.path.join(basepath, self.filename_pattern)
+        with open(full_path_pattern.format(object_id=object_id), 'rb') as fh:
+            return fh.read()
 
 
 class ColumnFromData(ColumnDefinition):

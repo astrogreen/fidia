@@ -43,7 +43,8 @@ class ExampleArchive(fidia.ArchiveDefinition):
         fidia.FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMass', 'ID', timestamp=1),
         fidia.FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMassError', 'ID', timestamp=1),
         fidia.FITSBinaryTableColumn("sfr_table.fits", 1, 'SFR', 'ID', timestamp=1),
-        fidia.FITSBinaryTableColumn("sfr_table.fits", 1, 'SFR_ERR', 'ID', timestamp=1)
+        fidia.FITSBinaryTableColumn("sfr_table.fits", 1, 'SFR_ERR', 'ID', timestamp=1),
+        ("png_image", fidia.RawFileColumn("{object_id}/{object_id}_spectra.png", timestamp=1))
     ])
 
 
@@ -73,6 +74,9 @@ class ExampleArchive(fidia.ArchiveDefinition):
                 TraitPropertyMapping('sfr', 'ExampleArchive:FITSBinaryTableColumn:sfr_table.fits[1].data[SFR]:1'),
                 TraitPropertyMapping('sfr_err', 'ExampleArchive:FITSBinaryTableColumn:sfr_table.fits[1].data[SFR_ERR]:1')
             ])
+        ]),
+        TraitMapping(PixelImage, "spectra", [
+            TraitPropertyMapping('bytes', "png_image")
         ])
     ]
 

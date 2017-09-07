@@ -3,8 +3,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # from typing import ...
 
 # Python Standard Library Imports
+import io
 
 # Other Library Imports
+from cached_property import cached_property
+from PIL import Image as PILImage
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
@@ -17,7 +20,8 @@ log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 __all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS', 'Table',
-           'FITSFile', 'TarFileGroup', 'FitsImageHdu', 'FITSHeader']
+           'FITSFile', 'TarFileGroup', 'FitsImageHdu', 'FITSHeader',
+           'PixelImage']
 
 class ImageWCS(Trait):
     n_axis = 2
@@ -62,3 +66,11 @@ class FitsImageHdu(TraitCollection):
 
 class TarFileGroup(TraitCollection):
     pass
+
+class PixelImage(Trait):
+    bytes = TraitProperty(dtype=bytes, n_dim=1)
+
+    @cached_property
+    def image(self):
+        return PILImage.open(io.BytesIO(self.bytes))
+

@@ -247,7 +247,7 @@ class TestTraits:
         assert "<strong>text</strong>" in test_trait.get_documentation('html')
 
 
-class TestTraitsInArchives:
+class TestSpecificTraitsInArchives:
 
     @pytest.fixture
     def example_archive(self):
@@ -261,6 +261,17 @@ class TestTraitsInArchives:
     def a_astro_object(self, example_sample):
         return example_sample['Gal1']
 
+
+    def test_PixelImage_trait(self, a_astro_object):
+        """Test of the PixelImage Trait (and indirectly, the RawFileColumn Column)."""
+
+        from PIL import Image as PILImage
+
+        img = a_astro_object.pixel_image['spectra']
+
+        assert hasattr(img, 'bytes')
+
+        assert isinstance(img.image, PILImage.Image)
 
 
 class TestTraitKeys:
