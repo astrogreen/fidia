@@ -150,6 +150,46 @@ class SFRsTable(CatalogTable):
         ]
         return cols
 
+class SinePngs(TestData):
+
+    def data(self):
+
+        import matplotlib
+        matplotlib.use('AGG')
+        from matplotlib import pyplot as plt
+        from io import BytesIO
+
+        for objid in self.object_ids:
+            buffer = BytesIO()
+
+            # From: https://matplotlib.org/devdocs/api/_as_gen/matplotlib.pyplot.savefig.html
+
+            off = random.random()
+            t = np.arange(0.0, 2.0, 0.01)
+            s = 1 + np.sin(2 * np.pi * t + off)
+            plt.plot(t, s)
+
+            plt.xlabel('time (s)')
+            plt.ylabel('voltage (mV)')
+            plt.title('About as simple as it gets, folks')
+            plt.grid(True)
+            plt.savefig(buffer, format='png')
+
+            bytes = buffer.getvalue()
+
+            yield bytes
+
+def write_binary_file(test_data, output_directory, filename_pattern):
+    # type: (TestData, str, str) -> None
+    for objid, datum in zip(test_data.object_ids, test_data.data()):
+
+        filename = filename_pattern.format(object_id=objid)
+        checkdir(output_directory, filename)
+
+        with open(os.path.join(output_directory, filename), 'wb') as outfile:
+            outfile.write(datum)
+
+
 
 def generate_simple_dataset(output_directory, size):
 
@@ -163,6 +203,8 @@ def generate_simple_dataset(output_directory, size):
     write_to_binary_fits_table(StellarMassesTable(size), output_directory, "stellar_masses.fits")
     write_to_binary_fits_table(SFRsTable(size), output_directory, "sfr_table.fits")
 
+    # Create some png images:
+    write_binary_file(SinePngs(size), output_directory, "{object_id}/{object_id}_spectra.png")
 
 if __name__ == '__main__':
     import sys
