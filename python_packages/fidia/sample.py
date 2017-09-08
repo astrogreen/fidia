@@ -30,7 +30,7 @@ from cached_property import cached_property
 # FIDIA Imports
 from .import base_classes as bases
 from .exceptions import *
-from .utilities import MultiDexDict, reset_cached_property
+from .utilities import MultiDexDict, reset_cached_property, MappingMixin
 
 # Set up logging
 import fidia.slogging as slogging
@@ -41,7 +41,7 @@ log.enable_console_logging()
 
 __all__ = ['Sample']
 
-class Sample(bases.Sample):
+class Sample(bases.Sample, MappingMixin):
     """Samples in FIDIA are typically the result of a query.
 
     Samples provide two main functions: define a specific list of objects

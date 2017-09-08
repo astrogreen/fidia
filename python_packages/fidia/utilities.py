@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from copy import deepcopy
 import re
 from collections import Iterable, Sized, MutableMapping
+from collections.abc import KeysView, ItemsView, ValuesView
 from inspect import isclass, getattr_static
 import os
 import errno
@@ -259,6 +260,66 @@ class MultiDexDict(MutableMapping):
             for key in self._internal_dict:
                 result[key] = self._internal_dict[key].as_nested_dict()
             return result
+
+
+class MappingMixin(object):
+    """A Mapping is a generic container for associating key/value pairs.
+
+    This class provides concrete generic implementations of all
+    methods except for __getitem__, __iter__, and __len__.
+
+    I've adapted this from collections.abc---it is identicial to the Mapping
+    class in that module, but without metaclasses (which can cause mixin
+    errors).
+
+    """
+
+    __slots__ = ()
+
+    def __getitem__(self, key):
+        raise NotImplementedError
+
+    def __iter__(self):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError
+
+    def get(self, key, default=None):
+        'D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.'
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def __contains__(self, key):
+        try:
+            self[key]
+        except KeyError:
+            return False
+        else:
+            return True
+
+    def keys(self):
+        "D.keys() -> a set-like object providing a view on D's keys"
+        return KeysView(self)
+
+    def items(self):
+        "D.items() -> a set-like object providing a view on D's items"
+        return ItemsView(self)
+
+    def values(self):
+        "D.values() -> an object providing a view on D's values"
+        return ValuesView(self)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return dict(self.items()) == dict(other.items())
+
+    def __hash__(self):
+        # Without this, including MappingMixin in a nother class seems to make it unhashable (!?)
+        return object.__hash__(self)
 
 class Inherit:
     pass

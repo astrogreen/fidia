@@ -23,7 +23,8 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, fidia_classname, ordering_list_dict, log_to_list
+from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, fidia_classname, ordering_list_dict, log_to_list, \
+    MappingMixin
 from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
@@ -555,7 +556,7 @@ class Branch(DescriptionsMixin):
 #  |  |__)  /\  |  |     |__) |__  /__` /  \ |    \  / | |\ | / _`
 #  |  |  \ /~~\ |  |     |  \ |___ .__/ \__/ |___  \/  | | \| \__>
 #
-class TraitPointer(bases.TraitPointer):
+class TraitPointer(bases.TraitPointer, MappingMixin):
     """Provides machinery to identify and instanciate a `Trait` on an `AstronomicalObject`.
 
 
@@ -579,6 +580,18 @@ class TraitPointer(bases.TraitPointer):
     """
 
     def __init__(self, name, sample, astro_object, trait_mapping=None):
+        """Create a new TraitPointer.
+
+        If `trait_mapping` is provided, then that mapping is used to populate
+        the Trait Pointer. If it is not provided, then the
+        `sample.trait_mapping` is used. The latter is appropriate for sub-traits
+        (where the mapping on the sample is not at the right level), while the
+        former is appropriate for TraitPointers on astro-objects.
+
+        """
+
+        # @TODO: This code smells. Not sure why trait_mappings is an optional argument.
+
         # type: (str, fidia.Sample, fidia.AstronomicalObject, Union[TraitMapping, None]) -> None
         self.name = name
         self.sample = sample
@@ -589,10 +602,13 @@ class TraitPointer(bases.TraitPointer):
         tk = TraitKey.as_traitkey(item)
 
         if self.trait_mapping is not None:
+            # We have been given a particular mapping to work on
+
             # tk = self.trait_mapping.update_trait_key_with_defaults(tk)
             # (NOTE: Branch and version handling is disabled: see MappingBranchVersionHandling class)
             mapping = self.trait_mapping.named_sub_mappings[self.name, str(tk)]  # type: TraitMapping
         else:
+            # Use the mapping associated with the Sample.
             mapping = self.sample.trait_mappings[self.name, str(tk)]  # type: TraitMapping
         trait_class = mapping.trait_class
         # assert issubclass(trait_class, (fidia.Trait, fidia.TraitCollection))
@@ -603,6 +619,26 @@ class TraitPointer(bases.TraitPointer):
         # @TODO: Object Caching?
 
         return trait
+
+    def __iter__(self):
+        # Part of the collections.abc.Mapping interface
+        if self.trait_mapping is not None:
+            for trait_type, tk in self.trait_mapping.named_sub_mappings.keys():
+                if trait_type == self.name:
+                    yield tk
+        else:
+            for trait_type, tk in self.sample.trait_mappings.keys():
+                if trait_type == self.name:
+                    yield tk
+
+
+    def __len__(self):
+        # Part of the collections.abc.Mapping interface
+        if self.trait_mapping is not None:
+            return len(self.trait_mapping.named_sub_mappings)
+        else:
+            return len(self.sample.trait_mappings)
+
 
     def __str__(self):
         return "TraitPointer: %s" % self.trait_mapping
