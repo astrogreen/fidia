@@ -38,12 +38,10 @@ keyed by the `.TraitProperty`'s name. These instructions are executed by
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List, Generator, Dict, Union
+from typing import List, Generator, Union
 import fidia
 
 # Standard Library Imports
-import pickle
-from io import BytesIO
 from collections import OrderedDict
 import operator
 
@@ -52,11 +50,10 @@ import operator
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, fidia_classname
-from fidia.descriptions import TraitDescriptionsMixin
+from fidia.utilities import is_list_or_set, DefaultsRegistry, fidia_classname
 # Other modules within this FIDIA sub-package
 from .trait_utilities import TraitMapping, SubTraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
-    validate_trait_name, validate_trait_version, validate_trait_branch, \
+    validate_trait_version, validate_trait_branch, \
     BranchesVersions
 
 from .. import slogging
@@ -84,7 +81,7 @@ def validate_trait_branches_versions_dict(branches_versions):
                 validate_trait_version(version)
 
 
-class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
+class BaseTrait(bases.BaseTrait):
     """A class defining the common methods for both Trait and TraitCollection.
 
     Trait and TraitCollection have different meanings conceptually, but
@@ -312,6 +309,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             return []
 
     def __dir__(self):
+        # noinspection PyUnresolvedReferences
         parent_dir = super(BaseTrait, self).__dir__()
         return parent_dir + self.dir_named_sub_traits() + self.dir_sub_traits() + self.dir_trait_properties()
 
@@ -347,167 +345,6 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
                 yield attr
 
 
-    #     __   __        ___
-    #    /__` /  ` |__| |__   |\/|  /\
-    #    .__/ \__, |  | |___  |  | /~~\
-    #
-
-    @classmethod
-    def schema(cls, include_subtraits=True, by_trait_name=False, data_class='all'):
-        """Provide the schema of data in this trait as a dictionary.
-
-        The schema is presented as a dictionary, where the keys are strings
-        giving the name of the attributes defined, and the values are the FIDIA
-        type strings for each attribute.
-
-        Only attributes which are TraitProperties are included in the schema,
-        unless `include_subtraits` is True.
-
-        Examples:
-
-            >>> galaxy['redshift'].schema()
-            {'value': 'float', 'variance': 'float'}
-
-        Parameters:
-
-            include_subtraits:
-                Recurse on any sub-traits attached to this Trait. The key will
-                be the sub-trait name, and the value will be the schema
-                dictionary describing the sub-trait.
-
-            by_trait_name:
-                Control how the sub-traits will be grouped. If True, then the
-                key for a sub-Trait will be the sub_trait's full trait_name
-                (trait_type + trait_qualifier), and the value will be the
-                sub-Trait's schema.
-
-                If False, then the key is the trait_type (only), and the value
-                is a dictionary of trait_qualifiers (or the single key `None` if
-                there are no qualifiers). This nested dictionary has values
-                which are the sub-Trait's schema.
-
-                See Archive.schema for an example of each.
-
-            data_class:
-                One of 'all', 'catalog', or 'non-catalog'
-
-                'all' returns the full schema.
-
-                'catalog' returns only items which contain TraitProperties of catalog type.
-
-                'non-catalog' returns only items which contain TraitProperties of non-catalog type.
-
-                Both 'catalog' and 'non-catalog' will not include Traits that
-                consist only of TraitProperties not matching the request.
-
-        """
-        if by_trait_name:
-            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
-                                   combine_levels=['trait_name', 'branch_version'],
-                                   separate_metadata=False, verbosity='simple')
-        else:
-            return cls.full_schema(include_subtraits=include_subtraits, data_class=data_class,
-                                   combine_levels=['branch_version'],
-                                   separate_metadata=False, verbosity='simple')
-
-
-    @classmethod
-    def full_schema(cls, include_subtraits=True, data_class='all', combine_levels=[], verbosity='data_only',
-                    separate_metadata=False):
-
-        log.debug("Creating schema for %s", str(cls))
-
-        # Validate the verbosity option
-        assert verbosity in ('simple', 'data_only', 'metadata', 'descriptions')
-        if verbosity == 'descriptions':
-            if 'branches_versions' in combine_levels:
-                raise ValueError("Schema verbosity 'descriptions' requires that " +
-                                 "combine_levels not include branches_versions")
-
-        # Validate the data_class flag
-        assert data_class in ('all', 'catalog', 'non-catalog', None)
-        if data_class is None:
-            data_class = 'all'
-
-        # Create the empty schema for this Trait
-        schema = SchemaDictionary()
-
-        # Add basic metadata about this trait, if requested
-        if verbosity in ('metadata', 'descriptions'):
-            schema['trait_type'] = cls.trait_type
-            # schema['branches_versions'] = cls.branches_versions
-
-            # Available export formats (see ASVO-695)
-            schema['export_formats'] = cls.get_available_export_formats()
-
-            # Add unit information if present
-            formatted_unit = cls.get_formatted_units()
-            if formatted_unit:
-                schema['unit'] = formatted_unit
-            else:
-                schema['unit'] = ""
-
-        # Add description information for this trait to the schema if requested
-        if verbosity == 'descriptions':
-            cls.copy_descriptions_to_dictionary(schema)
-
-        # Add TraitProperties of this Trait to the schema
-        trait_properties_schema = SchemaDictionary()
-        for trait_property in cls._trait_properties():
-            if data_class == 'all' or \
-                    (data_class == 'catalog' and trait_property.type in TraitProperty.catalog_types) or \
-                    (data_class == 'non-catalog' and trait_property.type in TraitProperty.non_catalog_types):
-                if verbosity == 'simple':
-                    trait_property_schema = trait_property.type
-                else:
-                    # First get unit information
-                    formatted_unit = trait_property.get_formatted_units()
-                    if trait_property.name == 'value' and formatted_unit == '':
-                        formatted_unit = cls.get_formatted_units()
-                    trait_property_schema = SchemaDictionary(
-                        type=trait_property.type,
-                        name=trait_property.name,
-                        unit=formatted_unit
-                    )
-                if verbosity == 'descriptions':
-                    trait_property.copy_descriptions_to_dictionary(trait_property_schema)
-
-                trait_properties_schema[trait_property.name] = trait_property_schema
-        if verbosity == 'simple':
-            schema.update(trait_properties_schema)
-        else:
-            schema['trait_properties'] = trait_properties_schema
-
-        # Add sub-trait information to the schema.
-        if include_subtraits:
-
-            # Sub-traits cannot have branch/version information currently, so we
-            # do not enumerate branches and versions in sub-traits.
-            if 'branch_version' not in combine_levels:
-                combine_levels += ('branch_version', )
-
-            # Request the schema from the registry.
-            sub_traits_schema = cls.sub_traits.schema(
-                include_subtraits=include_subtraits,
-                data_class=data_class,
-                combine_levels=combine_levels,
-                verbosity=verbosity,
-                separate_metadata=separate_metadata)
-
-            if verbosity == 'simple':
-                schema.update(sub_traits_schema)
-            else:
-                schema['sub_traits'] = sub_traits_schema
-
-        if data_class != 'all':
-            # Check for empty Trait schemas and remove (only necessary if there
-            # has been filtering on catalog/non-catalog data)
-            schema.delete_empty()
-
-        return schema
-
-
-
     #  __       ___          ___      __   __   __  ___           ___ ___       __   __   __
     # |  \  /\   |   /\     |__  \_/ |__) /  \ |__)  |      |\/| |__   |  |__| /  \ |  \ /__`
     # |__/ /~~\  |  /~~\    |___ / \ |    \__/ |  \  |      |  | |___  |  |  | \__/ |__/ .__/
@@ -515,13 +352,6 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     # Note: Only data export methods which make sense for *any* trait are
     # defined here. Other export methods, such as FITS Export, are defined in
     # mixin classes.
-
-    def as_pickled_bytes(self):
-        """Return a representation of this TraitProperty as a serialized string of bytes"""
-        dict_to_serialize = self._trait_dict
-        with BytesIO() as byte_file:
-            pickle.dump(dict_to_serialize, byte_file)
-            return byte_file.getvalue()
 
     @classmethod
     def get_available_export_formats(cls):
