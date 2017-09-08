@@ -55,7 +55,7 @@ import fidia.base_classes as bases
 from fidia.utilities import SchemaDictionary, is_list_or_set, DefaultsRegistry, fidia_classname
 from fidia.descriptions import TraitDescriptionsMixin
 # Other modules within this FIDIA sub-package
-from .trait_utilities import TraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
+from .trait_utilities import TraitMapping, SubTraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
     validate_trait_name, validate_trait_version, validate_trait_branch, \
     BranchesVersions
 
@@ -138,7 +138,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
             cls.trait_class_initialized = True
 
     def __init__(self, sample, trait_key, astro_object, trait_mapping):
-        # type: (fidia.Sample, fidia.TraitKey, fidia.AstronomicalObject, Union[TraitMapping, TraitCollectionMapping]) -> None
+        # type: (fidia.Sample, fidia.traits.TraitKey, fidia.AstronomicalObject, Union[TraitMapping, SubTraitMapping]) -> None
 
         # This function should only be called by:
         #
@@ -151,6 +151,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         # self._validate_trait_class()
 
         self.sample = sample
+        assert isinstance(self.sample, bases.Sample)
         # self._parent_trait = parent_trait
 
         # assert isinstance(trait_key, TraitKey), \
@@ -160,9 +161,11 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         # self._set_branch_and_version(trait_key)
 
         self.astro_object = astro_object
+        assert isinstance(self.astro_object, fidia.AstronomicalObject)
         self.object_id = astro_object.identifier
 
         self.trait_mapping = trait_mapping
+        assert isinstance(self.trait_mapping, (TraitMapping, SubTraitMapping))
 
         self._trait_cache = OrderedDict()
 

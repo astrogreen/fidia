@@ -46,20 +46,23 @@ class PersistenceBase:
         self._is_reconstructed = True
 
 
-class Sample(collections.MutableMapping):
+class Sample:
     def archive_for_column(self, column_id):
         # type: (str) -> Archive
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def find_column(self, column_id):
         # type: (str) -> Column
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_archive_id(self, archive, sample_id):
         # type (Archive, str) -> str
-        raise NotImplemented()
+        raise NotImplementedError()
 
-    trait_mappings = None  # type: TraitMappingDatabase
+    trait_mappings = None  # type: TraitMapping
+
+    def __getitem__(self, item):
+        raise NotImplementedError()
 
 
 class AstronomicalObject:
@@ -70,27 +73,22 @@ class Archive(object):
 
     trait_mappings = None  # type: Union[TraitMappingDatabase, List[TraitMapping]
 
-    def writeable(self):
-        raise NotImplemented()
-
     # @property
     # def contents(self):
     #     raise NotImplementedError("")
 
     def get_full_sample(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
-    def get_trait(self, object_id=None, trait_key=None, parent_trait=None):
-        raise NotImplemented()
 
 
 class BaseTrait:
 
     def schema(cls):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def value(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
 class Trait(BaseTrait):

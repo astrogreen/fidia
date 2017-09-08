@@ -36,7 +36,7 @@ log.enable_console_logging()
 __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
 
-class Archive(bases.Archive, bases.SQLAlchemyBase, bases.PersistenceBase, MappingMixin):
+class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.PersistenceBase, MappingMixin):
     """An archive of data in FIDIA.
 
     Instances of `.Archive` class are created by calling the constructor for an
