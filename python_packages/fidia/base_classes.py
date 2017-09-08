@@ -83,13 +83,7 @@ class Archive(object):
 
 
 class BaseTrait:
-
-    def schema(cls):
-        raise NotImplementedError()
-
-    def value(self):
-        raise NotImplementedError()
-
+    pass
 
 class Trait(BaseTrait):
     pass

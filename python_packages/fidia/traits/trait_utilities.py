@@ -108,7 +108,7 @@ class TraitProperty(DescriptionsMixin):
         else:
             if self.name is None:
                 raise TraitValidationError("TraitProperty not correctly initialised.")
-            column_id = trait.trait_mapping.trait_property_mappings[self.name].id
+            column_id = trait._trait_mapping.trait_property_mappings[self.name].id
             result = trait._get_column_data(column_id)
             setattr(trait, self.name, result)
             return result
@@ -133,14 +133,14 @@ class SubTrait(object):
         else:
             if self.name is None:
                 raise TraitValidationError("TraitProperty not correctly initialised.")
-            if self.name not in parent_trait.trait_mapping.sub_trait_mappings:
+            if self.name not in parent_trait._trait_mapping.sub_trait_mappings:
                 if self.optional:
                     raise DataNotAvailable("Optional sub-trait %s not provided." % self.name)
                 else:
                     raise TraitValidationError("Trait definition missing mapping for required sub-trat %s" % self.name)
-            trait_mapping = parent_trait.trait_mapping.sub_trait_mappings[self.name]  # type: SubTraitMapping
-            result = self.trait_class(sample=parent_trait.sample, trait_key=parent_trait.trait_key,
-                                      astro_object=parent_trait.astro_object,
+            trait_mapping = parent_trait._trait_mapping.sub_trait_mappings[self.name]  # type: SubTraitMapping
+            result = self.trait_class(sample=parent_trait._sample, trait_key=parent_trait._trait_key,
+                                      astro_object=parent_trait._astro_object,
                                       trait_mapping=trait_mapping)
             return result
 
@@ -936,7 +936,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
             errors.append(err)
 
         # Check that all required (not optional) TraitProperties are defined in the schema:
-        for tp in self.trait_class.trait_properties():
+        for tp in self.trait_class._trait_property_slots(return_object=True):
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 # errors.append("Trait %s of type %s is missing required TraitProperty %s in definition" %
                 #               (self, self.name, tp.name))
@@ -1094,7 +1094,7 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
             errors.append(err)
 
         # Check that all required (not optional) TraitProperties are defined in the schema:
-        for tp in self.trait_class.trait_properties():
+        for tp in self.trait_class._trait_property_slots(return_object=True):
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 errors.append("SubTrait is missing required TraitProperty %s in definition" % tp.name)
 

@@ -94,12 +94,10 @@ class BaseTrait(bases.BaseTrait):
     # The following are a required part of the Trait interface.
     # They must be set in sub-classes to avoid an error trying create a Trait.
     trait_type = None
-    qualifiers = None
-    branches_versions = None
 
-    # extensible = False
+    # NOTE: Branches and versions are not currently implemented.
+    # branches_versions = None
 
-    descriptions_allowed = 'class'
 
     _trait_class_initialized = False
 
@@ -110,11 +108,23 @@ class BaseTrait(bases.BaseTrait):
 
     @classmethod
     def _initialize_trait_class(cls):
-        """Steps to initialize a Trait class."""
+        """Steps to initialize a Trait class.
+
+        Steps are:
+
+        1.  Make sure all of the TraitProperty descriptors (which define the
+            slots of the Trait that must be populated by the mapping) have their
+            names set to match the attribute that references them (this could be
+            done by passing the name in the creation of the TraitProperty, but
+            it feels very redundant, and would have to be checked anyway.
+
+        2.  Do the same for SubTrait descriptors.
+
+        """
 
         if not cls._trait_class_initialized:
             # Make sure all attached TraitProperties have their names set:
-            for attr in cls._trait_property_slots():
+            for attr in cls._trait_property_slots(_init_trait=False):
                 tp = getattr(cls, attr)  # type: TraitProperty
                 if tp.name is None:
                     tp.name = attr
@@ -122,7 +132,7 @@ class BaseTrait(bases.BaseTrait):
                     assert tp.name == attr, \
                         "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
             # Make sure all attached SubTraits have their names set:
-            for attr in cls._sub_trait_slots():
+            for attr in cls._sub_trait_slots(_init_trait=False):
                 tp = getattr(cls, attr)  # type: Trait
                 if tp.name is None:
                     tp.name = attr
@@ -147,22 +157,22 @@ class BaseTrait(bases.BaseTrait):
 
         # self._validate_trait_class()
 
-        self.sample = sample
-        assert isinstance(self.sample, bases.Sample)
+        self._sample = sample
+        assert isinstance(self._sample, bases.Sample)
         # self._parent_trait = parent_trait
 
         # assert isinstance(trait_key, TraitKey), \
         #   "In creation of Trait, trait_key must be a TraitKey, got %s" % trait_key
-        self.trait_key = trait_key
+        self._trait_key = trait_key
 
         # self._set_branch_and_version(trait_key)
 
-        self.astro_object = astro_object
-        assert isinstance(self.astro_object, fidia.AstronomicalObject)
+        self._astro_object = astro_object
+        assert isinstance(self._astro_object, fidia.AstronomicalObject)
         self.object_id = astro_object.identifier
 
-        self.trait_mapping = trait_mapping
-        assert isinstance(self.trait_mapping, (TraitMapping, SubTraitMapping))
+        self._trait_mapping = trait_mapping
+        assert isinstance(self._trait_mapping, (TraitMapping, SubTraitMapping))
 
         self._trait_cache = OrderedDict()
 
@@ -179,9 +189,9 @@ class BaseTrait(bases.BaseTrait):
         and then calls the `.get_value` method.
 
         """
-        archive = self.sample.archive_for_column(column_id)
-        column = self.sample.find_column(column_id)
-        archive_id = self.sample.get_archive_id(archive, self.object_id)
+        archive = self._sample.archive_for_column(column_id)
+        column = self._sample.find_column(column_id)
+        archive_id = self._sample.get_archive_id(archive, self.object_id)
         value = column.get_value(archive_id)
         return value
 
@@ -215,7 +225,7 @@ class BaseTrait(bases.BaseTrait):
 
     @property
     def trait_name(self):
-        return self.trait_key.trait_name
+        return self._trait_key.trait_name
 
 
     @classmethod
@@ -228,40 +238,7 @@ class BaseTrait(bases.BaseTrait):
     #  |  |__)  /\  |  |  |__) |__) /  \ |__) |__  |__)  |  \ /    |__|  /\  |\ | |  \ |    | |\ | / _`
     #  |  |  \ /~~\ |  |  |    |  \ \__/ |    |___ |  \  |   |     |  | /~~\ | \| |__/ |___ | | \| \__>
 
-    @classmethod
-    def trait_properties(cls, trait_property_types=None, include_hidden=False):
-        # type: (List, bool) -> Generator[TraitProperty]
-        """Generator which iterates over the TraitProperties attached to this Trait.
 
-        :param trait_property_types:
-            Either a string trait type or a list of string trait types or None.
-            None will return all trait types, otherwise only traits of the
-            requested type are returned.
-
-        :returns: 
-            A TraitProperty object, which is a descriptor that can retrieve data.
-
-        Note that the TraitProperty descriptor must be handed this Trait object
-        to actually retrieve data.
-
-        """
-        cls._initialize_trait_class()
-
-
-        if isinstance(trait_property_types, str):
-            trait_property_types = (trait_property_types, )
-
-        # Search class attributes:
-        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", cls.trait_type, trait_property_types)
-        for attr in dir(cls):
-            obj = getattr(cls, attr)
-            if isinstance(obj, TraitProperty):
-                # if obj.name.startswith("_") and not include_hidden:
-                #     log.debug("Trait property '%s' ignored because it is hidden.", attr)
-                #     continue
-                log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
-                if (trait_property_types is None) or (obj.type in trait_property_types):
-                    yield obj
 
 
     # Directories of mapped attributes on this Trait.
@@ -282,7 +259,7 @@ class BaseTrait(bases.BaseTrait):
         This result is based on the actual mapping for this Trait (instance).
 
         """
-        return list(self.trait_mapping.trait_property_mappings.keys())
+        return list(self._trait_mapping.trait_property_mappings.keys())
 
     def dir_sub_traits(self):
         # type: () -> List[str]
@@ -291,8 +268,8 @@ class BaseTrait(bases.BaseTrait):
         This result is based on the actual mapping for this Trait (instance).
 
         """
-        if hasattr(self.trait_mapping, 'sub_trait_mappings'):
-            return list(self.trait_mapping.sub_trait_mappings.keys())
+        if hasattr(self._trait_mapping, 'sub_trait_mappings'):
+            return list(self._trait_mapping.sub_trait_mappings.keys())
         else:
             return []
 
@@ -303,8 +280,8 @@ class BaseTrait(bases.BaseTrait):
         This result is based on the actual mapping for this Trait (instance).
 
         """
-        if hasattr(self.trait_mapping, 'named_sub_mappings'):
-            return list(set(map(operator.itemgetter(0), self.trait_mapping.named_sub_mappings.keys())))
+        if hasattr(self._trait_mapping, 'named_sub_mappings'):
+            return list(set(map(operator.itemgetter(0), self._trait_mapping.named_sub_mappings.keys())))
         else:
             return []
 
@@ -314,7 +291,8 @@ class BaseTrait(bases.BaseTrait):
         return parent_dir + self.dir_named_sub_traits() + self.dir_sub_traits() + self.dir_trait_properties()
 
     @classmethod
-    def _trait_property_slots(cls):
+    def _trait_property_slots(cls, return_object=False, trait_property_types=None, _init_trait=True):
+        # type: (bool, List) -> Generator[TraitProperty]
         """List of TraitProperty "slots" defined on this Trait class, similar to builtin `dir`.
 
         This is different from `.dir_trait_properties`: This function reflects
@@ -322,14 +300,46 @@ class BaseTrait(bases.BaseTrait):
         mapping defined for this trait. Hence this is a class method, while the
         other function is (necessarily) an instance method.
 
+        :param trait_property_types:
+            Either a string trait type or a list of string trait types or None.
+            None will return all trait types, otherwise only traits of the
+            requested type are returned.
+
+        :param return_object:
+            If True, return the TraitProperty object instead of the string name of
+            the attribute.
+
+        :returns:
+            A TraitProperty object, which is a descriptor that can retrieve data.
+
+        Note that the TraitProperty descriptor must be handed this Trait object
+        to actually retrieve data.
+
+        This basically extends the private method _trait_property_slots to
+        return the actual descriptor object.
+
         """
+
+        if _init_trait:
+            cls._initialize_trait_class()
+
+        if isinstance(trait_property_types, str):
+            trait_property_types = (trait_property_types,)
+
+        # Search class attributes:
+        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", cls.trait_type, trait_property_types)
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
-                yield attr
+                # if obj.name.startswith("_") and not include_hidden:
+                #     log.debug("Trait property '%s' ignored because it is hidden.", attr)
+                #     continue
+                log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
+                if (trait_property_types is None) or (obj.type in trait_property_types):
+                    yield (obj if return_object else attr)
 
     @classmethod
-    def _sub_trait_slots(cls):
+    def _sub_trait_slots(cls, return_object=False, _init_trait=True):
         """List of SubTrait "slots" defined on this Trait class, similar to builtin `dir`.
 
         This is different from `.dir_sub_traits`: This function reflects
@@ -337,12 +347,19 @@ class BaseTrait(bases.BaseTrait):
         mapping defined for this trait. Hence this is a class method, while the
         other function is (necessarily) an instance method.
 
+        :param return_object:
+            If True, return the TraitProperty object instead of the string name of
+            the attribute.
+
         """
+
+        if _init_trait:
+            cls._initialize_trait_class()
 
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, SubTrait):
-                yield attr
+                yield (obj if return_object else attr)
 
 
     #  __       ___          ___      __   __   __  ___           ___ ___       __   __   __
@@ -394,14 +411,14 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
         #   actual TraitProperty object.
 
 
-        if item in map(operator.itemgetter(0), self.trait_mapping.named_sub_mappings.keys()):
+        if item in map(operator.itemgetter(0), self._trait_mapping.named_sub_mappings.keys()):
             # item is a Trait or TraitCollection, so should return a
             # TraitPointer object with the corresponding sub-schema.
-            return TraitPointer(item, self.sample, self.astro_object, self.trait_mapping)
+            return TraitPointer(item, self._sample, self._astro_object, self._trait_mapping)
 
-        elif item in self.trait_mapping.trait_property_mappings:
+        elif item in self._trait_mapping.trait_property_mappings:
             # item is a TraitProperty. Behave like TraitProperty
-            column_id = self.trait_mapping.trait_property_mappings[item].id
+            column_id = self._trait_mapping.trait_property_mappings[item].id
             # Get the result
             result = self._get_column_data(column_id)
             # Cache the result against the trait (so this code will not be called again!)
@@ -410,10 +427,10 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
 
         else:
             log.warn("Unknown attribute %s for object %s", item, self)
-            log.warn("  Known Trait Mappings: %s", list(self.trait_mapping.named_sub_mappings.keys()))
-            log.warn("  Known Trait Properties: %s", list(self.trait_mapping.trait_property_mappings.keys()))
+            log.warn("  Known Trait Mappings: %s", list(self._trait_mapping.named_sub_mappings.keys()))
+            log.warn("  Known Trait Properties: %s", list(self._trait_mapping.trait_property_mappings.keys()))
 
             raise AttributeError("Unknown attribute %s for object %s" % (item, self))
 
     def __str__(self):
-        return """TraitCollection: {schema}""".format(schema=self.trait_mapping)
+        return """TraitCollection: {schema}""".format(schema=self._trait_mapping)
