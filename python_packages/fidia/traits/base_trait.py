@@ -48,9 +48,9 @@ import operator
 # Other library imports
 
 # FIDIA Imports
-from fidia.exceptions import *
+# from fidia.exceptions import *
 import fidia.base_classes as bases
-from fidia.utilities import is_list_or_set, DefaultsRegistry, fidia_classname
+from fidia.utilities import is_list_or_set, fidia_classname
 # Other modules within this FIDIA sub-package
 from .trait_utilities import TraitMapping, SubTraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
     validate_trait_version, validate_trait_branch, \
@@ -180,7 +180,52 @@ class BaseTrait(bases.BaseTrait):
             cls = type(self)
             cls._initialize_trait_class()
 
+    def _post_init(self):
+        pass
 
+    @classmethod
+    def _validate_trait_class(cls):
+
+        # NOTE: Branch and versions are not currently implemented so the code below is commented out.
+
+        # assert cls.available_versions is not None
+        #
+        # if cls.branches_versions is not None:
+        #     if not isinstance(cls.branches_versions, BranchesVersions):
+        #         cls.branches_versions = BranchesVersions(cls.branches_versions)
+        #     if getattr(cls, 'defaults', None) is None:
+        #         # Defaults not provided. See if only one branch/version are supplied
+        #         if cls.branches_versions.has_single_branch_and_version():
+        #             # Set the defaults to be the only branch/version:
+        #             cls.defaults = cls.branches_versions.as_defaults()  # type: DefaultsRegistry
+        #             log.debug(cls.defaults._default_branch)
+        #             log.debug(cls.defaults._version_defaults)
+        #         else:
+        #             raise Exception("Trait class '%s' has branches_versions, but no defaults have been supplied." %
+        #                     cls)
+        #
+        # try:
+        #     validate_trait_branches_versions_dict(cls.branches_versions)
+        # except AssertionError as e:
+        #     raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
+
+        pass
+
+
+    @property
+    def trait_name(self):
+        return self._trait_key.trait_name
+
+
+    @classmethod
+    def trait_class_name(cls):
+        return fidia_classname(cls)
+
+    #  __       ___          __   ___ ___  __     ___
+    # |  \  /\   |   /\     |__) |__   |  |__) | |__  \  /  /\  |
+    # |__/ /~~\  |  /~~\    |  \ |___  |  |  \ | |___  \/  /~~\ |___
+    #
+    
     def _get_column_data(self, column_id):
         """For a requested column id, return the corresponding data.
 
@@ -195,53 +240,12 @@ class BaseTrait(bases.BaseTrait):
         value = column.get_value(archive_id)
         return value
 
-    def _post_init(self):
-        pass
 
-    @classmethod
-    def _validate_trait_class(cls):
-        # assert cls.available_versions is not None
-
-        if cls.branches_versions is not None:
-            if not isinstance(cls.branches_versions, BranchesVersions):
-                cls.branches_versions = BranchesVersions(cls.branches_versions)
-            if getattr(cls, 'defaults', None) is None:
-                # Defaults not provided. See if only one branch/version are supplied
-                if cls.branches_versions.has_single_branch_and_version():
-                    # Set the defaults to be the only branch/version:
-                    cls.defaults = cls.branches_versions.as_defaults()  # type: DefaultsRegistry
-                    log.debug(cls.defaults._default_branch)
-                    log.debug(cls.defaults._version_defaults)
-                else:
-                    raise Exception("Trait class '%s' has branches_versions, but no defaults have been supplied." %
-                            cls)
-
-        try:
-            validate_trait_branches_versions_dict(cls.branches_versions)
-        except AssertionError as e:
-            raise TraitValidationError(e.args[0] + " on trait class '%s'" % cls)
-
-
-
-    @property
-    def trait_name(self):
-        return self._trait_key.trait_name
-
-
-    @classmethod
-    def trait_class_name(cls):
-        return fidia_classname(cls)
-
-
+    #            __   __   ___  __          ___ ___  __     __       ___  ___  __
+    # |\/|  /\  |__) |__) |__  |  \     /\   |   |  |__) | |__) |  |  |  |__  /__`
+    # |  | /~~\ |    |    |___ |__/    /~~\  |   |  |  \ | |__) \__/  |  |___ .__/
     #
-    # ___  __         ___  __   __   __   __   ___  __  ___                        __               __
-    #  |  |__)  /\  |  |  |__) |__) /  \ |__) |__  |__)  |  \ /    |__|  /\  |\ | |  \ |    | |\ | / _`
-    #  |  |  \ /~~\ |  |  |    |  \ \__/ |    |___ |  \  |   |     |  | /~~\ | \| |__/ |___ | | \| \__>
-
-
-
-
-    # Directories of mapped attributes on this Trait.
+    # Directories of mapped attributes on this Trait, and related helper methods.
     #
     # Traits and TraitCollections can have trait properties, (unnamed)
     # sub-traits, and named sub-traits. Since which of these are present
@@ -292,7 +296,7 @@ class BaseTrait(bases.BaseTrait):
 
     @classmethod
     def _trait_property_slots(cls, return_object=False, trait_property_types=None, _init_trait=True):
-        # type: (bool, List) -> Generator[TraitProperty]
+        # type: (bool, List, bool) -> Generator[Union[TraitProperty, str]]
         """List of TraitProperty "slots" defined on this Trait class, similar to builtin `dir`.
 
         This is different from `.dir_trait_properties`: This function reflects
@@ -340,6 +344,7 @@ class BaseTrait(bases.BaseTrait):
 
     @classmethod
     def _sub_trait_slots(cls, return_object=False, _init_trait=True):
+        # type: (bool, bool) -> Generator[Union[SubTrait, str]]
         """List of SubTrait "slots" defined on this Trait class, similar to builtin `dir`.
 
         This is different from `.dir_sub_traits`: This function reflects
