@@ -100,11 +100,11 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     qualifiers = None
     branches_versions = None
 
-    extensible = False
+    # extensible = False
 
     descriptions_allowed = 'class'
 
-    trait_class_initialized = False
+    _trait_class_initialized = False
 
     #             ___               __                       __       ___    __
     #    | |\ | |  |      /\  |\ | |  \    \  /  /\  |    | |  \  /\   |  | /  \ |\ |
@@ -112,12 +112,12 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
     #
 
     @classmethod
-    def initialize_trait_class(cls):
+    def _initialize_trait_class(cls):
         """Steps to initialize a Trait class."""
 
-        if not cls.trait_class_initialized:
+        if not cls._trait_class_initialized:
             # Make sure all attached TraitProperties have their names set:
-            for attr in cls.trait_property_dir():
+            for attr in cls._trait_property_slots():
                 tp = getattr(cls, attr)  # type: TraitProperty
                 if tp.name is None:
                     tp.name = attr
@@ -125,7 +125,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
                     assert tp.name == attr, \
                         "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
             # Make sure all attached SubTraits have their names set:
-            for attr in cls.dir_sub_traits():
+            for attr in cls._sub_trait_slots():
                 tp = getattr(cls, attr)  # type: Trait
                 if tp.name is None:
                     tp.name = attr
@@ -135,10 +135,10 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
             # Initialization complete. Clean up.
             log.debug("Initialized Trait class %s", str(cls))
-            cls.trait_class_initialized = True
+            cls._trait_class_initialized = True
 
     def __init__(self, sample, trait_key, astro_object, trait_mapping):
-        # type: (fidia.Sample, fidia.traits.TraitKey, fidia.AstronomicalObject, Union[TraitMapping, SubTraitMapping]) -> None
+        # type: (fidia.Sample, TraitKey, fidia.AstronomicalObject, Union[TraitMapping, SubTraitMapping]) -> None
 
         # This function should only be called by:
         #
@@ -169,9 +169,9 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
         self._trait_cache = OrderedDict()
 
-        if not self.trait_class_initialized:
+        if not self._trait_class_initialized:
             cls = type(self)
-            cls.initialize_trait_class()
+            cls._initialize_trait_class()
 
 
     def _get_column_data(self, column_id):
@@ -222,7 +222,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
 
 
     @classmethod
-    def trait_class_nametrait_class_name(cls):
+    def trait_class_name(cls):
         return fidia_classname(cls)
 
 
@@ -248,7 +248,7 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
         to actually retrieve data.
 
         """
-        cls.initialize_trait_class()
+        cls._initialize_trait_class()
 
 
         if isinstance(trait_property_types, str):
@@ -266,21 +266,86 @@ class BaseTrait(TraitDescriptionsMixin, bases.BaseTrait):
                 if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield obj
 
+
+    # Directories of mapped attributes on this Trait.
+    #
+    # Traits and TraitCollections can have trait properties, (unnamed)
+    # sub-traits, and named sub-traits. Since which of these are present
+    # is often only known by looking at the mapping, we do exactly that
+    # here to provide lists of the known attributes of this object. These
+    # attributes may not necessarily be present---instead, they may be
+    # provided dynamically by `__getattr__`.
+
+    # @TODO: There are no tests of these functions!
+
+    def dir_trait_properties(self):
+        # type: () -> List[str]
+        """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does.
+
+        This result is based on the actual mapping for this Trait (instance).
+
+        """
+        return list(self.trait_mapping.trait_property_mappings.keys())
+
+    def dir_sub_traits(self):
+        # type: () -> List[str]
+        """Return a directory of the SubTraits for this Trait, similar to what the builtin `dir()` does.
+
+        This result is based on the actual mapping for this Trait (instance).
+
+        """
+        if hasattr(self.trait_mapping, 'sub_trait_mappings'):
+            return list(self.trait_mapping.sub_trait_mappings.keys())
+        else:
+            return []
+
+    def dir_named_sub_traits(self):
+        # type: () -> List[str]
+        """Return a directory of the Named SubTraits for this Trait, similar to what the builtin `dir()` does.
+
+        This result is based on the actual mapping for this Trait (instance).
+
+        """
+        if hasattr(self.trait_mapping, 'named_sub_mappings'):
+            return list(set(map(operator.itemgetter(0), self.trait_mapping.named_sub_mappings.keys())))
+        else:
+            return []
+
+    def __dir__(self):
+        parent_dir = super(BaseTrait, self).__dir__()
+        return parent_dir + self.dir_named_sub_traits() + self.dir_sub_traits() + self.dir_trait_properties()
+
     @classmethod
-    def trait_property_dir(cls):
-        """Return a directory of TraitProperties for this object, similar to what the builtin `dir()` does."""
+    def _trait_property_slots(cls):
+        """List of TraitProperty "slots" defined on this Trait class, similar to builtin `dir`.
+
+        This is different from `.dir_trait_properties`: This function reflects
+        the Trait class definition, while the other one reflects the actual
+        mapping defined for this trait. Hence this is a class method, while the
+        other function is (necessarily) an instance method.
+
+        """
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
                 yield attr
 
     @classmethod
-    def dir_sub_traits(cls):
-        """Return a directory of the SubTraits for this Trait, similar to what the builtin `dir()` does."""
+    def _sub_trait_slots(cls):
+        """List of SubTrait "slots" defined on this Trait class, similar to builtin `dir`.
+
+        This is different from `.dir_sub_traits`: This function reflects
+        the Trait class definition, while the other one reflects the actual
+        mapping defined for this trait. Hence this is a class method, while the
+        other function is (necessarily) an instance method.
+
+        """
+
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, SubTrait):
                 yield attr
+
 
     #     __   __        ___
     #    /__` /  ` |__| |__   |\/|  /\
