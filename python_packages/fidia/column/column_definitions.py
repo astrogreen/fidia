@@ -315,7 +315,10 @@ class ColumnDefinition(object):
             archive_id=archive.archive_id,
             archive=archive,
             timestamp=self.get_timestamp(archive),
-            coldef_id=self.id
+            coldef_id=self.id,
+            short_description=self.short_description,
+            long_description=self.long_description,
+            pretty_name=self.pretty_name
         )
         assert isinstance(column, FIDIAColumn)
         # assert hasattr(column, "archive_id")

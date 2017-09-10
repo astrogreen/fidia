@@ -223,6 +223,12 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     _array_getter = sa.Column(sa.PickleType)  # type: Callable
     _array_getter_args = sa.Column(sa.PickleType)
 
+    # Column Meta-data storage
+    _ucd = sa.Column(sa.String)
+    pretty_name = sa.Column(sa.UnicodeText(length=30))
+    short_description = sa.Column(sa.Unicode(length=150))
+    long_description = sa.Column(sa.UnicodeText)
+
     allowed_types = RegexpGroup(
         'string',
         'float',
@@ -258,7 +264,11 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     #     return self
 
     def __init__(self, *args, **kwargs):
+        """Create a new FIDIAColumn. This should only be called by `ColumnDefinition.associate`.
 
+
+
+        """
         super(FIDIAColumn, self).__init__()
 
         # Internal storage for data of this column
@@ -292,6 +302,11 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         else:
             raise ValueError("Either column_id or all of (archive_id, coldef_id and timestamp) must be provided.")
 
+        # Descriptive meta-data
+        self.pretty_name = kwargs.pop("pretty_name")
+        self.short_description = kwargs.pop("short_description")
+        self.long_description = kwargs.pop("long_description")
+
 
     @reconstructor
     def __db_init__(self):
@@ -301,7 +316,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
 
     @property
     def id(self):
-        return self._column_id
+        return ColumnID.as_column_id(self._column_id)
 
     def __repr__(self):
         return str(self.id)
@@ -375,6 +390,16 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         self._ucd = value
 
     @property
+    def timestamp(self):
+        if getattr(self, '_timestamp', None):
+            return self._timestamp
+        else:
+            if "." in self.id.timestamp:
+                return float(self.id.timestamp)
+            else:
+                return int(self.id.timestamp)
+
+    @property
     def type(self):
         """The FIDIA type of the data in this column.
 
@@ -396,16 +421,16 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
             raise Exception("Trait property type '{}' not valid".format(value))
         self._fidia_type = value
 
-    @property
-    def archive(self):
-        return self._archive
-
-    @archive.setter
-    def archive(self, value):
-        if self._archive is not None:
-            self._archive = value
-        else:
-            raise AttributeError("archive is already set: cannot be changed.")
+    # @property
+    # def archive(self):
+    #     return self._archive
+    #
+    # @archive.setter
+    # def archive(self, value):
+    #     if self._archive is not None:
+    #         self._archive = value
+    #     else:
+    #         raise AttributeError("archive is already set: cannot be changed.")
 
 
 class FIDIAArrayColumn(FIDIAColumn):

@@ -255,7 +255,10 @@ class TestDatabaseBasics:
 
         col_def = FITSHeaderColumn(
             "{object_id}/{object_id}_red_image.fits",
-            0, "NAXIS", timestamp=1)
+            0, "NAXIS", timestamp=1,
+            short_description="TheShortDescription", long_description="TheLongDescription",
+            pretty_name="PrettyName"
+        )
 
         col = col_def.associate(DummyArchive())
 
@@ -286,6 +289,14 @@ class TestDatabaseBasics:
 
         print(col)
         assert isinstance(col, FIDIAColumn)
+
+        assert col.timestamp == 1
+        assert col.id == "myArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[NAXIS]:1"
+
+        # Meta data persistance
+        assert col.short_description == "TheShortDescription"
+        assert col.long_description == "TheLongDescription"
+        assert col.pretty_name == "PrettyName"
 
     def test_column_retriever_persistance(self, session, engine):
         """Check that the backup data retriever still works after recovering from the database.
