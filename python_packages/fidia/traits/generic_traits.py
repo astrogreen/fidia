@@ -8,6 +8,7 @@ import io
 # Other Library Imports
 from cached_property import cached_property
 from PIL import Image as PILImage
+from astropy.io import fits
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
@@ -54,6 +55,34 @@ class Table(TraitCollection):
 
 class FITSFile(TraitCollection):
     pass
+
+    def export_as_fits(self, file_handle):
+
+        hdu_list = fits.HDUList()
+
+        # Iterate over the Image HDUs
+        for hdu_name, trait in self.fits_image_hdu.items():
+            assert isinstance(trait, FitsImageHdu)
+            if hdu_name == 'PRIMARY':
+                hdu = fits.PrimaryHDU(trait.data)
+            else:
+                hdu = fits.ImageHDU(trait.data)
+
+            # Add Header Keywords
+
+            header_trait = trait.fits_header['header']  # type: FITSHeader
+            assert isinstance(header_trait, FITSHeader)
+            for kw_name in header_trait.dir_trait_properties():
+                value = getattr(header_trait, kw_name)
+                comment = header_trait.get_short_description(kw_name)
+                # unit = header_trait.get_unit(kw_name)
+                hdu.header[kw_name] = (value, comment)
+
+            hdu_list.append(hdu)
+
+        # @TODO: Does not handle binary table extensions.
+
+        hdu_list.writeto(file_handle)
 
 class FITSHeader(TraitCollection):
     pass

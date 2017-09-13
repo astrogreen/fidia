@@ -29,9 +29,8 @@ class TestArchiveAndColumns:
     def ArchiveWithColumns(self):
 
         my_column = FixedValueColumn("data",
-                                       ndim=2,
-                                       timestamp=1)
-
+                                     ndim=2,
+                                     timestamp=1)
 
 
         class ArchiveWithColumns(fidia.ArchiveDefinition):
@@ -50,8 +49,8 @@ class TestArchiveAndColumns:
             column_definitions = fidia.ColumnDefinitionList([
                 ("col", my_column),
                 (FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
-                                       ndim=2,
-                                       timestamp=1))
+                                ndim=2,
+                                timestamp=1))
 
             ])
 
