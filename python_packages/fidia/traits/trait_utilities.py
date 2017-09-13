@@ -926,7 +926,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
         self._db_trait_key = str(tk)
         self._trait_key = tk
 
-    def validate(self, recurse=False, raise_exception=False):
+    def validate(self, recurse=True, raise_exception=False):
         errors = []
 
         # Check that trait_name follows naming requirements
