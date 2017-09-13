@@ -93,13 +93,14 @@ class BaseTrait(bases.BaseTrait):
 
     # The following are a required part of the Trait interface.
     # They must be set in sub-classes to avoid an error trying create a Trait.
-    trait_type = None
+    # trait_type = None
+
 
     # NOTE: Branches and versions are not currently implemented.
     # branches_versions = None
 
 
-    _trait_class_initialized = False
+    # _trait_class_initialized = False
 
     #             ___               __                       __       ___    __
     #    | |\ | |  |      /\  |\ | |  \    \  /  /\  |    | |  \  /\   |  | /  \ |\ |
@@ -120,29 +121,71 @@ class BaseTrait(bases.BaseTrait):
 
         2.  Do the same for SubTrait descriptors.
 
+        Implementation Note
+        -------------------
+
+        Getting this working is more subtle than I thought. Basically, we have
+        some code here that must be run once for each sub-class of `BaseTrait`.
+        To check if the code has run, we want to store some flag when it's run
+        the first time that shows that it has been run. Storing this flag is
+        more difficult than I thought! Currently, what is done is attributes are
+        added to the class, and then we check if these are present and have the
+        right value, and if not, we assume that we need to initialize the
+        class.
+
+        In this way, if we encounter a subclass of a Trait class, we can
+        identify if it has not been initialized even if the superclass has been.
+
         """
 
-        if not cls._trait_class_initialized:
-            # Make sure all attached TraitProperties have their names set:
-            for attr in cls._trait_property_slots(_init_trait=False):
-                tp = getattr(cls, attr)  # type: TraitProperty
-                if tp.name is None:
-                    tp.name = attr
-                else:
-                    assert tp.name == attr, \
-                        "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
-            # Make sure all attached SubTraits have their names set:
-            for attr in cls._sub_trait_slots(_init_trait=False):
-                tp = getattr(cls, attr)  # type: Trait
-                if tp.name is None:
-                    tp.name = attr
-                else:
-                    assert tp.name == attr, \
-                        "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
+        # This try-except-else block checks if this class has been initialized.
+        try:
+            assert isinstance(cls._trait_properties_initialized, set) and cls._trait_init_name == fidia_classname(cls)
+        except:
+            pass
+            # This class needs initialization, done below.
+        else:
+            log.debug("Trait class %s already initialised as %s", cls, cls._trait_init_name)
+            if log.isEnabledFor(slogging.DEBUG):
+                for attr in cls._trait_property_slots(_init_trait=False):
+                    tp = getattr(cls, attr)  # type: TraitProperty
+                    if tp.name is None:
+                        log.debug("...but TraitProperty %s is not initialised", attr)
+                        log.debug("%s", cls._trait_init_name)
+                        log.debug("%s", cls._trait_properties_initialized)
+                        if tp.name in cls._trait_properties_initialized:
+                            log.debug("...and it previously was?!!")
+            return
 
-            # Initialization complete. Clean up.
-            log.debug("Initialized Trait class %s", str(cls))
-            cls._trait_class_initialized = True
+        log.debug("Initializing Trait Class %s", cls)
+
+        cls._trait_properties_initialized = set()
+
+        # Make sure all attached TraitProperties have their names set:
+        for attr in cls._trait_property_slots(_init_trait=False):
+            tp = getattr(cls, attr)  # type: TraitProperty
+            if tp.name is None:
+                tp.name = attr
+            else:
+                assert tp.name == attr, \
+                    "Trait property has name %s, but is associated with attribute %s" % (tp.name, attr)
+            cls._trait_properties_initialized.add(attr)
+
+        # Make sure all attached SubTraits have their names set:
+        for attr in cls._sub_trait_slots(_init_trait=False):
+            st = getattr(cls, attr)  # type: Trait
+            if st.name is None:
+                st.name = attr
+            else:
+                assert st.name == attr, \
+                    "Sub-trait has name %s, but is associated with attribute %s" % (tp.name, attr)
+            cls._trait_properties_initialized.add(attr)
+
+        # Initialization complete. Clean up.
+        log.debug("Initialized Trait class %s", str(cls))
+
+        cls._trait_init_name = fidia_classname(cls)
+
 
     def __init__(self, sample, trait_key, astro_object, trait_mapping):
         # type: (fidia.Sample, TraitKey, fidia.AstronomicalObject, Union[TraitMapping, SubTraitMapping]) -> None
@@ -151,6 +194,15 @@ class BaseTrait(bases.BaseTrait):
         #
         #   - TraitPointers when they are asked to create a particular Trait
         #   - (unnamed) SubTrait objects when they are asked to return a sub-Trait of an existing Trait.
+
+        log.debug("Initializing Trait: %s, %s", trait_key, trait_mapping)
+
+        cls = type(self)
+
+        #   This might be a good thing to put in place, as it helps to guarantee
+        #   that these base classes remain pristine.
+        # if cls is BaseTrait or cls is Trait or cls is TraitCollection:
+        #     raise Exception("Cannot instanciate base Trait classes, only sub-classes.")
 
         super(BaseTrait, self).__init__()
 
@@ -176,9 +228,8 @@ class BaseTrait(bases.BaseTrait):
 
         self._trait_cache = OrderedDict()
 
-        if not self._trait_class_initialized:
-            cls = type(self)
-            cls._initialize_trait_class()
+        cls = type(self)
+        cls._initialize_trait_class()
 
     def _post_init(self):
         pass
@@ -225,7 +276,7 @@ class BaseTrait(bases.BaseTrait):
     # |  \  /\   |   /\     |__) |__   |  |__) | |__  \  /  /\  |
     # |__/ /~~\  |  /~~\    |  \ |___  |  |  \ | |___  \/  /~~\ |___
     #
-    
+
     def _get_column_data(self, column_id):
         """For a requested column id, return the corresponding data.
 
@@ -263,7 +314,10 @@ class BaseTrait(bases.BaseTrait):
         This result is based on the actual mapping for this Trait (instance).
 
         """
-        return list(self._trait_mapping.trait_property_mappings.keys())
+        if hasattr(self, '_trait_mapping'):
+            return list(self._trait_mapping.trait_property_mappings.keys())
+        else:
+            return []
 
     def dir_sub_traits(self):
         # type: () -> List[str]
@@ -272,7 +326,7 @@ class BaseTrait(bases.BaseTrait):
         This result is based on the actual mapping for this Trait (instance).
 
         """
-        if hasattr(self._trait_mapping, 'sub_trait_mappings'):
+        if hasattr(self, '_trait_mapping') and hasattr(self._trait_mapping, 'sub_trait_mappings'):
             return list(self._trait_mapping.sub_trait_mappings.keys())
         else:
             return []
@@ -284,7 +338,7 @@ class BaseTrait(bases.BaseTrait):
         This result is based on the actual mapping for this Trait (instance).
 
         """
-        if hasattr(self._trait_mapping, 'named_sub_mappings'):
+        if hasattr(self, '_trait_mapping') and hasattr(self._trait_mapping, 'named_sub_mappings'):
             return list(set(map(operator.itemgetter(0), self._trait_mapping.named_sub_mappings.keys())))
         else:
             return []
@@ -331,7 +385,7 @@ class BaseTrait(bases.BaseTrait):
             trait_property_types = (trait_property_types,)
 
         # Search class attributes:
-        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", cls.trait_type, trait_property_types)
+        log.debug("Searching for TraitProperties of Trait '%s' with type in %s", cls.__name__, trait_property_types)
         for attr in dir(cls):
             obj = getattr(cls, attr)
             if isinstance(obj, TraitProperty):
@@ -391,7 +445,7 @@ class BaseTrait(bases.BaseTrait):
     def __str__(self):
         return "<Trait class '{classname}': {trait_type}>".format(
             classname=fidia_classname(self),
-            trait_type=self.trait_type)
+            trait_type=self.__class__.__name__)
 
 
 
@@ -415,6 +469,10 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
         #   look up the column and return the result as though we had called an
         #   actual TraitProperty object.
 
+        if item.startswith("_"):
+            # This won't handle any private items, so raise an attribute error
+            # immediately to avoid potential infinite recursion.
+            raise AttributeError("Unknown attribute %s for TraitCollection object." % item)
 
         if item in map(operator.itemgetter(0), self._trait_mapping.named_sub_mappings.keys()):
             # item is a Trait or TraitCollection, so should return a
@@ -431,11 +489,12 @@ class TraitCollection(bases.TraitCollection, BaseTrait):
             return result
 
         else:
-            log.warn("Unknown attribute %s for object %s", item, self)
-            log.warn("  Known Trait Mappings: %s", list(self._trait_mapping.named_sub_mappings.keys()))
-            log.warn("  Known Trait Properties: %s", list(self._trait_mapping.trait_property_mappings.keys()))
+            if "_trait_mapping" in self.__dict__:
+                log.warn("Unknown attribute %s for object %s", item, self)
+                log.warn("  Known Trait Mappings: %s", list(self._trait_mapping.named_sub_mappings.keys()))
+                log.warn("  Known Trait Properties: %s", list(self._trait_mapping.trait_property_mappings.keys()))
 
-            raise AttributeError("Unknown attribute %s for object %s" % (item, self))
+            raise AttributeError("Unknown attribute %s for TraitCollection object." % item)
 
-    def __str__(self):
-        return """TraitCollection: {schema}""".format(schema=self._trait_mapping)
+    # def __str__(self):
+    #     return """TraitCollection: {schema}""".format(schema=self._trait_mapping)

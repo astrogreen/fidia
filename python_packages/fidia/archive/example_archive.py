@@ -77,6 +77,22 @@ class ExampleArchive(fidia.ArchiveDefinition):
         ]),
         TraitMapping(PixelImage, "spectra", [
             TraitPropertyMapping('bytes', "png_image")
+        ]),
+        TraitMapping(FITSFile, "red_image", [
+            TraitMapping(FitsImageHdu, 'PRIMARY', [
+                TraitPropertyMapping('data', "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"),
+                TraitMapping(FITSHeader, 'header', [
+                    TraitPropertyMapping('exposed', "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1"),
+                    TraitPropertyMapping('crpix1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
+                    TraitPropertyMapping('crpix2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),
+                    TraitPropertyMapping('crval1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX1]:1'),
+                    TraitPropertyMapping('crval2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRPIX2]:1'),
+                    TraitPropertyMapping('cdelt1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT1]:1'),
+                    TraitPropertyMapping('cdelt2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CDELT2]:1'),
+                    TraitPropertyMapping('ctype1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE1]:1'),
+                    TraitPropertyMapping('ctype2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')
+                ])
+            ])
         ])
     ]
 

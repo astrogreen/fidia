@@ -107,13 +107,18 @@ class TraitProperty(DescriptionsMixin):
             return self
         else:
             if self.name is None:
-                raise TraitValidationError("TraitProperty not correctly initialised.")
+                raise TraitValidationError("TraitProperty \"%s\" not correctly initialised." % repr(self))
             column_id = trait._trait_mapping.trait_property_mappings[self.name].id
             result = trait._get_column_data(column_id)
             setattr(trait, self.name, result)
             return result
 
     def __repr__(self):
+        return "TraitProperty({tp.dtype!r}, n_dim={tp.n_dim!r}, optional={tp.optional!r}, name={tp.name!r})".format(
+            tp=self
+        )
+
+    def __str__(self):
         return "<TraitProperty {}>".format(self.name)
 
 class SubTrait(object):
@@ -937,6 +942,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
 
         # Check that all required (not optional) TraitProperties are defined in the schema:
         for tp in self.trait_class._trait_property_slots(return_object=True):
+            assert tp.name is not None
             if tp.name not in self.trait_property_mappings and not tp.optional:
                 # errors.append("Trait %s of type %s is missing required TraitProperty %s in definition" %
                 #               (self, self.name, tp.name))

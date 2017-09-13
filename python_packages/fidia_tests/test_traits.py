@@ -3,6 +3,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest
 
+from typing import Type
+
+import fidia
+
 from fidia.traits import Trait, TraitProperty, TraitKey, TraitPath
 from fidia.archive import example_archive
 
@@ -10,6 +14,7 @@ from fidia.descriptions import TraitDescriptionsMixin
 
 from fidia.traits import validate_trait_name
 
+from fidia.utilities import fidia_classname
 
 class TestTraits:
 
@@ -27,6 +32,51 @@ class TestTraits:
         for attr in TestTrait._trait_property_slots():
             prop = getattr(TestTrait, attr)
             assert isinstance(prop, TraitProperty)
+
+    # def test_trait_property_initialisation(self, TestTrait):
+    #     # type: (Type[Trait]) -> None
+    #     """This test doesn't work because the Archive is not properly created."""
+    #
+    #     class SubTestTrait(TestTrait):
+    #         subvalue = TraitProperty(dtype=int, n_dim=0)
+    #
+    #
+    #
+    #     print("Trait class initialised: {}".format(fidia.traits.FitsImageHdu._trait_class_initialized))
+    #
+    #     sample = fidia.Archive()
+    #
+    #     trait = TestTrait(sample=sample,
+    #                       trait_key="test",
+    #                       astro_object=fidia.AstronomicalObject(sample, "obj"),
+    #                       trait_mapping=fidia.traits.TraitMapping(TestTrait, "test", []))
+    #
+    #     assert isinstance(trait, fidia.Trait)
+    #
+    #     assert isinstance(trait._trait_class_initialized, set)
+    #     # We're now sure that the Trait class initializer has been called. Check that it has done it's thing:
+    #
+    #     for tp in trait._trait_property_slots(True):
+    #         assert tp.name is not None
+    #
+    #     # Now work with a sub-trait
+    #
+    #     # Check the new property is not initialised:
+    #     assert SubTestTrait.subvalue.name is None
+    #
+    #     # List the Trait Property attributes without initialising the Trait.
+    #     print(list(
+    #         SubTestTrait._sub_trait_slots(_init_trait=False)
+    #     ))
+    #
+    #     sub_trait = SubTestTrait(sample=sample,
+    #                       trait_key="test",
+    #                       astro_object=fidia.AstronomicalObject(sample, "obj"),
+    #                       trait_mapping=fidia.traits.TraitMapping(TestTrait, "test", []))
+    #
+    #     for tp in sub_trait._trait_property_slots(True):
+    #         assert tp.name is not None
+
 
     @pytest.mark.xfail
     def test_trait_schema(self):
@@ -251,8 +301,8 @@ class TestTraits:
 class TestSpecificTraitsInArchives:
 
     @pytest.fixture
-    def example_archive(self):
-        return example_archive.ExampleArchive()
+    def example_archive(self, test_data_dir):
+        return example_archive.ExampleArchive(basepath=test_data_dir)
 
     @pytest.fixture
     def example_sample(self, example_archive):
@@ -273,6 +323,24 @@ class TestSpecificTraitsInArchives:
         assert hasattr(img, 'bytes')
 
         assert isinstance(img.image, PILImage.Image)
+
+
+    def test_trait_property_initialisation(self, example_archive):
+        # type: (fidia.Archive) -> None
+
+        print("Trait class initialised: {}".format(fidia.traits.FitsImageHdu._trait_init_name))
+
+        trait = example_archive['Gal1'].fits_file['red_image'].fits_image_hdu["PRIMARY"]
+        assert isinstance(trait, fidia.TraitCollection)
+
+        assert trait._trait_init_name == fidia_classname(trait.__class__)
+        # We're now sure that the Trait class initializer has been called. Check that it has done it's thing:
+
+        for tp in trait._trait_property_slots(True):
+            assert tp.name is not None
+
+        trait.data
+
 
 
 class TestTraitKeys:
