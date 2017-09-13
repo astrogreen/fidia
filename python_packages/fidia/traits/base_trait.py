@@ -291,6 +291,51 @@ class BaseTrait(bases.BaseTrait):
         value = column.get_value(archive_id)
         return value
 
+    #       ___ ___       __       ___
+    # |\/| |__   |   /\  |  \  /\   |   /\
+    # |  | |___  |  /~~\ |__/ /~~\  |  /~~\
+    #
+    # Functions to retrieve metadata on the mapped attributes, particularly TraitProperties.
+
+    def _get_column_for_trait_property(self, attr):
+        # type: (str) -> fidia.column.FIDIAColumn
+        """Given the name of a TraitProperty, return the corresponding FIDIAColumn object."""
+        column_id = self._trait_mapping.trait_property_mappings[attr].id
+        column = self._sample.find_column(column_id)
+        return column
+
+    def get_pretty_name(self, attr):
+        if attr in self.dir_trait_properties():
+            # item is a TraitProperty
+            column = self._get_column_for_trait_property(attr)
+            return column.pretty_name
+
+    def get_short_description(self, attr):
+        if attr in self.dir_trait_properties():
+            # item is a TraitProperty
+            column = self._get_column_for_trait_property(attr)
+            return column.short_description
+
+    def get_long_description(self, attr):
+        if attr in self.dir_trait_properties():
+            # item is a TraitProperty
+            column = self._get_column_for_trait_property(attr)
+            return column.long_description
+
+
+    # Relevant section of code from the function `.as_specification_dict`:
+    #
+    #     result = {self.name: OrderedDict([
+    #         ("name", self.name),
+    #         ("pretty_name", column.pretty_name),
+    #         ("column_id", self.id),
+    #         ("dtype", str(column.dtype)),
+    #         ("n_dim", column.n_dim),
+    #         ("unit", column.unit),
+    #         ("ucd", column.ucd),
+    #         ("short_description", column.short_description),
+    #         ("long_description", column.long_description)
+    #     ])}
 
     #            __   __   ___  __          ___ ___  __     __       ___  ___  __
     # |\/|  /\  |__) |__) |__  |  \     /\   |   |  |__) | |__) |  |  |  |__  /__`
@@ -392,7 +437,8 @@ class BaseTrait(bases.BaseTrait):
                 # if obj.name.startswith("_") and not include_hidden:
                 #     log.debug("Trait property '%s' ignored because it is hidden.", attr)
                 #     continue
-                log.debug("Found trait property '{}' of type '{}'".format(attr, obj.type))
+                # log.debug("Found trait property '{}' of type '{}'".format(attr, obj.dtype))
+                log.debug("Found trait property {tp!r}".format(tp=obj))
                 if (trait_property_types is None) or (obj.type in trait_property_types):
                     yield (obj if return_object else attr)
 
