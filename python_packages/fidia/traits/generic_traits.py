@@ -51,10 +51,12 @@ class DMU(TraitCollection):
     pass
 
 class Table(TraitCollection):
+
     pass
 
+
 class FITSFile(TraitCollection):
-    pass
+
 
     def export_as_fits(self, file_handle):
 

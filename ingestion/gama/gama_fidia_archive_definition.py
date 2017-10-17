@@ -212,7 +212,7 @@ if __name__ == "__main__":
         contents = [row["CATAID"] for row in connection.execute("SELECT CATAID FROM DistancesFrames")]
         # contents = ["24433"]
 
-        is_persisted = False
+        is_persisted = True
 
     ar = GAMAArchive(database_url="mysql+mysqldb://agreen:agreen@10.80.10.137/dr2")
 

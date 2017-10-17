@@ -313,7 +313,7 @@ if __name__ == "__main__":
 
         contents = all_object_ids
 
-        is_persisted = False
+        is_persisted = True
 
     ar = S7Archive(basepath=S7_DATA_DIR)
 

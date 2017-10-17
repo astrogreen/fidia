@@ -372,7 +372,7 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
 
         return self.contents
 
-    def __str__(self):
+    def __repr__(self):
         return "FIDIAArchive:" + self.archive_id
 
 class BasePathArchive(Archive):
