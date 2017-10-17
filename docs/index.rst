@@ -6,6 +6,7 @@ The Format Independent Data Interface for Astronomy
 
 	fidia/introduction
 	fidia/tutorial
+	fidia/ingestion
 	fidia/api
 	fidia/design
 
