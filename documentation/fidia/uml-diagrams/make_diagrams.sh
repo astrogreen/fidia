@@ -24,9 +24,11 @@ function bluedot {
     fi
 }
 
+export PYTHONPATH=$PWD/../../python_packages/
+
 # UML Diagram for FIDIA Trait class inehritance:
 
-check pyreverse -o dot -p traits $FIDIA_DIR/traits --ignore=utilities.py
+check pyreverse -o dot -p traits fidia.traits --ignore=utilities.py
 bluedot traits
 
 
@@ -35,7 +37,7 @@ bluedot traits
 
 # UML Diagram for whole of FIDIA:
 
-check pyreverse -o dot -p fidia $FIDIA_DIR -fALL -mn --ignore=utilities.py,data_types.py,exceptions.py,slogging.py,dataset.py,galaxy.py,dynamo.py,data_retriver.py,aaodc_parquet_cache.py,property_collections.py,sami.py,catalog_traits.py,galaxy_traits.py,generic_traits.py,meta_data_traits.py,smart_traits.py,stellar_traits.py,example_archive.py,trait_property.py,trait_key.py,abstract_base_traits.py
+check pyreverse -o dot -p fidia fidia -fALL -mn --ignore=exceptions.py,slogging.py,reports.py,bases.py,utilities.py,descriptions.py
 bluedot fidia
 
 check pyreverse -o pdf -p fidia_exceptions $FIDIA_DIR/exceptions.py 
@@ -45,23 +47,23 @@ check pyreverse -o pdf -p fidia_exceptions $FIDIA_DIR/exceptions.py
 
 
 
-# UML Diagram for SAMI
-check pyreverse -o dot -p sami_fidia $FIDIA_DIR/archive/sami.py -fALL -mn --ignore=utilities.py
+# UML Diagram for SAMI (old version.)
+# check pyreverse -o dot -p sami_fidia $FIDIA_DIR/archive/sami.py -fALL -mn --ignore=utilities.py
 
 
 # Plugin Diagram for SAMI
 
-check python <<EOF
-import os
-from fidia import reports
-from fidia.archive import sami
+# check python <<EOF
+# import os
+# from fidia import reports
+# from fidia.archive import sami
 
-ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
-                               "dr1_catalog/dr1_20160720.txt")
+# ar = sami.SAMIDR1PublicArchive("/Users/agreen/Documents/ASVO/test_data/sami_test_release/",
+#                                "dr1_catalog/dr1_20160720.txt")
 
-output = reports.schema_hierarchy3(ar.available_traits)
+# output = reports.schema_hierarchy3(ar.available_traits)
 
-with open(os.environ['DIAGRAM_DIR'] + "/sami_diagram.dot", 'w') as f:
-    f.write(output)
-EOF
-dot -Tpdf sami_diagram.dot > sami_diagram.pdf
+# with open(os.environ['DIAGRAM_DIR'] + "/sami_diagram.dot", 'w') as f:
+#     f.write(output)
+# EOF
+# dot -Tpdf sami_diagram.dot > sami_diagram.pdf

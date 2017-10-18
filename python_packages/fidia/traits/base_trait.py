@@ -53,8 +53,7 @@ import fidia.base_classes as bases
 from fidia.utilities import is_list_or_set, fidia_classname
 # Other modules within this FIDIA sub-package
 from .trait_utilities import TraitMapping, SubTraitMapping, TraitPointer, TraitProperty, SubTrait, TraitKey, \
-    validate_trait_version, validate_trait_branch, \
-    BranchesVersions
+    validate_trait_version, validate_trait_branch
 
 from .. import slogging
 log = slogging.getLogger(__name__)
@@ -64,21 +63,21 @@ log.enable_console_logging()
 
 __all__ = ['Trait', 'TraitCollection']
 
-def validate_trait_branches_versions_dict(branches_versions):
-    # type: ([BranchesVersions, None]) -> None
-    if branches_versions is None:
-        return
-    assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
-    # Check that all branches meet the branch formatting requirements
-    for branch in branches_versions:
-        if branch is not None:
-            validate_trait_branch(branch)
-        # Check that each branch has a list of versions:
-        assert is_list_or_set(branches_versions[branch])
-        # Check that all versions meet the branch formatting requirements
-        for version in branches_versions[branch]:
-            if version is not None:
-                validate_trait_version(version)
+# def validate_trait_branches_versions_dict(branches_versions):
+#     # type: ([BranchesVersions, None]) -> None
+#     if branches_versions is None:
+#         return
+#     assert isinstance(branches_versions, dict), "`branches_versions` must be a dictionary"
+#     # Check that all branches meet the branch formatting requirements
+#     for branch in branches_versions:
+#         if branch is not None:
+#             validate_trait_branch(branch)
+#         # Check that each branch has a list of versions:
+#         assert is_list_or_set(branches_versions[branch])
+#         # Check that all versions meet the branch formatting requirements
+#         for version in branches_versions[branch]:
+#             if version is not None:
+#                 validate_trait_version(version)
 
 
 class BaseTrait(bases.BaseTrait):

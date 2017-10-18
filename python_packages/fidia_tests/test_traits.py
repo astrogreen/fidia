@@ -7,7 +7,7 @@ from typing import Type
 
 import fidia
 
-from fidia.traits import Trait, TraitProperty, TraitKey, TraitPath
+from fidia.traits import Trait, TraitProperty, TraitKey #, TraitPath
 from fidia.archive import example_archive
 
 from fidia.descriptions import TraitDescriptionsMixin
@@ -434,31 +434,32 @@ class TestTraitKeys:
 
         validate_trait_name("blue_line_map")
 
-
-class TestTraitPaths:
-
-    def test_trait_path_creation(self):
-
-        # Basic creation: elements are fully qualified TraitKeys
-        tp = TraitPath([TraitKey("my_type"), TraitKey("my_sub_type")])
-        assert isinstance(tp, TraitPath)
-        for i in tp:
-            assert isinstance(i, TraitKey)
-        assert len(tp) == 2
-
-
-        # creation from string trait_keys
-        tp = TraitPath(["image-r", "wcs"])
-        assert isinstance(tp, TraitPath)
-        for i in tp:
-            assert isinstance(i, TraitKey)
-        assert len(tp) == 2
-
-
-        # creation from path string
-        tp = TraitPath("image-r/wcs")
-        assert isinstance(tp, TraitPath)
-        for i in tp:
-            assert isinstance(i, TraitKey)
-        assert len(tp) == 2
+# NOTE: Not yet implemented in FIDIA v0.4
+#
+# class TestTraitPaths:
+#
+#     def test_trait_path_creation(self):
+#
+#         # Basic creation: elements are fully qualified TraitKeys
+#         tp = TraitPath([TraitKey("my_type"), TraitKey("my_sub_type")])
+#         assert isinstance(tp, TraitPath)
+#         for i in tp:
+#             assert isinstance(i, TraitKey)
+#         assert len(tp) == 2
+#
+#
+#         # creation from string trait_keys
+#         tp = TraitPath(["image-r", "wcs"])
+#         assert isinstance(tp, TraitPath)
+#         for i in tp:
+#             assert isinstance(i, TraitKey)
+#         assert len(tp) == 2
+#
+#
+#         # creation from path string
+#         tp = TraitPath("image-r/wcs")
+#         assert isinstance(tp, TraitPath)
+#         for i in tp:
+#             assert isinstance(i, TraitKey)
+#         assert len(tp) == 2
 

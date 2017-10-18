@@ -23,7 +23,6 @@ from ..database_tools import database_transaction
 # import fidia.sample as sample
 import fidia.traits as traits
 import fidia.column as columns
-import fidia.cache as cache
 # Other modules within this package
 # from fidia.base_classes import BaseArchive
 

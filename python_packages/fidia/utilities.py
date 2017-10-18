@@ -27,7 +27,7 @@ log.enable_console_logging()
 
 __all__ = [
     'none_at_indices', 'camel_case', 'fidia_classname', 'snake_case', 'is_list_or_set',
-    'WildcardDictionary', 'SchemaDictionary', 'MultiDexDict', 'DefaultsRegistry',
+    'WildcardDictionary', 'SchemaDictionary', 'MultiDexDict',
     'Inherit', 'Default',
     'RegexpGroup', 'exclusive_file_lock', 'classorinstancemethod', 'reset_cached_property'
 ]
@@ -324,71 +324,73 @@ class MappingMixin(object):
 class Inherit:
     pass
 
-class DefaultsRegistry:
-
-    def __init__(self, default_branch=None, version_defaults={}):
-        self._default_branch = default_branch
-        self._version_defaults = SchemaDictionary(version_defaults)
-
-    @property
-    def branch(self):
-        """
-        Return the default branch.
-
-        If the default has not been set, then return `Inherit`
-
-        """
-        # if self._default_branch is None:
-        #     return Inherit
-        # else:
-        return self._default_branch
-
-    def version(self, branch):
-        """Return the default version for the given branch.
-
-        If the dictionary has not been initialised, then return `Inherit`.
-
-        """
-        # if self._version_defaults == {}:
-        #     return Inherit
-        if branch is None:
-            return None
-        else:
-            try:
-                return self._version_defaults[branch]
-            except KeyError:
-                raise KeyError("%s has no default for branch '%s'" % (self, branch))
-
-    def set_default_branch(self, branch, override=False):
-        # type: (str, bool) -> None
-        if branch is None:
-            return
-        if override or self._default_branch is None:
-            self._default_branch = branch
-        else:
-            # Trying to update the default which has already been set.
-            # Throw an error only if this attempt would actually change
-            # the default.
-            if self._default_branch != branch:
-                raise ValueError("Attempt to change the default branch.")
-
-    def set_default_version(self, branch, version, override=False):
-        # type: (str, str, bool) -> None
-        if branch not in self._version_defaults or override:
-            self._version_defaults[branch] = version
-        elif self._version_defaults[branch] != version:
-            raise ValueError("Attempt to change the default version for branch '%s' from '%s'"
-                             % (branch, self._version_defaults[branch]))
-
-    def update_defaults(self, other_defaults, override=False):
-        # type: (DefaultsRegistry, bool) -> None
-        self.set_default_branch(other_defaults._default_branch, override=override)
-        self._version_defaults.update(other_defaults._version_defaults)
-
-    def __str__(self):
-        return "DefaultsRegistry(default_branch=%s, version_defaults=%s" % (
-            self._default_branch, self._version_defaults
-        )
+# Code below commented out because it is part of the Branches/Versions code, which currently isn't used.
+#
+# class DefaultsRegistry:
+#
+#     def __init__(self, default_branch=None, version_defaults={}):
+#         self._default_branch = default_branch
+#         self._version_defaults = SchemaDictionary(version_defaults)
+#
+#     @property
+#     def branch(self):
+#         """
+#         Return the default branch.
+#
+#         If the default has not been set, then return `Inherit`
+#
+#         """
+#         # if self._default_branch is None:
+#         #     return Inherit
+#         # else:
+#         return self._default_branch
+#
+#     def version(self, branch):
+#         """Return the default version for the given branch.
+#
+#         If the dictionary has not been initialised, then return `Inherit`.
+#
+#         """
+#         # if self._version_defaults == {}:
+#         #     return Inherit
+#         if branch is None:
+#             return None
+#         else:
+#             try:
+#                 return self._version_defaults[branch]
+#             except KeyError:
+#                 raise KeyError("%s has no default for branch '%s'" % (self, branch))
+#
+#     def set_default_branch(self, branch, override=False):
+#         # type: (str, bool) -> None
+#         if branch is None:
+#             return
+#         if override or self._default_branch is None:
+#             self._default_branch = branch
+#         else:
+#             # Trying to update the default which has already been set.
+#             # Throw an error only if this attempt would actually change
+#             # the default.
+#             if self._default_branch != branch:
+#                 raise ValueError("Attempt to change the default branch.")
+#
+#     def set_default_version(self, branch, version, override=False):
+#         # type: (str, str, bool) -> None
+#         if branch not in self._version_defaults or override:
+#             self._version_defaults[branch] = version
+#         elif self._version_defaults[branch] != version:
+#             raise ValueError("Attempt to change the default version for branch '%s' from '%s'"
+#                              % (branch, self._version_defaults[branch]))
+#
+#     def update_defaults(self, other_defaults, override=False):
+#         # type: (DefaultsRegistry, bool) -> None
+#         self.set_default_branch(other_defaults._default_branch, override=override)
+#         self._version_defaults.update(other_defaults._version_defaults)
+#
+#     def __str__(self):
+#         return "DefaultsRegistry(default_branch=%s, version_defaults=%s" % (
+#             self._default_branch, self._version_defaults
+#         )
 
 class Default: pass
 

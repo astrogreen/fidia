@@ -23,9 +23,8 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 # FIDIA Imports
 from fidia.exceptions import *
 import fidia.base_classes as bases
-from ..utilities import DefaultsRegistry, RegexpGroup, snake_case, fidia_classname, ordering_list_dict, log_to_list, \
+from ..utilities import RegexpGroup, snake_case, fidia_classname, ordering_list_dict, log_to_list, \
     MappingMixin
-from ..descriptions import DescriptionsMixin
 
 # Logging import and setup
 from .. import slogging
@@ -40,7 +39,7 @@ __all__ = [
     # Trait Mappings:
     'TraitMapping', 'TraitPointer', 'TraitPropertyMapping', 'SubTraitMapping',
     # Trait Identification:
-    'TraitKey', 'TraitPath', 'validate_trait_name'
+    'TraitKey', 'validate_trait_name'
 ]
 
 
@@ -50,7 +49,7 @@ __all__ = [
 #
 
 
-class TraitProperty(DescriptionsMixin):
+class TraitProperty(object):
     """Defines a 'slot' for a Trait property (reference to a column)."""
     allowed_types = RegexpGroup(
         'string',
@@ -322,240 +321,221 @@ class TraitKey(tuple):
             trait_string += "(" + self.version + ")"
         return trait_string
 
-
-class TraitPath(tuple):
-    """A class to handle full paths to Traits.
-
-    The idea is that a sequence of TraitKeys can uniquely identify a Trait
-    within an archive. This class provides a convenient way to bring such a
-    sequence of TraitKeys together, and manage such sequences.
-
-    """
-
-    # __slots__ = ()
-
-    # noinspection PyArgumentList
-    def __new__(cls, trait_path_tuple=None, trait_property=None):
-        log.debug("Creating new TraitPath with tuple %s and property %s", trait_path_tuple, trait_property)
-
-        if isinstance(trait_path_tuple, str):
-            trait_path_tuple = trait_path_tuple.split("/")
-
-        if trait_path_tuple is None or len(trait_path_tuple) == 0:
-            return tuple.__new__(cls, ())
-
-        validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
-        new = tuple.__new__(cls, validated_tk_path)
-        new.trait_property_name = trait_property
-        return new
-
-    def __repr__(self):
-        return "TraitPath((%s), %s)" % (", ".join([repr(tk) for tk in self]) + ", ", self.trait_property_name)
-
-    def __str__(self):
-        s = "/".join([str(tk) for tk in self])
-        if self.trait_property_name:
-            s += "/" + self.trait_property_name
-        return s
-
-    @staticmethod
-    def as_traitpath(trait_path):
-        if isinstance(trait_path, TraitPath):
-            return trait_path
-        else:
-            return TraitPath(trait_path)
-
-    def get_trait_class_for_archive(self, archive):
-        trait = archive
-        for elem in self:
-            if hasattr(trait, 'sub_traits'):
-                # Looking at trait
-                updated_tk = trait.sub_traits.update_key_with_defaults(elem)
-                trait = trait.sub_traits.retrieve_with_key(updated_tk)
-            else:
-                # Looking at archive:
-                updated_tk = trait.available_traits.update_key_with_defaults(elem)
-                trait = trait.available_traits.retrieve_with_key(updated_tk)
-        return trait
-
-    def get_trait_property_for_archive(self, archive):
-
-        trait_class = self.get_trait_class_for_archive(archive)
-        if self.trait_property_name is None:
-            if not hasattr(trait_class, 'value'):
-                raise FIDIAException()
-            else:
-                tp_name = 'value'
-        else:
-            tp_name = self.trait_property_name
-        trait_property = getattr(trait_class, tp_name)
-        return trait_property
-
-    def get_trait_for_object(self, astro_object):
-        # type: (fidia.AstronomicalObject) -> fidia.Trait
-        trait = astro_object
-        for elem in self:
-            trait = trait[elem]
-        return trait
-
-    def get_trait_property_for_object(self, astro_object):
-        # type: (fidia.AstronomicalObject) -> fidia.Trait
-
-
-        trait = self.get_trait_for_object(astro_object)
-        if self.trait_property_name is None:
-            if not hasattr(trait, 'value'):
-                raise FIDIAException()
-            else:
-                tp_name = 'value'
-        else:
-            tp_name = self.trait_property_name
-        trait_property = getattr(trait, tp_name)
-
-        return trait_property
-
-    def get_trait_property_value_for_object(self, astro_object):
-        # type: (fidia.AstronomicalObject) -> Any
-
-        trait_property = self.get_trait_property_for_object(astro_object)
-
-        return trait_property.value
-
-
-
-class BranchesVersions(dict):
-
-    def get_pretty_name(self, item):
-        key = self.get_full_key(item)
-        if isinstance(key, tuple):
-            if len(key) > 1:
-                return key[1]
-            else:
-                return key[0]
-        else:
-            return key
-
-    def get_description(self, item):
-        key = self.get_full_key(item)
-        if isinstance(key, tuple) and len(key) > 2:
-            return key[2]
-        else:
-            return ""
-
-    def get_version_pretty_name(self, branch, version):
-        full_item = self.get_full_item(branch)
-        for version_tuple in full_item:
-            if isinstance(version_tuple, tuple) and version_tuple[0] == version:
-                if len(version_tuple) > 1:
-                    return version_tuple[1]
-                else:
-                    # Fall back to simply returning the version ID
-                    return version_tuple[0]
-            elif version_tuple == version:
-                return version_tuple
-        # Version not found in the set of all versions.
-        raise KeyError("Version '%s' not found" % version)
+# NOTE: The following code has not been updated to FIDIA v0.4, and so is commented out.
+#
+# class TraitPath(tuple):
+#     """A class to handle full paths to Traits.
+#
+#     The idea is that a sequence of TraitKeys can uniquely identify a Trait
+#     within an archive. This class provides a convenient way to bring such a
+#     sequence of TraitKeys together, and manage such sequences.
+#
+#     """
+#
+#     # __slots__ = ()
+#
+#     # noinspection PyArgumentList
+#     def __new__(cls, trait_path_tuple=None, trait_property=None):
+#         log.debug("Creating new TraitPath with tuple %s and property %s", trait_path_tuple, trait_property)
+#
+#         if isinstance(trait_path_tuple, str):
+#             trait_path_tuple = trait_path_tuple.split("/")
+#
+#         if trait_path_tuple is None or len(trait_path_tuple) == 0:
+#             return tuple.__new__(cls, ())
+#
+#         validated_tk_path = [TraitKey.as_traitkey(elem) for elem in trait_path_tuple]
+#         new = tuple.__new__(cls, validated_tk_path)
+#         new.trait_property_name = trait_property
+#         return new
+#
+#     def __repr__(self):
+#         return "TraitPath((%s), %s)" % (", ".join([repr(tk) for tk in self]) + ", ", self.trait_property_name)
+#
+#     def __str__(self):
+#         s = "/".join([str(tk) for tk in self])
+#         if self.trait_property_name:
+#             s += "/" + self.trait_property_name
+#         return s
+#
+#     @staticmethod
+#     def as_traitpath(trait_path):
+#         if isinstance(trait_path, TraitPath):
+#             return trait_path
+#         else:
+#             return TraitPath(trait_path)
+#
+#     def get_trait_class_for_archive(self, archive):
+#         trait = archive
+#         for elem in self:
+#             if hasattr(trait, 'sub_traits'):
+#                 # Looking at trait
+#                 updated_tk = trait.sub_traits.update_key_with_defaults(elem)
+#                 trait = trait.sub_traits.retrieve_with_key(updated_tk)
+#             else:
+#                 # Looking at archive:
+#                 updated_tk = trait.available_traits.update_key_with_defaults(elem)
+#                 trait = trait.available_traits.retrieve_with_key(updated_tk)
+#         return trait
+#
+#     def get_trait_property_for_archive(self, archive):
+#
+#         trait_class = self.get_trait_class_for_archive(archive)
+#         if self.trait_property_name is None:
+#             if not hasattr(trait_class, 'value'):
+#                 raise FIDIAException()
+#             else:
+#                 tp_name = 'value'
+#         else:
+#             tp_name = self.trait_property_name
+#         trait_property = getattr(trait_class, tp_name)
+#         return trait_property
+#
+#     def get_trait_for_object(self, astro_object):
+#         # type: (fidia.AstronomicalObject) -> fidia.Trait
+#         trait = astro_object
+#         for elem in self:
+#             trait = trait[elem]
+#         return trait
+#
+#     def get_trait_property_for_object(self, astro_object):
+#         # type: (fidia.AstronomicalObject) -> fidia.Trait
+#
+#
+#         trait = self.get_trait_for_object(astro_object)
+#         if self.trait_property_name is None:
+#             if not hasattr(trait, 'value'):
+#                 raise FIDIAException()
+#             else:
+#                 tp_name = 'value'
+#         else:
+#             tp_name = self.trait_property_name
+#         trait_property = getattr(trait, tp_name)
+#
+#         return trait_property
+#
+#     def get_trait_property_value_for_object(self, astro_object):
+#         # type: (fidia.AstronomicalObject) -> Any
+#
+#         trait_property = self.get_trait_property_for_object(astro_object)
+#
+#         return trait_property.value
 
 
-    def get_version_description(self, branch, version):
-        full_item = self.get_full_item(branch)
-        for version_tuple in full_item:
-            if isinstance(version_tuple, tuple) and version_tuple[0] == version:
-                if len(version_tuple) > 2:
-                    return version_tuple[2]
-                else:
-                    # Return empty string if no description.
-                    return ""
-            elif version_tuple == version:
-                return ""
-        # Version not found in the set of all versions.
-        raise KeyError("Version '%s' not found")
+#
+# class BranchesVersions(dict):
+#
+#     def get_pretty_name(self, item):
+#         key = self.get_full_key(item)
+#         if isinstance(key, tuple):
+#             if len(key) > 1:
+#                 return key[1]
+#             else:
+#                 return key[0]
+#         else:
+#             return key
+#
+#     def get_description(self, item):
+#         key = self.get_full_key(item)
+#         if isinstance(key, tuple) and len(key) > 2:
+#             return key[2]
+#         else:
+#             return ""
+#
+#     def get_version_pretty_name(self, branch, version):
+#         full_item = self.get_full_item(branch)
+#         for version_tuple in full_item:
+#             if isinstance(version_tuple, tuple) and version_tuple[0] == version:
+#                 if len(version_tuple) > 1:
+#                     return version_tuple[1]
+#                 else:
+#                     # Fall back to simply returning the version ID
+#                     return version_tuple[0]
+#             elif version_tuple == version:
+#                 return version_tuple
+#         # Version not found in the set of all versions.
+#         raise KeyError("Version '%s' not found" % version)
+#
+#
+#     def get_version_description(self, branch, version):
+#         full_item = self.get_full_item(branch)
+#         for version_tuple in full_item:
+#             if isinstance(version_tuple, tuple) and version_tuple[0] == version:
+#                 if len(version_tuple) > 2:
+#                     return version_tuple[2]
+#                 else:
+#                     # Return empty string if no description.
+#                     return ""
+#             elif version_tuple == version:
+#                 return ""
+#         # Version not found in the set of all versions.
+#         raise KeyError("Version '%s' not found")
+#
+#     def name_keys(self):
+#         for key in self.keys():
+#             if isinstance(key, tuple):
+#                 yield key[0]
+#             else:
+#                 yield key
+#
+#     def get_full_key(self, branch):
+#         if branch not in self.keys():
+#             for key in self.keys():
+#                 if isinstance(key, tuple) and branch == key[0]:
+#                     return key
+#             # Have iterated through all keys and none matched.
+#             raise KeyError("Branch '%s' not found" % branch)
+#         else:
+#             return branch
+#
+#     def get_full_item(self, item):
+#         key = self.get_full_key(item)
+#         return super(BranchesVersions, self).__getitem__(key)
+#
+#
+#     def __getitem__(self, item):
+#         full_item = self.get_full_item(item)
+#         # The full item for a branch will be a set of either version identifiers
+#         # or tuples with (verid, prettyname, desc)
+#         # Return only the first items of each tuple.
+#         return {(i[0] if isinstance(i, tuple) else i) for i in full_item}
+#
+#     def __contains__(self, item):
+#         return item in self.name_keys()
+#
+#     def __iter__(self):
+#         return self.name_keys()
+#
+#     def has_single_branch_and_version(self):
+#         """Test if this branch version dictionary has only one branch and one version.
+#
+#         In this case, it is effectively its own default.
+#
+#         """
+#
+#         values = self.values()
+#         # Check for single branch
+#         res = len(values) == 1
+#         # Check for single version
+#         versions = list(values)
+#         res = res and len(versions[0]) == 1
+#
+#         return res
+#
+#     def as_defaults(self):
+#         """Return a copy of this as a DefaultsRegistry"""
+#
+#         if not self.has_single_branch_and_version():
+#             return None
+#
+#         branch = list(self.name_keys())[0]
+#
+#         versions_set = list(self.values())[0]
+#         version = list(versions_set)[0]
+#
+#         return DefaultsRegistry(version_defaults={branch: version})
+#
 
-    def name_keys(self):
-        for key in self.keys():
-            if isinstance(key, tuple):
-                yield key[0]
-            else:
-                yield key
-
-    def get_full_key(self, branch):
-        if branch not in self.keys():
-            for key in self.keys():
-                if isinstance(key, tuple) and branch == key[0]:
-                    return key
-            # Have iterated through all keys and none matched.
-            raise KeyError("Branch '%s' not found" % branch)
-        else:
-            return branch
-
-    def get_full_item(self, item):
-        key = self.get_full_key(item)
-        return super(BranchesVersions, self).__getitem__(key)
-
-
-    def __getitem__(self, item):
-        full_item = self.get_full_item(item)
-        # The full item for a branch will be a set of either version identifiers
-        # or tuples with (verid, prettyname, desc)
-        # Return only the first items of each tuple.
-        return {(i[0] if isinstance(i, tuple) else i) for i in full_item}
-
-    def __contains__(self, item):
-        return item in self.name_keys()
-
-    def __iter__(self):
-        return self.name_keys()
-
-    def has_single_branch_and_version(self):
-        """Test if this branch version dictionary has only one branch and one version.
-
-        In this case, it is effectively its own default.
-
-        """
-
-        values = self.values()
-        # Check for single branch
-        res = len(values) == 1
-        # Check for single version
-        versions = list(values)
-        res = res and len(versions[0]) == 1
-
-        return res
-
-    def as_defaults(self):
-        """Return a copy of this as a DefaultsRegistry"""
-
-        if not self.has_single_branch_and_version():
-            return None
-
-        branch = list(self.name_keys())[0]
-
-        versions_set = list(self.values())[0]
-        version = list(versions_set)[0]
-
-        return DefaultsRegistry(version_defaults={branch: version})
-
-
-
-class Branch(DescriptionsMixin):
-
-    # This tells the DescriptionsMixin to provide separate descriptions for each instance of this class.
-    descriptions_allowed = 'instance'
-
-    def __init__(self, name, pretty_name=None, description=None, versions=None):
-        if description is not None:
-            self.set_description(description)
-        if pretty_name is not None:
-            self.set_pretty_name(pretty_name)
-        self.name = name
-
-        if versions is not None:
-            self.versions = set(versions)
-        else:
-            self.versions = {None}
-
-    def __str__(self):
-        return self.name
 
 # ___  __         ___     __   ___  __   __                    __
 #  |  |__)  /\  |  |     |__) |__  /__` /  \ |    \  / | |\ | / _`
@@ -656,42 +636,42 @@ class TraitPointer(bases.TraitPointer, MappingMixin):
 
 
 
-class MappingBranchVersionHandling:
-    """Mixin class to provide Branch and version handling to Mappings.
-
-    NOTE: I have disabled the branches and versions code until it is actually
-    needed. This has been done to minimise the support load in maintaining code
-    that isn't currently required.
-
-    At this time, there are some minor issues with this code that will need to be
-    addressed when it is brought back into use:
-
-        * When an object with MappingBranchVersionHandling is restored from
-          the Alchemy database, the branch and version information is not
-          restored. This will cause some tests to fail, as branch and version
-          checks cannot succeed.
-        * Not all of the validataion code necessarily expects branches and
-          and versions to be present, and may fail when they actually start
-          appearing.
-        * Branch and versions are still tricky: what if different TraitMappings
-          define different b's and v's?
-
-
-    It would be in the best interest of this code if it was brought into
-    production sooner, rather than later, as this will minimise the cost of
-    getting it all working. But this should not be done until there is a real
-    benefit to be had.
-
-    Basic changes required to bring this code back into operation:
-
-        * Uncomment the code below.
-        * Add the mixin class back into the necessary mapping classes (probably
-          only TraitMapping), including calling the `__init__` function.
-        * Adjust/uncomment the line in TraitPointer that handles inserting
-          default B&Vs.
-
-    """
-    pass
+# class MappingBranchVersionHandling:
+#     """Mixin class to provide Branch and version handling to Mappings.
+#
+#     NOTE: I have disabled the branches and versions code until it is actually
+#     needed. This has been done to minimise the support load in maintaining code
+#     that isn't currently required.
+#
+#     At this time, there are some minor issues with this code that will need to be
+#     addressed when it is brought back into use:
+#
+#         * When an object with MappingBranchVersionHandling is restored from
+#           the Alchemy database, the branch and version information is not
+#           restored. This will cause some tests to fail, as branch and version
+#           checks cannot succeed.
+#         * Not all of the validataion code necessarily expects branches and
+#           and versions to be present, and may fail when they actually start
+#           appearing.
+#         * Branch and versions are still tricky: what if different TraitMappings
+#           define different b's and v's?
+#
+#
+#     It would be in the best interest of this code if it was brought into
+#     production sooner, rather than later, as this will minimise the cost of
+#     getting it all working. But this should not be done until there is a real
+#     benefit to be had.
+#
+#     Basic changes required to bring this code back into operation:
+#
+#         * Uncomment the code below.
+#         * Add the mixin class back into the necessary mapping classes (probably
+#           only TraitMapping), including calling the `__init__` function.
+#         * Adjust/uncomment the line in TraitPointer that handles inserting
+#           default B&Vs.
+#
+#     """
+#     pass
 #
 #     def __init__(self, branches_versions=None, branch_version_defaults=None):
 #         self.branches_versions = self._init_branches_versions(branches_versions)
