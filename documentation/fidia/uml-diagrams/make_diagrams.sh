@@ -37,7 +37,7 @@ bluedot traits
 
 # UML Diagram for whole of FIDIA:
 
-check pyreverse -o dot -p fidia fidia -fALL -mn --ignore=exceptions.py,slogging.py,reports.py,bases.py,utilities.py,descriptions.py
+check pyreverse -o dot -p fidia fidia -fALL -mn --ignore=exceptions.py,slogging.py,reports.py,base_classes.py,utilities.py,descriptions.py
 bluedot fidia
 
 check pyreverse -o pdf -p fidia_exceptions $FIDIA_DIR/exceptions.py 
