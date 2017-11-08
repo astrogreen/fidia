@@ -6,9 +6,8 @@ The Format Independent Data Interface for Astronomy
 
 	fidia/introduction
 	fidia/tutorial
-	fidia/ingestion
+	fidia/developers
 	fidia/api
-	fidia/design
 
 
 Top level documentation for FIDIA.

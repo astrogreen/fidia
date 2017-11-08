@@ -2,12 +2,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # from typing import List, Dict
 
+from collections import OrderedDict
+
 import fidia
 
 from fidia.ingest.data_finder import *
 from fidia.column import ColumnDefinitionList
 from fidia.ingest.ingestion_helpers import *
-
+from fidia.traits import *
 
 S7_DATA_DIR = "/Users/agreen/Desktop/S7 Data/"
 S7_INGESTION_DIR = "/Users/agreen/Documents/ASVO/code/git-repository/ingestion/s7/"

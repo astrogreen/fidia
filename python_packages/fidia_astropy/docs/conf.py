@@ -151,6 +151,15 @@ latex_documents = [('index', project + '.tex', project + u' Documentation',
                     author, 'manual')]
 
 
+# -- Support for Markdown syntax files ----------------------------------------
+
+source_parsers = {
+   '.md': 'recommonmark.parser.CommonMarkParser',
+}
+source_suffix = ['.rst', '.md']
+# See http://www.sphinx-doc.org/en/stable/markdown.html
+
+
 # -- Options for manual page output -------------------------------------------
 
 # One entry per manual page. List of tuples

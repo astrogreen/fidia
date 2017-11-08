@@ -28,6 +28,10 @@ class TestBasicExamples:
         ea = ExampleArchive(basepath=test_data_dir)
         sample = fidia.Sample.new_from_archive(ea)
 
+    def test_sample_contents(self, test_data_dir):
+        ea = ExampleArchive(basepath=test_data_dir)
+        print(ea.contents)
+
     def test_get_an_astro_object(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
         sample = fidia.Sample.new_from_archive(ea)

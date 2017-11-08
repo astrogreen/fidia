@@ -1,8 +1,27 @@
+"""
+Data Finders
+
+This module provides helpers for automatically finding available data in a
+variety of standard file types/formats. These helpers are designed to explore an
+example file or table provided, and then return both a list of the columns of
+data available and also a structuring that represents how the data is organised
+in the original format. The former provides a quick way to discover the data
+available, and the latter provides a way that the original data could be
+reconstructed by exporting the structuring provided. There is no requirement to use
+the structuring information provided by these functions.
+
+It is expected that the available helpers will continue to grew as new data
+formats become popular.
+
+
+
+"""
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import OrderedDict
 
-from typing import List, Dict, Tuple, Iterable
+from typing import List, Dict, Tuple, Iterable, Optional
 import fidia
 
 # Python Standard Library Imports
@@ -29,10 +48,33 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-# __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
+__all__ = ['finder_fits_file', 'finder_csv_file']
 
 def finder_fits_file(fits_path_pattern, object_id, basepath=''):
+    # type: (str, str, Optional[str]) ->  (List[FIDIAColumn], List, List)
+    """Find data columns and structuring for FITS files organised per object.
 
+
+    Parameters
+    ----------
+    fits_path_pattern: str
+        The path pattern that will be used to find the FITS files in general.
+        See XXX for a detailed description of the file_path_pattern expansion.
+    object_id: str
+        A valid object ID. This object ID will be used to find the example
+        FITS file used to find data and define structure. Only the file for
+        this single ID will be explored, so it should be representative.
+    basepath: str
+        The basepath of the archive that this data will belong to. See
+        :class:`fidia.BasePathArchive` for more information.
+
+    Returns
+    -------
+    columns_found: list of FIDIAColumns
+        All of the columns of data found.
+
+
+    """
     columns_found = []
     fits_dict = OrderedDict()
 
