@@ -153,13 +153,11 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
     # print(yaml.dump(columns_found))
     # print(json.dumps(columns_found, indent=2))
 
-    return columns_found, fits_dict, fits_mapping
+    return columns_found, fits_mapping
 
 def finder_csv_file(file_pattern, comment="\s*#", index_column=None, basepath=""):
 
     columns_found = []
-
-    table_dict = OrderedDict()
     table_mapping = []
 
     csv_path = os.path.join(basepath, file_pattern)
@@ -173,8 +171,7 @@ def finder_csv_file(file_pattern, comment="\s*#", index_column=None, basepath=""
         column = CSVTableColumn(file_pattern, colname, index_column, comment)
         columns_found.append(column)
 
-        table_dict[colname] = column.id
         table_mapping.append(TraitPropertyMapping(colname, column.id))
 
 
-    return columns_found, table_dict, table_mapping
+    return columns_found, table_mapping
