@@ -20,7 +20,7 @@ Here `ExampleArchive` is actually an `ArchiveDefinition` object. That archive de
 An `ArchiveDefinition` can decide to some extent when an Archive should be a separate instance by determining how the (unique) `archive_id` attribute is defined. If the `ArchiveDefinition` returns an `archive_id` that matches an existing Archive in the database, then it will be loaded. In the case of the `ExampleArchive` above, the `archive_id` is always `’ExampleArchive'` regardless of where the base path of the initialisation. So I can write code on my computer that tells FIDIA to load the ExampleArchive from a particular location on disk. But on the Data Central server, the location could be different (or even non-existant, as I’ll explain in a moment) and yet it would still know that we are talking about the same thing. However, an `ArchiveDefinition` could also be explicit about some things, too: consider:
 
 ```python
-SAMIArchive(basepath=“/tmp/ingest/sami”, release=“DR1”)
+SAMIArchive(basepath="/tmp/ingest/sami", release="DR1")
 ```
 
 The `SAMIArchive` (definition) could include the `release` value in the `archive_id`,  and then multiple distinct  `Archives` could exist.
