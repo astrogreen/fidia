@@ -19,21 +19,16 @@ formats become popular.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from collections import OrderedDict
-
-from typing import List, Dict, Tuple, Iterable, Optional
-import fidia
+from typing import List, Optional
+# import fidia
 
 # Python Standard Library Imports
 import os.path
-import json
 import re
 
 # Other Library Imports
-import pandas as pd
 from astropy.io import fits
 from astropy.io import ascii
-import yaml
 
 
 
@@ -51,8 +46,24 @@ log.enable_console_logging()
 __all__ = ['finder_fits_file', 'finder_csv_file']
 
 def finder_fits_file(fits_path_pattern, object_id, basepath=''):
-    # type: (str, str, Optional[str]) ->  (List[FIDIAColumn], List, List)
+    # type: (str, str, Optional[str]) ->  (List[FIDIAColumn], List[TraitMapping])
     """Find data columns and structuring for FITS files organised per object.
+
+    Opens and explores the FITS file at the specified path for the given
+    object ID as an example of what the corresponding FITS file would contain
+    for any valid object id. Specifically it searches for:
+
+    * the data part of Primary and Image extensions
+    * The value of header keywords in any extension with data
+        * The comment field for the header keyword will be used as the "short
+          description" of the new column
+        * If the comment field matches the pattern "[(unit)] Comment string",
+          the "(unit)" will be used as the unit of the new column, otherwise
+          the unit will be `None`.
+        * The column type will be set to the Python type of the keyword value.
+
+    Note that if an extension has no data (`hdu.data == None`), then the entire
+    extension will be skipped.
 
 
     Parameters
@@ -70,15 +81,19 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
 
     Returns
     -------
-    columns_found: list of FIDIAColumns
+    columns_found: list of ColumnDefinitions
         All of the columns of data found.
 
 
-    """
-    columns_found = []
-    fits_dict = OrderedDict()
+    Notes
+    -----
+    Units with the name "Angstroem" are rewritten to "Angstrom" before they are
+    stored. This would be much better handled elsewhere.
 
-    fits_mapping = []
+    """
+
+    columns_found = []  # type: List[ColumnDefinition]
+    fits_mapping = []  # type: List[TraitMapping]
 
     fits_path = os.path.join(basepath, fits_path_pattern.format(object_id=object_id))
     with fits.open(fits_path) as f:
@@ -91,8 +106,12 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
             if hdu.data is None:
                 # Skip empty HDUs
                 continue
+                # Note: this may not always be the right thing to do. Worth
+                # checking when this actually occurs and revisiting. For
+                # example, there may be valid header keyword items in the
+                # PrimaryHDU which would be skipped if the file only has valid
+                # data in extensions.
 
-            header_dict = OrderedDict()
             header_mappings = []
 
             for header in hdu.header:
@@ -100,9 +119,6 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
                     # Some FITS files can have empty strings or empty header keywords, which we cannot store.
                     continue
 
-                # column_id = "FITSHeaderColumn:example_fits_file_path[{ext}].header[{keyword}]".format(
-                #     ext=hdu.name,
-                #     keyword=header)
                 kw_type = type(hdu.header[header]).__name__
                 kw_comment = hdu.header.cards[header].comment
 
@@ -114,6 +130,7 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
                     unit = comment_match.group("unit")
                     if unit == "Angstroem":
                         unit = "Angstrom"
+                        # @TODO: This (fix for astropy shortcomings) should be done somewhere else!
                     kw_comment = comment_match.group("comment")
                 else:
                     unit = None
@@ -121,57 +138,68 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
 
                 column = FITSHeaderColumn(fits_path_pattern, hdu.name, header,
                                           type=kw_type, unit=unit, short_desc=kw_comment)
-
-                column_id = column.id
-                log.debug(repr(column))
-
-                log.info("FOUND COLUMN_ID: %s", column_id)
+                log.info("Found column_id: %s", column.id)
                 columns_found.append(column)
-                header_dict[header] = column_id
 
                 header_mappings.append(TraitPropertyMapping(header, column.id))
 
-                # header_mappings.append(TraitPropertyMapping(header, column.id))
-
-
-
             column = FITSDataColumn(fits_path_pattern, hdu.name)
+            log.info("Found column_id: %s", column.id)
             columns_found.append(column)
-            hdu_dict = {"data": column.id, "header": header_dict}
 
             hdu_mapping = TraitMapping(FitsImageHdu, hdu.name, [
                 TraitPropertyMapping("data", column.id),
                 TraitMapping(FITSHeader, "header", header_mappings)
             ])
 
-
-            fits_dict[hdu.name] = hdu_dict
             fits_mapping.append(hdu_mapping)
-
-    # print(yaml.dump(fits_dict))
-    # print(json.dumps(fits_dict, indent=2))
-    # print(yaml.dump(columns_found))
-    # print(json.dumps(columns_found, indent=2))
 
     return columns_found, fits_mapping
 
 def finder_csv_file(file_pattern, comment="\s*#", index_column=None, basepath=""):
+    # type: (str, str, Optional[str], str) ->  (List[FIDIAColumn], List[TraitMapping])
+    """Find data columns and structuring in a CSV file covering all objects.
 
-    columns_found = []
-    table_mapping = []
+    Opens and explores the CSV file at the specified path. The CSV file is
+    indexed by the index_column. A column will be created for each column in the
+    input CSV file, including any column defined as the index_column.
+
+
+    Parameters
+    ----------
+    file_pattern: str
+        The path to the CSV file.
+    comment: str
+        A string defining how a line in the CSV shall be identified as a
+        comment. See :class:`CSVTableColumn` for more info.
+    index_column: str
+        The name of the column that will be used to index the table. This column
+        should be populated with object_id's that make up the contents of the
+        :class:`.Archive`.
+    basepath: str
+        The basepath of the archive that this data will belong to. See
+        :class:`fidia.BasePathArchive` for more information.
+
+    Returns
+    -------
+    columns_found: list of ColumnDefinitions
+        All of the columns of data found.
+    table_mapping: list of TraitMappings
+        The structuring of the data in the table.
+
+    """
+
+    columns_found = []  # type: List[ColumnDefinition]
+    table_mapping = []  # type: List[TraitMapping]
 
     csv_path = os.path.join(basepath, file_pattern)
     table = ascii.read(csv_path, format="csv", comment=comment)
 
-    import astropy.table.column
-
     for colname in table.colnames:
-        # col = table.columns[colname]  # type: astropy.table.column.MaskedColumn
 
         column = CSVTableColumn(file_pattern, colname, index_column, comment)
         columns_found.append(column)
 
         table_mapping.append(TraitPropertyMapping(colname, column.id))
-
 
     return columns_found, table_mapping
