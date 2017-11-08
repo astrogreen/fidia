@@ -1,8 +1,85 @@
+"""
+..
+      _____ ______   _____                       _   _                _____          _
+     / ____|____  | |_   _|                     | | (_)              / ____|        | |
+    | (___     / /    | |  _ __   __ _  ___  ___| |_ _  ___  _ __   | |     ___   __| | ___
+     \___ \   / /     | | | '_ \ / _` |/ _ \/ __| __| |/ _ \| '_ \  | |    / _ \ / _` |/ _ \
+     ____) | / /     _| |_| | | | (_| |  __/\__ \ |_| | (_) | | | | | |___| (_) | (_| |  __/
+    |_____/ /_/     |_____|_| |_|\__, |\___||___/\__|_|\___/|_| |_|  \_____\___/ \__,_|\___|
+                                  __/ |
+                                 |___/
+
+The FIDIA S7 Ingestion Code
+
+Filename: s7_fidia_ingestion.py
+
+
+Overview
+--------
+
+This script will load S7 data as provided by Adam Thomas (ANU) into FIDIA. The
+code is linear and does the following:
+
+1. It searches through example FITS files to find all "columns" (in the FIDIA
+   sense) of data, and creates a structuring that matches those original files. It
+   then creates tables based on the CSV files. These are all brought together into
+   a single list of Columns and a single structuring.
+
+2. This structing and the corresponding metadata found is then written to a JSON
+   file, which was sent to Adam Thomas (June 2017).
+
+3. Adam updated the JSON to have more complete meta-data, and sent the file back
+   to us, along with updated FITS files.
+
+4. This updated JSON is read in, and used to update the original FIDIA data
+   structures as generated from the original files.
+
+5. A FIDIA `ArchiveDefinition` class is created and executed, which makes FIDIA
+   aware of the new Archive.
+
+This file is organised to first define a bunch of support functions which
+basically make the actual code at the end easier to read. At the end of the file
+is the actual processing wrapped in a Python "__main__" block.
+
+
+About S7
+--------
+
+S7 was originally hosted on an ANU based website:
+
+    https://miocene.anu.edu.au/S7/
+
+
+Data Organisation
+-----------------
+
+The data are organised into a few broad categories with some nesting as follows:
+
+* Spectral cubes (red and blue): stored as FITS files
+* Spectral cubes with the broad component subtracted (red and blue): stored as
+  FITS files, and **not present for all galaxies**.
+* LZIFU Fits: stored using the standard LZIFU format, though not all lines are
+  fit, so some FITS extensions are empty.
+* LZIFU "best" components as determined by `LZcomp`: Similar format to LZIFU
+  fits above.
+* Nuclear spectra of all galaxies (red and blue): stored as FITS files.
+* Broad component subtracted nuclear spectra of all galaxies (red and blue):
+  stored as FITS files.
+* Tabular data:
+    * Catalog (CSV)
+    * Nuclear fluxes (CSV)
+    * Nuclear flux errors (CSV)
+    * Nuclear luminosities (CSV)
+
+
+"""
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 # from typing import List, Dict
 
 import re
+import json
 from collections import OrderedDict
 
 import fidia
@@ -12,11 +89,21 @@ from fidia.column import ColumnDefinitionList
 from fidia.ingest.ingestion_helpers import *
 from fidia.traits import *
 
+import logging.config
+log = logging.getLogger(__name__)
+logging_level = logging.WARNING
+# Logging configuration at end of file, before __main__ section.
+
 S7_DATA_DIR = "/Users/agreen/Desktop/S7 Data/"
 S7_INGESTION_DIR = "/Users/agreen/Documents/ASVO/code/git-repository/ingestion/s7/"
 
 
 def collect_cubes(all_columns_found, all_mappings):
+    """Find columns and structuring for S7 spectral cubes.
+
+    This must be done for both
+
+    """
 
     #  R e g u l a r   C u b e s
 
@@ -67,7 +154,6 @@ def collect_cubes(all_columns_found, all_mappings):
 
 
 def collect_lzifu(all_columns_found, all_mappings):
-
 
     #   L Z I F U    G r o u p s
 
@@ -208,7 +294,47 @@ def update_s7_json_from_list(list_dict):
     return specification_dict
 
 
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(filename)s:%(lineno)s %(funcName)s: %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'poscheck': {
+            'handlers': ['console'],
+            'level': logging_level
+        }
+    }
+})
+
+
+#                       __        __   __
+#  |\/|  /\  | |\ |    |__) |    /  \ /  ` |__/
+#  |  | /~~\ | | \|    |__) |___ \__/ \__, |  \
+#
+# The rest of this file runs the steps of the process as described in the
+# overview (at the top of the file).
+
+
 if __name__ == "__main__":
+
+    #  __  ___  ___  __      __        ___
+    # /__`  |  |__  |__)    /  \ |\ | |__
+    # .__/  |  |___ |       \__/ | \| |___
+    # from the overview: Search for data
 
     # Set up the variables to collect the mappings and columns:
 
@@ -233,6 +359,11 @@ if __name__ == "__main__":
     # [print(key) for key in all_columns_found._contents.keys()]
     # print(json.dumps([mapping.as_specification_dict(all_columns_found) for mapping in all_mappings], indent=2))
 
+    #  __  ___  ___  __     ___       __
+    # /__`  |  |__  |__)     |  |  | /  \
+    # .__/  |  |___ |        |  |/\| \__/
+    # from the overview: Write out to JSON
+
     # Combine the mappings together into a "specification_dict" and serialize that to a JSON file
     specification_dict_main = dict()
     for mapping in all_mappings_main:
@@ -242,13 +373,22 @@ if __name__ == "__main__":
     # Validate the mappings and write errors to a file:
     write_validataion_errors(specification_dict_main, S7_INGESTION_DIR + "s7-datacentral-error-summary.txt")
 
-    # Re-read serialised format with updates provided by Adam Thomas and apply them to our in-memory representation:
+    #  __  ___  ___  __      ___  __        __
+    # /__`  |  |__  |__)    |__  /  \ |  | |__)
+    # .__/  |  |___ |       |    \__/ \__/ |  \
+    # from the overview: Read back in Adam's updated JSON
+
     updated_json_filename = S7_INGESTION_DIR + "s7-datacentral_ADT_20170720.json"
     # NOTE: This file was created using old code from poc/fidia/s7_ingestion.py,
     # and therefore must be updated before use here (via call to `update_s7_json_from_list` below)
+
     with open(updated_json_filename, 'r') as f:
         updated_json = json.load(f)
+
+    # Update JSON from old format:
     updated_json = update_s7_json_from_list(updated_json)
+
+    # Apply updated changes to our in-memory representation of the mapping/structuring.
     update_log = update_mappings_list_with_specification_dict(all_mappings_main, all_columns_found_main, updated_json)
 
     # Display a list of changes:
@@ -259,6 +399,11 @@ if __name__ == "__main__":
     specification_dict_main = [mapping.as_specification_dict(all_columns_found_main) for mapping in all_mappings_main]
     write_validataion_errors(specification_dict_main, S7_INGESTION_DIR + "s7-datacentral-error-summary-updated.txt")
 
+    #  __  ___  ___  __      ___         ___
+    # /__`  |  |__  |__)    |__  | \  / |__
+    # .__/  |  |___ |       |    |  \/  |___
+    # from the overview: create a FIDIA `ArchiveDefinition` and load it.
+
     # Get a list of all object_ids in S7:
     from astropy.io import ascii
     table = ascii.read(S7_DATA_DIR + "4_Table_2_Catalogue.csv", format="csv", comment="\$")
@@ -266,20 +411,17 @@ if __name__ == "__main__":
 
 
     # Create an ArchiveDefinition for ingestion into FIDIA
-
     class S7Archive(fidia.ArchiveDefinition):
-
         archive_id = "S7"
         archive_type = fidia.BasePathArchive
-
         column_definitions = all_columns_found_main
-
         trait_mappings = all_mappings_main
-
         contents = all_object_ids
-
         is_persisted = True
 
+    # Call the ArchiveDefinition to create a new FIDIA Archive (this also will
+    # add it to FIDIA's known archives).
     ar = S7Archive(basepath=S7_DATA_DIR)
 
+    # Get a piece of data to check everything is working:
     print(ar['IC5063'].table['catalog'].V_app_mag)

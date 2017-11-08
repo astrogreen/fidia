@@ -2,9 +2,6 @@
 Ingestion Helpers
 =================
 
-.. automodule:: fidia.ingest.data_finder
-
-.. automodule:: fidia.ingest.ingestion_helpers
 
 
 Reference/API

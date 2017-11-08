@@ -1,5 +1,6 @@
 """
-Data Finders
+FIDIA Data Finders Overview
+---------------------------
 
 This module provides helpers for automatically finding available data in a
 variety of standard file types/formats. These helpers are designed to explore an
