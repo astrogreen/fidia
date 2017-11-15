@@ -101,7 +101,7 @@ S7_INGESTION_DIR = "/Users/agreen/Documents/ASVO/code/git-repository/ingestion/s
 def collect_cubes(all_columns_found, all_mappings):
     """Find columns and structuring for S7 spectral cubes.
 
-    This must be done for both
+    This must be done for both red and blue, and for both "Regular" and "Broad"
 
     """
 
