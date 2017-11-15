@@ -421,7 +421,7 @@ if __name__ == "__main__":
 
     # Call the ArchiveDefinition to create a new FIDIA Archive (this also will
     # add it to FIDIA's known archives).
-    ar = S7Archive(basepath=S7_DATA_DIR)
+    ar = S7Archive(basepath=S7_DATA_DIR)  # type: fidia.Archive
 
     # Get a piece of data to check everything is working:
     print(ar['IC5063'].table['catalog'].V_app_mag)

@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List, Dict, Tuple, Iterable, Type
+from typing import List, Dict, Tuple, Iterable, Type, Any
 import fidia
 
 # Python Standard Library Imports
@@ -493,7 +493,7 @@ class ArchiveDefinition(object):
 
     # noinspection PyProtectedMember
     def __new__(cls, **kwargs):
-
+        # type: (Any) -> Archive
         from fidia import known_archives
 
         definition = object.__new__(cls)

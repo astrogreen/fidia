@@ -22,13 +22,13 @@ indexed directly by CATAID (i.e. it must add "JOIN"ed data.)
 
 """
 
-# noinspection PyUnresolvedReferences
 from typing import List
-# noinspection PyUnresolvedReferences
 import fidia
 
-from fidia.ingest.data_finder import *
-from fidia.column import ColumnDefinitionList
+import os
+
+# from fidia.ingest.data_finder import *
+from fidia.column import ColumnDefinitionList, SQLColumn, ColumnDefinition
 from fidia.traits import *
 
 from fidia.ingest.ingestion_helpers import *
@@ -188,11 +188,11 @@ def build_traitmapping_from_gama_database():
 
 if __name__ == "__main__":
 
-    mappings, columns = build_traitmapping_from_gama_database()
+    main_mappings, main_columns = build_traitmapping_from_gama_database()
 
     specification_dict = dict()
-    for mapping in mappings:
-        specification_dict.update(mapping.as_specification_dict(columns))
+    for mapping in main_mappings:
+        specification_dict.update(mapping.as_specification_dict(main_columns))
 
     json_output_path = os.path.join(os.path.dirname(__file__), "gama-datacentral.json")
     write_specification_dict_as_json(specification_dict, json_output_path)
@@ -205,16 +205,16 @@ if __name__ == "__main__":
         archive_id = "GAMA_DR2"
         archive_type = fidia.DatabaseArchive
 
-        column_definitions = columns
+        column_definitions = main_columns
 
-        trait_mappings = mappings
+        trait_mappings = main_mappings
 
         contents = [row["CATAID"] for row in connection.execute("SELECT CATAID FROM DistancesFrames")]
         # contents = ["24433"]
 
         is_persisted = True
 
-    ar = GAMAArchive(database_url="mysql+mysqldb://agreen:agreen@10.80.10.137/dr2")
+    ar = GAMAArchive(database_url="mysql+mysqldb://agreen:agreen@10.80.10.137/dr2")  # type: fidia.Archive
 
     print(ar["24433"].dmu["StellarMasses"].table["StellarMasses"].logmstar)
 
