@@ -29,6 +29,7 @@ if not _ASTROPY_SETUP_:
     import fidia.traits
     import fidia.archive
     import fidia.column
+    import fidia.dal
 
     # from fidia.column import *
     # from fidia.sample import *
@@ -66,6 +67,7 @@ if not _ASTROPY_SETUP_:
 
     # Create various singleton instances:
     known_archives = fidia.archive.archive.KnownArchives()
+    dal_host = fidia.dal._DataAccessLayerHost(config)
 
     # from fidia.database_tools import is_sane_database
     # if not is_sane_database(Session()):

@@ -19,7 +19,7 @@ from sqlalchemy.orm.collections import attribute_mapped_collection, mapped_colle
 
 # FIDIA Imports
 import fidia.base_classes as bases
-from ..exceptions import FIDIAException
+from ..exceptions import FIDIAException, DataNotAvailable
 from ..utilities import RegexpGroup
 
 # Set up logging
@@ -340,23 +340,62 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     #         instance_column._archive_id = archive.archive_id
     #     return instance_column
 
-    def get_value(self, object_id):
-        log.debug("Column '%s' retrieving value for object %s", self, object_id)
-        if self._object_getter is not None:
-            log.vdebug("Retrieving using cell getter from ColumnDefinition")
-            log.vdebug("_object_getter(object_id=\"%s\", %s)", object_id, self._object_getter_args)
-            return self._object_getter(object_id, **self._object_getter_args)
-        elif self._array_getter is not None:
+
+    def get_value(self, object_id, provenance="any"):
+        """Retrieve the value from this column for the given object ID.
+
+
+        Implementation
+        --------------
+
+        This function tries each of the following steps until one returns a value:
+
+        1. Search the Data Access Layer
+        2. Use original `ColumnDefinition.object_getter` stored in local `._object_getter`
+        3. Use original `ColumnDefinition.array_getter` stored in local `._array_getter`, selecting just this row.
+
+        """
+
+        if provenance not in ['any', 'dal', 'definition']:
+            raise ValueError("provenance must be one of 'any', 'dal' or 'definition'")
+
+        if provenance in ['any', 'dal']:
+            # STEP 1: Search the data access layer
+            try:
+                return fidia.dal_host.search_for_cell(self, object_id)
+            except:
+                log.info("DAL did not provide data for column_id %s, object_id %s", self.id, object_id, exc_info=True)
+
+        if provenance in ['any', 'definition']:
+
+            # Confirm that at least one getter is available from the definition
+            if self._object_getter is None and self._array_getter is None:
+                raise FIDIAException("No getter functions available for column")
+
+            # STEP 2: Use original `ColumnDefinition.object_getter`
+            log.debug("Column '%s' retrieving value for object %s using original definitions", self, object_id)
+            if self._object_getter is not None:
+                log.vdebug("Retrieving using cell getter from ColumnDefinition")
+                log.vdebug("_object_getter(object_id=\"%s\", %s)", object_id, self._object_getter_args)
+                return self._object_getter(object_id, **self._object_getter_args)
+
+            #  STEP 3: Use original `ColumnDefinition.array_getter`
             log.vdebug("Retrieving using array getter from ColumnDefinition via `._default_get_value`")
             return self._default_get_value(object_id)
-        else:
-            raise FIDIAException("No getter functions available for column")
+
+        # This should not be reached unless something is wrong with the state of the data/ingestion.
+        raise DataNotAvailable("Neither the DAL nor the original ColumnDefinition could provide the requested data.")
 
     def get_array(self):
         if self._array_getter is not None:
             return self._array_getter(**self._array_getter_args)
         else:
-            raise FIDIAException("No array getter function available for column")
+            data = []
+            for object_id in self.contents:
+                data.append(self.get_value(object_id))
+
+            return pd.Series(data, index=self.contents)
+
 
     def _default_get_value(self, object_id):
         """Individual value getter, takes object_id as argument.
@@ -420,6 +459,10 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         if value not in self.allowed_types:
             raise Exception("Trait property type '{}' not valid".format(value))
         self._fidia_type = value
+
+    @property
+    def contents(self):
+        return self._archive.contents
 
     # @property
     # def archive(self):

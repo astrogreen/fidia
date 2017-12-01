@@ -286,8 +286,8 @@ class BaseTrait(bases.BaseTrait):
         """
         archive = self._sample.archive_for_column(column_id)
         column = self._sample.find_column(column_id)
-        archive_id = self._sample.get_archive_id(archive, self.object_id)
-        value = column.get_value(archive_id)
+        archive_object_id = self._sample.get_archive_id(archive, self.object_id)
+        value = column.get_value(archive_object_id)
         return value
 
     #       ___ ___       __       ___

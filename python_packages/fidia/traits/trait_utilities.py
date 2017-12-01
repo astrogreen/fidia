@@ -110,6 +110,7 @@ class TraitProperty(object):
             column_id = trait._trait_mapping.trait_property_mappings[self.name].id
             result = trait._get_column_data(column_id)
             setattr(trait, self.name, result)
+            assert result is not None
             return result
 
     def __repr__(self):
@@ -967,7 +968,7 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
         if self._is_reconstructed is None:
             return "Unreconstructed " + super(TraitMapping, self).__repr__()
 
-        mappings = list(self.trait_property_mappings.values())
+        mappings = list(self)
         return ("TraitMapping(trait_class=%s, trait_key='%s', mappings=%s)" %
                 (fidia_classname(self.trait_class), str(self.trait_key), repr(mappings)))
 

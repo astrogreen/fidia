@@ -28,7 +28,7 @@ log = slogging.getLogger(__name__)
 log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
-config = None
+config = None  # type: configparser.ConfigParser
 
 DEFAULT_CONFIG = """
 [MappingDatabase]
