@@ -10,7 +10,7 @@ FIDIA is composed of several major components:
 	api/samples
 	api/astro_objects
 	api/columns
-	design/data_access
+	api/dal
 	api/traits
 	api/utilities
 	api/ingest
