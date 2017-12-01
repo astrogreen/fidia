@@ -503,8 +503,10 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern) as hdulist:
             column_data = hdulist[self.fits_extension_id].data[self.column_name]
+            # force native byteorder (https://pandas.pydata.org/pandas-docs/stable/gotchas.html#byte-ordering-issues)
+            native_column_data = column_data.byteswap().newbyteorder()
             index = hdulist[self.fits_extension_id].data[self.index_column_name]
-            return pd.Series(column_data, index=index, name=self._id, copy=True)
+            return pd.Series(native_column_data, index=index, name=self._id, copy=True)
 
     def _timestamp_helper(self, archive):
         if archive is None:
