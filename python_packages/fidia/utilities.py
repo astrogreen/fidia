@@ -12,6 +12,7 @@ import os
 import errno
 import fcntl
 import functools
+import textwrap
 from time import sleep
 
 # Other Library Imports
@@ -414,6 +415,21 @@ def snake_case(camel_case_string):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
+def deindent_tripple_quoted_string(str):
+
+    lines = str.splitlines()
+
+    # Rejoin all but the first line:
+    rest = "\n".join(lines[1:])
+
+    # Strip extra indents at the start of each line
+    rest = textwrap.dedent(rest)
+
+    # Rejoin first line:
+    full = "\n".join((lines[0], rest))
+
+    return full
+
 def is_list_or_set(obj):
     """Return true if the object is a list, set, or other sized iterable (but not a string!)"""
     return (isinstance(obj, Iterable) and isinstance(obj, Sized) and
@@ -791,3 +807,4 @@ class OrderingListDict(list):
             return True
         # Second check normal contains
         return super(OrderingListDict, self).__contains__(item)
+

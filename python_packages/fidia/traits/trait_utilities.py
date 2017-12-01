@@ -826,10 +826,13 @@ class TraitMapping(bases.Mapping, TraitMappingBase):
     # host_manager = relationship(TraitManager)  # type: TraitManager
     sub_trait_mappings = relationship(
         'SubTraitMapping',
-        collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
+        collection_class=attribute_mapped_collection('name'),
+        cascade="all, delete, delete-orphan"
+    )  # type: Dict[str, SubTraitMapping]
     named_sub_mappings = relationship(
         'TraitMapping',
         collection_class=ordering_list_dict('index', 'mapping_key'),
+        cascade="all, delete, delete-orphan",
         order_by='TraitMapping.index')  # type: Dict[Tuple[str, str], TraitMapping]
 
 
@@ -1036,6 +1039,7 @@ class SubTraitMapping(bases.Mapping, TraitMappingBase):
 
     sub_trait_mappings = relationship(
         'SubTraitMapping',
+        cascade="all, delete, delete-orphan",
         collection_class=attribute_mapped_collection('name'))  # type: Dict[str, SubTraitMapping]
 
 

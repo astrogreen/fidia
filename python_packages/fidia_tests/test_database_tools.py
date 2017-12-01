@@ -12,6 +12,21 @@ import fidia
 from fidia.column import FITSHeaderColumn, FIDIAColumn, ColumnDefinition
 
 
+from sqlalchemy import create_engine
+
+
+from sqlalchemy.orm import sessionmaker
+
+from fidia.database_tools import is_sane_database
+from sqlalchemy import engine_from_config, Column, Integer, String
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import ForeignKey
+
+
+
 @pytest.fixture('module')
 def engine():
     engine = create_engine('sqlite:///:memory:', echo=True)
@@ -460,18 +475,35 @@ class TestDatabaseBasics:
         # assert False
 
 
-from sqlalchemy import create_engine
+def test_remove_archive(monkeypatch, test_data_dir, clean_persistence_database):
+
+    # NOTE: This works on a completely empty persistence database provided by the
+    # `clean_persistence_database` fixture.
+
+    session = fidia.mappingdb_session
+
+    # Add the ExampleArchive to the database:
+    from fidia.archive.example_archive import ExampleArchive
+    ar = ExampleArchive(basepath=test_data_dir)
+
+    # Confirm that there are entries in the database
+    assert session.query(fidia.Archive).count() == 1
+    assert session.query(fidia.traits.TraitMapping).count() > 0
+    assert session.query(fidia.traits.SubTraitMapping).count() > 0
+    assert session.query(fidia.FIDIAColumn).count() > 0
+
+    # Remove our archive
+    session.delete(ar)
+
+    # Confirm that all DB entries have been removed.
+    assert session.query(fidia.Archive).count() == 0
+    assert session.query(fidia.traits.TraitMapping).count() == 0
+    assert session.query(fidia.traits.SubTraitMapping).count() == 0
+    assert session.query(fidia.FIDIAColumn).count() == 0
+
+    session.close()
 
 
-from sqlalchemy.orm import sessionmaker
-
-from fidia.database_tools import is_sane_database
-from sqlalchemy import engine_from_config, Column, Integer, String
-import sqlalchemy
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy import ForeignKey
 
 
 def gen_test_model():

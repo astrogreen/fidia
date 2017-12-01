@@ -74,9 +74,12 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
         'polymorphic_on': '_db_archive_class',
         'polymorphic_identity': 'Archive'}
 
-    _mappings = relationship('TraitMapping')  # type: List[traits.TraitMapping]
+    _mappings = relationship('TraitMapping',
+                             cascade="all, delete, delete-orphan"
+                             )  # type: List[traits.TraitMapping]
     columns = relationship('FIDIAColumn',
-                           collection_class=attribute_mapped_collection('id')
+                           collection_class=attribute_mapped_collection('id'),
+                           cascade="all, delete, delete-orphan"
                            )  # type: Dict[str, columns.FIDIAColumn]
 
     # This provides a space for an archive to set which catalog data to
@@ -590,6 +593,11 @@ class KnownArchives(object):
         # type: () -> List[Archive]
         return self._query.order_by('_db_archive_id').all()
 
+    def remove_archive(self, archive_id):
+        archive = self.by_id[archive_id]
+        log.info("Deleting Archive \"%s\" from the persistence database", str(archive))
+
+        fidia.mappingdb_session.delete(archive)
 
     class by_id(object):
         def __getitem__(self, item):
