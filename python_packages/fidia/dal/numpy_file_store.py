@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import List, Dict, Tuple, Iterable, Type, Any
+from typing import Any
 import fidia
 
 # Python Standard Library Imports
@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 # FIDIA Imports
-from fidia.column import ColumnID, FIDIAColumn, FIDIAArrayColumn
+from fidia.column import ColumnID, FIDIAArrayColumn
 
 # Other modules within this package
 from ._dal_internals import *
@@ -27,7 +27,36 @@ log.enable_console_logging()
 
 
 
-class NumpyFileStore(object):
+class NumpyFileStore(DataAccessLayer):
+    """A data access layer that stores it's data in Numpy savefiles (`.npy`) and pickled Pandas `pandas.Series` objects.
+
+    Parameters
+    ----------
+    base_path: str
+        Directory to store/find the data in. All of the "cached" data is
+        below this directory, which must already exist (even if no data has
+        been ingested yet).
+
+    Notes
+    -----
+
+    The data is stored in a directory structure with multiple levels. These
+    levels reflect the levels of the ColumnID's stored. They are:
+
+    1. Archive ID
+    2. ColumnDefinition class name (type)
+    3. Column name. NOTE: in many cases the Column Name may contain path
+       separator characters already (e.g. for FITS column types). These
+       separators are left as is, so there may be more than one directory
+       levels at this level.
+    4. Timestamp
+
+    Within the directory defined by ColumnID as above, there is either one
+    file (for regular FIDIAColumns) or one file per object (for array data
+    in FIDIAArrayColumns).
+
+
+    """
 
     def __init__(self, base_path):
 
@@ -36,13 +65,12 @@ class NumpyFileStore(object):
 
         self.base_path = base_path
 
-    def __repr__(self):
-        return "NumpyFileStore(base_path={})".format(self.base_path)
+    # def __repr__(self):
+    #     return "NumpyFileStore(base_path={})".format(self.base_path)
 
     def get_value(self, column, object_id):
         # type: (fidia.FIDIAColumn, str) -> Any
-
-        log.debug("Entered Function")
+        """Overrides :meth:`DataAccessLayer.get_value`"""
 
         try:
             fidia_column_id = ColumnID.as_column_id(column.id)
@@ -50,14 +78,10 @@ class NumpyFileStore(object):
             # Column ID is not a FIDIA column ID. This Access Layer can't respond.
             raise DALCantRespond("ColumnID %s is not a FIDIA standard ColumnID." % column.id)
 
-        log.debug("hi")
-
         data_dir = self.get_directory_for_column_id(fidia_column_id)
 
         if not os.path.exists(data_dir):
-            raise DALDataNotAvailalbe("NumpyFileStore has no data for ColumnID %s" % fidia_column_id)
-
-        log.debug("hi")
+            raise DALDataNotAvailable("NumpyFileStore has no data for ColumnID %s" % fidia_column_id)
 
         if isinstance(column, FIDIAArrayColumn):
             # Data is in array format, and therefore each cell is stored as a separate file.
@@ -77,25 +101,20 @@ class NumpyFileStore(object):
 
             data = series[object_id]
 
-        log.debug("hi")
-
         # Sanity checks that data loaded matches expectations
-        # assert column.type ==
-
         assert data is not None
-
-        log.debug("Returning data")
 
         return data
 
     def ingest_column(self, column):
         # type: (fidia.FIDIAColumn) -> None
+        """Overrides :meth:`DataAccessLayer.ingest_column`"""
 
         try:
             fidia_column_id = ColumnID.as_column_id(column.id)
         except KeyError:
             # Column ID is not a FIDIA column ID. This Access Layer can't respond.
-            raise DALIngestionError("ColumnID %s is not a FIDIA standard ColumnID." % fidia_column_id)
+            raise DALIngestionError("ColumnID %s is not a FIDIA standard ColumnID." % column.id)
 
         data_dir = self.get_directory_for_column_id(fidia_column_id)
 
@@ -117,27 +136,6 @@ class NumpyFileStore(object):
             log.debug(type(data))
             series = pd.Series(data, index=column.contents)
             series.to_pickle(data_path)
-
-
-
-    def ingest_archive(self, archive):
-        # type: (fidia.Archive) -> None
-        """Ingest all columns found in archive into this data access layer.
-
-        Notes
-        -----
-
-        First pass implementation of this is "dumb": it just loops over all
-        columns, ingesting them separately. In future, it would be better to
-        look at the columns and group them intelligently e.g. by FITS file, so
-        that we don't need to open every file many (hundreds) of times.
-
-        """
-
-        for column in archive.columns.values():
-            self.ingest_column(column)
-
-
 
     def get_directory_for_column_id(self, column_id):
         # type: (ColumnID) -> str

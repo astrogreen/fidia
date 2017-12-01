@@ -1,6 +1,11 @@
+========
 Archives
 ========
 
+
+Reference/API
+=============
+
 .. automodapi:: fidia.archive
 
-.. class:: fidia.archive.example_archive.ExampleArchive
+.. automodapi:: fidia.archive.example_archive
