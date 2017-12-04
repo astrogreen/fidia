@@ -4,6 +4,7 @@ import pytest
 import os
 import tempfile
 import subprocess
+import warnings
 
 import numpy as np
 # from astropy.io import fits
@@ -127,3 +128,54 @@ def test_full_ingestion_removes_need_for_original_data(clean_persistence_databas
 
         for object_id in ar.contents:
             ar[object_id].image["red"].data
+
+        # Remove layer from FIDIA DAL to avoid problems with other tests:
+        idx = fidia.dal_host.layers.index(file_store)
+        del fidia.dal_host.layers[idx]
+
+def test_ingestion_benchmarks(benchmark, clean_persistence_database, test_data_dir):
+
+    with tempfile.TemporaryDirectory() as test_data_dir:
+        testdata.generate_simple_dataset(test_data_dir, 30)
+
+        ar = ExampleArchive(basepath=test_data_dir)  # type: fidia.Archive
+
+        def func():
+            with tempfile.TemporaryDirectory() as dal_data_dir:
+
+                file_store = NumpyFileStore(dal_data_dir)
+                file_store.ingest_archive(ar)
+
+                # Add this layer to FIDIA's known data access layers
+                fidia.dal_host.layers.append(file_store)
+
+                # Remove layer from FIDIA DAL to avoid problems with other tests:
+                idx = fidia.dal_host.layers.index(file_store)
+                del fidia.dal_host.layers[idx]
+
+        benchmark(func)
+
+def test_data_volumne(test_data_dir):
+
+    def get_size(start_path='.'):
+        total_size = 0
+        for dirpath, dirnames, filenames in os.walk(start_path):
+            for f in filenames:
+                fp = os.path.join(dirpath, f)
+                total_size += os.path.getsize(fp)
+        return total_size
+
+    ar = ExampleArchive(basepath=test_data_dir)  # type: fidia.Archive
+
+    with tempfile.TemporaryDirectory() as dal_data_dir:
+        file_store = NumpyFileStore(dal_data_dir)
+        file_store.ingest_archive(ar)
+
+        ingest_size = get_size(dal_data_dir)
+
+    original_size = get_size(test_data_dir)
+
+    warnings.warn(UserWarning("NumpyFileStore disk usage = %s" % (ingest_size)))
+    warnings.warn(UserWarning("NumpyFileStore disk usage ratio original:ingest = %s" % (original_size/ingest_size)))
+
+
