@@ -9,7 +9,7 @@ This module handles defining columns of data for access in FIDIA.
 be accessed. An :class:`.ArchiveDefinition` contains a list of column
 definitions: `.ArchiveDefinition.columns`. When the corresponding :class:`.Archive` is
 created, these column definitions are converted into actual :class:`.FIDIAColumn`
-objects (which are defined in :module:`~fidia.columns.columns`).
+objects (which are defined in :mod:`fidia.columns.columns`).
 
 
 """
@@ -270,7 +270,7 @@ class ColumnDefinition(object):
             >>> col.get_timestamp()
             34
 
-        2. The timestamp determined by the helper function :function:`._timestamp_helper`
+        2. The timestamp determined by the helper function :func:`._timestamp_helper`
 
         3. The current time.
 

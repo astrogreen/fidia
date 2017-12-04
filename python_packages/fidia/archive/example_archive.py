@@ -95,16 +95,16 @@ class ExampleArchive(fidia.ArchiveDefinition):
             ])
         ])
     ]
-
-    """
-    - !Image red:
-        data: !property red_image
-        exposed: !property red_image_exposed
-        wcs: !trait ImageWCS
-            crval1: !property FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header["CRVAL1"]
-    - !SpectralMap red:
-        data: !property "red_cube"
-    - !DMU StellarMasses:
-        
-    """
+    #
+    # """
+    # - !Image red:
+    #     data: !property red_image
+    #     exposed: !property red_image_exposed
+    #     wcs: !trait ImageWCS
+    #         crval1: !property FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header["CRVAL1"]
+    # - !SpectralMap red:
+    #     data: !property "red_cube"
+    # - !DMU StellarMasses:
+    #
+    # """
 
