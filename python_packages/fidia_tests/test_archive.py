@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import os
 import tempfile
 
 import numpy as np
@@ -137,10 +138,16 @@ class TestExampleArchive:
     def sample(self, example_archive):
         return fidia.Sample.new_from_archive(example_archive)
 
-    def test_example_archive_contents(self, example_archive):
+    def test_example_archive_contents(self, example_archive, test_data_dir):
 
         ea_contents = set(example_archive.contents)
-        assert ea_contents == set(ExampleArchive.contents)
+
+        with open(os.path.join(test_data_dir, "object_list.txt")) as f:
+            available_contents = set([t.strip() for t in f.readlines()])
+
+        assert ea_contents == available_contents
+
+        assert "Gal1" in ea_contents
 
     def test_red_image_data(self, example_archive):
         img = example_archive.columns["ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"].get_value('Gal1')

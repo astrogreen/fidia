@@ -1,19 +1,27 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 # Python Standard Library Imports
+import os
+
 
 import fidia
 # from fidia.traits.references import ColumnReference
 from fidia.traits import *
 
+__all__ = ['ExampleArchive']
+
 class ExampleArchive(fidia.ArchiveDefinition):
+    """An Archive containing example data for use in testing and as an example.
+
+    A data set for this archive can be generated using `fidia_tests/generate_test_data.py`
+
+    """
+
 
     archive_id = "ExampleArchive"
 
     archive_type = fidia.BasePathArchive
 
-    # NOTE: Tests rely on `_contents`, so changing it will require updating the tests
-    contents = ['Gal1', 'Gal2', 'Gal3']
 
     # For general testing, this should be set to True (commented out)
     # For testing of the system without database persistence, it should be False.
@@ -23,6 +31,12 @@ class ExampleArchive(fidia.ArchiveDefinition):
 
         # Local cache for traits
         self._trait_cache = dict()
+
+        basepath = kwargs["basepath"]
+
+        # Populate contents based on what is actually present in the provided test dataset.
+        with open(os.path.join(basepath, "object_list.txt")) as f:
+            self.contents = [t.strip() for t in f.readlines()]
 
     column_definitions = fidia.ColumnDefinitionList([
         ("red_image", fidia.FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,

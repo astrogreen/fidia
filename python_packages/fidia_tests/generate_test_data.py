@@ -206,6 +206,11 @@ def generate_simple_dataset(output_directory, size):
     # Create some png images:
     write_binary_file(SinePngs(size), output_directory, "{object_id}/{object_id}_spectra.png")
 
+    # Write out a text file containing just the object ids:
+    with open(os.path.join(output_directory, "object_list.txt"), "w") as f:
+        for object_id in TestData(size).object_ids:
+            f.write(object_id + "\n")
+
 if __name__ == '__main__':
     import sys
     if type(sys.argv[1]) is str:
