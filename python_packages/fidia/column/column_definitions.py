@@ -515,9 +515,7 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
 class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAColumn
-
-    _id_string = "{filename_pattern}[{fits_extension_id}].data[{column_name}]"
-
+    _id_string = "{filename_pattern}[{fits_extension_id}].data[{index_column_name}->{column_name}]"
     _parameters = ("filename_pattern", "fits_extension_id", "column_name", "index_column_name")
 
     # def __init__(self, filename_pattern, fits_extension_id, column_name, index_column_name,

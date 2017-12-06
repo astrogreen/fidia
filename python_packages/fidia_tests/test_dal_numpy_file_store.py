@@ -71,7 +71,7 @@ def test_ingestion_nonarray_column(test_data_dir, dal_data_dir):
 
     # dal_data_dir = "/Users/agreen/scratch/dal/"
 
-    array_column = ar.columns["ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[StellarMass]:1"]
+    array_column = ar.columns["ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[ID->StellarMass]:1"]
 
     file_store = NumpyFileStore(dal_data_dir)
 
@@ -84,7 +84,7 @@ def test_ingestion_nonarray_column(test_data_dir, dal_data_dir):
         dal_data_dir,
         "ExampleArchive",
         "FITSBinaryTableColumn",
-        "stellar_masses.fits[1].data[StellarMass]",
+        "stellar_masses.fits[1].data[ID->StellarMass]",
         "1",
     )
 
