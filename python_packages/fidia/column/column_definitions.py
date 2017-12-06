@@ -25,6 +25,7 @@ import re
 import time
 from collections import OrderedDict
 import inspect
+from contextlib import contextmanager
 
 # Other Library Imports
 import pandas as pd
@@ -415,14 +416,23 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
     _id_string = "{filename_pattern}[{extension}]"
     _parameters = ("filename_pattern", "extension")
 
-    # noinspection PyMethodOverriding
     def object_getter(self, object_id, basepath):
-        # Signature of this function differs from base class: see column definition documentation
+        with self.prepare_context(object_id, basepath) as context:
+            return self.object_getter_from_context(object_id, context, basepath)
+
+    @property
+    def grouping_context(self):
+        return self.filename_pattern
+
+    @contextmanager
+    def prepare_context(self, object_id, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
-            hdu = get_fits_extension_by_name_or_index(hdulist, self.extension)
-            return hdu.data
+            yield hdulist
 
+    def object_getter_from_context(self, object_id, context, basepath):
+        hdu = get_fits_extension_by_name_or_index(context, self.extension)
+        return hdu.data
 
 # noinspection PyUnresolvedReferences
 class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
