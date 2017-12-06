@@ -313,9 +313,23 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         super(FIDIAColumn, self).__db_init__()
         self._data = None
 
+    @property
+    def column_definition_class(self):
+        # type: () -> fidia.ColumnDefinition
+
+        # c.f. fidia.utilities.fidia_classname() and fidia.ColumnDefinition.class_name()
+
+        class_name = self.id.column_type
+        if "." in class_name:
+            # This is a ColumnDefinition defined outside of FIDIA
+            raise ValueError("Columns can not retrieve ColumnDefinitions defined outside of FIDIA")
+        import fidia.column.column_definitions
+        klass = getattr(fidia.column.column_definitions, class_name)
+        return klass
 
     @property
     def id(self):
+        # type: () -> ColumnID
         return ColumnID.as_column_id(self._column_id)
 
     def __repr__(self):

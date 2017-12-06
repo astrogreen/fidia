@@ -21,6 +21,7 @@ import fidia
 
 # Python Standard Library Imports
 import os
+import re
 import time
 from collections import OrderedDict
 import inspect
@@ -128,6 +129,7 @@ class ColumnDefinition(object):
     column_type = None  # type: Type[FIDIAColumn]
 
     _id_string = ""
+    _id_param_re = None
 
     _parameters = []
 
@@ -177,6 +179,20 @@ class ColumnDefinition(object):
         log.vdebug(repr(id_string_format))
         self._id = id_string_format.replace(":", "_")
         log.vdebug(repr(self._id))
+
+    @classmethod
+    def from_id(cls, id_string):
+        assert ":" not in id_string, "id_string should be the column name portion of the column ID only."
+        if cls._id_param_re is None:
+            cls._id_param_re = re.sub(r"\\{([A-Za-z0-9_]+)\\}", r"(?P<\1>.+)", re.escape(cls._id_string))
+            log.debug("Regular expression for column name inferred: %s", cls._id_param_re)
+        match = re.fullmatch(cls._id_param_re, id_string)
+
+        if match is None:
+            raise ValueError("column name provided could not be parsed.")
+
+        return cls(*[match.groupdict()[param] for param in cls._parameters])
+
 
     @cached_property
     def id(self):
