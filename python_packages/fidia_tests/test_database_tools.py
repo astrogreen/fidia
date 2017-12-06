@@ -475,6 +475,32 @@ class TestDatabaseBasics:
         # assert False
 
 
+class TestDatabaseAdvanced:
+
+    def test_data_getters_persisted(self, clean_persistence_database, test_data_dir):
+
+        from fidia.archive.example_archive import ExampleArchive
+        from fidia.archive import Archive
+
+        ar = ExampleArchive(basepath=test_data_dir)
+
+        # Make SQLAlchemy forget about the object:
+        fidia.mappingdb_session.expunge(ar)
+        del ar
+
+        ar = fidia.mappingdb_session.query(Archive).filter_by(_db_archive_id=ExampleArchive.archive_id).one()
+
+        # Check that we actually have reconstructed the object from the
+        # database, and not just holding a pointer to the original object:
+        assert ar._is_reconstructed is True
+
+        # Ensure no DAL layers are interfering with this test.
+        assert len(fidia.dal_host.layers) == 0
+
+        # Retrieve data using original getters
+        ar["Gal1"].image["red"].data
+
+
 def test_remove_archive(monkeypatch, test_data_dir, clean_persistence_database):
 
     # NOTE: This works on a completely empty persistence database provided by the
