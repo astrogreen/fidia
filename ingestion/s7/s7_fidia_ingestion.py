@@ -79,6 +79,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # from typing import List, Dict
 
 import re
+import os
 import json
 from collections import OrderedDict
 
@@ -96,7 +97,7 @@ logging_level = logging.WARNING
 
 S7_DATA_DIR = "/Users/agreen/Desktop/S7 Data/"
 S7_INGESTION_DIR = "/Users/agreen/Documents/ASVO/code/git-repository/ingestion/s7/"
-
+DAL_DATA_DIR = "/Users/agreen/Desktop/S7DAL/"
 
 def collect_cubes(all_columns_found, all_mappings):
     """Find columns and structuring for S7 spectral cubes.
@@ -421,7 +422,17 @@ if __name__ == "__main__":
 
     # Call the ArchiveDefinition to create a new FIDIA Archive (this also will
     # add it to FIDIA's known archives).
+    print("Creating archive")
     ar = S7Archive(basepath=S7_DATA_DIR)  # type: fidia.Archive
+
+    print("Running data ingestion")
+    os.mkdir(DAL_DATA_DIR)
+    file_store = fidia.dal.NumpyFileStore(DAL_DATA_DIR)
+    file_store.ingest_archive(ar)
+
+    # Add this layer to FIDIA's known data access layers
+    fidia.dal_host.layers.append(file_store)
 
     # Get a piece of data to check everything is working:
     print(ar['IC5063'].table['catalog'].V_app_mag)
+
