@@ -419,6 +419,24 @@ class ColumnDefinition(object):
         pass
 
 
+#  __   __                           __   ___  ___          ___    __        __
+# /  ` /  \ |    |  |  |\/| |\ |    |  \ |__  |__  | |\ | |  |  | /  \ |\ | /__`
+# \__, \__/ |___ \__/  |  | | \|    |__/ |___ |    | | \| |  |  | \__/ | \| .__/
+#
+
+def get_fits_extension_by_name_or_index(hdulist, extension):
+    """Helper function that will parse string indexes of FITS extensions to integer indexes if necessary."""
+    try:
+        return hdulist[extension]
+    except KeyError as key_error:
+        try:
+            idx = int(extension)
+        except:
+            # Simply raise the error that astropy.io.fits raised:
+            raise key_error
+        else:
+            return hdulist[idx]
+
 # noinspection PyUnresolvedReferences
 class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
@@ -445,7 +463,8 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
         # Signature of this function differs from base class: see column definition documentation
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
-            return hdulist[self.extension].data
+            hdu = get_fits_extension_by_name_or_index(hdulist, self.extension)
+            return hdu.data
 
 
 # noinspection PyUnresolvedReferences
@@ -471,7 +490,9 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
     def object_getter(self, object_id, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
-            return hdulist[self.fits_extension_id].header[self.keyword_name]
+            # return hdulist[self.fits_extension_id].header[self.keyword_name]
+            hdu = get_fits_extension_by_name_or_index(hdulist, self.fits_extension_id)
+            return hdu.header[self.keyword_name]
 
     def _timestamp_helper(self, archive):
         if archive is None:
@@ -518,10 +539,11 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
     def array_getter(self, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern) as hdulist:
-            column_data = hdulist[self.fits_extension_id].data[self.column_name]
+            hdu = get_fits_extension_by_name_or_index(hdulist, self.fits_extension_id)
+            column_data = hdu.data[self.column_name]
             # force native byteorder (https://pandas.pydata.org/pandas-docs/stable/gotchas.html#byte-ordering-issues)
             native_column_data = column_data.byteswap().newbyteorder()
-            index = hdulist[self.fits_extension_id].data[self.index_column_name]
+            index = hdu.data[self.index_column_name]
             return pd.Series(native_column_data, index=index, name=self._id, copy=True)
 
     def _timestamp_helper(self, archive):
