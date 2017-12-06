@@ -73,3 +73,5 @@ web_application/asvo/custom_settings.py
 
 #migrations
 web_application/download/migrations
+python_packages/fidia_tests/.benchmarks
+python_packages/fidia_tests/prof
