@@ -406,8 +406,12 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         else:
             data = []
             for object_id in self.contents:
-                data.append(self.get_value(object_id))
-
+                try:
+                    data.append(self.get_value(object_id))
+                except:
+                    # Cases like DataNotAvailable. Should be more specific.
+                    # @TODO: Make more specific
+                    data.append(None)
             return pd.Series(data, index=self.contents)
 
 
