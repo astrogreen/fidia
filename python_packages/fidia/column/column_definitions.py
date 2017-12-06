@@ -351,16 +351,14 @@ class ColumnDefinition(object):
             # noinspection PyUnresolvedReferences
             super(type(self), self).on_associate(archive, column)
 
-        # Copy the object_getter and array_getters onto the output column
-        #
-        # This is only done if the corresponding functions have actually been
-        # overridden, as determined by the `.is_implemented` property.
+        # Copy the object_getter and array_getters onto the output column if
+        # present.
         #
         # When the functions are copied, attributes required from the archive
         # instance are copied here so that database persistence will not need to
         # Pickle the archive to store the getters.
 
-        if getattr(self.object_getter, 'is_implemented', True):
+        if hasattr(self, 'object_getter'):
             log.debug("Copying object_getter function from ColumnDefinition %s to new Column", self)
             # Bake in parameters to object_getter function and associate:
             sig = inspect.signature(self.object_getter)
@@ -374,7 +372,7 @@ class ColumnDefinition(object):
             column._object_getter = self.object_getter
             column._object_getter_args = baked_args
 
-        if getattr(self.array_getter, 'is_implemented', True):
+        if hasattr(self, 'array_getter'):
             log.debug("Copying array_getter function from ColumnDefinition %s to new Column", self)
             # Bake in parameters to object_getter function and associate:
             sig = inspect.signature(self.array_getter)
@@ -387,33 +385,6 @@ class ColumnDefinition(object):
         log.debug("Created column: %s", str(column))
 
         return column
-
-    def object_getter(self, object_id):
-        """Method to get data in this column for a single object.
-        
-        When this column definition is used to create a `.FIDIAColumn`, this
-        function is included if defined. See `ColumnDefinition.associate`.
-        
-        """
-        raise NotImplementedError()
-    # We define an extra property on this function below, which allows the
-    # 'associate' function above to determine if it has been overridden. If it
-    # hasn't, it shouldn't be copied onto the FIDIAColumn instance.
-    object_getter.is_implemented = False
-
-    def array_getter(self, object_id):
-        """Method to get data in this column for a single object.
-
-        When this column definition is used to create a `.FIDIAColumn`, this
-        function is included if defined. See `ColumnDefinition.associate`.
-
-        """
-        raise NotImplementedError()
-    # We define an extra property on this function below, which allows the
-    # 'associate' function above to determine if it has been overridden. If it
-    # hasn't, it shouldn't be copied onto the FIDIAColumn instance.
-    array_getter.is_implemented = False
-
 
     def on_associate(self, archive, column):
         pass
@@ -441,22 +412,8 @@ def get_fits_extension_by_name_or_index(hdulist, extension):
 class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAArrayColumn
-
     _id_string = "{filename_pattern}[{extension}]"
-
     _parameters = ("filename_pattern", "extension")
-
-    # def __init__(self, filename_pattern, extension,
-    #              **kwargs):
-    #     super(FITSDataColumn, self).__init__(filename_pattern, extension, **kwargs)
-
-    # def __init__(self, filename_pattern, extension,
-    #              **kwargs):
-    #     super(FITSDataColumn, self).__init__(**kwargs)
-    #     self.filename_pattern = filename_pattern
-    #     self.extension = extension
-    #
-    #     self._id = "{file}[{ext}]".format(file=filename_pattern, ext=extension)
 
     # noinspection PyMethodOverriding
     def object_getter(self, object_id, basepath):
@@ -471,20 +428,8 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
 
     column_type = FIDIAColumn
-
     _id_string = "{filename_pattern}[{fits_extension_id}].header[{keyword_name}]"
-
     _parameters = ('filename_pattern', 'fits_extension_id', 'keyword_name')
-
-    # def __init__(self, filename_pattern, fits_extension_id, keyword_name, **kwargs):
-    #     super(FITSHeaderColumn, self).__init__(filename_pattern, fits_extension_id, keyword_name, **kwargs)
-        # super(FITSHeaderColumn, self).__init__(**kwargs)
-        # self.filename_pattern = filename_pattern
-        # self.fits_extension_identifier = fits_extension_id
-        # self.keyword_name = keyword_name
-        #
-        # self._id = "{file}[{ext}].header[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=keyword_name)
-
 
     # noinspection PyMethodOverriding
     def object_getter(self, object_id, basepath):
@@ -518,22 +463,6 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
     _id_string = "{filename_pattern}[{fits_extension_id}].data[{index_column_name}->{column_name}]"
     _parameters = ("filename_pattern", "fits_extension_id", "column_name", "index_column_name")
 
-    # def __init__(self, filename_pattern, fits_extension_id, column_name, index_column_name,
-    #              **kwargs):
-    #     super(FITSBinaryTableColumn, self).__init__(**kwargs)
-    #     self.filename_pattern = filename_pattern
-    #
-    #     if fits_extension_id == 0:
-    #         raise FIDIAException("FITSBinaryTableColumn cannot use extension 0. Perhaps you want 1?")
-    #     self.fits_extension_identifier = fits_extension_id
-    #
-    #     self.column_name = column_name
-    #
-    #     self.index_column_name = index_column_name
-    #
-    #     self._id = "{file}[{ext}].data[{kw}]".format(file=filename_pattern, ext=fits_extension_id, kw=column_name)
-
-
     def array_getter(self, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with fits.open(full_path_pattern) as hdulist:
@@ -555,6 +484,7 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
 
 # noinspection PyUnresolvedReferences
 class CSVTableColumn(ColumnDefinition, PathBasedColumn):
+
     column_type = FIDIAColumn
     _id_string = "{filename_pattern}[{index_column_name}->{column_name}](comment={comment})"
     _parameters = ('filename_pattern', 'column_name', 'index_column_name', 'comment')
@@ -636,29 +566,14 @@ class RawFileColumn(ColumnDefinition, PathBasedColumn):
 
     """
     column_type = FIDIAArrayColumn
-
     _id_string = "{filename_pattern}"
-
     _parameters = ["filename_pattern"]
 
-    # noinspection PyMethodOverriding
     def object_getter(self, object_id, basepath):
         # NOTE: Signature of this function differs from base class: see column definition documentation
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         with open(full_path_pattern.format(object_id=object_id), 'rb') as fh:
             return fh.read()
-
-
-class ColumnFromData(ColumnDefinition):
-
-    def __init__(self, data, **kwargs):
-        super(ColumnFromData, self).__init__(**kwargs)
-        self._data = data
-
-    @property
-    def data(self):
-        return self._data
-
 
 
 # noinspection PyUnresolvedReferences
@@ -674,17 +589,14 @@ class SourcelessColumn(ColumnDefinition):
 
     """
 
-
     column_type = FIDIAColumn
-
     _id_string = "{description}"
-
     _parameters = ['description']
 
-    # noinspection PyMethodOverriding
     def object_getter(self, object_id):
         raise DataNotAvailable()
 
+# noinspection PyUnresolvedReferences
 class FixedValueColumn(ColumnDefinition):
     """A column which returns a single fixed value in all cases.
 
@@ -694,13 +606,9 @@ class FixedValueColumn(ColumnDefinition):
 
     """
 
-
     column_type = FIDIAColumn
-
     _id_string = "{value}"
-
     _parameters = ['value']
 
-    # noinspection PyMethodOverriding
     def object_getter(self, object_id):
         return self.value
