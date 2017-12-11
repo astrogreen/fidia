@@ -426,9 +426,12 @@ class FITSDataColumn(ColumnDefinition, PathBasedColumn):
 
     @contextmanager
     def prepare_context(self, object_id, basepath):
-        full_path_pattern = os.path.join(basepath, self.filename_pattern)
-        with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
-            yield hdulist
+        try:
+            full_path_pattern = os.path.join(basepath, self.filename_pattern)
+            with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
+                yield hdulist
+        except FileNotFoundError as e:
+            raise DataNotAvailable(str(e))
 
     def object_getter_from_context(self, object_id, context, basepath):
         hdu = get_fits_extension_by_name_or_index(context, self.extension)

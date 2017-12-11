@@ -16,6 +16,7 @@ import pandas as pd
 
 # FIDIA Imports
 from fidia.column import ColumnID, FIDIAArrayColumn
+from fidia.exceptions import *
 import fidia.column.column_definitions as fidiacoldefs
 
 # Other modules within this package
@@ -128,6 +129,7 @@ class NumpyFileStore(DataAccessLayer):
                 try:
                     data = column.get_value(object_id, provenance='definition')
                 except:
+                    log.warning("No data ingested for object '%s' in column '%s'", object_id, column.id)
                     pass
                 else:
                     data_path = os.path.join(data_dir, object_id + ".npy")
@@ -215,13 +217,13 @@ class NumpyFileStore(DataAccessLayer):
         for column_group in grouped_columns.values():
 
             a_column = column_group[0]
-            a_column_definition = a_column.column_definition_class
+            a_column_definition = a_column.column_definition_class.from_id(a_column.id.column_name)
 
             # Column groups are such that the `prepare_context` function of any
             # column in the group can be used to create the context for any other
             # column in the group.
 
-            group_context_manager = a_column_definition.from_id(a_column.id.column_name).prepare_context
+            group_context_manager = a_column_definition.prepare_context
 
             # Reconstruct the arguments that must be passed to the getters
             # (similar to what is done in `ColumnDefinition.associate`)
@@ -246,17 +248,35 @@ class NumpyFileStore(DataAccessLayer):
                     start_size = get_size(self.base_path)
                     start_time = time.time()
 
-                    with group_context_manager(object_id, **arguments) as context:
-                        for column in column_group:
-                            coldef = column.column_definition_class.from_id(column.id.column_name)
-                            if isinstance(column, FIDIAArrayColumn):
-                                data = coldef.object_getter_from_context(object_id, context, **arguments)
-                                self.ingest_object_with_data(column, object_id, data)
-                            else:
-                                data = coldef.object_getter_file(object_id, context, **arguments)
-                                if column not in non_array_column_data:
-                                    non_array_column_data[column] = pd.Series(index=archive.contents, dtype=type(data))
-                                non_array_column_data[column][object_id] = data
+                    # @TODO: This set of try-except blocks is getting a bit ridiculous. Surely we could do better?
+                    try:
+                        with group_context_manager(object_id, **arguments) as context:
+                            for column in column_group:
+                                coldef = column.column_definition_class.from_id(column.id.column_name)
+                                if isinstance(column, FIDIAArrayColumn):
+                                    try:
+                                        data = coldef.object_getter_from_context(object_id, context, **arguments)
+                                    except:
+                                        log.warning("No data ingested for object '%s' in column '%s'",
+                                                    object_id, column.id)
+                                        pass
+                                    else:
+                                        self.ingest_object_with_data(column, object_id, data)
+                                else:
+                                    try:
+                                        data = coldef.object_getter_from_context(object_id, context, **arguments)
+                                    except:
+                                        log.warning("No data ingested for object '%s' in column '%s'",
+                                                    object_id, column.id)
+                                        pass
+                                    else:
+                                        if column not in non_array_column_data:
+                                            non_array_column_data[column] = pd.Series(index=archive.contents,
+                                                                                      dtype=type(data))
+                                        non_array_column_data[column][object_id] = data
+                    except DataNotAvailable:
+                        continue
+
 
                     delta_time = time.time() - start_time
                     delta_size = get_size(self.base_path) - start_size
