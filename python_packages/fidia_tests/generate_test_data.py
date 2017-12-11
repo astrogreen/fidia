@@ -11,9 +11,9 @@ from astropy import table
 
 class TestData:
 
-    def __init__(self, size):
-        self.size = size
-        self.object_ids = ["Gal{}".format(i+1) for i in range(size)]
+    def __init__(self, size, skip=list()):
+        self.object_ids = ["Gal{}".format(i+1) for i in range(size) if i+1 not in skip]
+        self.size = len(self.object_ids)
 
     def data(self):
         # An empty iterator (from http://stackoverflow.com/a/26271684/1970057)
@@ -26,8 +26,8 @@ class TestData:
 
 class CatalogTable(TestData):
 
-    def __init__(self, size):
-        super(CatalogTable, self).__init__(size)
+    # def __init__(self, size):
+    #     super(CatalogTable, self).__init__(size)
 
     def columns(self):
         return iter(())
@@ -89,8 +89,8 @@ class SimpleImage(TestData):
 
 class SpectralCube(TestData):
 
-    def __init__(self, size, wave_start, wave_end, sampling):
-        super(SpectralCube, self).__init__(size)
+    def __init__(self, size, wave_start, wave_end, sampling, skip=list()):
+        super(SpectralCube, self).__init__(size, skip=skip)
 
         self.wavescale = np.linspace(wave_start, wave_end, (wave_end - wave_start)//sampling)
         self.wave_sampling = sampling
@@ -191,17 +191,23 @@ def write_binary_file(test_data, output_directory, filename_pattern):
 
 
 
-def generate_simple_dataset(output_directory, size):
+def generate_simple_dataset(output_directory, size, missing_data=True):
+
+    if missing_data:
+        # Delete some data to simulate missing or incomplete data for some objects, namely Gal3:
+        skip = [3]
+    else:
+        skip = []
 
     # Create an image of each object at "Gal1/Gal1_red_image.fits"
     write_to_single_extension_fits(SimpleImage(size), output_directory, "{object_id}/{object_id}_red_image.fits")
 
     # Create a spectral cube
-    write_to_single_extension_fits(SpectralCube(size, 3400, 3600, 1.34), output_directory, "{object_id}/{object_id}_spec_cube.fits")
+    write_to_single_extension_fits(SpectralCube(size, 3400, 3600, 1.34, skip=skip), output_directory, "{object_id}/{object_id}_spec_cube.fits")
 
     # Create some tables:
     write_to_binary_fits_table(StellarMassesTable(size), output_directory, "stellar_masses.fits")
-    write_to_binary_fits_table(SFRsTable(size), output_directory, "sfr_table.fits")
+    write_to_binary_fits_table(SFRsTable(size, skip=skip), output_directory, "sfr_table.fits")
 
     # Create some png images:
     write_binary_file(SinePngs(size), output_directory, "{object_id}/{object_id}_spectra.png")
