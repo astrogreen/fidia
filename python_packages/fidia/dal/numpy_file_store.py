@@ -32,7 +32,7 @@ log.enable_console_logging()
 
 
 
-class NumpyFileStore(DataAccessLayer):
+class NumpyFileStore(OptimizedIngestionMixin, DataAccessLayer):
     """A data access layer that stores it's data in Numpy savefiles (`.npy`) and pickled Pandas `pandas.Series` objects.
 
     Parameters

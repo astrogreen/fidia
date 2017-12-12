@@ -435,6 +435,22 @@ def is_list_or_set(obj):
     return (isinstance(obj, Iterable) and isinstance(obj, Sized) and
             not isinstance(obj, str) and not isinstance(obj, bytes))
 
+def optional_override(method):
+    """Decorator to label methods that may optionally be overridden.
+
+    The corresponding is_overriden function will determine if the method has been overridden in a particular class.
+
+    """
+    method._is_overriden = False
+    return method
+
+def is_overridden(method):
+    """Test if an optional_override method has been overridden in a subclass."""
+    if hasattr(method, '_is_overriden'):
+        return method._is_overriden
+    else:
+        return False
+
 def fidia_classname(obj, check_fidia=False):
     """Determine the name of the class for the given object in the context of FIDIA.
     

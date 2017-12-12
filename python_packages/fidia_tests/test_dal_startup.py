@@ -11,7 +11,7 @@ from astropy.io import fits
 import fidia
 import fidia.local_config
 from fidia.utilities import deindent_tripple_quoted_string
-from fidia.dal import NumpyFileStore, _DataAccessLayerHost
+from fidia.dal import NumpyFileStore, DataAccessLayerHost
 
 @pytest.yield_fixture(scope='module')
 def dal_data_dir():
@@ -32,7 +32,7 @@ def test_dal_creation_single_layer(dal_data_dir):
     config = configparser.ConfigParser()
     config.read_string(config_text)
 
-    dal_host = _DataAccessLayerHost(config)
+    dal_host = DataAccessLayerHost(config)
 
     print(dal_host)
 

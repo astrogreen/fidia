@@ -67,7 +67,7 @@ if not _ASTROPY_SETUP_:
 
     # Create various singleton instances:
     known_archives = fidia.archive.archive.KnownArchives()
-    dal_host = fidia.dal._DataAccessLayerHost(config)
+    dal_host = fidia.dal.DataAccessLayerHost(config)
 
     # from fidia.database_tools import is_sane_database
     # if not is_sane_database(Session()):

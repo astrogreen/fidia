@@ -31,22 +31,24 @@ or by column.
 Data ingestion in the :doc:`Data Access Layer </fidia/api/dal>` can use the
 special helper functions
 
-- `.grouping_context`
-- `.prepare_context`
-- `.object_getter_from_context`
-- `.array_getter_from_context`
+- `~fidia.column.ColumnDefinition.grouping_context`
+- `~fidia.column.ColumnDefinition.prepare_context`
+- `~fidia.column.ColumnDefinition.object_getter_from_context`
+- `~fidia.column.ColumnDefinition.array_getter_from_context`
 
 to optimize ingestion such that e.g. files or other expensive to set up
-resources that can be re-used are reused. See the optimizations in
-:meth:`fidia.dal.DataAccessLayer.ingest_archive` for more information.
+resources that can be re-used are reused. See
+:meth:`DataAccessLayer.ingest_archive()<fidia.dal.DataAccessLayer.ingest_archive>` and the optimizations in
+:meth:`OptimizedIngestionMixin.ingest_archive()<fidia.dal.OptimizedIngestionMixin.ingest_archive>` for more information.
 
 Optimisation is enabled through duck-typing: there is no explicit class
 definition. Instead, any `ColumnDefinition` that defines
-`~ColumnDefinition.grouping_context` is eligible for optimization. The
-choice of optimization route (by object or by column) is then choosen
-depending on which of the two functions `.object_getter_from_context` and
-`.array_getter_from_context` are defined. A column must also define the
-`.prepare_context` function in order to be optimized.
+`~ColumnDefinition.grouping_context` is eligible for optimization. The choice of
+optimization route (by object or by column) is then choosen depending on which
+of the two functions `~ColumnDefinition.object_getter_from_context` and
+`~ColumnDefinition.array_getter_from_context` are defined. A column must also
+define the `~ColumnDefinition.prepare_context` function in order to be
+optimized.
 
 
 """

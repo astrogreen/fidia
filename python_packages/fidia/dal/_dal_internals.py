@@ -9,6 +9,7 @@ from itertools import chain
 
 # Other Library Imports
 # import numpy as np
+import pandas as pd
 
 # FIDIA Imports
 from fidia.column import FIDIAArrayColumn
@@ -24,6 +25,7 @@ log.enable_console_logging()
 
 __all__ = ['DataAccessLayer',
            'DataAccessLayerHost',
+           'OptimizedIngestionMixin',
            'DALException', 'DALCantRespond', 'DALDataNotAvailable', 'DALIngestionError']
 
 class DALException(Exception):
@@ -45,11 +47,25 @@ class DataAccessLayer(object):
     This class should be subclassed for creating new data access layers. As
     and absolute minimum, subclasses must implement the `.get_value` method.
 
+    To support data ingestion, subclasses must implement `.ingest_column`.
+    Optimization via the `OptimizedIngestionMixin` is highly recommended, but
+    requires subclasses to implement additional methods.
+
+
+    Subclasses can implement the following callback functions to be notified of particular stages of ingestion:
+
+    - `simple_pre_ingestion_callback(column)`
+    - `simple_post_ingestion_callback(column)`
+
+
     See Also
     --------
 
     :class:`fidia.dal.NumpyFileStore`: an example of a working subclass of this base
         class.
+
+    :class:`fidia.dal.OptimizedIngestionMixin`: override mixin providing optimized
+        data ingestion.
 
     """
 
@@ -95,13 +111,76 @@ class DataAccessLayer(object):
         # type: (fidia.Archive) -> None
         """Ingest all columns found in archive into this data access layer.
 
-        Notes
-        -----
+        This implementation of full archive ingestion is "dumb": it just loops
+        over all columns, ingesting them separately. Strongly consider using the
+        `OptimizedIngestionMixin` which provides a smarter ingestion that takes
+        advantage of column grouping.
 
-        First pass implementation of this is "dumb": it just loops over all
-        columns, ingesting them separately. In future, it would be better to
-        look at the columns and group them intelligently e.g. by FITS file, so
-        that we don't need to open every file many (hundreds) of times.
+        """
+
+        if isinstance(self, OptimizedIngestionMixin):
+            raise Exception("Programming error: OptimizedIngestionMixin must be listed "
+                            "before DataAccessLayer in definition of class %s" % self.__class__.__name__)
+
+        for column in archive.columns.values():
+
+            if hasattr(self, 'simple_pre_ingestion_callback'):
+                self.simple_pre_ingestion_callback(column)
+
+            self.ingest_column(column)
+
+            if hasattr(self, 'simple_post_ingestion_callback'):
+                self.simple_post_ingestion_callback(column)
+
+class OptimizedIngestionMixin:
+    """An override mixin that provides optimized data ingestion for subclasses of `DataAccessLayer`.
+
+    Warnings
+    --------
+
+    This class must be listed before `DataAccessLayer` in the base classes of
+    any subclasses, otherwise the optimized ingestion won't be used.
+
+    """
+
+    def ingest_object_with_data(self, column, object_id, data):
+        # type: (fidia.FIDIAColumn, str, Any) -> None
+        """(Abstract) Optimised ingestion of a the given data for a particular object in a column.
+
+        Implementation of this method in subclasses is not required.
+
+        """
+        raise NotImplementedError()
+
+    def ingest_column_with_data(self, column, data):
+        # type: (fidia.FIDIAColumn, Any) -> None
+        """(Abstract) Optimised ingestion of a the given data for a whole column.
+
+        Implementation of this method in subclasses is not required.
+
+        """
+        raise NotImplementedError()
+
+    def ingest_column(self, column):
+        """(Abstract) Add the data available from the specified column to this layer.
+
+        Layers implementing this method will be able to ingest data.
+
+        """
+        raise NotImplementedError()
+
+    def ingest_archive(self, archive):
+        # type: (fidia.Archive) -> None
+        """Ingest all columns found in archive into this data access layer with column grouping optimization.
+
+        Subclasses can implement the following callback functions to be notified of particular stages of ingestion:
+
+        - `simple_pre_ingestion_callback(column)`
+        - `simple_post_ingestion_callback(column)`
+        - `by_object_group_pre_ingestion_callback(object_id, grouping_context)`
+        - `by_object_group_post_ingestion_callback(object_id, grouping_context)`
+        - `by_column_group_pre_ingestion_callback(grouping_context)`
+        - `by_column_group_post_ingestion_callback(grouping_context)`
 
         """
 
@@ -214,6 +293,19 @@ class DataAccessLayer(object):
 
 
             elif hasattr(a_column_definition, 'array_getter_from_context'):
+
+                #  __          __   __                           __   __   __        __
+                # |__) \ /    /  ` /  \ |    |  |  |\/| |\ |    / _` |__) /  \ |  | |__)
+                # |__)  |     \__, \__/ |___ \__/  |  | | \|    \__> |  \ \__/ \__/ |
+                #
+                # This group of columns is optimised to have all of the columns
+                # values retrieved in one go for multiple columns (in some sense
+                # "column ordered"). For example, there might be one file
+                # containing many whole columns.
+                #
+                # Below, a context manager is created for the whole group, and
+                # then individual columns data are retrieved in the inner loop.
+
                 with group_context_manager(**arguments) as context:
 
                     if hasattr(self, 'by_column_group_pre_ingestion_callback'):
@@ -273,6 +365,11 @@ class DataAccessLayerHost(object):
                 continue
 
             new_layer_class_name = section[4:]
+
+            if new_layer_class_name in __all__:
+                log.error("FIDIA Configuration Error: DAL Layer type %s is invalid", new_layer_class_name)
+                continue
+
             log.debug("Trying to create DAL Layer for class '%s'", new_layer_class_name)
             try:
                 new_layer_class = getattr(fidia.dal, new_layer_class_name)
