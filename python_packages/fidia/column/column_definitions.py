@@ -506,6 +506,24 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
             hdu = get_fits_extension_by_name_or_index(hdulist, self.fits_extension_id)
             return hdu.header[self.keyword_name]
 
+    @property
+    def grouping_context(self):
+        return self.filename_pattern
+
+    @contextmanager
+    def prepare_context(self, object_id, basepath):
+        try:
+            full_path_pattern = os.path.join(basepath, self.filename_pattern)
+            with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
+                yield hdulist
+        except FileNotFoundError as e:
+            raise DataNotAvailable(str(e))
+
+    def object_getter_from_context(self, object_id, context, basepath):
+        hdu = get_fits_extension_by_name_or_index(context, self.extension)
+        return hdu.header[self.keyword_name]
+
+
     def _timestamp_helper(self, archive):
         if archive is None:
             return None
@@ -531,14 +549,30 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
     _parameters = ("filename_pattern", "fits_extension_id", "column_name", "index_column_name")
 
     def array_getter(self, basepath):
-        full_path_pattern = os.path.join(basepath, self.filename_pattern)
-        with fits.open(full_path_pattern) as hdulist:
-            hdu = get_fits_extension_by_name_or_index(hdulist, self.fits_extension_id)
-            column_data = hdu.data[self.column_name]
-            # force native byteorder (https://pandas.pydata.org/pandas-docs/stable/gotchas.html#byte-ordering-issues)
-            native_column_data = column_data.byteswap().newbyteorder()
-            index = hdu.data[self.index_column_name]
-            return pd.Series(native_column_data, index=index, name=self._id, copy=True)
+        with self.prepare_context(basepath) as hdulist:
+            return self.array_getter_from_context(hdulist, basepath)
+
+    @property
+    def grouping_context(self):
+        return self.filename_pattern
+
+    @contextmanager
+    def prepare_context(self, basepath):
+        try:
+            full_path_pattern = os.path.join(basepath, self.filename_pattern)
+            with fits.open(full_path_pattern) as hdulist:
+                yield hdulist
+        except FileNotFoundError as e:
+            raise DataNotAvailable(str(e))
+
+    def array_getter_from_context(self, context, basepath):
+        hdulist = context
+        hdu = get_fits_extension_by_name_or_index(hdulist, self.fits_extension_id)
+        column_data = hdu.data[self.column_name]
+        # force native byteorder (https://pandas.pydata.org/pandas-docs/stable/gotchas.html#byte-ordering-issues)
+        native_column_data = column_data.byteswap().newbyteorder()
+        index = hdu.data[self.index_column_name]
+        return pd.Series(native_column_data, index=index, name=self._id, copy=True)
 
     def _timestamp_helper(self, archive):
         if archive is None:
@@ -557,15 +591,28 @@ class CSVTableColumn(ColumnDefinition, PathBasedColumn):
     _parameters = ('filename_pattern', 'column_name', 'index_column_name', 'comment')
 
     def array_getter(self, basepath):
+        with self.prepare_context(basepath) as table:
+            return self.array_getter_from_context(table, basepath)
+
+    @property
+    def grouping_context(self):
+        return self.filename_pattern
+
+    @contextmanager
+    def prepare_context(self, basepath):
         full_path_pattern = os.path.join(basepath, self.filename_pattern)
         table = ascii.read(full_path_pattern, format="csv", comment=self.comment)
 
+        yield table
+
+    def array_getter_from_context(self, table, basepath):
         assert self.column_name in table.colnames
         assert self.index_column_name in table.colnames
 
         column_data = table[self.column_name].data
         index = table[self.index_column_name].data
         return pd.Series(column_data, index=index, name=self._id, copy=True)
+
 
     def _timestamp_helper(self, archive):
         if archive is None:

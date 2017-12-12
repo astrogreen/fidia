@@ -391,7 +391,9 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
             if self._object_getter is not None:
                 log.vdebug("Retrieving using cell getter from ColumnDefinition")
                 log.vdebug("_object_getter(object_id=\"%s\", %s)", object_id, self._object_getter_args)
-                return self._object_getter(object_id, **self._object_getter_args)
+                result = self._object_getter(object_id, **self._object_getter_args)
+                assert result is not None, "ColumnDefinition.object_getter must not return `None`."
+                return result
 
             #  STEP 3: Use original `ColumnDefinition.array_getter`
             log.vdebug("Retrieving using array getter from ColumnDefinition via `._default_get_value`")
@@ -402,7 +404,9 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
 
     def get_array(self):
         if self._array_getter is not None:
-            return self._array_getter(**self._array_getter_args)
+            result = self._array_getter(**self._array_getter_args)
+            assert result is not None, "ColumnDefinition.array_getter must not return `None`."
+            return result
         else:
             data = []
             for object_id in self.contents:

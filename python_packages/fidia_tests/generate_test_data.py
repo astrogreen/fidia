@@ -61,7 +61,12 @@ def write_to_single_extension_fits(test_data, output_directory, filename_pattern
 def write_to_binary_fits_table(test_data, output_directory, filename_pattern):
     # type: (CatalogTable, str, str) -> None
     output_file = os.path.join(output_directory, filename_pattern)
-    test_data.table().write(output_file, format='fits')
+    test_data.table().write(output_file, format="fits")
+
+def write_to_csv_table(test_data, output_directory, filename_pattern):
+    # type: (CatalogTable, str, str) -> None
+    output_file = os.path.join(output_directory, filename_pattern)
+    test_data.table().write(output_file, format="ascii.csv")
 
 
 class SimpleImage(TestData):
@@ -208,6 +213,7 @@ def generate_simple_dataset(output_directory, size, missing_data=True):
     # Create some tables:
     write_to_binary_fits_table(StellarMassesTable(size), output_directory, "stellar_masses.fits")
     write_to_binary_fits_table(SFRsTable(size, skip=skip), output_directory, "sfr_table.fits")
+    write_to_csv_table(SFRsTable(size, skip=skip), output_directory, "sfr_table.csv")
 
     # Create some png images:
     write_binary_file(SinePngs(size), output_directory, "{object_id}/{object_id}_spectra.png")
