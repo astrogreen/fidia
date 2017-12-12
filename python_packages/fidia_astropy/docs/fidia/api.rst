@@ -7,10 +7,10 @@ FIDIA is composed of several major components:
 	:maxdepth: 1
 
 	api/archives
-	api/samples
-	api/astro_objects
 	api/columns
 	api/dal
+	api/astro_objects
+	api/samples
 	api/traits
 	api/utilities
 	api/ingest

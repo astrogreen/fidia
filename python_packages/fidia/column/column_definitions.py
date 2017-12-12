@@ -11,6 +11,43 @@ definitions: `.ArchiveDefinition.columns`. When the corresponding :class:`.Archi
 created, these column definitions are converted into actual :class:`.FIDIAColumn`
 objects (which are defined in :mod:`fidia.columns.columns`).
 
+.. _original-data:
+
+Original Data
+-------------
+
+Original data refers to data that FIDIA will retrieve if it does not already
+have an internal copy as provided by the :doc:`Data Access Layer</fidia/api/dal>`.
+
+
+.. _data-ingestion-optimization:
+
+Data Ingestion Optimization
+---------------------------
+
+The ingestion of data from columns can be optimised automatically by object
+or by column.
+
+Data ingestion in the :doc:`Data Access Layer </fidia/api/dal>` can use the
+special helper functions
+
+- `.grouping_context`
+- `.prepare_context`
+- `.object_getter_from_context`
+- `.array_getter_from_context`
+
+to optimize ingestion such that e.g. files or other expensive to set up
+resources that can be re-used are reused. See the optimizations in
+:meth:`fidia.dal.DataAccessLayer.ingest_archive` for more information.
+
+Optimisation is enabled through duck-typing: there is no explicit class
+definition. Instead, any `ColumnDefinition` that defines
+`~ColumnDefinition.grouping_context` is eligible for optimization. The
+choice of optimization route (by object or by column) is then choosen
+depending on which of the two functions `.object_getter_from_context` and
+`.array_getter_from_context` are defined. A column must also define the
+`.prepare_context` function in order to be optimized.
+
 
 """
 
@@ -114,16 +151,36 @@ class ColumnDefinitionList(object):
         return "ColumnDefinitionList((\n" + coldefs + "\n))"
 
 class ColumnDefinition(object):
-    """Base class for Column Definitions.
+    """Base class for describing data that should be made available in FIDIA.
 
-    All Column Definition classes should be based on this class.
+    A ColumnDefinition describes a particular piece of data, and how it can be
+    retrieved from the :ref:`original-data`. Included in the definition are the
+    number of dimensions in an individual element of the data, the type of the
+    data, descriptive metadata such as a short description and pretty formatted
+    name, the unit, the IVOA Uniform Content Descriptor (UCD), etc.
 
-    This class provides:
+    `ColumnDefinition` instances only describe the data: `FIDIAColumn` instances are
+    created from the `ColumnDefinition` when an `Archive` is instanciated.
+    `FIDIAColumn` is a generic class, which can easily be stored in the
+    persistence database, and can be created and used even if the original
+    source of the data is no longer available.
 
-    column id handling
-        Column IDs are central to FIDIA's design, and enable code based on it to be
-        portable between different computers/systems/environments.
+    This class has two abstract methods: `.object_getter` and `.array_getter`. Any
+    sub-class of `ColumnDefinition` must implement at least one of these if it
+    is to be able to retrieve *original* data.
 
+
+    Notes
+    -----
+
+    ColumnDefinitions can provide optimizations for data ingestion. See
+    :ref:`data-ingestion-optimization` and the corresponding abstract functions
+    of this method:
+
+    - `.grouping_context`
+    - `.prepare_context`
+    - `.object_getter_from_context`
+    - `.array_getter_from_context`
 
     """
 
@@ -139,13 +196,7 @@ class ColumnDefinition(object):
 
 
     def __init__(self, *args, **kwargs):
-        # self._parameters = []
-        # for name, param in inspect.signature(self.__init__).parameters.items():
-        #     if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
-        #         self._parameters.append(name)
-        # self._parameters = [param.name
-        #                     for param in inspect.signature(self.__init__).parameters.values()
-        #                     if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD]
+
         for arg, param in zip(args, self._parameters):
             setattr(self, param, arg)
 
@@ -241,7 +292,7 @@ class ColumnDefinition(object):
         try:
             self.unit = unit.to_string("vounit")
         except ValueError as e:
-            # @TODO: VOUnit in astropy.units should better support logrythmic units in future.
+            # @TODO: VOUnit in astropy.units should better support logarithmic units in future.
             if str(e).startswith("Function units cannot be written in vounit format") or \
                     str(e).startswith("Unit 'dex' is not part of the VOUnit standard"):
                 self.unit = unit.to_string()
@@ -309,8 +360,9 @@ class ColumnDefinition(object):
             if log.isEnabledFor(slogging.DEBUG):
                 log.exception()
             pass
-        if ts is not None:
-            return ts
+        else:
+            if ts is not None:
+                return ts
         # Option 3: Return the current time as the timestamp
         return time.time()
 
