@@ -427,7 +427,7 @@ if __name__ == "__main__":
 
     print("Running data ingestion")
     os.mkdir(DAL_DATA_DIR)
-    file_store = fidia.dal.NumpyFileStore(DAL_DATA_DIR)
+    file_store = fidia.dal.NumpyFileStore(DAL_DATA_DIR, use_compression=True)
     file_store.ingest_archive(ar)
 
     # Add this layer to FIDIA's known data access layers

@@ -175,7 +175,7 @@ def test_data_volumne(test_data_dir):
 
     original_size = get_size(test_data_dir)
 
-    warnings.warn(UserWarning("NumpyFileStore disk usage = %s" % (ingest_size)))
-    warnings.warn(UserWarning("NumpyFileStore disk usage ratio original:ingest = %s" % (original_size/ingest_size)))
+    # warnings.warn(UserWarning("NumpyFileStore disk usage = %s" % (ingest_size)))
+    # warnings.warn(UserWarning("NumpyFileStore disk usage ratio original:ingest = %s" % (original_size/ingest_size)))
 
 

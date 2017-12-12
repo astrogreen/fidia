@@ -9,6 +9,7 @@ import pickle
 import time
 import inspect
 from itertools import chain
+import gzip
 
 # Other Library Imports
 import numpy as np
@@ -63,12 +64,13 @@ class NumpyFileStore(OptimizedIngestionMixin, DataAccessLayer):
 
     """
 
-    def __init__(self, base_path):
+    def __init__(self, base_path, use_compression=False):
 
         if not os.path.isdir(base_path):
             raise FileNotFoundError(base_path + " does not exist.")
 
         self.base_path = base_path
+        self.use_compression = use_compression
 
     # def __repr__(self):
     #     return "NumpyFileStore(base_path={})".format(self.base_path)
@@ -85,7 +87,14 @@ class NumpyFileStore(OptimizedIngestionMixin, DataAccessLayer):
         if isinstance(column, FIDIAArrayColumn):
             # Data is in array format, and therefore each cell is stored as a separate file.
             data_path = os.path.join(data_dir, object_id + ".npy")
-            data = np.load(data_path)
+
+            if self.use_compression:
+                local_open = gzip.open
+                data_path += ".gz"
+            else:
+                local_open = open
+            with local_open(data_path, 'rb') as fh:
+                data = np.load(fh)
 
         else:
             # Data is individual values, so is stored in a single pickled pandas series
@@ -141,7 +150,13 @@ class NumpyFileStore(OptimizedIngestionMixin, DataAccessLayer):
         if isinstance(column, FIDIAArrayColumn):
             # Data is in array format, and therefore each cell is stored as a separate file.
             data_path = os.path.join(data_dir, object_id + ".npy")
-            np.save(data_path, data, allow_pickle=False)
+            if self.use_compression:
+                local_open = gzip.open
+                data_path += ".gz"
+            else:
+                local_open = open
+            with local_open(data_path, 'wb') as fh:
+                np.save(fh, data, allow_pickle=False)
         else:
             raise DALIngestionError("NumpyFileStore.ingest_object_with_data() works only for array data.")
 
