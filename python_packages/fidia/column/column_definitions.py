@@ -573,7 +573,7 @@ class FITSBinaryTableColumn(ColumnDefinition, PathBasedColumn):
         column_data = hdu.data[self.column_name]
         # force native byteorder (https://pandas.pydata.org/pandas-docs/stable/gotchas.html#byte-ordering-issues)
         native_column_data = column_data.byteswap().newbyteorder()
-        index = hdu.data[self.index_column_name]
+        index = [str(item) for item in hdu.data[self.index_column_name]]
         return pd.Series(native_column_data, index=index, name=self._id, copy=True)
 
     def _timestamp_helper(self, archive):

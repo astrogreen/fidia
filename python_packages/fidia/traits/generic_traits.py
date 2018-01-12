@@ -9,6 +9,8 @@ import io
 from cached_property import cached_property
 from PIL import Image as PILImage
 from astropy.io import fits
+from astropy.coordinates import SkyCoord
+from astropy import units
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
@@ -21,6 +23,9 @@ log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 __all__ = ['Image', 'SpectralCube', 'DMU', 'ImageWCS', 'Table',
+           'SkyCoordinate',
+           'CannonAbundance',
+           'EffectiveTemperature', 'LogGravity', 'Metallicity',
            'FITSFile', 'TarFileGroup', 'FitsImageHdu', 'FITSHeader',
            'PixelImage']
 
@@ -42,10 +47,50 @@ class Image(Trait):
     exposed = TraitProperty(dtype=(float, int), optional=True)
     wcs = SubTrait(ImageWCS, optional=True)
 
+class SkyCoordinate(TraitCollection):
+
+    @cached_property
+    def coord(self):
+        if hasattr(self, 'ra') and hasattr(self, 'dec'):
+            ra_unit = units.Unit(self.get_unit('ra'))
+            dec_unit = units.Unit(self.get_unit('dec'))
+            frame = getattr(self, 'frame', None)
+            return SkyCoord(ra=self.ra*ra_unit, dec=self.dec*dec_unit, frame=frame)
+
+
 class SpectralCube(Trait):
     data = TraitProperty(dtype=(float, int), n_dim=3)
     spatial_axes = (0, 1)
     wavelength_axis = 2
+
+class CannonAbundance(Trait):
+    value = TraitProperty(dtype=(float,), n_dim=0)
+    error = TraitProperty(dtype=(float,), n_dim=0)
+    flag = TraitProperty(dtype=(int,), n_dim=0)
+    norm_depth = TraitProperty(dtype=(float,))
+    depth = TraitProperty(dtype=(float,))
+    sn = TraitProperty(dtype=(float,))
+    chi2 = TraitProperty(dtype=(float,))
+
+class ValueError(Trait):
+    value = TraitProperty(dtype=(float, int), n_dim=0)
+    error = TraitProperty(dtype=(float, int), n_dim=0)
+
+class ValueOptionalError(Trait):
+    value = TraitProperty(dtype=(float, int), n_dim=0)
+    error = TraitProperty(dtype=(float, int), n_dim=0, optional=True)
+
+class EffectiveTemperature(ValueOptionalError): pass
+class LogGravity(ValueOptionalError): pass
+class Metallicity(ValueOptionalError): pass
+
+class StellarProperties(Trait):
+    effective_temperature = SubTrait(ValueError)
+    log_gravity = SubTrait(ValueError)
+    metallicity = SubTrait(ValueError)
+    microturbulence = SubTrait(ValueError, optional=True)
+    rotational_velocity = SubTrait(ValueError)
+
 
 class DMU(TraitCollection):
     pass
