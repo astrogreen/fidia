@@ -10,6 +10,7 @@ import generate_test_data as testdata
 import pytest
 
 import fidia
+from fidia.exceptions import *
 from fidia.archive.archive import BasePathArchive
 from fidia.archive.example_archive import ExampleArchive
 from fidia.column.column_definitions import FITSDataColumn, FixedValueColumn
@@ -63,6 +64,22 @@ class TestArchiveAndColumns:
             ]
 
         return ArchiveWithColumns
+
+    def test_archive_with_unknown_columns(self, ArchiveWithColumns, test_data_dir):
+
+        # Add a couple of mappings that reference missing columns:
+        class ArchiveWithMissingColumns(ArchiveWithColumns):
+
+            trait_mappings = ArchiveWithColumns.trait_mappings + [
+                TraitMapping(TraitCollection, "missing", [
+                    TraitPropertyMapping('missing', "random_column")
+                ])
+            ]
+
+        ar = ArchiveWithColumns(basepath=test_data_dir)
+
+        with pytest.raises(ValidationError):
+            ar.validate(raise_exception=True)
 
     # def test_archive_instance_columns_not_class_columns(self, ArchiveWithColumns):
     #     ar = ArchiveWithColumns(basepath='/')

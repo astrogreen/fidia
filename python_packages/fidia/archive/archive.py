@@ -322,6 +322,7 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
     def validate(self, raise_exception=False):
 
         self._validate_mapping_column_ids(raise_exception=raise_exception)
+        self._validate_all_columns_mapped(raise_exception=raise_exception)
 
     def _validate_mapping_column_ids(self, raise_exception=False):
 
@@ -336,6 +337,24 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
             raise ValidationError("Trait Mappings of this archive reference Columns not defined in the Archive.")
         else:
             return missing_columns
+
+    def _validate_all_columns_mapped(self, raise_exception=False):
+
+        # @TODO: This is draft code and not well tested.
+
+        mapped_columns = set()
+        for mapping in self._mappings:
+            mapped_columns.update(mapping.referenced_column_ids)
+
+        unmapped_columns = set(self.columns) - mapped_columns
+
+        if raise_exception and len(unmapped_columns) > 0:
+            raise ValidationError("Trait Mappings of this archive reference Columns not defined in the Archive.")
+        elif len(unmapped_columns) > 0:
+            return unmapped_columns
+        else:
+            return
+
 
     def __getitem__(self, key):
         # type: (str) -> AstronomicalObject
