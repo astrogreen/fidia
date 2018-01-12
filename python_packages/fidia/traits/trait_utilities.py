@@ -813,6 +813,30 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
         self._db_trait_class = fidia_classname(value)
         self._trait_class = value
 
+    @property
+    def all_sub_mappings(self):
+        if hasattr(self, 'sub_trait_mappings'):
+            for mapping in self.sub_trait_mappings.values():
+                yield mapping
+        if hasattr(self, 'named_sub_mappings'):
+            for mapping in self.named_sub_mappings.values():
+                yield mapping
+
+    @property
+    def referenced_column_ids(self):
+        # type: () -> Set
+
+        # @TODO: This is draft code and not well tested.
+        # See also SubTraitMapping.check_columns and Archive.validate
+
+        columns = set()
+
+        for tp in self.trait_property_mappings.values():
+            columns.add(tp.id)
+        for sub_mapping in self.all_sub_mappings:
+            columns.update(sub_mapping.referenced_column_ids)
+
+        return columns
 
 class TraitMapping(bases.Mapping, TraitMappingBase):
     """Representation of the schema of a Trait.
