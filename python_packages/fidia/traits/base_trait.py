@@ -321,6 +321,18 @@ class BaseTrait(bases.BaseTrait):
             column = self._get_column_for_trait_property(attr)
             return column.long_description
 
+    def get_unit(self, attr):
+        if attr in self.dir_trait_properties():
+            # item is a TraitProperty
+            column = self._get_column_for_trait_property(attr)
+            return column.unit
+
+    def get_ucd(self, attr):
+        if attr in self.dir_trait_properties():
+            # item is a TraitProperty
+            column = self._get_column_for_trait_property(attr)
+            return column.ucd
+
 
     # Relevant section of code from the function `.as_specification_dict`:
     #

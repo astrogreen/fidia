@@ -225,6 +225,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
 
     # Column Meta-data storage
     _ucd = sa.Column(sa.String)
+    _unit = sa.Column(sa.String)
     pretty_name = sa.Column(sa.UnicodeText(length=30))
     short_description = sa.Column(sa.Unicode(length=150))
     long_description = sa.Column(sa.UnicodeText)
@@ -279,7 +280,10 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         # self._dtype = dtype
 
         # Internal storage for IVOA Uniform Content Descriptor
-        # self._ucd = kwargs.get('ucd', None)
+        self._ucd = kwargs.get('ucd', None)
+
+        # Unit information
+        self._unit = kwargs.get('unit', None)
 
         # Archive Connection
         # self._archive = kwargs.pop('archive', None)  # type: fidia.Archive
@@ -449,6 +453,10 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     @ucd.setter
     def ucd(self, value):
         self._ucd = value
+
+    @property
+    def unit(self):
+        return self._unit
 
     @property
     def timestamp(self):
