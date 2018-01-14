@@ -74,6 +74,58 @@ class TestBasicExamples:
         print(sfr)
         assert isinstance(sfr, (int, float))
 
+    def test_get_full_sample_data(self, test_data_dir):
+        ea = ExampleArchive(basepath=test_data_dir)
+        sample = fidia.Sample.new_from_archive(ea)
+        # an_object_id = sample.contents[0]
+        # an_object_id = 'Gal1'
+        image_data = sample.image['red'].data
+
+        print(image_data)
+        for d in image_data:
+            assert isinstance(d, np.ndarray)
+            assert d.ndim == 2
+
+        assert len(list(image_data)) == len(ea.contents)
+
+    def test_get_full_sample_data_subtrait(self, test_data_dir):
+        ea = ExampleArchive(basepath=test_data_dir)
+        sample = fidia.Sample.new_from_archive(ea)
+        # an_object_id = sample.contents[0]
+        # an_object_id = 'Gal1'
+        wcs = sample.image['red'].wcs
+
+        print(wcs)
+        for w in wcs:
+            assert isinstance(w, fidia.Trait)
+            print(w.cdelt1)
+            assert isinstance(w.cdelt1, (int, float))
+
+        assert len(list(wcs)) == len(ea.contents)
+
+
+    def test_get_full_sample_data_on_trait_collection(self, test_data_dir):
+        ea = ExampleArchive(basepath=test_data_dir)
+        sample = fidia.Sample.new_from_archive(ea)
+        # an_object_id = sample.contents[0]
+        # an_object_id = 'Gal1'
+        mass_data = sample.dmu['StellarMasses'].table['StellarMasses'].stellar_mass
+        print(mass_data)
+        assert isinstance(mass_data, np.ndarray)
+
+        assert len(mass_data) == len(ea.contents)
+
+        for id, value in zip(ea.contents, mass_data):
+            assert sample[id].dmu['StellarMasses'].table['StellarMasses'].stellar_mass == value
+
+        sfr_data = sample.dmu['StellarMasses'].table['StarFormationRates'].sfr
+        print(sfr_data)
+        assert isinstance(sfr_data, np.sfr_data)
+        for id, value in zip(ea.contents, mass_data):
+            assert sample[id].dmu['StellarMasses'].table['StarFormationRates'].sfr == value
+
+
+
     def test_get_an_astro_object_from_archive(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
         # an_object_id = next(iter(sample.keys()))
