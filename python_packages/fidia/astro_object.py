@@ -63,6 +63,7 @@ class AstronomicalObject(bases.SQLAlchemyBase):
         self._dec = dec
 
         # Associate TraitPointer objects as necessary.
+        self._trait_pointers = set()
         self.update_trait_pointers()
 
         super(AstronomicalObject, self).__init__()
@@ -81,13 +82,20 @@ class AstronomicalObject(bases.SQLAlchemyBase):
 
     def update_trait_pointers(self):
 
+        if not hasattr(self, '_trait_pointers'):
+            self._trait_pointers = set()
+            # This second check of initialization is necessary if the object has been restored from the database.
+
         from fidia.traits.trait_utilities import TraitPointer
 
         # Clear all existing pointers to TraitPointers
-        for attr_name in dir(self):
+        while self._trait_pointers:
+            # Set of tratit_pointers is not empty
+            attr_name  = self._trait_pointers.pop()
             attr = getattr(self, attr_name)
-            if isinstance(attr, bases.TraitPointer):
-                delattr(self, attr_name)
+            assert isinstance(attr, bases.TraitPointer)
+            delattr(self, attr_name)
+
         log.debug("Creating Trait Pointers for AstroObject %s", self)
         if log.isEnabledFor(slogging.VDEBUG):
             message = str(self.sample.trait_mappings.as_nested_dict())
@@ -95,7 +103,8 @@ class AstronomicalObject(bases.SQLAlchemyBase):
         for trait_type in self.sample.trait_mappings.keys(1):
             # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
             log.debug("Adding TraitPointer '%s'", trait_type)
-            setattr(self, trait_type, TraitPointer(trait_type, self.sample, self, None))
+            self._trait_pointers.add(trait_type)
+            setattr(self, trait_type, TraitPointer(trait_type, self.sample, self, self.sample.trait_mappings))
 
     def get_archive_id(self, archive):
         return self.sample.get_archive_id(archive, self._identifier)

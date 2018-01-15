@@ -566,6 +566,7 @@ class TraitPointer(bases.TraitPointer, MappingMixin):
     """
 
     def __init__(self, name, sample, astro_object, trait_mapping=None):
+        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping) -> None
         """Create a new TraitPointer.
 
         If `trait_mapping` is provided, then that mapping is used to populate
@@ -575,29 +576,20 @@ class TraitPointer(bases.TraitPointer, MappingMixin):
         former is appropriate for TraitPointers on astro-objects.
 
         """
-
-        # @TODO: This code smells. Not sure why trait_mappings is an optional argument.
-
-        # type: (str, fidia.Sample, fidia.AstronomicalObject, Union[TraitMapping, None]) -> None
-        self.name = name
-        self.sample = sample
-        self.astro_object = astro_object
-        self.trait_mapping = trait_mapping
+        self.name = name  # type: str
+        self.sample = sample  # type: bases.Sample
+        self.astro_object = astro_object  # type: fidia.AstronomicalObject
+        self.trait_mapping = trait_mapping  # type: Dict[Tuple[str, str], TraitMapping]
 
     def __getitem__(self, item):
         tk = TraitKey.as_traitkey(item)
+        # tk = self.trait_mapping.update_trait_key_with_defaults(tk)
+        # (NOTE: Branch and version handling is disabled: see MappingBranchVersionHandling class)
 
-        if self.trait_mapping is not None:
-            # We have been given a particular mapping to work on
+        mapping = self.trait_mapping[self.name, str(tk)]  # type: TraitMapping
 
-            # tk = self.trait_mapping.update_trait_key_with_defaults(tk)
-            # (NOTE: Branch and version handling is disabled: see MappingBranchVersionHandling class)
-            mapping = self.trait_mapping.named_sub_mappings[self.name, str(tk)]  # type: TraitMapping
-        else:
-            # Use the mapping associated with the Sample.
-            mapping = self.sample.trait_mappings[self.name, str(tk)]  # type: TraitMapping
         trait_class = mapping.trait_class
-        # assert issubclass(trait_class, (fidia.Trait, fidia.TraitCollection))
+        assert issubclass(trait_class, (fidia.Trait, fidia.TraitCollection))
         trait = trait_class(sample=self.sample, trait_key=tk,
                             astro_object=self.astro_object,
                             trait_mapping=mapping)
@@ -608,22 +600,14 @@ class TraitPointer(bases.TraitPointer, MappingMixin):
 
     def __iter__(self):
         # Part of the collections.abc.Mapping interface
-        if self.trait_mapping is not None:
-            for trait_type, tk in self.trait_mapping.named_sub_mappings.keys():
-                if trait_type == self.name:
-                    yield tk
-        else:
-            for trait_type, tk in self.sample.trait_mappings.keys():
-                if trait_type == self.name:
-                    yield tk
+        for trait_type, tk in self.trait_mapping.keys():
+            if trait_type == self.name:
+                yield tk
 
 
     def __len__(self):
         # Part of the collections.abc.Mapping interface
-        if self.trait_mapping is not None:
-            return len(self.trait_mapping.named_sub_mappings)
-        else:
-            return len(self.sample.trait_mappings)
+        return len(self.trait_mapping)
 
 
     def __str__(self):
