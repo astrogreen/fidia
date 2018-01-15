@@ -5,6 +5,7 @@ import pytest
 import tempfile
 
 import numpy as np
+import pandas as pd
 from astropy.io import fits
 
 import fidia
@@ -76,7 +77,8 @@ class TestBasicExamples:
 
     def test_get_full_sample_data(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
-        sample = fidia.Sample.new_from_archive(ea)
+        # sample = fidia.Sample.new_from_archive(ea)
+        sample = ea
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         image_data = sample.image['red'].data
@@ -90,7 +92,8 @@ class TestBasicExamples:
 
     def test_get_full_sample_data_subtrait(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
-        sample = fidia.Sample.new_from_archive(ea)
+        # sample = fidia.Sample.new_from_archive(ea)
+        sample = ea
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         wcs = sample.image['red'].wcs
@@ -106,12 +109,13 @@ class TestBasicExamples:
 
     def test_get_full_sample_data_on_trait_collection(self, test_data_dir):
         ea = ExampleArchive(basepath=test_data_dir)
-        sample = fidia.Sample.new_from_archive(ea)
+        # sample = fidia.Sample.new_from_archive(ea)
+        sample = ea
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         mass_data = sample.dmu['StellarMasses'].table['StellarMasses'].stellar_mass
         print(mass_data)
-        assert isinstance(mass_data, np.ndarray)
+        assert isinstance(mass_data, pd.Series)
 
         assert len(mass_data) == len(ea.contents)
 

@@ -566,7 +566,7 @@ class TraitPointer(bases.TraitPointer, MappingMixin):
     """
 
     def __init__(self, name, sample, astro_object, trait_mapping=None):
-        # type: (str, fidia.Sample, fidia.AstronomicalObject, TraitMapping) -> None
+        # type: (str, fidia.Sample, Union[fidia.AstronomicalObject, None], TraitMapping) -> None
         """Create a new TraitPointer.
 
         If `trait_mapping` is provided, then that mapping is used to populate

@@ -241,6 +241,12 @@ class Sample(bases.Sample, MappingMixin):
     #         self._ids = pd.Series(value)
 
     @property
+    def contents(self):
+        """This makes Sample and Archive both have the same accessor for a list of data object ids."""
+        # @TODO: This should probably be refactored. Archive and Sample need to work the same way here.
+        return list(self.ids)
+
+    @property
     def mutable(self):
         return self._mutable
     @mutable.setter

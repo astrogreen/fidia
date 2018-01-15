@@ -187,7 +187,7 @@ class BaseTrait(bases.BaseTrait):
 
 
     def __init__(self, sample, trait_key, astro_object, trait_mapping):
-        # type: (fidia.Sample, TraitKey, fidia.AstronomicalObject, Union[TraitMapping, SubTraitMapping]) -> None
+        # type: (fidia.Sample, TraitKey, Union[fidia.AstronomicalObject, None], Union[TraitMapping, SubTraitMapping]) -> None
 
         # This function should only be called by:
         #
@@ -219,8 +219,13 @@ class BaseTrait(bases.BaseTrait):
         # self._set_branch_and_version(trait_key)
 
         self._astro_object = astro_object
-        assert isinstance(self._astro_object, fidia.AstronomicalObject)
-        self.object_id = astro_object.identifier
+        # NOTE: The special value `None` is used for when this Trait refers to all
+        # objects in the sample, rather than a single object.
+        if self._astro_object is None:
+            self.object_id = None
+        else:
+            assert isinstance(self._astro_object, fidia.AstronomicalObject)
+            self.object_id = astro_object.identifier
 
         self._trait_mapping = trait_mapping
         assert isinstance(self._trait_mapping, (TraitMapping, SubTraitMapping))
@@ -283,12 +288,48 @@ class BaseTrait(bases.BaseTrait):
         retrieves the necessary `archive_id` corresponding to self's `object_id`
         and then calls the `.get_value` method.
 
+        This function does (should) handle ALL data access in FIDIA Traits.
+
         """
         archive = self._sample.archive_for_column(column_id)
         column = self._sample.find_column(column_id)
-        archive_object_id = self._sample.get_archive_id(archive, self.object_id)
-        value = column.get_value(archive_object_id)
-        return value
+        if self.object_id is not None:
+            # Operating on a single data object.
+            archive_object_id = self._sample.get_archive_id(archive, self.object_id)
+            value = column.get_value(archive_object_id)
+            return value
+        else:
+            # Operating on all objects in the sample.
+            if isinstance(column, fidia.FIDIAArrayColumn):
+                # We have an array column: return an iterator that iterates over all values
+                for object_id in self._sample.contents:
+                    print(column.get_value(self._sample.get_archive_id(archive, object_id)))
+
+                # NOTE: this line won't work because the generator can only be
+                # used once. I'm leaving it here to remind me not to try it
+                # again, as it seems much more elegant than the solution below.
+                ### return (column.get_value(self._sample.get_archive_id(archive, object_id))
+                ###        for object_id in self._sample.contents)
+
+                class _ResultIterator:
+                    def __init__(self, trait):
+                        assert isinstance(trait, BaseTrait)
+                        self.trait = trait
+
+                    def gen(self, trait):
+                        for object_id in trait._sample.contents:
+                            archive_object_id = trait._sample.get_archive_id(archive, object_id)
+                            yield column.get_value(archive_object_id)
+
+                    def __iter__(self):
+                        return iter(self.gen(self.trait))
+
+                return _ResultIterator(self)
+
+            else:
+                # We have a non-array column: return an array of results
+                result = column.get_array()
+                return result
 
     #       ___ ___       __       ___
     # |\/| |__   |   /\  |  \  /\   |   /\

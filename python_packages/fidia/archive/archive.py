@@ -111,7 +111,7 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
         # self._db_session = Session()
         self._local_trait_mappings = None
 
-        # Call initialisers of subclasses so they can reset attributes stored in _db_calling_args
+        # Call initializers of subclasses so they can reset attributes stored in _db_calling_args
         self.__init__(**self._db_calling_arguments)
 
     def register_mapping(self, mapping):
@@ -119,6 +119,7 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
         """Register a new TraitMapping to this Archive."""
         self._register_mapping_locally(mapping)
         self._mappings.append(mapping)
+        self._update_trait_pointers()
 
     def _register_mapping_locally(self, mapping):
         """Add a TraitMapping to the `_local_trait_mappings`."""
@@ -134,6 +135,32 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
         else:
             raise ValueError("TraitManager can only register a TraitMapping, got %s"
                              % mapping)
+
+    def _update_trait_pointers(self):
+
+        if not hasattr(self, '_trait_pointers'):
+            self._trait_pointers = set()
+            # This second check of initialization is necessary if the object has been restored from the database.
+
+        from fidia.traits.trait_utilities import TraitPointer
+
+        # Clear all existing pointers to TraitPointers
+        while self._trait_pointers:
+            # Set of tratit_pointers is not empty
+            attr_name  = self._trait_pointers.pop()
+            attr = getattr(self, attr_name)
+            assert isinstance(attr, bases.TraitPointer)
+            delattr(self, attr_name)
+
+        log.debug("Creating Trait Pointers for Archive %s", self)
+        if log.isEnabledFor(slogging.VDEBUG):
+            message = str(self.trait_mappings.as_nested_dict())
+            log.vdebug("TraitMappings available: %s", message)
+        for trait_type in self.trait_mappings.keys(1):
+            # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
+            log.debug("Adding TraitPointer '%s'", trait_type)
+            self._trait_pointers.add(trait_type)
+            setattr(self, trait_type, TraitPointer(trait_type, self, None, self.trait_mappings))
 
     @property
     def contents(self):
@@ -203,6 +230,7 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
             self._local_trait_mappings = MultiDexDict(2)
             for mapping in self._mappings:
                 self._register_mapping_locally(mapping)
+            self._update_trait_pointers()
         return self._local_trait_mappings
 
 
@@ -573,6 +601,7 @@ class ArchiveDefinition(object):
             archive._mappings = deepcopy(definition.trait_mappings)
             for mapping in archive._mappings:
                 archive._register_mapping_locally(mapping)
+            archive._update_trait_pointers()
 
             archive._db_archive_class = fidia_classname(archive)
 
