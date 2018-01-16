@@ -210,57 +210,6 @@ class Sample(bases.Sample, MappingMixin):
                 how='outer', left_index=True, right_index=True)
 
 
-    def get_feature_catalog_data(self):
-        """(Construct) A table of featured data from each archive in this sample."""
-
-        first_row = True
-        trait_properties = []  # type: List[Tuple[fidia.Trait, fidia.traits.TraitProperty]]
-        trait_paths = []  # type: List[fidia.traits.TraitPath]
-
-        for archive in self._archives:
-            # TODO: This code won't support more than one archive!
-            data_table = []
-            for id in self:
-                row = [id]
-                for trait_property_path in archive.feature_catalog_data:
-                    value = trait_property_path.get_trait_property_value_for_object(self[id])
-                    if isinstance(value, (np.int64, np.int32)):
-                        value = int(value)
-                    row.append(value)
-                    if first_row:
-                        trait_properties.append(
-                            (trait_property_path.get_trait_class_for_archive(archive),
-                             trait_property_path.get_trait_property_for_archive(archive))
-                        )
-                        trait_paths.append(trait_property_path)
-                data_table.append(row)
-                first_row = False
-
-        # Construct column names and units
-        column_names = ["ID"]
-        column_units = [""]
-        for tp, path in zip(trait_properties, trait_paths):
-            # Get the pretty name of the Trait
-            qualifier = path[-1].trait_qualifier
-            col_name = tp[0].get_pretty_name(qualifier)
-            # Append the TraitProperty name only if it is not the default
-            if tp[1].name is not 'value':
-                col_name += " " + tp[1].get_pretty_name()
-            # Append the Trait's branch name
-            branch = path[-1].branch
-            if branch:
-                col_name += " (" + tp[0].branches_versions.get_pretty_name(branch) + ")"
-            column_names.append(col_name)
-
-            # Get the unit associated with the trait
-            formatted_unit = tp[0].get_formatted_units()
-            column_units.append(formatted_unit)
-
-        return {'data': data_table,
-                'column_names': column_names,
-                'trait_paths': trait_paths,
-                'units': column_units}
-
 
     @property
     def ids(self):

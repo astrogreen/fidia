@@ -299,46 +299,6 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
         column_id = fidia.column.ColumnID.as_column_id(column_id)
         return self.columns[column_id]
 
-
-    def type_for_trait_path(self, path):
-        """Return the type for the provided Trait path.
-
-        :param path:
-            A sequence object containing the pieces of the "path" addressing the
-            object of interest.
-
-        This function is a shortcut to determine what kind of object one should
-        expect if requesting a particular Trait or trait property as defined by
-        the path provided. This is a shortcut, i.e., the Traits are not actually
-        constructed. It shouldn't be considered absolutely authoritative, but
-        should be close.
-
-        Currently, this can only differentiate between a Trait and a Trait Property.
-        This could be made more specific in one of several ways:
-
-        - Have the schema include type information when it is constructed.
-        - Find the appropriate class by querying the TraitMapping object
-          at each level.
-
-        """
-
-        # Drill down the schema:
-        schema = self.schema(by_trait_name=True)
-        current_schema_item = schema
-        for path_element in path:
-            trait_key = traits.TraitKey.as_traitkey(path_element)
-            current_schema_item = current_schema_item[trait_key.trait_name]
-
-        # Decide whether the item in the schema corresponds to a Trait or TraitProperty
-        if isinstance(current_schema_item, dict):
-            return traits.Trait
-        else:
-            return traits.TraitProperty
-
-    def can_provide(self, trait_key):
-        trait_key = traits.TraitKey.as_traitkey(trait_key)
-        return trait_key.trait_name in self.available_traits.get_trait_names()
-
     def validate(self, raise_exception=False):
 
         self._validate_mapping_column_ids(raise_exception=raise_exception)
