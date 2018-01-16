@@ -26,6 +26,7 @@ def archive():
     class Archive(object):
         pass
     ar = Archive()
+    ar.contents = ["Gal1"]
     ar.archive_id = 'Archive123'
     return ar
 
@@ -152,6 +153,7 @@ class TestFITSBinaryTableColumn:
         column_def = FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMass', 'ID')
         archive.basepath = test_data_dir
         column = column_def.associate(archive)
+        column._archive = archive
         return column
 
     def test_column_has_data(self, fits_binary_table_column):
@@ -165,6 +167,7 @@ class TestCSVTableColumn:
         column_def = CSVTableColumn("sfr_table.csv", 'SFR', 'ID', "#")
         archive.basepath = test_data_dir
         column = column_def.associate(archive)
+        column._archive = archive
         return column
 
     def test_column_has_data(self, csv_table_column):
