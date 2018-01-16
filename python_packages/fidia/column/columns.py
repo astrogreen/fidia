@@ -410,7 +410,11 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         if self._array_getter is not None:
             result = self._array_getter(**self._array_getter_args)
             assert result is not None, "ColumnDefinition.array_getter must not return `None`."
-            return result
+            assert isinstance(result, pd.Series)
+            ordered_result = result.reindex(self.contents)
+            # @TODO: It may be worth checking that the result really needs to be reindexed for efficiency reasons.
+            # @NOTE: The order of self.contents is not preserved from how it is initialized.
+            return ordered_result
         else:
             data = []
             for object_id in self.contents:

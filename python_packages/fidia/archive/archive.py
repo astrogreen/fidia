@@ -187,6 +187,18 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
     @contents.setter
     def contents(self, value):
         # type: (Iterable) -> None
+        """Data Objects contained in this archive.
+
+        Warnings
+        --------
+
+        The order of these objects is not preserved currently, because of how
+        the data are stored in the persistence database. This may be valuable in
+        future. In the short term, efforts have been made to make sure
+        everything is checked and ensured to be done in the order of the
+        contents for each instance, regardless of the original ordering.
+
+        """
         from ..astro_object import AstronomicalObject
 
         # Get a valid database session:

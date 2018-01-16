@@ -119,14 +119,19 @@ class TestBasicExamples:
 
         assert len(mass_data) == len(ea.contents)
 
+        print(ea.contents)
+
         for id, value in zip(ea.contents, mass_data):
             assert sample[id].dmu['StellarMasses'].table['StellarMasses'].stellar_mass == value
 
         sfr_data = sample.dmu['StellarMasses'].table['StarFormationRates'].sfr
         print(sfr_data)
-        assert isinstance(sfr_data, np.sfr_data)
-        for id, value in zip(ea.contents, mass_data):
-            assert sample[id].dmu['StellarMasses'].table['StarFormationRates'].sfr == value
+        assert isinstance(sfr_data, pd.Series)
+        for id, value in zip(ea.contents, sfr_data):
+            if np.isnan(value):
+                assert np.isnan(sample[id].dmu['StellarMasses'].table['StarFormationRates'].sfr)
+            else:
+                assert sample[id].dmu['StellarMasses'].table['StarFormationRates'].sfr == value
 
 
 
