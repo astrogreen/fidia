@@ -75,10 +75,13 @@ class TestBasicExamples:
         print(sfr)
         assert isinstance(sfr, (int, float))
 
-    def test_get_full_sample_data(self, test_data_dir):
+    @pytest.mark.parametrize('create_sample', [True, False])
+    def test_get_full_sample_data(self, test_data_dir, create_sample):
         ea = ExampleArchive(basepath=test_data_dir)
-        # sample = fidia.Sample.new_from_archive(ea)
-        sample = ea
+        if create_sample:
+            sample = fidia.Sample.new_from_archive(ea)
+        else:
+            sample = ea
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         image_data = sample.image['red'].data
@@ -90,10 +93,14 @@ class TestBasicExamples:
 
         assert len(list(image_data)) == len(ea.contents)
 
-    def test_get_full_sample_data_subtrait(self, test_data_dir):
+    @pytest.mark.parametrize('create_sample', [True, False])
+    def test_get_full_sample_data_subtrait(self, test_data_dir, create_sample):
         ea = ExampleArchive(basepath=test_data_dir)
-        # sample = fidia.Sample.new_from_archive(ea)
-        sample = ea
+        assert isinstance(ea, fidia.Archive)
+        if create_sample:
+            sample = fidia.Sample.new_from_archive(ea)
+        else:
+            sample = ea
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         wcs = sample.image['red'].wcs
@@ -111,10 +118,13 @@ class TestBasicExamples:
         assert len(list(wcs)) == len(ea.contents)
 
 
-    def test_get_full_sample_data_on_trait_collection(self, test_data_dir):
+    @pytest.mark.parametrize('create_sample', [True, False])
+    def test_get_full_sample_data_on_trait_collection(self, test_data_dir, create_sample):
         ea = ExampleArchive(basepath=test_data_dir)
-        # sample = fidia.Sample.new_from_archive(ea)
-        sample = ea
+        if create_sample:
+            sample = fidia.Sample.new_from_archive(ea)
+        else:
+            sample = ea
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         mass_data = sample.dmu['StellarMasses'].table['StellarMasses'].stellar_mass
