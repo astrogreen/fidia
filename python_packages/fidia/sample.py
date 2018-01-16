@@ -83,6 +83,9 @@ class Sample(bases.Sample, MappingMixin):
         # removed from this sample. The property latches on False.
         self._mutable = True
 
+        # Place to store a list of TraitPointers currently present on this Sample.
+        self._trait_pointers = set()
+
     @classmethod
     def new_from_archive(cls, archive):
         # type: (fidia.Archive) -> Sample
@@ -105,8 +108,11 @@ class Sample(bases.Sample, MappingMixin):
 
         # Reset the corresponding cached_property if necessary.
         reset_cached_property(self, '_archives_by_id')
+        reset_cached_property(self, 'trait_mappings')
+        self._update_trait_pointers()
 
-    @property
+
+    @cached_property
     def trait_mappings(self):
         # type: () -> MultiDexDict
         result = MultiDexDict(2)
@@ -114,6 +120,32 @@ class Sample(bases.Sample, MappingMixin):
             # @TODO: Check that this is actually going through the archives in the right order!
             result.update(archive.trait_mappings)
         return result
+
+    def _update_trait_pointers(self):
+
+        if not hasattr(self, '_trait_pointers'):
+            self._trait_pointers = set()
+            # This second check of initialization is necessary if the object has been restored from the database.
+
+        from fidia.traits.trait_utilities import TraitPointer
+
+        # Clear all existing pointers to TraitPointers
+        while self._trait_pointers:
+            # Set of tratit_pointers is not empty
+            attr_name  = self._trait_pointers.pop()
+            attr = getattr(self, attr_name)
+            assert isinstance(attr, bases.TraitPointer)
+            delattr(self, attr_name)
+
+        log.debug("Creating Trait Pointers for Archive %s", self)
+        if log.isEnabledFor(slogging.VDEBUG):
+            message = str(self.trait_mappings.as_nested_dict())
+            log.vdebug("TraitMappings available: %s", message)
+        for trait_type in self.trait_mappings.keys(1):
+            # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
+            log.debug("Adding TraitPointer '%s'", trait_type)
+            self._trait_pointers.add(trait_type)
+            setattr(self, trait_type, TraitPointer(trait_type, self, None, self.trait_mappings))
 
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
