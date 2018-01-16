@@ -306,7 +306,7 @@ class TestSpecificTraitsInArchives:
 
     @pytest.fixture
     def example_sample(self, example_archive):
-        return example_archive.get_full_sample()
+        return fidia.Sample.new_from_archive(example_archive)
 
     @pytest.fixture
     def a_astro_object(self, example_sample):

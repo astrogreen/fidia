@@ -35,7 +35,7 @@ class TestSample:
     @pytest.fixture
     def example_archive_sample(self, test_data_dir):
         ar = ExampleArchive(basepath=test_data_dir)
-        sample = ar.get_full_sample()
+        sample = Sample.new_from_archive(ar)
         return sample
 
     def test_new_sample_has_no_archives(self, empty_sample):

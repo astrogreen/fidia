@@ -77,10 +77,6 @@ class Archive(object):
     # def contents(self):
     #     raise NotImplementedError("")
 
-    def get_full_sample(self):
-        raise NotImplementedError()
-
-
 
 class BaseTrait:
     pass

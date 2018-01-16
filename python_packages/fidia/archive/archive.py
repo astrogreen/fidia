@@ -299,26 +299,6 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
         column_id = fidia.column.ColumnID.as_column_id(column_id)
         return self.columns[column_id]
 
-    def get_full_sample(self):
-        """Return a sample containing all objects in the archive."""
-        # Create an empty sample, and populate it via it's private interface
-        # (no suitable public interface at this time.)
-        from fidia.sample import Sample
-        new_sample = Sample()
-        id_cross_match = pd.DataFrame(pd.Series(map(str, self.contents), name=self.archive_id, index=self.contents))
-
-        # For a new, empty sample, extend effectively just copies the id_cross_match into the sample's ID list.
-        new_sample.extend(id_cross_match)
-
-        # Add this archive to the set of archives associated with the sample.
-        new_sample._archives = {self}
-        new_sample._primary_archive = self
-
-        # Finally, we mark this new sample as immutable.
-        new_sample.mutable = False
-
-        return new_sample
-
 
     def type_for_trait_path(self, path):
         """Return the type for the provided Trait path.
