@@ -238,6 +238,25 @@ class BaseTrait(bases.BaseTrait):
     def _post_init(self):
         pass
 
+    def __iter__(self):
+        """Allow iteration over a Trait if it does not point to a single data object, but instead to the whole sample.
+
+        Notes
+        -----
+
+        I'm not fully sure if this functionality is necessary or not, but I'm
+        going to implement it for now since I know how to do it and it won't be
+        much work.  -AGreen
+
+        """
+        if self.object_id is not None:
+            raise TypeError("Trait object is not iterable when it references a single data-object.")
+        else:
+            for object_id in self._sample.contents:
+                # Create a Trait identical to this one, but with a pointer to an individual data object.
+                yield self.__class__(self._sample, self._trait_key, self._sample[object_id], self._trait_mapping)
+
+
     @classmethod
     def _validate_trait_class(cls):
 

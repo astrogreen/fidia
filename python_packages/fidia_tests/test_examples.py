@@ -101,8 +101,12 @@ class TestBasicExamples:
         print(wcs)
         for w in wcs:
             assert isinstance(w, fidia.Trait)
+            print(w)
             print(w.cdelt1)
             assert isinstance(w.cdelt1, (int, float))
+
+            assert w.cdelt1 == sample[w.object_id].image['red'].wcs.cdelt1
+
 
         assert len(list(wcs)) == len(ea.contents)
 
