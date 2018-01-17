@@ -4,25 +4,25 @@ from typing import List, Dict, Tuple, Iterable, Type, Any
 import fidia
 
 # Python Standard Library Imports
-from collections import OrderedDict, Mapping
+# from collections import OrderedDict, Mapping
 from copy import deepcopy
 
 # Other Library Imports
-import pandas as pd
+# import pandas as pd
 
 import sqlalchemy as sa
-from sqlalchemy.sql import and_, or_, not_
+from sqlalchemy.sql import and_
 from sqlalchemy.orm import relationship, reconstructor, object_session
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
 # FIDIA Imports
 import fidia.base_classes as bases
 from ..exceptions import *
-from ..utilities import SchemaDictionary, fidia_classname, MultiDexDict, MappingMixin
+from ..utilities import fidia_classname, MultiDexDict, MappingMixin
 from ..database_tools import database_transaction
 from fidia.sample import SampleLikeMixin
 import fidia.traits as traits
-import fidia.column as columns
+import fidia.column as fidia_column
 # Other modules within this package
 # from fidia.base_classes import BaseArchive
 
@@ -36,39 +36,40 @@ __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
 
 class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.PersistenceBase):
+    # noinspection PyUnresolvedReferences
     """An archive of data in FIDIA.
 
-    Instances of `.Archive` class are created by calling the constructor for an
-    `.ArchiveDefinition`, which defines the objects, data, and schema of the
-    Archive. `.Archive` and it's sub-classes are generic across all specific
-    Archives in the system.
+        Instances of `.Archive` class are created by calling the constructor for an
+        `.ArchiveDefinition`, which defines the objects, data, and schema of the
+        Archive. `.Archive` and it's sub-classes are generic across all specific
+        Archives in the system.
 
-    An `.ArchiveDefinition` can define Traits and TraitCollections, which are
-    checked and registered when the corresponding archive is created. As part of
-    the registration, each TraitMapping is validated. This validation checks
-    each Trait's slots have been correctly filled (e.g. with another trait or a
-    column of a particular type).
+        An `.ArchiveDefinition` can define Traits and TraitCollections, which are
+        checked and registered when the corresponding archive is created. As part of
+        the registration, each TraitMapping is validated. This validation checks
+        each Trait's slots have been correctly filled (e.g. with another trait or a
+        column of a particular type).
 
-    An `.Archive` also behaves like a `.Sample` in that its objects can be
-    looked up looked up by subscripting. So these two are equivalent:
+        An `.Archive` also behaves like a `.Sample` in that its objects can be
+        looked up looked up by subscripting. So these two are equivalent:
 
-    >>> ea = fidia.ExampleArchive(basepath=test_data_dir)
-    >>> sample = fidia.Sample.new_from_archive(ea)
-    >>> mass = sample['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
+        >>> ea = fidia.archive.example_archive.ExampleArchive(basepath=test_data_dir)  # type: fidia.Archive
+        >>> sample = fidia.Sample.new_from_archive(ea)
+        >>> mass = sample['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
 
-    and
+        and
 
-    >>> ea = fidia.ExampleArchive(basepath=test_data_dir)
-    >>> mass = ea['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
+        >>> ea = fidia.ExampleArchive(basepath=test_data_dir)
+        >>> mass = ea['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass
 
-    """
+        """
 
     # Set up how Archive objects will appear in the MappingDB
     __tablename__ = "archives"
     _db_id = sa.Column(sa.Integer, sa.Sequence('archive_seq'), primary_key=True)
     _db_archive_class = sa.Column(sa.String)
     _db_archive_id = sa.Column(sa.String)
-    _db_calling_arguments = sa.Column(sa.PickleType)
+    _db_calling_arguments = sa.Column(sa.PickleType)  # type: Dict[str, Any]
     # _db_contents = sa.Column(sa.PickleType)
     __mapper_args__ = {
         'polymorphic_on': '_db_archive_class',
@@ -80,7 +81,7 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
     columns = relationship('FIDIAColumn',
                            collection_class=attribute_mapped_collection('id'),
                            cascade="all, delete, delete-orphan"
-                           )  # type: Dict[str, columns.FIDIAColumn]
+                           )  # type: Dict[str, fidia_column.FIDIAColumn]
 
     def __init__(self, **kwargs):
         """Pass through initializer. Initialization is handled by `ArchiveDefinition.__new__()`
@@ -201,7 +202,7 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
         # type: () -> Dict[Tuple[str, str], fidia.traits.TraitMapping]
         if self._local_trait_mappings is None:
             # Have not been initialised
-            self._local_trait_mappings = MultiDexDict(2)
+            self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], fidia.traits.TraitMapping]
             for mapping in self._mappings:
                 self._register_mapping_locally(mapping)
             self._update_trait_pointers()
@@ -231,7 +232,7 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
         
         # NOTE: changes to the logic here may also need to be made in `Sample.archive_for_column`
 
-        column_id = columns.ColumnID.as_column_id(column_id)
+        column_id = fidia_column.ColumnID.as_column_id(column_id)
         log.debug("Column requested: %s", column_id)
         column_type = column_id.type  # Cache locally to avoid recalculating.
         if column_type != 'full':
@@ -382,17 +383,17 @@ def replace_aliases_trait_mappings(mappings, alias_mappings):
             replace_aliases_trait_mappings(mapping, alias_mappings)
 
 def expand_column_ids_in_trait_mappings(mappings, archive_columns):
-    # type: (List[Mappings], Dict[str, columns.FIDIAColumn]) -> None
+    # type: (List[Any], Dict[str, fidia_column.FIDIAColumn]) -> None
     short_to_long = None
     for mapping in mappings:
         if isinstance(mapping, fidia.traits.TraitPropertyMapping):
-            mapping_column_id = columns.ColumnID.as_column_id(mapping.id)
+            mapping_column_id = fidia_column.ColumnID.as_column_id(mapping.id)
             if mapping_column_id.type == 'short':
                 if short_to_long is None:
                     # Create a database of short to long IDs to make updating quick.
                     short_to_long = dict()
                     for colid in archive_columns:
-                        colid = columns.ColumnID.as_column_id(colid)
+                        colid = fidia_column.ColumnID.as_column_id(colid)
                         short_to_long[colid.column_type + ":" + colid.column_name] = colid
                 log.debug("Replacing short ColumnID %s with full ID %s", mapping.id, short_to_long[mapping.id])
                 mapping.id = short_to_long[mapping.id]
@@ -444,7 +445,7 @@ class ArchiveDefinition(object):
     trait_mappings = []  # type: List[traits.TraitMapping]
     """List of TraitMapping objects defining the schemas of the data in this archive."""
 
-    column_definitions = dict()  # type: Dict[str, columns.ColumnDefinition]
+    column_definitions = dict()  # type: Dict[str, fidia_column.ColumnDefinition]
     """List of definitions of the columns of data to be included in this archive. 
         
     When the `.ArchiveDefinition` factory creates an instances of
@@ -520,7 +521,7 @@ class ArchiveDefinition(object):
             archive._db_archive_class = fidia_classname(archive)
 
             # Columns
-            column_definitions = deepcopy(definition.column_definitions)  # type: List[Tuple[str, columns.ColumnDefinition]]
+            column_definitions = deepcopy(definition.column_definitions)  # type: List[Tuple[str, fidia_column.ColumnDefinition]]
 
             # Associate column instances with this archive instance
             alias_mappings = dict()
