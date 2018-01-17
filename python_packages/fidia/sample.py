@@ -28,6 +28,7 @@ import numpy as np
 from cached_property import cached_property
 
 # FIDIA Imports
+from fidia import base_classes as bases, slogging as slogging
 from .import base_classes as bases
 from .exceptions import *
 from .utilities import MultiDexDict, reset_cached_property, MappingMixin
@@ -41,7 +42,36 @@ log.enable_console_logging()
 
 __all__ = ['Sample']
 
-class Sample(bases.Sample, MappingMixin):
+
+class SampleLikeMixin(object):
+    def _update_trait_pointers(self):
+
+        if not hasattr(self, '_trait_pointers'):
+            self._trait_pointers = set()
+            # This second check of initialization is necessary if the object has been restored from the database.
+
+        from fidia.traits.trait_utilities import TraitPointer
+
+        # Clear all existing pointers to TraitPointers
+        while self._trait_pointers:
+            # Set of tratit_pointers is not empty
+            attr_name  = self._trait_pointers.pop()
+            attr = getattr(self, attr_name)
+            assert isinstance(attr, bases.TraitPointer)
+            delattr(self, attr_name)
+
+        log.debug("Creating Trait Pointers for Archive %s", self)
+        if log.isEnabledFor(slogging.VDEBUG):
+            message = str(self.trait_mappings.as_nested_dict())
+            log.vdebug("TraitMappings available: %s", message)
+        for trait_type in self.trait_mappings.keys(1):
+            # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
+            log.debug("Adding TraitPointer '%s'", trait_type)
+            self._trait_pointers.add(trait_type)
+            setattr(self, trait_type, TraitPointer(trait_type, self, None, self.trait_mappings))
+
+
+class Sample(SampleLikeMixin, MappingMixin, bases.Sample):
     """Samples in FIDIA are typically the result of a query.
 
     Samples provide two main functions: define a specific list of objects
@@ -64,7 +94,7 @@ class Sample(bases.Sample, MappingMixin):
         self.read_only = True
 
         # Place to store ID cross matches between archives
-        self._id_cross_matches = None
+        self._id_cross_matches = None  # type: pd.DataFrame
 
         # Place to store the list of objects contained in this sample
         self._contents = dict()
@@ -120,32 +150,6 @@ class Sample(bases.Sample, MappingMixin):
             # @TODO: Check that this is actually going through the archives in the right order!
             result.update(archive.trait_mappings)
         return result
-
-    def _update_trait_pointers(self):
-
-        if not hasattr(self, '_trait_pointers'):
-            self._trait_pointers = set()
-            # This second check of initialization is necessary if the object has been restored from the database.
-
-        from fidia.traits.trait_utilities import TraitPointer
-
-        # Clear all existing pointers to TraitPointers
-        while self._trait_pointers:
-            # Set of tratit_pointers is not empty
-            attr_name  = self._trait_pointers.pop()
-            attr = getattr(self, attr_name)
-            assert isinstance(attr, bases.TraitPointer)
-            delattr(self, attr_name)
-
-        log.debug("Creating Trait Pointers for Archive %s", self)
-        if log.isEnabledFor(slogging.VDEBUG):
-            message = str(self.trait_mappings.as_nested_dict())
-            log.vdebug("TraitMappings available: %s", message)
-        for trait_type in self.trait_mappings.keys(1):
-            # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
-            log.debug("Adding TraitPointer '%s'", trait_type)
-            self._trait_pointers.add(trait_type)
-            setattr(self, trait_type, TraitPointer(trait_type, self, None, self.trait_mappings))
 
     # ____________________________________________________________________
     # Functions to create dictionary like behaviour
@@ -226,6 +230,10 @@ class Sample(bases.Sample, MappingMixin):
         """This makes Sample and Archive both have the same accessor for a list of data object ids."""
         # @TODO: This should probably be refactored. Archive and Sample need to work the same way here.
         return list(self.ids)
+
+    def keys(self):
+        return self._id_cross_matches.index
+
 
     @property
     def mutable(self):

@@ -20,7 +20,7 @@ import fidia.base_classes as bases
 from ..exceptions import *
 from ..utilities import SchemaDictionary, fidia_classname, MultiDexDict, MappingMixin
 from ..database_tools import database_transaction
-# import fidia.sample as sample
+from fidia.sample import SampleLikeMixin
 import fidia.traits as traits
 import fidia.column as columns
 # Other modules within this package
@@ -35,7 +35,7 @@ log.enable_console_logging()
 __all__ = ['Archive', 'KnownArchives', 'ArchiveDefinition']
 
 
-class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.PersistenceBase, MappingMixin):
+class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.PersistenceBase):
     """An archive of data in FIDIA.
 
     Instances of `.Archive` class are created by calling the constructor for an
@@ -136,32 +136,6 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
             raise ValueError("TraitManager can only register a TraitMapping, got %s"
                              % mapping)
 
-    def _update_trait_pointers(self):
-
-        if not hasattr(self, '_trait_pointers'):
-            self._trait_pointers = set()
-            # This second check of initialization is necessary if the object has been restored from the database.
-
-        from fidia.traits.trait_utilities import TraitPointer
-
-        # Clear all existing pointers to TraitPointers
-        while self._trait_pointers:
-            # Set of tratit_pointers is not empty
-            attr_name  = self._trait_pointers.pop()
-            attr = getattr(self, attr_name)
-            assert isinstance(attr, bases.TraitPointer)
-            delattr(self, attr_name)
-
-        log.debug("Creating Trait Pointers for Archive %s", self)
-        if log.isEnabledFor(slogging.VDEBUG):
-            message = str(self.trait_mappings.as_nested_dict())
-            log.vdebug("TraitMappings available: %s", message)
-        for trait_type in self.trait_mappings.keys(1):
-            # pointer_name = snake_case(trait_mapping.trait_class.trait_class_name())
-            log.debug("Adding TraitPointer '%s'", trait_type)
-            self._trait_pointers.add(trait_type)
-            setattr(self, trait_type, TraitPointer(trait_type, self, None, self.trait_mappings))
-
     @property
     def contents(self):
         # type: () -> List[str]
@@ -224,11 +198,6 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
         if len(to_remove) > 0:
             session.execute(object_table.delete().where(and_(object_table.c._db_archive_id == self._db_archive_id,
                                                              object_table.c._identifier in to_remove)))
-
-
-    def keys(self):
-        """Archives support dictionary-like access because they are Sample-like."""
-        return self.contents
 
     @property
     def archive_id(self):
@@ -371,7 +340,7 @@ class Archive(bases.Archive, bases.Sample, bases.SQLAlchemyBase, bases.Persisten
 
         """
 
-        return self.contents
+        return len(self.contents)
 
     def __repr__(self):
         return "FIDIAArchive:" + self.archive_id

@@ -59,9 +59,23 @@ class Sample:
         # type (Archive, str) -> str
         raise NotImplementedError()
 
-    trait_mappings = None  # type: TraitMapping
+    # trait_mappings = None  # type: TraitMapping
+
+    contents = None  # type: List[str]
 
     def __getitem__(self, item):
+        raise NotImplementedError()
+
+    def __iter__(self):
+        raise NotImplementedError()
+
+    def __len__(self):
+        raise NotImplementedError()
+
+    def keys(self):
+        raise NotImplementedError()
+
+    def trait_mappings(self):
         raise NotImplementedError()
 
 
