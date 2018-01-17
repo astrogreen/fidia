@@ -8,13 +8,19 @@ from typing import Type
 import fidia
 
 from fidia.traits import Trait, TraitProperty, TraitKey #, TraitPath
-from fidia.archive import example_archive
+from fidia.archive.example_archive import ExampleArchive
 
 from fidia.descriptions import TraitDescriptionsMixin
 
 from fidia.traits import validate_trait_name
 
 from fidia.utilities import fidia_classname
+
+
+@pytest.fixture(scope='module')
+def example_archive(test_data_dir):
+    ar = ExampleArchive(basepath=test_data_dir)
+    return ar
 
 class TestTraits:
 
@@ -33,260 +39,46 @@ class TestTraits:
             prop = getattr(TestTrait, attr)
             assert isinstance(prop, TraitProperty)
 
-    # def test_trait_property_initialisation(self, TestTrait):
-    #     # type: (Type[Trait]) -> None
-    #     """This test doesn't work because the Archive is not properly created."""
-    #
-    #     class SubTestTrait(TestTrait):
-    #         subvalue = TraitProperty(dtype=int, n_dim=0)
-    #
-    #
-    #
-    #     print("Trait class initialised: {}".format(fidia.traits.FitsImageHdu._trait_class_initialized))
-    #
-    #     sample = fidia.Archive()
-    #
-    #     trait = TestTrait(sample=sample,
-    #                       trait_key="test",
-    #                       astro_object=fidia.AstronomicalObject(sample, "obj"),
-    #                       trait_mapping=fidia.traits.TraitMapping(TestTrait, "test", []))
-    #
-    #     assert isinstance(trait, fidia.Trait)
-    #
-    #     assert isinstance(trait._trait_class_initialized, set)
-    #     # We're now sure that the Trait class initializer has been called. Check that it has done it's thing:
-    #
-    #     for tp in trait._trait_property_slots(True):
-    #         assert tp.name is not None
-    #
-    #     # Now work with a sub-trait
-    #
-    #     # Check the new property is not initialised:
-    #     assert SubTestTrait.subvalue.name is None
-    #
-    #     # List the Trait Property attributes without initialising the Trait.
-    #     print(list(
-    #         SubTestTrait._sub_trait_slots(_init_trait=False)
-    #     ))
-    #
-    #     sub_trait = SubTestTrait(sample=sample,
-    #                       trait_key="test",
-    #                       astro_object=fidia.AstronomicalObject(sample, "obj"),
-    #                       trait_mapping=fidia.traits.TraitMapping(TestTrait, "test", []))
-    #
-    #     for tp in sub_trait._trait_property_slots(True):
-    #         assert tp.name is not None
-
-
-    @pytest.mark.xfail
-    def test_trait_schema(self):
-        """This test checks both versions of the schema."""
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
-
-        # Test the schema by trait_type
-        schema_by_trait_type = test_trait.schema(by_trait_name=False)
-
-        assert isinstance(schema_by_trait_type, dict)
-
-        assert 'value' in schema_by_trait_type
-        assert schema_by_trait_type['value'] == 'float'
-        assert 'extra' in schema_by_trait_type
-        assert schema_by_trait_type['extra'] == 'string'
-
-        del schema_by_trait_type
-
-        # Test the schema by trait_name
-        schema_by_trait_name = test_trait.schema(by_trait_name=True)
-
-        assert isinstance(schema_by_trait_name, dict)
-
-        assert 'value' in schema_by_trait_name
-        assert schema_by_trait_name['value'] == 'float'
-        assert 'extra' in schema_by_trait_name
-        assert schema_by_trait_name['extra'] == 'string'
-
-    @pytest.mark.xfail
-    def test_trait_schema_with_subtraits(self):
-
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
-
-        # Test the schema by trait_type
-        schema_by_trait_type = test_trait.schema(by_trait_name=False)
-
-        assert isinstance(schema_by_trait_type, dict)
-
-        assert 'value' in schema_by_trait_type
-        assert schema_by_trait_type['value'] == 'float'
-        assert 'extra' in schema_by_trait_type
-        assert schema_by_trait_type['extra'] == 'string'
-
-        # Hierarchical part of schema:
-        assert 'sub_trait' in schema_by_trait_type
-        assert isinstance(schema_by_trait_type['sub_trait'], dict)
-        assert isinstance(schema_by_trait_type['sub_trait'][None], dict)
-        assert 'value' in schema_by_trait_type['sub_trait'][None]
-
-        del schema_by_trait_type
-
-        # Test the schema by trait_name
-        schema_by_trait_name = test_trait.schema(by_trait_name=True)
-
-        assert isinstance(schema_by_trait_name, dict)
-
-        assert 'value' in schema_by_trait_name
-        assert schema_by_trait_name['value'] == 'float'
-        assert 'extra' in schema_by_trait_name
-        assert schema_by_trait_name['extra'] == 'string'
-
-        # Hierarchical part of schema:
-        assert 'sub_trait' in schema_by_trait_name
-        assert isinstance(schema_by_trait_name['sub_trait'], dict)
-        assert isinstance(schema_by_trait_name['sub_trait'], dict)
-        assert 'value' in schema_by_trait_name['sub_trait']
-
-    @pytest.mark.xfail
-    def test_trait_schema_catalog_non_catalog(self):
-
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
-
-        # This only tests the schema by trait_name
-
-        schema_by_catalog = test_trait.schema(by_trait_name=True, data_class='catalog')
-
-        assert 'value' in schema_by_catalog
-        assert 'extra' in schema_by_catalog
-        assert 'non_catalog_data' not in schema_by_catalog
-
-        # Hierarchical part of schema:
-        assert 'sub_trait' in schema_by_catalog
-        assert 'value' in schema_by_catalog['sub_trait']
-        assert 'extra' in schema_by_catalog['sub_trait']
-        assert 'non_catalog_data' not in schema_by_catalog['sub_trait']
-
-        del schema_by_catalog
-
-
-        schema_by_non_catalog = test_trait.schema(by_trait_name=True, data_class='non-catalog')
-
-        assert 'value' not in schema_by_non_catalog
-        assert 'extra' not in schema_by_non_catalog
-        assert 'non_catalog_data' in schema_by_non_catalog
-
-        # Hierarchical part of schema:
-        assert 'sub_trait' in schema_by_non_catalog
-        assert 'value' not in schema_by_non_catalog['sub_trait']
-        assert 'extra' not in schema_by_non_catalog['sub_trait']
-        assert 'non_catalog_data' in schema_by_non_catalog['sub_trait']
-
-    # @pytest.mark.xfail
-    # def test_trait_schema_catalog_non_catalog_trims_empty(self):
-    #
-    #     # This only tests the schema by trait_name
-    #
-    #     class SimpleTraitWithSubtraits(Trait):
-    #         # NOTE: Tests rely on this class, so changing it will require updating the tests!
-    #
-    #         trait_type = "simple_heir_trait"
-    #
-    #         sub_traits = TraitRegistry()
-    #
-    #         @sub_traits.register
-    #         class SubTrait(example_archive.SimpleTrait):
-    #             trait_type = 'sub_trait'
-    #
-    #         @sub_traits.register
-    #         class CatalogSubTrait(Trait):
-    #             trait_type ='sub_trait_catalog_only'
-    #
-    #             @trait_property('float')
-    #             def value(self):
-    #                 return 1.0
-    #
-    #         @sub_traits.register
-    #         class NonCatalogSubTrait(Trait):
-    #             trait_type = 'sub_trait_non_catalog_only'
-    #
-    #             @trait_property('float.array.1')
-    #             def value(self):
-    #                 return [1.0, 2.0]
-    #
-    #         @trait_property('float')
-    #         def value(self):
-    #             return 5.5
-    #
-    #         @trait_property('float.array.1')
-    #         def non_catalog_data(self):
-    #             return [1.1, 2.2, 3.3]
-    #
-    #         @trait_property('string')
-    #         def extra(self):
-    #             return "Extra info"
-    #
-    #     test_trait = SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
-    #                                           object_id='1')
-    #
-    #     # Test the catalog-only version of the schema:
-    #
-    #     schema_by_catalog = test_trait.schema(by_trait_name=True, data_class='catalog')
-    #
-    #     # Hierarchical part of schema:
-    #     assert 'sub_trait_non_catalog_only' not in schema_by_catalog
-    #     assert 'sub_trait_catalog_only' in schema_by_catalog
-    #
-    #     del schema_by_catalog
-    #
-    #     # Test the non-catalog version of the schema:
-    #
-    #     schema_by_non_catalog = test_trait.schema(by_trait_name=True, data_class='non-catalog')
-    #
-    #     # Hierarchical part of schema:
-    #     assert 'sub_trait_non_catalog_only' in schema_by_non_catalog
-    #     assert 'sub_trait_catalog_only' not in schema_by_non_catalog
-
-
-    @pytest.mark.xfail   # @TODO: Failing because sub-traits not implemented
-    def test_retrieve_sub_trait_by_dictionary(self):
-
-        test_trait = example_archive.SimpleTraitWithSubtraits(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'),
-                                                                  object_id='1')
-
-        assert isinstance(test_trait['sub_trait'], Trait)
-
-    @pytest.mark.xfail   # @TODO: Failing because descriptions/metadata not implemented
-    def test_trait_descriptions(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
+    @pytest.mark.xfail   # @TODO: Failing because descriptions aren't implemented for Traits themselves.
+    def test_trait_descriptions(self, example_archive):
+        test_trait = example_archive.image["red"]
 
         assert hasattr(test_trait, 'get_pretty_name')
-        assert hasattr(test_trait, 'get_documentation')
-        assert hasattr(test_trait, 'get_description')
+        assert hasattr(test_trait, 'get_short_description')
+        assert hasattr(test_trait, 'get_long_description')
 
-        assert test_trait.get_description() == "Description for SimpleTrait."
+        assert test_trait.get_pretty_name() == ""
 
-    @pytest.mark.xfail   # @TODO: Failing because descriptions/metadata not implemented
-    def test_trait_property_descriptions(self):
+        assert test_trait.get_short_description() == ""
 
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
+        assert test_trait.get_long_description() == ""
+
+
+    def test_trait_property_descriptions(self, example_archive):
+
+        test_trait = example_archive.image["red"]
 
         # Check that a trait property has the necessary description attributes
-        assert hasattr(test_trait.value, 'get_pretty_name')
-        assert hasattr(test_trait.value, 'get_documentation')
-        assert hasattr(test_trait.value, 'get_description')
-        assert hasattr(test_trait.value, 'get_short_name')
+        assert hasattr(test_trait, 'get_pretty_name')
+        assert hasattr(test_trait, 'get_short_description')
+        assert hasattr(test_trait, 'get_long_description')
 
         # Check that descriptions are set correctly:
-        assert test_trait.value.get_description() == "TheValue"
-        assert test_trait.non_catalog_data.get_description() == "Some Non-catalog data"
-        assert test_trait.extra.get_description() == "ExtraInformation"
+        assert isinstance(test_trait.get_short_description("data"), str)
+        assert test_trait.get_short_description("data") == ""
 
         # Check that descriptions are set correctly:
-        assert test_trait.value.get_pretty_name() == "Value"
-        assert test_trait.non_catalog_data.get_pretty_name() == "Non-catalog Data"
-        assert test_trait.extra.get_pretty_name() == "Extra Info"
+        assert isinstance(test_trait.get_long_description("data"), str)
+        assert test_trait.get_long_description("data") == ""
+
+        # Check that descriptions are set correctly:
+        assert isinstance(test_trait.get_pretty_name("data"), str)
+        assert test_trait.get_pretty_name("data") == ""
 
 
     @pytest.mark.xfail   # @TODO: Failing because descriptions/metadata not implemented
-    def test_trait_documentation(self):
-        test_trait = example_archive.SimpleTrait(example_archive.Archive(), TraitKey.as_traitkey('test_trait:default(ver0)'), object_id='1')
+    def test_trait_documentation(self, example_archive):
+        test_trait = example_archive.image["red"]
 
         print(type(test_trait.get_documentation))
         print(test_trait.get_documentation())
@@ -299,10 +91,6 @@ class TestTraits:
 
 
 class TestSpecificTraitsInArchives:
-
-    @pytest.fixture
-    def example_archive(self, test_data_dir):
-        return example_archive.ExampleArchive(basepath=test_data_dir)
 
     @pytest.fixture
     def example_sample(self, example_archive):

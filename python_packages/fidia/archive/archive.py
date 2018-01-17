@@ -82,13 +82,6 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
                            cascade="all, delete, delete-orphan"
                            )  # type: Dict[str, columns.FIDIAColumn]
 
-    # This provides a space for an archive to set which catalog data to
-    # "feature". These properties are those that would be displayed e.g. when
-    # someone wants an overview of the data in the archive, or for a particular
-    # object.
-    feature_catalog_data = []  # type: List[traits.TraitPath]
-
-
     def __init__(self, **kwargs):
         """Pass through initializer. Initialization is handled by `ArchiveDefinition.__new__()`
 
