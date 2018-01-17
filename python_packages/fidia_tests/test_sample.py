@@ -6,6 +6,7 @@ import tempfile
 import generate_test_data as testdata
 
 import fidia
+import fidia.exceptions
 from fidia import Sample, AstronomicalObject
 # from fidia.archive import MemoryArchive
 from fidia.archive.example_archive import ExampleArchive
@@ -55,10 +56,14 @@ class TestSample:
         for key in example_archive_sample.keys():
             assert isinstance(key, str)
 
-    @pytest.mark.xfail  # No data not available in example archive.
     def test_attempt_retrieve_data_not_available(self, example_archive_sample):
-        with pytest.raises(fidia.DataNotAvailable):
-            example_archive_sample['Gal2']['spectral_map']
+        # First check that data is available for this trait where expected:
+        cube = example_archive_sample['Gal2'].spectral_cube["red"].data
+        print(cube)
+
+        with pytest.raises(fidia.exceptions.DataNotAvailable):
+            cube = example_archive_sample['Gal3'].spectral_cube["red"].data
+            print(cube)
 
                     # Tests for a writeable Sample
     #   Commented out as writeable samples are not currently required.

@@ -77,8 +77,9 @@ class ExampleArchive(fidia.ArchiveDefinition):
                 TraitPropertyMapping('ctype2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CTYPE2]:1')
             ])
         ]),
-        # TraitMapping(SpectralCube, 'red', {
-        #     'data': "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1"}),
+        TraitMapping(SpectralCube, 'red', [
+            TraitPropertyMapping('data', "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_spec_cube.fits[0]:1")
+        ]),
         TraitMapping(DMU, 'StellarMasses', [
             TraitMapping(Table, 'StellarMasses', [
                 TraitPropertyMapping('stellar_mass', 'ExampleArchive:FITSBinaryTableColumn:stellar_masses.fits[1].data[ID->StellarMass]:1'),
