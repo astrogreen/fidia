@@ -46,6 +46,7 @@ jupyter-client==5.0.1
 jupyter-core==4.3.0
 kombu==4.0.2
 MarkupSafe==1.0
+matplotlib==1.5.3
 mistune==0.7.4
 nbconvert==5.2.1
 nbformat==4.3.0
@@ -71,6 +72,7 @@ pyldap==2.4.36
 pyOpenSSL==17.0.0
 pypandoc==1.4
 pytest==3.1.2
+pytest-benchmark==3.1.1
 python-dateutil==2.6.0
 python-sjsclient==0.7.0
 pytz==2017.2
