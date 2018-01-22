@@ -84,7 +84,7 @@ python-sjsclient==0.7.0
 pytz==2017.3
 pyzmq==16.0.2
 qtconsole==4.3.0
-recommonmark>0.4.0
+recommonmark>=0.4.0
 requests==2.18.4
 simplegeneric==0.8.1
 six==1.11.0
@@ -97,7 +97,7 @@ terminado==0.6
 testpath==0.3.1
 tornado==4.5.1
 traitlets==4.3.2
-typing==3.6.1
+typing>=3.6.1
 unicodecsv==0.14.1
 urllib3==1.22
 vine==1.1.3

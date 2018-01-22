@@ -137,17 +137,17 @@ def finder_fits_file(fits_path_pattern, object_id, basepath=''):
                     unit = None
                     # None is used for units that are "missing", typically in situations where no unit applies.
 
-                data_shape = hdu.data.shape
-
                 column = FITSHeaderColumn(fits_path_pattern, hdu.name, header,
                                           type=kw_type, unit=unit, short_desc=kw_comment,
-                                          n_dim=len(data_shape))
+                                          n_dim=0)
                 log.info("Found column_id: %s", column.id)
                 columns_found.append(column)
 
                 header_mappings.append(TraitPropertyMapping(header, column.id))
 
-            column = FITSDataColumn(fits_path_pattern, hdu.name)
+            data_shape = hdu.data.shape
+
+            column = FITSDataColumn(fits_path_pattern, hdu.name, type=str(hdu.data.dtype), n_dim=len(data_shape))
             log.info("Found column_id: %s", column.id)
             columns_found.append(column)
 
