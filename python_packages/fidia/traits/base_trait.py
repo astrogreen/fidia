@@ -461,7 +461,7 @@ class BaseTrait(bases.BaseTrait):
 
     def __dir__(self):
         # noinspection PyUnresolvedReferences
-        parent_dir = super(BaseTrait, self).__dir__()
+        parent_dir = list(super(BaseTrait, self).__dir__())
         return parent_dir + self.dir_named_sub_traits() + self.dir_sub_traits() + self.dir_trait_properties()
 
     @classmethod
@@ -559,12 +559,38 @@ class BaseTrait(bases.BaseTrait):
     #
     # Functions to augment behaviour in Python
 
-    def __str__(self):
+    def __repr__(self):
         return "<Trait class '{classname}': {trait_type}>".format(
             classname=fidia_classname(self),
             trait_type=self.__class__.__name__)
 
+    def _repr_pretty_(self, p, cycle):
+        p.text(self.__str__())
+        # if cycle:
+        #     p.text(self.__str__())
+        # else:
+        #     p.text("Trait of type {}".format(fidia_classname(self)))
+        #     with p.group(4):
+        #         sub_traits = self.dir_sub_traits()
+        #         if sub_traits:
+        #             with p.group("Sub-traits: [", "]"):
 
+
+    def __str__(self):
+        formatted_named_sub_traits = ", ".join(self.dir_named_sub_traits())
+        formatted_sub_traits = ", ".join(self.dir_sub_traits())
+        formatted_trait_properties = ", ".join(self.dir_trait_properties())
+
+        return """{trait_repr}
+        Sub-traits:
+            [{st}]
+        Trait Properities:
+            [{tp}]
+        Named sub-traits:
+            [{nst}]
+        """.format(
+            trait_repr=repr(self),
+            st=formatted_sub_traits, tp=formatted_trait_properties, nst=formatted_named_sub_traits)
 
 class Trait(bases.Trait, BaseTrait):
     pass

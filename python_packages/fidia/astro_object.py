@@ -68,6 +68,12 @@ class AstronomicalObject(bases.SQLAlchemyBase):
 
         super(AstronomicalObject, self).__init__()
 
+    def __str__(self):
+        return "FIDIA AstronomicalObject \"{}\"".format(self.identifier)
+
+    def _repr_pretty_(self, p, cycle):
+        p.text(self.__str__())
+
     @property
     def identifier(self):
         return self._identifier

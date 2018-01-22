@@ -609,10 +609,12 @@ class TraitPointer(bases.TraitPointer, MappingMixin):
         # Part of the collections.abc.Mapping interface
         return len(self.trait_mapping)
 
+    def _repr_pretty_(self, p, cycle):
+        p.text(self.__str__())
 
     def __str__(self):
-        return "TraitPointer: %s" % self.trait_mapping
-
+        # return "TraitPointer: %s" % self.trait_mapping
+        return "TraitPointer to named Traits: [{}]".format(", ".join(self.keys()))
 
 # ___  __         ___                __   __          __      __   __
 #  |  |__)  /\  |  |      |\/|  /\  |__) |__) | |\ | / _`    |  \ |__)
