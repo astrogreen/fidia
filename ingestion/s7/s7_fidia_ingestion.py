@@ -252,7 +252,7 @@ def collect_tabular_data(all_columns_found, all_mappings):
 
 
     columns_found, table_mapping = finder_csv_file(
-        "4_Table_3a_Nuclear_fluxes.csv", comment="\$", index_column="S7_Name",
+        "4_Table_3a_Nuclear_fluxes.csv", comment="\$", index_column="Galaxy",
         basepath=S7_DATA_DIR
     )
     # update_s7_csv(table_mapping, columns_found, S7_DATA_DIR + "/4_Table_3a_Nuclear_fluxes.csv")
@@ -260,7 +260,7 @@ def collect_tabular_data(all_columns_found, all_mappings):
     all_mappings.append(TraitMapping(Table, "nuclear_fluxes", table_mapping))
 
     columns_found, table_mapping = finder_csv_file(
-        "4_Table_3b_Nuclear_flux_errors.csv", comment="\$", index_column="S7_Name",
+        "4_Table_3b_Nuclear_flux_errors.csv", comment="\$", index_column="Galaxy",
         basepath=S7_DATA_DIR
     )
     # update_s7_csv(table_mapping, columns_found, S7_DATA_DIR + "/4_Table_3b_Nuclear_flux_errors.csv")
@@ -269,7 +269,7 @@ def collect_tabular_data(all_columns_found, all_mappings):
     all_mappings.append(TraitMapping(Table, "nuclear_flux_errors", table_mapping))
 
     columns_found, table_mapping = finder_csv_file(
-        "4_Table_4_Nuclear_luminosities.csv", comment="\$", index_column="S7_Name",
+        "4_Table_4_Nuclear_luminosities.csv", comment="\$", index_column="Galaxy",
         basepath=S7_DATA_DIR
     )
     # update_s7_csv(table_mapping, columns_found, S7_DATA_DIR + "/4_Table_4_Nuclear_luminosities.csv")

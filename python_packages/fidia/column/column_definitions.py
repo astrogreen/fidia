@@ -605,8 +605,16 @@ class CSVTableColumn(ColumnDefinition, PathBasedColumn):
         yield table
 
     def array_getter_from_context(self, table, basepath):
-        assert self.column_name in table.colnames
-        assert self.index_column_name in table.colnames
+        assert self.column_name in table.colnames, "Data column \"%s\" not in table %s with columns [%s]" % (
+            self.column_name,
+            self.filename_pattern,
+            ", ".join(table.colnames)
+        )
+        assert self.index_column_name in table.colnames, "Index column \"%s\" not in table %s with columns [%s]" % (
+            self.index_column_name,
+            self.filename_pattern,
+            ", ".join(table.colnames)
+        )
 
         column_data = table[self.column_name].data
         index = table[self.index_column_name].data
