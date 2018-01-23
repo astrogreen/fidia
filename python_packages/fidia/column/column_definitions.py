@@ -502,11 +502,8 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
 
     # noinspection PyMethodOverriding
     def object_getter(self, object_id, basepath):
-        full_path_pattern = os.path.join(basepath, self.filename_pattern)
-        with fits.open(full_path_pattern.format(object_id=object_id)) as hdulist:
-            # return hdulist[self.fits_extension_id].header[self.keyword_name]
-            hdu = get_fits_extension_by_name_or_index(hdulist, self.fits_extension_id)
-            return hdu.header[self.keyword_name]
+        with self.prepare_context(object_id, basepath) as ctx:
+            return self.object_getter_from_context(object_id, ctx, basepath)
 
     @property
     def grouping_context(self):

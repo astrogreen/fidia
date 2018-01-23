@@ -8,7 +8,8 @@ import re
 import generate_test_data as testdata
 import pytest
 
-from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn, FITSBinaryTableColumn, CSVTableColumn
+from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn, FITSBinaryTableColumn, CSVTableColumn, \
+    FITSHeaderColumn
 from fidia.column.columns import FIDIAColumn, ColumnID
 
 # Pytest fixture 'test_data_dir' now session wide and stored in conftest.py
@@ -159,6 +160,21 @@ class TestFITSBinaryTableColumn:
     def test_column_has_data(self, fits_binary_table_column):
         data = fits_binary_table_column.get_value('Gal1')
         assert isinstance(data, (int, float))
+
+class TestFITSHeaderColumn:
+
+    @pytest.fixture
+    def fits_binary_table_column(self, test_data_dir, archive):
+        column_def = FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1")
+        archive.basepath = test_data_dir
+        column = column_def.associate(archive)
+        column._archive = archive
+        return column
+
+    def test_column_has_data(self, fits_binary_table_column):
+        data = fits_binary_table_column.get_value('Gal1')
+        assert isinstance(data, (int, float))
+
 
 class TestCSVTableColumn:
 
