@@ -20,7 +20,7 @@ from fidia.exceptions import DataNotAvailable
 # Set up logging
 import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.WARNING)
+log.setLevel(slogging.DEBUG)
 log.enable_console_logging()
 
 __all__ = ['DataAccessLayer',
@@ -261,22 +261,17 @@ class OptimizedIngestionMixin:
                         with group_context_manager(object_id, **arguments) as context:
                             for column in column_group:
                                 coldef = column.column_definition_class.from_id(column.id.column_name)
-                                if isinstance(column, FIDIAArrayColumn):
-                                    try:
-                                        data = coldef.object_getter_from_context(object_id, context, **arguments)
-                                    except:
-                                        log.warning("No data ingested for object '%s' in column '%s'",
-                                                    object_id, column.id)
-                                        pass
-                                    else:
-                                        self.ingest_object_with_data(column, object_id, data)
+                                try:
+                                    data = coldef.object_getter_from_context(object_id, context, **arguments)
+                                except Exception as e:
+                                    log.warning("No data ingested for object '%s' in column '%s' due to exception %s: %s",
+                                                object_id, column.id, e.__class__.__name__, str(e))
+                                    if log.isEnabledFor(slogging.DEBUG):
+                                        log.exception("Exception Traceback")
+                                    pass
                                 else:
-                                    try:
-                                        data = coldef.object_getter_from_context(object_id, context, **arguments)
-                                    except:
-                                        log.warning("No data ingested for object '%s' in column '%s'",
-                                                    object_id, column.id)
-                                        pass
+                                    if isinstance(column, FIDIAArrayColumn):
+                                        self.ingest_object_with_data(column, object_id, data)
                                     else:
                                         if column not in non_array_column_data:
                                             non_array_column_data[column] = pd.Series(index=archive.contents,

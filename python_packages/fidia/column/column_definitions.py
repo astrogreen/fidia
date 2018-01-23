@@ -522,7 +522,7 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
             raise DataNotAvailable(str(e))
 
     def object_getter_from_context(self, object_id, context, basepath):
-        hdu = get_fits_extension_by_name_or_index(context, self.extension)
+        hdu = get_fits_extension_by_name_or_index(context, self.fits_extension_id)
         return hdu.header[self.keyword_name]
 
 
