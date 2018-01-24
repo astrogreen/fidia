@@ -133,6 +133,24 @@ def test_full_ingestion_removes_need_for_original_data(clean_persistence_databas
         idx = fidia.dal_host.layers.index(file_store)
         del fidia.dal_host.layers[idx]
 
+def test_types_are_preserved(test_data_dir, dal_data_dir):
+
+    ar = ExampleArchive(basepath=test_data_dir)  # type: fidia.Archive
+
+    column = ar.columns["ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[NAXIS]:1"]
+
+    input_type = type(column.get_value("Gal1", provenance="definition"))
+
+    assert input_type is int
+
+    file_store = NumpyFileStore(dal_data_dir)
+    file_store.ingest_column(column)
+
+    output_type = file_store.get_value(column, "Gal1").dtype
+
+    assert output_type == input_type
+
+
 def test_ingestion_benchmarks(benchmark, clean_persistence_database, test_data_dir):
 
     with tempfile.TemporaryDirectory() as test_data_dir:

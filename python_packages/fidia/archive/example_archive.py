@@ -41,24 +41,25 @@ class ExampleArchive(fidia.ArchiveDefinition):
     column_definitions = fidia.ColumnDefinitionList([
         ("red_image", fidia.FITSDataColumn("{object_id}/{object_id}_red_image.fits", 0,
                                            ndim=2,
-                                           timestamp=1)),
+                                           timestamp=1, dtype="float64")),
         ("red_image_exposed", fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "EXPOSED",
-                                                     timestamp=1)),
+                                                     timestamp=1, dtype="float64")),
         ("red_cube", fidia.FITSDataColumn("{object_id}/{object_id}_spec_cube.fits", 0,
-                                          timestamp=1)),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1", timestamp=1),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL2", timestamp=1),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX1", timestamp=1),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX2", timestamp=1),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT1", timestamp=1),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT2", timestamp=1),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE1", timestamp=1),
-        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE2", timestamp=1),
+                                          timestamp=1, dtype="float64")),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL1", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRVAL2", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX1", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CRPIX2", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT1", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CDELT2", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE1", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "CTYPE2", timestamp=1, dtype="float64"),
+        fidia.FITSHeaderColumn("{object_id}/{object_id}_red_image.fits", 0, "NAXIS", timestamp=1, dtype="int64"),
         fidia.FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMass', 'ID', timestamp=1),
         fidia.FITSBinaryTableColumn("stellar_masses.fits", 1, 'StellarMassError', 'ID', timestamp=1),
         fidia.FITSBinaryTableColumn("sfr_table.fits", 1, 'SFR', 'ID', timestamp=1),
         fidia.FITSBinaryTableColumn("sfr_table.fits", 1, 'SFR_ERR', 'ID', timestamp=1),
-        ("png_image", fidia.RawFileColumn("{object_id}/{object_id}_spectra.png", timestamp=1))
+        ("png_image", fidia.RawFileColumn("{object_id}/{object_id}_spectra.png", timestamp=1, dtype="bytes"))
     ])
 
 
@@ -97,6 +98,7 @@ class ExampleArchive(fidia.ArchiveDefinition):
             TraitMapping(FitsImageHdu, 'PRIMARY', [
                 TraitPropertyMapping('data', "ExampleArchive:FITSDataColumn:{object_id}/{object_id}_red_image.fits[0]:1"),
                 TraitMapping(FITSHeader, 'header', [
+                    TraitPropertyMapping('naxis', "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[NAXIS]:1"),
                     TraitPropertyMapping('exposed', "ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[EXPOSED]:1"),
                     TraitPropertyMapping('crpix1', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL1]:1'),
                     TraitPropertyMapping('crpix2', 'ExampleArchive:FITSHeaderColumn:{object_id}/{object_id}_red_image.fits[0].header[CRVAL2]:1'),

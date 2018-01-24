@@ -67,6 +67,7 @@ import inspect
 from contextlib import contextmanager
 
 # Other Library Imports
+import numpy as np
 import pandas as pd
 from astropy.io import fits
 from astropy.io import ascii
@@ -205,7 +206,17 @@ class ColumnDefinition(object):
         if 'timestamp' in kwargs:
             self._timestamp = kwargs['timestamp']
 
-        self.dtype = kwargs.pop('dtype', str)
+        # Data Type information
+        dtype = kwargs.pop('dtype', None)
+        if not isinstance(dtype, np.dtype):
+            try:
+                dtype = np.dtype(dtype)
+            except TypeError:
+                log.error("Column %s initialized with invalid type.", self)
+                raise
+        self.dtype = dtype  # type: np.dtype
+
+
         self.n_dim = kwargs.pop('n_dim', 0)
 
         self.pretty_name = kwargs.pop('pretty_name', "")
@@ -391,7 +402,8 @@ class ColumnDefinition(object):
             long_description=self.long_description,
             pretty_name=self.pretty_name,
             unit=self.unit,
-            ucd=self.ucd
+            ucd=self.ucd,
+            dtype=self.dtype.name
         )
         assert isinstance(column, FIDIAColumn)
         # assert hasattr(column, "archive_id")
@@ -519,7 +531,11 @@ class FITSHeaderColumn(ColumnDefinition, PathBasedColumn):
             raise DataNotAvailable(str(e))
 
     def object_getter_from_context(self, object_id, context, basepath):
-        hdu = get_fits_extension_by_name_or_index(context, self.fits_extension_id)
+        try:
+            hdu = get_fits_extension_by_name_or_index(context, self.fits_extension_id)
+        except KeyError:
+            raise DataNotAvailable("Missing FITS extension %s for object_id %s" %
+                                   (self.fits_extension_id, object_id))
         return hdu.header[self.keyword_name]
 
 

@@ -226,6 +226,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     # Column Meta-data storage
     _ucd = sa.Column(sa.String)
     _unit = sa.Column(sa.String)
+    _dtype = sa.Column(sa.String)
     pretty_name = sa.Column(sa.UnicodeText(length=30))
     short_description = sa.Column(sa.Unicode(length=150))
     long_description = sa.Column(sa.UnicodeText)
@@ -275,9 +276,8 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         # Internal storage for data of this column
         self._data = kwargs.pop('data', None)
 
-        # Data Type information
-        # dtype = kwargs.pop('dtype', None)
-        # self._dtype = dtype
+        # Data Type information. Parsing and validation already done by `ColumnDefinition`.
+        self._dtype = kwargs.pop('dtype', None)
 
         # Internal storage for IVOA Uniform Content Descriptor
         self._ucd = kwargs.get('ucd', None)
@@ -418,14 +418,25 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
             return ordered_result
         else:
             data = []
+            index = []
             for object_id in self.contents:
                 try:
                     data.append(self.get_value(object_id))
-                except:
-                    # Cases like DataNotAvailable. Should be more specific.
-                    # @TODO: Make more specific
-                    data.append(None)
-            return pd.Series(data, index=self.contents)
+                except DataNotAvailable:
+                    # This row of the array has no data. To avoid causing
+                    # up-casting of the type, (from e.g. int to float to
+                    # accomodate np.nan), we simply don't add this row to the
+                    # pd.Series object.
+                    pass
+                else:
+                    index.append(object_id)
+                    # @NOTE: It may be more efficient to copy the index and then
+                    # remove items, rather than building it up.
+            series = pd.Series(data, index=index)
+            if series.dtype.name != self._dtype:
+                raise TypeError("get_array constructed an array of the wrong type %s, should be %s for column %s" %
+                                (series.dtype.name, self._dtype, self))
+            return series
 
 
     def _default_get_value(self, object_id):
