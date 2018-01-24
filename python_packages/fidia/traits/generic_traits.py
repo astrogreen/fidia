@@ -8,13 +8,16 @@ import io
 # Other Library Imports
 from cached_property import cached_property
 from PIL import Image as PILImage
-from astropy.io import fits
+from astropy.io import fits, ascii
+from astropy import table
 from astropy.coordinates import SkyCoord
 from astropy import units
 
 # FIDIA Imports
 from .base_trait import Trait, TraitCollection
 from .trait_utilities import TraitProperty, SubTrait
+
+from fidia.exceptions import *
 
 # Logging Import and setup
 from .. import slogging
@@ -97,13 +100,48 @@ class DMU(TraitCollection):
 
 class Table(TraitCollection):
 
-    pass
+    def export_as_csv(self, file_handle):
+
+        if self.object_id is not None:
+            raise ExportException("Table Trait cannot export as csv for single objects.")
+
+        # Iterate over TraitProperties that are the columns of this Trait, collecting data and names for each column
+        column_names = self.dir_trait_properties()
+        columns = []
+        for n in column_names:
+            columns.append(getattr(self, n))
+
+        export_table = table.Table(columns, names=column_names)
+        export_table.write(file_handle, format="ascii.csv")
+
+    def export_as_ecsv(self, file_handle):
+
+        if self.object_id is not None:
+            raise ExportException("Table Trait cannot export as csv for single objects.")
+
+        # Iterate over TraitProperties that are the columns of this Trait, collecting data and names for each column
+        column_names = self.dir_trait_properties()
+        columns = []
+        for n in column_names:
+            columns.append(getattr(self, n))
+
+        export_table = table.Table(columns, names=column_names)
+
+        # Assign Unit and other meta information
+        for n in column_names:
+            export_table[n].unit = self.get_unit(n)
+            export_table[n].description = self.get_short_description(n)
+
+        export_table.write(file_handle, format="ascii.ecsv", delimiter=",")
 
 
 class FITSFile(TraitCollection):
 
 
     def export_as_fits(self, file_handle):
+
+        if self.object_id is None:
+            raise ExportException("FITSFile Trait cannot export as fits for multiple objects.")
 
         hdu_list = fits.HDUList()
 
