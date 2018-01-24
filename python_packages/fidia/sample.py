@@ -17,18 +17,16 @@ by creating new (sub) sample.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from typing import Union, List, Tuple, Dict
+from typing import Union, List, Dict
 import fidia
 
 # Python Standard Library Imports
 
 # Other Library Imports
 import pandas as pd
-import numpy as np
 from cached_property import cached_property
 
 # FIDIA Imports
-from fidia import base_classes as bases, slogging as slogging
 from .import base_classes as bases
 from .exceptions import *
 from .utilities import MultiDexDict, reset_cached_property, MappingMixin
@@ -55,7 +53,7 @@ class SampleLikeMixin(object):
         # Clear all existing pointers to TraitPointers
         while self._trait_pointers:
             # Set of tratit_pointers is not empty
-            attr_name  = self._trait_pointers.pop()
+            attr_name = self._trait_pointers.pop()
             attr = getattr(self, attr_name)
             assert isinstance(attr, bases.TraitPointer)
             delattr(self, attr_name)
@@ -69,6 +67,35 @@ class SampleLikeMixin(object):
             log.debug("Adding TraitPointer '%s'", trait_type)
             self._trait_pointers.add(trait_type)
             setattr(self, trait_type, TraitPointer(trait_type, self, None, self.trait_mappings))
+
+    def dir_named_sub_traits(self):
+        # type: () -> List[str]
+        """Return a directory of the Named SubTraits for this Sample."""
+        return list(set(self.trait_mappings.keys(1)))
+
+    def _sub_trait_repr_pretty(self, p, cycle):
+        with p.group(4):
+            p.break_()
+
+            sample_size_text = "containing {} objects: ".format(len(self))
+            with p.group(len(sample_size_text), sample_size_text):
+                for i, object_id in enumerate(self):
+                    if i > 0:
+                        p.text(", ")
+                        p.breakable()
+                    if i > 10:
+                        p.text("...")
+                        break
+                    p.text(object_id)
+
+            p.break_()
+            named_sub_traits = self.dir_named_sub_traits()
+            if named_sub_traits:
+                with p.group(4, "Named sub-traits:"):
+                    p.breakable()
+                    for name in named_sub_traits:
+                        p.text(name)
+                        p.breakable()
 
 
 class Sample(SampleLikeMixin, MappingMixin, bases.Sample):
@@ -115,6 +142,9 @@ class Sample(SampleLikeMixin, MappingMixin, bases.Sample):
 
         # Place to store a list of TraitPointers currently present on this Sample.
         self._trait_pointers = set()
+
+        # A string identifier for the user to keep track of multiple samples.
+        self.name = "Unnamed_" + str(id(self))
 
     @classmethod
     def new_from_archive(cls, archive):
@@ -351,3 +381,13 @@ class Sample(SampleLikeMixin, MappingMixin, bases.Sample):
 
         return self._id_cross_matches.loc[sample_id][archive.archive_id]
 
+    def _repr_pretty_(self, p, cycle):
+        # p.text(self.__str__())
+        if cycle:
+            p.text(self.__str__())
+        else:
+            p.text(str(self))
+            self._sub_trait_repr_pretty(p, cycle)
+
+    def __str__(self):
+        return "FIDIA Sample \"{}\"".format(str(self.name))

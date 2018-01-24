@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-# from typing import List
+from typing import List
 import fidia
 
 # Python Standard Library Imports
@@ -73,6 +73,21 @@ class AstronomicalObject(bases.SQLAlchemyBase):
 
     def _repr_pretty_(self, p, cycle):
         p.text(self.__str__())
+
+        p.break_()
+        named_sub_traits = self.dir_named_sub_traits()
+        if named_sub_traits:
+            with p.group(8, " "*4 + "Named Traits:"):
+                p.breakable()
+                for name in named_sub_traits:
+                    p.text(name)
+                    p.breakable()
+
+
+    def dir_named_sub_traits(self):
+        # type: () -> List[str]
+        """Return a directory of the Named SubTraits for this AstroObject, similar to what the builtin `dir()` does."""
+        return list(set(self.sample.trait_mappings.keys(1)))
 
     @property
     def identifier(self):

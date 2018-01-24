@@ -565,15 +565,38 @@ class BaseTrait(bases.BaseTrait):
             trait_type=self.__class__.__name__)
 
     def _repr_pretty_(self, p, cycle):
-        p.text(self.__str__())
-        # if cycle:
-        #     p.text(self.__str__())
-        # else:
-        #     p.text("Trait of type {}".format(fidia_classname(self)))
-        #     with p.group(4):
-        #         sub_traits = self.dir_sub_traits()
-        #         if sub_traits:
-        #             with p.group("Sub-traits: [", "]"):
+        # p.text(self.__str__())
+        if cycle:
+            p.text(self.__str__())
+        else:
+            p.text("FIDIA {} Trait \"{}\"".format(fidia_classname(self), str(self._trait_key)))
+            if self.object_id is None:
+                p.text(" on all objects in {}".format(self._sample))
+            else:
+                p.text(" on object {}".format(self.object_id))
+            with p.group(4):
+                p.break_()
+                sub_traits = self.dir_sub_traits()
+                if sub_traits:
+                    with p.group(4, "Sub-traits:"):
+                        p.breakable()
+                        for name in sub_traits:
+                            p.text(name)
+                            p.breakable()
+                named_sub_traits = self.dir_named_sub_traits()
+                if named_sub_traits:
+                    with p.group(4, "Named sub-traits:"):
+                        p.breakable()
+                        for name in named_sub_traits:
+                            p.text(name)
+                            p.breakable()
+                properties = self.dir_trait_properties()
+                if properties:
+                    with p.group(4, "Trait Properties:"):
+                        p.breakable()
+                        for name in properties:
+                            p.text(name)
+                            p.breakable()
 
 
     def __str__(self):

@@ -610,7 +610,19 @@ class TraitPointer(bases.TraitPointer, MappingMixin):
         return len(self.trait_mapping)
 
     def _repr_pretty_(self, p, cycle):
-        p.text(self.__str__())
+        if cycle:
+            p.text(self.__str__())
+        else:
+            intro_text = "TraitPointer {} to named Traits: ".format(self.name)
+            p.text(intro_text)
+            with p.group(len(intro_text)):
+                not_first = False
+                for tk in self:
+                    if not_first:
+                        p.breakable(", ")
+                    else:
+                        not_first = True
+                    p.text(str(tk))
 
     def __str__(self):
         # return "TraitPointer: %s" % self.trait_mapping

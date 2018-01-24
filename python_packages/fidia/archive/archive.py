@@ -353,6 +353,19 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
     def __repr__(self):
         return "FIDIAArchive:" + self.archive_id
 
+    def __str__(self):
+        return "FIDIA Archive \"{}\"".format(self.archive_id)
+
+
+    def _repr_pretty_(self, p, cycle):
+        # p.text(self.__str__())
+        if cycle:
+            p.text(self.__str__())
+        else:
+            p.text("FIDIA Archive \"{}\"".format(str(self.archive_id)))
+            self._sub_trait_repr_pretty(p, cycle)
+
+
 class BasePathArchive(Archive):
 
     __mapper_args__ = {'polymorphic_identity': 'BasePathArchive'}
