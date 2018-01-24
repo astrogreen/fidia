@@ -20,7 +20,7 @@ from fidia.exceptions import DataNotAvailable
 # Set up logging
 import fidia.slogging as slogging
 log = slogging.getLogger(__name__)
-log.setLevel(slogging.DEBUG)
+log.setLevel(slogging.WARNING)
 log.enable_console_logging()
 
 __all__ = ['DataAccessLayer',

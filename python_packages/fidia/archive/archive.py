@@ -93,6 +93,7 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
             behavior for SQLAlchemy). See `Archive.__db_init__`
 
         """
+        self._local_trait_mappings = None
         super(Archive, self).__init__()
 
 
@@ -201,7 +202,13 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
     def trait_mappings(self):
         # type: () -> Dict[Tuple[str, str], fidia.traits.TraitMapping]
         if self._local_trait_mappings is None:
-            # Have not been initialised
+            # Have not been initialized
+
+            # Confirm that the database has loaded its data, and if not, skip initialization.
+            if len(self._mappings) == 0:
+                return dict()
+
+            # Otherwise, initialize the trait_mappings from the mappings stored int he database.
             self._local_trait_mappings = MultiDexDict(2)  # type: Dict[Tuple[str, str], fidia.traits.TraitMapping]
             for mapping in self._mappings:
                 self._register_mapping_locally(mapping)
@@ -298,6 +305,13 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
         else:
             return
 
+    def __getattr__(self, item):
+        """Backup get-attr that will handle cases like a freshly loaded archive."""
+        if not item.startswith("_") and self._local_trait_mappings is None and len(self._mappings) > 0:
+            self.trait_mappings
+            return getattr(self, item)
+        else:
+            raise AttributeError("Unknown attribute %s" % item)
 
     def __getitem__(self, key):
         # type: (str) -> AstronomicalObject
