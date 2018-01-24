@@ -112,7 +112,7 @@ def collect_cubes(all_columns_found, all_mappings):
 
     # Blue Cubes
     columns_found, fits_mapping = finder_fits_file(
-        "0_Cubes/{object_id}_B.fits.gz", object_id="3C278",
+        "0_Cubes/{object_id}_B.fits", object_id="3C278",
         basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
@@ -120,7 +120,7 @@ def collect_cubes(all_columns_found, all_mappings):
 
     # Red Cubes
     columns_found, fits_mapping = finder_fits_file(
-        "0_Cubes/{object_id}_R.fits.gz", object_id="3C278",
+        "0_Cubes/{object_id}_R.fits", object_id="3C278",
         basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
@@ -133,7 +133,7 @@ def collect_cubes(all_columns_found, all_mappings):
 
     # Blue Cubes
     columns_found, fits_mapping = finder_fits_file(
-        "0_Broadsub_cubes/{object_id}-broadsub_B.fits.gz", object_id="ESO323-G77",
+        "0_Broadsub_cubes/{object_id}-broadsub_B.fits", object_id="ESO323-G77",
         basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
@@ -141,7 +141,7 @@ def collect_cubes(all_columns_found, all_mappings):
 
     # Red Cubes
     columns_found, fits_mapping = finder_fits_file(
-        "0_Broadsub_cubes/{object_id}-broadsub_R.fits.gz", object_id="ESO323-G77",
+        "0_Broadsub_cubes/{object_id}-broadsub_R.fits", object_id="ESO323-G77",
         basepath=S7_DATA_DIR
     )
     all_columns_found.extend(columns_found)
@@ -424,6 +424,11 @@ if __name__ == "__main__":
     # add it to FIDIA's known archives).
     print("Creating archive")
     ar = S7Archive(basepath=S7_DATA_DIR)  # type: fidia.Archive
+
+    #  __  ___  ___  __      __
+    # /__`  |  |__  |__)    /__` | \_/
+    # .__/  |  |___ |       .__/ | / \
+    # do a data ingestion into the data access layer.
 
     print("Running data ingestion")
     os.mkdir(DAL_DATA_DIR)
