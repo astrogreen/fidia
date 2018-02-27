@@ -227,6 +227,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     _ucd = sa.Column(sa.String)
     _unit = sa.Column(sa.String)
     _dtype = sa.Column(sa.String)
+    n_dim = sa.Column(sa.Integer)
     pretty_name = sa.Column(sa.UnicodeText(length=30))
     short_description = sa.Column(sa.Unicode(length=150))
     long_description = sa.Column(sa.UnicodeText)
@@ -485,7 +486,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
                 return int(self.id.timestamp)
 
     @property
-    def type(self):
+    def dtype(self):
         """The FIDIA type of the data in this column.
 
         These are restricted to be those in `FIDIAColumn.allowed_types`.
@@ -498,13 +499,13 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
 
         """
 
-        return self._fidia_type
+        return self._dtype
 
-    @type.setter
+    @dtype.setter
     def type(self, value):
         if value not in self.allowed_types:
             raise Exception("Trait property type '{}' not valid".format(value))
-        self._fidia_type = value
+        self._dtype = value
 
     @property
     def contents(self):

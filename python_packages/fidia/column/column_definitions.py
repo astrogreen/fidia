@@ -403,7 +403,8 @@ class ColumnDefinition(object):
             pretty_name=self.pretty_name,
             unit=self.unit,
             ucd=self.ucd,
-            dtype=self.dtype.name
+            dtype=self.dtype.name,
+            n_dim=self.n_dim
         )
         assert isinstance(column, FIDIAColumn)
         # assert hasattr(column, "archive_id")
