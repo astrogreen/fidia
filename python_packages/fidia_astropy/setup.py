@@ -30,9 +30,9 @@ conf = ConfigParser()
 conf.read(['setup.cfg'])
 metadata = dict(conf.items('metadata'))
 
-PACKAGENAME = metadata.get('package_name', 'packagename')
+PACKAGENAME = metadata.get('package_name', 'FIDIA')
 DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
-AUTHOR = metadata.get('author', '')
+AUTHOR = metadata.get('author', 'Andy Green')
 AUTHOR_EMAIL = metadata.get('author_email', '')
 LICENSE = metadata.get('license', 'unknown')
 URL = metadata.get('url', 'http://astropy.org')
@@ -126,6 +126,7 @@ setup(name=PACKAGENAME,
       description=DESCRIPTION,
       scripts=scripts,
       install_requires=metadata.get('install_requires', 'astropy').strip().split(),
+      python_requires=metadata.get('python_requires'),
       author=AUTHOR,
       author_email=AUTHOR_EMAIL,
       license=LICENSE,

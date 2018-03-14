@@ -1,0 +1,69 @@
+{
+    "datetime": "2017-12-04T23:40:40.077302",
+    "machine_info": {
+        "python_version": "3.4.3",
+        "python_implementation_version": "3.4.3",
+        "machine": "x86_64",
+        "system": "Darwin",
+        "release": "16.6.0",
+        "python_implementation": "CPython",
+        "node": "agreen.aao.gov.au",
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "cpu": {
+            "vendor_id": "GenuineIntel",
+            "hardware": "unknown",
+            "brand": "Intel(R) Core(TM) i7-5557U CPU @ 3.10GHz"
+        },
+        "processor": "i386",
+        "python_build": [
+            "v3.4.3:9b73f1c3e601",
+            "Feb 23 2015 02:52:03"
+        ]
+    },
+    "commit_info": {
+        "branch": "fidia-devel",
+        "id": "7d6a23f032c5ec526b365ecb5ef78e82503db551",
+        "author_time": "2017-12-04T13:52:23+11:00",
+        "time": "2017-12-04T13:52:23+11:00",
+        "dirty": true,
+        "project": "asvo"
+    },
+    "benchmarks": [
+        {
+            "stats": {
+                "ops": 0.979381991576282,
+                "iqr_outliers": 0,
+                "total": 5.10526029986795,
+                "ld15iqr": 0.9831283850362524,
+                "iterations": 1,
+                "median": 1.0282100649783388,
+                "stddev": 0.03077944560288724,
+                "q1": 0.996647230203962,
+                "outliers": "2;0",
+                "stddev_outliers": 2,
+                "max": 1.0640005139866844,
+                "mean": 1.0210520599735902,
+                "hd15iqr": 1.0640005139866844,
+                "min": 0.9831283850362524,
+                "iqr": 0.040928766247816384,
+                "rounds": 5,
+                "q3": 1.0375759964517783
+            },
+            "param": null,
+            "group": null,
+            "name": "test_ingestion_benchmarks",
+            "extra_info": {},
+            "fullname": "test_dal_numpy_file_store.py::test_ingestion_benchmarks",
+            "params": null,
+            "options": {
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "disable_gc": false,
+                "warmup": false,
+                "max_time": 1.0,
+                "min_time": 5e-06
+            }
+        }
+    ],
+    "version": "3.1.1"
+}
