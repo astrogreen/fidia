@@ -1,0 +1,69 @@
+{
+    "commit_info": {
+        "dirty": true,
+        "author_time": "2017-12-04T13:52:23+11:00",
+        "id": "7d6a23f032c5ec526b365ecb5ef78e82503db551",
+        "branch": "fidia-devel",
+        "time": "2017-12-04T13:52:23+11:00",
+        "project": "asvo"
+    },
+    "benchmarks": [
+        {
+            "options": {
+                "timer": "perf_counter",
+                "max_time": 1.0,
+                "disable_gc": false,
+                "min_rounds": 5,
+                "warmup": false,
+                "min_time": 5e-06
+            },
+            "param": null,
+            "extra_info": {},
+            "params": null,
+            "group": null,
+            "name": "test_ingestion_benchmarks",
+            "stats": {
+                "iterations": 1,
+                "ld15iqr": 3.098704476025887,
+                "iqr_outliers": 0,
+                "iqr": 0.13190983823733404,
+                "total": 15.936750972876325,
+                "stddev": 0.08701626117409018,
+                "hd15iqr": 3.313844581018202,
+                "min": 3.098704476025887,
+                "stddev_outliers": 2,
+                "max": 3.313844581018202,
+                "q3": 3.2555936274584383,
+                "mean": 3.187350194575265,
+                "q1": 3.1236837892211042,
+                "rounds": 5,
+                "median": 3.156015045940876,
+                "outliers": "2;0",
+                "ops": 0.3137402352907307
+            },
+            "fullname": "test_dal_numpy_file_store.py::test_ingestion_benchmarks"
+        }
+    ],
+    "datetime": "2017-12-04T23:44:28.928076",
+    "version": "3.1.1",
+    "machine_info": {
+        "python_version": "3.4.3",
+        "python_implementation": "CPython",
+        "python_build": [
+            "v3.4.3:9b73f1c3e601",
+            "Feb 23 2015 02:52:03"
+        ],
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "python_implementation_version": "3.4.3",
+        "system": "Darwin",
+        "release": "16.6.0",
+        "cpu": {
+            "vendor_id": "GenuineIntel",
+            "brand": "Intel(R) Core(TM) i7-5557U CPU @ 3.10GHz",
+            "hardware": "unknown"
+        },
+        "processor": "i386",
+        "node": "agreen.aao.gov.au",
+        "machine": "x86_64"
+    }
+}

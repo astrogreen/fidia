@@ -1,0 +1,69 @@
+{
+    "machine_info": {
+        "processor": "i386",
+        "python_implementation": "CPython",
+        "python_compiler": "GCC 4.2.1 (Apple Inc. build 5666) (dot 3)",
+        "python_build": [
+            "v3.4.3:9b73f1c3e601",
+            "Feb 23 2015 02:52:03"
+        ],
+        "python_version": "3.4.3",
+        "machine": "x86_64",
+        "python_implementation_version": "3.4.3",
+        "node": "agreen",
+        "release": "16.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "hardware": "unknown",
+            "vendor_id": "GenuineIntel",
+            "brand": "Intel(R) Core(TM) i7-5557U CPU @ 3.10GHz"
+        }
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "stats": {
+                "stddev": 2.983380007551518,
+                "max": 24.570472328923643,
+                "q1": 18.583026912994683,
+                "min": 16.935293245012872,
+                "hd15iqr": 24.570472328923643,
+                "q3": 23.064306523505365,
+                "stddev_outliers": 2,
+                "iterations": 1,
+                "iqr": 4.481279610510683,
+                "median": 19.961205819970928,
+                "mean": 20.632298823585735,
+                "outliers": "2;0",
+                "iqr_outliers": 0,
+                "total": 103.16149411792867,
+                "rounds": 5,
+                "ld15iqr": 16.935293245012872,
+                "ops": 0.04846769662219383
+            },
+            "name": "test_ingestion_benchmarks",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "fullname": "test_dal_numpy_file_store.py::test_ingestion_benchmarks",
+            "options": {
+                "timer": "perf_counter",
+                "disable_gc": false,
+                "max_time": 1.0,
+                "min_rounds": 5,
+                "warmup": false,
+                "min_time": 5e-06
+            }
+        }
+    ],
+    "version": "3.1.1",
+    "datetime": "2017-12-06T05:34:05.293677",
+    "commit_info": {
+        "branch": "fidia-devel",
+        "dirty": true,
+        "time": "2017-12-06T12:15:39+11:00",
+        "author_time": "2017-12-06T12:15:39+11:00",
+        "id": "b845e763cabfdeef2f3063823dc5e06133184b25",
+        "project": "asvo"
+    }
+}
