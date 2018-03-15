@@ -20,7 +20,7 @@ import tempfile
 import numpy as np
 
 # noinspection PyUnresolvedReferences
-import generate_test_data as testdata
+from . import generate_test_data as testdata
 import pytest
 
 import fidia

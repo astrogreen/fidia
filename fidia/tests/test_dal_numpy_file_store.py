@@ -28,7 +28,7 @@ from fidia.archive.example_archive import ExampleArchive
 from fidia.dal import NumpyFileStore
 
 # noinspection PyUnresolvedReferences
-import generate_test_data as testdata
+from . import generate_test_data as testdata
 
 
 @pytest.yield_fixture(scope='module')

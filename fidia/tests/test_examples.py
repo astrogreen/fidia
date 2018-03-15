@@ -12,8 +12,6 @@
 # You should have received a copy of the GNU Affero General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# noinspection PyUnresolvedReferences
-import generate_test_data as testdata
 import pytest
 
 import tempfile

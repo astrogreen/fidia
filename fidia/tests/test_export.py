@@ -21,7 +21,7 @@ import numpy as np
 from astropy.io import fits
 
 # noinspection PyUnresolvedReferences
-import generate_test_data as testdata
+from . import generate_test_data as testdata
 import pytest
 
 # import fidia

@@ -16,8 +16,7 @@ import pytest
 
 import tempfile
 
-# noinspection PyUnresolvedReferences
-import generate_test_data as testdata
+from . import generate_test_data as testdata
 
 
 from sqlalchemy import create_engine
@@ -26,6 +25,12 @@ from sqlalchemy.orm import sessionmaker
 
 @pytest.yield_fixture(scope='session')
 def test_data_dir():
+    """Create a test dataset and yield the temp directory containing it.
+
+    This fixture is a duplicate of that in the conftest.py of the base fidia
+    package. It is duplicated here to make running tests within the test directory simple.
+
+    """
     with tempfile.TemporaryDirectory() as tempdir:
         testdata.generate_simple_dataset(tempdir, 5)
 
