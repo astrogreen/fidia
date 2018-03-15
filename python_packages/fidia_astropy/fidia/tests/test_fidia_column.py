@@ -18,8 +18,7 @@ import tempfile
 
 import re
 
-# noinspection PyUnresolvedReferences
-import generate_test_data as testdata
+from . import generate_test_data as testdata
 import pytest
 
 from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn, FITSBinaryTableColumn, CSVTableColumn, \

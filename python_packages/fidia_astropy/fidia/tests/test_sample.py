@@ -17,7 +17,7 @@ import pytest
 import tempfile
 
 # noinspection PyUnresolvedReferences
-import generate_test_data as testdata
+from . import generate_test_data as testdata
 
 import fidia
 import fidia.exceptions
