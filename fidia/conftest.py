@@ -59,6 +59,8 @@ from astropy.tests.helper import enable_deprecations_as_exceptions
 
 import tempfile
 
+
+import fidia
 from .tests import generate_test_data as testdata
 
 
@@ -72,3 +74,4 @@ def test_data_dir():
 @pytest.fixture(autouse=True)
 def setup_doctests(doctest_namespace, test_data_dir):
     doctest_namespace['test_data_dir'] = test_data_dir
+    doctest_namespace['fidia'] = fidia

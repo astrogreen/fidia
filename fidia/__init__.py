@@ -86,3 +86,5 @@ if not _ASTROPY_SETUP_:
     # from fidia.database_tools import is_sane_database
     # if not is_sane_database(Session()):
     #     raise ImportError("FIDIA Database is invalid. Consider deleting the database.")
+
+    from fidia.archive.example_archive import ExampleArchive

@@ -20,8 +20,6 @@ from io import BytesIO
 import numpy as np
 from astropy.io import fits
 
-# noinspection PyUnresolvedReferences
-from . import generate_test_data as testdata
 import pytest
 
 # import fidia
