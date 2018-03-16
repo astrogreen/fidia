@@ -30,7 +30,8 @@ Sample code:
 
 .. code:: python
 
-    >>> example_archive = ExampleArchive(basepath=test_data_dir)
+    >>> import fidia
+    >>> example_archive = fidia.ExampleArchive(basepath=test_data_dir)
     >>> example_archive.contents
     ["Gal1", "Gal2", "Gal3"]
     >>> example_archive['Gal1']

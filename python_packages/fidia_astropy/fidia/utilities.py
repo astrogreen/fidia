@@ -474,10 +474,10 @@ def fidia_classname(obj, check_fidia=False):
     
         >>> import collections
         >>> fidia_classname(collections.OrderedDict)
-        collections.OrderedDict
+        'collections.OrderedDict'
         >>> import fidia.utilities
         >>> fidia_classname(fidia.utilities.SchemaDictionary)
-        SchemaDictionary
+        'SchemaDictionary'
 
     """
     if isclass(obj):
