@@ -185,6 +185,8 @@ class TestDataIntegrity:
             file_path = test_data_dir + "/{object_id}/{object_id}_red_image.fits".format(object_id=an_object_id)
             print("file_path = %s" % file_path)
 
+            print("archive_path = %s" % ea.basepath)
+
             input_data = fits.open(file_path)
 
             assert (input_data[0].data == image_data).all()

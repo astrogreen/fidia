@@ -27,10 +27,10 @@ import fidia
 from fidia.archive.example_archive import ExampleArchive
 from fidia.dal import NumpyFileStore
 
-# try:
-#     import fidia.tests.generate_test_data as testdata
-# except ModuleNotFoundError:
-import generate_test_data as testdata
+try:
+    import fidia.tests.generate_test_data as testdata
+except ModuleNotFoundError:
+    import generate_test_data as testdata
 
 @pytest.yield_fixture(scope='module')
 def dal_data_dir():

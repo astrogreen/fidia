@@ -276,4 +276,5 @@ class TestOtherUtilities:
 
         # Test that something outside the FIDIA namespace is fully qualified:
         # (we just use a class from this file to test)
-        assert fidia_classname(TestOtherUtilities) == "test_fidia_general.TestOtherUtilities"
+        import astropy.table.table
+        assert fidia_classname(astropy.table.table.Table) == "astropy.table.table.Table"
