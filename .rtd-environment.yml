@@ -1,4 +1,4 @@
-name: packagename
+name: fidia
 
 channels:
     - astropy
