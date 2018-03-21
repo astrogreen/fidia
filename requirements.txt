@@ -1,0 +1,5 @@
+astropy
+cached_property
+sqlalchemy
+sphinx
+pytest-benchmark
