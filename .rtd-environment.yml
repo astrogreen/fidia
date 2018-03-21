@@ -1,12 +1,13 @@
-name: fidia
+name: fidia-conda
 
 channels:
-    - astropy
+  - astropy
 
 dependencies:
-    - astropy
-    - Cython
-    - matplotlib
-    - numpy
+  - python=3.5
+  - astropy
+  - Cython
+  - matplotlib
+  - numpy
 #   - pip:
 #       - dependency_from_pip

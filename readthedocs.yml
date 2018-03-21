@@ -1,6 +1,13 @@
+formats:
+  - none
+
 conda:
   file: .rtd-environment.yml
 
+build:
+  image: latest
+
 python:
    setup_py_install: true
+   pip_install: false
    version: 3
