@@ -1,6 +1,15 @@
+Pillow
+sortedcontainers
 astropy
+numpy
 cached_property
 sqlalchemy
-sphinx
-pytest-benchmark
 pandas
+
+# Documentation requirements
+sphinx
+
+# Test requirements
+matplotlib
+pytest
+pytest-benchmark
