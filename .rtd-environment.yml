@@ -12,13 +12,12 @@ dependencies:
   - Pillow
   - sortedcontainers
   - numpy
-  - cached_property
   - sqlalchemy
   - sphinx
   - matplotlib
   - pytest
   - pytest-benchmark
   - pandas
-  
-#   - pip:
-#       - dependency_from_pip
+
+   - pip:
+       - cached_property
