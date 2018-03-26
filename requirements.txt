@@ -1,6 +1,6 @@
 Pillow
 sortedcontainers
-astropy
+astropy>=2
 numpy
 cached_property
 sqlalchemy
