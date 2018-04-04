@@ -24,8 +24,6 @@ import fidia
 from fidia.traits import Trait, TraitProperty, TraitKey #, TraitPath
 from fidia.archive.example_archive import ExampleArchive
 
-from fidia.descriptions import TraitDescriptionsMixin
-
 from fidia.traits import validate_trait_name
 
 from fidia.utilities import fidia_classname
