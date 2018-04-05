@@ -38,6 +38,14 @@ log.enable_console_logging()
 __all__ = ['DataCentralArchive']
 
 
+def meta_data_loader(path, archive_id, metadata_name):
+
+    metadata_filename = pjoin(path, archive_id + "_" + metadata_name + ".csv")
+    assert os.path.exists(metadata_filename), \
+        "%s file missing: %s" % (metadata_name, metadata_filename)
+
+    return pd.read_csv(metadata_filename, delimiter="|", index_col="name")
+
 class DataCentralArchive(ArchiveDefinition):
 
     archive_id = "S7"
@@ -80,11 +88,7 @@ class DataCentralArchive(ArchiveDefinition):
                 assert os.path.exists(group_dir) and os.path.isdir(group_dir), \
                     "Group directory missing for catalog group %s" % group_name
 
-                table_metadata_filename = pjoin(group_dir, self.archive_id + "_table_meta.csv")
-                assert os.path.exists(table_metadata_filename), \
-                    "Table metadata file missing for group %s" % group_name
-
-                table_metadata = pd.read_csv(table_metadata_filename, delimiter="|", index_col="name")
+                table_metadata = meta_data_loader(group_dir, self.archive_id,  "table_meta")
 
                 group_tables = []  # type: List[fidia.traits.TraitMapping]
 
@@ -93,11 +97,7 @@ class DataCentralArchive(ArchiveDefinition):
                     assert os.path.exists(table_dir) and os.path.isdir(table_dir), \
                         "Table directory is missing for table %s" % table_name
 
-                    column_metadata_filename = pjoin(table_dir, self.archive_id + "_column_meta.csv")
-                    assert os.path.exists(column_metadata_filename), \
-                        "Column metadata file is missing for table %s" % table_name
-
-                    column_metadata = pd.read_csv(column_metadata_filename, delimiter="|", index_col="name")
+                    column_metadata = meta_data_loader(table_dir, self.archive_id, "column_meta")
 
                     table_columns = []  # type: List[fidia.ColumnDefinition]
 
