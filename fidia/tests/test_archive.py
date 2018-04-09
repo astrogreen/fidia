@@ -167,6 +167,12 @@ class TestExampleArchive:
     def sample(self, example_archive):
         return fidia.Sample.new_from_archive(example_archive)
 
+    def test_example_archive_columns(self, example_archive):
+
+        for col in example_archive.columns.values():
+            print(col)
+            assert col._archive is not None
+
     def test_example_archive_contents(self, example_archive, test_data_dir):
 
         ea_contents = set(example_archive.contents)

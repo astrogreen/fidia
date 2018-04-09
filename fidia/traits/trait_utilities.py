@@ -782,6 +782,7 @@ class TraitMappingBase(bases.PersistenceBase, bases.SQLAlchemyBase):
         'TraitPropertyMapping',
         back_populates="_trait_mappings",
         collection_class=ordering_list_dict('index', 'name'),
+        cascade="all, delete, delete-orphan",
         order_by='TraitPropertyMapping.index')  # type: Dict[str, TraitPropertyMapping]
 
     pretty_name = sa.Column(sa.UnicodeText(length=30))

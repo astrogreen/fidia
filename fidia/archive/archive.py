@@ -94,7 +94,8 @@ class Archive(SampleLikeMixin, MappingMixin, bases.Archive, bases.Sample, bases.
                              )  # type: List[traits.TraitMapping]
     columns = relationship('FIDIAColumn',
                            collection_class=attribute_mapped_collection('id'),
-                           cascade="all, delete, delete-orphan"
+                           cascade="all, delete, delete-orphan",
+                           back_populates="_archive"
                            )  # type: Dict[str, fidia_column.FIDIAColumn]
 
     def __init__(self, **kwargs):
@@ -486,7 +487,7 @@ class ArchiveDefinition(object):
     trait_mappings = []  # type: List[traits.TraitMapping]
     """List of TraitMapping objects defining the schemas of the data in this archive."""
 
-    column_definitions = dict()  # type: Dict[str, fidia_column.ColumnDefinition]
+    column_definitions = fidia_column.ColumnDefinitionList()  # type: Dict[str, fidia_column.ColumnDefinition]
     """List of definitions of the columns of data to be included in this archive. 
         
     When the `.ArchiveDefinition` factory creates an instances of
@@ -527,7 +528,7 @@ class ArchiveDefinition(object):
                 pass
 
         # Archive doesn't exist, so it must be created
-        archive = definition.archive_type.__new__(definition.archive_type)
+        archive = definition.archive_type.__new__(definition.archive_type)  # type: Archive
 
         # I n i t i a l i s e   t h e   A r  c h i v e
         archive.__init__(**kwargs)

@@ -21,9 +21,11 @@ import re
 # from . import generate_test_data as testdata
 import pytest
 
+import fidia
 from fidia.column.column_definitions import ColumnDefinition, FITSDataColumn, FITSBinaryTableColumn, CSVTableColumn, \
     FITSHeaderColumn
 from fidia.column.columns import FIDIAColumn, ColumnID
+from fidia import ArchiveDefinition
 
 # Pytest fixture 'test_data_dir' now session wide and stored in conftest.py
 # @pytest.yield_fixture(scope='module')
@@ -37,11 +39,11 @@ from fidia.column.columns import FIDIAColumn, ColumnID
 
 @pytest.fixture(scope='module')
 def archive():
-    class Archive(object):
-        pass
-    ar = Archive()
-    ar.contents = ["Gal1"]
-    ar.archive_id = 'Archive123'
+    class MyArchive(ArchiveDefinition):
+        contents = ["Gal1"]
+        archive_id = 'Archive123'
+
+    ar = MyArchive()
     return ar
 
 
@@ -206,3 +208,19 @@ class TestCSVTableColumn:
         data = csv_table_column.get_value('Gal1')
         assert isinstance(data, (int, float))
 
+def test_archive_column_relationship(test_data_dir):
+
+    class MyArchive(ArchiveDefinition):
+        def __init__(self, **kwargs):
+            super(MyArchive, self).__init__(**kwargs)
+            self.contents = ["Gal1"]
+            self.archive_id = 'Archive123'
+            self.column_definitions = fidia.ColumnDefinitionList([
+                CSVTableColumn("sfr_table.csv", 'SFR', 'ID', "#")
+            ])
+
+    ar = MyArchive(basepath=test_data_dir)
+
+    for col in ar.columns.values():
+        print(col)
+        assert col._archive is not None
