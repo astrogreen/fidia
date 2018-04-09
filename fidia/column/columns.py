@@ -301,8 +301,9 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
         self._unit = kwargs.get('unit', None)
 
         # Archive Connection
-        # self._archive = kwargs.pop('archive', None)  # type: fidia.Archive
         self._archive_id = kwargs.pop('archive_id', None)
+        # self._archive is not populated here because it is automatically
+        #     populated by the ORM when this column as added to an archive.
 
         # Construct the ID
         self._timestamp = kwargs.pop('timestamp', None)

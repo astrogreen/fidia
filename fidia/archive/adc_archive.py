@@ -52,7 +52,7 @@ class DataCentralArchive(ArchiveDefinition):
     archive_type = fidia.BasePathArchive
     # column_definitions = all_columns_found_main
     # trait_mappings = all_mappings_main
-    # contents = all_object_ids
+    # contents = None
     is_persisted = False
 
     def __init__(self, **kwargs):
@@ -72,15 +72,17 @@ class DataCentralArchive(ArchiveDefinition):
         self.archive_id = survey_name + "_" + data_release
 
         # Find catalog data
-
-        catalog_columns = []  # type: List[fidia.ColumnDefinition]
-        catalog_mappings = []  # type: List[fidia.traits.TraitMapping]
-
         group_metadata_filename = pjoin(basepath, data_release, self.archive_id + "_group_meta.csv")
         if os.path.exists(group_metadata_filename):
-            # Catalog information exists.
+            # Catalog information exists. Load it.
+
+            catalog_columns = []  # type: List[fidia.ColumnDefinition]
+            catalog_mappings = []  # type: List[fidia.traits.TraitMapping]
 
             group_meta = pd.read_csv(group_metadata_filename, delimiter="|", index_col="name")
+
+            # Load primary key information
+            primary_key_metadata = meta_data_loader(pjoin(basepath, data_release), self.archive_id, "primary_key_meta")
 
             for group_name in group_meta.index:
 
@@ -99,12 +101,23 @@ class DataCentralArchive(ArchiveDefinition):
 
                     column_metadata = meta_data_loader(table_dir, self.archive_id, "column_meta")
 
+                    key_column = table_metadata.get_value(table_name, "key")
+                    # assert key_column != primary_key_metadata.iloc[0]["name"], \
+                    #     "Table %s not keyed by the Survey's primary key" % table_name
+
+                    # if table_name == primary_key_metadata.iloc[0]["definitive_table"]:
+                    #     # This table contains the definitive list of object IDs
+                    #     pass
+
+                    assert key_column in column_metadata.index, \
+                        "Table %s seems to be missing key column %s" % (table_name, key_column)
+
                     table_columns = []  # type: List[fidia.ColumnDefinition]
 
                     for column_name in column_metadata.index:
                         fidia_column = fidia.CSVTableColumn(
-                            pjoin(data_release, group_dir, table_dir),
-                            column_name, "???", "#")
+                            pjoin(data_release, group_dir, table_dir, table_name + ".csv"),
+                            column_name, key_column, "#")
                         fidia_column.short_description = column_metadata.get_value(column_name, "description")
                         fidia_column.ucd = column_metadata.get_value(column_name, "ucd")
                         fidia_column.unit = column_metadata.get_value(column_name, "unit")
@@ -129,5 +142,13 @@ class DataCentralArchive(ArchiveDefinition):
 
                 catalog_mappings.append(fidia_group)
 
-            print(json.dumps([mapping.as_specification_dict() for mapping in catalog_mappings],
-                       indent=2))
+            # print(json.dumps([mapping.as_specification_dict() for mapping in catalog_mappings], indent=2))
+            # print(catalog_columns)
+
+            self.trait_mappings.extend(catalog_mappings)
+            # self.column_definitions.extend(catalog_columns)
+            self.column_definitions = fidia.ColumnDefinitionList(catalog_columns)
+
+        object_metadata = meta_data_loader(pjoin(basepath, data_release), self.archive_id, "astro_objects_meta")
+
+        self.contents = list(object_metadata.index)

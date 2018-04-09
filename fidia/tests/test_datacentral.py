@@ -26,6 +26,16 @@ from fidia.archive.adc_archive import DataCentralArchive
 
 
 def test_s7_validation():
-    ar = DataCentralArchive(basepath="/Users/agreen/Desktop/s7")
+    ar = DataCentralArchive(basepath="/Users/agreen/Desktop/s7")  # type: fidia.Archive
 
-    assert False
+    for col in ar.columns.values():
+        print(col)
+        assert col._archive is not None
+
+
+    assert ar["NGC1204"].dmu["tables"].table["catalog"].RA_hms == "03 04 40.01"
+
+
+
+    # assert False
+
