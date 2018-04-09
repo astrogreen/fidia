@@ -74,9 +74,13 @@ class TestBasicExamples:
         print(wcs.cdelt1)
         assert isinstance(wcs.cdelt1, (int, float))
 
-    def test_get_data_on_trait_collection(self, test_data_dir):
+    @pytest.mark.parametrize('create_sample', [True, False])
+    def test_get_data_on_trait_collection(self, test_data_dir, create_sample):
         ea = ExampleArchive(basepath=test_data_dir)
-        sample = fidia.Sample.new_from_archive(ea)
+        if create_sample:
+            sample = fidia.Sample.new_from_archive(ea)
+        else:
+            sample = ea
         # an_object_id = sample.contents[0]
         # an_object_id = 'Gal1'
         mass = sample['Gal1'].dmu['StellarMasses'].table['StellarMasses'].stellar_mass

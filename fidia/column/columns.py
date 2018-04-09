@@ -228,7 +228,7 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
     _db_archive_id = sa.Column(sa.Integer, sa.ForeignKey("archives._db_id"))
     # trait_property_mappings = relationship("TraitPropertyMapping", back_populates="_trait_mappings",
     #                                        collection_class=attribute_mapped_collection('name'))  # type: Dict[str, TraitPropertyMapping]
-    _archive = relationship("Archive")  # type: fidia.Archive
+    _archive = relationship("Archive", back_populates="columns")  # type: fidia.Archive
 
     # Storage Columns
     _column_id = sa.Column(sa.String)
@@ -426,6 +426,8 @@ class FIDIAColumn(bases.PersistenceBase, bases.SQLAlchemyBase):
             result = self._array_getter(**self._array_getter_args)
             assert result is not None, "ColumnDefinition.array_getter must not return `None`."
             assert isinstance(result, pd.Series)
+            # TODO: Why must this result be ordered? It's indexed...
+            log.debug("Reordering array to ensure correct ordering.")
             ordered_result = result.reindex(self.contents, copy=False)
             # Since `copy=False`, this will only do work if required, otherwise the original Series is returned.
             #   see: https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.reindex.html
