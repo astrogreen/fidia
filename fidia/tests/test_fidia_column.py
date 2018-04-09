@@ -209,8 +209,11 @@ class TestCSVTableColumn:
         assert isinstance(data, (int, float))
 
 def test_archive_column_relationship(test_data_dir):
-
+    """Test to check for the bug fixed in commit 8633b1ca959a8dd23925d7fbd02f7e490e264733."""
     class MyArchive(ArchiveDefinition):
+        archive_type = fidia.BasePathArchive
+        is_persisted = False
+
         def __init__(self, **kwargs):
             super(MyArchive, self).__init__(**kwargs)
             self.contents = ["Gal1"]
